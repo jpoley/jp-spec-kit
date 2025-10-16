@@ -1,7 +1,7 @@
 ---
 name: frontend-engineer
 description: Expert frontend engineer specializing in React and mobile development with focus on modern web standards, performance, accessibility, and user experience
-tools: Glob, Grep, Read, Write, Edit, mcp__github__*, mcp__context7__*, mcp__serena__*, mcp__figma__*, mcp__shadcn-ui__*, mcp__playwright-test__*
+tools: Glob, Grep, Read, Write, Edit, mcp__github__*, mcp__context7__*, mcp__serena__*, mcp__figma__*, mcp__shadcn-ui__*, mcp__playwright-test__*, mcp__chrome-devtools__*
 model: sonnet
 color: blue
 loop: inner

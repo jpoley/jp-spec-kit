@@ -71,14 +71,27 @@ FIGMA_API_KEY=your_figma_api_key_here
 - **Package**: `@heilgar/shadcn-ui-mcp-server`
 - **Agents**: frontend-engineer, frontend-code-reviewer, js-ts-expert-developer, js-ts-expert-developer-enhanced
 
+**7. Chrome DevTools (`mcp__chrome-devtools__*`)**
+- **Purpose**: Browser inspection, performance analysis, console logs, network monitoring, and UI testing via Chrome DevTools Protocol
+- **Package**: `chrome-devtools-mcp`
+- **Requirements**: Chrome browser installed, Node.js ≥20.19
+- **Agents**: frontend-engineer, frontend-code-reviewer, quality-guardian, sre-agent
+- **Key Capabilities**:
+  - Navigate pages and interact with DOM (click, fill, hover)
+  - Capture performance traces and analyze metrics
+  - Monitor console logs and network requests
+  - Emulate network conditions and CPU throttling
+  - Take screenshots and test responsive layouts
+  - Debug web applications in real browser context
+
 ### Security-Specific MCPs
 
-**7. Trivy (`mcp__trivy__*`)**
+**8. Trivy (`mcp__trivy__*`)**
 - **Purpose**: Container/IaC security scans and SBOM generation
 - **Package**: `@aquasecurity/trivy-mcp`
 - **Agents**: secure-by-design-engineer, all code reviewers, release-manager
 
-**8. Semgrep (`mcp__semgrep__*`)**
+**9. Semgrep (`mcp__semgrep__*`)**
 - **Purpose**: SAST (Static Application Security Testing) code scanning
 - **Package**: `@returntocorp/semgrep-mcp`
 - **Agents**: secure-by-design-engineer, all code reviewers
@@ -100,6 +113,7 @@ FIGMA_API_KEY=your_figma_api_key_here
 - `mcp__figma__*`
 - `mcp__shadcn-ui__*`
 - `mcp__playwright-test__*`
+- `mcp__chrome-devtools__*` (frontend-engineer, frontend-code-reviewer only)
 
 ### Security Agents (5)
 - secure-by-design-engineer
@@ -125,6 +139,18 @@ FIGMA_API_KEY=your_figma_api_key_here
 
 **Additional Tools:**
 - `mcp__playwright-test__*` (with specific test tools)
+
+### Quality Assurance Agent (1)
+- quality-guardian
+
+**Additional Tools:**
+- `mcp__chrome-devtools__*` (for browser testing and performance analysis)
+
+### SRE/Operations Agent (1)
+- sre-agent
+
+**Additional Tools:**
+- `mcp__chrome-devtools__*` (for performance monitoring and web application observability)
 
 ## Installation and Usage
 

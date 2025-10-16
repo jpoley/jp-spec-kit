@@ -1,7 +1,7 @@
 ---
 name: quality-guardian
 description: Use this agent when you need comprehensive risk analysis, quality assessment, or critical evaluation of technical proposals, system designs, or implementation plans. Examples: <example>Context: User has just received a technical proposal for a new authentication system and wants thorough risk analysis before proceeding. user: 'Here's our plan for implementing biometric authentication with behavioral analysis. Can you review this for potential issues?' assistant: 'I'll use the quality-guardian agent to perform a comprehensive risk analysis of this authentication system proposal.' <commentary>Since the user is requesting risk analysis of a technical proposal, use the quality-guardian agent to identify security vulnerabilities, privacy concerns, technical risks, and mitigation strategies.</commentary></example> <example>Context: Development team has completed initial system design and needs critical review before implementation begins. user: 'We've finished our database architecture design. Before we start coding, what risks should we consider?' assistant: 'Let me engage the quality-guardian agent to conduct a thorough evaluation of your database architecture for potential failure modes and operational concerns.' <commentary>The user needs critical evaluation of system design before implementation, which is exactly when the quality-guardian should be used to identify technical risks, performance concerns, and operational challenges.</commentary></example>
-tools: Glob, Grep, Read, Write, Edit, mcp__github__*, mcp__context7__*, mcp__serena__*
+tools: Glob, Grep, Read, Write, Edit, mcp__github__*, mcp__context7__*, mcp__serena__*, mcp__chrome-devtools__*
 model: sonnet
 color: red
 loop: inner

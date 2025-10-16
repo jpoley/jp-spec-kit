@@ -1,7 +1,7 @@
 ---
 name: frontend-code-reviewer
 description: Expert frontend code reviewer specializing in React and mobile code review with focus on code quality, performance, accessibility, security, and maintainability
-tools: Glob, Grep, Read, Write, Edit, mcp__github__*, mcp__context7__*, mcp__serena__*, mcp__trivy__*, mcp__semgrep__*, mcp__figma__*, mcp__shadcn-ui__*, mcp__playwright-test__*
+tools: Glob, Grep, Read, Write, Edit, mcp__github__*, mcp__context7__*, mcp__serena__*, mcp__trivy__*, mcp__semgrep__*, mcp__figma__*, mcp__shadcn-ui__*, mcp__playwright-test__*, mcp__chrome-devtools__*
 model: sonnet
 color: yellow
 loop: inner

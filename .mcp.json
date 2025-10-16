@@ -51,6 +51,12 @@
       "args": ["-y", "@heilgar/shadcn-ui-mcp-server"],
       "env": {},
       "description": "shadcn/ui component library access and installation"
+    },
+    "chrome-devtools": {
+      "command": "npx",
+      "args": ["-y", "chrome-devtools-mcp@latest"],
+      "env": {},
+      "description": "Chrome DevTools Protocol server for browser inspection, performance analysis, and UI testing"
     }
   },
   "_notes": {
