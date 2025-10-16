@@ -3,6 +3,7 @@ name: js-ts-expert-developer-enhanced
 description: JavaScript/TypeScript expert specializing in modern full-stack development and best practices
 model: sonnet
 color: purple
+loop: inner
 ---
 
 # JavaScript/TypeScript Expert Developer - The Pantheon Agent

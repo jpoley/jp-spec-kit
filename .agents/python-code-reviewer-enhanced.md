@@ -3,6 +3,7 @@ name: python-code-reviewer-enhanced
 description: Python expert specializing in Pythonic excellence and code review best practices
 model: sonnet
 color: yellow
+loop: inner
 ---
 
 # Python Code Reviewer - Pythonic Excellence Expert

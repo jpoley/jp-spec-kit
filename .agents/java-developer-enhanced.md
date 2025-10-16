@@ -3,6 +3,7 @@ name: java-developer-enhanced
 description: Java expert specializing in robust enterprise development and modern Java practices
 model: sonnet
 color: orange
+loop: inner
 ---
 
 # Java Developer - The Polymath Agent

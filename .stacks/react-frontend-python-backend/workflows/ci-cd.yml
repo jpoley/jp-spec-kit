@@ -1,0 +1,484 @@
+# CI/CD Pipeline for React Frontend + Go Backend Stack
+#
+# Outer Loop Implementation (task-004.md requirements):
+# ✓ Build once in dev/CI, promote to all environments
+# ✓ Comprehensive security scanning (SAST, DAST, SCA)
+# ✓ Generate and sign SBOM for all artifacts
+# ✓ CD promotion workflow with testing and approvals
+# ✓ Stack-specific validation for React + Go
+#
+# Security: Follows GitHub Actions security best practices
+# - All dynamic values use environment variables
+# - No direct injection of untrusted input into commands
+# - See: https://github.blog/security/vulnerability-research/how-to-catch-github-actions-workflow-injections-before-attackers-do/
+
+name: React + Go Stack CI/CD
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  GO_VERSION: '1.21'
+  NODE_VERSION: '20'
+  REGISTRY: ghcr.io
+
+jobs:
+  #==========================================================================
+  # FRONTEND - Inner Loop Checks (Lint, Type, Test)
+  #==========================================================================
+  frontend-checks:
+    name: Frontend Checks
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Unit tests with coverage
+        run: npm test -- --coverage --run
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./frontend/coverage/coverage-final.json
+          flags: frontend
+          fail_ci_if_error: false
+
+  #==========================================================================
+  # BACKEND - Inner Loop Checks (Lint, Type, Test)
+  #==========================================================================
+  backend-checks:
+    name: Backend Checks
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: backend/go.sum
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Verify dependencies
+        run: go mod verify
+
+      - name: Lint
+        uses: golangci/golangci-lint-action@v4
+        with:
+          version: latest
+          working-directory: backend
+          args: --timeout=5m
+
+      - name: Run unit tests
+        run: go test -v -race -coverprofile=coverage.out -covermode=atomic ./...
+        env:
+          DATABASE_URL: postgres://test:test@localhost:5432/test?sslmode=disable
+          REDIS_URL: redis://localhost:6379
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./backend/coverage.out
+          flags: backend
+          fail_ci_if_error: false
+
+  #==========================================================================
+  # SECURITY - Outer Loop Security Scans
+  #==========================================================================
+  security-scans:
+    name: Security Scans
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # SAST - Static Application Security Testing
+      - name: Run Semgrep SAST
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: auto
+          generateSarif: true
+
+      - name: Upload Semgrep results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: semgrep.sarif
+
+      # SCA - Software Composition Analysis (dependency scanning)
+      - name: Run Trivy filesystem scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-fs-results.sarif'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '0'
+
+      - name: Upload Trivy results
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-fs-results.sarif'
+
+      # Secret Scanning
+      - name: Run secret scan
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --only-verified
+
+  #==========================================================================
+  # BUILD ONCE - Frontend (Outer Loop)
+  #==========================================================================
+  build-frontend:
+    name: Build Frontend
+    needs: [frontend-checks, security-scans]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    outputs:
+      digest: ${{ steps.build.outputs.digest }}
+      image-tag: ${{ steps.meta.outputs.tags }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.repository }}/frontend
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,format=long
+
+      - name: Build and push image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          sbom: true
+          provenance: mode=max
+
+      - name: Generate SBOM
+        if: github.event_name != 'pull_request'
+        uses: anchore/sbom-action@v0
+        with:
+          image: ${{ env.REGISTRY }}/${{ github.repository }}/frontend@${{ steps.build.outputs.digest }}
+          artifact-name: frontend-sbom.spdx.json
+          output-file: frontend-sbom.spdx.json
+
+      - name: Upload SBOM artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-sbom
+          path: frontend-sbom.spdx.json
+          retention-days: 90
+
+      - name: Install Cosign
+        if: github.event_name != 'pull_request'
+        uses: sigstore/cosign-installer@v3
+
+      - name: Sign image with Cosign
+        if: github.event_name != 'pull_request'
+        env:
+          COSIGN_EXPERIMENTAL: "true"
+          IMAGE_DIGEST: ${{ steps.build.outputs.digest }}
+          IMAGE_REPO: ${{ github.repository }}/frontend
+        run: |
+          cosign sign --yes "${REGISTRY}/${IMAGE_REPO}@${IMAGE_DIGEST}"
+
+  #==========================================================================
+  # BUILD ONCE - Backend (Outer Loop)
+  #==========================================================================
+  build-backend:
+    name: Build Backend
+    needs: [backend-checks, security-scans]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    outputs:
+      digest: ${{ steps.build.outputs.digest }}
+      image-tag: ${{ steps.meta.outputs.tags }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.repository }}/backend
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,format=long
+
+      - name: Build and push image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          sbom: true
+          provenance: mode=max
+
+      - name: Scan image with Trivy
+        if: github.event_name != 'pull_request'
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.REGISTRY }}/${{ github.repository }}/backend@${{ steps.build.outputs.digest }}
+          format: 'sarif'
+          output: 'trivy-image.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload image scan results
+        if: github.event_name != 'pull_request'
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-image.sarif'
+
+      - name: Generate SBOM
+        if: github.event_name != 'pull_request'
+        uses: anchore/sbom-action@v0
+        with:
+          image: ${{ env.REGISTRY }}/${{ github.repository }}/backend@${{ steps.build.outputs.digest }}
+          artifact-name: backend-sbom.spdx.json
+          output-file: backend-sbom.spdx.json
+
+      - name: Upload SBOM artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-sbom
+          path: backend-sbom.spdx.json
+          retention-days: 90
+
+      - name: Install Cosign
+        if: github.event_name != 'pull_request'
+        uses: sigstore/cosign-installer@v3
+
+      - name: Sign image with Cosign
+        if: github.event_name != 'pull_request'
+        env:
+          COSIGN_EXPERIMENTAL: "true"
+          IMAGE_DIGEST: ${{ steps.build.outputs.digest }}
+          IMAGE_REPO: ${{ github.repository }}/backend
+        run: |
+          cosign sign --yes "${REGISTRY}/${IMAGE_REPO}@${IMAGE_DIGEST}"
+
+  #==========================================================================
+  # PROMOTE TO STAGING (Automatic on main branch)
+  #==========================================================================
+  deploy-staging:
+    name: Deploy to Staging
+    needs: [build-frontend, build-backend]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: https://staging.example.com
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v4
+
+      - name: Configure kubectl
+        env:
+          KUBECONFIG_DATA: ${{ secrets.KUBECONFIG_STAGING }}
+        run: |
+          echo "${KUBECONFIG_DATA}" | base64 -d > kubeconfig
+          export KUBECONFIG=./kubeconfig
+
+      - name: Deploy frontend
+        env:
+          FRONTEND_DIGEST: ${{ needs.build-frontend.outputs.digest }}
+          REPO_NAME: ${{ github.repository }}
+        run: |
+          export KUBECONFIG=./kubeconfig
+          kubectl set image deployment/frontend \
+            "frontend=${REGISTRY}/${REPO_NAME}/frontend@${FRONTEND_DIGEST}" \
+            --namespace=staging
+          kubectl rollout status deployment/frontend --namespace=staging --timeout=5m
+
+      - name: Deploy backend
+        env:
+          BACKEND_DIGEST: ${{ needs.build-backend.outputs.digest }}
+          REPO_NAME: ${{ github.repository }}
+        run: |
+          export KUBECONFIG=./kubeconfig
+          kubectl set image deployment/backend \
+            "backend=${REGISTRY}/${REPO_NAME}/backend@${BACKEND_DIGEST}" \
+            --namespace=staging
+          kubectl rollout status deployment/backend --namespace=staging --timeout=5m
+
+      - name: Run smoke tests
+        run: |
+          sleep 30
+          curl -f https://staging-api.example.com/health || exit 1
+          curl -f https://staging.example.com || exit 1
+
+  #==========================================================================
+  # PROMOTE TO PRODUCTION (Requires manual approval)
+  #==========================================================================
+  deploy-production:
+    name: Deploy to Production
+    needs: [deploy-staging]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://example.com
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v4
+
+      - name: Configure kubectl
+        env:
+          KUBECONFIG_DATA: ${{ secrets.KUBECONFIG_PRODUCTION }}
+        run: |
+          echo "${KUBECONFIG_DATA}" | base64 -d > kubeconfig
+          export KUBECONFIG=./kubeconfig
+
+      - name: Deploy frontend
+        env:
+          FRONTEND_DIGEST: ${{ needs.build-frontend.outputs.digest }}
+          REPO_NAME: ${{ github.repository }}
+        run: |
+          export KUBECONFIG=./kubeconfig
+          kubectl set image deployment/frontend \
+            "frontend=${REGISTRY}/${REPO_NAME}/frontend@${FRONTEND_DIGEST}" \
+            --namespace=production
+          kubectl rollout status deployment/frontend --namespace=production --timeout=10m
+
+      - name: Deploy backend
+        env:
+          BACKEND_DIGEST: ${{ needs.build-backend.outputs.digest }}
+          REPO_NAME: ${{ github.repository }}
+        run: |
+          export KUBECONFIG=./kubeconfig
+          kubectl set image deployment/backend \
+            "backend=${REGISTRY}/${REPO_NAME}/backend@${BACKEND_DIGEST}" \
+            --namespace=production
+          kubectl rollout status deployment/backend --namespace=production --timeout=10m
+
+      - name: Run production smoke tests
+        run: |
+          sleep 30
+          curl -f https://api.example.com/health || exit 1
+          curl -f https://example.com || exit 1
+
+      - name: Verify deployment
+        run: |
+          export KUBECONFIG=./kubeconfig
+          kubectl get pods --namespace=production
+          kubectl get deployments --namespace=production

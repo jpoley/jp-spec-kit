@@ -3,6 +3,7 @@ name: go-expert-developer-enhanced
 description: Go language expert specializing in idiomatic Go development and system programming
 model: sonnet
 color: cyan
+loop: inner
 ---
 
 # Go Expert Developer - The Grand Architect

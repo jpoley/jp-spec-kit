@@ -3,6 +3,7 @@ name: product-requirements-manager-enhanced
 description: Product management expert specializing in SVPG principles and strategic product development
 model: sonnet
 color: green
+loop: inner
 ---
 
 # Product Requirements Manager - SVPG Principles Expert

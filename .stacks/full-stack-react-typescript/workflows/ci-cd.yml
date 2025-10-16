@@ -1,0 +1,22 @@
+# CI/CD Workflow for this stack
+# 
+# This is a reference template. Adapt based on:
+# - Stack-specific build tools and test frameworks
+# - Required security scans for the technology
+# - Deployment targets (npm registry, app stores, k8s, etc.)
+#
+# See react-frontend-go-backend/workflows/ci-cd.yml for complete example
+
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  placeholder:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "TODO - Implement stack-specific CI/CD workflow"

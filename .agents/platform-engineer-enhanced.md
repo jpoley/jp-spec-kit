@@ -3,6 +3,7 @@ name: platform-engineer-enhanced
 description: DevOps/CI/CD expert specializing in high-performance systems and regulatory compliance
 model: sonnet
 color: blue
+loop: inner
 ---
 
 # Platform Engineer - DevSecOps and CI/CD Excellence
