@@ -1,0 +1,162 @@
+{
+  "name": "jp-spec-kit",
+  "version": "0.0.20",
+  "description": "Comprehensive Spec-Driven Development toolkit with multi-language support, specialized agents, and integrated security/observability tools",
+  "author": "Jason Poley",
+  "homepage": "https://github.com/jpoley/jp-spec-kit",
+  "repository": "https://github.com/jpoley/jp-spec-kit",
+  "license": "MIT",
+  "keywords": [
+    "spec-driven",
+    "sdd",
+    "development-workflow",
+    "agents",
+    "ci-cd",
+    "sre",
+    "devops",
+    "security",
+    "observability",
+    "kubernetes",
+    "multi-language"
+  ],
+  "components": {
+    "commands": [
+      {
+        "name": "jpspec:specify",
+        "description": "Create/update feature specs using PM planner agent (manages /speckit.tasks)",
+        "file": "../.claude/commands/jpspec/specify.md"
+      },
+      {
+        "name": "jpspec:plan",
+        "description": "Execute planning workflow (architect + platform engineer)",
+        "file": "../.claude/commands/jpspec/plan.md"
+      },
+      {
+        "name": "jpspec:research",
+        "description": "Execute research and business validation workflow",
+        "file": "../.claude/commands/jpspec/research.md"
+      },
+      {
+        "name": "jpspec:implement",
+        "description": "Execute implementation (frontend + backend engineers + code review)",
+        "file": "../.claude/commands/jpspec/implement.md"
+      },
+      {
+        "name": "jpspec:validate",
+        "description": "Execute QA and validation (QA + security + docs + release)",
+        "file": "../.claude/commands/jpspec/validate.md"
+      },
+      {
+        "name": "jpspec:operate",
+        "description": "Execute operations (SRE for CI/CD + K8s + DevSecOps + observability)",
+        "file": "../.claude/commands/jpspec/operate.md"
+      }
+    ],
+    "agents": [
+      {
+        "name": "sre-agent",
+        "description": "Expert SRE for CI/CD (GitHub Actions), Kubernetes, DevSecOps, observability, and operational excellence",
+        "file": "../.agents/sre-agent.md"
+      },
+      {
+        "name": "product-requirements-manager-enhanced",
+        "description": "Product requirements manager for comprehensive PRD creation and task management",
+        "file": "../.agents/product-requirements-manager-enhanced.md"
+      },
+      {
+        "name": "software-architect-enhanced",
+        "description": "Software architect for system design, architecture decisions, and technical planning",
+        "file": "../.agents/software-architect-enhanced.md"
+      },
+      {
+        "name": "platform-engineer-enhanced",
+        "description": "Platform engineer for infrastructure, tooling, and developer experience",
+        "file": "../.agents/platform-engineer-enhanced.md"
+      },
+      {
+        "name": "researcher",
+        "description": "Research specialist for technical investigation and analysis",
+        "file": "../.agents/researcher.md"
+      },
+      {
+        "name": "business-validator",
+        "description": "Business validator for market research and business case validation",
+        "file": "../.agents/business-validator.md"
+      },
+      {
+        "name": "frontend-engineer",
+        "description": "Frontend engineer for UI/UX implementation and client-side development",
+        "file": "../.agents/frontend-engineer.md"
+      },
+      {
+        "name": "backend-engineer",
+        "description": "Backend engineer for API, data, and server-side development",
+        "file": "../.agents/backend-engineer.md"
+      },
+      {
+        "name": "ai-ml-engineer",
+        "description": "AI/ML engineer for machine learning and AI model development",
+        "file": "../.agents/ai-ml-engineer.md"
+      },
+      {
+        "name": "frontend-code-reviewer",
+        "description": "Frontend code reviewer for quality assurance and best practices",
+        "file": "../.agents/frontend-code-reviewer.md"
+      },
+      {
+        "name": "backend-code-reviewer",
+        "description": "Backend code reviewer for quality assurance and best practices",
+        "file": "../.agents/backend-code-reviewer.md"
+      },
+      {
+        "name": "quality-guardian",
+        "description": "Quality guardian for comprehensive testing and quality assurance",
+        "file": "../.agents/quality-guardian.md"
+      },
+      {
+        "name": "secure-by-design-engineer",
+        "description": "Security engineer for security-first design and implementation",
+        "file": "../.agents/secure-by-design-engineer.md"
+      },
+      {
+        "name": "tech-writer",
+        "description": "Technical writer for documentation and knowledge management",
+        "file": "../.agents/tech-writer.md"
+      },
+      {
+        "name": "release-manager",
+        "description": "Release manager for deployment coordination and release orchestration",
+        "file": "../.agents/release-manager.md"
+      }
+    ],
+    "mcpServers": "../.mcp.json",
+    "hooks": {
+      "pre-commit": {
+        "enabled": false,
+        "command": "ruff check . && ruff format . && pytest tests/",
+        "description": "Run linting, formatting, and tests before commit"
+      }
+    }
+  },
+  "readme": "../README.md",
+  "changelog": "../CHANGELOG.md",
+  "documentation": {
+    "gettingStarted": "../docs/getting-started.md",
+    "specification": "../spec-driven.md",
+    "contributing": "../CONTRIBUTING.md",
+    "agentGuide": "../AGENTS.md",
+    "innerLoop": "../docs/reference/inner-loop.md",
+    "outerLoop": "../docs/reference/outer-loop.md",
+    "agentLoopClassification": "../docs/reference/agent-loop-classification.md"
+  },
+  "requirements": {
+    "claudeCode": ">=2.0.0",
+    "python": ">=3.11",
+    "node": ">=18.0.0"
+  },
+  "notes": {
+    "languageSupport": "Includes language-specific agent personas for C, C++, C#, Go, Java, Kotlin, Python, Rust, TypeScript/JavaScript, and Mobile (Dart/Flutter)",
+    "mcpServers": "Pre-configured with 9 MCP servers: GitHub, Serena, Context7, Playwright, Trivy, Semgrep, Figma, shadcn-ui, Chrome DevTools",
+    "dualDistribution": "Also available as Specify CLI (pip install specify-cli) for multi-agent support (Copilot, Gemini, Cursor, etc.)"
+  }
+}

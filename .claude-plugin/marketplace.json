@@ -1,0 +1,64 @@
+{
+  "name": "jp-spec-kit-marketplace",
+  "version": "1.0.0",
+  "description": "Official marketplace for JP Spec Kit - A comprehensive Spec-Driven Development toolkit",
+  "owner": {
+    "name": "Jason Poley",
+    "url": "https://github.com/jpoley"
+  },
+  "plugins": [
+    {
+      "name": "jp-spec-kit",
+      "source": ".",
+      "description": "Comprehensive Spec-Driven Development toolkit with multi-language support, specialized agents, and integrated security/observability tools",
+      "version": "0.0.20",
+      "author": "Jason Poley",
+      "homepage": "https://github.com/jpoley/jp-spec-kit",
+      "repository": "https://github.com/jpoley/jp-spec-kit",
+      "license": "MIT",
+      "keywords": [
+        "spec-driven",
+        "sdd",
+        "development-workflow",
+        "agents",
+        "ci-cd",
+        "sre",
+        "devops",
+        "security",
+        "observability",
+        "kubernetes",
+        "multi-language"
+      ],
+      "features": [
+        "6 workflow slash commands (specify, plan, research, implement, validate, operate)",
+        "15 specialized agents for full SDLC coverage",
+        "9 pre-configured MCP servers (GitHub, Serena, Context7, Playwright, Trivy, Semgrep, Figma, shadcn-ui, Chrome DevTools)",
+        "Multi-language support (C, C++, C#, Go, Java, Kotlin, Python, Rust, TypeScript/JavaScript, Dart/Flutter)",
+        "Integrated DevSecOps and observability",
+        "SRE best practices and operational excellence"
+      ],
+      "requirements": {
+        "claudeCode": ">=2.0.0",
+        "python": ">=3.11",
+        "node": ">=18.0.0"
+      }
+    }
+  ],
+  "installation": {
+    "instructions": [
+      "Add marketplace: /plugin marketplace add jpoley/jp-spec-kit",
+      "Install plugin: /plugin install jp-spec-kit",
+      "Verify installation: /jpspec:specify --help"
+    ],
+    "alternativeMethods": [
+      "Direct from GitHub: /plugin install jpoley/jp-spec-kit",
+      "Local development: /plugin install /path/to/jp-spec-kit",
+      "CLI tool (multi-agent): pip install specify-cli"
+    ]
+  },
+  "support": {
+    "documentation": "https://github.com/jpoley/jp-spec-kit/blob/main/README.md",
+    "issues": "https://github.com/jpoley/jp-spec-kit/issues",
+    "discussions": "https://github.com/jpoley/jp-spec-kit/discussions"
+  }
+}

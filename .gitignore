@@ -38,7 +38,7 @@ env/
 .env
 .env.local
 *.lock
-
+.test-projects/
 # Spec Kit-specific files
 .genreleases/
 *.zip
