@@ -64,7 +64,7 @@ specify check
 To upgrade specify run:
 
 ```bash
-uv tool install specify-cli --force --from git+https://github.com/github/spec-kit.git
+uv tool install specify-cli --force --from git+https://github.com/jpoley/jp-spec-kit.git
 ```
 
 #### Option 2: One-time Usage
@@ -72,7 +72,7 @@ uv tool install specify-cli --force --from git+https://github.com/github/spec-ki
 Run directly without installing:
 
 ```bash
-uvx --from git+https://github.com/github/spec-kit.git specify init <PROJECT_NAME>
+uvx --from git+https://github.com/jpoley/jp-spec-kit.git specify init <PROJECT_NAME>
 ```
 
 **Benefits of persistent installation:**
