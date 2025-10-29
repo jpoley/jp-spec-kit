@@ -159,7 +159,10 @@ BANNER = """
 ╚══════╝╚═╝     ╚══════╝ ╚═════╝╚═╝╚═╝        ╚═╝   
 """
 
-TAGLINE = "(jp extension to) GitHub Spec Kit - Spec-Driven Development Toolkit"
+# Version - keep in sync with pyproject.toml
+__version__ = "0.0.21"
+
+TAGLINE = f"(jp extension v{__version__}) GitHub Spec Kit - Spec-Driven Development Toolkit"
 
 # Repository configuration for two-stage download
 BASE_REPO_OWNER = "github"

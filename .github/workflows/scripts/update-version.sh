@@ -21,3 +21,11 @@ if [ -f "pyproject.toml" ]; then
 else
   echo "Warning: pyproject.toml not found, skipping version update"
 fi
+
+# Update version in src/specify_cli/__init__.py
+if [ -f "src/specify_cli/__init__.py" ]; then
+  sed -i "s/__version__ = \".*\"/__version__ = \"$PYTHON_VERSION\"/" src/specify_cli/__init__.py
+  echo "Updated src/specify_cli/__init__.py version to $PYTHON_VERSION"
+else
+  echo "Warning: src/specify_cli/__init__.py not found, skipping version update"
+fi
