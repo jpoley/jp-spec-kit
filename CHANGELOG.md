@@ -7,6 +7,94 @@ All notable changes to the Specify CLI and templates are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.21] - 2025-10-28
+
+### 🎉 Major Architecture Change: Layered Extension Model
+
+JP Spec Kit is now a **layered extension** of GitHub's spec-kit, not a fork!
+
+#### Added
+
+- **Two-Stage Download Architecture**: 
+  - Downloads base spec-kit from `github/spec-kit` (Layer 1)
+  - Overlays jp-spec-kit extensions from `jpoley/jp-spec-kit` (Layer 2)
+  - Extension overrides base where conflicts exist
+  - Enabled by default with `--layered` flag
+
+- **Version Pinning Support**:
+  - `--base-version <version>` - Pin base spec-kit to specific version
+  - `--extension-version <version>` - Pin jp-spec-kit extension to specific version
+  - Defaults to "latest" for both
+  - Enables reproducible builds and CI/CD integration
+
+- **`specify upgrade` Command**:
+  - Upgrade existing projects to latest base + extension
+  - `--dry-run` - Preview changes without applying
+  - `--templates-only` - Only update templates
+  - `--base-version` / `--extension-version` - Pin upgrade versions
+  - Automatic backup to `.specify-backup/` before applying changes
+  - Auto-detects AI assistant and script type from project
+
+- **Configuration Files**:
+  - `.spec-kit-compatibility.yml` - Version compatibility matrix
+  - `.specify-plugin.yml` - Plugin manifest for future extension system
+
+- **Repository Configuration Constants**:
+  ```python
+  BASE_REPO_OWNER = "github"
+  BASE_REPO_NAME = "spec-kit"
+  EXTENSION_REPO_OWNER = "jpoley"
+  EXTENSION_REPO_NAME = "jp-spec-kit"
+  ```
+
+#### Changed
+
+- **`specify init` Now Uses Two-Stage Download by Default**:
+  - Automatically downloads both base spec-kit and jp-spec-kit extension
+  - Use `--no-layered` to download only jp-spec-kit (legacy mode)
+  - Tracker shows separate stages: fetch-base, fetch-extension, extract-base, extract-extension, merge
+
+- **Enhanced `download_template_from_github()`**:
+  - Added `repo_owner`, `repo_name`, `version` parameters
+  - Supports both "latest" and specific version tags
+  - Configurable source repository
+
+- **New `download_and_extract_two_stage()` Function**:
+  - Orchestrates two-stage download workflow
+  - Downloads base → Extract base → Download extension → Extract extension → Merge
+  - Smart directory merging with extension precedence
+
+#### Benefits
+
+- ✅ **Stay current** with upstream spec-kit features via `specify upgrade`
+- ✅ **Customizable** - Keep jp-spec-kit extensions while getting base updates
+- ✅ **Reproducible** - Pin versions for stable CI/CD builds
+- ✅ **Safe** - Automatic backups before upgrades
+- ✅ **Transparent** - See exactly what's downloaded (base vs extension)
+- ✅ **Extendable** - Foundation for future plugin system
+
+#### Documentation
+
+- Updated README with layered extension architecture diagram
+- Added comprehensive jpspec command documentation
+- Created `LAYERED-EXTENSION-ARCHITECTURE.md` with implementation details
+- Updated installation and upgrade workflows
+
+#### Migration
+
+Existing jp-spec-kit projects can upgrade:
+```bash
+cd your-project
+specify upgrade
+```
+
+New projects automatically use layered architecture:
+```bash
+specify init my-project --ai claude
+```
+
+See `LAYERED-EXTENSION-ARCHITECTURE.md` for complete details.
+
 ## [0.0.20] - 2025-10-14
 
 ### Added
