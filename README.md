@@ -139,19 +139,19 @@ If the jp-spec-kit repository or its release assets are private (or you’re on 
 
 Supported methods:
 
-- Environment variable: GH_TOKEN or GITHUB_TOKEN
+- Environment variable: GITHUB_JPSPEC
 - CLI flag: --github-token
 
 Examples:
 
 - macOS/Linux (zsh/bash):
 
-    export GH_TOKEN=ghp_your_token_here
+    export GITHUB_JPSPEC=ghp_your_token_here
     specify init my-project --ai claude --debug
 
 - Windows PowerShell:
 
-    $env:GH_TOKEN = "ghp_your_token_here"
+    $env:GITHUB_JPSPEC = "ghp_your_token_here"
     specify init my-project --ai claude --debug
 
 - Pass inline (any OS):
@@ -161,8 +161,8 @@ Examples:
 Notes:
 
 - Scope: a classic Personal Access Token with repo scope (read) is sufficient for downloading private release assets.
-- Security: the token is only sent to GitHub to resolve releases and download assets; it isn’t stored.
-- Symptom mapping: if you see 404 Not Found while downloading an asset, it likely means the asset is private and no token was provided. Supply GH_TOKEN/GITHUB_TOKEN or --github-token, or make assets public.
+- Security: the token is only sent to GitHub to resolve releases and download assets; it isn't stored.
+- Symptom mapping: if you see 404 Not Found while downloading an asset, it likely means the asset is private and no token was provided. Supply GITHUB_JPSPEC or --github-token, or make assets public.
 
 ### 3. Establish project principles
 
@@ -258,7 +258,7 @@ The `specify` command supports the following options:
 | `--force`              | Flag     | Force merge/overwrite when initializing in current directory (skip confirmation) |
 | `--skip-tls`           | Flag     | Skip SSL/TLS verification (not recommended)                                 |
 | `--debug`              | Flag     | Enable detailed debug output for troubleshooting                            |
-| `--github-token`       | Option   | GitHub token for API requests (or set GH_TOKEN/GITHUB_TOKEN env variable)  |
+| `--github-token`       | Option   | GitHub token for API requests (or set GITHUB_JPSPEC env variable)  |
 
 ### `specify upgrade` Options
 

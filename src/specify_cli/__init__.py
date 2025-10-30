@@ -57,7 +57,7 @@ client = httpx.Client(verify=ssl_context)
 
 def _github_token(cli_token: str | None = None) -> str | None:
     """Return sanitized GitHub token (cli arg takes precedence) or None."""
-    return ((cli_token or os.getenv("GH_TOKEN") or os.getenv("GITHUB_TOKEN") or "").strip()) or None
+    return ((cli_token or os.getenv("GITHUB_JPSPEC") or "").strip()) or None
 
 def _github_headers(cli_token: str | None = None) -> dict:
     """Return GitHub API headers including optional Authorization, Accept and User-Agent."""
@@ -640,7 +640,7 @@ def download_template_from_github(ai_assistant: str, download_dir: Path, *, scri
             body_sample = (getattr(response, "text", "") or "")[:400]
             hint = ""
             if response.status_code == 404 and not effective_token:
-                hint = "\nHint: This repository or its release assets may be private. Provide a GitHub token via --github-token or GH_TOKEN/GITHUB_TOKEN environment variable."
+                hint = "\nHint: This repository or its release assets may be private. Provide a GitHub token via --github-token or GITHUB_JPSPEC environment variable."
             raise RuntimeError(
                 f"Download failed with {response.status_code}\nHeaders: {response.headers}\nBody (truncated): {body_sample}{hint}"
             )
@@ -1041,7 +1041,7 @@ def init(
     force: bool = typer.Option(False, "--force", help="Force merge/overwrite when using --here (skip confirmation)"),
     skip_tls: bool = typer.Option(False, "--skip-tls", help="Skip SSL/TLS verification (not recommended)"),
     debug: bool = typer.Option(False, "--debug", help="Show verbose diagnostic output for network and extraction failures"),
-    github_token: str = typer.Option(None, "--github-token", help="GitHub token to use for API requests (or set GH_TOKEN or GITHUB_TOKEN environment variable)"),
+    github_token: str = typer.Option(None, "--github-token", help="GitHub token to use for API requests (or set GITHUB_JPSPEC environment variable)"),
     base_version: str = typer.Option(None, "--base-version", help="Specific version of base spec-kit to use (default: latest)"),
     extension_version: str = typer.Option(None, "--extension-version", help="Specific version of jp-spec-kit extension to use (default: latest)"),
     layered: bool = typer.Option(True, "--layered/--no-layered", help="Use two-stage layered download (base + extension). Default: True"),
@@ -1385,7 +1385,7 @@ def upgrade(
     templates_only: bool = typer.Option(False, "--templates-only", help="Only update templates, skip other files"),
     skip_tls: bool = typer.Option(False, "--skip-tls", help="Skip SSL/TLS verification (not recommended)"),
     debug: bool = typer.Option(False, "--debug", help="Show verbose diagnostic output"),
-    github_token: str = typer.Option(None, "--github-token", help="GitHub token to use for API requests"),
+    github_token: str = typer.Option(None, "--github-token", help="GitHub token to use for API requests (or set GITHUB_JPSPEC environment variable)"),
 ):
     """
     Upgrade an existing Specify project to the latest (or specified) versions of base spec-kit and jp-spec-kit extension.

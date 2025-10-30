@@ -402,7 +402,7 @@ act -n
 act -P ubuntu-latest=catthehacker/ubuntu:act-latest
 
 # Run with secrets
-act -s GITHUB_TOKEN=<token>
+act -s GITHUB_JPSPEC=<token>
 
 # Verbose output
 act -v
@@ -488,7 +488,7 @@ act --version
 
 | Variable | Description |
 |----------|-------------|
-| `GH_TOKEN` or `GITHUB_TOKEN` | GitHub token for API requests |
+| `GITHUB_JPSPEC` | GitHub token for API requests |
 | `SPECIFY_FEATURE` | Override feature detection for non-Git repos |
 
 ## Support

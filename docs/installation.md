@@ -84,19 +84,19 @@ If the jp-spec-kit repository or its release assets are private, or you’re ope
 
 Supported methods:
 
-- Environment variable: GH_TOKEN or GITHUB_TOKEN
+- Environment variable: GITHUB_JPSPEC
 - CLI flag: --github-token
 
 Examples:
 
 - macOS/Linux (zsh/bash):
 
-	export GH_TOKEN=ghp_your_token_here
+	export GITHUB_JPSPEC=ghp_your_token_here
 	uvx --from git+https://github.com/jpoley/jp-spec-kit.git specify init my-project --ai claude --debug
 
 - Windows PowerShell:
 
-	$env:GH_TOKEN = "ghp_your_token_here"
+	$env:GITHUB_JPSPEC = "ghp_your_token_here"
 	uvx --from git+https://github.com/jpoley/jp-spec-kit.git specify init my-project --ai claude --debug
 
 - Pass inline:

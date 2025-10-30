@@ -20,16 +20,16 @@ uvx --from git+https://github.com/jpoley/jp-spec-kit.git specify init <PROJECT_N
 uvx --from git+https://github.com/jpoley/jp-spec-kit.git specify init <PROJECT_NAME> --script sh  # Force POSIX shell
 ```
 
-If you’re using a private fork or private release assets, pass a GitHub token for authenticated downloads:
+If you're using a private fork or private release assets, pass a GitHub token for authenticated downloads:
 
 - macOS/Linux:
 
-	export GH_TOKEN=ghp_your_token_here
+	export GITHUB_JPSPEC=ghp_your_token_here
 	uvx --from git+https://github.com/jpoley/jp-spec-kit.git specify init <PROJECT_NAME>
 
 - Windows PowerShell:
 
-	$env:GH_TOKEN = "ghp_your_token_here"
+	$env:GITHUB_JPSPEC = "ghp_your_token_here"
 	uvx --from git+https://github.com/jpoley/jp-spec-kit.git specify init <PROJECT_NAME>
 
 Or pass inline: --github-token ghp_your_token_here
