@@ -49,6 +49,7 @@ from typer.core import TyperGroup
 import readchar
 import ssl
 import truststore
+import yaml
 
 ssl_context = truststore.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
 client = httpx.Client(verify=ssl_context)
@@ -186,6 +187,104 @@ EXTENSION_REPO_DEFAULT_VERSION = "latest"
 # Marker file that identifies the jp-spec-kit source repository
 # When present, specify init/upgrade will skip to avoid clobbering source files
 SOURCE_REPO_MARKER = ".jp-spec-kit-source"
+
+# Path to compatibility matrix YAML
+COMPATIBILITY_MATRIX_PATH = Path(__file__).parent.parent.parent / ".spec-kit-compatibility.yml"
+
+
+def load_compatibility_matrix() -> dict:
+    """Load and parse the compatibility matrix YAML file.
+
+    Returns:
+        Parsed YAML as a dict, or empty dict if file not found/invalid
+    """
+    try:
+        if COMPATIBILITY_MATRIX_PATH.exists():
+            with open(COMPATIBILITY_MATRIX_PATH, 'r') as f:
+                return yaml.safe_load(f) or {}
+    except Exception:
+        pass
+    return {}
+
+
+def get_backlog_validated_version() -> Optional[str]:
+    """Get the recommended backlog-md version from compatibility matrix.
+
+    Returns:
+        Recommended version string (e.g., "1.21.0") or None if not found
+    """
+    matrix = load_compatibility_matrix()
+    backlog_config = matrix.get("backlog-md", {})
+    compat = backlog_config.get("compatible_with", {})
+    return compat.get("recommended")
+
+
+def check_backlog_installed_version() -> Optional[str]:
+    """Check the currently installed backlog-md version.
+
+    Returns:
+        Version string (e.g., "1.21.0") or None if not installed
+    """
+    try:
+        result = subprocess.run(
+            ["backlog", "--version"],
+            capture_output=True,
+            text=True,
+            check=False
+        )
+        if result.returncode == 0:
+            # backlog --version outputs just the version number, e.g. "1.21.0"
+            output = result.stdout.strip()
+            # Validate it looks like a version (digits and dots)
+            if output and all(c.isdigit() or c == '.' for c in output):
+                return output
+    except FileNotFoundError:
+        pass
+    return None
+
+
+def detect_package_manager() -> Optional[str]:
+    """Detect available Node.js package manager, preferring pnpm.
+
+    Returns:
+        "pnpm" if available, "npm" if available, None if neither found
+    """
+    if shutil.which("pnpm"):
+        return "pnpm"
+    if shutil.which("npm"):
+        return "npm"
+    return None
+
+
+def compare_semver(version1: str, version2: str) -> int:
+    """Simple semantic version comparison.
+
+    Args:
+        version1: First version (e.g., "1.21.0")
+        version2: Second version (e.g., "1.20.0")
+
+    Returns:
+        -1 if version1 < version2
+         0 if version1 == version2
+         1 if version1 > version2
+    """
+    def parse_version(v: str) -> Tuple[int, int, int]:
+        """Parse version string into tuple of ints."""
+        parts = v.lstrip('v').split('.')
+        major = int(parts[0]) if len(parts) > 0 else 0
+        minor = int(parts[1]) if len(parts) > 1 else 0
+        patch = int(parts[2]) if len(parts) > 2 else 0
+        return (major, minor, patch)
+
+    v1 = parse_version(version1)
+    v2 = parse_version(version2)
+
+    if v1 < v2:
+        return -1
+    elif v1 > v2:
+        return 1
+    else:
+        return 0
 
 
 class StepTracker:
@@ -1352,6 +1451,11 @@ def init(
         "--layered/--no-layered",
         help="Use two-stage layered download (base + extension). Default: True",
     ),
+    backlog_version: str = typer.Option(
+        None,
+        "--backlog-version",
+        help="Specific version of backlog-md to install (default: recommended from compatibility matrix)",
+    ),
 ):
     """
     Initialize a new Specify project from the latest template.
@@ -1693,6 +1797,50 @@ def init(
         console.print()
         console.print(security_notice)
 
+    # Check for backlog-md and offer to install if missing
+    current_backlog_version = check_backlog_installed_version()
+    if not current_backlog_version:
+        console.print()
+        install_backlog = typer.confirm(
+            "[cyan]backlog-md[/cyan] is not installed. Would you like to install it for task management?",
+            default=True
+        )
+        if install_backlog:
+            target_version = backlog_version or get_backlog_validated_version()
+            if target_version:
+                pkg_manager = detect_package_manager()
+                if pkg_manager:
+                    console.print(f"\n[cyan]Installing backlog-md@{target_version}...[/cyan]")
+                    try:
+                        if pkg_manager == "pnpm":
+                            cmd = ["pnpm", "add", "-g", f"backlog-md@{target_version}"]
+                        else:
+                            cmd = ["npm", "install", "-g", f"backlog-md@{target_version}"]
+
+                        subprocess.run(cmd, check=True, capture_output=True, text=True)
+
+                        installed_version = check_backlog_installed_version()
+                        if installed_version:
+                            console.print(f"[green]backlog-md {installed_version} installed successfully![/green]")
+                        else:
+                            console.print("[yellow]Installation completed but verification failed[/yellow]")
+                    except subprocess.CalledProcessError as e:
+                        console.print(f"[yellow]Installation failed:[/yellow] {e.stderr}")
+                        console.print("[dim]You can install it manually later: specify backlog install[/dim]")
+                else:
+                    console.print("[yellow]No Node.js package manager found (pnpm or npm required)[/yellow]")
+                    console.print("[dim]Install backlog-md manually: specify backlog install[/dim]")
+            else:
+                console.print("[yellow]Could not determine backlog-md version to install[/yellow]")
+                console.print("[dim]You can install it manually later: specify backlog install[/dim]")
+        else:
+            console.print("[dim]You can install backlog-md later with: specify backlog install[/dim]")
+    elif backlog_version:
+        # User specified a version but backlog is already installed
+        console.print()
+        console.print(f"[yellow]backlog-md is already installed (version {current_backlog_version})[/yellow]")
+        console.print(f"[dim]To change version: specify backlog upgrade --version {backlog_version}[/dim]")
+
     steps_lines = []
     if not here:
         steps_lines.append(
@@ -1922,6 +2070,52 @@ def upgrade(
     console.print(tracker.render())
     console.print("\n[bold green]Upgrade completed successfully![/bold green]")
     console.print(f"[dim]Backup of previous templates: {backup_dir}[/dim]")
+
+    # Check and offer to sync backlog-md version
+    current_backlog_version = check_backlog_installed_version()
+    recommended_version = get_backlog_validated_version()
+
+    if current_backlog_version and recommended_version:
+        if current_backlog_version != recommended_version:
+            console.print()
+            console.print(
+                f"[yellow]backlog-md version mismatch:[/yellow] "
+                f"current={current_backlog_version}, recommended={recommended_version}"
+            )
+            sync_backlog = typer.confirm(
+                "Would you like to sync backlog-md to the recommended version?",
+                default=True
+            )
+            if sync_backlog:
+                pkg_manager = detect_package_manager()
+                if pkg_manager:
+                    console.print(f"\n[cyan]Syncing backlog-md to {recommended_version}...[/cyan]")
+                    try:
+                        if pkg_manager == "pnpm":
+                            cmd = ["pnpm", "add", "-g", f"backlog-md@{recommended_version}"]
+                        else:
+                            cmd = ["npm", "install", "-g", f"backlog-md@{recommended_version}"]
+
+                        subprocess.run(cmd, check=True, capture_output=True, text=True)
+
+                        new_version = check_backlog_installed_version()
+                        if new_version == recommended_version:
+                            console.print(f"[green]backlog-md synced to {new_version}![/green]")
+                        else:
+                            console.print("[yellow]Sync completed but verification failed[/yellow]")
+                    except subprocess.CalledProcessError as e:
+                        console.print(f"[yellow]Sync failed:[/yellow] {e.stderr}")
+                        console.print("[dim]You can sync manually: specify backlog upgrade[/dim]")
+                else:
+                    console.print("[yellow]No Node.js package manager found[/yellow]")
+                    console.print("[dim]You can sync manually: specify backlog upgrade[/dim]")
+            else:
+                console.print("[dim]You can sync backlog-md later with: specify backlog upgrade[/dim]")
+    elif not current_backlog_version and recommended_version:
+        console.print()
+        console.print("[yellow]backlog-md is not installed[/yellow]")
+        console.print("[dim]Install with: specify backlog install[/dim]")
+
     console.print()
     console.print("[cyan]Next steps:[/cyan]")
     console.print("  1. Review changes with: [cyan]git diff[/cyan]")
@@ -1956,7 +2150,31 @@ def check():
     tracker.add("code-insiders", "Visual Studio Code Insiders")
     check_tool("code-insiders", tracker=tracker)
 
+    # Check backlog-md
+    tracker.add("backlog", "backlog-md (task management)")
+    backlog_version = check_backlog_installed_version()
+    if backlog_version:
+        tracker.complete("backlog", f"v{backlog_version}")
+    else:
+        tracker.skip("backlog", "not installed")
+
     console.print(tracker.render())
+
+    # Show backlog-md version compatibility info if installed
+    if backlog_version:
+        recommended_version = get_backlog_validated_version()
+        if recommended_version:
+            console.print()
+            if backlog_version == recommended_version:
+                console.print(
+                    f"[green]backlog-md is at recommended version ({backlog_version})[/green]"
+                )
+            else:
+                console.print(
+                    f"[yellow]backlog-md version:[/yellow] {backlog_version} "
+                    f"[dim](recommended: {recommended_version})[/dim]"
+                )
+                console.print("[dim]Run 'specify backlog upgrade' to sync to recommended version[/dim]")
 
     console.print("\n[bold green]Specify CLI is ready to use![/bold green]")
 
@@ -1965,6 +2183,9 @@ def check():
 
     if not any(agent_results.values()):
         console.print("[dim]Tip: Install an AI assistant for the best experience[/dim]")
+
+    if not backlog_version:
+        console.print("[dim]Tip: Install backlog-md for task management: specify backlog install[/dim]")
 
 
 @app.command()
@@ -2592,6 +2813,231 @@ def tasks(
 
             console.print("\n[yellow]Debug trace:[/yellow]")
             console.print(traceback.format_exc())
+        raise typer.Exit(1)
+
+
+# Create backlog subcommand group
+backlog_app = typer.Typer(
+    name="backlog",
+    help="Manage backlog-md installation and upgrades",
+)
+app.add_typer(backlog_app, name="backlog")
+
+
+@backlog_app.command("install")
+def backlog_install(
+    version: Optional[str] = typer.Option(
+        None,
+        "--version",
+        help="Specific version to install (default: recommended version from compatibility matrix)",
+    ),
+    force: bool = typer.Option(
+        False,
+        "--force",
+        help="Force reinstall even if already installed",
+    ),
+):
+    """
+    Install backlog-md CLI tool with validated version.
+
+    This command will:
+    1. Auto-detect pnpm or npm package manager
+    2. Fetch the recommended version from compatibility matrix
+    3. Install backlog-md globally with version pinning
+    4. Verify installation success
+
+    Examples:
+        specify backlog install                    # Install recommended version
+        specify backlog install --version 1.21.0   # Install specific version
+        specify backlog install --force            # Force reinstall
+    """
+    show_banner()
+
+    # Check if already installed
+    current_version = check_backlog_installed_version()
+    if current_version and not force:
+        console.print(
+            f"[yellow]backlog-md is already installed (version {current_version})[/yellow]"
+        )
+        console.print("[dim]Use --force to reinstall[/dim]")
+        raise typer.Exit(0)
+
+    # Determine version to install
+    target_version = version or get_backlog_validated_version()
+    if not target_version:
+        console.print(
+            "[red]Error:[/red] Could not determine version to install. "
+            "Compatibility matrix may be missing or invalid."
+        )
+        raise typer.Exit(1)
+
+    # Detect package manager
+    pkg_manager = detect_package_manager()
+    if not pkg_manager:
+        console.print(
+            "[red]Error:[/red] No Node.js package manager found (pnpm or npm required)"
+        )
+        console.print(
+            "[dim]Install pnpm: https://pnpm.io/installation[/dim]\n"
+            "[dim]Or install npm: https://nodejs.org/[/dim]"
+        )
+        raise typer.Exit(1)
+
+    console.print(f"[cyan]Package Manager:[/cyan] {pkg_manager}")
+    console.print(f"[cyan]Target Version:[/cyan] {target_version}\n")
+
+    tracker = StepTracker("Install backlog-md")
+
+    # Install
+    tracker.add("install", f"Installing backlog-md@{target_version}")
+    tracker.start("install")
+
+    try:
+        if pkg_manager == "pnpm":
+            cmd = ["pnpm", "add", "-g", f"backlog-md@{target_version}"]
+        else:  # npm
+            cmd = ["npm", "install", "-g", f"backlog-md@{target_version}"]
+
+        subprocess.run(cmd, check=True, capture_output=True, text=True)
+        tracker.complete("install", "installed successfully")
+    except subprocess.CalledProcessError as e:
+        tracker.error("install", "installation failed")
+        console.print(tracker.render())
+        console.print(f"\n[red]Installation failed:[/red] {e.stderr}")
+        raise typer.Exit(1)
+
+    # Verify
+    tracker.add("verify", "Verifying installation")
+    tracker.start("verify")
+
+    installed_version = check_backlog_installed_version()
+    if installed_version:
+        tracker.complete("verify", f"version {installed_version}")
+    else:
+        tracker.error("verify", "verification failed")
+
+    console.print(tracker.render())
+
+    if installed_version:
+        console.print("\n[bold green]backlog-md installed successfully![/bold green]")
+        console.print(f"[dim]Version: {installed_version}[/dim]")
+        console.print("\n[cyan]Next steps:[/cyan]")
+        console.print("  Run [cyan]backlog --help[/cyan] to get started")
+    else:
+        console.print(
+            "\n[yellow]Installation completed but verification failed[/yellow]"
+        )
+        console.print("[dim]Try running: backlog --version[/dim]")
+        raise typer.Exit(1)
+
+
+@backlog_app.command("upgrade")
+def backlog_upgrade(
+    version: Optional[str] = typer.Option(
+        None,
+        "--version",
+        help="Specific version to upgrade to (default: recommended version from compatibility matrix)",
+    ),
+    force: bool = typer.Option(
+        False,
+        "--force",
+        help="Force upgrade even if current version matches",
+    ),
+):
+    """
+    Upgrade backlog-md to validated version.
+
+    This command will:
+    1. Check currently installed version
+    2. Compare to recommended version from compatibility matrix
+    3. Upgrade if needed using detected package manager
+    4. Verify upgrade success
+
+    Examples:
+        specify backlog upgrade                    # Upgrade to recommended version
+        specify backlog upgrade --version 1.22.0   # Upgrade to specific version
+        specify backlog upgrade --force            # Force upgrade
+    """
+    show_banner()
+
+    # Check if installed
+    current_version = check_backlog_installed_version()
+    if not current_version:
+        console.print("[yellow]backlog-md is not installed[/yellow]")
+        console.print("[dim]Run: specify backlog install[/dim]")
+        raise typer.Exit(1)
+
+    # Determine target version
+    target_version = version or get_backlog_validated_version()
+    if not target_version:
+        console.print(
+            "[red]Error:[/red] Could not determine version to upgrade to. "
+            "Compatibility matrix may be missing or invalid."
+        )
+        raise typer.Exit(1)
+
+    console.print(f"[cyan]Current Version:[/cyan] {current_version}")
+    console.print(f"[cyan]Target Version:[/cyan] {target_version}\n")
+
+    # Check if upgrade needed
+    if current_version == target_version and not force:
+        console.print(
+            "[green]backlog-md is already at the recommended version[/green]"
+        )
+        raise typer.Exit(0)
+
+    # Detect package manager
+    pkg_manager = detect_package_manager()
+    if not pkg_manager:
+        console.print(
+            "[red]Error:[/red] No Node.js package manager found (pnpm or npm required)"
+        )
+        raise typer.Exit(1)
+
+    console.print(f"[cyan]Package Manager:[/cyan] {pkg_manager}\n")
+
+    tracker = StepTracker("Upgrade backlog-md")
+
+    # Upgrade
+    tracker.add("upgrade", f"Upgrading to {target_version}")
+    tracker.start("upgrade")
+
+    try:
+        if pkg_manager == "pnpm":
+            cmd = ["pnpm", "add", "-g", f"backlog-md@{target_version}"]
+        else:  # npm
+            cmd = ["npm", "install", "-g", f"backlog-md@{target_version}"]
+
+        subprocess.run(cmd, check=True, capture_output=True, text=True)
+        tracker.complete("upgrade", "upgraded successfully")
+    except subprocess.CalledProcessError as e:
+        tracker.error("upgrade", "upgrade failed")
+        console.print(tracker.render())
+        console.print(f"\n[red]Upgrade failed:[/red] {e.stderr}")
+        raise typer.Exit(1)
+
+    # Verify
+    tracker.add("verify", "Verifying upgrade")
+    tracker.start("verify")
+
+    new_version = check_backlog_installed_version()
+    if new_version == target_version:
+        tracker.complete("verify", f"version {new_version}")
+    else:
+        tracker.error("verify", "verification failed")
+
+    console.print(tracker.render())
+
+    if new_version == target_version:
+        console.print("\n[bold green]backlog-md upgraded successfully![/bold green]")
+        console.print(f"[dim]Version: {new_version}[/dim]")
+    else:
+        console.print(
+            "\n[yellow]Upgrade completed but verification failed[/yellow]"
+        )
+        console.print(
+            f"[dim]Expected: {target_version}, Got: {new_version or 'not found'}[/dim]"
+        )
         raise typer.Exit(1)
 
 

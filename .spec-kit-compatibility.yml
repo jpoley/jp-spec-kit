@@ -67,3 +67,20 @@ jp-spec-kit:
     strategy: "two-stage"
     description: "Downloads base spec-kit templates, then overlays jp-spec-kit extensions"
     precedence: "jp-spec-kit overrides spec-kit where conflicts exist"
+
+# Backlog.md compatibility
+backlog-md:
+  description: "Project management CLI for task tracking and backlog management"
+  compatible_with:
+    min: "1.20.0"
+    max: "2.0.0"
+    tested: "1.21.0"
+    recommended: "1.21.0"
+  repository: "jpoley/backlog-md"
+  installation:
+    pnpm:
+      method: "pnpm add -g backlog-md@<version>"
+      check: "backlog --version"
+    npm:
+      method: "npm install -g backlog-md@<version>"
+      check: "backlog --version"
