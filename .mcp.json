@@ -57,6 +57,12 @@
       "args": ["-y", "chrome-devtools-mcp@latest"],
       "env": {},
       "description": "Chrome DevTools Protocol server for browser inspection, performance analysis, and UI testing"
+    },
+    "backlog": {
+      "command": "backlog",
+      "args": ["mcp", "start"],
+      "env": {},
+      "description": "Backlog.md task management: create, update, search tasks with kanban board integration"
     }
   },
   "_notes": {

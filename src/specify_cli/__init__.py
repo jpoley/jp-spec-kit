@@ -1925,6 +1925,254 @@ def check():
         console.print("[dim]Tip: Install an AI assistant for the best experience[/dim]")
 
 
+@app.command()
+def tasks(
+    action: str = typer.Argument(
+        "generate", help="Action to perform (currently only 'generate' is supported)"
+    ),
+    format: str = typer.Option(
+        "backlog",
+        "--format",
+        help="Output format: 'backlog' (Backlog.md format) or 'markdown' (legacy tasks.md)",
+    ),
+    source: Optional[str] = typer.Option(
+        None,
+        "--source",
+        help="Path to source file or directory (default: current directory)",
+    ),
+    output_dir: Optional[str] = typer.Option(
+        None,
+        "--output",
+        help="Output directory for backlog format (default: ./backlog)",
+    ),
+    overwrite: bool = typer.Option(
+        False, "--overwrite", help="Overwrite existing task files"
+    ),
+    dry_run: bool = typer.Option(
+        False,
+        "--dry-run",
+        help="Preview what would be generated without creating files",
+    ),
+):
+    """
+    Generate tasks from spec/plan/tasks.md files.
+
+    This command can generate tasks in two formats:
+
+    1. backlog (default): Creates individual task files in ./backlog/tasks/ directory
+       following the Backlog.md format specification
+
+    2. markdown: Generates a single tasks.md file (legacy format)
+
+    The command automatically detects the source files (spec.md, plan.md, tasks.md)
+    from the current directory or specified source path.
+
+    Examples:
+        specify tasks generate                           # Generate backlog tasks from current dir
+        specify tasks generate --format markdown         # Generate legacy tasks.md format
+        specify tasks generate --source ./feature-x      # Generate from specific directory
+        specify tasks generate --dry-run                 # Preview without writing files
+        specify tasks generate --overwrite               # Overwrite existing tasks
+    """
+    show_banner()
+
+    # Only support 'generate' action for now
+    if action != "generate":
+        console.print(
+            f"[red]Error:[/red] Unsupported action '{action}'. Currently only 'generate' is supported."
+        )
+        raise typer.Exit(1)
+
+    # Validate format
+    if format not in ["backlog", "markdown"]:
+        console.print(
+            f"[red]Error:[/red] Invalid format '{format}'. Must be 'backlog' or 'markdown'."
+        )
+        raise typer.Exit(1)
+
+    # Determine source path
+    source_path = Path(source) if source else Path.cwd()
+    if not source_path.exists():
+        console.print(f"[red]Error:[/red] Source path does not exist: {source_path}")
+        raise typer.Exit(1)
+
+    # Handle markdown format (legacy)
+    if format == "markdown":
+        console.print("[yellow]Legacy markdown format is not yet implemented.[/yellow]")
+        console.print(
+            "[dim]Tip: Use --format backlog for the new Backlog.md format[/dim]"
+        )
+        raise typer.Exit(1)
+
+    # Handle backlog format
+    from .backlog import TaskMapper
+
+    # Determine backlog directory
+    backlog_dir = (
+        Path(output_dir)
+        if output_dir
+        else (
+            source_path / "backlog" if source_path.is_dir() else Path.cwd() / "backlog"
+        )
+    )
+
+    console.print(f"[cyan]Source:[/cyan] {source_path}")
+    console.print(f"[cyan]Output:[/cyan] {backlog_dir}")
+    console.print(f"[cyan]Format:[/cyan] {format}")
+    if dry_run:
+        console.print("[yellow]DRY RUN MODE - No files will be created[/yellow]")
+    console.print()
+
+    # Create mapper and generate tasks
+    mapper = TaskMapper(backlog_dir)
+
+    try:
+        # Determine if source is a file or directory
+        if source_path.is_file():
+            if source_path.name != "tasks.md":
+                console.print(
+                    f"[red]Error:[/red] Source file must be named 'tasks.md', got: {source_path.name}"
+                )
+                raise typer.Exit(1)
+            result = mapper.generate_from_tasks_file(
+                source_path, overwrite=overwrite, dry_run=dry_run
+            )
+        elif source_path.is_dir():
+            result = mapper.generate_from_spec(
+                source_path, overwrite=overwrite, dry_run=dry_run
+            )
+        else:
+            console.print(f"[red]Error:[/red] Invalid source path: {source_path}")
+            raise typer.Exit(1)
+
+        # Handle results
+        if not result.get("success"):
+            error_msg = result.get("error", "Unknown error")
+            console.print(f"[red]Error:[/red] {error_msg}")
+
+            # Show validation errors if present
+            if "validation_errors" in result:
+                console.print("\n[yellow]Validation Errors:[/yellow]")
+                for error in result["validation_errors"]:
+                    console.print(f"  - {error}")
+
+            raise typer.Exit(1)
+
+        # Show success message and statistics
+        if dry_run:
+            console.print("[bold green]Dry run completed successfully![/bold green]\n")
+        else:
+            console.print("[bold green]Tasks generated successfully![/bold green]\n")
+
+        # Display statistics
+        stats_lines = []
+
+        if "tasks_parsed" in result:
+            stats_lines.append(
+                f"{'Tasks Parsed':<20} [green]{result['tasks_parsed']}[/green]"
+            )
+
+        if "tasks_created" in result and not dry_run:
+            stats_lines.append(
+                f"{'Tasks Created':<20} [green]{result['tasks_created']}[/green]"
+            )
+
+        if "user_stories" in result:
+            stats_lines.append(
+                f"{'User Stories':<20} [cyan]{result['user_stories']}[/cyan]"
+            )
+
+        # Show groupings
+        if "tasks_by_phase" in result:
+            stats_lines.append("")
+            stats_lines.append("[bold]Tasks by Phase:[/bold]")
+            for phase, task_ids in sorted(result["tasks_by_phase"].items()):
+                stats_lines.append(f"  {phase:<18} {len(task_ids)} tasks")
+
+        if "tasks_by_story" in result:
+            stats_lines.append("")
+            stats_lines.append("[bold]Tasks by Story:[/bold]")
+            for story, task_ids in sorted(result["tasks_by_story"].items()):
+                stats_lines.append(f"  {story:<18} {len(task_ids)} tasks")
+
+        # Show execution order
+        if "execution_order" in result:
+            execution_order = result["execution_order"]
+            stats_lines.append("")
+            stats_lines.append(
+                f"[bold]Execution Order:[/bold] {', '.join(execution_order[:5])}"
+                + (
+                    f"... ({len(execution_order)} total)"
+                    if len(execution_order) > 5
+                    else ""
+                )
+            )
+
+        # Show parallel batches
+        if "parallel_batches" in result:
+            parallel_batches = result["parallel_batches"]
+            stats_lines.append(
+                f"[bold]Parallel Batches:[/bold] {len(parallel_batches)}"
+            )
+
+        # Show critical path
+        if "critical_path" in result:
+            critical_path = result["critical_path"]
+            stats_lines.append(
+                f"[bold]Critical Path Length:[/bold] {len(critical_path)}"
+            )
+
+        if stats_lines:
+            console.print(
+                Panel(
+                    "\n".join(stats_lines),
+                    title="Task Generation Summary",
+                    border_style="cyan",
+                    padding=(1, 2),
+                )
+            )
+
+        # Show created files (if not dry run)
+        if "created_files" in result and not dry_run:
+            console.print()
+            console.print("[bold]Created Files:[/bold]")
+            for file_path in result["created_files"][:10]:  # Show first 10
+                console.print(f"  [dim]{file_path}[/dim]")
+            if len(result["created_files"]) > 10:
+                console.print(
+                    f"  [dim]... and {len(result['created_files']) - 10} more[/dim]"
+                )
+
+        # Next steps
+        if not dry_run:
+            console.print()
+            next_steps = [
+                f"1. Review generated tasks in: [cyan]{backlog_dir / 'tasks'}[/cyan]",
+                "2. Edit task files as needed (add assignees, notes, etc.)",
+                "3. Track progress by updating task status in frontmatter",
+            ]
+            console.print(
+                Panel(
+                    "\n".join(next_steps),
+                    title="Next Steps",
+                    border_style="cyan",
+                    padding=(1, 2),
+                )
+            )
+
+    except FileNotFoundError as e:
+        console.print(f"[red]Error:[/red] File not found: {e}")
+        raise typer.Exit(1)
+    except Exception as e:
+        console.print(f"[red]Error:[/red] {e}")
+        if "--debug" in sys.argv:
+            import traceback
+
+            console.print("\n[yellow]Debug trace:[/yellow]")
+            console.print(traceback.format_exc())
+        raise typer.Exit(1)
+
+
 def main():
     app()
 
