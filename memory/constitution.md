@@ -28,6 +28,17 @@
 [PRINCIPLE_5_DESCRIPTION]
 <!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
 
+### Task Quality (NON-NEGOTIABLE)
+Every task created in the backlog MUST have:
+- **At least one acceptance criterion** - Tasks without ACs are incomplete and must not be created
+- **Clear, testable criteria** - Each AC must be outcome-oriented and objectively verifiable
+- **Proper description** - Explains the "why" and context for the task
+
+Tasks without acceptance criteria will be rejected or archived. This ensures all work is:
+1. Clearly scoped before implementation begins
+2. Verifiable upon completion
+3. Aligned with the Definition of Done
+
 ## Git Commit Requirements (NON-NEGOTIABLE)
 
 ### DCO Sign-Off Required

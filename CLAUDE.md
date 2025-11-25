@@ -707,9 +707,11 @@ Summary of what was done.
 **Always use CLI to create tasks:**
 
 ```bash
-# Example
+# Example - ALWAYS include at least one --ac flag
 backlog task create "Task title" -d "Description" --ac "First criterion" --ac "Second criterion"
 ```
+
+**⚠️ MANDATORY: Never create a task without acceptance criteria.** Tasks without ACs are considered incomplete and will be rejected or archived.
 
 ### Title (one liner)
 
@@ -787,6 +789,7 @@ Bad Example (Implementation Step):
 
 ### Task Requirements
 
+- **⚠️ MANDATORY: Every task MUST have at least one acceptance criterion** - Tasks without ACs are incomplete and should not be created
 - Tasks must be **atomic** and **testable** or **verifiable**
 - Each task should represent a single unit of work for one PR
 - **Never** reference future tasks (only tasks with id < current task id)
