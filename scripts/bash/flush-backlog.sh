@@ -372,7 +372,7 @@ EOF
 ### Common Labels
 EOF
 
-    if [[ ${#label_counts[@]} -eq 0 ]]; then
+    if [[ -z "${!label_counts[*]:-}" ]]; then
         echo "- None" >> "$summary_file"
     else
         # Sort labels by count (descending)
