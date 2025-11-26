@@ -1,0 +1,54 @@
+#!/bin/bash
+# Pre-commit hook: Validate task files have acceptance criteria
+# Blocks commits that add/modify task files without at least one AC
+
+FAILED=0
+FAILED_FILES=""
+
+# Get staged task files (added or modified) and process line by line
+git diff --cached --name-only --diff-filter=AM | grep -E '^backlog/tasks/task-.*\.md$' | while IFS= read -r file; do
+    # Get the staged content (not the working directory version)
+    CONTENT=$(git show ":$file" 2>/dev/null || true)
+
+    if [ -z "$CONTENT" ]; then
+        continue
+    fi
+
+    # Check for AC section markers
+    if ! echo "$CONTENT" | grep -q '<!-- AC:BEGIN -->'; then
+        echo "ERROR: $file missing AC section (<!-- AC:BEGIN -->)"
+        echo "$file" >> /tmp/pre-commit-failed-tasks.txt
+        continue
+    fi
+
+    # Extract content between AC:BEGIN and AC:END, check for at least one checkbox
+    AC_SECTION=$(echo "$CONTENT" | sed -n '/<!-- AC:BEGIN -->/,/<!-- AC:END -->/p')
+
+    if ! echo "$AC_SECTION" | grep -qE '^\s*- \[(x| )\]'; then
+        echo "ERROR: $file has no acceptance criteria (no checkboxes found)"
+        echo "$file" >> /tmp/pre-commit-failed-tasks.txt
+    fi
+done
+
+# Check if any failures were recorded
+if [ -f /tmp/pre-commit-failed-tasks.txt ]; then
+    echo ""
+    echo "=========================================="
+    echo "COMMIT BLOCKED: Tasks missing acceptance criteria"
+    echo "=========================================="
+    echo ""
+    echo "The following task files have no acceptance criteria:"
+    cat /tmp/pre-commit-failed-tasks.txt | while IFS= read -r f; do
+        echo "  - $f"
+    done
+    echo ""
+    echo "Every task MUST have at least one acceptance criterion."
+    echo "Use: backlog task edit <id> --ac \"Your criterion here\""
+    echo ""
+    echo "To bypass (NOT RECOMMENDED): git commit --no-verify"
+    rm -f /tmp/pre-commit-failed-tasks.txt
+    exit 1
+fi
+
+rm -f /tmp/pre-commit-failed-tasks.txt
+exit 0
