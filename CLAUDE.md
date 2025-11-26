@@ -80,6 +80,106 @@ backlog task view task-12
 - User Guide: `docs/guides/backlog-user-guide.md`
 - Command Reference: `docs/reference/backlog-commands.md`
 
+### Backlog Flush (Archiving Done Tasks)
+
+The backlog flush feature automatically archives completed tasks and generates summary reports.
+
+#### Manual Execution
+
+```bash
+# Preview what would be archived (recommended first step)
+./scripts/bash/flush-backlog.sh --dry-run
+
+# Archive all Done tasks and generate summary
+./scripts/bash/flush-backlog.sh
+
+# Archive without generating summary
+./scripts/bash/flush-backlog.sh --no-summary
+
+# Archive and auto-commit changes
+./scripts/bash/flush-backlog.sh --auto-commit
+
+# Show help
+./scripts/bash/flush-backlog.sh --help
+```
+
+#### Automated via GitHub Actions
+
+Include `flush-backlog` (case-insensitive) in your commit message to trigger automatic archival:
+
+```bash
+git commit -m "Complete feature implementation flush-backlog"
+git push origin main
+```
+
+The workflow will:
+1. Install backlog.md CLI
+2. Run the flush script
+3. Generate a timestamped summary
+4. Commit and push the changes
+
+#### Flush Summary Format
+
+Summaries are saved to `backlog/archive/flush-YYYY-MM-DD-HHMMSS.md`:
+
+```markdown
+# Backlog Flush Summary
+
+**Date**: 2025-11-26 14:30:00 UTC
+**Archived Tasks**: 5
+**Triggered By**: manual
+
+## Tasks Archived
+
+### task-013 - Technical Feasibility - GitHub API Spike
+- **Status**: Done
+- **Priority**: High
+- **Labels**: research, api
+- **Acceptance Criteria**: 3/3 completed
+
+---
+
+## Statistics
+- Total archived: 5
+- By priority: High (2), Medium (2), Low (1)
+- Common labels: api (3), backend (2)
+```
+
+#### Exit Codes
+
+| Code | Meaning |
+|------|---------|
+| 0 | Success - tasks archived |
+| 1 | Validation error (backlog CLI not installed, no backlog/ directory) |
+| 2 | No Done tasks to archive |
+| 3 | Partial failure (some tasks failed to archive) |
+
+#### Troubleshooting
+
+**"backlog: command not found"**
+Install backlog.md CLI: `npm install -g backlog.md`
+
+**"No backlog directory found"**
+Run from project root containing `backlog/` directory, or initialize with `backlog init`
+
+**"No Done tasks to archive"**
+This is normal - means all tasks are still in progress. Exit code 2 is informational, not an error.
+
+**Permission denied**
+Make script executable: `chmod +x scripts/bash/flush-backlog.sh`
+
+#### Comparison with `backlog cleanup`
+
+| Feature | `flush-backlog.sh` | `backlog cleanup` |
+|---------|-------------------|-------------------|
+| Archives Done tasks | ✓ | ✓ |
+| Generates summary report | ✓ | ✗ |
+| GitHub Actions integration | ✓ | ✗ |
+| Dry-run mode | ✓ | ✗ |
+| Statistics | ✓ | ✗ |
+
+Use `flush-backlog.sh` for CI/CD integration and audit trails. Use `backlog cleanup` for quick local cleanup without reports.
+
 ### Headless Mode Usage
 
 Claude Code supports headless mode for non-interactive contexts (CI, pre-commit hooks, automation):
