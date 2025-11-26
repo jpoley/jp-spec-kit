@@ -29,6 +29,15 @@ __all__ = [
     "TokenRedactionFilter",
     "ENV_VAR_NAMES",
     "TOKEN_PATTERNS",
+    # Audit
+    "AuditLogger",
+    "AuditEvent",
+    "AuditEventType",
+    "AuditSeverity",
+    "AuditQuery",
+    "SLSAAttestation",
+    "JSONFormatter",
+    "MarkdownFormatter",
     # Errors
     "SatelliteError",
     "AuthenticationError",
@@ -103,3 +112,15 @@ from .migration import TaskMigrator, MigrationError, migrate_tasks_cli, cleanup_
 
 # Secrets
 from .secrets import SecretManager, TokenRedactionFilter, ENV_VAR_NAMES, TOKEN_PATTERNS
+
+# Audit
+from .audit import (
+    AuditLogger,
+    AuditEvent,
+    AuditEventType,
+    AuditSeverity,
+    AuditQuery,
+    SLSAAttestation,
+    JSONFormatter,
+    MarkdownFormatter,
+)
