@@ -4,6 +4,7 @@ title: Implement GitHub Issue Field Mapping
 status: To Do
 assignee: []
 created_date: '2025-11-24'
+updated_date: '2025-11-28 01:30'
 labels:
   - implementation
   - provider
@@ -14,10 +15,12 @@ labels:
   - satellite-mode
 dependencies:
   - task-031
+priority: low
 ---
 
 ## Description
 
+<!-- SECTION:DESCRIPTION:BEGIN -->
 Map GitHub issue fields to task schema.
 
 ## Phase
@@ -28,14 +31,15 @@ Phase 4: Implementation - Providers
 
 - US-1: Pull remote task by ID
 - US-2: Sync assigned tasks
+<!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
-
-- [ ] Title, body, state, assignee, labels
-- [ ] Milestone mapping
-- [ ] Project (beta) support
-- [ ] Custom field handling (if available)
-- [ ] Bidirectional mapping (task → issue)
+<!-- AC:BEGIN -->
+- [ ] #1 Title, body, state, assignee, labels
+- [ ] #2 Milestone mapping
+- [ ] #3 Project (beta) support
+- [ ] #4 Custom field handling (if available)
+- [ ] #5 Bidirectional mapping (task → issue)
 
 ## Deliverables
 
@@ -46,3 +50,4 @@ Phase 4: Implementation - Providers
 ## Parallelizable
 
 [P] with task-032
+<!-- AC:END -->

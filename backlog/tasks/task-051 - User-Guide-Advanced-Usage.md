@@ -4,6 +4,7 @@ title: User Guide - Advanced Usage
 status: To Do
 assignee: []
 created_date: '2025-11-24'
+updated_date: '2025-11-28 01:30'
 labels:
   - documentation
   - user-guide
@@ -12,24 +13,27 @@ labels:
 dependencies:
   - task-043
   - task-044
+priority: low
 ---
 
 ## Description
 
+<!-- SECTION:DESCRIPTION:BEGIN -->
 Write advanced usage guide covering all features.
 
 ## Phase
 
 Phase 7: Documentation
+<!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
-
-- [ ] Conflict resolution strategies
-- [ ] Custom field mapping
-- [ ] Compliance mode setup
-- [ ] Offline workflows
-- [ ] Multi-repo setup
-- [ ] Performance tuning
+<!-- AC:BEGIN -->
+- [ ] #1 Conflict resolution strategies
+- [ ] #2 Custom field mapping
+- [ ] #3 Compliance mode setup
+- [ ] #4 Offline workflows
+- [ ] #5 Multi-repo setup
+- [ ] #6 Performance tuning
 
 ## Deliverables
 
@@ -42,3 +46,4 @@ Phase 7: Documentation
 ## Estimated Time
 
 3 days
+<!-- AC:END -->

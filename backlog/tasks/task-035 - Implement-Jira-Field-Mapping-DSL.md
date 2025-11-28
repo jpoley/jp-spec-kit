@@ -4,6 +4,7 @@ title: Implement Jira Field Mapping DSL
 status: To Do
 assignee: []
 created_date: '2025-11-24'
+updated_date: '2025-11-28 01:30'
 labels:
   - implementation
   - provider
@@ -13,10 +14,12 @@ labels:
   - satellite-mode
 dependencies:
   - task-034
+priority: low
 ---
 
 ## Description
 
+<!-- SECTION:DESCRIPTION:BEGIN -->
 Implement configurable field mapping for Jira custom fields.
 
 ## Phase
@@ -26,14 +29,15 @@ Phase 4: Implementation - Providers
 ## User Stories
 
 - US-1: Pull remote task by ID
+<!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
-
-- [ ] Map standard fields (summary, description, status, assignee)
-- [ ] Map custom fields by customfield_* IDs
-- [ ] Support story points, epic link, sprint
-- [ ] Field type validation
-- [ ] Error handling for missing fields
+<!-- AC:BEGIN -->
+- [ ] #1 Map standard fields (summary, description, status, assignee)
+- [ ] #2 Map custom fields by customfield_* IDs
+- [ ] #3 Support story points, epic link, sprint
+- [ ] #4 Field type validation
+- [ ] #5 Error handling for missing fields
 
 ## Deliverables
 
@@ -45,3 +49,4 @@ Phase 4: Implementation - Providers
 ## Parallelizable
 
 [P] with task-036
+<!-- AC:END -->

@@ -4,6 +4,7 @@ title: Implement Cross-Provider Testing
 status: To Do
 assignee: []
 created_date: '2025-11-24'
+updated_date: '2025-11-28 01:30'
 labels:
   - implementation
   - testing
@@ -13,23 +14,26 @@ dependencies:
   - task-031
   - task-034
   - task-037
+priority: low
 ---
 
 ## Description
 
+<!-- SECTION:DESCRIPTION:BEGIN -->
 Ensure all providers have feature parity and consistent behavior.
 
 ## Phase
 
 Phase 4: Implementation - Providers
+<!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
-
-- [ ] Shared test suite for all providers
-- [ ] Contract tests (same inputs → same outputs)
-- [ ] Error handling consistency
-- [ ] Performance benchmarks (all providers <3s per task)
-- [ ] Edge case coverage (empty fields, special chars, etc.)
+<!-- AC:BEGIN -->
+- [ ] #1 Shared test suite for all providers
+- [ ] #2 Contract tests (same inputs → same outputs)
+- [ ] #3 Error handling consistency
+- [ ] #4 Performance benchmarks (all providers <3s per task)
+- [ ] #5 Edge case coverage (empty fields, special chars, etc.)
 
 ## Deliverables
 
@@ -40,3 +44,4 @@ Phase 4: Implementation - Providers
 ## Parallelizable
 
 No
+<!-- AC:END -->

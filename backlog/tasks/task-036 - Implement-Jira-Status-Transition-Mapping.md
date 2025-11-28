@@ -4,6 +4,7 @@ title: Implement Jira Status Transition Mapping
 status: To Do
 assignee: []
 created_date: '2025-11-24'
+updated_date: '2025-11-28 01:30'
 labels:
   - implementation
   - provider
@@ -14,10 +15,12 @@ labels:
   - satellite-mode
 dependencies:
   - task-034
+priority: low
 ---
 
 ## Description
 
+<!-- SECTION:DESCRIPTION:BEGIN -->
 Map local task status to Jira workflow transitions.
 
 ## Phase
@@ -28,14 +31,15 @@ Phase 4: Implementation - Providers
 
 - US-2: Sync assigned tasks
 - US-4: Compliance mode
+<!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
-
-- [ ] Configurable status mapping (local → Jira)
-- [ ] Workflow-aware transitions (validate allowed)
-- [ ] Handle custom workflows
-- [ ] Resolution field handling
-- [ ] Comment on transition (optional)
+<!-- AC:BEGIN -->
+- [ ] #1 Configurable status mapping (local → Jira)
+- [ ] #2 Workflow-aware transitions (validate allowed)
+- [ ] #3 Handle custom workflows
+- [ ] #4 Resolution field handling
+- [ ] #5 Comment on transition (optional)
 
 ## Deliverables
 
@@ -47,3 +51,4 @@ Phase 4: Implementation - Providers
 ## Parallelizable
 
 [P] with task-035
+<!-- AC:END -->

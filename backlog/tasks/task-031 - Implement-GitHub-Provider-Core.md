@@ -4,6 +4,7 @@ title: Implement GitHub Provider Core
 status: To Do
 assignee: []
 created_date: '2025-11-24'
+updated_date: '2025-11-28 01:30'
 labels:
   - implementation
   - provider
@@ -15,10 +16,12 @@ labels:
 dependencies:
   - task-024
   - task-025
+priority: low
 ---
 
 ## Description
 
+<!-- SECTION:DESCRIPTION:BEGIN -->
 Implement `GitHubProvider` class with basic operations.
 
 ## Phase
@@ -29,15 +32,16 @@ Phase 4: Implementation - Providers
 
 - US-1: Pull remote task by ID
 - US-3: Create PR with spec injection
+<!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
-
-- [ ] Implement all `RemoteProvider` methods
-- [ ] Use `PyGithub` library
-- [ ] `gh` CLI auth integration
-- [ ] PAT fallback
-- [ ] GraphQL for efficient queries
-- [ ] Rate limit handling
+<!-- AC:BEGIN -->
+- [ ] #1 Implement all `RemoteProvider` methods
+- [ ] #2 Use `PyGithub` library
+- [ ] #3 `gh` CLI auth integration
+- [ ] #4 PAT fallback
+- [ ] #5 GraphQL for efficient queries
+- [ ] #6 Rate limit handling
 
 ## Deliverables
 
@@ -52,3 +56,4 @@ No
 ## Estimated Time
 
 2 weeks
+<!-- AC:END -->

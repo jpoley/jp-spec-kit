@@ -4,6 +4,7 @@ title: Integration Test Suite
 status: To Do
 assignee: []
 created_date: '2025-11-24'
+updated_date: '2025-11-28 01:30'
 labels:
   - testing
   - integration
@@ -13,23 +14,26 @@ dependencies:
   - task-040
   - task-041
   - task-042
+priority: low
 ---
 
 ## Description
 
+<!-- SECTION:DESCRIPTION:BEGIN -->
 Create end-to-end integration tests with real APIs.
 
 ## Phase
 
 Phase 6: Testing
+<!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
-
-- [ ] Test full pull → edit → push workflow
-- [ ] Test sync with conflicts
-- [ ] Test error scenarios (auth fail, network timeout, rate limit)
-- [ ] Run against test repos/workspaces
-- [ ] Automated in CI (GitHub Actions)
+<!-- AC:BEGIN -->
+- [ ] #1 Test full pull → edit → push workflow
+- [ ] #2 Test sync with conflicts
+- [ ] #3 Test error scenarios (auth fail, network timeout, rate limit)
+- [ ] #4 Run against test repos/workspaces
+- [ ] #5 Automated in CI (GitHub Actions)
 
 ## Deliverables
 
@@ -44,3 +48,4 @@ Phase 6: Testing
 ## Estimated Time
 
 1 week
+<!-- AC:END -->

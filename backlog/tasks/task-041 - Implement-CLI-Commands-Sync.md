@@ -4,6 +4,7 @@ title: Implement CLI Commands - Sync
 status: To Do
 assignee: []
 created_date: '2025-11-24'
+updated_date: '2025-11-28 01:30'
 labels:
   - implementation
   - cli
@@ -13,10 +14,12 @@ labels:
 dependencies:
   - task-026
   - task-027
+priority: low
 ---
 
 ## Description
 
+<!-- SECTION:DESCRIPTION:BEGIN -->
 Implement `backlog remote sync` command.
 
 ## Phase
@@ -26,15 +29,16 @@ Phase 5: Implementation - CLI
 ## User Stories
 
 - US-2: Sync assigned tasks
+<!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
-
-- [ ] Bidirectional sync with conflict UI
-- [ ] Progress bar for batch operations
-- [ ] Summary report (X created, Y updated, Z conflicts)
-- [ ] Incremental sync (skip unchanged)
-- [ ] Provider selection (--provider github)
-- [ ] Dry-run mode
+<!-- AC:BEGIN -->
+- [ ] #1 Bidirectional sync with conflict UI
+- [ ] #2 Progress bar for batch operations
+- [ ] #3 Summary report (X created, Y updated, Z conflicts)
+- [ ] #4 Incremental sync (skip unchanged)
+- [ ] #5 Provider selection (--provider github)
+- [ ] #6 Dry-run mode
 
 ## Deliverables
 
@@ -50,3 +54,4 @@ Phase 5: Implementation - CLI
 ## Estimated Time
 
 1 week
+<!-- AC:END -->

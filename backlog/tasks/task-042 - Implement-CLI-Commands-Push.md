@@ -4,6 +4,7 @@ title: Implement CLI Commands - Push
 status: To Do
 assignee: []
 created_date: '2025-11-24'
+updated_date: '2025-11-28 01:30'
 labels:
   - implementation
   - cli
@@ -12,10 +13,12 @@ labels:
   - satellite-mode
 dependencies:
   - task-032
+priority: low
 ---
 
 ## Description
 
+<!-- SECTION:DESCRIPTION:BEGIN -->
 Implement `backlog remote push <task-id>` command.
 
 ## Phase
@@ -25,15 +28,16 @@ Phase 5: Implementation - CLI
 ## User Stories
 
 - US-3: Create PR with spec injection
+<!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
-
-- [ ] Validate task has upstream link
-- [ ] Find and read spec file
-- [ ] Create PR (GitHub) or update status + comment (Jira/Notion)
-- [ ] Compliance validation in strict mode
-- [ ] Confirmation prompt before push
-- [ ] Return PR/ticket URL
+<!-- AC:BEGIN -->
+- [ ] #1 Validate task has upstream link
+- [ ] #2 Find and read spec file
+- [ ] #3 Create PR (GitHub) or update status + comment (Jira/Notion)
+- [ ] #4 Compliance validation in strict mode
+- [ ] #5 Confirmation prompt before push
+- [ ] #6 Return PR/ticket URL
 
 ## Deliverables
 
@@ -45,3 +49,4 @@ Phase 5: Implementation - CLI
 ## Parallelizable
 
 [P] with task-043
+<!-- AC:END -->

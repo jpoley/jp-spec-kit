@@ -4,6 +4,7 @@ title: Implement Rate Limiter & Retry Logic
 status: To Do
 assignee: []
 created_date: '2025-11-24'
+updated_date: '2025-11-28 01:30'
 labels:
   - implementation
   - core
@@ -11,23 +12,26 @@ labels:
   - satellite-mode
 dependencies:
   - task-026
+priority: low
 ---
 
 ## Description
 
+<!-- SECTION:DESCRIPTION:BEGIN -->
 Implement token bucket rate limiter and exponential backoff retry.
 
 ## Phase
 
 Phase 3: Implementation - Core
+<!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
-
-- [ ] `RateLimiter` class with token bucket algorithm
-- [ ] Exponential backoff using `tenacity` library
-- [ ] Configurable limits per provider
-- [ ] Rate limit warnings logged
-- [ ] Auto-resume after rate limit reset
+<!-- AC:BEGIN -->
+- [ ] #1 `RateLimiter` class with token bucket algorithm
+- [ ] #2 Exponential backoff using `tenacity` library
+- [ ] #3 Configurable limits per provider
+- [ ] #4 Rate limit warnings logged
+- [ ] #5 Auto-resume after rate limit reset
 
 ## Deliverables
 
@@ -38,3 +42,4 @@ Phase 3: Implementation - Core
 ## Parallelizable
 
 [P] with task-027
+<!-- AC:END -->

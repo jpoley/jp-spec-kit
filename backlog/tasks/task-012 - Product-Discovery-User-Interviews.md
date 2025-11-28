@@ -5,13 +5,14 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2025-11-24'
-updated_date: '2025-11-26 02:59'
+updated_date: '2025-11-28 01:30'
 labels:
   - discovery
   - US-all
   - P0
   - satellite-mode
 dependencies: []
+priority: low
 ---
 
 ## Description

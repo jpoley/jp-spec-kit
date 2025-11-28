@@ -4,6 +4,7 @@ title: Compliance Validation Testing
 status: To Do
 assignee: []
 created_date: '2025-11-24'
+updated_date: '2025-11-28 01:30'
 labels:
   - testing
   - compliance
@@ -13,10 +14,12 @@ labels:
 dependencies:
   - task-030
   - task-042
+priority: low
 ---
 
 ## Description
 
+<!-- SECTION:DESCRIPTION:BEGIN -->
 Validate compliance features meet SLSA, NIST, SOC2 requirements.
 
 ## Phase
@@ -26,14 +29,15 @@ Phase 6: Testing
 ## User Stories
 
 - US-4: Compliance mode
+<!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
-
-- [ ] Test strict mode enforcement
-- [ ] Validate audit log completeness
-- [ ] Test compliance report generation
-- [ ] Verify SLSA provenance chain
-- [ ] Dry-run with compliance officer
+<!-- AC:BEGIN -->
+- [ ] #1 Test strict mode enforcement
+- [ ] #2 Validate audit log completeness
+- [ ] #3 Test compliance report generation
+- [ ] #4 Verify SLSA provenance chain
+- [ ] #5 Dry-run with compliance officer
 
 ## Deliverables
 
@@ -48,3 +52,4 @@ No
 ## Estimated Time
 
 1 week
+<!-- AC:END -->

@@ -4,6 +4,7 @@ title: Implement Sync Engine Core
 status: To Do
 assignee: []
 created_date: '2025-11-24'
+updated_date: '2025-11-28 01:30'
 labels:
   - implementation
   - core
@@ -13,10 +14,12 @@ labels:
 dependencies:
   - task-024
   - task-025
+priority: low
 ---
 
 ## Description
 
+<!-- SECTION:DESCRIPTION:BEGIN -->
 Implement bidirectional sync algorithm.
 
 ## Phase
@@ -26,15 +29,16 @@ Phase 3: Implementation - Core
 ## User Stories
 
 - US-2: Sync assigned tasks
+<!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
-
-- [ ] `SyncService` class with sync() method
-- [ ] Create/update/delete detection
-- [ ] Incremental sync using last_sync timestamp
-- [ ] Conflict detection
-- [ ] Audit logging
-- [ ] Performance target: <10s for 100 tasks
+<!-- AC:BEGIN -->
+- [ ] #1 `SyncService` class with sync() method
+- [ ] #2 Create/update/delete detection
+- [ ] #3 Incremental sync using last_sync timestamp
+- [ ] #4 Conflict detection
+- [ ] #5 Audit logging
+- [ ] #6 Performance target: <10s for 100 tasks
 
 ## Deliverables
 
@@ -50,3 +54,4 @@ No
 ## Estimated Time
 
 2 weeks
+<!-- AC:END -->

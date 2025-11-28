@@ -4,6 +4,7 @@ title: API Documentation
 status: To Do
 assignee: []
 created_date: '2025-11-24'
+updated_date: '2025-11-28 01:30'
 labels:
   - documentation
   - api
@@ -12,23 +13,26 @@ labels:
 dependencies:
   - task-023
   - task-024
+priority: low
 ---
 
 ## Description
 
+<!-- SECTION:DESCRIPTION:BEGIN -->
 Generate API documentation for extension developers.
 
 ## Phase
 
 Phase 7: Documentation
+<!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
-
-- [ ] `RemoteProvider` interface docs
-- [ ] `ProviderRegistry` API docs
-- [ ] Custom provider tutorial
-- [ ] Code examples
-- [ ] Auto-generated from docstrings (Sphinx)
+<!-- AC:BEGIN -->
+- [ ] #1 `RemoteProvider` interface docs
+- [ ] #2 `ProviderRegistry` API docs
+- [ ] #3 Custom provider tutorial
+- [ ] #4 Code examples
+- [ ] #5 Auto-generated from docstrings (Sphinx)
 
 ## Deliverables
 
@@ -43,3 +47,4 @@ Phase 7: Documentation
 ## Estimated Time
 
 3 days
+<!-- AC:END -->

@@ -4,6 +4,7 @@ title: Implement CLI Setup Wizard
 status: To Do
 assignee: []
 created_date: '2025-11-24'
+updated_date: '2025-11-28 01:30'
 labels:
   - implementation
   - cli
@@ -12,23 +13,26 @@ labels:
   - satellite-mode
 dependencies:
   - task-025
+priority: low
 ---
 
 ## Description
 
+<!-- SECTION:DESCRIPTION:BEGIN -->
 Implement `backlog remote setup <provider>` interactive wizard.
 
 ## Phase
 
 Phase 5: Implementation - CLI
+<!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
-
-- [ ] Step-by-step setup for each provider
-- [ ] Auto-detect auth methods (gh CLI, tokens)
-- [ ] Test connection after setup
-- [ ] Save config to config.yml
-- [ ] User-friendly prompts with defaults
+<!-- AC:BEGIN -->
+- [ ] #1 Step-by-step setup for each provider
+- [ ] #2 Auto-detect auth methods (gh CLI, tokens)
+- [ ] #3 Test connection after setup
+- [ ] #4 Save config to config.yml
+- [ ] #5 User-friendly prompts with defaults
 
 ## Deliverables
 
@@ -40,3 +44,4 @@ Phase 5: Implementation - CLI
 ## Parallelizable
 
 [P] with task-045
+<!-- AC:END -->
