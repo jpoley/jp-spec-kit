@@ -5,7 +5,7 @@ status: Done
 assignee:
   - '@claude-agent-1'
 created_date: '2025-11-28 16:53'
-updated_date: '2025-11-28 18:17'
+updated_date: '2025-11-28 19:44'
 labels:
   - jpspec
   - backlog-integration
@@ -48,4 +48,11 @@ Deliverables:
 - Integration requirements checklist per command
 - Recommended 3-phase implementation strategy
 - Complete agent roster (15+ agents documented)
+
+Follow-up Implementation Tasks (from this audit):
+- task-106: Design backlog.md integration architecture
+- task-107: Create shared backlog.md instructions template
+- task-108: Create test framework for backlog.md integration
+- task-109 to task-114: Update all jpspec commands to use backlog.md CLI
+- task-115: End-to-end integration tests
 <!-- SECTION:NOTES:END -->
