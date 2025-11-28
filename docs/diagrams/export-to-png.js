@@ -5,6 +5,9 @@
  *
  * This script uses Puppeteer to render the Excalidraw diagram in a headless browser
  * and export it as a PNG image at high resolution.
+ *
+ * Requirements:
+ *     npm install puppeteer
  */
 
 const fs = require('fs');
@@ -205,7 +208,7 @@ async function exportToPng() {
     await page.waitForFunction(() => window.renderComplete, { timeout: 10000 });
 
     // Add small delay for final render
-    await page.waitForTimeout(1000);
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
     console.log('Taking screenshot...');
     const canvas = await page.$('#canvas');
