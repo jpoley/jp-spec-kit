@@ -175,7 +175,8 @@ Your deliverables should include:
      --ac "Implement accessibility (WCAG 2.1 AA)" \
      --ac "Add integration tests" \
      -a @pm-planner \
-     -l implement,frontend
+     -l implement,frontend \
+     --priority medium
    ```
 
    **After creating tasks, list them here:**
