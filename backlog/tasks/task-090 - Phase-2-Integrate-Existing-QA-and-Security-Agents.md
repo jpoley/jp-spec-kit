@@ -1,10 +1,11 @@
 ---
 id: task-090
 title: Phase 2 - Integrate Existing QA and Security Agents
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude-agent'
 created_date: '2025-11-28 15:56'
-updated_date: '2025-11-28 15:56'
+updated_date: '2025-11-28 18:27'
 labels:
   - validate-enhancement
   - phase-2
