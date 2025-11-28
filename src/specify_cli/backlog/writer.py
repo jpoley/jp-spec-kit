@@ -29,7 +29,7 @@ class BacklogWriter:
         *,
         assignee: Optional[list[str]] = None,
         status: str = "To Do",
-        notes: Optional[str] = None
+        notes: Optional[str] = None,
     ) -> Path:
         """
         Write a single task to Backlog.md format.
@@ -49,12 +49,12 @@ class BacklogWriter:
         # Generate task filename
         # Format: task-{id} - {title}.md
         # Example: task-001 - Create User model.md
-        task_num = task.task_id.replace('T', '').zfill(3)
+        task_num = task.task_id.replace("T", "").zfill(3)
         filename = self._sanitize_filename(f"task-{task_num} - {task.description}")
 
         # Add .md extension if not present
-        if not filename.endswith('.md'):
-            filename += '.md'
+        if not filename.endswith(".md"):
+            filename += ".md"
 
         task_file = self.tasks_dir / filename
 
@@ -72,19 +72,15 @@ class BacklogWriter:
         body = self._build_body(task, notes)
 
         # Write file
-        with open(task_file, 'w', encoding='utf-8') as f:
+        with open(task_file, "w", encoding="utf-8") as f:
             f.write(frontmatter)
-            f.write('\n\n')
+            f.write("\n\n")
             f.write(body)
 
         return task_file
 
     def write_tasks(
-        self,
-        tasks: list[Task],
-        *,
-        status: str = "To Do",
-        overwrite: bool = False
+        self, tasks: list[Task], *, status: str = "To Do", overwrite: bool = False
     ) -> list[Path]:
         """
         Write multiple tasks to Backlog.md format.
@@ -126,8 +122,7 @@ class BacklogWriter:
         """Build YAML frontmatter for Backlog.md task."""
         # Convert dependencies from T### format to task-### format
         backlog_dependencies = [
-            f"task-{dep.replace('T', '').zfill(3)}"
-            for dep in dependencies
+            f"task-{dep.replace('T', '').zfill(3)}" for dep in dependencies
         ]
 
         # Build frontmatter
@@ -147,7 +142,7 @@ class BacklogWriter:
             lines.append("assignee: []")
 
         # Created date
-        created_date = datetime.now().strftime('%Y-%m-%d %H:%M')
+        created_date = datetime.now().strftime("%Y-%m-%d %H:%M")
         lines.append(f"created_date: '{created_date}'")
 
         # Labels (list format)
@@ -168,7 +163,7 @@ class BacklogWriter:
 
         lines.append("---")
 
-        return '\n'.join(lines)
+        return "\n".join(lines)
 
     def _build_body(self, task: Task, notes: Optional[str] = None) -> str:
         """Build markdown body for task."""
@@ -196,7 +191,7 @@ class BacklogWriter:
         if notes:
             body_parts.append(f"\n## Notes\n\n{notes}")
 
-        return '\n'.join(body_parts)
+        return "\n".join(body_parts)
 
     def _sanitize_filename(self, filename: str) -> str:
         """
@@ -209,26 +204,26 @@ class BacklogWriter:
             Sanitized filename
         """
         # Remove or replace characters that are invalid in filenames
-        invalid_chars = ['<', '>', ':', '"', '/', '\\', '|', '?', '*']
+        invalid_chars = ["<", ">", ":", '"', "/", "\\", "|", "?", "*"]
         sanitized = filename
 
         for char in invalid_chars:
-            sanitized = sanitized.replace(char, '-')
+            sanitized = sanitized.replace(char, "-")
 
         # Limit length (keep reasonable filename length)
         max_length = 100
         if len(sanitized) > max_length:
             # Truncate but keep extension
-            if sanitized.endswith('.md'):
-                sanitized = sanitized[:max_length-3] + '.md'
+            if sanitized.endswith(".md"):
+                sanitized = sanitized[: max_length - 3] + ".md"
             else:
                 sanitized = sanitized[:max_length]
 
         # Replace multiple spaces/dashes with single dash
-        while '  ' in sanitized:
-            sanitized = sanitized.replace('  ', ' ')
-        while '--' in sanitized:
-            sanitized = sanitized.replace('--', '-')
+        while "  " in sanitized:
+            sanitized = sanitized.replace("  ", " ")
+        while "--" in sanitized:
+            sanitized = sanitized.replace("--", "-")
 
         return sanitized.strip()
 
@@ -243,28 +238,25 @@ class BacklogWriter:
             Cleaned title (first sentence or truncated description)
         """
         # Take first sentence or first 60 characters
-        title = description.split('.')[0].strip()
+        title = description.split(".")[0].strip()
 
         # If still too long, truncate
         max_length = 60
         if len(title) > max_length:
-            title = title[:max_length].strip() + '...'
+            title = title[:max_length].strip() + "..."
 
         return title
 
     def _get_task_file_path(self, task: Task) -> Path:
         """Get the file path for a task without creating it."""
-        task_num = task.task_id.replace('T', '').zfill(3)
+        task_num = task.task_id.replace("T", "").zfill(3)
         filename = self._sanitize_filename(f"task-{task_num} - {task.description}")
-        if not filename.endswith('.md'):
-            filename += '.md'
+        if not filename.endswith(".md"):
+            filename += ".md"
         return self.tasks_dir / filename
 
     def update_task_status(
-        self,
-        task_file: Path,
-        new_status: str,
-        completed_date: Optional[str] = None
+        self, task_file: Path, new_status: str, completed_date: Optional[str] = None
     ) -> None:
         """
         Update the status of an existing task file.
@@ -278,14 +270,14 @@ class BacklogWriter:
             raise FileNotFoundError(f"Task file not found: {task_file}")
 
         # Read current content
-        with open(task_file, 'r', encoding='utf-8') as f:
+        with open(task_file, "r", encoding="utf-8") as f:
             content = f.read()
 
         # Split frontmatter and body
-        if not content.startswith('---'):
+        if not content.startswith("---"):
             raise ValueError(f"Invalid task file format: {task_file}")
 
-        parts = content.split('---', 2)
+        parts = content.split("---", 2)
         if len(parts) < 3:
             raise ValueError(f"Invalid task file format: {task_file}")
 
@@ -293,23 +285,27 @@ class BacklogWriter:
         body = parts[2]
 
         # Update status in frontmatter
-        lines = frontmatter.split('\n')
+        lines = frontmatter.split("\n")
         updated_lines = []
 
         for line in lines:
-            if line.startswith('status:'):
+            if line.startswith("status:"):
                 updated_lines.append(f"status: {new_status}")
                 # Add completed_date if status is Done and not already present
-                if new_status == "Done" and completed_date and 'completed_date:' not in frontmatter:
+                if (
+                    new_status == "Done"
+                    and completed_date
+                    and "completed_date:" not in frontmatter
+                ):
                     updated_lines.append(f"completed_date: '{completed_date}'")
             else:
                 updated_lines.append(line)
 
         # Reconstruct file
-        updated_content = '---\n' + '\n'.join(updated_lines) + '\n---' + body
+        updated_content = "---\n" + "\n".join(updated_lines) + "\n---" + body
 
         # Write back
-        with open(task_file, 'w', encoding='utf-8') as f:
+        with open(task_file, "w", encoding="utf-8") as f:
             f.write(updated_content)
 
     def get_task_stats(self) -> dict:
@@ -321,32 +317,32 @@ class BacklogWriter:
         """
         if not self.tasks_dir.exists():
             return {
-                'total': 0,
-                'by_status': {},
-                'by_label': {},
+                "total": 0,
+                "by_status": {},
+                "by_label": {},
             }
 
-        task_files = list(self.tasks_dir.glob('task-*.md'))
+        task_files = list(self.tasks_dir.glob("task-*.md"))
 
         stats = {
-            'total': len(task_files),
-            'by_status': {},
-            'by_label': {},
+            "total": len(task_files),
+            "by_status": {},
+            "by_label": {},
         }
 
         for task_file in task_files:
-            with open(task_file, 'r', encoding='utf-8') as f:
+            with open(task_file, "r", encoding="utf-8") as f:
                 content = f.read()
 
             # Extract status
-            for line in content.split('\n'):
-                if line.startswith('status:'):
-                    status = line.split(':', 1)[1].strip()
-                    stats['by_status'][status] = stats['by_status'].get(status, 0) + 1
+            for line in content.split("\n"):
+                if line.startswith("status:"):
+                    status = line.split(":", 1)[1].strip()
+                    stats["by_status"][status] = stats["by_status"].get(status, 0) + 1
 
                 # Extract labels
-                if line.startswith('  - ') and 'labels:' in content.split(line)[0]:
-                    label = line.strip('- ').strip()
-                    stats['by_label'][label] = stats['by_label'].get(label, 0) + 1
+                if line.startswith("  - ") and "labels:" in content.split(line)[0]:
+                    label = line.strip("- ").strip()
+                    stats["by_label"][label] = stats["by_label"].get(label, 0) + 1
 
         return stats

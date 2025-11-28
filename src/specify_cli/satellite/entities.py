@@ -11,6 +11,7 @@ from .enums import ProviderType, SyncOperation, SyncDirection
 @dataclass
 class RemoteUser:
     """User reference from remote provider."""
+
     id: str
     username: str
     display_name: Optional[str] = None
@@ -104,6 +105,7 @@ class RemoteTask:
 @dataclass
 class TaskUpdate:
     """Fields that can be updated on a remote task."""
+
     title: Optional[str] = None
     description: Optional[str] = None
     status: Optional[str] = None
@@ -115,16 +117,24 @@ class TaskUpdate:
 
     def has_changes(self) -> bool:
         """Check if any fields are set."""
-        return any([
-            self.title, self.description, self.status,
-            self.assignee, self.labels, self.priority,
-            self.due_date, self.extra_fields
-        ])
+        return any(
+            [
+                self.title,
+                self.description,
+                self.status,
+                self.assignee,
+                self.labels,
+                self.priority,
+                self.due_date,
+                self.extra_fields,
+            ]
+        )
 
 
 @dataclass
 class TaskCreate:
     """Fields required to create a new remote task."""
+
     title: str
     description: Optional[str] = None
     assignee: Optional[str] = None
@@ -138,6 +148,7 @@ class TaskCreate:
 @dataclass
 class RemotePullRequest:
     """Representation of a pull request from remote provider."""
+
     id: str
     number: int
     url: str
@@ -153,6 +164,7 @@ class RemotePullRequest:
 @dataclass
 class TaskHistoryEntry:
     """Single entry in task change history."""
+
     timestamp: datetime
     field: str
     old_value: Any
@@ -164,6 +176,7 @@ class TaskHistoryEntry:
 @dataclass
 class ConnectionStatus:
     """Status of provider connection test."""
+
     connected: bool
     latency_ms: Optional[int] = None
     user: Optional[RemoteUser] = None
@@ -173,6 +186,7 @@ class ConnectionStatus:
 @dataclass
 class RateLimitStatus:
     """Current rate limit status for a provider."""
+
     limit: int
     remaining: int
     reset_at: Optional[datetime] = None
@@ -182,6 +196,7 @@ class RateLimitStatus:
 @dataclass
 class TaskSyncOp:
     """Result of syncing a single task."""
+
     task_id: str
     remote_id: Optional[str]
     operation: SyncOperation
@@ -202,6 +217,7 @@ class TaskSyncOp:
 @dataclass
 class ConflictData:
     """Details about a sync conflict."""
+
     field: str
     local_value: Any
     remote_value: Any
@@ -245,7 +261,9 @@ class SyncResult:
     @property
     def conflict_count(self) -> int:
         """Number of conflicts encountered."""
-        return sum(1 for op in self.operations if op.operation == SyncOperation.CONFLICT)
+        return sum(
+            1 for op in self.operations if op.operation == SyncOperation.CONFLICT
+        )
 
     @property
     def failed_count(self) -> int:

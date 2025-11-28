@@ -513,9 +513,7 @@ class AuditLogger:
             "started": AuditEventType.SYNC_START,
         }.get(status, AuditEventType.SYNC_COMPLETE)
 
-        severity = (
-            AuditSeverity.ERROR if status == "failed" else AuditSeverity.INFO
-        )
+        severity = AuditSeverity.ERROR if status == "failed" else AuditSeverity.INFO
 
         event = AuditEvent(
             event_type=event_type,
@@ -547,7 +545,9 @@ class AuditLogger:
             details: Additional context
         """
         event = AuditEvent(
-            event_type=AuditEventType.AUTH_SUCCESS if success else AuditEventType.AUTH_FAILED,
+            event_type=AuditEventType.AUTH_SUCCESS
+            if success
+            else AuditEventType.AUTH_FAILED,
             severity=AuditSeverity.INFO if success else AuditSeverity.WARNING,
             provider=provider,
             user=user,
