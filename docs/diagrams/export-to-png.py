@@ -4,6 +4,9 @@ Export Excalidraw diagram to PNG
 
 This script renders the Excalidraw JSON diagram to a PNG image
 using PIL (Pillow) for high-quality output.
+
+Requirements:
+    pip install Pillow
 """
 
 import json
@@ -85,18 +88,30 @@ def render_excalidraw_to_png():
     def transform_y(y):
         return int((y - min_y + PADDING) * SCALE)
 
-    # Load font
+    # Load font with cross-platform support
     try:
         font_cache = {}
         def get_font(size):
             size_scaled = int(size * SCALE)
             if size_scaled not in font_cache:
-                try:
-                    font_cache[size_scaled] = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", size_scaled)
-                except:
+                # Try multiple font paths for cross-platform support
+                font_paths = [
+                    "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",  # Linux
+                    "/Library/Fonts/Arial.ttf",                         # macOS
+                    "C:\\Windows\\Fonts\\arial.ttf",                    # Windows
+                    "/usr/share/fonts/truetype/freefont/FreeSans.ttf",  # Linux alternative
+                ]
+                for font_path in font_paths:
+                    try:
+                        font_cache[size_scaled] = ImageFont.truetype(font_path, size_scaled)
+                        break
+                    except Exception:
+                        continue
+                else:
+                    # Fallback to default font if none found
                     font_cache[size_scaled] = ImageFont.load_default()
             return font_cache[size_scaled]
-    except:
+    except Exception:
         get_font = lambda size: ImageFont.load_default()
 
     print('Rendering elements...')
