@@ -1,7 +1,5 @@
 """Integration tests for TaskMapper."""
 
-import pytest
-from pathlib import Path
 from textwrap import dedent
 
 from specify_cli.backlog.mapper import TaskMapper, generate_backlog_tasks

@@ -31,7 +31,7 @@ import subprocess
 from typing import Dict, Optional, Set
 
 from .enums import ProviderType
-from .errors import InvalidTokenError, SecretStorageUnavailableError
+from .errors import SecretStorageUnavailableError
 
 # Try to import keyring, handle gracefully if unavailable
 try:

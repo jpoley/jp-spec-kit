@@ -500,7 +500,7 @@ def parse_agent_list(agent_str: str) -> list[str]:
         agent_str: Comma-separated string of agent names (e.g., "claude,copilot,cursor-agent")
 
     Returns:
-        List of agent names with whitespace stripped
+        List of agent names with whitespace stripped and duplicates removed
 
     Examples:
         >>> parse_agent_list("claude,copilot")
@@ -509,6 +509,8 @@ def parse_agent_list(agent_str: str) -> list[str]:
         ['claude', 'copilot', 'cursor-agent']
         >>> parse_agent_list("claude")
         ['claude']
+        >>> parse_agent_list("claude,copilot,claude")
+        ['claude', 'copilot']
     """
     if not agent_str or not agent_str.strip():
         return []
@@ -516,8 +518,14 @@ def parse_agent_list(agent_str: str) -> list[str]:
     # Split by comma and strip whitespace from each agent name
     agents = [agent.strip() for agent in agent_str.split(",")]
 
-    # Filter out empty strings
-    return [agent for agent in agents if agent]
+    # Filter out empty strings and deduplicate while preserving order
+    seen = set()
+    result = []
+    for agent in agents:
+        if agent and agent not in seen:
+            seen.add(agent)
+            result.append(agent)
+    return result
 
 
 def select_multiple_with_checkboxes(
@@ -1084,8 +1092,7 @@ def download_template_from_github(
 
 def download_and_extract_two_stage(
     project_path: Path,
-    ai_assistants: list[str]
-    | str,  # Support both list and single string for backward compatibility
+    ai_assistants: str | list[str],
     script_type: str,
     is_current_dir: bool = False,
     *,
@@ -1107,6 +1114,11 @@ def download_and_extract_two_stage(
     # Normalize to list for consistent handling
     if isinstance(ai_assistants, str):
         ai_assistants = [ai_assistants]
+
+    # Validate that at least one AI assistant is specified
+    if not ai_assistants:
+        raise ValueError("At least one AI assistant must be specified")
+
     current_dir = Path.cwd()
     base_zip = None
     ext_zip = None
@@ -1311,8 +1323,7 @@ def download_and_extract_two_stage(
 
 def download_and_extract_template(
     project_path: Path,
-    ai_assistants: list[str]
-    | str,  # Support both list and single string for backward compatibility
+    ai_assistants: str | list[str],
     script_type: str,
     is_current_dir: bool = False,
     *,
@@ -1335,6 +1346,10 @@ def download_and_extract_template(
     # Normalize to list for consistent handling
     if isinstance(ai_assistants, str):
         ai_assistants = [ai_assistants]
+
+    # Validate that at least one AI assistant is specified
+    if not ai_assistants:
+        raise ValueError("At least one AI assistant must be specified")
 
     # Use first agent for template download (templates contain all agent directories)
     primary_agent = ai_assistants[0]
@@ -1756,6 +1771,16 @@ def init(
     if ai_assistant:
         # Parse comma-separated list
         selected_agents = parse_agent_list(ai_assistant)
+
+        # Ensure at least one agent was provided
+        if not selected_agents:
+            console.print(
+                "[red]Error:[/red] No AI assistants specified. Please provide at least one."
+            )
+            console.print(
+                f"[cyan]Valid options:[/cyan] {', '.join(AGENT_CONFIG.keys())}"
+            )
+            raise typer.Exit(1)
 
         # Validate all agents
         invalid_agents = [

@@ -1,7 +1,6 @@
 """Tests for backward compatibility of schema v2."""
 
 import pytest
-from pathlib import Path
 
 from specify_cli.satellite.migration import TaskMigrator
 

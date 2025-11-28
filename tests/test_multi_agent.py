@@ -57,6 +57,16 @@ class TestParseAgentList:
         result = parse_agent_list(all_agents)
         assert result == list(AGENT_CONFIG.keys())
 
+    def test_duplicate_agents(self):
+        """Test that duplicate agents are removed while preserving order."""
+        result = parse_agent_list("claude,copilot,claude")
+        assert result == ["claude", "copilot"]  # Deduplicated
+
+    def test_multiple_duplicates(self):
+        """Test deduplication with multiple duplicate agents."""
+        result = parse_agent_list("claude,copilot,claude,gemini,copilot")
+        assert result == ["claude", "copilot", "gemini"]  # First occurrence preserved
+
 
 class TestMultiAgentValidation:
     """Test validation of multi-agent combinations."""

@@ -1,7 +1,6 @@
 """Unit tests for BacklogWriter."""
 
 import pytest
-from pathlib import Path
 from datetime import datetime
 
 from specify_cli.backlog.writer import BacklogWriter
