@@ -178,10 +178,39 @@ JP Spec Kit is a **layered extension** of GitHub's spec-kit:
 
 | Command | Description |
 |---------|-------------|
-| `specify init <name>` | Initialize new project |
+| `specify init <name>` | Initialize new project (supports multiple agents) |
 | `specify upgrade` | Upgrade to latest versions |
 | `specify check` | Verify tool installation |
 | `specify backlog migrate` | Convert tasks.md to Backlog.md format |
+
+#### Multi-Agent Support
+
+JP Spec Kit supports installing templates for multiple AI coding agents simultaneously. This is useful for teams using different agents or for developers who want to switch between agents.
+
+**Interactive Multi-Select:**
+```bash
+# Launch interactive multi-select UI (use Space to toggle, Enter to confirm)
+specify init my-project
+```
+
+**Command-Line Multi-Agent:**
+```bash
+# Single agent (backward compatible)
+specify init my-project --ai claude
+
+# Multiple agents (comma-separated)
+specify init my-project --ai claude,copilot
+specify init my-project --ai claude,cursor-agent,copilot
+
+# In current directory
+specify init . --ai claude,gemini,cursor-agent
+```
+
+**Benefits:**
+- Teams can use different agents for different tasks (e.g., Claude for backend, Copilot for frontend)
+- Agent directories (`.claude/`, `.github/`, etc.) don't conflict
+- All agent-specific slash commands are available
+- Security notices shown for all selected agents
 
 ### Slash Commands
 
