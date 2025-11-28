@@ -171,3 +171,37 @@ Please ensure the PRD is:
 ### Output
 
 The agent will produce a comprehensive PRD that integrates with /speckit.tasks and provides clear direction for the planning and implementation phases.
+
+### ⚠️ MANDATORY: Design→Implement Workflow
+
+**This is a DESIGN command. Design tasks MUST create implementation tasks before completion.**
+
+After the PRD agent completes its work:
+
+1. **Create implementation tasks** for each major deliverable:
+   ```bash
+   # Example: Create tasks from PRD sections
+   backlog task create "Implement [Feature Core Functionality]" \
+     -d "Implementation based on PRD from /jpspec:specify" \
+     --ac "Implement core feature per PRD section 4" \
+     --ac "Add validation per NFR section" \
+     --ac "Write unit tests" \
+     -l implement,backend \
+     --priority high
+
+   backlog task create "Implement [Feature UI Components]" \
+     -d "Frontend implementation per PRD user stories" \
+     --ac "Build UI components per PRD wireframes" \
+     --ac "Implement accessibility per WCAG 2.1 AA" \
+     --ac "Add integration tests" \
+     -l implement,frontend
+   ```
+
+2. **Update specification task notes** with follow-up references:
+   ```bash
+   backlog task edit <spec-task-id> --append-notes $'Follow-up Implementation Tasks:\n- task-XXX: Implement core functionality\n- task-YYY: Implement UI components'
+   ```
+
+3. **Only then mark the specification task as Done**
+
+**Failure to create implementation tasks means the specification work is incomplete.**

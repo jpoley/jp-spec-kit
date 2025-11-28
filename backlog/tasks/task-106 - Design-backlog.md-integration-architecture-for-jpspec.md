@@ -5,7 +5,7 @@ status: Done
 assignee:
   - '@claude-agent-4'
 created_date: '2025-11-28 16:54'
-updated_date: '2025-11-28 18:31'
+updated_date: '2025-11-28 19:44'
 labels:
   - jpspec
   - backlog-integration
@@ -60,4 +60,16 @@ Impact:
 - Reduces manual task management overhead
 - Preserves agent independence and flexibility
 - Supports incremental adoption
+
+Follow-up Implementation Tasks (from this design):
+- task-107: Create shared backlog.md instructions template
+- task-108: Create test framework for backlog.md integration
+- task-109: Update jpspec:specify to use backlog.md CLI
+- task-110: Update jpspec:plan to use backlog.md CLI
+- task-111: Update jpspec:research to use backlog.md CLI
+- task-112: Update jpspec:implement to use backlog.md CLI
+- task-113: Update jpspec:validate to use backlog.md CLI
+- task-114: Update jpspec:operate to use backlog.md CLI
+- task-115: End-to-end integration tests
+- task-116: Update documentation for integration
 <!-- SECTION:NOTES:END -->

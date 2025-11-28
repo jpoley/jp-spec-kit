@@ -921,6 +921,93 @@ Bad Example (Implementation Step):
 
 ---
 
+## 4.5. Design Tasks vs Implementation Tasks (Design→Implement Workflow)
+
+### What is a Design Task?
+
+A **design task** produces artifacts (documents, diagrams, architecture decisions, research findings) that require follow-up implementation. Design tasks are identified by:
+
+**Labels** (any of these indicate a design task):
+- `design` - Architecture, system design, UI/UX design
+- `audit` - Analysis that produces recommendations
+- `architecture` - System architecture decisions
+- `research` - Research that produces actionable findings
+- `spike` - Technical exploration/proof of concept
+- `planning` - Planning that produces actionable plans
+
+**Title patterns** (any of these indicate a design task):
+- "Design ..." - e.g., "Design authentication flow"
+- "... Architecture" - e.g., "Plugin Architecture"
+- "Audit ..." - e.g., "Audit API endpoints"
+- "Research ..." - e.g., "Research caching strategies"
+- "Spike: ..." - e.g., "Spike: GraphQL performance"
+
+### ⚠️ CRITICAL: Design Tasks MUST Create Implementation Tasks
+
+**Design tasks CANNOT be marked Done without corresponding implementation task(s).**
+
+When completing a design task:
+
+1. **Before marking Done**, create implementation tasks that:
+   - Reference the design task as a dependency
+   - Have specific, actionable acceptance criteria
+   - Cover all actionable items from the design deliverables
+
+2. **Implementation Notes MUST include**:
+   - "Follow-up Implementation Tasks:" section listing created task IDs
+   - Summary of key design decisions
+   - Files/artifacts created
+
+### Design Task Completion Workflow
+
+```bash
+# 1. Complete design work (produce artifacts, documents, etc.)
+
+# 2. Create implementation tasks BEFORE marking design task Done
+backlog task create "Implement [specific feature from design]" \
+  -d "Implementation based on task-106 design" \
+  --ac "Implement X per ADR-001" \
+  --ac "Add tests for X" \
+  --dep task-106 \
+  -l implement,backend
+
+# 3. Add implementation notes with follow-up task references
+backlog task edit 106 --notes $'Designed comprehensive architecture.\n\nDeliverables:\n- ADR-001: Architecture decision record\n- templates/auth-flow.md: Flow diagram\n\nFollow-up Implementation Tasks:\n- task-107: Implement auth service\n- task-108: Implement auth middleware\n- task-109: Add auth tests'
+
+# 4. Only NOW mark design task as Done
+backlog task edit 106 -s Done
+```
+
+### Design Task Definition of Done
+
+A design task is **Done** only when **ALL** of the following are complete:
+
+1. ✅ All acceptance criteria checked
+2. ✅ Design artifacts created (ADRs, diagrams, specs)
+3. ✅ **Implementation tasks created** (MANDATORY for design tasks)
+4. ✅ Implementation notes include "Follow-up Implementation Tasks:" section
+5. ✅ Status set to Done
+
+### Naming Convention for Follow-up Tasks
+
+Implementation tasks should clearly reference their design origin:
+
+| Design Task | Implementation Task(s) |
+|------------|------------------------|
+| Design authentication flow | Implement auth service, Implement auth middleware |
+| Audit API endpoints | Update deprecated endpoints, Add missing validation |
+| Research caching strategy | Implement Redis caching layer, Add cache invalidation |
+| Spike: GraphQL performance | Implement DataLoader pattern, Add query complexity limits |
+
+### Why This Matters
+
+- **Traceability**: Every design decision has corresponding implementation
+- **No orphaned designs**: Prevents valuable design work from being forgotten
+- **Clear dependencies**: Implementation tasks can reference design artifacts
+- **Audit trail**: Easy to trace from requirement → design → implementation
+
+---
+
 ## 5. Implementing Tasks
 
 ### 5.1. First step when implementing a task

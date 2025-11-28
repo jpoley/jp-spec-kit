@@ -256,3 +256,38 @@ After both agents complete:
    - Updated /speckit.constitution
    - ADRs for key decisions
    - Implementation readiness assessment
+
+### ⚠️ MANDATORY: Design→Implement Workflow
+
+**This is a DESIGN command. Design tasks MUST create implementation tasks before completion.**
+
+After the architecture and platform agents complete their work:
+
+1. **Create implementation tasks** for each architectural component:
+   ```bash
+   # Example: Create tasks from architecture decisions
+   backlog task create "Implement [Component Name] Service" \
+     -d "Implementation based on architecture from /jpspec:plan" \
+     --ac "Implement service per architecture doc section X" \
+     --ac "Follow integration patterns from ADR-001" \
+     --ac "Add observability per platform requirements" \
+     --ac "Write integration tests" \
+     -l implement,architecture,backend \
+     --priority high
+
+   backlog task create "Implement [Infrastructure Component]" \
+     -d "Infrastructure implementation per platform design" \
+     --ac "Configure CI/CD per platform architecture" \
+     --ac "Set up monitoring per observability requirements" \
+     --ac "Implement security controls per ADR" \
+     -l implement,infrastructure,devops
+   ```
+
+2. **Update planning task notes** with follow-up references:
+   ```bash
+   backlog task edit <plan-task-id> --append-notes $'Follow-up Implementation Tasks:\n- task-XXX: Implement service A\n- task-YYY: Implement infrastructure\n- task-ZZZ: Configure CI/CD pipeline'
+   ```
+
+3. **Only then mark the planning task as Done**
+
+**Architecture without implementation tasks is incomplete design work.**
