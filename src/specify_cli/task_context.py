@@ -128,6 +128,7 @@ def _find_in_progress_task() -> str:
             capture_output=True,
             text=True,
             check=True,
+            timeout=30,
         )
 
         # Parse the output to find first task ID
@@ -140,8 +141,11 @@ def _find_in_progress_task() -> str:
 
         return f"task-{match.group(1)}"
 
+    except subprocess.TimeoutExpired:
+        raise TaskContextError("Timeout while listing in-progress tasks")
     except subprocess.CalledProcessError as e:
-        raise TaskContextError(f"Failed to list in-progress tasks: {e.stderr}")
+        stderr = getattr(e, 'stderr', '')
+        raise TaskContextError(f"Failed to list in-progress tasks: {stderr}")
 
 
 def _normalize_task_id(task_id: str) -> str:
@@ -196,14 +200,18 @@ def _get_task_output(task_id: str) -> str:
             capture_output=True,
             text=True,
             check=True,
+            timeout=30,
         )
 
         return result.stdout
 
+    except subprocess.TimeoutExpired:
+        raise TaskContextError(f"Timeout while retrieving task {task_id}")
     except subprocess.CalledProcessError as e:
-        if "not found" in e.stderr.lower():
+        stderr = getattr(e, 'stderr', '')
+        if "not found" in stderr.lower():
             raise TaskNotFoundError(f"Task {task_id} not found")
-        raise TaskContextError(f"Failed to retrieve task {task_id}: {e.stderr}")
+        raise TaskContextError(f"Failed to retrieve task {task_id}: {stderr}")
 
 
 def _parse_task_output(raw_output: str, task_id: str) -> TaskContext:
@@ -325,7 +333,7 @@ def _extract_section(lines: List[str], section_header: str) -> str:
         # End of section (next header or separator)
         if in_section and line.strip() and not line.startswith(" ") and ":" in line:
             # Check if this is a new section header
-            if line.endswith(":") and line[0].isupper():
+            if line.endswith(":") and line.strip() and line.strip()[0].isupper():
                 break
 
         # Collect content
@@ -360,7 +368,7 @@ def parse_acceptance_criteria(raw_output: str) -> List[AcceptanceCriterion]:
             continue
 
         # End of AC section (next section header)
-        if in_ac_section and line.strip() and line[0].isupper() and line.endswith(":"):
+        if in_ac_section and line.strip() and line.strip()[0].isupper() and line.endswith(":"):
             break
 
         # Parse AC line

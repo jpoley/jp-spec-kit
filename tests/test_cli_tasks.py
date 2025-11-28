@@ -496,7 +496,8 @@ class TestTasksCLI:
 
         content = task_files[0].read_text(encoding="utf-8")
         # Unicode should be in filename or content
-        # Just verify no encoding errors occurred
+        # Verify no encoding errors occurred and unicode is preserved
+        assert "émojis 🚀" in content or "中文" in content
 
     def test_tasks_long_descriptions(self, temp_project_dir):
         """Test handling of very long task descriptions."""
