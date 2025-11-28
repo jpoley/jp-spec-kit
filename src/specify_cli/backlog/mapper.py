@@ -5,7 +5,6 @@ Provides high-level API for the complete conversion process.
 """
 
 from pathlib import Path
-from typing import Optional
 from .parser import TaskParser, Task
 from .writer import BacklogWriter
 from .dependency_graph import DependencyGraphBuilder

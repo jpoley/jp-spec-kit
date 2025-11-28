@@ -37,7 +37,7 @@ This is a sample v1 task that will be migrated to v2.
 <!-- AC:END -->
 """)
 
-    print(f"\nOriginal file content:")
+    print("\nOriginal file content:")
     print("-" * 60)
     print(task_file.read_text())
 
@@ -47,7 +47,7 @@ This is a sample v1 task that will be migrated to v2.
 
     print(f"\nMigration result: {'SUCCESS' if result else 'SKIPPED'}")
 
-    print(f"\nMigrated file content:")
+    print("\nMigrated file content:")
     print("-" * 60)
     print(task_file.read_text())
 

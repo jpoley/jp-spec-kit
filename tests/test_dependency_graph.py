@@ -1,7 +1,6 @@
 """Unit tests for DependencyGraphBuilder."""
 
 import pytest
-from textwrap import dedent
 
 from specify_cli.backlog.dependency_graph import DependencyGraphBuilder
 from specify_cli.backlog.parser import Task

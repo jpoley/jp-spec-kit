@@ -2460,7 +2460,7 @@ def backlog_migrate(
             # Remove backup on failure (if created)
             if backup_path and backup_path.exists():
                 backup_path.unlink()
-                console.print(f"[dim]Removed backup (migration failed)[/dim]")
+                console.print("[dim]Removed backup (migration failed)[/dim]")
 
             raise typer.Exit(1)
 

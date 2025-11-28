@@ -5,14 +5,16 @@ This module provides orchestration for Quality Guardian and Secure-by-Design
 agents to perform comprehensive validation of task implementations.
 """
 
+import json
+import re
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, TypedDict
 
 
 class Severity(str, Enum):
-    """Issue severity levels."""
+    """Issue severity levels for validation reports."""
 
     CRITICAL = "critical"
     HIGH = "high"
@@ -26,6 +28,72 @@ class ValidationStatus(str, Enum):
     PASS = "pass"
     FAIL = "fail"
     WARNING = "warning"
+
+
+class QAIssue(TypedDict, total=False):
+    """Structure for QA report issues.
+
+    Fields:
+        severity: Issue severity level (critical|high|medium|low)
+        category: Issue category (functional|performance|security|usability)
+        description: Description of the issue
+        recommendation: How to fix the issue
+    """
+
+    severity: str
+    category: str
+    description: str
+    recommendation: str
+
+
+class SecurityVulnerability(TypedDict, total=False):
+    """Structure for security vulnerabilities.
+
+    Fields:
+        severity: Vulnerability severity (critical|high|medium|low)
+        category: Vulnerability category (injection|xss|auth|crypto|config|dependency)
+        description: Description of the vulnerability
+        location: File path and line number or component name
+        cve: CVE identifier if applicable (e.g., CVE-2024-12345)
+        remediation: How to fix the vulnerability
+        exploitability: How easy to exploit (easy|moderate|difficult)
+    """
+
+    severity: str
+    category: str
+    description: str
+    location: str
+    cve: str
+    remediation: str
+    exploitability: str
+
+
+def extract_json_from_response(
+    response: str, fallback: dict[str, Any]
+) -> dict[str, Any]:
+    """
+    Extract JSON from agent response, supporting both markdown-wrapped and plain JSON.
+
+    Args:
+        response: Raw agent response text
+        fallback: Default dictionary to return if JSON parsing fails
+
+    Returns:
+        Parsed JSON dictionary or fallback if parsing fails
+    """
+    # Try to extract JSON from markdown code block
+    json_match = re.search(r"```json\s*(\{.*?\})\s*```", response, re.DOTALL)
+    if json_match:
+        try:
+            return json.loads(json_match.group(1))
+        except json.JSONDecodeError:
+            pass
+
+    # Try to parse entire response as JSON
+    try:
+        return json.loads(response)
+    except json.JSONDecodeError:
+        return fallback
 
 
 @dataclass
@@ -242,28 +310,18 @@ Focus on validating that all acceptance criteria are met and identifying any cri
         Returns:
             Structured QAReport
         """
-        import json
-        import re
+        # Fallback values if parsing fails
+        fallback = {
+            "functional_test_status": "unknown",
+            "integration_test_status": "unknown",
+            "edge_case_coverage": "unknown",
+            "risk_assessment": "unknown",
+            "issues": [],
+            "test_results": {},
+            "quality_metrics": {},
+        }
 
-        # Try to extract JSON from response
-        json_match = re.search(r"```json\s*(\{.*?\})\s*```", agent_response, re.DOTALL)
-        if json_match:
-            report_data = json.loads(json_match.group(1))
-        else:
-            # Try to parse entire response as JSON
-            try:
-                report_data = json.loads(agent_response)
-            except json.JSONDecodeError:
-                # Fallback: create report from text analysis
-                report_data = {
-                    "functional_test_status": "unknown",
-                    "integration_test_status": "unknown",
-                    "edge_case_coverage": "unknown",
-                    "risk_assessment": "unknown",
-                    "issues": [],
-                    "test_results": {},
-                    "quality_metrics": {},
-                }
+        report_data = extract_json_from_response(agent_response, fallback)
 
         return QAReport(
             functional_test_status=report_data.get("functional_test_status", "unknown"),
@@ -450,28 +508,18 @@ Deliver a comprehensive security report in JSON format:
         Returns:
             Structured SecurityReport
         """
-        import json
-        import re
+        # Fallback values with fail-safe defaults (security_gate="fail")
+        fallback = {
+            "vulnerabilities": [],
+            "compliance_status": "unknown",
+            "security_gate": "fail",
+            "critical_count": 0,
+            "high_count": 0,
+            "medium_count": 0,
+            "low_count": 0,
+        }
 
-        # Try to extract JSON from response
-        json_match = re.search(r"```json\s*(\{.*?\})\s*```", agent_response, re.DOTALL)
-        if json_match:
-            report_data = json.loads(json_match.group(1))
-        else:
-            # Try to parse entire response as JSON
-            try:
-                report_data = json.loads(agent_response)
-            except json.JSONDecodeError:
-                # Fallback
-                report_data = {
-                    "vulnerabilities": [],
-                    "compliance_status": "unknown",
-                    "security_gate": "fail",
-                    "critical_count": 0,
-                    "high_count": 0,
-                    "medium_count": 0,
-                    "low_count": 0,
-                }
+        report_data = extract_json_from_response(agent_response, fallback)
 
         return SecurityReport(
             vulnerabilities=report_data.get("vulnerabilities", []),
@@ -514,8 +562,9 @@ class ValidationOrchestrator:
             Combined ValidationReport with results from both agents
         """
         # Build prompts for both agents
-        # Note: These prompts would be used for parallel Task tool invocations
-        # In the actual workflow integration
+        # Note: Prompts are built but not currently used in this mock implementation.
+        # In actual workflow integration, these would be passed to parallel Task tool
+        # invocations for real agent execution.
         _ = self.qa_dispatcher.build_prompt(
             task_id=task_id,
             task_title=task_title,
@@ -540,13 +589,26 @@ class ValidationOrchestrator:
         # qa_response = await dispatch_task_agent(qa_prompt)
         # security_response = await dispatch_task_agent(security_prompt)
 
-        # For testing purposes, return mock responses
-        qa_response = '{"functional_test_status": "pass", "integration_test_status": "pass", "edge_case_coverage": "good", "risk_assessment": "low", "issues": [], "test_results": {}, "quality_metrics": {}}'
-        security_response = '{"vulnerabilities": [], "compliance_status": "compliant", "security_gate": "pass", "critical_count": 0, "high_count": 0, "medium_count": 0, "low_count": 0}'
+        # For testing purposes, create mock report instances directly
+        qa_report = QAReport(
+            functional_test_status="pass",
+            integration_test_status="pass",
+            edge_case_coverage="good",
+            risk_assessment="low",
+            issues=[],
+            test_results={},
+            quality_metrics={},
+        )
 
-        # Parse responses
-        qa_report = self.qa_dispatcher.parse_response(qa_response)
-        security_report = self.security_dispatcher.parse_response(security_response)
+        security_report = SecurityReport(
+            vulnerabilities=[],
+            compliance_status="compliant",
+            security_gate="pass",
+            critical_count=0,
+            high_count=0,
+            medium_count=0,
+            low_count=0,
+        )
 
         # Determine validation outcome
         validation_status = determine_validation_outcome(qa_report, security_report)
@@ -587,16 +649,18 @@ def determine_validation_outcome(
     if security_report.security_gate == "fail":
         return ValidationStatus.FAIL
 
-    # Check for critical QA issues
+    # Check for critical QA issues using Severity enum
     critical_qa_issues = [
-        issue for issue in qa_report.issues if issue.get("severity") == "critical"
+        issue
+        for issue in qa_report.issues
+        if issue.get("severity") == Severity.CRITICAL.value
     ]
     if critical_qa_issues:
         return ValidationStatus.FAIL
 
-    # Check for high severity issues (warning)
+    # Check for high severity issues (warning) using Severity enum
     if security_report.high_count > 0 or any(
-        issue.get("severity") == "high" for issue in qa_report.issues
+        issue.get("severity") == Severity.HIGH.value for issue in qa_report.issues
     ):
         return ValidationStatus.WARNING
 

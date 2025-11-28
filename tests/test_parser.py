@@ -1,7 +1,6 @@
 """Unit tests for TaskParser."""
 
 import pytest
-from pathlib import Path
 from textwrap import dedent
 
 from specify_cli.backlog.parser import TaskParser, Task, parse_tasks

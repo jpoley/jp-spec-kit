@@ -1,7 +1,5 @@
 """CLI tests for 'specify tasks' command."""
 
-import pytest
-from pathlib import Path
 from typer.testing import CliRunner
 from textwrap import dedent
 

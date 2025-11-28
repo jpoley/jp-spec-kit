@@ -1,7 +1,6 @@
 """Pytest configuration and fixtures for jp-spec-kit tests."""
 
 import pytest
-from pathlib import Path
 from textwrap import dedent
 
 
