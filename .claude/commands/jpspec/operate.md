@@ -12,9 +12,26 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 ## Execution Instructions
 
-This command establishes comprehensive operational infrastructure using SRE best practices, focusing on reliability, automation, and observability.
+This command establishes comprehensive operational infrastructure using SRE best practices, focusing on reliability, automation, and observability. **All operational work is tracked as backlog tasks.**
 
-### Operations Implementation
+### Step 1: Discover Existing Operational Tasks
+
+Before launching the SRE agent, search for existing operational tasks:
+
+```bash
+# Search for operational/infrastructure tasks
+backlog search "$ARGUMENTS" --plain
+backlog search "infrastructure" --plain
+backlog search "cicd" --plain
+backlog search "kubernetes" --plain
+
+# List operational tasks by status
+backlog task list -s "To Do" --plain | grep -i "infra\|deploy\|monitor\|alert\|cicd"
+```
+
+If existing tasks are found, include their IDs in the agent context below.
+
+### Step 2: Operations Implementation
 
 Use the Task tool to launch a **general-purpose** agent with the following prompt (includes full SRE agent context):
 
@@ -53,6 +70,81 @@ You are a Principal Site Reliability Engineer (SRE) with deep expertise in build
 
 Context:
 [Include architecture design, platform specifications, infrastructure requirements, application details]
+[Include existing operational task IDs from Step 1 if any]
+
+## Backlog Task Management (REQUIRED)
+
+**Your Agent Identity**: @sre-agent
+
+You MUST create and track operational tasks in backlog. Create tasks for each major operational area:
+
+### Creating Operational Tasks
+
+```bash
+# CI/CD Pipeline task
+backlog task create "Setup CI/CD Pipeline for [Project]" \
+  -d "Implement automated build, test, and deployment pipeline" \
+  --ac "Configure build pipeline with caching" \
+  --ac "Setup test pipeline (unit, integration, e2e)" \
+  --ac "Implement deployment pipeline with rollback" \
+  --ac "Add SBOM generation and security scanning" \
+  -a @sre-agent \
+  -l infrastructure,cicd \
+  --priority high
+
+# Kubernetes deployment task
+backlog task create "Kubernetes Deployment Configuration" \
+  -d "Configure K8s manifests and deployment strategy" \
+  --ac "Create deployment manifests with resource limits" \
+  --ac "Configure HPA and pod disruption budgets" \
+  --ac "Setup network policies and RBAC" \
+  -a @sre-agent \
+  -l infrastructure,kubernetes
+
+# Observability task
+backlog task create "Implement Observability Stack" \
+  -d "Setup metrics, logging, tracing, and alerting" \
+  --ac "Configure Prometheus metrics and Grafana dashboards" \
+  --ac "Setup structured logging with aggregation" \
+  --ac "Implement distributed tracing" \
+  --ac "Configure alerts for SLO violations" \
+  -a @sre-agent \
+  -l infrastructure,observability
+
+# Monitoring/Alerts task (CREATES RUNBOOK TASK)
+backlog task create "Define SLOs and Alerting Rules" \
+  -d "Define SLIs/SLOs and configure alerting" \
+  --ac "Define availability and latency SLIs" \
+  --ac "Set SLO targets with error budgets" \
+  --ac "Configure AlertManager rules" \
+  --ac "Create runbook task for each alert" \
+  -a @sre-agent \
+  -l infrastructure,monitoring
+```
+
+### When Creating Alerts, Create Runbook Tasks
+
+**CRITICAL**: For each alert defined, create a corresponding runbook task:
+
+```bash
+# Example: When creating high-latency alert, also create runbook
+backlog task create "Runbook: High Latency Alert Response" \
+  -d "Document response procedure for high-latency alerts" \
+  --ac "Document initial triage steps" \
+  --ac "List common causes and solutions" \
+  --ac "Include rollback procedure" \
+  --ac "Add escalation path" \
+  -a @sre-agent \
+  -l runbook,operations
+```
+
+### During Implementation
+
+1. **Pick a task**: `backlog task <task-id> --plain`
+2. **Assign and start**: `backlog task edit <task-id> -s "In Progress" -a @sre-agent`
+3. **Check ACs progressively**: `backlog task edit <task-id> --check-ac 1 --check-ac 2`
+4. **Add notes**: `backlog task edit <task-id> --notes $'Implemented X\n\nDeliverables:\n- File A\n- File B'`
+5. **Mark complete**: `backlog task edit <task-id> -s Done`
 
 Operational Requirements:
 
