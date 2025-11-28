@@ -362,10 +362,12 @@ class TestAuditLogger:
     def test_log_writes_json(self, temp_log_dir):
         """Should write JSON line to log file."""
         logger = AuditLogger(log_dir=temp_log_dir)
-        logger.log(AuditEvent(
-            event_type=AuditEventType.SYNC_COMPLETE,
-            provider="github",
-        ))
+        logger.log(
+            AuditEvent(
+                event_type=AuditEventType.SYNC_COMPLETE,
+                provider="github",
+            )
+        )
 
         content = logger.json_file.read_text()
         parsed = json.loads(content.strip())
@@ -375,10 +377,12 @@ class TestAuditLogger:
     def test_log_writes_markdown(self, temp_log_dir):
         """Should write markdown to log file."""
         logger = AuditLogger(log_dir=temp_log_dir)
-        logger.log(AuditEvent(
-            event_type=AuditEventType.SYNC_COMPLETE,
-            provider="github",
-        ))
+        logger.log(
+            AuditEvent(
+                event_type=AuditEventType.SYNC_COMPLETE,
+                provider="github",
+            )
+        )
 
         content = logger.markdown_file.read_text()
         assert "sync_complete" in content

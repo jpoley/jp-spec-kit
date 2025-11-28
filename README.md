@@ -192,10 +192,12 @@ JP Spec Kit is a **layered extension** of GitHub's spec-kit:
 | `/speckit.tasks` | Generate actionable task breakdown |
 | `/speckit.implement` | Execute implementation |
 | `/speckit.clarify` | Clarify underspecified areas |
+| `/jpspec:assess` | Evaluate feature complexity and recommend workflow (Full SDD / Spec-light / Skip SDD) |
 
 ## Documentation
 
 - **[Spec-Driven Development Guide](spec-driven.md)** - Complete methodology
+- **[Problem Sizing Assessment Guide](docs/guides/problem-sizing-assessment.md)** - When to use SDD vs traditional development
 - **[Backlog.md Quick Start](docs/guides/backlog-quickstart.md)** - Get started in 5 minutes
 - **[Backlog.md User Guide](docs/guides/backlog-user-guide.md)** - Full task management docs
 - **[Migration Guide](docs/guides/backlog-migration.md)** - Convert from tasks.md

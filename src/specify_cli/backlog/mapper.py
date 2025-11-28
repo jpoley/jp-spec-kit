@@ -5,7 +5,6 @@ Provides high-level API for the complete conversion process.
 """
 
 from pathlib import Path
-from typing import Optional
 from .parser import TaskParser, Task
 from .writer import BacklogWriter
 from .dependency_graph import DependencyGraphBuilder
@@ -26,11 +25,7 @@ class TaskMapper:
         self.writer = BacklogWriter(backlog_dir)
 
     def generate_from_tasks_file(
-        self,
-        tasks_file: Path,
-        *,
-        overwrite: bool = False,
-        dry_run: bool = False
+        self, tasks_file: Path, *, overwrite: bool = False, dry_run: bool = False
     ) -> dict:
         """
         Generate Backlog.md tasks from a jp-spec-kit tasks.md file.
@@ -48,9 +43,9 @@ class TaskMapper:
 
         if not tasks:
             return {
-                'success': False,
-                'error': 'No tasks found in file',
-                'tasks_parsed': 0,
+                "success": False,
+                "error": "No tasks found in file",
+                "tasks_parsed": 0,
             }
 
         # Build dependency graph and validate
@@ -59,49 +54,42 @@ class TaskMapper:
 
         if not is_valid:
             return {
-                'success': False,
-                'error': 'Invalid dependency graph',
-                'validation_errors': errors,
-                'tasks_parsed': len(tasks),
+                "success": False,
+                "error": "Invalid dependency graph",
+                "validation_errors": errors,
+                "tasks_parsed": len(tasks),
             }
 
         if dry_run:
             return {
-                'success': True,
-                'dry_run': True,
-                'tasks_parsed': len(tasks),
-                'tasks_by_phase': self._group_by_phase(tasks),
-                'tasks_by_story': self._group_by_story(tasks),
-                'execution_order': graph.get_execution_order(),
-                'parallel_batches': graph.get_parallel_batches(),
-                'critical_path': graph.get_critical_path(),
+                "success": True,
+                "dry_run": True,
+                "tasks_parsed": len(tasks),
+                "tasks_by_phase": self._group_by_phase(tasks),
+                "tasks_by_story": self._group_by_story(tasks),
+                "execution_order": graph.get_execution_order(),
+                "parallel_batches": graph.get_parallel_batches(),
+                "critical_path": graph.get_critical_path(),
             }
 
         # Write tasks
-        created_files = self.writer.write_tasks(
-            tasks,
-            overwrite=overwrite
-        )
+        created_files = self.writer.write_tasks(tasks, overwrite=overwrite)
 
         # Generate summary
         return {
-            'success': True,
-            'tasks_parsed': len(tasks),
-            'tasks_created': len(created_files),
-            'tasks_by_phase': self._group_by_phase(tasks),
-            'tasks_by_story': self._group_by_story(tasks),
-            'execution_order': graph.get_execution_order(),
-            'parallel_batches': graph.get_parallel_batches(),
-            'critical_path': graph.get_critical_path(),
-            'created_files': [str(f) for f in created_files],
+            "success": True,
+            "tasks_parsed": len(tasks),
+            "tasks_created": len(created_files),
+            "tasks_by_phase": self._group_by_phase(tasks),
+            "tasks_by_story": self._group_by_story(tasks),
+            "execution_order": graph.get_execution_order(),
+            "parallel_batches": graph.get_parallel_batches(),
+            "critical_path": graph.get_critical_path(),
+            "created_files": [str(f) for f in created_files],
         }
 
     def generate_from_spec(
-        self,
-        spec_dir: Path,
-        *,
-        overwrite: bool = False,
-        dry_run: bool = False
+        self, spec_dir: Path, *, overwrite: bool = False, dry_run: bool = False
     ) -> dict:
         """
         Generate Backlog.md tasks from spec directory.
@@ -119,9 +107,7 @@ class TaskMapper:
 
         if tasks_file.exists():
             return self.generate_from_tasks_file(
-                tasks_file,
-                overwrite=overwrite,
-                dry_run=dry_run
+                tasks_file, overwrite=overwrite, dry_run=dry_run
             )
 
         # If no tasks.md, try to parse from spec.md and plan.md
@@ -130,8 +116,8 @@ class TaskMapper:
 
         if not spec_file.exists():
             return {
-                'success': False,
-                'error': 'No spec.md or tasks.md found',
+                "success": False,
+                "error": "No spec.md or tasks.md found",
             }
 
         # Parse user stories from spec
@@ -148,9 +134,9 @@ class TaskMapper:
 
         if not tasks:
             return {
-                'success': False,
-                'error': 'No tasks could be generated from spec',
-                'user_stories': len(user_stories),
+                "success": False,
+                "error": "No tasks could be generated from spec",
+                "user_stories": len(user_stories),
             }
 
         # Build dependency graph
@@ -158,32 +144,27 @@ class TaskMapper:
 
         if dry_run:
             return {
-                'success': True,
-                'dry_run': True,
-                'tasks_generated': len(tasks),
-                'user_stories': len(user_stories),
-                'tasks_by_story': self._group_by_story(tasks),
+                "success": True,
+                "dry_run": True,
+                "tasks_generated": len(tasks),
+                "user_stories": len(user_stories),
+                "tasks_by_story": self._group_by_story(tasks),
             }
 
         # Write tasks
-        created_files = self.writer.write_tasks(
-            tasks,
-            overwrite=overwrite
-        )
+        created_files = self.writer.write_tasks(tasks, overwrite=overwrite)
 
         return {
-            'success': True,
-            'tasks_generated': len(tasks),
-            'tasks_created': len(created_files),
-            'user_stories': len(user_stories),
-            'tasks_by_story': self._group_by_story(tasks),
-            'created_files': [str(f) for f in created_files],
+            "success": True,
+            "tasks_generated": len(tasks),
+            "tasks_created": len(created_files),
+            "user_stories": len(user_stories),
+            "tasks_by_story": self._group_by_story(tasks),
+            "created_files": [str(f) for f in created_files],
         }
 
     def _generate_tasks_from_stories(
-        self,
-        user_stories: dict,
-        plan_info: dict
+        self, user_stories: dict, plan_info: dict
     ) -> list[Task]:
         """
         Generate tasks from parsed user stories and plan.
@@ -202,24 +183,28 @@ class TaskMapper:
         task_counter = 1
 
         # Generate setup tasks
-        tasks.append(Task(
-            task_id=f"T{task_counter:03d}",
-            description="Set up project structure and dependencies",
-            phase="Setup",
-        ))
+        tasks.append(
+            Task(
+                task_id=f"T{task_counter:03d}",
+                description="Set up project structure and dependencies",
+                phase="Setup",
+            )
+        )
         task_counter += 1
 
         # Generate tasks for each user story
         for story_id, story_data in sorted(user_stories.items()):
-            story_title = story_data.get('title', story_id)
+            story_title = story_data.get("title", story_id)
 
             # Create task for the user story
-            tasks.append(Task(
-                task_id=f"T{task_counter:03d}",
-                description=f"Implement {story_title}",
-                user_story=story_id,
-                phase=f"User Story {story_id.replace('US', '')}",
-            ))
+            tasks.append(
+                Task(
+                    task_id=f"T{task_counter:03d}",
+                    description=f"Implement {story_title}",
+                    user_story=story_id,
+                    phase=f"User Story {story_id.replace('US', '')}",
+                )
+            )
             task_counter += 1
 
         return tasks
@@ -244,12 +229,7 @@ class TaskMapper:
             by_story[story].append(task.task_id)
         return by_story
 
-    def regenerate(
-        self,
-        tasks_file: Path,
-        *,
-        conflict_strategy: str = "skip"
-    ) -> dict:
+    def regenerate(self, tasks_file: Path, *, conflict_strategy: str = "skip") -> dict:
         """
         Regenerate tasks with conflict detection.
 
@@ -274,10 +254,10 @@ class TaskMapper:
 
         if conflicts and conflict_strategy == "skip":
             return {
-                'success': False,
-                'error': 'Conflicts detected',
-                'conflicts': conflicts,
-                'message': 'Use conflict_strategy="overwrite" to force regeneration',
+                "success": False,
+                "error": "Conflicts detected",
+                "conflicts": conflicts,
+                "message": 'Use conflict_strategy="overwrite" to force regeneration',
             }
 
         # Write based on strategy
@@ -285,10 +265,10 @@ class TaskMapper:
         created_files = self.writer.write_tasks(new_tasks, overwrite=overwrite)
 
         return {
-            'success': True,
-            'tasks_regenerated': len(created_files),
-            'conflicts_resolved': len(conflicts) if overwrite else 0,
-            'conflicts_skipped': len(conflicts) if not overwrite else 0,
+            "success": True,
+            "tasks_regenerated": len(created_files),
+            "conflicts_resolved": len(conflicts) if overwrite else 0,
+            "conflicts_skipped": len(conflicts) if not overwrite else 0,
         }
 
     def get_stats(self) -> dict:
@@ -306,7 +286,7 @@ def generate_backlog_tasks(
     backlog_dir: Path,
     *,
     overwrite: bool = False,
-    dry_run: bool = False
+    dry_run: bool = False,
 ) -> dict:
     """
     Convenience function to generate Backlog.md tasks.
@@ -324,18 +304,14 @@ def generate_backlog_tasks(
 
     if source_path.is_file() and source_path.name == "tasks.md":
         return mapper.generate_from_tasks_file(
-            source_path,
-            overwrite=overwrite,
-            dry_run=dry_run
+            source_path, overwrite=overwrite, dry_run=dry_run
         )
     elif source_path.is_dir():
         return mapper.generate_from_spec(
-            source_path,
-            overwrite=overwrite,
-            dry_run=dry_run
+            source_path, overwrite=overwrite, dry_run=dry_run
         )
     else:
         return {
-            'success': False,
-            'error': f'Invalid source path: {source_path}',
+            "success": False,
+            "error": f"Invalid source path: {source_path}",
         }

@@ -6,7 +6,9 @@ from typing import Any, Dict, List, Optional
 class SatelliteError(Exception):
     """Base exception for all Satellite Mode errors."""
 
-    def __init__(self, message: str, code: str, details: Optional[Dict[str, Any]] = None):
+    def __init__(
+        self, message: str, code: str, details: Optional[Dict[str, Any]] = None
+    ):
         """
         Initialize a SatelliteError.
 
@@ -31,6 +33,7 @@ class SatelliteError(Exception):
 
 # === Authentication Errors ===
 
+
 class AuthenticationError(SatelliteError):
     """Token is invalid or expired."""
 
@@ -38,7 +41,7 @@ class AuthenticationError(SatelliteError):
         super().__init__(
             f"Authentication failed for {provider}: {reason}",
             code="AUTH_FAILED",
-            details={"provider": provider, "reason": reason}
+            details={"provider": provider, "reason": reason},
         )
 
 
@@ -64,11 +67,12 @@ class InvalidTokenError(SatelliteError):
         super().__init__(
             f"Invalid token for {provider}",
             code="INVALID_TOKEN",
-            details={"provider": provider}
+            details={"provider": provider},
         )
 
 
 # === Resource Errors ===
+
 
 class TaskNotFoundError(SatelliteError):
     """Task does not exist on remote."""
@@ -77,7 +81,7 @@ class TaskNotFoundError(SatelliteError):
         super().__init__(
             f"Task {task_id} not found on {provider}",
             code="TASK_NOT_FOUND",
-            details={"task_id": task_id, "provider": provider}
+            details={"task_id": task_id, "provider": provider},
         )
 
 
@@ -88,11 +92,12 @@ class PermissionDeniedError(SatelliteError):
         super().__init__(
             f"Permission denied: cannot {operation} {resource}",
             code="PERMISSION_DENIED",
-            details={"operation": operation, "resource": resource}
+            details={"operation": operation, "resource": resource},
         )
 
 
 # === Sync Errors ===
+
 
 class ConflictError(SatelliteError):
     """Conflict between local and remote versions."""
@@ -106,7 +111,7 @@ class ConflictError(SatelliteError):
                 "field": field,
                 "local_value": str(local_value),
                 "remote_value": str(remote_value),
-            }
+            },
         )
 
 
@@ -115,9 +120,7 @@ class SyncError(SatelliteError):
 
     def __init__(self, message: str, failed_tasks: List[str]):
         super().__init__(
-            message,
-            code="SYNC_FAILED",
-            details={"failed_tasks": failed_tasks}
+            message, code="SYNC_FAILED", details={"failed_tasks": failed_tasks}
         )
 
 
@@ -130,6 +133,7 @@ class SyncCancelledError(SatelliteError):
 
 # === Provider Errors ===
 
+
 class RateLimitError(SatelliteError):
     """Rate limit exceeded."""
 
@@ -137,7 +141,7 @@ class RateLimitError(SatelliteError):
         super().__init__(
             f"Rate limit exceeded for {provider}. Retry after {retry_after}s",
             code="RATE_LIMITED",
-            details={"provider": provider, "retry_after": retry_after}
+            details={"provider": provider, "retry_after": retry_after},
         )
         self.retry_after = retry_after
 
@@ -149,7 +153,7 @@ class ProviderUnavailableError(SatelliteError):
         super().__init__(
             f"Provider {provider} is unavailable",
             code="PROVIDER_UNAVAILABLE",
-            details={"provider": provider, "status_code": status_code}
+            details={"provider": provider, "status_code": status_code},
         )
 
 
@@ -160,11 +164,12 @@ class ProviderNotFoundError(SatelliteError):
         super().__init__(
             f"Unknown provider: {provider}",
             code="PROVIDER_NOT_FOUND",
-            details={"provider": provider}
+            details={"provider": provider},
         )
 
 
 # === Validation Errors ===
+
 
 class ValidationError(SatelliteError):
     """Input validation failed."""
@@ -173,5 +178,5 @@ class ValidationError(SatelliteError):
         super().__init__(
             f"Validation failed for {field}: {reason}",
             code="VALIDATION_ERROR",
-            details={"field": field, "reason": reason}
+            details={"field": field, "reason": reason},
         )

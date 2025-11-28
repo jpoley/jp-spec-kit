@@ -1,9 +1,6 @@
 """Tests for CLI migration function."""
 
 import pytest
-from pathlib import Path
-from io import StringIO
-import sys
 
 from specify_cli.satellite.migration import migrate_tasks_cli
 

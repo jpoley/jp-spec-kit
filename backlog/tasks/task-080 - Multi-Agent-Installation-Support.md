@@ -1,10 +1,11 @@
 ---
 id: task-080
 title: Multi-Agent Installation Support
-status: Done
-assignee: []
+status: In Progress
+assignee:
+  - '@claude-agent-2'
 created_date: '2025-11-27 21:53'
-updated_date: '2025-11-28 18:23'
+updated_date: '2025-11-28 18:14'
 labels:
   - specify-cli
   - feature

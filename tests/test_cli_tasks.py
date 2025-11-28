@@ -1,7 +1,5 @@
 """CLI tests for 'specify tasks' command."""
 
-import pytest
-from pathlib import Path
 from typer.testing import CliRunner
 from textwrap import dedent
 
@@ -170,7 +168,9 @@ class TestTasksCLI:
         )
 
         assert result.exit_code == 1
-        assert "not yet implemented" in result.output.lower() or "Legacy" in result.output
+        assert (
+            "not yet implemented" in result.output.lower() or "Legacy" in result.output
+        )
 
     def test_tasks_nonexistent_source(self):
         """Test error on non-existent source path."""
@@ -241,9 +241,15 @@ class TestTasksCLI:
 
         # Should show some statistics
         output_lower = result.output.lower()
-        assert "parsed" in output_lower or "created" in output_lower or "task" in output_lower
+        assert (
+            "parsed" in output_lower
+            or "created" in output_lower
+            or "task" in output_lower
+        )
 
-    def test_tasks_displays_source_and_output(self, sample_tasks_file, temp_project_dir):
+    def test_tasks_displays_source_and_output(
+        self, sample_tasks_file, temp_project_dir
+    ):
         """Test that command displays source and output paths."""
         backlog_dir = temp_project_dir / "backlog"
 
@@ -263,7 +269,9 @@ class TestTasksCLI:
         assert "Source:" in result.output
         assert "Output:" in result.output
 
-    def test_tasks_default_source_current_directory(self, temp_project_dir, monkeypatch):
+    def test_tasks_default_source_current_directory(
+        self, temp_project_dir, monkeypatch
+    ):
         """Test that default source is current directory."""
         # Create tasks.md in temp dir
         tasks_content = dedent("""
@@ -285,7 +293,9 @@ class TestTasksCLI:
         # Should use current directory as source
         assert result.exit_code == 0
 
-    def test_tasks_default_output_backlog_dir(self, sample_tasks_file, temp_project_dir):
+    def test_tasks_default_output_backlog_dir(
+        self, sample_tasks_file, temp_project_dir
+    ):
         """Test that default output is ./backlog directory."""
         # Get the parent directory of sample_tasks_file
         source_dir = sample_tasks_file.parent
@@ -330,7 +340,9 @@ class TestTasksCLI:
         assert content.startswith("---")
         assert "id:" in content
 
-    def test_tasks_generate_from_spec_directory(self, temp_project_dir, sample_spec_content):
+    def test_tasks_generate_from_spec_directory(
+        self, temp_project_dir, sample_spec_content
+    ):
         """Test generating from directory with spec.md."""
         spec_file = temp_project_dir / "spec.md"
         spec_file.write_text(sample_spec_content)
@@ -462,7 +474,7 @@ class TestTasksCLI:
         """).strip()
 
         tasks_file = temp_project_dir / "tasks.md"
-        tasks_file.write_text(tasks_content, encoding='utf-8')
+        tasks_file.write_text(tasks_content, encoding="utf-8")
 
         result = runner.invoke(
             app,
@@ -482,9 +494,10 @@ class TestTasksCLI:
         task_files = list((temp_project_dir / "backlog" / "tasks").glob("task-*.md"))
         assert len(task_files) > 0
 
-        content = task_files[0].read_text(encoding='utf-8')
+        content = task_files[0].read_text(encoding="utf-8")
         # Unicode should be in filename or content
-        # Just verify no encoding errors occurred
+        # Verify no encoding errors occurred and unicode is preserved
+        assert "émojis 🚀" in content or "中文" in content
 
     def test_tasks_long_descriptions(self, temp_project_dir):
         """Test handling of very long task descriptions."""

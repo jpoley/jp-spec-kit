@@ -43,11 +43,11 @@ def load_agent_context(agent_name: str) -> str:
     # Remove YAML frontmatter (between --- markers)
     # agents.md spec: YAML frontmatter at top of file
     content_without_frontmatter = re.sub(
-        r'^---\n.*?\n---\n',  # Match --- to --- at start of file
-        '',
+        r"^---\n.*?\n---\n",  # Match --- to --- at start of file
+        "",
         content,
         count=1,
-        flags=re.DOTALL | re.MULTILINE
+        flags=re.DOTALL | re.MULTILINE,
     )
 
     return content_without_frontmatter.strip()

@@ -1,7 +1,6 @@
 """Unit tests for BacklogWriter."""
 
 import pytest
-from pathlib import Path
 from datetime import datetime
 
 from specify_cli.backlog.writer import BacklogWriter
@@ -254,7 +253,9 @@ class TestBacklogWriter:
         for input_name, expected_pattern in test_cases:
             sanitized = writer._sanitize_filename(input_name)
             assert len(sanitized) <= 100
-            assert not any(c in sanitized for c in ['<', '>', ':', '"', '/', '\\', '|', '?', '*'])
+            assert not any(
+                c in sanitized for c in ["<", ">", ":", '"', "/", "\\", "|", "?", "*"]
+            )
 
     def test_clean_title(self, backlog_dir):
         """Test title cleaning."""
@@ -421,11 +422,11 @@ class TestBacklogWriter:
         content = task_file.read_text()
 
         # Extract created_date line
-        for line in content.split('\n'):
-            if line.startswith('created_date:'):
+        for line in content.split("\n"):
+            if line.startswith("created_date:"):
                 date_str = line.split("'")[1]
                 # Verify it can be parsed
-                datetime.strptime(date_str, '%Y-%m-%d %H:%M')
+                datetime.strptime(date_str, "%Y-%m-%d %H:%M")
                 break
         else:
             pytest.fail("created_date not found in frontmatter")

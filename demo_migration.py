@@ -4,6 +4,7 @@
 from pathlib import Path
 from specify_cli.satellite.migration import migrate_tasks_cli, TaskMigrator
 
+
 def demo_single_file():
     """Demo migrating a single file."""
     print("=" * 60)
@@ -37,7 +38,7 @@ This is a sample v1 task that will be migrated to v2.
 <!-- AC:END -->
 """)
 
-    print(f"\nOriginal file content:")
+    print("\nOriginal file content:")
     print("-" * 60)
     print(task_file.read_text())
 
@@ -47,12 +48,13 @@ This is a sample v1 task that will be migrated to v2.
 
     print(f"\nMigration result: {'SUCCESS' if result else 'SKIPPED'}")
 
-    print(f"\nMigrated file content:")
+    print("\nMigrated file content:")
     print("-" * 60)
     print(task_file.read_text())
 
     # Cleanup
     import shutil
+
     shutil.rmtree(demo_dir)
     print("\n" + "=" * 60)
 
@@ -110,11 +112,14 @@ This is already v2.
     print(f"\nMigration exit code: {exit_code}")
 
     # Verify
-    migrated = sum(1 for f in demo_dir.glob("task-*.md") if "schema_version: '2'" in f.read_text())
+    migrated = sum(
+        1 for f in demo_dir.glob("task-*.md") if "schema_version: '2'" in f.read_text()
+    )
     print(f"\nTotal tasks with schema v2: {migrated}/6")
 
     # Cleanup
     import shutil
+
     shutil.rmtree(demo_dir)
     print("\n" + "=" * 60)
 
@@ -151,6 +156,7 @@ Body
 
     # Cleanup
     import shutil
+
     shutil.rmtree(demo_dir)
     print("\n" + "=" * 60)
 

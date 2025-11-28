@@ -4,13 +4,14 @@ import re
 import shutil
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Tuple
 
 import yaml
 
 
 class MigrationError(Exception):
     """Base exception for migration errors."""
+
     pass
 
 
@@ -27,10 +28,7 @@ class TaskMigrator:
     """
 
     CURRENT_VERSION = "2"
-    FRONTMATTER_PATTERN = re.compile(
-        r'^---\s*\n(.*?)\n---\s*\n(.*)$',
-        re.DOTALL
-    )
+    FRONTMATTER_PATTERN = re.compile(r"^---\s*\n(.*?)\n---\s*\n(.*)$", re.DOTALL)
 
     def __init__(self, dry_run: bool = False):
         """
@@ -40,12 +38,7 @@ class TaskMigrator:
             dry_run: If True, only report what would change without modifying files
         """
         self.dry_run = dry_run
-        self.results = {
-            "migrated": 0,
-            "skipped": 0,
-            "errors": 0,
-            "backed_up": 0
-        }
+        self.results = {"migrated": 0, "skipped": 0, "errors": 0, "backed_up": 0}
         self.migration_log: List[Dict[str, str]] = []
 
     def migrate(self, task_path: Path) -> bool:
@@ -97,7 +90,7 @@ class TaskMigrator:
         self._log_migration(
             task_path,
             "migrated" if not self.dry_run else "would_migrate",
-            f"v{current_version} → v{self.CURRENT_VERSION}"
+            f"v{current_version} → v{self.CURRENT_VERSION}",
         )
         return True
 
@@ -252,10 +245,7 @@ class TaskMigrator:
         """
         # Serialize frontmatter to YAML
         yaml_text = yaml.dump(
-            frontmatter,
-            default_flow_style=False,
-            allow_unicode=True,
-            sort_keys=False
+            frontmatter, default_flow_style=False, allow_unicode=True, sort_keys=False
         )
 
         # Construct full content
@@ -305,7 +295,9 @@ class TaskMigrator:
             raise MigrationError(f"Verification failed: {e}") from e
 
         # Check schema version
-        if actual_frontmatter.get("schema_version") != expected_frontmatter.get("schema_version"):
+        if actual_frontmatter.get("schema_version") != expected_frontmatter.get(
+            "schema_version"
+        ):
             raise MigrationError("Schema version mismatch after migration")
 
         # Check all original fields are preserved
@@ -358,12 +350,14 @@ class TaskMigrator:
             status: Status string (migrated, skipped, error, etc.)
             message: Log message
         """
-        self.migration_log.append({
-            "timestamp": datetime.now().isoformat(),
-            "path": str(path),
-            "status": status,
-            "message": message
-        })
+        self.migration_log.append(
+            {
+                "timestamp": datetime.now().isoformat(),
+                "path": str(path),
+                "status": status,
+                "message": message,
+            }
+        )
 
 
 def cleanup_backups(tasks_dir: Path) -> int:
@@ -384,7 +378,7 @@ def migrate_tasks_cli(
     tasks_dir: str | Path,
     dry_run: bool = False,
     verbose: bool = False,
-    cleanup: bool = False
+    cleanup: bool = False,
 ) -> int:
     """
     CLI-friendly bulk migration function.
@@ -428,9 +422,9 @@ def migrate_tasks_cli(
         print(f"Errors:   {results['errors']}")
 
     # Cleanup backups if requested and no errors
-    if cleanup and not dry_run and results['errors'] == 0:
+    if cleanup and not dry_run and results["errors"] == 0:
         count = cleanup_backups(tasks_path)
         if verbose:
             print(f"\nCleaned up {count} backup files")
 
-    return 1 if results['errors'] > 0 else 0
+    return 1 if results["errors"] > 0 else 0

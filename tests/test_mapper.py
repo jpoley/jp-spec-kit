@@ -1,7 +1,5 @@
 """Integration tests for TaskMapper."""
 
-import pytest
-from pathlib import Path
 from textwrap import dedent
 
 from specify_cli.backlog.mapper import TaskMapper, generate_backlog_tasks
@@ -46,7 +44,9 @@ class TestTaskMapper:
             task_files = list(tasks_dir.glob("task-*.md"))
             assert len(task_files) == 0
 
-    def test_generate_from_tasks_file_creates_backlog_files(self, sample_tasks_file, backlog_dir):
+    def test_generate_from_tasks_file_creates_backlog_files(
+        self, sample_tasks_file, backlog_dir
+    ):
         """Test that backlog task files are created."""
         mapper = TaskMapper(backlog_dir)
         result = mapper.generate_from_tasks_file(sample_tasks_file)
@@ -64,7 +64,9 @@ class TestTaskMapper:
         assert "id:" in content
         assert "title:" in content
 
-    def test_generate_from_empty_file(self, temp_project_dir, backlog_dir, empty_tasks_content):
+    def test_generate_from_empty_file(
+        self, temp_project_dir, backlog_dir, empty_tasks_content
+    ):
         """Test generating from file with no tasks."""
         empty_file = temp_project_dir / "empty.md"
         empty_file.write_text(empty_tasks_content)
@@ -89,6 +91,7 @@ class TestTaskMapper:
 
         # Parse and add invalid dependency
         from specify_cli.backlog.parser import TaskParser
+
         parser = TaskParser()
         tasks = parser.parse_tasks_content(invalid_content)
 
@@ -98,12 +101,15 @@ class TestTaskMapper:
 
         # Create graph - should fail validation
         from specify_cli.backlog.dependency_graph import DependencyGraphBuilder
+
         graph = DependencyGraphBuilder(tasks)
         is_valid, errors = graph.validate()
 
         assert is_valid is False
 
-    def test_generate_from_tasks_file_overwrite_false(self, sample_tasks_file, backlog_dir):
+    def test_generate_from_tasks_file_overwrite_false(
+        self, sample_tasks_file, backlog_dir
+    ):
         """Test that existing files are not overwritten by default."""
         mapper = TaskMapper(backlog_dir)
 
@@ -117,7 +123,9 @@ class TestTaskMapper:
         # No new files should be created
         assert result2["tasks_created"] == 0
 
-    def test_generate_from_tasks_file_overwrite_true(self, sample_tasks_file, backlog_dir):
+    def test_generate_from_tasks_file_overwrite_true(
+        self, sample_tasks_file, backlog_dir
+    ):
         """Test that files are overwritten when flag is set."""
         mapper = TaskMapper(backlog_dir)
 
@@ -156,7 +164,9 @@ class TestTaskMapper:
         assert result["success"] is False
         assert "No spec.md or tasks.md found" in result["error"]
 
-    def test_generate_from_spec_with_spec_file(self, sample_spec_file, backlog_dir, temp_project_dir):
+    def test_generate_from_spec_with_spec_file(
+        self, sample_spec_file, backlog_dir, temp_project_dir
+    ):
         """Test generating from spec.md file."""
         mapper = TaskMapper(backlog_dir)
         result = mapper.generate_from_spec(temp_project_dir)
@@ -374,10 +384,14 @@ class TestTaskMapper:
         assert "Conflicts" in regen_result["error"]
 
         # 5. Force regenerate
-        force_result = mapper.regenerate(sample_tasks_file, conflict_strategy="overwrite")
+        force_result = mapper.regenerate(
+            sample_tasks_file, conflict_strategy="overwrite"
+        )
         assert force_result["success"] is True
 
-    def test_generate_from_spec_with_plan(self, temp_project_dir, backlog_dir, sample_spec_content, sample_plan_content):
+    def test_generate_from_spec_with_plan(
+        self, temp_project_dir, backlog_dir, sample_spec_content, sample_plan_content
+    ):
         """Test generating from spec with plan file."""
         spec_file = temp_project_dir / "spec.md"
         plan_file = temp_project_dir / "plan.md"

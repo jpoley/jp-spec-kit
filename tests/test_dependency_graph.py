@@ -1,7 +1,6 @@
 """Unit tests for DependencyGraphBuilder."""
 
 import pytest
-from textwrap import dedent
 
 from specify_cli.backlog.dependency_graph import DependencyGraphBuilder
 from specify_cli.backlog.parser import Task
@@ -142,7 +141,11 @@ class TestDependencyGraphBuilder:
             Task(task_id="T002", description="Branch A", dependencies=["T001"]),
             Task(task_id="T003", description="Branch B", dependencies=["T001"]),
             Task(task_id="T004", description="Branch C", dependencies=["T001"]),
-            Task(task_id="T005", description="Merge", dependencies=["T002", "T003", "T004"]),
+            Task(
+                task_id="T005",
+                description="Merge",
+                dependencies=["T002", "T003", "T004"],
+            ),
         ]
 
         graph = DependencyGraphBuilder(tasks)
@@ -172,7 +175,12 @@ class TestDependencyGraphBuilder:
         """Test getting parallelizable tasks from specific batch."""
         tasks = [
             Task(task_id="T001", description="Base"),
-            Task(task_id="T002", description="Parallel", is_parallelizable=True, dependencies=["T001"]),
+            Task(
+                task_id="T002",
+                description="Parallel",
+                is_parallelizable=True,
+                dependencies=["T001"],
+            ),
             Task(task_id="T003", description="Sequential", dependencies=["T001"]),
         ]
 
@@ -311,7 +319,12 @@ class TestDependencyGraphBuilder:
         """Test markdown shows task dependencies."""
         tasks = [
             Task(task_id="T001", description="Base", phase="Setup"),
-            Task(task_id="T002", description="Dependent", phase="Setup", dependencies=["T001"]),
+            Task(
+                task_id="T002",
+                description="Dependent",
+                phase="Setup",
+                dependencies=["T001"],
+            ),
         ]
 
         graph = DependencyGraphBuilder(tasks)
@@ -377,8 +390,12 @@ class TestDependencyGraphBuilder:
             Task(task_id="T002", description="Setup A", dependencies=["T001"]),
             Task(task_id="T003", description="Setup B", dependencies=["T001"]),
             Task(task_id="T004", description="Feature A", dependencies=["T002"]),
-            Task(task_id="T005", description="Feature B", dependencies=["T002", "T003"]),
-            Task(task_id="T006", description="Integration", dependencies=["T004", "T005"]),
+            Task(
+                task_id="T005", description="Feature B", dependencies=["T002", "T003"]
+            ),
+            Task(
+                task_id="T006", description="Integration", dependencies=["T004", "T005"]
+            ),
         ]
 
         graph = DependencyGraphBuilder(tasks)
@@ -456,7 +473,11 @@ class TestDependencyGraphBuilder:
             Task(task_id="T001", description="Dep A"),
             Task(task_id="T002", description="Dep B"),
             Task(task_id="T003", description="Dep C"),
-            Task(task_id="T004", description="Main", dependencies=["T001", "T002", "T003"]),
+            Task(
+                task_id="T004",
+                description="Main",
+                dependencies=["T001", "T002", "T003"],
+            ),
         ]
 
         graph = DependencyGraphBuilder(tasks)

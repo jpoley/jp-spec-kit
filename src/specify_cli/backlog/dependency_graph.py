@@ -61,7 +61,9 @@ class DependencyGraphBuilder:
         """
         return self.graph.get(task_id, [])
 
-    def get_all_dependencies(self, task_id: str, visited: Optional[set] = None) -> list[str]:
+    def get_all_dependencies(
+        self, task_id: str, visited: Optional[set] = None
+    ) -> list[str]:
         """
         Get all transitive dependencies for a task (recursively).
 
@@ -146,8 +148,10 @@ class DependencyGraphBuilder:
             List of batches, where each batch is a list of task IDs
         """
         # Build batches using level-by-level topological sort
-        in_degree = {task_id: len(self.get_dependencies(task_id))
-                     for task_id in self.task_map.keys()}
+        in_degree = {
+            task_id: len(self.get_dependencies(task_id))
+            for task_id in self.task_map.keys()
+        }
 
         batches = []
         remaining = set(self.task_map.keys())
@@ -155,13 +159,14 @@ class DependencyGraphBuilder:
         while remaining:
             # Find all tasks with no remaining dependencies
             current_batch = [
-                task_id for task_id in remaining
-                if in_degree[task_id] == 0
+                task_id for task_id in remaining if in_degree[task_id] == 0
             ]
 
             if not current_batch:
                 missing = remaining
-                raise ValueError(f"Circular dependency detected involving tasks: {missing}")
+                raise ValueError(
+                    f"Circular dependency detected involving tasks: {missing}"
+                )
 
             # Sort batch for consistent ordering
             current_batch.sort()
@@ -188,7 +193,8 @@ class DependencyGraphBuilder:
         tasks_to_check = batch if batch else list(self.task_map.keys())
 
         return [
-            task_id for task_id in tasks_to_check
+            task_id
+            for task_id in tasks_to_check
             if self.task_map[task_id].is_parallelizable
         ]
 
@@ -314,7 +320,7 @@ class DependencyGraphBuilder:
                 parallel_marker = " [P]" if task.is_parallelizable else ""
                 lines.append(f"- {task_id}{parallel_marker}: {task.description}")
 
-        return '\n'.join(lines)
+        return "\n".join(lines)
 
     def validate(self) -> tuple[bool, list[str]]:
         """

@@ -11,9 +11,9 @@ from .provider import RemoteProvider
 
 # Provider ID patterns for auto-detection
 PROVIDER_PATTERNS = {
-    ProviderType.GITHUB: r'^(?P<owner>[\w.-]+)/(?P<repo>[\w.-]+)#(?P<number>\d+)$',
-    ProviderType.JIRA: r'^(?P<project>[A-Z][A-Z0-9]*)-(?P<number>\d+)$',
-    ProviderType.NOTION: r'^(?P<id>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})$',
+    ProviderType.GITHUB: r"^(?P<owner>[\w.-]+)/(?P<repo>[\w.-]+)#(?P<number>\d+)$",
+    ProviderType.JIRA: r"^(?P<project>[A-Z][A-Z0-9]*)-(?P<number>\d+)$",
+    ProviderType.NOTION: r"^(?P<id>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})$",
 }
 
 
@@ -66,6 +66,7 @@ class ProviderRegistry:
                     return ProviderType.GITHUB
                 # ... implement other abstract methods
         """
+
         def decorator(provider_class: Type[RemoteProvider]):
             if not issubclass(provider_class, RemoteProvider):
                 raise TypeError(
@@ -73,10 +74,13 @@ class ProviderRegistry:
                 )
             cls._providers[provider_type] = provider_class
             return provider_class
+
         return decorator
 
     @classmethod
-    def get(cls, provider_type: ProviderType, config: Optional[Dict] = None) -> RemoteProvider:
+    def get(
+        cls, provider_type: ProviderType, config: Optional[Dict] = None
+    ) -> RemoteProvider:
         """
         Get or create a provider instance.
 
@@ -173,10 +177,7 @@ class ProviderRegistry:
         for provider_type, pattern in PROVIDER_PATTERNS.items():
             match = re.match(pattern, task_id)
             if match:
-                return {
-                    "provider": provider_type,
-                    **match.groupdict()
-                }
+                return {"provider": provider_type, **match.groupdict()}
         return None
 
     @classmethod
@@ -264,10 +265,7 @@ class LazyProvider:
             The actual provider instance
         """
         if self._instance is None:
-            self._instance = ProviderRegistry.get(
-                self._provider_type,
-                self._config
-            )
+            self._instance = ProviderRegistry.get(self._provider_type, self._config)
         return self._instance
 
     def __getattr__(self, name: str):

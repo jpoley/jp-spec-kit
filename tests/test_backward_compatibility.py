@@ -1,7 +1,6 @@
 """Tests for backward compatibility of schema v2."""
 
 import pytest
-from pathlib import Path
 
 from specify_cli.satellite.migration import TaskMigrator
 
@@ -171,8 +170,12 @@ Body
         migrated_content = v1_task_comprehensive.read_text()
 
         # Extract AC sections
-        original_ac = original_content.split("<!-- AC:BEGIN -->")[1].split("<!-- AC:END -->")[0]
-        migrated_ac = migrated_content.split("<!-- AC:BEGIN -->")[1].split("<!-- AC:END -->")[0]
+        original_ac = original_content.split("<!-- AC:BEGIN -->")[1].split(
+            "<!-- AC:END -->"
+        )[0]
+        migrated_ac = migrated_content.split("<!-- AC:BEGIN -->")[1].split(
+            "<!-- AC:END -->"
+        )[0]
 
         assert original_ac == migrated_ac
 
