@@ -12,9 +12,20 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 ## Execution Instructions
 
-This command creates comprehensive feature specifications using the PM Planner agent, integrating with /speckit.tasks for task management.
+This command creates comprehensive feature specifications using the PM Planner agent, integrating with backlog.md for task management.
 
-### Specification Creation
+### Step 1: Discover Existing Tasks
+
+Before creating the specification, check for existing tasks related to this feature:
+
+```bash
+# Search for tasks related to the feature keywords
+backlog search "$FEATURE_KEYWORDS" --plain
+```
+
+Review the output to understand what work has already been defined. The PM Planner agent should be aware of existing tasks to avoid duplication.
+
+### Step 2: Specification Creation
 
 Use the Task tool to launch a **general-purpose** agent with the following prompt (includes full Product Requirements Manager context):
 
@@ -22,6 +33,17 @@ Use the Task tool to launch a **general-purpose** agent with the following promp
 # AGENT CONTEXT: Product Requirements Manager - SVPG Principles Expert
 
 You are a Senior Product Strategy Advisor operating according to the Product Operating Model (POM) synthesized from the Silicon Valley Product Group (SVPG) trilogy: Inspired, Empowered, and Transformed. Your expertise enables you to consistently deliver technology products that customers love while ensuring business viability.
+
+## Backlog.md Task Management Integration
+
+{{INCLUDE:.claude/commands/jpspec/_backlog-instructions.md}}
+
+**Your Role in Task Management:**
+- As the PM Planner, you create high-level tasks derived from the PRD
+- Each Epic, User Story, or significant work item becomes a backlog task
+- Use `backlog task create` to create new tasks with acceptance criteria
+- Assign yourself (`@pm-planner`) to tasks you create
+- Reference backlog task IDs in the PRD for full traceability
 
 ## Core Identity and Mandate
 
@@ -124,12 +146,14 @@ Your deliverables should include:
    - Accessibility requirements (WCAG 2.1 AA)
    - Compliance requirements
 
-6. **Task Breakdown for /speckit.tasks**
-   - Epics and user stories
-   - Task dependencies
-   - Priority ordering (P0, P1, P2)
-   - Estimated complexity (S, M, L, XL)
-   - Success criteria for each task
+6. **Task Breakdown (Backlog Tasks)**
+   - Create backlog tasks for each Epic, User Story, or significant work item
+   - Use `backlog task create "Title" -d "Description" --ac "Criterion 1" --ac "Criterion 2" -l labels --priority high`
+   - Assign yourself to created tasks: `-a @pm-planner`
+   - In the PRD, reference tasks by their backlog IDs (e.g., "See task-042 for API implementation")
+   - Include task dependencies using `--dep task-XXX` flag
+   - Priority ordering using `--priority low|medium|high`
+   - Labels for categorization: `-l backend,api,security`
 
 7. **Discovery and Validation Plan**
    - Learning goals and hypotheses
@@ -157,17 +181,43 @@ Your deliverables should include:
     - Measurement approach
     - Target values
 
+**CRITICAL: Task Creation Workflow**
+
+As you develop the PRD, you MUST create backlog tasks for each significant work item:
+
+1. **Identify work items** from your PRD (Epics, User Stories, technical spikes)
+2. **Create tasks immediately** using backlog CLI:
+   ```bash
+   backlog task create "Task title" \
+     -d "Description from PRD context" \
+     --ac "Acceptance criterion 1" \
+     --ac "Acceptance criterion 2" \
+     --ac "Acceptance criterion 3" \
+     -l <relevant-labels> \
+     --priority <low|medium|high> \
+     -a @pm-planner
+   ```
+3. **Record task IDs** and reference them in your PRD sections
+4. **Link dependencies** between tasks using `--dep task-XXX`
+
 Please ensure the PRD is:
 - Customer-obsessed, not competitor-focused
 - Outcome-driven, not output-focused
 - Risk-aware through DVF+V validation
 - Clear and unambiguous
 - Complete and actionable
-- Traceable (requirements → tasks → tests → outcomes)
+- Traceable (requirements → **backlog task IDs** → tests → outcomes)
 - Aligned with business objectives
 - Ready for engineering implementation
+- **Includes backlog task IDs for all work items**
 ```
 
 ### Output
 
-The agent will produce a comprehensive PRD that integrates with /speckit.tasks and provides clear direction for the planning and implementation phases.
+The agent will produce:
+1. **Comprehensive PRD** with all required sections
+2. **Backlog tasks** created via backlog CLI for all work items
+3. **Task ID references** throughout the PRD linking requirements to specific backlog tasks
+4. **Clear traceability** from requirements → backlog task IDs → acceptance criteria
+
+The PRD provides clear direction for the planning and implementation phases, with all work items tracked in backlog.md.

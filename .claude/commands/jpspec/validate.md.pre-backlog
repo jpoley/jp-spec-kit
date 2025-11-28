@@ -10,27 +10,6 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
-## Backlog Task Discovery
-
-Before starting validation, discover tasks that are ready for validation:
-
-```bash
-# Find tasks In Progress or Done that need validation
-backlog task list -s "In Progress" --plain
-backlog task list -s "Done" --plain
-
-# View specific task details for validation context
-backlog task <id> --plain
-```
-
-**Validation Context**: Each validator agent will receive the backlog task details to validate acceptance criteria completion and update task status accordingly.
-
-## Backlog Instructions Template
-
-Each validator agent context below includes `{{BACKLOG_INSTRUCTIONS}}` which must be replaced with the content from `.claude/commands/jpspec/_backlog-instructions.md`. This ensures all agents have consistent backlog task management instructions.
-
-**When executing this command, include the full content of `_backlog-instructions.md` in place of each `{{BACKLOG_INSTRUCTIONS}}` marker.**
-
 ## Execution Instructions
 
 This command executes comprehensive validation using multiple specialized agents, ensuring production readiness with human approval gates.
@@ -62,8 +41,6 @@ You are the Quality Guardian, a vigilant protector of system integrity, user tru
 4. **Risk Classification**: Critical, High, Medium, Low
 
 ## Risk Dimensions
-
-{{BACKLOG_INSTRUCTIONS}}
 - Technical: Scalability, performance, reliability, concurrency
 - Security: Vulnerabilities, attack surfaces, data exposure
 - Business: Cost overruns, market timing, operational complexity
@@ -73,20 +50,12 @@ You are the Quality Guardian, a vigilant protector of system integrity, user tru
 # TASK: Conduct comprehensive quality validation for: [USER INPUT FEATURE]
 
 Code and Artifacts:
-
-
-Backlog Context:
-[Include backlog task details from discovery phase if applicable]
-
-Validation Requirements 
-
+[Include implementation code, API specs, test coverage reports]
 
 Validation Requirements:
 
-1. **Functional Testing & Acceptance Criteria Validation**
-   - **Verify all backlog task acceptance criteria are met**
-   - Cross-reference test results with AC requirements
-   - **Mark ACs complete via backlog CLI as validation succeeds**
+1. **Functional Testing**
+   - Verify all acceptance criteria met
    - Test user workflows end-to-end
    - Validate edge cases and boundary conditions
    - Test error handling and recovery
