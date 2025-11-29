@@ -179,7 +179,9 @@ class TestTestExecutor:
         (tmp_path / "pytest.ini").touch()
 
         mock_result = Mock()
-        mock_result.stdout = "test_auth.py::test_login PASSED\n====== 1 passed in 1.23s ======\n"
+        mock_result.stdout = (
+            "test_auth.py::test_login PASSED\n====== 1 passed in 1.23s ======\n"
+        )
         mock_result.stderr = ""
         mock_result.returncode = 0
         mock_run.return_value = mock_result
@@ -300,16 +302,14 @@ class TestACMapper:
     def test_calculate_match_confidence_high(self):
         """Test high confidence matching."""
         confidence = ACMapper._calculate_match_confidence(
-            "test_user_can_login",
-            "User can login"
+            "test_user_can_login", "User can login"
         )
         assert confidence > 0.6
 
     def test_calculate_match_confidence_low(self):
         """Test low confidence matching."""
         confidence = ACMapper._calculate_match_confidence(
-            "test_database_setup",
-            "User can login"
+            "test_database_setup", "User can login"
         )
         assert confidence < 0.2
 
@@ -350,12 +350,16 @@ class TestACMapper:
 
     def test_sequence_match_bonus_full_sequence(self):
         """Test sequence bonus with full sequence match."""
-        bonus = ACMapper._sequence_match_bonus(["user", "can", "login"], ["user", "can", "login"])
+        bonus = ACMapper._sequence_match_bonus(
+            ["user", "can", "login"], ["user", "can", "login"]
+        )
         assert bonus == 3 * ACMapper.SEQUENCE_BONUS_MULTIPLIER
 
     def test_sequence_match_bonus_partial_sequence(self):
         """Test sequence bonus with partial sequence match."""
-        bonus = ACMapper._sequence_match_bonus(["user", "login"], ["user", "can", "login"])
+        bonus = ACMapper._sequence_match_bonus(
+            ["user", "login"], ["user", "can", "login"]
+        )
         # Should match "user" then "login" (2 in sequence)
         assert bonus == 2 * ACMapper.SEQUENCE_BONUS_MULTIPLIER
 

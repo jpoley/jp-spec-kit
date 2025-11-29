@@ -58,18 +58,14 @@ class TestCartesiaTTSServiceInit:
     def test_init_with_custom_sample_rate(self, mock_init: MagicMock) -> None:
         """Test initialization with custom sample rate."""
         mock_init.return_value = None
-        service = CartesiaTTSService(
-            api_key="key", voice_id="voice", sample_rate=24000
-        )
+        service = CartesiaTTSService(api_key="key", voice_id="voice", sample_rate=24000)
         assert service.sample_rate == 24000
 
     @patch("specify_cli.voice.services.tts.PipecatCartesiaTTS.__init__")
     def test_init_with_custom_model(self, mock_init: MagicMock) -> None:
         """Test initialization with custom model."""
         mock_init.return_value = None
-        service = CartesiaTTSService(
-            api_key="key", voice_id="voice", model="sonic-2"
-        )
+        service = CartesiaTTSService(api_key="key", voice_id="voice", model="sonic-2")
         assert service.model == "sonic-2"
 
     def test_init_without_api_key(self) -> None:

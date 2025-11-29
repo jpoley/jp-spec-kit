@@ -61,7 +61,8 @@ def sample_backlog_tasks(temp_backlog_dir):
 
     # Task 001: Simple task
     task_001 = tasks_dir / "task-001 - Simple test task.md"
-    task_001.write_text(dedent("""
+    task_001.write_text(
+        dedent("""
         ---
         id: task-001
         title: Simple test task
@@ -79,11 +80,13 @@ def sample_backlog_tasks(temp_backlog_dir):
 
         <!-- AC:BEGIN -->
         <!-- AC:END -->
-    """).strip())
+    """).strip()
+    )
 
     # Task 042: Task with acceptance criteria
     task_042 = tasks_dir / "task-042 - Task with acceptance criteria.md"
-    task_042.write_text(dedent("""
+    task_042.write_text(
+        dedent("""
         ---
         id: task-042
         title: Task with acceptance criteria
@@ -113,11 +116,13 @@ def sample_backlog_tasks(temp_backlog_dir):
         ## Implementation Notes
 
         Initial notes go here.
-    """).strip())
+    """).strip()
+    )
 
     # Task 100: In Progress task
     task_100 = tasks_dir / "task-100 - In progress task.md"
-    task_100.write_text(dedent("""
+    task_100.write_text(
+        dedent("""
         ---
         id: task-100
         title: In progress task
@@ -137,7 +142,8 @@ def sample_backlog_tasks(temp_backlog_dir):
         - [x] #1 First criterion completed
         - [ ] #2 Second criterion pending
         <!-- AC:END -->
-    """).strip())
+    """).strip()
+    )
 
     return {
         "task-001": task_001,
@@ -152,13 +158,9 @@ def mock_backlog_cli():
 
     Returns a MagicMock that can be used to verify backlog CLI calls.
     """
-    with patch('subprocess.run') as mock_run:
+    with patch("subprocess.run") as mock_run:
         # Configure mock to return successful responses
-        mock_run.return_value = MagicMock(
-            returncode=0,
-            stdout="Success",
-            stderr=""
-        )
+        mock_run.return_value = MagicMock(returncode=0, stdout="Success", stderr="")
         yield mock_run
 
 
@@ -247,11 +249,19 @@ class BacklogCLIVerifier:
             expected.extend(["-a", kwargs["assignee"]])
         if "check_ac" in kwargs:
             # Support multiple AC checks
-            ac_list = kwargs["check_ac"] if isinstance(kwargs["check_ac"], list) else [kwargs["check_ac"]]
+            ac_list = (
+                kwargs["check_ac"]
+                if isinstance(kwargs["check_ac"], list)
+                else [kwargs["check_ac"]]
+            )
             for ac in ac_list:
                 expected.extend(["--check-ac", str(ac)])
         if "uncheck_ac" in kwargs:
-            ac_list = kwargs["uncheck_ac"] if isinstance(kwargs["uncheck_ac"], list) else [kwargs["uncheck_ac"]]
+            ac_list = (
+                kwargs["uncheck_ac"]
+                if isinstance(kwargs["uncheck_ac"], list)
+                else [kwargs["uncheck_ac"]]
+            )
             for ac in ac_list:
                 expected.extend(["--uncheck-ac", str(ac)])
         if "notes" in kwargs:
@@ -309,17 +319,24 @@ class TestBacklogCLIIntegration:
     def test_verifier_search_with_filters(self, mock_backlog_cli, backlog_verifier):
         """Test search verification with filters."""
         # Simulate search with filters
-        subprocess.run([
-            "backlog", "search", "api",
-            "--plain", "--status", "In Progress",
-            "--priority", "High"
-        ])
+        subprocess.run(
+            [
+                "backlog",
+                "search",
+                "api",
+                "--plain",
+                "--status",
+                "In Progress",
+                "--priority",
+                "High",
+            ]
+        )
 
         # Verify the call
         backlog_verifier.assert_search_called(
             mock_backlog_cli,
             "api",
-            filters={"status": "In Progress", "priority": "High"}
+            filters={"status": "In Progress", "priority": "High"},
         )
 
     def test_verifier_task_list_called(self, mock_backlog_cli, backlog_verifier):
@@ -333,118 +350,100 @@ class TestBacklogCLIIntegration:
     def test_verifier_task_list_with_filters(self, mock_backlog_cli, backlog_verifier):
         """Test task list verification with filters."""
         # Simulate filtered list
-        subprocess.run([
-            "backlog", "task", "list", "--plain",
-            "-s", "To Do",
-            "-a", "@engineer-1"
-        ])
+        subprocess.run(
+            ["backlog", "task", "list", "--plain", "-s", "To Do", "-a", "@engineer-1"]
+        )
 
         # Verify the call
         backlog_verifier.assert_task_list_called(
-            mock_backlog_cli,
-            filters={"status": "To Do", "assignee": "@engineer-1"}
+            mock_backlog_cli, filters={"status": "To Do", "assignee": "@engineer-1"}
         )
 
     def test_verifier_task_edit_status(self, mock_backlog_cli, backlog_verifier):
         """Test task edit verification for status change."""
         # Simulate status change
-        subprocess.run([
-            "backlog", "task", "edit", "42",
-            "-s", "In Progress"
-        ])
+        subprocess.run(["backlog", "task", "edit", "42", "-s", "In Progress"])
 
         # Verify the call
         backlog_verifier.assert_task_edit_called(
-            mock_backlog_cli,
-            "42",
-            status="In Progress"
+            mock_backlog_cli, "42", status="In Progress"
         )
 
     def test_verifier_task_edit_assignment(self, mock_backlog_cli, backlog_verifier):
         """Test task edit verification for assignment."""
         # Simulate assignment and status change
-        subprocess.run([
-            "backlog", "task", "edit", "42",
-            "-s", "In Progress",
-            "-a", "@myself"
-        ])
+        subprocess.run(
+            ["backlog", "task", "edit", "42", "-s", "In Progress", "-a", "@myself"]
+        )
 
         # Verify the call
         backlog_verifier.assert_task_edit_called(
-            mock_backlog_cli,
-            "42",
-            status="In Progress",
-            assignee="@myself"
+            mock_backlog_cli, "42", status="In Progress", assignee="@myself"
         )
 
-    def test_verifier_task_edit_check_ac_single(self, mock_backlog_cli, backlog_verifier):
+    def test_verifier_task_edit_check_ac_single(
+        self, mock_backlog_cli, backlog_verifier
+    ):
         """Test AC checking verification for single criterion."""
         # Simulate checking AC #1
-        subprocess.run([
-            "backlog", "task", "edit", "42",
-            "--check-ac", "1"
-        ])
+        subprocess.run(["backlog", "task", "edit", "42", "--check-ac", "1"])
 
         # Verify the call
-        backlog_verifier.assert_task_edit_called(
-            mock_backlog_cli,
-            "42",
-            check_ac=1
-        )
+        backlog_verifier.assert_task_edit_called(mock_backlog_cli, "42", check_ac=1)
 
-    def test_verifier_task_edit_check_ac_multiple(self, mock_backlog_cli, backlog_verifier):
+    def test_verifier_task_edit_check_ac_multiple(
+        self, mock_backlog_cli, backlog_verifier
+    ):
         """Test AC checking verification for multiple criteria."""
         # Simulate checking multiple ACs
-        subprocess.run([
-            "backlog", "task", "edit", "42",
-            "--check-ac", "1",
-            "--check-ac", "2",
-            "--check-ac", "3"
-        ])
+        subprocess.run(
+            [
+                "backlog",
+                "task",
+                "edit",
+                "42",
+                "--check-ac",
+                "1",
+                "--check-ac",
+                "2",
+                "--check-ac",
+                "3",
+            ]
+        )
 
         # Verify the call
         backlog_verifier.assert_task_edit_called(
-            mock_backlog_cli,
-            "42",
-            check_ac=[1, 2, 3]
+            mock_backlog_cli, "42", check_ac=[1, 2, 3]
         )
 
     def test_verifier_task_edit_notes(self, mock_backlog_cli, backlog_verifier):
         """Test task edit verification for adding notes."""
         # Simulate adding notes
-        subprocess.run([
-            "backlog", "task", "edit", "42",
-            "--notes", "Implementation complete"
-        ])
+        subprocess.run(
+            ["backlog", "task", "edit", "42", "--notes", "Implementation complete"]
+        )
 
         # Verify the call
         backlog_verifier.assert_task_edit_called(
-            mock_backlog_cli,
-            "42",
-            notes="Implementation complete"
+            mock_backlog_cli, "42", notes="Implementation complete"
         )
 
     def test_verifier_task_edit_plan(self, mock_backlog_cli, backlog_verifier):
         """Test task edit verification for adding implementation plan."""
         # Simulate adding plan
         plan = "1. Research\n2. Implement\n3. Test"
-        subprocess.run([
-            "backlog", "task", "edit", "42",
-            "--plan", plan
-        ])
+        subprocess.run(["backlog", "task", "edit", "42", "--plan", plan])
 
         # Verify the call
-        backlog_verifier.assert_task_edit_called(
-            mock_backlog_cli,
-            "42",
-            plan=plan
-        )
+        backlog_verifier.assert_task_edit_called(mock_backlog_cli, "42", plan=plan)
 
 
 class TestTaskDiscovery:
     """Tests for task discovery operations (search and list)."""
 
-    def test_search_finds_tasks_by_keyword(self, temp_backlog_dir, sample_backlog_tasks):
+    def test_search_finds_tasks_by_keyword(
+        self, temp_backlog_dir, sample_backlog_tasks
+    ):
         """Test that backlog search can find tasks by keyword."""
         # This would be an actual integration test if backlog CLI is available
         # For now, we test the fixture setup
@@ -489,34 +488,31 @@ class TestTaskAssignment:
     def test_assign_task_to_agent(self, mock_backlog_cli, backlog_verifier):
         """Test assigning a task to an agent."""
         # Simulate jpspec workflow: assign task and set to In Progress
-        subprocess.run([
-            "backlog", "task", "edit", "42",
-            "-s", "In Progress",
-            "-a", "@backend-engineer"
-        ])
+        subprocess.run(
+            [
+                "backlog",
+                "task",
+                "edit",
+                "42",
+                "-s",
+                "In Progress",
+                "-a",
+                "@backend-engineer",
+            ]
+        )
 
         # Verify the assignment call
         backlog_verifier.assert_task_edit_called(
-            mock_backlog_cli,
-            "42",
-            status="In Progress",
-            assignee="@backend-engineer"
+            mock_backlog_cli, "42", status="In Progress", assignee="@backend-engineer"
         )
 
     def test_unassign_task(self, mock_backlog_cli, backlog_verifier):
         """Test unassigning a task."""
         # Simulate unassignment
-        subprocess.run([
-            "backlog", "task", "edit", "100",
-            "-a", ""
-        ])
+        subprocess.run(["backlog", "task", "edit", "100", "-a", ""])
 
         # Verify the call
-        backlog_verifier.assert_task_edit_called(
-            mock_backlog_cli,
-            "100",
-            assignee=""
-        )
+        backlog_verifier.assert_task_edit_called(mock_backlog_cli, "100", assignee="")
 
 
 class TestAcceptanceCriteriaOperations:
@@ -524,52 +520,42 @@ class TestAcceptanceCriteriaOperations:
 
     def test_check_single_ac(self, mock_backlog_cli, backlog_verifier):
         """Test checking a single acceptance criterion."""
-        subprocess.run([
-            "backlog", "task", "edit", "42",
-            "--check-ac", "1"
-        ])
+        subprocess.run(["backlog", "task", "edit", "42", "--check-ac", "1"])
 
-        backlog_verifier.assert_task_edit_called(
-            mock_backlog_cli,
-            "42",
-            check_ac=1
-        )
+        backlog_verifier.assert_task_edit_called(mock_backlog_cli, "42", check_ac=1)
 
     def test_check_multiple_ac(self, mock_backlog_cli, backlog_verifier):
         """Test checking multiple acceptance criteria at once."""
-        subprocess.run([
-            "backlog", "task", "edit", "42",
-            "--check-ac", "1",
-            "--check-ac", "2",
-            "--check-ac", "3"
-        ])
+        subprocess.run(
+            [
+                "backlog",
+                "task",
+                "edit",
+                "42",
+                "--check-ac",
+                "1",
+                "--check-ac",
+                "2",
+                "--check-ac",
+                "3",
+            ]
+        )
 
         backlog_verifier.assert_task_edit_called(
-            mock_backlog_cli,
-            "42",
-            check_ac=[1, 2, 3]
+            mock_backlog_cli, "42", check_ac=[1, 2, 3]
         )
 
     def test_uncheck_ac(self, mock_backlog_cli, backlog_verifier):
         """Test unchecking an acceptance criterion."""
-        subprocess.run([
-            "backlog", "task", "edit", "42",
-            "--uncheck-ac", "2"
-        ])
+        subprocess.run(["backlog", "task", "edit", "42", "--uncheck-ac", "2"])
 
-        backlog_verifier.assert_task_edit_called(
-            mock_backlog_cli,
-            "42",
-            uncheck_ac=2
-        )
+        backlog_verifier.assert_task_edit_called(mock_backlog_cli, "42", uncheck_ac=2)
 
     def test_mixed_ac_operations(self, mock_backlog_cli, backlog_verifier):
         """Test mixed AC operations in single command."""
-        subprocess.run([
-            "backlog", "task", "edit", "42",
-            "--check-ac", "1",
-            "--uncheck-ac", "2"
-        ])
+        subprocess.run(
+            ["backlog", "task", "edit", "42", "--check-ac", "1", "--uncheck-ac", "2"]
+        )
 
         # Verify both operations
         calls = mock_backlog_cli.call_args_list
@@ -593,84 +579,88 @@ class TestWorkflowCompletion:
         task_id = "42"
 
         # Step 1: Assign and start work
-        subprocess.run([
-            "backlog", "task", "edit", task_id,
-            "-s", "In Progress",
-            "-a", "@backend-engineer"
-        ])
+        subprocess.run(
+            [
+                "backlog",
+                "task",
+                "edit",
+                task_id,
+                "-s",
+                "In Progress",
+                "-a",
+                "@backend-engineer",
+            ]
+        )
 
         # Step 2: Add implementation plan
-        subprocess.run([
-            "backlog", "task", "edit", task_id,
-            "--plan", "1. Research\n2. Implement\n3. Test"
-        ])
+        subprocess.run(
+            [
+                "backlog",
+                "task",
+                "edit",
+                task_id,
+                "--plan",
+                "1. Research\n2. Implement\n3. Test",
+            ]
+        )
 
         # Step 3: Check ACs as work progresses
-        subprocess.run([
-            "backlog", "task", "edit", task_id,
-            "--check-ac", "1"
-        ])
+        subprocess.run(["backlog", "task", "edit", task_id, "--check-ac", "1"])
 
-        subprocess.run([
-            "backlog", "task", "edit", task_id,
-            "--check-ac", "2",
-            "--check-ac", "3"
-        ])
+        subprocess.run(
+            ["backlog", "task", "edit", task_id, "--check-ac", "2", "--check-ac", "3"]
+        )
 
         # Step 4: Add implementation notes
-        subprocess.run([
-            "backlog", "task", "edit", task_id,
-            "--notes", "Implemented feature X using pattern Y"
-        ])
+        subprocess.run(
+            [
+                "backlog",
+                "task",
+                "edit",
+                task_id,
+                "--notes",
+                "Implemented feature X using pattern Y",
+            ]
+        )
 
         # Step 5: Mark as done
-        subprocess.run([
-            "backlog", "task", "edit", task_id,
-            "-s", "Done"
-        ])
+        subprocess.run(["backlog", "task", "edit", task_id, "-s", "Done"])
 
         # Verify all steps were called correctly
         assert mock_backlog_cli.call_count >= 5
 
         # Verify final status change
         backlog_verifier.assert_task_edit_called(
-            mock_backlog_cli,
-            task_id,
-            status="Done"
+            mock_backlog_cli, task_id, status="Done"
         )
 
     def test_research_workflow(self, mock_backlog_cli, backlog_verifier):
         """Test research workflow: search → assign → investigate → document."""
         # Step 1: Search for related tasks
-        subprocess.run([
-            "backlog", "search", "api",
-            "--plain",
-            "--type", "task"
-        ])
+        subprocess.run(["backlog", "search", "api", "--plain", "--type", "task"])
 
         # Step 2: Assign research task
-        subprocess.run([
-            "backlog", "task", "edit", "100",
-            "-s", "In Progress",
-            "-a", "@researcher"
-        ])
+        subprocess.run(
+            ["backlog", "task", "edit", "100", "-s", "In Progress", "-a", "@researcher"]
+        )
 
         # Step 3: Add findings to notes
-        subprocess.run([
-            "backlog", "task", "edit", "100",
-            "--notes", "Research findings: Option A is better because..."
-        ])
+        subprocess.run(
+            [
+                "backlog",
+                "task",
+                "edit",
+                "100",
+                "--notes",
+                "Research findings: Option A is better because...",
+            ]
+        )
 
         # Verify workflow
         backlog_verifier.assert_search_called(
-            mock_backlog_cli,
-            "api",
-            filters={"type": "task"}
+            mock_backlog_cli, "api", filters={"type": "task"}
         )
 
         backlog_verifier.assert_task_edit_called(
-            mock_backlog_cli,
-            "100",
-            status="In Progress",
-            assignee="@researcher"
+            mock_backlog_cli, "100", status="In Progress", assignee="@researcher"
         )

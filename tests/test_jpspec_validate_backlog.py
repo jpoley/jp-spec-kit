@@ -5,23 +5,27 @@ backlog.md task management for QA, Security, Tech Writer, and Release Manager ag
 """
 
 import pytest
-import subprocess
 from pathlib import Path
-from textwrap import dedent
-from unittest.mock import patch, MagicMock
-import json
 
 
 @pytest.fixture
 def validate_md_path():
     """Get path to validate.md command file."""
-    return Path(__file__).parent.parent / ".claude" / "commands" / "jpspec" / "validate.md"
+    return (
+        Path(__file__).parent.parent / ".claude" / "commands" / "jpspec" / "validate.md"
+    )
 
 
 @pytest.fixture
 def backlog_instructions_path():
     """Get path to _backlog-instructions.md file."""
-    return Path(__file__).parent.parent / ".claude" / "commands" / "jpspec" / "_backlog-instructions.md"
+    return (
+        Path(__file__).parent.parent
+        / ".claude"
+        / "commands"
+        / "jpspec"
+        / "_backlog-instructions.md"
+    )
 
 
 class TestValidateCommandStructure:
@@ -47,7 +51,9 @@ class TestValidateCommandStructure:
 
         # Should have at least 4 occurrences (one per agent: QA, Security, Tech Writer, Release Manager)
         marker_count = content.count("{{BACKLOG_INSTRUCTIONS}}")
-        assert marker_count >= 4, f"Expected at least 4 {{{{BACKLOG_INSTRUCTIONS}}}} markers, found {marker_count}"
+        assert marker_count >= 4, (
+            f"Expected at least 4 {{{{BACKLOG_INSTRUCTIONS}}}} markers, found {marker_count}"
+        )
 
     def test_validate_has_all_four_agent_contexts(self, validate_md_path):
         """Verify validate.md has all four agent contexts."""
@@ -161,8 +167,10 @@ class TestTechWriterBacklogIntegration:
         tw_section = content[tw_start:tw_end]
 
         # Check for task creation instructions
-        assert "Create backlog tasks for major documentation work" in tw_section or \
-               "backlog task create" in tw_section
+        assert (
+            "Create backlog tasks for major documentation work" in tw_section
+            or "backlog task create" in tw_section
+        )
 
     def test_tech_writer_has_documentation_task_example(self, validate_md_path):
         """Verify Tech Writer has example of creating documentation task."""
@@ -174,8 +182,10 @@ class TestTechWriterBacklogIntegration:
 
         # Should have example backlog task creation
         assert 'backlog task create "Documentation:' in tw_section
-        assert '--ac "API documentation complete"' in tw_section or \
-               "API documentation" in tw_section
+        assert (
+            '--ac "API documentation complete"' in tw_section
+            or "API documentation" in tw_section
+        )
 
     def test_tech_writer_has_backlog_context_section(self, validate_md_path):
         """Verify Tech Writer has Backlog Context section."""
@@ -230,8 +240,7 @@ class TestBacklogInstructionsContent:
 
     def test_backlog_instructions_file_exists(self, backlog_instructions_path):
         """Verify _backlog-instructions.md exists."""
-        assert backlog_instructions_path.exists(), \
-            "_backlog-instructions.md must exist"
+        assert backlog_instructions_path.exists(), "_backlog-instructions.md must exist"
 
     def test_backlog_instructions_has_core_sections(self, backlog_instructions_path):
         """Verify backlog instructions has all core sections."""
@@ -274,7 +283,9 @@ class TestValidateWorkflowIntegration:
         assert discovery_pos < qa_pos, "Task discovery must come before QA"
         assert qa_pos < security_pos, "QA must come before Security"
         assert security_pos < tech_writer_pos, "Security must come before Tech Writer"
-        assert tech_writer_pos < release_pos, "Tech Writer must come before Release Manager"
+        assert tech_writer_pos < release_pos, (
+            "Tech Writer must come before Release Manager"
+        )
 
     def test_validate_parallel_execution_note(self, validate_md_path):
         """Verify validate.md notes parallel execution for QA and Security."""
@@ -289,8 +300,10 @@ class TestValidateWorkflowIntegration:
 
         # Should have human approval requirements
         assert "human approval" in content.lower() or "Human Approval" in content
-        assert "REQUEST EXPLICIT HUMAN APPROVAL" in content or \
-               "require explicit human approval" in content.lower()
+        assert (
+            "REQUEST EXPLICIT HUMAN APPROVAL" in content
+            or "require explicit human approval" in content.lower()
+        )
 
 
 class TestValidateCommandUsage:
@@ -315,8 +328,9 @@ class TestValidateCommandUsage:
         plain_flags = content.count("--plain")
 
         # Should have at least as many --plain flags as list commands
-        assert plain_flags >= list_commands, \
+        assert plain_flags >= list_commands, (
             "All backlog task list commands should use --plain flag"
+        )
 
 
 class TestAgentConsistency:
@@ -330,7 +344,7 @@ class TestAgentConsistency:
             "Quality Guardian",
             "Secure-by-Design Engineer",
             "Senior Technical Writer",
-            "Senior Release Manager"
+            "Senior Release Manager",
         ]
 
         for agent in agents:
@@ -341,13 +355,16 @@ class TestAgentConsistency:
             next_agent_pos = len(content)
             for next_agent in agents:
                 if next_agent != agent:
-                    pos = content.find(f"# AGENT CONTEXT: {next_agent}", agent_start + 1)
+                    pos = content.find(
+                        f"# AGENT CONTEXT: {next_agent}", agent_start + 1
+                    )
                     if pos != -1 and pos < next_agent_pos:
                         next_agent_pos = pos
 
             agent_section = content[agent_start:next_agent_pos]
-            assert "{{BACKLOG_INSTRUCTIONS}}" in agent_section, \
+            assert "{{BACKLOG_INSTRUCTIONS}}" in agent_section, (
                 f"{agent} missing {{{{BACKLOG_INSTRUCTIONS}}}} marker"
+            )
 
     def test_all_agents_have_backlog_context(self, validate_md_path):
         """Verify all four agents have Backlog Context section."""
@@ -357,7 +374,7 @@ class TestAgentConsistency:
             "Quality Guardian",
             "Secure-by-Design Engineer",
             "Senior Technical Writer",
-            "Senior Release Manager"
+            "Senior Release Manager",
         ]
 
         for agent in agents:
@@ -367,13 +384,16 @@ class TestAgentConsistency:
             next_agent_pos = len(content)
             for next_agent in agents:
                 if next_agent != agent:
-                    pos = content.find(f"# AGENT CONTEXT: {next_agent}", agent_start + 1)
+                    pos = content.find(
+                        f"# AGENT CONTEXT: {next_agent}", agent_start + 1
+                    )
                     if pos != -1 and pos < next_agent_pos:
                         next_agent_pos = pos
 
             agent_section = content[agent_start:next_agent_pos]
-            assert "Backlog Context:" in agent_section, \
+            assert "Backlog Context:" in agent_section, (
                 f"{agent} missing Backlog Context section"
+            )
 
 
 class TestDocumentationQuality:
