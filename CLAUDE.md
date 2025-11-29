@@ -121,6 +121,86 @@ Additional context loaded when working in specific directories:
 | `GITHUB_JPSPEC` | GitHub token for API requests |
 | `SPECIFY_FEATURE` | Override feature detection for non-Git repos |
 
+## Claude Code Hooks
+
+JP Spec Kit uses Claude Code hooks to provide automated safety checks and code quality enforcement.
+
+### Implemented Hooks
+
+#### 1. Sensitive File Protection (PreToolUse)
+
+**Hook**: `.claude/hooks/pre-tool-use-sensitive-files.py`
+
+Asks for confirmation before modifying sensitive files:
+- `.env` files (including `.env.*`)
+- `.secrets` files
+- `package-lock.json`
+- `uv.lock`
+- `.git/` directory
+- `CLAUDE.md` files
+
+**Behavior**: Returns `"decision": "ask"` for sensitive files, prompting Claude to get user confirmation.
+
+#### 2. Git Command Safety Validator (PreToolUse)
+
+**Hook**: `.claude/hooks/pre-tool-use-git-safety.py`
+
+Warns on dangerous Git commands:
+- `git push --force` / `-f` (asks for confirmation)
+- `git push origin +branch` (force push syntax, asks for confirmation)
+- `git reset --hard` (asks for confirmation)
+- `git rebase -i` (DENIES - interactive commands not supported)
+- `git clean -fd` (asks for confirmation)
+
+**Special handling**: Force pushes to `main`/`master` branches receive extra warnings.
+
+**Behavior**: Returns `"decision": "ask"` for dangerous commands, or `"decision": "deny"` for unsupported interactive commands.
+
+#### 3. Auto-format Python Files (PostToolUse)
+
+**Hook**: `.claude/hooks/post-tool-use-format-python.sh`
+
+Automatically runs `ruff format` on Python files after Edit/Write operations.
+
+**Behavior**: Silently formats Python files and reports if formatting was applied.
+
+#### 4. Auto-lint Python Files (PostToolUse)
+
+**Hook**: `.claude/hooks/post-tool-use-lint-python.sh`
+
+Automatically runs `ruff check --fix` on Python files after Edit/Write operations.
+
+**Behavior**: Attempts to auto-fix linting issues and reports results. Manual fixes may be needed for complex issues.
+
+### Testing Hooks
+
+Run the test suite to verify all hooks are working correctly:
+
+```bash
+# Run all hook tests
+.claude/hooks/test-hooks.sh
+
+# Test a specific hook manually
+echo '{"tool_name": "Write", "tool_input": {"file_path": ".env"}}' | \
+  python .claude/hooks/pre-tool-use-sensitive-files.py
+```
+
+### Customizing Hook Behavior
+
+Hooks are configured in `.claude/settings.json`. To customize:
+
+1. **Modify sensitive file patterns**: Edit `SENSITIVE_PATTERNS` in `pre-tool-use-sensitive-files.py`
+2. **Add/remove dangerous git patterns**: Edit `DANGEROUS_GIT_PATTERNS` in `pre-tool-use-git-safety.py`
+3. **Adjust timeouts**: Modify timeout values in `.claude/settings.json`
+4. **Disable specific hooks**: Remove or comment out hooks in `.claude/settings.json`
+
+### Hook Design Principles
+
+- **Fail open**: Hooks default to "allow" on errors to avoid breaking Claude's workflow
+- **Fast execution**: All hooks complete in <5 seconds (10s for PostToolUse)
+- **Clear communication**: Hooks provide detailed reasons and context for decisions
+- **Non-blocking**: Only interactive commands (like `git rebase -i`) are denied; everything else asks for confirmation
+
 ## Quick Troubleshooting
 
 ```bash
@@ -135,6 +215,9 @@ chmod +x scripts/bash/*.sh
 
 # Check Python version (requires 3.11+)
 python --version
+
+# Test hooks
+.claude/hooks/test-hooks.sh
 ```
 
 ---
