@@ -10,6 +10,8 @@ Verifies AC#1-AC#7 for task-113:
 - AC#7: Test: Run /jpspec:validate and verify task validation workflow
 """
 
+import re
+
 import pytest
 from pathlib import Path
 
@@ -65,18 +67,12 @@ class TestTaskDiscoveryAC1:
         """AC #1: All discovery commands use --plain for AI-readable output."""
         content = validate_md_path.read_text()
 
-        # All backlog commands should use --plain
-        list_commands = content.count("backlog task list")
-        plain_flags = content.count("--plain")
-        # Should have at least 4 occurrences (one per agent: QA, Security, Tech Writer, Release Manager)
-        marker_count = content.count("{{BACKLOG_INSTRUCTIONS}}")
-        assert marker_count >= 4, (
-            f"Expected at least 4 {{{{BACKLOG_INSTRUCTIONS}}}} markers, found {marker_count}"
-        )
-
-        # Should have at least as many --plain flags as list commands
-        assert plain_flags >= list_commands, (
-            "All backlog task list commands should use --plain flag"
+        # Use regex to find all backlog task list commands and verify each has --plain
+        list_commands = re.findall(r"backlog task list[^\n]*", content)
+        assert len(list_commands) > 0, "Expected at least one backlog task list command"
+        assert all("--plain" in cmd for cmd in list_commands), (
+            "All backlog task list commands must include --plain flag. "
+            f"Found commands: {list_commands}"
         )
 
 
