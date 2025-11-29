@@ -1,11 +1,11 @@
 ---
 id: task-082
 title: Problem-Sizing Assessment Command
-status: In Progress
+status: Done
 assignee:
   - '@claude-agent'
 created_date: '2025-11-27 21:53'
-updated_date: '2025-11-29 05:48'
+updated_date: '2025-11-29 05:49'
 labels:
   - jpspec
   - feature

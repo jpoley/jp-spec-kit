@@ -5,6 +5,7 @@ the problem-sizing assessment framework with scoring, recommendations,
 and examples.
 """
 
+import re
 import pytest
 from pathlib import Path
 
@@ -15,6 +16,19 @@ def assess_command_path():
     return (
         Path(__file__).parent.parent / ".claude" / "commands" / "jpspec" / "assess.md"
     )
+
+
+def extract_section(content: str, start_pattern: str, end_pattern: str) -> str | None:
+    """Extract a section of content between two patterns using regex.
+
+    Returns None if patterns are not found, allowing tests to fail gracefully.
+    """
+    pattern = re.compile(
+        rf"{re.escape(start_pattern)}(.*?){re.escape(end_pattern)}",
+        re.DOTALL
+    )
+    match = pattern.search(content)
+    return match.group(1) if match else None
 
 
 @pytest.fixture
@@ -243,21 +257,36 @@ class TestRecommendationExamples:
 
     def test_skip_sdd_has_example_features(self, assess_command_content):
         """Verify Skip SDD recommendation includes example features."""
-        skip_sdd_section = assess_command_content.split("Simple Features (8-12 points)")[1].split("Medium Features")[0]
+        skip_sdd_section = extract_section(
+            assess_command_content,
+            "Simple Features (8-12 points)",
+            "Medium Features"
+        )
+        assert skip_sdd_section is not None, "Could not find Simple Features section"
         assert "Bug fixes" in skip_sdd_section
         assert "Configuration changes" in skip_sdd_section
         assert "Minor UI tweaks" in skip_sdd_section
 
     def test_spec_light_has_example_features(self, assess_command_content):
         """Verify Spec-Light recommendation includes example features."""
-        spec_light_section = assess_command_content.split("Medium Features (13-20 points)")[1].split("Complex Features")[0]
+        spec_light_section = extract_section(
+            assess_command_content,
+            "Medium Features (13-20 points)",
+            "Complex Features"
+        )
+        assert spec_light_section is not None, "Could not find Medium Features section"
         assert "New API endpoint" in spec_light_section
         assert "UI component with business logic" in spec_light_section
         assert "Service integration" in spec_light_section
 
     def test_full_sdd_has_example_features(self, assess_command_content):
         """Verify Full SDD recommendation includes example features."""
-        full_sdd_section = assess_command_content.split("Complex Features (21-32 points)")[1].split("### Output Format")[0]
+        full_sdd_section = extract_section(
+            assess_command_content,
+            "Complex Features (21-32 points)",
+            "### Output Format"
+        )
+        assert full_sdd_section is not None, "Could not find Complex Features section"
         assert "New product capabilities" in full_sdd_section
         assert "System-wide architectural changes" in full_sdd_section
         assert "Multi-team integration projects" in full_sdd_section
@@ -268,7 +297,12 @@ class TestPhaseInclusions:
 
     def test_spec_light_phases_documented(self, assess_command_content):
         """Verify Spec-Light mode documents which phases to skip and use."""
-        spec_light_section = assess_command_content.split("Medium Features (13-20 points)")[1].split("Complex Features")[0]
+        spec_light_section = extract_section(
+            assess_command_content,
+            "Medium Features (13-20 points)",
+            "Complex Features"
+        )
+        assert spec_light_section is not None, "Could not find Medium Features section"
         # Phases to skip
         assert "/jpspec:research" in spec_light_section
         assert "/jpspec:plan" in spec_light_section
@@ -279,7 +313,12 @@ class TestPhaseInclusions:
 
     def test_full_sdd_includes_all_phases(self, assess_command_content):
         """Verify Full SDD includes all phases in order."""
-        full_sdd_section = assess_command_content.split("Complex Features (21-32 points)")[1].split("### Output Format")[0]
+        full_sdd_section = extract_section(
+            assess_command_content,
+            "Complex Features (21-32 points)",
+            "### Output Format"
+        )
+        assert full_sdd_section is not None, "Could not find Complex Features section"
         # Verify all phases are mentioned
         assert "/jpspec:specify" in full_sdd_section
         assert "/jpspec:research" in full_sdd_section
