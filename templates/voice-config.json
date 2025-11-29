@@ -1,0 +1,67 @@
+{
+  "_comment": "JP Spec Kit Voice Assistant Configuration",
+  "_description": "This file configures the Pipecat-powered voice interface for JP Spec Kit.",
+
+  "assistant": {
+    "_comment": "Assistant behavior and personality settings",
+    "name": "JP Spec Kit Voice Assistant",
+    "system_prompt": "You are a helpful assistant for JP Spec Kit, helping developers with Spec-Driven Development. You can create specifications, manage tasks, and execute workflows through natural voice conversation.",
+    "first_message": "Hello! I'm your JP Spec Kit assistant. How can I help you today?",
+    "last_message": "Goodbye! Let me know if you need anything else.",
+    "voice_settings": {
+      "_comment": "Voice synthesis parameters",
+      "speed": 1.0,
+      "stability": 0.75
+    }
+  },
+
+  "pipeline": {
+    "_comment": "Technical pipeline configuration for STT, LLM, and TTS",
+
+    "stt": {
+      "_comment": "Speech-to-Text configuration",
+      "_providers": "deepgram, openai, gladia",
+      "provider": "deepgram",
+      "model": "nova-3",
+      "language": "en"
+    },
+
+    "llm": {
+      "_comment": "Large Language Model configuration",
+      "_providers": "openai, anthropic, groq, google",
+      "provider": "openai",
+      "model": "gpt-4o",
+      "temperature": 0.7,
+      "max_tokens": 1000
+    },
+
+    "tts": {
+      "_comment": "Text-to-Speech configuration",
+      "_providers": "cartesia, elevenlabs, openai, rime, piper",
+      "provider": "cartesia",
+      "voice_id": "default",
+      "output_format": "pcm_16000"
+    }
+  },
+
+  "transport": {
+    "_comment": "Transport layer for real-time communication",
+    "_types": "daily (WebRTC), websocket, local",
+    "type": "daily",
+    "room_url": null,
+    "token": null
+  },
+
+  "_env_vars_required": [
+    "DEEPGRAM_API_KEY - Required for Deepgram STT",
+    "OPENAI_API_KEY - Required for OpenAI LLM",
+    "CARTESIA_API_KEY - Required for Cartesia TTS",
+    "DAILY_API_KEY - Required for Daily transport"
+  ],
+
+  "_notes": [
+    "API keys must be set as environment variables, not in this file",
+    "The specific keys required depend on your chosen providers",
+    "See docs/research/pipecat-voice-integration-summary.md for provider details"
+  ]
+}

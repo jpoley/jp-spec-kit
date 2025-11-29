@@ -3345,6 +3345,83 @@ def backlog_upgrade(
         raise typer.Exit(1)
 
 
+@app.command()
+def voice(
+    config: Optional[str] = typer.Option(
+        None,
+        "--config",
+        "-c",
+        help="Path to voice configuration JSON file (default: ./voice-config.json)",
+    ),
+):
+    """
+    Start the voice assistant interface for JP Spec Kit.
+
+    The voice assistant provides a conversational interface for:
+    - Creating specifications
+    - Managing backlog tasks
+    - Executing workflows
+    - Querying project status
+
+    Configuration file must specify STT, LLM, and TTS providers.
+    API keys must be set as environment variables.
+
+    Examples:
+        specify voice                           # Use default config
+        specify voice --config custom.json      # Use custom config
+    """
+    from pathlib import Path
+
+    from specify_cli.voice.config import load_config
+
+    show_banner()
+
+    # Determine config path
+    if config:
+        config_path = Path(config)
+    else:
+        config_path = Path.cwd() / "voice-config.json"
+
+    # Load and validate configuration
+    try:
+        voice_config = load_config(config_path)
+    except FileNotFoundError:
+        console.print(
+            f"\n[red]Error: Configuration file not found: {config_path}[/red]"
+        )
+        console.print(
+            "\n[yellow]Create a configuration file using the template:[/yellow]"
+        )
+        console.print(f"[dim]cp templates/voice-config.json {config_path}[/dim]")
+        raise typer.Exit(1)
+    except ValueError as e:
+        console.print(f"\n[red]Configuration Error:[/red] {e}")
+        console.print("\n[yellow]Required environment variables:[/yellow]")
+        console.print("[dim]  DEEPGRAM_API_KEY  - For speech-to-text[/dim]")
+        console.print("[dim]  OPENAI_API_KEY    - For language model[/dim]")
+        console.print("[dim]  CARTESIA_API_KEY  - For text-to-speech[/dim]")
+        console.print("[dim]  DAILY_API_KEY     - For WebRTC transport[/dim]")
+        raise typer.Exit(1)
+    except Exception as e:
+        console.print(f"\n[red]Error loading configuration:[/red] {e}")
+        raise typer.Exit(1)
+
+    # Display readiness status
+    console.print("\n[green]✓ Voice assistant ready[/green]")
+    console.print(f"\n[bold]Assistant:[/bold] {voice_config.assistant.name}")
+    console.print("[bold]Pipeline:[/bold]")
+    console.print(f"  STT: {voice_config.pipeline.stt.provider}")
+    console.print(f"  LLM: {voice_config.pipeline.llm.provider}")
+    console.print(f"  TTS: {voice_config.pipeline.tts.provider}")
+    console.print(f"  Transport: {voice_config.transport.type}")
+    console.print()
+
+    # Note: Actual voice bot implementation will be in future tasks
+    console.print(
+        "[yellow]Note: Voice bot pipeline implementation coming soon.[/yellow]"
+    )
+
+
 def main():
     app()
 
