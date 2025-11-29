@@ -12,7 +12,9 @@ from typing import TYPE_CHECKING, Optional
 if TYPE_CHECKING:
     from specify_cli.voice.config import STTConfig
 
+from deepgram import LiveOptions
 from pipecat.services.deepgram.stt import DeepgramSTTService as PipecatDeepgramSTT
+from pipecat.transcriptions.language import Language
 
 
 class STTServiceError(Exception):
@@ -95,12 +97,24 @@ class DeepgramSTTService(PipecatDeepgramSTT):
         self._model = model
         self._language = language
 
-        # Initialize parent with validated key
+        # Create LiveOptions for Deepgram configuration
+        # This enables streaming transcription with word-level timing
+        live_options = LiveOptions(
+            model=model,
+            language=Language(language) if language else Language.EN,
+            encoding="linear16",
+            channels=1,
+            interim_results=True,  # Enable streaming transcription
+            smart_format=True,  # Smart punctuation and formatting
+            punctuate=True,
+            profanity_filter=True,
+        )
+
+        # Initialize parent with validated key and options
         try:
             super().__init__(
                 api_key=api_key_stripped,
-                model=model,
-                language=language,
+                live_options=live_options,
                 **kwargs,
             )
         except Exception as e:

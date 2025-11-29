@@ -55,9 +55,10 @@ class CartesiaTTSService(PipecatCartesiaTTS):
     - Configuration validation at initialization
     - Factory method for loading from config
     - Custom error handling with provider context
+    - WebSocket streaming for real-time audio output
 
     Example:
-        >>> service = CartesiaTTSService(api_key="your-key")
+        >>> service = CartesiaTTSService(api_key="your-key", voice_id="voice-123")
         >>> # Or from config
         >>> service = CartesiaTTSService.from_config(tts_config)
     """
@@ -66,16 +67,20 @@ class CartesiaTTSService(PipecatCartesiaTTS):
         self,
         *,
         api_key: str,
-        voice_id: str = "default",
-        output_format: str = "pcm_16000",
+        voice_id: str,
+        model: str = "sonic-3",
+        sample_rate: int = 16000,
+        encoding: str = "pcm_s16le",
         **kwargs: object,
     ) -> None:
         """Initialize Cartesia TTS service.
 
         Args:
             api_key: Cartesia API key (required, non-empty).
-            voice_id: Voice identifier (default: default).
-            output_format: Audio output format (default: pcm_16000).
+            voice_id: Voice identifier (required).
+            model: TTS model to use (default: sonic-3).
+            sample_rate: Audio sample rate in Hz (default: 16000).
+            encoding: Audio encoding format (default: pcm_s16le).
             **kwargs: Additional arguments passed to pipecat service.
 
         Raises:
@@ -94,16 +99,24 @@ class CartesiaTTSService(PipecatCartesiaTTS):
         if not api_key_stripped:
             raise TTSServiceError("Cartesia API key cannot be empty or whitespace")
 
+        if not voice_id:
+            raise TTSServiceError("Voice ID is required for Cartesia TTS service")
+
         # Store configuration for properties
         self._voice_id = voice_id
-        self._output_format = output_format
+        self._model = model
+        self._sample_rate = sample_rate
+        self._encoding = encoding
 
-        # Initialize parent with validated key
+        # Initialize parent with validated parameters
+        # Cartesia uses WebSocket streaming for real-time audio output
         try:
             super().__init__(
                 api_key=api_key_stripped,
                 voice_id=voice_id,
-                model_id=output_format,  # Pipecat uses model_id for format
+                model=model,
+                sample_rate=sample_rate,
+                encoding=encoding,
                 **kwargs,
             )
         except Exception as e:
@@ -138,10 +151,19 @@ class CartesiaTTSService(PipecatCartesiaTTS):
         if not api_key:
             raise TTSServiceError("CARTESIA_API_KEY environment variable is not set")
 
+        # Parse output_format to extract sample rate if present (e.g., "pcm_16000")
+        sample_rate = 16000
+        if config.output_format and "_" in config.output_format:
+            try:
+                rate_str = config.output_format.split("_")[1]
+                sample_rate = int(rate_str)
+            except (IndexError, ValueError):
+                pass  # Use default if parsing fails
+
         return cls(
             api_key=api_key,
             voice_id=config.voice_id,
-            output_format=config.output_format,
+            sample_rate=sample_rate,
         )
 
     @property
@@ -150,6 +172,16 @@ class CartesiaTTSService(PipecatCartesiaTTS):
         return self._voice_id
 
     @property
-    def output_format(self) -> str:
-        """Return the output format."""
-        return self._output_format
+    def model(self) -> str:
+        """Return the TTS model."""
+        return self._model
+
+    @property
+    def sample_rate(self) -> int:
+        """Return the audio sample rate."""
+        return self._sample_rate
+
+    @property
+    def encoding(self) -> str:
+        """Return the audio encoding format."""
+        return self._encoding

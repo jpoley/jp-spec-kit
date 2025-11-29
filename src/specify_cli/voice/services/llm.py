@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING, Optional
 if TYPE_CHECKING:
     from specify_cli.voice.config import LLMConfig
 
+from pipecat.services.openai.base_llm import BaseOpenAILLMService
 from pipecat.services.openai.llm import OpenAILLMService as PipecatOpenAILLM
 
 
@@ -57,6 +58,8 @@ class OpenAILLMService(PipecatOpenAILLM):
     - Configuration validation at initialization
     - Factory method for loading from config
     - Custom error handling with error codes
+    - Streaming responses for token-by-token delivery to TTS
+    - Function calling support enabled by default
 
     Example:
         >>> service = OpenAILLMService(api_key="your-key")
@@ -132,11 +135,20 @@ class OpenAILLMService(PipecatOpenAILLM):
         self._temperature = temperature
         self._max_tokens = max_tokens
 
-        # Initialize parent with validated values
+        # Create InputParams with temperature and max_tokens for proper configuration
+        # This enables streaming responses for token-by-token delivery to TTS
+        params = BaseOpenAILLMService.InputParams(
+            temperature=temperature,
+            max_tokens=max_tokens,
+        )
+
+        # Initialize parent with validated values and params
+        # Function calling is supported through the context/tools mechanism in pipecat
         try:
             super().__init__(
                 api_key=api_key_stripped,
                 model=model,
+                params=params,
                 **kwargs,
             )
         except Exception as e:

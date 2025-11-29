@@ -38,11 +38,13 @@ class TestCartesiaTTSServiceInit:
 
     @patch("specify_cli.voice.services.tts.PipecatCartesiaTTS.__init__")
     def test_init_with_valid_api_key(self, mock_init: MagicMock) -> None:
-        """Test initialization with valid API key."""
+        """Test initialization with valid API key and voice_id."""
         mock_init.return_value = None
-        service = CartesiaTTSService(api_key="valid-key")
-        assert service.voice_id == "default"
-        assert service.output_format == "pcm_16000"
+        service = CartesiaTTSService(api_key="valid-key", voice_id="test-voice")
+        assert service.voice_id == "test-voice"
+        assert service.model == "sonic-3"
+        assert service.sample_rate == 16000
+        assert service.encoding == "pcm_s16le"
         mock_init.assert_called_once()
 
     @patch("specify_cli.voice.services.tts.PipecatCartesiaTTS.__init__")
@@ -53,42 +55,59 @@ class TestCartesiaTTSServiceInit:
         assert service.voice_id == "custom-voice"
 
     @patch("specify_cli.voice.services.tts.PipecatCartesiaTTS.__init__")
-    def test_init_with_custom_format(self, mock_init: MagicMock) -> None:
-        """Test initialization with custom output format."""
+    def test_init_with_custom_sample_rate(self, mock_init: MagicMock) -> None:
+        """Test initialization with custom sample rate."""
         mock_init.return_value = None
-        service = CartesiaTTSService(api_key="key", output_format="pcm_24000")
-        assert service.output_format == "pcm_24000"
+        service = CartesiaTTSService(
+            api_key="key", voice_id="voice", sample_rate=24000
+        )
+        assert service.sample_rate == 24000
+
+    @patch("specify_cli.voice.services.tts.PipecatCartesiaTTS.__init__")
+    def test_init_with_custom_model(self, mock_init: MagicMock) -> None:
+        """Test initialization with custom model."""
+        mock_init.return_value = None
+        service = CartesiaTTSService(
+            api_key="key", voice_id="voice", model="sonic-2"
+        )
+        assert service.model == "sonic-2"
 
     def test_init_without_api_key(self) -> None:
         """Test initialization fails without API key."""
         with pytest.raises(TTSServiceError) as exc_info:
-            CartesiaTTSService(api_key="")
+            CartesiaTTSService(api_key="", voice_id="voice")
         assert "API key is required" in str(exc_info.value)
 
     def test_init_with_none_api_key(self) -> None:
         """Test initialization fails with None API key."""
         with pytest.raises(TTSServiceError) as exc_info:
-            CartesiaTTSService(api_key=None)  # type: ignore[arg-type]
+            CartesiaTTSService(api_key=None, voice_id="voice")  # type: ignore[arg-type]
         assert "API key is required" in str(exc_info.value)
 
     def test_init_with_whitespace_api_key(self) -> None:
         """Test initialization fails with whitespace API key."""
         with pytest.raises(TTSServiceError) as exc_info:
-            CartesiaTTSService(api_key="   ")
+            CartesiaTTSService(api_key="   ", voice_id="voice")
         assert "cannot be empty or whitespace" in str(exc_info.value)
 
     def test_init_with_non_string_api_key(self) -> None:
         """Test initialization fails with non-string API key."""
         with pytest.raises(TTSServiceError) as exc_info:
-            CartesiaTTSService(api_key=12345)  # type: ignore[arg-type]
+            CartesiaTTSService(api_key=12345, voice_id="voice")  # type: ignore[arg-type]
         assert "must be a string" in str(exc_info.value)
+
+    def test_init_without_voice_id(self) -> None:
+        """Test initialization fails without voice_id."""
+        with pytest.raises(TTSServiceError) as exc_info:
+            CartesiaTTSService(api_key="valid-key", voice_id="")
+        assert "Voice ID is required" in str(exc_info.value)
 
     @patch("specify_cli.voice.services.tts.PipecatCartesiaTTS.__init__")
     def test_init_handles_parent_exception(self, mock_init: MagicMock) -> None:
         """Test that parent initialization errors are wrapped."""
         mock_init.side_effect = Exception("Connection failed")
         with pytest.raises(TTSServiceError) as exc_info:
-            CartesiaTTSService(api_key="valid-key")
+            CartesiaTTSService(api_key="valid-key", voice_id="voice")
         assert "Failed to initialize" in str(exc_info.value)
         assert exc_info.value.original_error is not None
 
@@ -108,7 +127,20 @@ class TestCartesiaTTSServiceFromConfig:
 
         service = CartesiaTTSService.from_config(config)
         assert service.voice_id == "my-voice"
-        assert service.output_format == "pcm_16000"
+        assert service.sample_rate == 16000
+
+    @patch("specify_cli.voice.services.tts.PipecatCartesiaTTS.__init__")
+    @patch.dict("os.environ", {"CARTESIA_API_KEY": "test-key"})
+    def test_from_config_parses_sample_rate(self, mock_init: MagicMock) -> None:
+        """Test from_config parses sample rate from output_format."""
+        mock_init.return_value = None
+        config = MagicMock()
+        config.provider = "cartesia"
+        config.voice_id = "my-voice"
+        config.output_format = "pcm_24000"
+
+        service = CartesiaTTSService.from_config(config)
+        assert service.sample_rate == 24000
 
     def test_from_config_none(self) -> None:
         """Test from_config fails with None config."""
@@ -129,6 +161,7 @@ class TestCartesiaTTSServiceFromConfig:
     def test_from_config_missing_env_key(self) -> None:
         """Test from_config fails when env key is missing."""
         import os
+
         os.environ.pop("CARTESIA_API_KEY", None)
 
         config = MagicMock()
