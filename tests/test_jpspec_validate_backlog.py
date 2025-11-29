@@ -5,11 +5,7 @@ backlog.md task management for QA, Security, Tech Writer, and Release Manager ag
 """
 
 import pytest
-import subprocess
 from pathlib import Path
-from textwrap import dedent
-from unittest.mock import patch, MagicMock
-import json
 
 
 @pytest.fixture

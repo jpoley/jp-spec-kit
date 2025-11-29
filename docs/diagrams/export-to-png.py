@@ -221,7 +221,7 @@ def render_excalidraw_to_png():
 
     print(f'Saving PNG to: {OUTPUT_PNG}')
     img.save(OUTPUT_PNG, 'PNG', optimize=True)
-    print(f'✓ PNG exported successfully!')
+    print('✓ PNG exported successfully!')
     print(f'  Dimensions: {width}x{height} px ({width // SCALE}x{height // SCALE} logical)')
 
 if __name__ == '__main__':
