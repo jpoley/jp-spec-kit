@@ -67,6 +67,87 @@ class TestResearchCommandStructure:
         assert "review" in content.lower() or "check" in content.lower()
 
 
+class TestSharedBacklogInstructions:
+    """Test that both agents receive shared backlog instructions from _backlog-instructions.md (AC#2)."""
+
+    def test_backlog_instructions_file_exists(self, backlog_instructions_file):
+        """Verify _backlog-instructions.md file exists."""
+        assert backlog_instructions_file.exists()
+
+    def test_researcher_includes_shared_backlog_instructions(
+        self, research_command_file
+    ):
+        """Verify Researcher agent prompt includes shared backlog instructions via INCLUDE."""
+        content = research_command_file.read_text()
+
+        # Find Phase 1 section
+        phase1_start = content.find("### Phase 1: Research")
+        phase2_start = content.find("### Phase 2: Business Validation")
+        phase1_section = content[phase1_start:phase2_start]
+
+        # Should include the shared backlog instructions
+        assert (
+            "{{INCLUDE:.claude/commands/jpspec/_backlog-instructions.md}}"
+            in phase1_section
+        )
+        assert "<!--BACKLOG-INSTRUCTIONS-START-->" in phase1_section
+        assert "<!--BACKLOG-INSTRUCTIONS-END-->" in phase1_section
+
+    def test_business_validator_includes_shared_backlog_instructions(
+        self, research_command_file
+    ):
+        """Verify Business Validator agent prompt includes shared backlog instructions via INCLUDE."""
+        content = research_command_file.read_text()
+
+        # Find Phase 2 section
+        phase2_start = content.find("### Phase 2: Business Validation")
+        phase2_section = content[phase2_start:]
+
+        # Should include the shared backlog instructions
+        assert (
+            "{{INCLUDE:.claude/commands/jpspec/_backlog-instructions.md}}"
+            in phase2_section
+        )
+        assert "<!--BACKLOG-INSTRUCTIONS-START-->" in phase2_section
+        assert "<!--BACKLOG-INSTRUCTIONS-END-->" in phase2_section
+
+    def test_both_agents_have_include_before_context(self, research_command_file):
+        """Verify INCLUDE directive appears BEFORE agent context in both phases."""
+        content = research_command_file.read_text()
+
+        # Phase 1: Include should come before agent context
+        phase1_include = content.find(
+            "{{INCLUDE:.claude/commands/jpspec/_backlog-instructions.md}}"
+        )
+        researcher_context = content.find("# AGENT CONTEXT: Senior Research Analyst")
+        assert phase1_include < researcher_context, (
+            "INCLUDE should appear before Researcher context"
+        )
+
+        # Phase 2: Include should come before agent context
+        phase2_start = content.find("### Phase 2: Business Validation")
+        phase2_include = content.find(
+            "{{INCLUDE:.claude/commands/jpspec/_backlog-instructions.md}}", phase2_start
+        )
+        validator_context = content.find(
+            "# AGENT CONTEXT: Senior Business Analyst", phase2_start
+        )
+        assert phase2_include < validator_context, (
+            "INCLUDE should appear before Validator context"
+        )
+
+    def test_shared_instructions_include_count(self, research_command_file):
+        """Verify INCLUDE directive appears exactly twice (once per agent)."""
+        content = research_command_file.read_text()
+
+        include_count = content.count(
+            "{{INCLUDE:.claude/commands/jpspec/_backlog-instructions.md}}"
+        )
+        assert include_count == 2, (
+            f"Expected 2 INCLUDE directives, found {include_count}"
+        )
+
+
 class TestResearcherAgentBacklogInstructions:
     """Test that Researcher agent prompt includes backlog instructions."""
 
