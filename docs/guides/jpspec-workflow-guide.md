@@ -6,13 +6,20 @@ Comprehensive guide to using the /jpspec command orchestration system for specif
 
 - [Executive Summary](#executive-summary)
 - [Overview](#overview)
-- [The Six /jpspec Commands](#the-six-jpspec-commands)
+- [The Seven /jpspec Commands](#the-seven-jpspec-commands)
 - [Specialized Agents](#specialized-agents)
 - [Workflow Patterns](#workflow-patterns)
 - [Use Case Examples](#use-case-examples)
 - [Integration with Backlog Tasks](#integration-with-backlog-tasks)
 - [Best Practices](#best-practices)
 - [Troubleshooting](#troubleshooting)
+- [Advanced Topics](#advanced-topics)
+  - [Customizing the Workflow](#customizing-the-workflow)
+  - [MCP Integration](#mcp-integration)
+  - [Integration with CI/CD](#integration-with-cicd)
+  - [Metrics and Analytics](#metrics-and-analytics)
+- [Diagram: /jpspec Workflow](#diagram-jpspec-workflow)
+- [References](#references)
 
 ## Executive Summary
 
@@ -27,7 +34,7 @@ The /jpspec workflow system is JP Spec Kit's **AI-powered command orchestration 
 - **Scale Team Productivity**: Parallel agent execution maximizes throughput
 - **Maintain Consistency**: Proven patterns embedded in agent contexts (SVPG, DORA, SRE, DevSecOps)
 
-### The Six Commands
+### The Seven Commands
 
 ```
 /jpspec:assess    → Evaluate feature complexity (Simple/Medium/Complex)
@@ -67,7 +74,7 @@ See [/jpspec:assess](#jpspecassess) for detailed complexity assessment.
 
 ### Architecture
 
-The /jpspec system orchestrates specialized AI agents through six distinct phases, managing the transition from high-level requirements to production-ready systems:
+The /jpspec system orchestrates specialized AI agents through seven distinct phases, managing the transition from high-level requirements to production-ready systems:
 
 ```mermaid
 graph TB
@@ -131,7 +138,7 @@ Commands execute agents in two patterns:
 
 Sequential patterns ensure data dependencies; parallel patterns maximize throughput.
 
-## The Six /jpspec Commands
+## The Seven /jpspec Commands
 
 ### /jpspec:assess
 
@@ -171,7 +178,7 @@ Sequential patterns ensure data dependencies; parallel patterns maximize through
 **Decision Matrix**:
 - **8-12 points**: Simple → Skip SDD, implement directly
 - **13-20 points**: Medium → Spec-Light mode (specify + implement only)
-- **21-32 points**: Complex → Full SDD workflow (all 6 commands)
+- **21-32 points**: Complex → Full SDD workflow (all 7 commands)
 
 **Reference**: See `.claude/commands/jpspec/assess.md` for complete assessment framework.
 
@@ -1967,7 +1974,7 @@ Run /jpspec:assess
 Complexity Score?
   ├─ 8-12 (Simple) → Skip workflow, implement directly
   ├─ 13-20 (Medium) → Spec-Light: /jpspec:specify → /jpspec:implement
-  └─ 21-32 (Complex) → Full SDD workflow (all 6 commands)
+  └─ 21-32 (Complex) → Full SDD workflow (all 7 commands)
 ```
 
 **Specific Scenarios**:
