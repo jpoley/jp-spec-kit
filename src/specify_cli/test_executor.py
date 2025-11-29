@@ -167,21 +167,27 @@ class TestOutputParser:
     """Parses test output from different frameworks."""
 
     @staticmethod
-    def parse_pytest(output: str, exit_code: int) -> Tuple[List[TestResult], Dict[str, int]]:
+    def parse_pytest(
+        output: str, exit_code: int
+    ) -> Tuple[List[TestResult], Dict[str, int]]:
         """Parse pytest output."""
         results = []
         stats = {"total": 0, "passed": 0, "failed": 0, "skipped": 0}
 
         # Parse test results from output
         # pytest format: "test_file.py::test_name PASSED"
-        test_pattern = re.compile(r"^(.+?)::(test_\w+)\s+(PASSED|FAILED|SKIPPED)", re.MULTILINE)
+        test_pattern = re.compile(
+            r"^(.+?)::(test_\w+)\s+(PASSED|FAILED|SKIPPED)", re.MULTILINE
+        )
         for match in test_pattern.finditer(output):
             file_path, test_name, status = match.groups()
-            results.append(TestResult(
-                name=f"{file_path}::{test_name}",
-                status=status.lower(),
-                file_path=file_path,
-            ))
+            results.append(
+                TestResult(
+                    name=f"{file_path}::{test_name}",
+                    status=status.lower(),
+                    file_path=file_path,
+                )
+            )
 
         # Parse summary line: "====== 5 passed, 2 failed in 1.23s ======"
         summary_pattern = re.compile(
@@ -198,7 +204,9 @@ class TestOutputParser:
         return results, stats
 
     @staticmethod
-    def parse_vitest(output: str, exit_code: int) -> Tuple[List[TestResult], Dict[str, int]]:
+    def parse_vitest(
+        output: str, exit_code: int
+    ) -> Tuple[List[TestResult], Dict[str, int]]:
         """Parse vitest output."""
         results = []
         stats = {"total": 0, "passed": 0, "failed": 0, "skipped": 0}
@@ -208,10 +216,12 @@ class TestOutputParser:
         for match in test_pattern.finditer(output):
             test_name = match.group(1).strip()
             status = "passed" if output[match.start()] == "✓" else "failed"
-            results.append(TestResult(
-                name=test_name,
-                status=status,
-            ))
+            results.append(
+                TestResult(
+                    name=test_name,
+                    status=status,
+                )
+            )
 
         # Parse summary: "Test Files  2 passed (2)"
         summary_pattern = re.compile(r"Tests\s+(\d+)\s+passed.*?(?:(\d+)\s+failed)?")
@@ -225,7 +235,9 @@ class TestOutputParser:
         return results, stats
 
     @staticmethod
-    def parse_jest(output: str, exit_code: int) -> Tuple[List[TestResult], Dict[str, int]]:
+    def parse_jest(
+        output: str, exit_code: int
+    ) -> Tuple[List[TestResult], Dict[str, int]]:
         """Parse jest output."""
         results = []
         stats = {"total": 0, "passed": 0, "failed": 0, "skipped": 0}
@@ -242,10 +254,12 @@ class TestOutputParser:
             else:
                 status = "skipped"
 
-            results.append(TestResult(
-                name=test_name,
-                status=status,
-            ))
+            results.append(
+                TestResult(
+                    name=test_name,
+                    status=status,
+                )
+            )
 
         # Parse summary: "Tests: 5 passed, 5 total"
         summary_pattern = re.compile(
@@ -262,7 +276,9 @@ class TestOutputParser:
         return results, stats
 
     @staticmethod
-    def parse_go_test(output: str, exit_code: int) -> Tuple[List[TestResult], Dict[str, int]]:
+    def parse_go_test(
+        output: str, exit_code: int
+    ) -> Tuple[List[TestResult], Dict[str, int]]:
         """Parse go test output."""
         results = []
         stats = {"total": 0, "passed": 0, "failed": 0, "skipped": 0}
@@ -279,10 +295,12 @@ class TestOutputParser:
             else:  # SKIP
                 status_normalized = "skipped"
 
-            results.append(TestResult(
-                name=test_name,
-                status=status_normalized,
-            ))
+            results.append(
+                TestResult(
+                    name=test_name,
+                    status=status_normalized,
+                )
+            )
 
         # Count from results
         for result in results:
@@ -361,7 +379,9 @@ class TestExecutor:
             )
 
         # Parse results
-        test_results, stats = self._parse_output(result.stdout + result.stderr, result.returncode)
+        test_results, stats = self._parse_output(
+            result.stdout + result.stderr, result.returncode
+        )
 
         # Create report
         report = TestExecutionReport(
@@ -390,7 +410,9 @@ class TestExecutor:
             timeout=self.timeout,
         )
 
-    def _parse_output(self, output: str, exit_code: int) -> Tuple[List[TestResult], Dict[str, int]]:
+    def _parse_output(
+        self, output: str, exit_code: int
+    ) -> Tuple[List[TestResult], Dict[str, int]]:
         """Parse test output based on framework."""
         parser_map = {
             "pytest": TestOutputParser.parse_pytest,
@@ -416,8 +438,7 @@ class ACMapper:
 
     @staticmethod
     def map_tests_to_acs(
-        test_results: List[TestResult],
-        acceptance_criteria: List[Tuple[int, str, bool]]
+        test_results: List[TestResult], acceptance_criteria: List[Tuple[int, str, bool]]
     ) -> List[ACMapping]:
         """
         Map test results to acceptance criteria using fuzzy matching.
@@ -444,13 +465,15 @@ class ACMapper:
 
             # Only create mapping if confidence is above threshold
             if best_match and best_confidence > ACMapper.MIN_CONFIDENCE_THRESHOLD:
-                mappings.append(ACMapping(
-                    ac_index=ac_index,
-                    ac_text=ac_text,
-                    test_name=best_match.name,
-                    test_status=best_match.status,
-                    confidence=best_confidence,
-                ))
+                mappings.append(
+                    ACMapping(
+                        ac_index=ac_index,
+                        ac_text=ac_text,
+                        test_name=best_match.name,
+                        test_status=best_match.status,
+                        confidence=best_confidence,
+                    )
+                )
 
         return mappings
 
@@ -498,19 +521,19 @@ class ACMapper:
     def _extract_words(text: str) -> List[str]:
         """Extract meaningful words from text."""
         # Remove common test prefixes/suffixes
-        text = re.sub(r'^test_|_test$|^Test|Test$', '', text, flags=re.IGNORECASE)
+        text = re.sub(r"^test_|_test$|^Test|Test$", "", text, flags=re.IGNORECASE)
 
         # Split CamelCase and snake_case into words
         # Insert space before capital letters
-        text = re.sub(r'([A-Z])', r' \1', text)
+        text = re.sub(r"([A-Z])", r" \1", text)
         # Replace underscores with spaces
-        text = text.replace('_', ' ')
+        text = text.replace("_", " ")
 
         # Split on non-alphanumeric, convert to lowercase
-        words = re.findall(r'[a-z0-9]+', text.lower())
+        words = re.findall(r"[a-z0-9]+", text.lower())
 
         # Filter out very short words and common noise
-        noise_words = {'a', 'an', 'the', 'is', 'are', 'be', 'to', 'of', 'in', 'on'}
+        noise_words = {"a", "an", "the", "is", "are", "be", "to", "of", "in", "on"}
         return [w for w in words if len(w) > 2 and w not in noise_words]
 
     @staticmethod
@@ -546,7 +569,9 @@ class LintExecutor:
     @staticmethod
     def detect_project_type(project_path: Path) -> Optional[str]:
         """Detect project type for linting."""
-        if (project_path / "pyproject.toml").exists() or (project_path / "setup.py").exists():
+        if (project_path / "pyproject.toml").exists() or (
+            project_path / "setup.py"
+        ).exists():
             return "python"
         if (project_path / "package.json").exists():
             package_json = project_path / "package.json"

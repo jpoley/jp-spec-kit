@@ -144,7 +144,7 @@ def _find_in_progress_task() -> str:
     except subprocess.TimeoutExpired:
         raise TaskContextError("Timeout while listing in-progress tasks")
     except subprocess.CalledProcessError as e:
-        stderr = getattr(e, 'stderr', '')
+        stderr = getattr(e, "stderr", "")
         raise TaskContextError(f"Failed to list in-progress tasks: {stderr}")
 
 
@@ -208,7 +208,7 @@ def _get_task_output(task_id: str) -> str:
     except subprocess.TimeoutExpired:
         raise TaskContextError(f"Timeout while retrieving task {task_id}")
     except subprocess.CalledProcessError as e:
-        stderr = getattr(e, 'stderr', '')
+        stderr = getattr(e, "stderr", "")
         if "not found" in stderr.lower():
             raise TaskNotFoundError(f"Task {task_id} not found")
         raise TaskContextError(f"Failed to retrieve task {task_id}: {stderr}")
@@ -368,7 +368,12 @@ def parse_acceptance_criteria(raw_output: str) -> List[AcceptanceCriterion]:
             continue
 
         # End of AC section (next section header)
-        if in_ac_section and line.strip() and line.strip()[0].isupper() and line.endswith(":"):
+        if (
+            in_ac_section
+            and line.strip()
+            and line.strip()[0].isupper()
+            and line.endswith(":")
+        ):
             break
 
         # Parse AC line
