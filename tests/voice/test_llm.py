@@ -193,6 +193,7 @@ class TestOpenAILLMServiceFromConfig:
     def test_from_config_missing_env_key(self) -> None:
         """Test from_config fails when env key is missing."""
         import os
+
         os.environ.pop("OPENAI_API_KEY", None)
 
         config = MagicMock()

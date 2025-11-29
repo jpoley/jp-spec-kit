@@ -59,7 +59,11 @@ def full_config() -> Dict[str, Any]:
                 "output_format": "pcm_22050",
             },
         },
-        "transport": {"type": "websocket", "room_url": "wss://example.com", "token": "test-token"},
+        "transport": {
+            "type": "websocket",
+            "room_url": "wss://example.com",
+            "token": "test-token",
+        },
     }
 
 
@@ -267,10 +271,14 @@ class TestVoiceConfigValidation:
             ),
             api_keys=load_api_keys(),
         )
-        with pytest.raises(ValueError, match="Missing required API keys.*DEEPGRAM_API_KEY"):
+        with pytest.raises(
+            ValueError, match="Missing required API keys.*DEEPGRAM_API_KEY"
+        ):
             config.validate()
 
-    def test_validate_missing_openai_key(self, env_no_keys: None, monkeypatch: pytest.MonkeyPatch) -> None:
+    def test_validate_missing_openai_key(
+        self, env_no_keys: None, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
         """Test validation fails when OpenAI key is missing."""
         monkeypatch.setenv("DEEPGRAM_API_KEY", "test")
         monkeypatch.setenv("CARTESIA_API_KEY", "test")
@@ -285,7 +293,9 @@ class TestVoiceConfigValidation:
             ),
             api_keys=load_api_keys(),
         )
-        with pytest.raises(ValueError, match="Missing required API keys.*OPENAI_API_KEY"):
+        with pytest.raises(
+            ValueError, match="Missing required API keys.*OPENAI_API_KEY"
+        ):
             config.validate()
 
     def test_validate_missing_multiple_keys(self, env_no_keys: None) -> None:
@@ -320,7 +330,9 @@ class TestVoiceConfigValidation:
         # Should not raise
         config.validate()
 
-    def test_validate_anthropic_llm(self, env_no_keys: None, monkeypatch: pytest.MonkeyPatch) -> None:
+    def test_validate_anthropic_llm(
+        self, env_no_keys: None, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
         """Test validation with Anthropic LLM provider."""
         monkeypatch.setenv("DEEPGRAM_API_KEY", "test")
         monkeypatch.setenv("ANTHROPIC_API_KEY", "test")
@@ -339,7 +351,9 @@ class TestVoiceConfigValidation:
         # Should not raise
         config.validate()
 
-    def test_validate_elevenlabs_tts(self, env_no_keys: None, monkeypatch: pytest.MonkeyPatch) -> None:
+    def test_validate_elevenlabs_tts(
+        self, env_no_keys: None, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
         """Test validation with ElevenLabs TTS provider."""
         monkeypatch.setenv("DEEPGRAM_API_KEY", "test")
         monkeypatch.setenv("OPENAI_API_KEY", "test")
@@ -362,7 +376,9 @@ class TestVoiceConfigValidation:
 class TestLoadConfig:
     """Tests for configuration file loading."""
 
-    def test_load_config_file_not_found(self, tmp_path: Path, env_with_keys: None) -> None:
+    def test_load_config_file_not_found(
+        self, tmp_path: Path, env_with_keys: None
+    ) -> None:
         """Test loading non-existent config file raises error."""
         non_existent = tmp_path / "does-not-exist.json"
         with pytest.raises(FileNotFoundError, match="Configuration file not found"):
@@ -376,7 +392,9 @@ class TestLoadConfig:
         assert config.pipeline.llm.provider == "openai"
         assert config.pipeline.tts.provider == "cartesia"
 
-    def test_load_full_config(self, tmp_path: Path, full_config: Dict[str, Any], env_with_keys: None) -> None:
+    def test_load_full_config(
+        self, tmp_path: Path, full_config: Dict[str, Any], env_with_keys: None
+    ) -> None:
         """Test loading full configuration with all fields."""
         config_path = tmp_path / "full-config.json"
         with open(config_path, "w") as f:
@@ -390,10 +408,15 @@ class TestLoadConfig:
         assert config.pipeline.llm.temperature == 0.5
         assert config.transport.type == "websocket"
 
-    def test_load_config_uses_defaults(self, config_file: Path, env_with_keys: None) -> None:
+    def test_load_config_uses_defaults(
+        self, config_file: Path, env_with_keys: None
+    ) -> None:
         """Test that missing optional fields use default values."""
         config = load_config(config_file)
-        assert config.assistant.system_prompt == "You are a helpful assistant for JP Spec Kit."
+        assert (
+            config.assistant.system_prompt
+            == "You are a helpful assistant for JP Spec Kit."
+        )
         assert config.pipeline.stt.model == "nova-3"
         assert config.pipeline.llm.temperature == 0.7
         assert config.transport.type == "daily"
@@ -403,7 +426,9 @@ class TestLoadConfig:
         with pytest.raises(ValueError, match="Missing required API keys"):
             load_config(config_file)
 
-    def test_load_config_loads_api_keys(self, config_file: Path, env_with_keys: None) -> None:
+    def test_load_config_loads_api_keys(
+        self, config_file: Path, env_with_keys: None
+    ) -> None:
         """Test that load_config loads API keys from environment."""
         config = load_config(config_file)
         assert config.api_keys.deepgram == "test-deepgram-key"

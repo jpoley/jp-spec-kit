@@ -115,6 +115,7 @@ class TestDeepgramSTTServiceFromConfig:
         """Test from_config fails when env key is missing."""
         # Clear the DEEPGRAM_API_KEY if it exists
         import os
+
         os.environ.pop("DEEPGRAM_API_KEY", None)
 
         config = MagicMock()
@@ -151,6 +152,7 @@ class TestDeepgramSTTServiceFromEnv:
     def test_from_env_missing_key(self) -> None:
         """Test from_env fails when env key is missing."""
         import os
+
         os.environ.pop("DEEPGRAM_API_KEY", None)
 
         with pytest.raises(STTServiceError) as exc_info:
