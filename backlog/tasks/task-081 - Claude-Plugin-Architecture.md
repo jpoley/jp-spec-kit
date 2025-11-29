@@ -4,6 +4,7 @@ title: Claude Plugin Architecture
 status: To Do
 assignee: []
 created_date: '2025-11-27 21:53'
+updated_date: '2025-11-29 05:37'
 labels:
   - specify-cli
   - claude-code
@@ -16,7 +17,7 @@ priority: medium
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Create Claude Code plugin distribution for jp-spec-kit alongside existing UV tool. Plugin provides easy updates via marketplace while UV tool handles initial bootstrap. Recommendation: Dual distribution model. Plugin contains: slash commands, agents, hooks, MCP configs. Plugin updates don't affect user files. See TODO/task-013-response.md and TODO/completed/task-007-plan.md for detailed architecture.
+Create Claude Code plugin distribution for jp-spec-kit alongside existing UV tool. Plugin provides easy updates via marketplace while UV tool handles initial bootstrap. Recommendation: Dual distribution model. Plugin contains: slash commands, agents, hooks, MCP configs. Plugin updates don't affect user files.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria

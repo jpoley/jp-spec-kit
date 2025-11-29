@@ -4,6 +4,7 @@ title: Stack Selection During Init
 status: To Do
 assignee: []
 created_date: '2025-11-27 21:53'
+updated_date: '2025-11-29 05:38'
 labels:
   - specify-cli
   - feature
@@ -15,7 +16,7 @@ priority: medium
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Allow users to select a technology stack (React+Go, React+Python, Full-Stack TypeScript, Mobile+Go, Data/ML Pipeline, etc.) when running 'specify init'. After selection, remove unselected stack files to reduce clutter. Copy selected stack's CI/CD workflow to .github/workflows/. Feasibility: MEDIUM-HIGH complexity, 3-5 days effort. See TODO/task-012a-summary.md for detailed implementation plan.
+Allow users to select a technology stack (React+Go, React+Python, Full-Stack TypeScript, Mobile+Go, Data/ML Pipeline, etc.) when running 'specify init'. After selection, remove unselected stack files to reduce clutter. Copy selected stack's CI/CD workflow to .github/workflows/. Feasibility: MEDIUM-HIGH complexity, 3-5 days effort.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria

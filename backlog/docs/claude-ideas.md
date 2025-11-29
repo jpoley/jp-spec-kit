@@ -11,7 +11,7 @@ JP Spec Kit is a mature, well-structured toolkit for Spec-Driven Development wit
 
 1. **Completing in-progress features** (Satellite Mode, provider implementations)
 2. **Strengthening CI/CD** (missing ci.yml, security scanning, type checking)
-3. **Reducing technical debt** (legacy TODO/, constitution templates, monolithic CLI)
+3. **Reducing technical debt** (constitution templates, monolithic CLI)
 4. **Improving developer experience** (error messages, progress feedback, debugging)
 5. **Hardening security** (secret handling, input validation, SBOM generation)
 
@@ -109,26 +109,7 @@ src/specify_cli/
 
 ---
 
-### 1.4 Remove Legacy TODO/ Directory
-
-**Current State**: `TODO/` directory exists alongside modern `backlog/tasks/`. Multiple docs reference migrating away from it.
-
-**Problem**:
-- Confusing for new contributors
-- Inconsistent task management
-- Creates duplicate sources of truth
-
-**Recommendation**:
-1. Complete migration per `docs/backlog-integration-plan.md` TASK-005
-2. Move historical content to `archive/legacy-todo/`
-3. Delete `TODO/` directory
-4. Update all doc references
-
-**Impact**: Medium | **Effort**: Low | **Priority**: 2
-
----
-
-### 1.5 Fill Constitution Template Placeholders
+### 1.4 Fill Constitution Template Placeholders
 
 **Current State**: `memory/constitution.md` contains `[PLACEHOLDER]` markers rather than actual values.
 
@@ -153,7 +134,7 @@ Every feature starts as a standalone library...
 
 ---
 
-### 1.6 Standardize Error Handling
+### 1.5 Standardize Error Handling
 
 **Current State**: Error handling is inconsistent across modules. Some use exceptions, some return None, some print directly.
 
@@ -1048,7 +1029,6 @@ Enable spec/plan generation without human-in-loop.
 - [ ] Add API documentation
 - [ ] Implement specify doctor
 - [ ] Add shell completion
-- [ ] Clean up TODO/ directory
 
 ---
 

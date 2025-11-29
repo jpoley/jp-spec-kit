@@ -4,6 +4,7 @@ title: Spec Quality Metrics Command
 status: To Do
 assignee: []
 created_date: '2025-11-27 21:54'
+updated_date: '2025-11-29 05:38'
 labels:
   - specify-cli
   - feature
@@ -15,7 +16,7 @@ priority: medium
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Add 'specify quality' command for automated spec assessment. Measures: Completeness (required sections present), Clarity (vague terms, passive voice, measurable criteria), Traceability (requirements → plan → tasks linkage), Constitutional compliance, Ambiguity markers. Output: Score 0-100 with recommendations. Reduces subjective review time by 50%+. See TODO/task-015-summary.md.
+Add 'specify quality' command for automated spec assessment. Measures: Completeness (required sections present), Clarity (vague terms, passive voice, measurable criteria), Traceability (requirements → plan → tasks linkage), Constitutional compliance, Ambiguity markers. Output: Score 0-100 with recommendations. Reduces subjective review time by 50%+.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria

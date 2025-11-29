@@ -4,6 +4,7 @@ title: Claude Code Hooks Implementation
 status: To Do
 assignee: []
 created_date: '2025-11-27 21:53'
+updated_date: '2025-11-29 05:38'
 labels:
   - specify-cli
   - hooks
@@ -15,7 +16,7 @@ priority: medium
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Implement high-priority Claude Code hooks for jp-spec-kit based on task-009 research. Phase 1: Sensitive file protection (PreToolUse), Git command safety validator (PreToolUse), Auto-format Python (PostToolUse), Auto-lint Python (PostToolUse). Phase 2: Version consistency checker, Git commit message validator, Destructive command confirmation. See TODO/task-009-suggestions.md for full details.
+Implement high-priority Claude Code hooks for jp-spec-kit. Phase 1: Sensitive file protection (PreToolUse), Git command safety validator (PreToolUse), Auto-format Python (PostToolUse), Auto-lint Python (PostToolUse). Phase 2: Version consistency checker, Git commit message validator, Destructive command confirmation.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria

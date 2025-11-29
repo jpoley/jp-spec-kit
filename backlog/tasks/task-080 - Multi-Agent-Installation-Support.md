@@ -1,11 +1,11 @@
 ---
 id: task-080
 title: Multi-Agent Installation Support
-status: In Progress
+status: Done
 assignee:
   - '@claude-agent-2'
 created_date: '2025-11-27 21:53'
-updated_date: '2025-11-28 18:14'
+updated_date: '2025-11-29 05:47'
 labels:
   - specify-cli
   - feature
@@ -17,7 +17,7 @@ priority: high
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Allow users to install spec-kit for multiple AI coding agents (not just one) during 'specify init'. Teams often use mixed agents (Claude for backend, Copilot for frontend). Implementation: Interactive multi-select with checkboxes, comma-separated --ai flag support (e.g., --ai claude,copilot,cursor). Agent directories are already independent (no conflicts). Feasibility: HIGH, 1-3 days effort. See TODO/task-012b-summary.md for detailed plan.
+Allow users to install spec-kit for multiple AI coding agents (not just one) during 'specify init'. Teams often use mixed agents (Claude for backend, Copilot for frontend). Implementation: Interactive multi-select with checkboxes, comma-separated --ai flag support (e.g., --ai claude,copilot,cursor). Agent directories are already independent (no conflicts). Feasibility: HIGH, 1-3 days effort.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria

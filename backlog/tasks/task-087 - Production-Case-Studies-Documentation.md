@@ -4,6 +4,7 @@ title: Production Case Studies Documentation
 status: To Do
 assignee: []
 created_date: '2025-11-27 21:55'
+updated_date: '2025-11-29 05:37'
 labels:
   - documentation
   - validation
@@ -15,7 +16,7 @@ priority: high
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Document real-world usage with quantitative metrics to validate tool value. Addresses Böckeler trust criteria: 'Until I hear usage reports from people using them for a period of time on a real project...' Case study template: Project overview, metrics (time, rework %, test coverage, bugs), developer feedback (what worked, challenges), lessons learned. Target: 3-5 case studies from different domains. See TODO/task-20-suggestions.md for template.
+Document real-world usage with quantitative metrics to validate tool value. Addresses Böckeler trust criteria: 'Until I hear usage reports from people using them for a period of time on a real project...' Case study template: Project overview, metrics (time, rework %, test coverage, bugs), developer feedback (what worked, challenges), lessons learned. Target: 3-5 case studies from different domains.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria

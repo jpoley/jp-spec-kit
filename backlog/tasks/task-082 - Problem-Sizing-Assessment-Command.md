@@ -18,7 +18,7 @@ priority: high
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Add '/jpspec:assess' command to evaluate if SDD workflow is appropriate for a feature. Addresses Böckeler critique: 'What I found missing is an answer to: Which problems are they meant for?' Prevents over-specification frustration. Output: Full SDD workflow (complex), Spec-light mode (medium), Skip SDD (simple). See TODO/task-20-suggestions.md and TODO/task-015-summary.md for implementation details.
+Add '/jpspec:assess' command to evaluate if SDD workflow is appropriate for a feature. Addresses Böckeler critique: 'What I found missing is an answer to: Which problems are they meant for?' Prevents over-specification frustration. Output: Full SDD workflow (complex), Spec-light mode (medium), Skip SDD (simple).
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria

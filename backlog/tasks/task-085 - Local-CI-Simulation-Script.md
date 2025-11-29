@@ -4,6 +4,7 @@ title: Local CI Simulation Script
 status: To Do
 assignee: []
 created_date: '2025-11-27 21:54'
+updated_date: '2025-11-29 05:37'
 labels:
   - specify-cli
   - ci-cd
@@ -15,7 +16,7 @@ priority: medium
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Implement scripts/bash/run-local-ci.sh to execute full CI pipeline locally using act (GitHub Actions local runner). Catches CI failures before push (inner loop principle). Reduces GitHub Actions costs. Faster feedback (<5 min). CLAUDE.md mentions act but implementation is missing. Note: Requires Docker, some GitHub Actions features don't work (OIDC, etc.). See TODO/task-015-summary.md.
+Implement scripts/bash/run-local-ci.sh to execute full CI pipeline locally using act (GitHub Actions local runner). Catches CI failures before push (inner loop principle). Reduces GitHub Actions costs. Faster feedback (<5 min). CLAUDE.md mentions act but implementation is missing. Note: Requires Docker, some GitHub Actions features don't work (OIDC, etc.).
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria

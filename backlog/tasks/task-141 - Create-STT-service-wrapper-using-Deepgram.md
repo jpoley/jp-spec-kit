@@ -5,16 +5,12 @@ status: Done
 assignee:
   - '@pm-planner'
 created_date: '2025-11-28'
-updated_date: '2025-11-29 03:59'
+updated_date: '2025-11-29 05:39'
 labels:
-  - implement
   - voice
-  - us1
-  - stt
-  - phase3
 dependencies:
   - task-140
-priority: high
+priority: medium
 ---
 
 ## Description
