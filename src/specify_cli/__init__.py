@@ -3346,6 +3346,192 @@ def backlog_upgrade(
 
 
 @app.command()
+def quality(
+    spec_path: str = typer.Argument(
+        None,
+        help="Path to specification file (defaults to .specify/spec.md)"
+    ),
+    config_path: str = typer.Option(
+        None,
+        "--config",
+        help="Path to custom quality config file"
+    ),
+    json_output: bool = typer.Option(
+        False,
+        "--json",
+        help="Output as JSON instead of table"
+    ),
+    threshold: int = typer.Option(
+        None,
+        "--threshold",
+        help="Minimum passing score (overrides config)"
+    ),
+    check_only: bool = typer.Option(
+        False,
+        "--check-only",
+        help="Exit non-zero if below threshold (for CI)"
+    ),
+):
+    """Assess specification quality with automated scoring.
+
+    Analyzes specification files across multiple quality dimensions:
+    - Completeness: Required sections present
+    - Clarity: Vague terms, passive voice, measurable criteria
+    - Traceability: Requirements → plan → tasks linkage
+    - Constitutional: Project conventions and tool usage
+    - Ambiguity: TBD/TODO markers and uncertainty
+
+    Returns a 0-100 score with detailed recommendations.
+    """
+    from pathlib import Path
+    import json as json_lib
+    from rich.table import Table
+
+    from specify_cli.quality import QualityScorer, QualityConfig
+
+    # Determine spec path
+    if spec_path is None:
+        spec_file = Path.cwd() / ".specify" / "spec.md"
+        if not spec_file.exists():
+            # Try current directory
+            spec_file = Path.cwd() / "spec.md"
+    else:
+        spec_file = Path(spec_path)
+
+    if not spec_file.exists():
+        console.print(f"[red]Error: Specification file not found: {spec_file}[/red]")
+        console.print("\nUsage:")
+        console.print("  specify quality [SPEC_PATH]")
+        console.print("  specify quality .specify/spec.md")
+        raise typer.Exit(1)
+
+    # Load configuration
+    if config_path:
+        config = QualityConfig.load_from_file(Path(config_path))
+    else:
+        config = QualityConfig.find_config(spec_file.parent)
+
+    # Override threshold if provided
+    if threshold is not None:
+        config.passing_threshold = threshold
+
+    # Create scorer and assess
+    try:
+        scorer = QualityScorer(config)
+        result = scorer.score_spec(spec_file)
+    except Exception as e:
+        console.print(f"[red]Error assessing quality: {e}[/red]")
+        raise typer.Exit(1)
+
+    # Output results
+    if json_output:
+        # JSON output
+        output = {
+            "overall_score": result.overall_score,
+            "passing": result.passes(),
+            "excellent": result.is_excellent(),
+            "dimensions": {
+                "completeness": {
+                    "score": result.completeness.score,
+                    "findings": result.completeness.findings,
+                },
+                "clarity": {
+                    "score": result.clarity.score,
+                    "findings": result.clarity.findings,
+                },
+                "traceability": {
+                    "score": result.traceability.score,
+                    "findings": result.traceability.findings,
+                },
+                "constitutional": {
+                    "score": result.constitutional.score,
+                    "findings": result.constitutional.findings,
+                },
+                "ambiguity": {
+                    "score": result.ambiguity.score,
+                    "findings": result.ambiguity.findings,
+                },
+            },
+            "recommendations": result.get_recommendations(),
+        }
+        console.print(json_lib.dumps(output, indent=2))
+    else:
+        # Rich table output
+        show_banner()
+        console.print(f"\n[bold]Quality Assessment:[/bold] {spec_file}\n")
+
+        table = Table(show_header=True, header_style="bold cyan")
+        table.add_column("Dimension", style="cyan", width=20)
+        table.add_column("Score", justify="right", width=10)
+        table.add_column("Findings", width=50)
+
+        # Add dimension rows
+        dimensions = [
+            ("Completeness", result.completeness),
+            ("Clarity", result.clarity),
+            ("Traceability", result.traceability),
+            ("Constitutional", result.constitutional),
+            ("Ambiguity", result.ambiguity),
+        ]
+
+        for name, assessment in dimensions:
+            score_str = f"{assessment.score:.0f}/100"
+            findings_str = "\n".join(assessment.findings[:3])  # First 3 findings
+
+            # Color code score
+            if assessment.score >= 90:
+                score_color = "green"
+            elif assessment.score >= 70:
+                score_color = "yellow"
+            else:
+                score_color = "red"
+
+            table.add_row(
+                name,
+                f"[{score_color}]{score_str}[/{score_color}]",
+                findings_str
+            )
+
+        # Add separator and overall
+        table.add_section()
+
+        overall_str = f"{result.overall_score:.0f}/100"
+        if result.is_excellent():
+            status = "[green]EXCELLENT ✓✓[/green]"
+            overall_color = "green"
+        elif result.passes():
+            status = "[green]PASSING ✓[/green]"
+            overall_color = "yellow"
+        else:
+            status = "[red]NEEDS IMPROVEMENT ✗[/red]"
+            overall_color = "red"
+
+        table.add_row(
+            "[bold]OVERALL[/bold]",
+            f"[bold {overall_color}]{overall_str}[/bold {overall_color}]",
+            status
+        )
+
+        console.print(table)
+
+        # Show recommendations
+        console.print("\n[bold]Recommendations:[/bold]")
+        for i, rec in enumerate(result.get_recommendations(), 1):
+            console.print(f"  {i}. {rec}")
+
+        console.print()
+
+    # Exit with status code if check-only
+    if check_only:
+        if not result.passes(threshold):
+            console.print(f"[red]Quality check failed: {result.overall_score:.0f} < {threshold or config.passing_threshold}[/red]")
+            raise typer.Exit(1)
+        else:
+            console.print(f"[green]Quality check passed: {result.overall_score:.0f} >= {threshold or config.passing_threshold}[/green]")
+            raise typer.Exit(0)
+
+
+@app.command()
 def voice(
     config: str = typer.Option(
         None,
