@@ -12,386 +12,261 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 ## Execution Instructions
 
-This command evaluates feature complexity to determine the appropriate development workflow. It assesses multiple dimensions and provides a clear recommendation: Full SDD, Spec-light, or Skip SDD.
+This command is the **mandatory entry point** to the jpspec workflow. It evaluates whether a feature requires the full Spec-Driven Development (SDD) workflow, a lighter specification approach, or can skip SDD entirely.
 
-### Assessment Process
+### Overview
 
-Guide the user through a structured complexity assessment by asking the following questions. Based on their responses, calculate a complexity score and recommend the appropriate workflow.
+The assess command:
+1. Analyzes feature complexity, risk, and architectural impact
+2. Generates a detailed assessment report
+3. Recommends workflow path (Full SDD, Spec-Light, or Skip SDD)
+4. Transitions workflow state from "To Do" → "Assessed"
+5. Provides specific next-step commands
 
-#### 1. Scope and Size Assessment
+### Step 1: Feature Analysis
 
-**Question 1: Estimated Lines of Code (LOC)**
+Analyze the feature request along three dimensions (1-10 scale):
+
+#### Complexity Scoring
+- **Effort Days** (1-10): Estimated development time
+  - 1-2: Single day or less
+  - 3-5: Few days, straightforward implementation
+  - 6-8: Week or more, moderate complexity
+  - 9-10: Multiple weeks, high complexity
+- **Component Count** (1-10): Number of modules/services affected
+  - 1-2: Single component
+  - 3-5: 2-3 components
+  - 6-8: 4-6 components
+  - 9-10: 7+ components or cross-cutting
+- **Integration Points** (1-10): External dependencies
+  - 1-2: No external integrations
+  - 3-5: 1-2 integrations
+  - 6-8: 3-5 integrations
+  - 9-10: 6+ integrations or complex orchestration
+
+**Complexity Score = (Effort + Components + Integrations) / 3**
+
+#### Risk Scoring
+- **Security Implications** (1-10): Security risk level
+  - 1-2: No security concerns
+  - 3-5: Minor security considerations
+  - 6-8: Moderate security requirements
+  - 9-10: Critical security controls required
+- **Compliance Requirements** (1-10): Regulatory compliance
+  - 1-2: No compliance requirements
+  - 3-5: Basic compliance (logging, audit)
+  - 6-8: Industry standards (PCI, HIPAA)
+  - 9-10: Strict regulatory compliance
+- **Data Sensitivity** (1-10): Data handling requirements
+  - 1-2: Public/non-sensitive data
+  - 3-5: Internal business data
+  - 6-8: Customer personal data
+  - 9-10: Financial/health/highly sensitive data
+
+**Risk Score = (Security + Compliance + Data) / 3**
+
+#### Architecture Impact Scoring
+- **New Patterns** (1-10): Introduction of new patterns
+  - 1-2: Uses existing patterns
+  - 3-5: Minor pattern variations
+  - 6-8: New patterns for team
+  - 9-10: Novel architectural patterns
+- **Breaking Changes** (1-10): API/contract changes
+  - 1-2: No breaking changes
+  - 3-5: Internal breaking changes only
+  - 6-8: Public API breaking changes
+  - 9-10: Major breaking changes across system
+- **Dependencies Affected** (1-10): Impact on other systems
+  - 1-2: Self-contained
+  - 3-5: 1-2 downstream dependencies
+  - 6-8: 3-5 downstream dependencies
+  - 9-10: Wide-ranging dependency impact
+
+**Architecture Impact Score = (Patterns + Breaking + Dependencies) / 3**
+
+### Step 2: Recommendation Logic
+
+Calculate recommendation based on scores:
+
 ```
-How many lines of code do you estimate this feature will require?
+Total Score = Complexity + Risk + Architecture Impact
 
-Options:
-A. < 100 lines (Small: Simple utility, configuration change, minor fix)
-B. 100-500 lines (Medium: New component, API endpoint, service integration)
-C. 500-2000 lines (Large: New module, complex feature, multi-component)
-D. > 2000 lines (Very Large: New subsystem, major architectural change)
+IF any individual score >= 7 OR Total Score >= 18:
+    Recommendation: Full SDD
+    Confidence: High
+    Rationale: High complexity/risk/impact requires full workflow
 
-Score: A=1, B=2, C=3, D=4
-```
+ELSE IF any individual score >= 4 OR Total Score >= 10:
+    Recommendation: Spec-Light
+    Confidence: Medium
+    Rationale: Moderate complexity benefits from lightweight specification
 
-**Question 2: Number of Modules/Components Affected**
-```
-How many modules, services, or components will this feature touch?
-
-Options:
-A. 1 module (Single-file change, isolated component)
-B. 2-3 modules (Multiple related components, service + client)
-C. 4-6 modules (Cross-cutting change, multiple services)
-D. 7+ modules (System-wide change, architectural refactor)
-
-Score: A=1, B=2, C=3, D=4
-```
-
-#### 2. Integration and Dependency Assessment
-
-**Question 3: External Integrations**
-```
-How many external systems, APIs, or services will this feature integrate with?
-
-Options:
-A. 0 integrations (Pure internal logic, no external dependencies)
-B. 1-2 integrations (Single third-party API, simple database)
-C. 3-4 integrations (Multiple APIs, complex data flows)
-D. 5+ integrations (Complex orchestration, multi-system coordination)
-
-Score: A=1, B=2, C=3, D=4
-```
-
-**Question 4: Data Complexity**
-```
-What is the complexity of data modeling and persistence requirements?
-
-Options:
-A. No persistence (In-memory only, stateless)
-B. Simple persistence (Single table, basic CRUD)
-C. Moderate persistence (Multiple tables, relationships, migrations)
-D. Complex persistence (Complex schemas, data migrations, legacy compatibility)
-
-Score: A=1, B=2, C=3, D=4
-```
-
-#### 3. Team and Process Assessment
-
-**Question 5: Team Coordination Requirements**
-```
-How many people will need to collaborate on this feature?
-
-Options:
-A. Solo developer (One person, clear ownership)
-B. 2-3 developers (Small team, pair programming)
-C. 4-6 developers (Medium team, requires coordination)
-D. 7+ developers (Large team, complex orchestration)
-
-Score: A=1, B=2, C=3, D=4
-```
-
-**Question 6: Cross-Functional Requirements**
-```
-Which roles/disciplines are required for this feature?
-
-Options:
-A. Engineering only (Pure technical implementation)
-B. Engineering + Design (UI/UX considerations)
-C. Engineering + Design + Product (Requires product decisions)
-D. Full cross-functional (Engineering, Design, Product, Security, Legal, etc.)
-
-Score: A=1, B=2, C=3, D=4
-```
-
-#### 4. Risk and Uncertainty Assessment
-
-**Question 7: Technical Uncertainty**
-```
-How well understood is the technical approach?
-
-Options:
-A. Well-known pattern (Standard implementation, proven approach)
-B. Some unknowns (Minor research needed, 1-2 spikes)
-C. Significant unknowns (Multiple spikes, proof of concept needed)
-D. High uncertainty (New technology, R&D required, multiple experiments)
-
-Score: A=1, B=2, C=3, D=4
+ELSE:
+    Recommendation: Skip SDD
+    Confidence: High
+    Rationale: Low complexity allows direct implementation
 ```
 
-**Question 8: Business Impact and Risk**
-```
-What is the business impact if this feature fails or has bugs?
+### Step 3: Generate Assessment Report
 
-Options:
-A. Low impact (Internal tool, non-critical feature)
-B. Medium impact (Affects user experience, non-critical functionality)
-C. High impact (Revenue-affecting, critical user journey)
-D. Critical impact (Security, compliance, data integrity, revenue-critical)
-
-Score: A=1, B=2, C=3, D=4
-```
-
-### Scoring and Recommendation Logic
-
-**Total Score Calculation**: Sum all 8 question scores (range: 8-32)
-
-**Complexity Classification**:
-- **Simple** (8-12 points): Low complexity, well-understood problem
-- **Medium** (13-20 points): Moderate complexity, some coordination needed
-- **Complex** (21-32 points): High complexity, significant effort and coordination
-
-**Workflow Recommendations**:
-
-#### Simple Features (8-12 points) → **Skip SDD**
-```
-✅ RECOMMENDATION: Skip Spec-Driven Development
-
-This feature is simple enough to proceed directly to implementation.
-
-Suggested Approach:
-1. Write a brief task description in backlog.md with acceptance criteria
-2. Move task to "In Progress" and implement directly
-3. Focus on code quality and testing
-4. Quick code review before merging
-
-Example Features:
-- Bug fixes with clear root cause
-- Configuration changes
-- Simple utility functions
-- Minor UI tweaks
-- Documentation updates
-
-Why Skip SDD?
-- Overhead of specification would slow down delivery
-- Problem and solution are well-understood
-- Minimal coordination required
-- Low risk if approach changes during implementation
-```
-
-#### Medium Features (13-20 points) → **Spec-Light Mode**
-```
-✅ RECOMMENDATION: Spec-Light Mode
-
-This feature requires some planning but not full SDD workflow.
-
-Suggested Approach:
-1. Create lightweight specification (1-2 pages):
-   - Problem statement and context
-   - High-level solution approach
-   - Key acceptance criteria
-   - Integration points and dependencies
-   - Testing approach
-2. Optional: Quick technical spike if unknowns exist
-3. Brief architecture review (async or 30-min sync)
-4. Implement with standard code review
-5. Integration testing before merge
-
-Skip These SDD Phases:
-- ❌ /jpspec:research (Business validation)
-- ❌ /jpspec:plan (Full architectural planning)
-- ❌ /jpspec:validate (Dedicated validation phase)
-
-Use These SDD Phases:
-- ✅ /jpspec:specify (Lightweight spec only)
-- ✅ /jpspec:implement (Direct implementation)
-
-Example Features:
-- New API endpoint with moderate complexity
-- UI component with business logic
-- Service integration with 1-2 external APIs
-- Database schema additions
-- Feature flags and A/B tests
-
-Why Spec-Light?
-- Captures key decisions without excessive documentation
-- Enables team alignment without process overhead
-- Maintains flexibility during implementation
-- Reduces coordination overhead
-```
-
-#### Complex Features (21-32 points) → **Full SDD Workflow**
-```
-✅ RECOMMENDATION: Full Spec-Driven Development Workflow
-
-This feature requires comprehensive planning and coordination.
-
-Suggested Approach:
-1. /jpspec:specify - Comprehensive PRD with:
-   - Problem statement and business context
-   - User stories and acceptance criteria
-   - Success metrics and KPIs
-   - Risk assessment (DVF+V framework)
-
-2. /jpspec:research - Market and technical validation:
-   - Competitive analysis
-   - Technical feasibility assessment
-   - Business viability evaluation
-
-3. /jpspec:plan - Architectural planning:
-   - System architecture and component design
-   - Platform and infrastructure design
-   - ADRs for key decisions
-   - Integration patterns
-
-4. /jpspec:implement - Phased implementation:
-   - Parallel frontend/backend development
-   - Comprehensive code review
-   - Integration testing
-
-5. /jpspec:validate - Quality assurance:
-   - QA testing and validation
-   - Security review
-   - Documentation review
-
-6. /jpspec:operate - Production deployment:
-   - CI/CD pipeline setup
-   - Observability and monitoring
-   - Deployment and rollout
-
-Example Features:
-- New product capabilities or user journeys
-- System-wide architectural changes
-- Multi-team integration projects
-- High-stakes business-critical features
-- Complex data migrations
-- Security or compliance initiatives
-
-Why Full SDD?
-- High coordination overhead requires clear specifications
-- Multiple stakeholders need alignment
-- High business risk requires validation
-- Complex architecture needs documented decisions
-- Long implementation timeline benefits from phased approach
-```
-
-### Output Format
-
-After collecting all assessment responses, provide a comprehensive recommendation:
+Create the assessment report at `./docs/assess/{feature}-assessment.md`:
 
 ```markdown
-# Feature Complexity Assessment
+# Feature Assessment: {Feature Name}
 
-## Feature: [Feature Name]
+**Date**: {YYYY-MM-DD}
+**Assessed By**: Claude AI Agent
+**Status**: Assessed
 
-## Assessment Results
+## Feature Overview
 
-### Scope and Size
-- Lines of Code: [Answer] (Score: X)
-- Modules Affected: [Answer] (Score: X)
+{Brief description of the feature from user input}
 
-### Integration and Dependencies
-- External Integrations: [Answer] (Score: X)
-- Data Complexity: [Answer] (Score: X)
+## Scoring Analysis
 
-### Team and Process
-- Team Size: [Answer] (Score: X)
-- Cross-Functional Needs: [Answer] (Score: X)
+### Complexity Score: {X.X}/10
 
-### Risk and Uncertainty
-- Technical Uncertainty: [Answer] (Score: X)
-- Business Impact: [Answer] (Score: X)
+| Dimension | Score | Rationale |
+|-----------|-------|-----------|
+| Effort Days | {N}/10 | {Explanation} |
+| Component Count | {N}/10 | {Explanation} |
+| Integration Points | {N}/10 | {Explanation} |
+| **Average** | **{X.X}/10** | |
 
-## Complexity Score: X/32
+### Risk Score: {X.X}/10
 
-**Classification: [Simple/Medium/Complex]**
+| Dimension | Score | Rationale |
+|-----------|-------|-----------|
+| Security Implications | {N}/10 | {Explanation} |
+| Compliance Requirements | {N}/10 | {Explanation} |
+| Data Sensitivity | {N}/10 | {Explanation} |
+| **Average** | **{X.X}/10** | |
 
-## Recommendation: [Skip SDD / Spec-Light Mode / Full SDD Workflow]
+### Architecture Impact Score: {X.X}/10
 
-[Include detailed recommendation text from above]
+| Dimension | Score | Rationale |
+|-----------|-------|-----------|
+| New Patterns | {N}/10 | {Explanation} |
+| Breaking Changes | {N}/10 | {Explanation} |
+| Dependencies Affected | {N}/10 | {Explanation} |
+| **Average** | **{X.X}/10** | |
+
+## Overall Assessment
+
+**Total Score**: {XX.X}/30
+**Recommendation**: {Full SDD | Spec-Light | Skip SDD}
+**Confidence**: {High | Medium | Low}
+
+### Rationale
+
+{Detailed explanation of recommendation based on scores}
+
+### Key Factors
+
+- **Complexity**: {Summary}
+- **Risk**: {Summary}
+- **Impact**: {Summary}
 
 ## Next Steps
 
-[Provide specific actionable steps based on recommendation]
+{Based on recommendation, provide specific commands}
 
-## Notes
-
-- This assessment is a guideline, not a strict rule
-- Use your judgment based on team context and project needs
-- You can always upgrade to a more rigorous workflow if complexity increases
-- Consider organizational standards and compliance requirements
+### Full SDD Path
+```bash
+/jpspec:specify {feature}
 ```
 
-### Integration with `specify init`
-
-When users run `specify init`, offer to run this assessment first:
-
-```
-Before initializing, would you like to assess if Spec-Driven Development is appropriate for this feature?
-
-[Y/n]:
+### Spec-Light Path
+```bash
+# Create lightweight spec in ./docs/prd/{feature}-spec.md
+# Include: problem statement, key requirements, acceptance criteria
+# Then proceed to implementation
 ```
 
-If yes, run the assessment and recommend next steps based on results.
-
-### Validation and Calibration
-
-Encourage teams to calibrate this assessment tool:
-- Track assessment scores vs actual complexity
-- Adjust thresholds based on team experience
-- Document exceptions and rationale
-- Refine questions based on domain-specific needs
-
-### Example Scenarios
-
-#### Example 1: Simple Bug Fix
-```
-Feature: Fix button alignment on login page
-
-Q1: LOC? A (20 lines CSS)
-Q2: Modules? A (1 component)
-Q3: Integrations? A (None)
-Q4: Data? A (No persistence)
-Q5: Team? A (Solo)
-Q6: Cross-functional? A (Engineering only)
-Q7: Technical? A (Well-known)
-Q8: Business impact? A (Low)
-
-Total: 8/32 (Simple)
-→ Skip SDD, implement directly
+### Skip SDD Path
+```bash
+# Proceed directly to implementation
+# Document decisions in ADRs as needed
 ```
 
-#### Example 2: New API Endpoint
-```
-Feature: Add user preferences API endpoint
+## Override
 
-Q1: LOC? B (200 lines)
-Q2: Modules? B (API + DB + Client)
-Q3: Integrations? B (Database + Cache)
-Q4: Data? C (New tables + migrations)
-Q5: Team? B (2 developers)
-Q6: Cross-functional? A (Engineering only)
-Q7: Technical? A (Standard REST API)
-Q8: Business impact? B (User experience)
+If this assessment doesn't match your needs, you can override:
 
-Total: 15/32 (Medium)
-→ Spec-Light Mode
+```bash
+# Force full SDD workflow
+/jpspec:assess {feature} --mode full
+
+# Force spec-light mode
+/jpspec:assess {feature} --mode light
+
+# Force skip SDD
+/jpspec:assess {feature} --mode skip
 ```
 
-#### Example 3: Payment Integration
-```
-Feature: Integrate Stripe payment processing
+---
 
-Q1: LOC? C (1000+ lines)
-Q2: Modules? C (Payment service, UI, webhooks, admin)
-Q3: Integrations? C (Stripe, database, email, analytics)
-Q4: Data? D (Complex transactions, PCI compliance)
-Q5: Team? C (4-5 developers)
-Q6: Cross-functional? D (Eng, Product, Legal, Security)
-Q7: Technical? C (Multiple spikes needed)
-Q8: Business impact? D (Revenue-critical, PCI compliance)
-
-Total: 27/32 (Complex)
-→ Full SDD Workflow
+*Assessment generated by /jpspec:assess workflow*
 ```
 
-## Final Notes
+### Step 4: Support Override Mode
 
-**This assessment is a tool, not a mandate.** Consider:
-- Organizational standards and compliance requirements
-- Team experience and maturity
-- Time constraints and deadlines
-- Stakeholder expectations
-- Domain-specific risk factors
+If user provides `--mode {full|light|skip}` flag:
+1. Skip scoring analysis
+2. Generate assessment report with override noted
+3. Proceed with specified workflow path
 
-**When in doubt, err on the side of more planning** - it's easier to streamline a workflow than to add planning after issues arise.
+### Step 5: Output Recommendation
 
-**Continuous improvement** - Regularly review assessment outcomes and adjust thresholds based on your team's experience.
+After generating the report, output:
+
+```
+## Assessment Complete
+
+**Feature**: {feature name}
+**Recommendation**: {Full SDD | Spec-Light | Skip SDD}
+**Confidence**: {High | Medium | Low}
+**Report**: ./docs/assess/{feature}-assessment.md
+
+### Scoring Summary
+- Complexity: {X.X}/10
+- Risk: {X.X}/10
+- Architecture Impact: {X.X}/10
+- **Total**: {XX.X}/30
+
+### Next Command
+
+{Based on recommendation:}
+
+For Full SDD:
+    /jpspec:specify {feature}
+
+For Spec-Light:
+    Create lightweight spec at ./docs/prd/{feature}-spec.md then implement
+
+For Skip SDD:
+    Proceed to implementation, document in ADRs as needed
+```
+
+### Implementation Notes
+
+1. **State Transition**: This command transitions from "To Do" → "Assessed"
+2. **Artifact**: Produces `./docs/assess/{feature}-assessment.md`
+3. **Validation Mode**: NONE (automatic transition)
+4. **Override Support**: `--mode {full|light|skip}` flag bypasses scoring
+
+### Error Handling
+
+- If `./docs/assess/` directory doesn't exist, create it
+- If feature name is ambiguous, ask for clarification
+- If assessment already exists, ask whether to overwrite
+- If override mode is invalid, show valid options
+
+### Quality Checks
+
+Before completing:
+- [ ] Assessment report exists at correct path
+- [ ] All scoring dimensions are documented
+- [ ] Recommendation is clear and justified
+- [ ] Next steps are specific and actionable
+- [ ] Override instructions are provided
