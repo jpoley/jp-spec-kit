@@ -60,10 +60,10 @@ try:
             if 'decision' in data:
                 print(data['decision'])
                 break
-        except Exception:
+        except json.JSONDecodeError:
             continue
-except Exception:
-    pass
+except Exception as e:
+    print(f'Error extracting decision: {e}', file=sys.stderr)
 " 2>/dev/null || echo "")
 
     # Verify decision matches expected
@@ -169,6 +169,14 @@ run_test \
     '{"session_id": "test", "hook_event_name": "PreToolUse", "tool_name": "Bash", "tool_input": {"command": "git clean -fd"}}' \
     "ask" \
     "Should ask for confirmation on clean -fd"
+
+# Test 11b: Git safety - clean -df (alternate order)
+run_test \
+    "Dangerous git - clean -df" \
+    "pre-tool-use-git-safety.py" \
+    '{"session_id": "test", "hook_event_name": "PreToolUse", "tool_name": "Bash", "tool_input": {"command": "git clean -df"}}' \
+    "ask" \
+    "Should ask for confirmation on clean -df (alternate flag order)"
 
 # Test 12: Git safety - safe command (git status)
 run_test \

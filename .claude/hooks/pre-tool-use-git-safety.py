@@ -27,7 +27,7 @@ DANGEROUS_GIT_PATTERNS = [
     (r"git\s+reset\s+--hard", "Hard reset will discard uncommitted changes"),
     (r"git\s+rebase\s+-i", "Interactive rebase requires manual input (not supported)"),
     (
-        r"git\s+clean\s+(-[a-z]*f[a-z]*d[a-z]*|-[a-z]*d[a-z]*f[a-z]*|.*-f.*-d|.*-d.*-f)",
+        r"git\s+clean\s+(-[a-z]*f[a-z]*d[a-z]*|-[a-z]*d[a-z]*f[a-z]*|--force.*--directory|--directory.*--force)",
         "git clean with -f and -d will delete untracked files permanently",
     ),
 ]

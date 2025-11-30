@@ -16,12 +16,9 @@ if command -v jq &> /dev/null; then
     tool_name=$(echo "$input" | jq -r '.tool_name // ""')
     file_path=$(echo "$input" | jq -r '.tool_input.file_path // ""')
 else
-    # Fallback to Python for JSON parsing
-    read -r tool_name file_path <<< $(echo "$input" | python3 -c "
-import json, sys
-data = json.load(sys.stdin)
-print(data.get('tool_name', ''), data.get('tool_input', {}).get('file_path', ''))
-")
+    # Fallback to Python for JSON parsing (separate calls to handle spaces in paths)
+    tool_name=$(echo "$input" | python3 -c "import json, sys; data = json.load(sys.stdin); print(data.get('tool_name', ''))")
+    file_path=$(echo "$input" | python3 -c "import json, sys; data = json.load(sys.stdin); print(data.get('tool_input', {}).get('file_path', ''))")
 fi
 
 # Only process Write and Edit tools
