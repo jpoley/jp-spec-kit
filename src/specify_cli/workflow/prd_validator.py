@@ -153,7 +153,7 @@ class PRDValidator:
                 "Expected: {feature-slug}.md (e.g., user-authentication.md)"
             )
         else:
-            feature_name = prd_path.stem.replace("-", " ").title()
+            feature_name = prd_path.stem.replace("-", " ").replace("_", " ").title()
 
         # Read and parse PRD content
         try:
