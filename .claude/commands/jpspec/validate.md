@@ -10,6 +10,28 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
+## Output Artifacts
+
+All validation artifacts will be written to standardized locations:
+
+| Artifact | Location | Description |
+|----------|----------|-------------|
+| QA Test Report | `./docs/qa/<feature-slug>-qa-report.md` | Comprehensive quality assurance test results |
+| Security Assessment | `./docs/security/<feature-slug>-security-report.md` | Security findings, vulnerability scan results, compliance status |
+| API Documentation | `./docs/api/<feature-slug>-api.md` | API reference documentation (if applicable) |
+| User Documentation | `./docs/guides/<feature-slug>-guide.md` | User-facing documentation and tutorials |
+| Release Notes | `./docs/releases/<feature-slug>-release-notes.md` | Feature summary, breaking changes, migration guides |
+| Release Checklist | `./docs/qa/<feature-slug>-release-checklist.md` | Pre-release validation checklist with sign-offs |
+
+## Feature Naming
+
+The `<feature-slug>` is derived from the feature name by:
+1. Converting to lowercase
+2. Replacing spaces with hyphens
+3. Removing special characters
+
+**Example**: "User Authentication System" → `user-authentication-system`
+
 ## Backlog Task Discovery
 
 Before starting validation, discover tasks that are ready for validation:
@@ -456,3 +478,40 @@ Deliver release readiness report with clear go/no-go recommendation and human ap
 - Release readiness assessment
 - **Human approval for production release**
 - Deployment plan and runbooks
+
+## Completion Checklist
+
+Before marking this workflow step complete, verify:
+
+- [ ] Feature slug derived from feature name
+- [ ] QA test report written to `./docs/qa/<feature-slug>-qa-report.md`
+- [ ] Security assessment written to `./docs/security/<feature-slug>-security-report.md`
+- [ ] API documentation written to `./docs/api/<feature-slug>-api.md` (if applicable)
+- [ ] User documentation written to `./docs/guides/<feature-slug>-guide.md`
+- [ ] Release notes written to `./docs/releases/<feature-slug>-release-notes.md`
+- [ ] Release checklist written to `./docs/qa/<feature-slug>-release-checklist.md`
+- [ ] All tests passed (functional, integration, performance)
+- [ ] No critical or high security vulnerabilities
+- [ ] All documentation reviewed and complete
+- [ ] **Human approval obtained for release**
+- [ ] Deployment plan ready
+- [ ] Rollback procedures tested
+- [ ] Artifact verification passed
+- [ ] Transition validation passed (if applicable)
+
+## Transition Validation
+
+This command supports validation mode when invoked with `--validate` flag. In validation mode:
+- Verify QA report exists at `./docs/qa/<feature-slug>-qa-report.md`
+- Verify security report exists at `./docs/security/<feature-slug>-security-report.md`
+- Verify release checklist exists at `./docs/qa/<feature-slug>-release-checklist.md`
+- Check that all release checklist items are marked complete
+- Confirm no critical or high severity issues remain unresolved
+- Validate human approval was obtained (check for approval signature in release checklist)
+- Ensure documentation artifacts exist as expected
+- Verify all backlog tasks associated with feature are marked Done
+
+**Exit codes**:
+- `0` = Validation passed
+- `1` = Validation failed (missing reports, unresolved issues, missing approval)
+- `2` = Error (invalid feature slug, file system issues)

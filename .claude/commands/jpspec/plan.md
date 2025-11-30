@@ -10,6 +10,29 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
+## Output Artifacts
+
+All planning artifacts will be written to standardized locations:
+
+| Artifact | Location | Description |
+|----------|----------|-------------|
+| Architecture Decision Records (ADRs) | `./docs/adr/<feature-slug>-<decision-number>.md` | Key architectural decisions with context and rationale |
+| System Architecture | `./docs/adr/<feature-slug>-architecture.md` | Comprehensive system architecture document |
+| Platform Design | `./docs/adr/<feature-slug>-platform.md` | Platform and infrastructure design |
+| Constitution | `./.specify/memory/constitution.md` | Architectural and platform principles (updated) |
+| Backlog Tasks | `backlog/tasks/<task-id>.md` | Architecture and infrastructure tasks via backlog CLI |
+
+## Feature Naming
+
+The `<feature-slug>` is derived from the feature name by:
+1. Converting to lowercase
+2. Replacing spaces with hyphens
+3. Removing special characters
+
+**Example**: "User Authentication System" → `user-authentication-system`
+
+**ADR Numbering**: ADRs are numbered sequentially: `<feature-slug>-001.md`, `<feature-slug>-002.md`, etc.
+
 ## Execution Instructions
 
 This command creates comprehensive architectural and platform planning using two specialized agents working in parallel, building out /speckit.constitution.
@@ -367,3 +390,33 @@ After both agents complete:
    - Updated /speckit.constitution
    - ADRs for key decisions
    - Implementation readiness assessment
+
+## Completion Checklist
+
+Before marking this workflow step complete, verify:
+
+- [ ] Feature slug derived from feature name
+- [ ] System architecture written to `./docs/adr/<feature-slug>-architecture.md`
+- [ ] Platform design written to `./docs/adr/<feature-slug>-platform.md`
+- [ ] ADRs written to `./docs/adr/<feature-slug>-NNN.md` (sequentially numbered)
+- [ ] Constitution updated at `./.specify/memory/constitution.md`
+- [ ] Architecture tasks created via backlog CLI
+- [ ] Infrastructure tasks created via backlog CLI
+- [ ] All architecture documents contain required sections
+- [ ] Artifact verification passed
+- [ ] Transition validation passed (if applicable)
+
+## Transition Validation
+
+This command supports validation mode when invoked with `--validate` flag. In validation mode:
+- Verify architecture document exists at `./docs/adr/<feature-slug>-architecture.md`
+- Verify platform document exists at `./docs/adr/<feature-slug>-platform.md`
+- Confirm at least one ADR exists in `./docs/adr/` with the feature slug
+- Check that constitution was updated (timestamp check)
+- Validate backlog tasks exist for architecture and infrastructure work
+- Ensure ADRs follow standard format (Context, Options, Decision, Consequences)
+
+**Exit codes**:
+- `0` = Validation passed
+- `1` = Validation failed (missing documents, incomplete sections, missing tasks)
+- `2` = Error (invalid feature slug, file system issues)

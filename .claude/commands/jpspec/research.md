@@ -10,6 +10,25 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
+## Output Artifacts
+
+All research artifacts will be written to standardized locations:
+
+| Artifact | Location | Description |
+|----------|----------|-------------|
+| Research Report | `./docs/research/<feature-slug>-research.md` | Comprehensive market, competitive, and technical research |
+| Business Validation | `./docs/research/<feature-slug>-validation.md` | Business viability assessment and recommendations |
+| Backlog Tasks | `backlog/tasks/<task-id>.md` | Research and validation tasks created via backlog CLI |
+
+## Feature Naming
+
+The `<feature-slug>` is derived from the feature name by:
+1. Converting to lowercase
+2. Replacing spaces with hyphens
+3. Removing special characters
+
+**Example**: "User Authentication System" → `user-authentication-system`
+
 ## Execution Instructions
 
 This command orchestrates comprehensive research and business validation using two specialized agents working sequentially.
@@ -378,3 +397,33 @@ After the research and business validation agents complete their work:
 **Research without actionable follow-up tasks provides no value. Every research effort must produce implementation direction.**
 
 **Note**: If research concludes with "No-Go" recommendation, create a documentation task to record the decision and rationale for future reference.
+
+## Completion Checklist
+
+Before marking this workflow step complete, verify:
+
+- [ ] Feature slug derived from feature name
+- [ ] Research report written to `./docs/research/<feature-slug>-research.md`
+- [ ] Business validation written to `./docs/research/<feature-slug>-validation.md`
+- [ ] Both reports contain all required sections
+- [ ] Research task created and marked Done in backlog
+- [ ] Business validation task created and marked Done in backlog
+- [ ] Follow-up implementation tasks created based on recommendations
+- [ ] Go/No-Go/Proceed-with-Caution decision clearly stated
+- [ ] Artifact verification passed
+- [ ] Transition validation passed (if applicable)
+
+## Transition Validation
+
+This command supports validation mode when invoked with `--validate` flag. In validation mode:
+- Verify research report exists at `./docs/research/<feature-slug>-research.md`
+- Verify validation report exists at `./docs/research/<feature-slug>-validation.md`
+- Confirm research report contains all required sections (Market Analysis, Competitive Landscape, Technical Feasibility, Industry Trends)
+- Confirm validation report contains business assessment and clear recommendation
+- Check that backlog tasks exist for research and validation
+- Validate that follow-up tasks were created based on recommendations
+
+**Exit codes**:
+- `0` = Validation passed
+- `1` = Validation failed (missing reports, incomplete sections, missing tasks)
+- `2` = Error (invalid feature slug, file system issues)

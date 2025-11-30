@@ -10,6 +10,29 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
+## Output Artifacts
+
+All operational artifacts will be written to standardized locations:
+
+| Artifact | Location | Description |
+|----------|----------|-------------|
+| CI/CD Workflows | `.github/workflows/<feature-slug>-*.yml` | GitHub Actions workflow definitions |
+| Kubernetes Manifests | `./k8s/<feature-slug>/` | Deployment, Service, ConfigMap, and other K8s resources |
+| Terraform/IaC | `./terraform/<feature-slug>/` | Infrastructure as Code definitions |
+| Monitoring Dashboards | `./observability/dashboards/<feature-slug>-dashboard.json` | Grafana dashboard definitions |
+| Alert Rules | `./observability/alerts/<feature-slug>-alerts.yml` | AlertManager/Prometheus alert rules |
+| Runbooks | `./docs/runbooks/<feature-slug>-*.md` | Operational runbooks for alerts and incidents |
+| SLO Definitions | `./observability/slo/<feature-slug>-slo.yml` | Service Level Objective definitions |
+
+## Feature Naming
+
+The `<feature-slug>` is derived from the feature name by:
+1. Converting to lowercase
+2. Replacing spaces with hyphens
+3. Removing special characters
+
+**Example**: "User Authentication System" → `user-authentication-system`
+
 ## Execution Instructions
 
 This command establishes comprehensive operational infrastructure using SRE best practices, focusing on reliability, automation, and observability. **All operational work is tracked as backlog tasks.**
@@ -406,3 +429,40 @@ Deliver comprehensive operational package with:
 - SLI/SLO definitions and monitoring
 - Security scanning integration
 - DR and backup procedures
+
+## Completion Checklist
+
+Before marking this workflow step complete, verify:
+
+- [ ] Feature slug derived from feature name
+- [ ] CI/CD workflows written to `.github/workflows/<feature-slug>-*.yml`
+- [ ] Kubernetes manifests written to `./k8s/<feature-slug>/`
+- [ ] Infrastructure code written to `./terraform/<feature-slug>/` (if applicable)
+- [ ] Monitoring dashboards created at `./observability/dashboards/<feature-slug>-dashboard.json`
+- [ ] Alert rules defined at `./observability/alerts/<feature-slug>-alerts.yml`
+- [ ] SLO definitions created at `./observability/slo/<feature-slug>-slo.yml`
+- [ ] Runbooks created for each alert in `./docs/runbooks/<feature-slug>-*.md`
+- [ ] CI/CD pipeline tested and passing
+- [ ] Kubernetes manifests validated (dry-run succeeded)
+- [ ] Observability stack deployed and functional
+- [ ] All operational backlog tasks marked Done
+- [ ] Artifact verification passed
+- [ ] Transition validation passed (if applicable)
+
+## Transition Validation
+
+This command supports validation mode when invoked with `--validate` flag. In validation mode:
+- Verify CI/CD workflows exist in `.github/workflows/` with feature slug
+- Verify Kubernetes manifests directory exists at `./k8s/<feature-slug>/`
+- Check that monitoring dashboards exist in `./observability/dashboards/`
+- Confirm alert rules exist in `./observability/alerts/`
+- Validate SLO definitions exist in `./observability/slo/`
+- Ensure runbooks exist for each defined alert
+- Run Kubernetes manifest validation (`kubectl apply --dry-run=client`)
+- Verify CI/CD pipeline syntax is valid
+- Check that all operational backlog tasks are marked Done
+
+**Exit codes**:
+- `0` = Validation passed
+- `1` = Validation failed (missing artifacts, invalid configs, incomplete tasks)
+- `2` = Error (invalid feature slug, file system issues)

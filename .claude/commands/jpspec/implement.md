@@ -10,6 +10,26 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
+## Output Artifacts
+
+All implementation artifacts will be written to standardized locations:
+
+| Artifact | Location | Description |
+|----------|----------|-------------|
+| Source Code | Project-specific paths | Implementation code in appropriate directories |
+| Test Files | Project-specific test paths | Unit, integration, and e2e tests |
+| AC Coverage Report | `./tests/ac-coverage.json` | Acceptance criteria coverage mapping |
+| Code Review Reports | `./docs/reviews/<feature-slug>-review-<timestamp>.md` | Code review feedback and resolution |
+
+## Feature Naming
+
+The `<feature-slug>` is derived from the feature name by:
+1. Converting to lowercase
+2. Replacing spaces with hyphens
+3. Removing special characters
+
+**Example**: "User Authentication System" → `user-authentication-system`
+
 ## Execution Instructions
 
 This command implements features using specialized engineering agents with integrated code review. **Engineers work exclusively from backlog tasks.**
@@ -606,3 +626,37 @@ Include specific, actionable suggestions with examples.
 - Code review reports with resolution status
 - Integration documentation
 - Deployment-ready artifacts
+
+## Completion Checklist
+
+Before marking this workflow step complete, verify:
+
+- [ ] Feature slug derived from feature name
+- [ ] All backlog task ACs checked and marked complete
+- [ ] Source code implemented in appropriate directories
+- [ ] Test files created with passing tests
+- [ ] AC coverage report generated at `./tests/ac-coverage.json`
+- [ ] Code review completed and documented at `./docs/reviews/<feature-slug>-review-<timestamp>.md`
+- [ ] All critical and high-priority review issues resolved
+- [ ] No unused imports or variables (linter passed)
+- [ ] Input validation implemented at all boundaries
+- [ ] Type annotations present on all public functions
+- [ ] All tests passing
+- [ ] Artifact verification passed
+- [ ] Transition validation passed (if applicable)
+
+## Transition Validation
+
+This command supports validation mode when invoked with `--validate` flag. In validation mode:
+- Verify AC coverage report exists at `./tests/ac-coverage.json`
+- Check that all backlog tasks referenced in coverage report are marked complete
+- Confirm code review report exists at `./docs/reviews/<feature-slug>-review-<timestamp>.md`
+- Validate that all critical review issues are resolved
+- Run linter to check for unused imports/variables
+- Run test suite to verify all tests pass
+- Check that coverage report maps tests to ACs correctly
+
+**Exit codes**:
+- `0` = Validation passed
+- `1` = Validation failed (missing coverage, failing tests, unresolved review issues)
+- `2` = Error (invalid feature slug, file system issues)

@@ -10,6 +10,23 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
+## Output Artifacts
+
+All assessment artifacts will be written to standardized locations:
+
+| Artifact | Location | Description |
+|----------|----------|-------------|
+| Assessment Report | `./docs/assess/<feature-slug>-assessment.md` | Feature complexity assessment with recommendation |
+
+## Feature Naming
+
+The `<feature-slug>` is derived from the feature name by:
+1. Converting to lowercase
+2. Replacing spaces with hyphens
+3. Removing special characters
+
+**Example**: "User Authentication System" → `user-authentication-system`
+
 ## Execution Instructions
 
 This command evaluates feature complexity to determine the appropriate development workflow. It assesses multiple dimensions and provides a clear recommendation: Full SDD, Spec-light, or Skip SDD.
@@ -395,3 +412,26 @@ Total: 27/32 (Complex)
 **When in doubt, err on the side of more planning** - it's easier to streamline a workflow than to add planning after issues arise.
 
 **Continuous improvement** - Regularly review assessment outcomes and adjust thresholds based on your team's experience.
+
+## Completion Checklist
+
+Before marking this workflow step complete, verify:
+
+- [ ] Feature slug derived from feature name
+- [ ] Assessment report written to `./docs/assess/<feature-slug>-assessment.md`
+- [ ] Artifact exists and is readable
+- [ ] Recommendation is clear (Skip SDD / Spec-Light / Full SDD)
+- [ ] Transition validation passed (if applicable)
+
+## Transition Validation
+
+This command supports validation mode when invoked with `--validate` flag. In validation mode:
+- Verify the assessment report exists at the expected location
+- Confirm the complexity score and recommendation are clearly stated
+- Check that all 8 assessment questions were answered
+- Validate the scoring logic matches the documented thresholds
+
+**Exit codes**:
+- `0` = Validation passed
+- `1` = Validation failed (missing artifacts, incomplete assessment)
+- `2` = Error (invalid feature slug, file system issues)

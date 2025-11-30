@@ -10,6 +10,24 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
+## Output Artifacts
+
+All specification artifacts will be written to standardized locations:
+
+| Artifact | Location | Description |
+|----------|----------|-------------|
+| Product Requirements Document (PRD) | `./docs/prd/<feature-slug>-prd.md` | Comprehensive PRD with all 10 sections |
+| Backlog Tasks | `backlog/tasks/<task-id>.md` | Implementation tasks created via backlog CLI |
+
+## Feature Naming
+
+The `<feature-slug>` is derived from the feature name by:
+1. Converting to lowercase
+2. Replacing spaces with hyphens
+3. Removing special characters
+
+**Example**: "User Authentication System" → `user-authentication-system`
+
 ## Execution Instructions
 
 This command creates comprehensive feature specifications using the PM Planner agent, integrating with backlog.md for task management.
@@ -254,3 +272,30 @@ backlog task list --plain | grep -i "<feature-keyword>"
 ```
 
 **Failure to create implementation tasks means the specification work is incomplete.**
+
+## Completion Checklist
+
+Before marking this workflow step complete, verify:
+
+- [ ] Feature slug derived from feature name
+- [ ] PRD written to `./docs/prd/<feature-slug>-prd.md`
+- [ ] PRD contains all 10 required sections
+- [ ] Implementation tasks created via backlog CLI
+- [ ] Task IDs listed in PRD section 6
+- [ ] All tasks have acceptance criteria (minimum 2 per task)
+- [ ] Artifact verification passed
+- [ ] Transition validation passed (if applicable)
+
+## Transition Validation
+
+This command supports validation mode when invoked with `--validate` flag. In validation mode:
+- Verify the PRD exists at `./docs/prd/<feature-slug>-prd.md`
+- Confirm all 10 PRD sections are present
+- Check that backlog tasks referenced in section 6 exist
+- Validate task IDs match actual backlog tasks
+- Ensure each task has at least 2 acceptance criteria
+
+**Exit codes**:
+- `0` = Validation passed
+- `1` = Validation failed (missing PRD, incomplete sections, missing tasks)
+- `2` = Error (invalid feature slug, file system issues)
