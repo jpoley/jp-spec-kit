@@ -291,6 +291,7 @@ Before marking this workflow step complete, verify:
 - [ ] Assessment report written to `./docs/assess/<feature-slug>-assessment.md`
 - [ ] Artifact exists and is readable
 - [ ] Recommendation is clear (Skip SDD / Spec-Light / Full SDD)
+- [ ] Artifact verification passed
 - [ ] Transition validation passed (if applicable)
 
 ## Transition Validation
