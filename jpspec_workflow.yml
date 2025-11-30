@@ -331,8 +331,10 @@ transitions:
     description: "QA, security, and documentation validated"
     input_artifacts:
       - type: "tests"
+        path: "./tests/"
         required: true
       - type: "ac_coverage"
+        path: "./tests/ac-coverage.json"
         required: true
     output_artifacts:
       - type: "qa_report"
