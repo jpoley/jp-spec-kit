@@ -76,7 +76,7 @@ class TransitionValidator:
     validation mode:
     - NONE: Always passes (immediate transition)
     - KEYWORD: Prompts user for exact keyword match
-    - PULL_REQUEST: Checks GitHub API for merged PR containing artifacts
+    - PULL_REQUEST: Uses GitHub CLI to check for merged PR containing artifacts
 
     All validation decisions are logged for audit trail.
 
