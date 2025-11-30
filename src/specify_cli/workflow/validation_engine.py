@@ -480,7 +480,7 @@ class TransitionValidator:
             logger.error(f"Failed to parse gh CLI output: {e}")
             return ValidationResult(
                 passed=False,
-                message=f"Failed to parse GitHub API response: {e}",
+                message=f"Failed to parse gh CLI output: {e}",
                 mode=ValidationMode.PULL_REQUEST,
                 details={"error": str(e)},
             )
