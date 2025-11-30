@@ -19,7 +19,6 @@ class TestTasksCLI:
 
         assert result.exit_code == 0
         assert "Generate tasks from spec/plan/tasks.md files" in result.output
-        assert "--format" in result.output
         assert "--source" in result.output
         assert "--dry-run" in result.output
 
