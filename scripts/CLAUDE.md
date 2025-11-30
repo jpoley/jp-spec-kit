@@ -48,22 +48,44 @@ Archives completed tasks and generates summary reports.
 - 2: No Done tasks to archive
 - 3: Partial failure
 
-## act (Local GitHub Actions)
+## Local CI with act
 
-Test GitHub Actions workflows locally:
+Run GitHub Actions workflows locally:
 
 ```bash
-# Install
-./scripts/bash/install-act.sh
+# Direct execution (default, no Docker needed)
+./scripts/bash/run-local-ci.sh
 
-# Usage
-act -l                    # List workflows
-act -j test               # Run test job
-act -j lint               # Run lint job
-act -n                    # Dry run
+# Using act (requires Docker)
+./scripts/bash/run-local-ci.sh --act
+
+# Run specific job
+./scripts/bash/run-local-ci.sh --act --job test
+
+# Specify workflow file
+./scripts/bash/run-local-ci.sh --act --job lint --workflow .github/workflows/ci.yml
+
+# List available jobs
+./scripts/bash/run-local-ci.sh --act --list
+
+# Show help
+./scripts/bash/run-local-ci.sh --help
 ```
 
-**Requirements:** Docker must be running.
+### act Limitations
+- **Docker required**: act runs workflows in Docker containers
+- **OIDC not supported**: Jobs using OIDC authentication will fail
+- **Secrets**: Use `.secrets` file or `-s` flag for secrets
+- **Platform compatibility**: Use `--container-architecture linux/amd64` on M1/M2 Macs
+- **Some actions unsupported**: Complex marketplace actions may not work
+
+### Troubleshooting
+- If act fails, the script automatically uses `--container-architecture linux/amd64`
+- Check Docker is running: `docker info`
+- For manual act usage: `act -l` (list jobs), `act -j <job-name>` (run job)
+- Install act manually: `./scripts/bash/install-act.sh`
+
+**Requirements:** Docker must be running for --act mode.
 
 ## Making Scripts Executable
 
