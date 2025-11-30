@@ -91,6 +91,5 @@ jobs:
         run: uv sync
 
       - name: Run security check (bandit)
-        run: |
-          uv pip install bandit
-          uv run bandit -r src/ -ll || true
+        continue-on-error: true
+        run: uv tool run bandit -r src/ -ll

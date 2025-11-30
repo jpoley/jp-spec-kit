@@ -70,10 +70,18 @@ while [[ $# -gt 0 ]]; do
             shift
             ;;
         --job)
+            if [ -z "$2" ] || [[ "$2" == --* ]]; then
+                echo -e "${RED}Error: --job requires a job name${NC}"
+                exit 1
+            fi
             SPECIFIC_JOB="$2"
             shift 2
             ;;
         --workflow)
+            if [ -z "$2" ] || [[ "$2" == --* ]]; then
+                echo -e "${RED}Error: --workflow requires a file path${NC}"
+                exit 1
+            fi
             WORKFLOW_FILE="$2"
             shift 2
             ;;
@@ -166,19 +174,20 @@ list_workflow_jobs() {
 # Function to run a specific act job
 run_act_job() {
     local job=$1
+    local result=0
     echo -e "${BLUE}========================================${NC}"
     echo -e "${BLUE}  Running job: $job${NC}"
     echo -e "${BLUE}========================================${NC}"
     echo ""
 
-    # Build act command
-    local act_cmd="act -j \"$job\" --container-architecture linux/amd64"
+    # Run with platform flag for compatibility (direct execution, no eval)
     if [ -n "$WORKFLOW_FILE" ]; then
-        act_cmd="$act_cmd -W \"$WORKFLOW_FILE\""
+        act -j "$job" --container-architecture linux/amd64 -W "$WORKFLOW_FILE" || result=$?
+    else
+        act -j "$job" --container-architecture linux/amd64 || result=$?
     fi
 
-    # Run with platform flag for compatibility
-    if eval "$act_cmd"; then
+    if [ $result -eq 0 ]; then
         print_success "Job '$job' completed successfully"
     else
         print_error "Job '$job' failed"
@@ -209,7 +218,14 @@ run_with_act() {
         echo -e "${BLUE}========================================${NC}"
         echo ""
 
-        if act --container-architecture linux/amd64; then
+        local result=0
+        if [ -n "$WORKFLOW_FILE" ]; then
+            act --container-architecture linux/amd64 -W "$WORKFLOW_FILE" || result=$?
+        else
+            act --container-architecture linux/amd64 || result=$?
+        fi
+
+        if [ $result -eq 0 ]; then
             print_success "All workflow jobs completed successfully"
         else
             print_warning "Some jobs failed - this may be expected"
