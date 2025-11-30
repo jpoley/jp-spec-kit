@@ -77,6 +77,12 @@ workflows:
     output_state: "Specified"
     optional: false
     creates_backlog_tasks: true
+    output_artifacts:
+      - type: "prd"
+        path: "./docs/prd/{feature}.md"
+        required: true
+        validation: "structural"  # Validates required sections
+        description: "Product Requirements Document with all required sections"
 
   # ---------------------------------------------------------------------------
   # /jpspec:research - Technical and Business Validation

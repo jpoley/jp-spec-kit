@@ -227,12 +227,29 @@ Please ensure the PRD is:
 - Ready for engineering implementation
 ```
 
-### Output
+### Output Location and Format
 
-The agent will produce:
-1. A comprehensive PRD with all 10 sections
-2. **Actual backlog tasks** created via CLI (task IDs listed in section 6)
-3. PRD references task IDs for full traceability
+The agent MUST write the PRD to the standard location: `./docs/prd/{feature}.md`
+
+Where `{feature}` is the feature name slug (e.g., `user-authentication`, `payment-processing`).
+
+**Example**: For feature "User Authentication", write to `./docs/prd/user-authentication.md`
+
+The PRD must follow the template structure defined in `templates/prd-template.md` and include:
+1. All required sections (Executive Summary, Problem Statement, User Stories, etc.)
+2. Numbered requirements (FR-001, NFR-001, SM-001, etc.)
+3. **Actual backlog tasks** created via CLI (task IDs listed in section 6)
+4. Full traceability from requirements to tasks
+
+### Validation Requirements
+
+Before the workflow can transition to "Specified" state, the PRD will be validated for:
+- ✅ File exists at `./docs/prd/{feature}.md`
+- ✅ All required sections are present
+- ✅ User stories have acceptance criteria
+- ✅ Functional requirements are numbered (FR-001, FR-002, etc.)
+- ✅ Success metrics are defined (SM-001, SM-002, etc.)
+- ✅ Minimal placeholder content (should be replaced with actual content)
 
 ### ⚠️ MANDATORY: Design→Implement Workflow
 
