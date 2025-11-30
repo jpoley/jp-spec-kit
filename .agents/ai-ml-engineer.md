@@ -1,7 +1,7 @@
 ---
 name: ai-ml-engineer
 description: Expert AI/ML engineer specializing in MLOps, model development, deployment, monitoring, and AI system integration with focus on production-ready machine learning
-tools: Glob, Grep, Read, Write, Edit, mcp__github__*, mcp__serena__*
+tools: Glob, Grep, Read, Write, Edit, mcp__github__*, mcp__context7__*, mcp__serena__*
 model: sonnet
 color: purple
 loop: inner

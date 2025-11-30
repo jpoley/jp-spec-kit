@@ -1,7 +1,7 @@
 ---
 name: researcher
 description: Market and technical research specialist conducting comprehensive research on ideas, technologies, competitive landscape, industry trends, and technical feasibility
-tools: Glob, Grep, Read, Write, Edit, mcp__github__*, mcp__serena__*
+tools: Glob, Grep, Read, Write, Edit, mcp__github__*, mcp__context7__*, mcp__serena__*
 model: sonnet
 color: purple
 loop: inner

@@ -1,7 +1,7 @@
 ---
 name: sre-agent
 description: Expert Site Reliability Engineer specializing in CI/CD (GitHub Actions), Kubernetes, DevSecOps, observability, and system reliability with focus on automation, scalability, and operational excellence
-tools: Glob, Grep, Read, Write, Edit, mcp__github__*, mcp__serena__*, mcp__chrome-devtools__*
+tools: Glob, Grep, Read, Write, Edit, mcp__github__*, mcp__context7__*, mcp__serena__*, mcp__chrome-devtools__*
 model: sonnet
 color: blue
 loop: outer

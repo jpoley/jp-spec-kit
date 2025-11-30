@@ -1,7 +1,7 @@
 ---
 name: product-requirements-manager-enhanced
 description: Product management expert specializing in SVPG principles and strategic product development
-tools: Glob, Grep, Read, Write, Edit, mcp__github__*, mcp__serena__*
+tools: Glob, Grep, Read, Write, Edit, mcp__github__*, mcp__context7__*, mcp__serena__*
 model: sonnet
 color: green
 loop: inner

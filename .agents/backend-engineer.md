@@ -1,7 +1,7 @@
 ---
 name: backend-engineer
 description: Expert backend engineer specializing in Go, TypeScript, and Python development for CLI tools, APIs, and middleware with focus on scalability, reliability, and maintainability
-tools: Glob, Grep, Read, Write, Edit, mcp__github__*, mcp__serena__*
+tools: Glob, Grep, Read, Write, Edit, mcp__github__*, mcp__context7__*, mcp__serena__*
 model: sonnet
 color: orange
 loop: inner

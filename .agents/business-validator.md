@@ -1,7 +1,7 @@
 ---
 name: business-validator
 description: Business viability assessment specialist providing realistic validation based on market potential, financial feasibility, operational constraints, and risk analysis
-tools: Glob, Grep, Read, Write, Edit, mcp__github__*, mcp__serena__*
+tools: Glob, Grep, Read, Write, Edit, mcp__github__*, mcp__context7__*, mcp__serena__*
 model: sonnet
 color: green
 loop: inner

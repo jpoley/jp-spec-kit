@@ -1,7 +1,7 @@
 ---
 name: backend-code-reviewer
 description: Expert backend code reviewer specializing in Go, TypeScript, and Python with focus on code quality, security, performance, scalability, and maintainability
-tools: Glob, Grep, Read, Write, Edit, mcp__github__*, mcp__serena__*, mcp__trivy__*, mcp__semgrep__*
+tools: Glob, Grep, Read, Write, Edit, mcp__github__*, mcp__context7__*, mcp__serena__*, mcp__trivy__*, mcp__semgrep__*
 model: sonnet
 color: red
 loop: inner

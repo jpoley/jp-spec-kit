@@ -8,9 +8,31 @@ This project uses Model Context Protocol (MCP) servers to extend Claude Code cap
 
 MCP servers are configured in `.mcp.json` at the project root. This file is checked into version control so all team members have access to the same tools.
 
-## Environment Variables
+## Environment Variables Required
 
-No additional environment variables are required for the base MCP configuration. All configured MCP servers work without API keys.
+Create a `.env` file in the project root with the following variables:
+
+```bash
+# Context7 - Required for up-to-date library documentation
+CONTEXT7_API_KEY=your_context7_api_key_here
+
+# Figma - Required for design file access (frontend agents)
+FIGMA_API_KEY=your_figma_api_key_here
+
+# PROJECT_ROOT is automatically set to current working directory
+```
+
+### Getting API Keys
+
+**Context7 API Key:**
+1. Visit: https://github.com/upstash/context7
+2. Follow the setup instructions to get your API key
+3. Add to `.env` file
+
+**Figma API Key:**
+1. Visit: https://www.figma.com/developers/api#access-tokens
+2. Generate a personal access token
+3. Add to `.env` file
 
 ## Installed MCP Servers
 
@@ -26,19 +48,30 @@ No additional environment variables are required for the base MCP configuration.
 - **Package**: `git+https://github.com/oraios/serena`
 - **Requirements**: Python with `uv` installed
 
+**3. Context7 (`mcp__context7__*`)**
+- **Purpose**: Up-to-date, version-specific library documentation
+- **Package**: `@upstash/context7-mcp`
+- **Requirements**: `CONTEXT7_API_KEY` environment variable
+
 ### Frontend-Specific MCPs
 
-**3. Playwright (`mcp__playwright-test__*`)**
+**4. Playwright (`mcp__playwright-test__*`)**
 - **Purpose**: Browser automation for testing and E2E workflows
 - **Package**: `@playwright/mcp`
 - **Agents**: frontend-engineer, frontend-code-reviewer, js-ts-expert-developer, js-ts-expert-developer-enhanced, playwright test agents
 
-**4. shadcn-ui (`mcp__shadcn-ui__*`)**
+**5. Figma (`mcp__figma__*`)**
+- **Purpose**: Figma API integration for design files and components
+- **Package**: `figma-developer-mcp`
+- **Requirements**: `FIGMA_API_KEY` environment variable
+- **Agents**: frontend-engineer, frontend-code-reviewer, js-ts-expert-developer, js-ts-expert-developer-enhanced
+
+**6. shadcn-ui (`mcp__shadcn-ui__*`)**
 - **Purpose**: shadcn/ui component library access and installation
 - **Package**: `@heilgar/shadcn-ui-mcp-server`
 - **Agents**: frontend-engineer, frontend-code-reviewer, js-ts-expert-developer, js-ts-expert-developer-enhanced
 
-**5. Chrome DevTools (`mcp__chrome-devtools__*`)**
+**7. Chrome DevTools (`mcp__chrome-devtools__*`)**
 - **Purpose**: Browser inspection, performance analysis, console logs, network monitoring, and UI testing via Chrome DevTools Protocol
 - **Package**: `chrome-devtools-mcp`
 - **Requirements**: Chrome browser installed, Node.js ≥20.19
@@ -53,12 +86,12 @@ No additional environment variables are required for the base MCP configuration.
 
 ### Security-Specific MCPs
 
-**6. Trivy (`mcp__trivy__*`)**
+**8. Trivy (`mcp__trivy__*`)**
 - **Purpose**: Container/IaC security scans and SBOM generation
 - **Package**: `@aquasecurity/trivy-mcp`
 - **Agents**: secure-by-design-engineer, all code reviewers, release-manager
 
-**7. Semgrep (`mcp__semgrep__*`)**
+**9. Semgrep (`mcp__semgrep__*`)**
 - **Purpose**: SAST (Static Application Security Testing) code scanning
 - **Package**: `@returntocorp/semgrep-mcp`
 - **Agents**: secure-by-design-engineer, all code reviewers
@@ -67,6 +100,7 @@ No additional environment variables are required for the base MCP configuration.
 
 ### All Agents (31 total)
 - `mcp__github__*` - GitHub API
+- `mcp__context7__*` - Documentation
 - `mcp__serena__*` - Code understanding
 
 ### Frontend Agents (4)
@@ -76,6 +110,7 @@ No additional environment variables are required for the base MCP configuration.
 - js-ts-expert-developer-enhanced
 
 **Additional Tools:**
+- `mcp__figma__*`
 - `mcp__shadcn-ui__*`
 - `mcp__playwright-test__*`
 - `mcp__chrome-devtools__*` (frontend-engineer, frontend-code-reviewer only)
@@ -172,6 +207,18 @@ The following capabilities do not have dedicated MCP servers and should be handl
 - **Agents Affected**: secure-by-design-engineer
 
 ## Troubleshooting
+
+### Context7 API Key Missing
+```
+Error: CONTEXT7_API_KEY environment variable not set
+Solution: Add CONTEXT7_API_KEY to .env file
+```
+
+### Figma API Key Missing
+```
+Error: FIGMA_API_KEY environment variable not set
+Solution: Add FIGMA_API_KEY to .env file (required for frontend agents)
+```
 
 ### Serena Installation Issues
 ```

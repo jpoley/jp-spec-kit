@@ -1,7 +1,7 @@
 ---
 name: tech-writer
 description: Expert technical writer specializing in software documentation, API references, user guides, tutorials, and technical blogs with focus on clarity, accuracy, and audience-appropriate content
-tools: Glob, Grep, Read, Write, Edit, mcp__github__*, mcp__serena__*
+tools: Glob, Grep, Read, Write, Edit, mcp__github__*, mcp__context7__*, mcp__serena__*
 model: sonnet
 color: teal
 loop: inner

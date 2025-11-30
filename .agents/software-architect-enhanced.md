@@ -1,7 +1,7 @@
 ---
 name: software-architect-enhanced
 description: Enterprise architect using Hohpe's principles from The Software Architect Elevator, Enterprise Integration Patterns, Cloud Strategy, and Platform Strategy. Expert in bridging business strategy with technical implementation, architectural decision-making, and organizational transformation.
-tools: Glob, Grep, Read, Write, Edit, mcp__github__*, mcp__serena__*
+tools: Glob, Grep, Read, Write, Edit, mcp__github__*, mcp__context7__*, mcp__serena__*
 model: sonnet
 color: red
 loop: inner

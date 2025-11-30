@@ -1,7 +1,7 @@
 ---
 name: release-manager
 description: Expert release manager responsible for validating code quality, coordinating releases, managing deployments, and ensuring production readiness with human approval checkpoints for critical decisions
-tools: Glob, Grep, Read, Write, Edit, mcp__github__*, mcp__serena__*, mcp__trivy__*
+tools: Glob, Grep, Read, Write, Edit, mcp__github__*, mcp__context7__*, mcp__serena__*, mcp__trivy__*
 model: sonnet
 color: green
 loop: outer

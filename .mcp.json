@@ -8,9 +8,17 @@
     },
     "serena": {
       "command": "uvx",
-      "args": ["--from", "git+https://github.com/oraios/serena", "serena-mcp-server", "--project", "/Users/jasonpoley/ps/jp-spec-kit"],
+      "args": ["--from", "git+https://github.com/oraios/serena", "serena-mcp-server", "--project", "${PROJECT_ROOT}"],
       "env": {},
       "description": "LSP-grade code understanding & safe semantic edits"
+    },
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"],
+      "env": {
+        "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}"
+      },
+      "description": "Up-to-date, version-specific library documentation"
     },
     "playwright-test": {
       "command": "npx",
@@ -29,6 +37,14 @@
       "args": ["-y", "@returntocorp/semgrep-mcp"],
       "env": {},
       "description": "SAST code scanning for security vulnerabilities"
+    },
+    "figma": {
+      "command": "npx",
+      "args": ["-y", "figma-developer-mcp"],
+      "env": {
+        "FIGMA_API_KEY": "${FIGMA_API_KEY}"
+      },
+      "description": "Figma API integration for design files and components"
     },
     "shadcn-ui": {
       "command": "npx",
@@ -50,6 +66,11 @@
     }
   },
   "_notes": {
+    "environment_variables": [
+      "CONTEXT7_API_KEY: Required for Context7 MCP server",
+      "FIGMA_API_KEY: Required for Figma MCP server",
+      "PROJECT_ROOT: Automatically set to current working directory for Serena"
+    ],
     "missing_mcps": [
       "DAST (Dynamic Application Security Testing): No specific MCP server found - consider using OWASP ZAP directly",
       "Binary Signing: No specific MCP server found - use cosign/sigstore CLI tools directly",

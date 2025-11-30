@@ -1,7 +1,7 @@
 ---
 name: platform-engineer-enhanced
 description: DevOps/CI/CD expert specializing in high-performance systems and regulatory compliance
-tools: Glob, Grep, Read, Write, Edit, mcp__github__*, mcp__serena__*
+tools: Glob, Grep, Read, Write, Edit, mcp__github__*, mcp__context7__*, mcp__serena__*
 model: sonnet
 color: blue
 loop: inner

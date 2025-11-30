@@ -35,9 +35,11 @@ flowchart TB
 
     subgraph MCP["MCP Servers"]
         github["github<br/>GitHub API"]
+        context7["context7<br/>Library Docs"]
         serena["serena<br/>LSP Code Intel"]
         trivy["trivy<br/>Security Scan"]
         semgrep["semgrep<br/>SAST"]
+        figma["figma<br/>Design Files"]
         shadcn["shadcn-ui<br/>UI Components"]
         playwright["playwright-test<br/>E2E Testing"]
         chrome["chrome-devtools<br/>Browser Debug"]
@@ -53,6 +55,7 @@ flowchart TB
 
     %% Core MCPs (all agents)
     PRM & SA & PE & RES & BV & FE & BE & AI & FCR & BCR & QG & SDE & TW & RM & SRE -.-> github
+    PRM & SA & PE & RES & BV & FE & BE & AI & FCR & BCR & QG & SDE & TW & RM & SRE -.-> context7
     PRM & SA & PE & RES & BV & FE & BE & AI & FCR & BCR & QG & SDE & TW & RM & SRE -.-> serena
 
     %% Security MCPs
@@ -60,6 +63,7 @@ flowchart TB
     FCR & BCR & SDE -.-> semgrep
 
     %% Frontend MCPs
+    FE & FCR -.-> figma
     FE & FCR -.-> shadcn
     FE & FCR -.-> playwright
     FE & FCR & QG & SRE -.-> chrome
@@ -71,46 +75,46 @@ flowchart TB
 
 | Agent | Description | MCP Servers |
 |-------|-------------|-------------|
-| **product-requirements-manager** | Product management using SVPG principles, outcomes over outputs | github, serena |
+| **product-requirements-manager** | Product management using SVPG principles, outcomes over outputs | github, context7, serena |
 
 ### `/jpspec:plan` - Architecture (Parallel Execution)
 
 | Agent | Description | MCP Servers |
 |-------|-------------|-------------|
-| **software-architect** | Enterprise architect using Hohpe's principles, Enterprise Integration Patterns | github, serena |
-| **platform-engineer** | DevOps/CI/CD expert, DORA metrics, NIST/SSDF compliance | github, serena |
+| **software-architect** | Enterprise architect using Hohpe's principles, Enterprise Integration Patterns | github, context7, serena |
+| **platform-engineer** | DevOps/CI/CD expert, DORA metrics, NIST/SSDF compliance | github, context7, serena |
 
 ### `/jpspec:research` - Research & Validation (Parallel Execution)
 
 | Agent | Description | MCP Servers |
 |-------|-------------|-------------|
-| **researcher** | Market research, competitive intelligence, technical feasibility | github, serena |
-| **business-validator** | Business viability, financial feasibility, TAM/SAM/SOM analysis | github, serena |
+| **researcher** | Market research, competitive intelligence, technical feasibility | github, context7, serena |
+| **business-validator** | Business viability, financial feasibility, TAM/SAM/SOM analysis | github, context7, serena |
 
 ### `/jpspec:implement` - Development
 
 | Agent | Description | MCP Servers |
 |-------|-------------|-------------|
-| **frontend-engineer** | React, React Native, TypeScript, performance, accessibility | github, serena, shadcn-ui, playwright-test, chrome-devtools |
-| **backend-engineer** | Go, TypeScript, Python, CLI tools, APIs, middleware | github, serena |
-| **ai-ml-engineer** | MLOps, model development, deployment, monitoring | github, serena |
-| **frontend-code-reviewer** | Frontend code review: quality, performance, accessibility, security | github, serena, trivy, semgrep, shadcn-ui, playwright-test, chrome-devtools |
-| **backend-code-reviewer** | Backend code review: security, performance, scalability | github, serena, trivy, semgrep |
+| **frontend-engineer** | React, React Native, TypeScript, performance, accessibility | github, context7, serena, figma, shadcn-ui, playwright-test, chrome-devtools |
+| **backend-engineer** | Go, TypeScript, Python, CLI tools, APIs, middleware | github, context7, serena |
+| **ai-ml-engineer** | MLOps, model development, deployment, monitoring | github, context7, serena |
+| **frontend-code-reviewer** | Frontend code review: quality, performance, accessibility, security | github, context7, serena, trivy, semgrep, figma, shadcn-ui, playwright-test, chrome-devtools |
+| **backend-code-reviewer** | Backend code review: security, performance, scalability | github, context7, serena, trivy, semgrep |
 
 ### `/jpspec:validate` - Quality Assurance
 
 | Agent | Description | MCP Servers |
 |-------|-------------|-------------|
-| **quality-guardian** | Risk analysis, quality assessment, critical evaluation | github, serena, chrome-devtools |
-| **secure-by-design-engineer** | Security analysis, threat modeling, compliance | github, serena, trivy, semgrep |
-| **tech-writer** | Documentation, API references, user guides, tutorials | github, serena |
-| **release-manager** | Release coordination, quality validation, deployment management | github, serena, trivy |
+| **quality-guardian** | Risk analysis, quality assessment, critical evaluation | github, context7, serena, chrome-devtools |
+| **secure-by-design-engineer** | Security analysis, threat modeling, compliance | github, context7, serena, trivy, semgrep |
+| **tech-writer** | Documentation, API references, user guides, tutorials | github, context7, serena |
+| **release-manager** | Release coordination, quality validation, deployment management | github, context7, serena, trivy |
 
 ### `/jpspec:operate` - Operations
 
 | Agent | Description | MCP Servers |
 |-------|-------------|-------------|
-| **sre-agent** | CI/CD (GitHub Actions), Kubernetes, DevSecOps, observability | github, serena, chrome-devtools |
+| **sre-agent** | CI/CD (GitHub Actions), Kubernetes, DevSecOps, observability | github, context7, serena, chrome-devtools |
 
 ## MCP Server Reference
 
@@ -121,6 +125,7 @@ These MCP servers are available to every agent:
 | Server | Description | Use Cases |
 |--------|-------------|-----------|
 | **github** | GitHub API integration | Repos, issues, PRs, code search, workflows |
+| **context7** | Up-to-date library documentation | Version-specific docs, API references |
 | **serena** | LSP-grade code understanding | Semantic code analysis, safe refactoring |
 
 ### Security Servers
@@ -134,6 +139,7 @@ These MCP servers are available to every agent:
 
 | Server | Description | Available To |
 |--------|-------------|--------------|
+| **figma** | Figma API for design files and components | frontend-engineer, frontend-code-reviewer |
 | **shadcn-ui** | shadcn/ui component library access | frontend-engineer, frontend-code-reviewer |
 | **playwright-test** | Browser automation for E2E testing | frontend-engineer, frontend-code-reviewer |
 | **chrome-devtools** | Chrome DevTools Protocol for debugging | frontend-engineer, frontend-code-reviewer, quality-guardian, sre-agent |
@@ -210,7 +216,7 @@ MCP servers are configured in `.mcp.json` at the project root. Each agent's avai
 ---
 name: frontend-engineer
 description: Expert frontend engineer specializing in React and mobile development
-tools: Glob, Grep, Read, Write, Edit, mcp__github__*, mcp__serena__*, mcp__shadcn-ui__*, mcp__playwright-test__*, mcp__chrome-devtools__*
+tools: Glob, Grep, Read, Write, Edit, mcp__github__*, mcp__context7__*, mcp__serena__*, mcp__figma__*, mcp__shadcn-ui__*, mcp__playwright-test__*, mcp__chrome-devtools__*
 model: sonnet
 color: blue
 ---
@@ -225,6 +231,10 @@ color: blue
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-github"]
     },
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"]
+    },
     "serena": {
       "command": "uvx",
       "args": ["--from", "git+https://github.com/oraios/serena", "serena-mcp-server"]
@@ -235,23 +245,23 @@ color: blue
 
 ## Quick Reference Matrix
 
-| Agent | github | serena | trivy | semgrep | shadcn | playwright | chrome |
-|-------|:------:|:------:|:-----:|:-------:|:------:|:----------:|:------:|
-| product-requirements-manager | ✓ | ✓ | | | | | |
-| software-architect | ✓ | ✓ | | | | | |
-| platform-engineer | ✓ | ✓ | | | | | |
-| researcher | ✓ | ✓ | | | | | |
-| business-validator | ✓ | ✓ | | | | | |
-| frontend-engineer | ✓ | ✓ | | | ✓ | ✓ | ✓ |
-| backend-engineer | ✓ | ✓ | | | | | |
-| ai-ml-engineer | ✓ | ✓ | | | | | |
-| frontend-code-reviewer | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| backend-code-reviewer | ✓ | ✓ | ✓ | ✓ | | | |
-| quality-guardian | ✓ | ✓ | | | | | ✓ |
-| secure-by-design-engineer | ✓ | ✓ | ✓ | ✓ | | | |
-| tech-writer | ✓ | ✓ | | | | | |
-| release-manager | ✓ | ✓ | ✓ | | | | |
-| sre-agent | ✓ | ✓ | | | | | ✓ |
+| Agent | github | context7 | serena | trivy | semgrep | figma | shadcn | playwright | chrome |
+|-------|:------:|:--------:|:------:|:-----:|:-------:|:-----:|:------:|:----------:|:------:|
+| product-requirements-manager | ✓ | ✓ | ✓ | | | | | | |
+| software-architect | ✓ | ✓ | ✓ | | | | | | |
+| platform-engineer | ✓ | ✓ | ✓ | | | | | | |
+| researcher | ✓ | ✓ | ✓ | | | | | | |
+| business-validator | ✓ | ✓ | ✓ | | | | | | |
+| frontend-engineer | ✓ | ✓ | ✓ | | | ✓ | ✓ | ✓ | ✓ |
+| backend-engineer | ✓ | ✓ | ✓ | | | | | | |
+| ai-ml-engineer | ✓ | ✓ | ✓ | | | | | | |
+| frontend-code-reviewer | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| backend-code-reviewer | ✓ | ✓ | ✓ | ✓ | ✓ | | | | |
+| quality-guardian | ✓ | ✓ | ✓ | | | | | | ✓ |
+| secure-by-design-engineer | ✓ | ✓ | ✓ | ✓ | ✓ | | | | |
+| tech-writer | ✓ | ✓ | ✓ | | | | | | |
+| release-manager | ✓ | ✓ | ✓ | ✓ | | | | | |
+| sre-agent | ✓ | ✓ | ✓ | | | | | | ✓ |
 
 ## See Also
 
