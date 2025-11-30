@@ -2550,8 +2550,10 @@ def dogfood(
 
     # Get list of template command files
     speckit_files = list(templates_dir.glob("*.md"))
-    jpspec_files = list(jpspec_templates_dir.glob("*.md")) if jpspec_templates_dir.exists() else []
-    
+    jpspec_files = (
+        list(jpspec_templates_dir.glob("*.md")) if jpspec_templates_dir.exists() else []
+    )
+
     if not speckit_files and not jpspec_files:
         console.print(
             f"[yellow]Warning:[/yellow] No command templates found in {templates_dir}"
@@ -2568,7 +2570,7 @@ def dogfood(
 
     # === Claude Code Setup ===
     tracker.add("claude", "Set up Claude Code commands")
-    
+
     speckit_commands_dir = project_path / ".claude" / "commands" / "speckit"
     speckit_commands_dir.mkdir(parents=True, exist_ok=True)
 
@@ -2600,11 +2602,13 @@ def dogfood(
         tracker.fail("claude", f"{len(claude_errors)} errors")
         all_errors.extend(claude_errors)
     else:
-        tracker.complete("claude", f"{claude_created} created, {claude_skipped} skipped")
+        tracker.complete(
+            "claude", f"{claude_created} created, {claude_skipped} skipped"
+        )
 
     # === VS Code Copilot Setup ===
     tracker.add("copilot", "Set up VS Code Copilot prompts")
-    
+
     prompts_dir = project_path / ".github" / "prompts"
     prompts_dir.mkdir(parents=True, exist_ok=True)
 
@@ -2662,15 +2666,17 @@ def dogfood(
         tracker.fail("copilot", f"{len(copilot_errors)} errors")
         all_errors.extend(copilot_errors)
     else:
-        tracker.complete("copilot", f"{copilot_created} created, {copilot_skipped} skipped")
+        tracker.complete(
+            "copilot", f"{copilot_created} created, {copilot_skipped} skipped"
+        )
 
     # === VS Code Settings Setup ===
     tracker.add("vscode", "Configure VS Code settings")
-    
+
     vscode_dir = project_path / ".vscode"
     vscode_dir.mkdir(parents=True, exist_ok=True)
     settings_file = vscode_dir / "settings.json"
-    
+
     try:
         # Read existing settings or start fresh
         existing_settings = {}
@@ -2678,23 +2684,26 @@ def dogfood(
             try:
                 with open(settings_file, "r") as f:
                     import json
+
                     content = f.read()
                     # Handle jsonc (with comments) by stripping single-line comments
                     import re
-                    content = re.sub(r'^\s*//.*$', '', content, flags=re.MULTILINE)
+
+                    content = re.sub(r"^\s*//.*$", "", content, flags=re.MULTILINE)
                     existing_settings = json.loads(content) if content.strip() else {}
             except (json.JSONDecodeError, ValueError):
                 existing_settings = {}
-        
+
         # Merge with required settings for Copilot prompt files
         existing_settings["chat.promptFiles"] = True
-        
+
         # Write updated settings
         with open(settings_file, "w") as f:
             import json
+
             json.dump(existing_settings, f, indent=4)
             f.write("\n")
-        
+
         tracker.complete("vscode", "chat.promptFiles enabled")
     except OSError as e:
         tracker.fail("vscode", str(e))
@@ -2705,7 +2714,7 @@ def dogfood(
 
     valid = 0
     broken = 0
-    
+
     # Check Claude symlinks
     for symlink_path in speckit_commands_dir.glob("*.md"):
         if symlink_path.is_symlink():
@@ -2713,7 +2722,7 @@ def dogfood(
                 valid += 1
             else:
                 broken += 1
-    
+
     # Check Copilot symlinks
     for symlink_path in prompts_dir.glob("*.prompt.md"):
         if symlink_path.is_symlink():
@@ -2733,18 +2742,24 @@ def dogfood(
     console.print(tracker.render())
 
     console.print("\n[bold green]Dogfood setup complete![/bold green]")
-    
-    console.print("\n[bold]Claude Code[/bold] - The following /speckit:* commands are now available:")
+
+    console.print(
+        "\n[bold]Claude Code[/bold] - The following /speckit:* commands are now available:"
+    )
     for template_file in sorted(speckit_files):
         console.print(f"  [cyan]/speckit:{template_file.stem}[/cyan]")
-    
-    console.print("\n[bold]VS Code Copilot[/bold] - The following prompts are now available:")
+
+    console.print(
+        "\n[bold]VS Code Copilot[/bold] - The following prompts are now available:"
+    )
     for template_file in sorted(speckit_files):
         console.print(f"  [cyan]/speckit.{template_file.stem}[/cyan]")
     for template_file in sorted(jpspec_files):
         console.print(f"  [cyan]/jpspec.{template_file.stem}[/cyan]")
-    
-    console.print("\n[dim]Note: Restart your AI assistant to pick up the new commands.[/dim]")
+
+    console.print(
+        "\n[dim]Note: Restart your AI assistant to pick up the new commands.[/dim]"
+    )
 
     if all_errors:
         console.print("\n[yellow]Warning:[/yellow] Some operations failed:")
@@ -3651,6 +3666,85 @@ def quality(
                 f"[green]Quality check passed: {result.overall_score:.0f} >= {effective_threshold}[/green]"
             )
             raise typer.Exit(0)
+
+
+@app.command()
+def gate(
+    threshold: int = typer.Option(
+        None, "--threshold", help="Override minimum quality score (default: 70)"
+    ),
+    force: bool = typer.Option(
+        False, "--force", help="Bypass gate even if quality check fails"
+    ),
+):
+    """Pre-implementation quality gate.
+
+    Validates spec quality before implementation begins.
+    Exit codes: 0=passed, 1=failed, 2=error
+
+    This command is designed to be run before starting implementation
+    (e.g., in CI/CD pipelines or as part of /jpspec:implement workflow).
+
+    Example usage:
+        specify gate                    # Check with default threshold (70)
+        specify gate --threshold 80     # Custom threshold
+        specify gate --force            # Bypass failed gate (not recommended)
+    """
+    from pathlib import Path
+    from specify_cli.quality import QualityScorer, QualityConfig
+
+    project_root = Path.cwd()
+    spec_path = project_root / ".specify" / "spec.md"
+
+    if not spec_path.exists():
+        console.print("[red]Error:[/red] No spec.md found at .specify/spec.md")
+        raise typer.Exit(2)
+
+    # Load config and override threshold if provided
+    config = QualityConfig.find_config(project_root / ".specify")
+    min_threshold = threshold if threshold is not None else config.passing_threshold
+
+    console.print("🔍 Running pre-implementation quality gate...\n")
+
+    # Run quality assessment
+    try:
+        scorer = QualityScorer(config)
+        result = scorer.score_spec(spec_path)
+    except Exception as e:
+        console.print(f"[red]Error during quality assessment: {e}[/red]")
+        raise typer.Exit(2)
+
+    overall_score = result.overall_score
+    passed = overall_score >= min_threshold
+
+    # Display result
+    if passed:
+        console.print(
+            f"Quality Score: [green]{overall_score:.0f}/100[/green] ✅ PASSED\n"
+        )
+        console.print("[green]Proceeding with implementation...[/green]")
+        raise typer.Exit(0)
+    else:
+        console.print(
+            f"Quality Score: [red]{overall_score:.0f}/100[/red] ❌ FAILED (minimum: {min_threshold})\n"
+        )
+
+        # Show top 5 recommendations
+        recommendations = result.get_recommendations()
+        if recommendations:
+            console.print("[yellow]Recommendations:[/yellow]")
+            for rec in recommendations[:5]:
+                console.print(f"  • {rec}")
+            console.print()
+
+        if force:
+            console.print(
+                "[yellow]⚠️  Bypassing gate with --force (not recommended)[/yellow]"
+            )
+            raise typer.Exit(0)
+        else:
+            console.print("[dim]Run with --force to bypass (not recommended)[/dim]")
+            raise typer.Exit(1)
 
 
 @app.command()

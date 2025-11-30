@@ -45,7 +45,61 @@ tasks manually using:
 Then re-run /jpspec:implement
 ```
 
-**If tasks ARE found, proceed to Phase 1.**
+**If tasks ARE found, proceed to Phase 0.**
+
+### Phase 0: Quality Gate (MANDATORY)
+
+**⚠️ CRITICAL: Spec quality must pass before implementation begins.**
+
+Before starting implementation, you MUST run the quality gate:
+
+```bash
+# Run quality gate on spec.md
+specify gate
+
+# Alternative: Override threshold if needed
+specify gate --threshold 60
+
+# Emergency bypass (NOT RECOMMENDED - use only with explicit user approval)
+specify gate --force
+```
+
+**Quality Gate Exit Codes:**
+- `0` = PASSED - Proceed to Phase 1
+- `1` = FAILED - Spec quality below threshold
+- `2` = ERROR - Missing spec.md or validation error
+
+**If gate PASSES (exit code 0):**
+```
+✅ Quality gate passed
+Proceeding with implementation...
+```
+
+**If gate FAILS (exit code 1):**
+```
+❌ Quality gate failed: Spec quality is X/100 (minimum: 70)
+
+Recommendations:
+  • Add missing section: ## Description
+  • Add missing section: ## User Story
+  • Reduce vague terms (currently: Y instances)
+  • Add measurable acceptance criteria
+
+Action Required:
+1. Improve spec quality using recommendations
+2. Re-run: specify quality .specify/spec.md
+3. When quality ≥70, re-run: /jpspec:implement
+
+OR (not recommended without user approval):
+  specify gate --force
+```
+
+**--force Bypass:**
+- Only use with explicit user approval
+- Warns that bypassing quality checks may lead to unclear requirements
+- Logs the bypass decision
+
+**Proceed to Phase 1 ONLY if quality gate passes or user explicitly approves --force bypass.**
 
 ### Phase 1: Implementation (Parallel Execution)
 

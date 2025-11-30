@@ -4,7 +4,7 @@ title: Spec Quality Metrics Command
 status: To Do
 assignee: []
 created_date: '2025-11-27 21:54'
-updated_date: '2025-11-29 05:38'
+updated_date: '2025-11-30 16:53'
 labels:
   - specify-cli
   - feature
@@ -29,5 +29,11 @@ Add 'specify quality' command for automated spec assessment. Measures: Completen
 - [ ] #6 Implement ambiguity marker detection
 - [ ] #7 Create rich output format (table with scores + recommendations)
 - [ ] #8 Add customizable thresholds via .specify/quality-config.json
-- [ ] #9 Integrate with pre-implementation gates
+- [x] #9 Integrate with pre-implementation gates
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+AC #9: Implemented specify gate command with exit codes 0/1/2. Integrated into /jpspec:implement as Phase 0 (mandatory quality gate before implementation).
+<!-- SECTION:NOTES:END -->
