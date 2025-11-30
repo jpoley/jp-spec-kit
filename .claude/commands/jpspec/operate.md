@@ -406,3 +406,31 @@ Deliver comprehensive operational package with:
 - SLI/SLO definitions and monitoring
 - Security scanning integration
 - DR and backup procedures
+
+### Output Artifacts
+
+| Artifact | Location | Required |
+|----------|----------|----------|
+| CI/CD Workflows | `./.github/workflows/` | Yes |
+| Kubernetes Manifests | `./k8s/` or `./deploy/` | Yes |
+| Helm Charts | `./charts/` | Optional |
+| Terraform/IaC | `./terraform/` or `./infra/` | Optional |
+| Observability Config | `./observability/` | Yes |
+| Runbooks | `./docs/runbooks/` | Yes |
+| SLO Definitions | `./docs/slo/{feature}-slo.md` | Yes |
+| Operational Tasks | `./backlog/tasks/task-*.md` | Yes |
+
+**Feature Name Derivation:**
+- Derive `{feature}` slug from user input or application name
+- Convert to lowercase, use hyphens instead of spaces
+- Example: "User Service" → "user-service"
+
+**Completion Checklist:**
+Before completing this workflow, verify:
+- [ ] CI/CD pipeline workflows exist in `./.github/workflows/`
+- [ ] Kubernetes manifests exist in `./k8s/` or `./deploy/`
+- [ ] At least one runbook exists in `./docs/runbooks/`
+- [ ] SLO definitions documented in `./docs/slo/`
+- [ ] Observability configuration complete (metrics, logs, traces)
+- [ ] All operational tasks created and tracked in backlog
+- [ ] Directories created as needed (`.github/workflows/`, `k8s/`, `docs/runbooks/`, etc.)

@@ -456,3 +456,27 @@ Deliver release readiness report with clear go/no-go recommendation and human ap
 - Release readiness assessment
 - **Human approval for production release**
 - Deployment plan and runbooks
+
+### Output Artifacts
+
+| Artifact | Location | Required |
+|----------|----------|----------|
+| QA Test Report | `./docs/qa/{feature}-qa-report.md` | Yes |
+| Security Assessment | `./docs/security/{feature}-security.md` | Yes |
+| Documentation | `./docs/` (API docs, guides, etc.) | Yes |
+| Release Readiness Report | `./docs/release/{feature}-release-readiness.md` | Yes |
+| Updated Backlog Tasks | `./backlog/tasks/task-*.md` | Yes |
+
+**Feature Name Derivation:**
+- Derive `{feature}` slug from user input or backlog task context
+- Convert to lowercase, use hyphens instead of spaces
+- Example: "Payment Processing" → "payment-processing"
+
+**Completion Checklist:**
+Before completing this workflow, verify:
+- [ ] QA report exists at `./docs/qa/{feature}-qa-report.md`
+- [ ] Security report exists at `./docs/security/{feature}-security.md`
+- [ ] All validation backlog tasks updated with findings
+- [ ] All critical/high severity issues documented
+- [ ] Human approval obtained for production release (if applicable)
+- [ ] Directories `./docs/qa/`, `./docs/security/`, `./docs/release/` exist (create if needed)
