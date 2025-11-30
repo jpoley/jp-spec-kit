@@ -8,8 +8,14 @@ Key components:
 - WorkflowValidator: Semantic validation of workflow configuration
 - TransitionSchema: Define input/output artifacts and validation modes
 - ValidationMode: Transition gate types (NONE, KEYWORD, PULL_REQUEST)
+- ADRValidator: Validate ADR artifacts for transition gates
 """
 
+from specify_cli.workflow.adr_validator import (
+    ADRValidationResult,
+    ADRValidator,
+    validate_adr_for_transition,
+)
 from specify_cli.workflow.config import WorkflowConfig
 from specify_cli.workflow.exceptions import (
     WorkflowConfigError,
@@ -58,6 +64,10 @@ __all__ = [
     "get_transitions_from_state",
     "parse_validation_mode",
     "validate_transition_schema",
+    # ADR Validation
+    "ADRValidator",
+    "ADRValidationResult",
+    "validate_adr_for_transition",
     # Validation
     "ValidationSeverity",
     "ValidationIssue",
