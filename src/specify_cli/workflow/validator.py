@@ -151,7 +151,7 @@ class WorkflowValidator:
     The validator is designed for defensive coding:
     - Handles None/missing values gracefully
     - Uses .get() with defaults throughout
-    - Catches exceptions in validation methods
+    - Uses defensive type checking and None-safe operations throughout
     - Provides detailed context in error messages
 
     Example:
@@ -220,7 +220,7 @@ class WorkflowValidator:
     INITIAL_STATE = "To Do"
 
     # Valid terminal/end states for workflows
-    TERMINAL_STATES: set[str] = {"Done", "Deployed"}
+    TERMINAL_STATES: set[str] = {"Done", "Deployed", "Cancelled", "Archived"}
 
     def __init__(self, config_data: dict[str, Any] | None = None):
         """Initialize validator with workflow configuration data.
@@ -234,6 +234,9 @@ class WorkflowValidator:
 
         self._data = config_data
 
+        # Track issues found during initialization
+        self._init_issues: list[ValidationIssue] = []
+
         # Extract and normalize states to a set
         states_raw = config_data.get("states", [])
         if isinstance(states_raw, list):
@@ -242,8 +245,29 @@ class WorkflowValidator:
             for state in states_raw:
                 if isinstance(state, str):
                     self._states.add(state)
-                elif isinstance(state, dict) and "name" in state:
-                    self._states.add(state["name"])
+                elif isinstance(state, dict):
+                    if "name" not in state:
+                        self._init_issues.append(
+                            ValidationIssue(
+                                severity=ValidationSeverity.WARNING,
+                                code="STATE_MISSING_NAME",
+                                message="State object missing 'name' key and was ignored.",
+                                context={"state": state},
+                            )
+                        )
+                        continue
+                    name = state["name"]
+                    if not isinstance(name, str):
+                        self._init_issues.append(
+                            ValidationIssue(
+                                severity=ValidationSeverity.WARNING,
+                                code="STATE_NAME_NOT_STRING",
+                                message="State 'name' value is not a string and was ignored.",
+                                context={"state": state},
+                            )
+                        )
+                        continue
+                    self._states.add(name)
         else:
             self._states = set()
 
@@ -278,6 +302,10 @@ class WorkflowValidator:
             ValidationResult containing all errors and warnings found
         """
         result = ValidationResult()
+
+        # Include any issues found during initialization
+        for issue in self._init_issues:
+            result.issues.append(issue)
 
         # Run all checks - each method adds issues to result
         self._check_states_defined(result)

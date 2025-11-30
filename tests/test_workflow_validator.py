@@ -783,3 +783,67 @@ class TestWorkflowValidatorConstants:
     def test_terminal_states_include_deployed(self):
         """TERMINAL_STATES includes 'Deployed'."""
         assert "Deployed" in WorkflowValidator.TERMINAL_STATES
+
+    def test_terminal_states_include_cancelled(self):
+        """TERMINAL_STATES includes 'Cancelled'."""
+        assert "Cancelled" in WorkflowValidator.TERMINAL_STATES
+
+    def test_terminal_states_include_archived(self):
+        """TERMINAL_STATES includes 'Archived'."""
+        assert "Archived" in WorkflowValidator.TERMINAL_STATES
+
+
+class TestWorkflowValidatorStateExtraction:
+    """Tests for state extraction with validation warnings."""
+
+    def test_state_object_missing_name_warning(self):
+        """State object without 'name' key produces warning."""
+        config = {
+            "states": [
+                "To Do",
+                {"description": "Missing name key"},  # No 'name' key
+                "Done",
+            ],
+            "workflows": {},
+            "transitions": [{"from": "To Do", "to": "Done"}],
+        }
+        result = WorkflowValidator(config).validate()
+        # Should still be valid (warning not error)
+        assert result.is_valid
+        warning_codes = [w.code for w in result.warnings]
+        assert "STATE_MISSING_NAME" in warning_codes
+
+    def test_state_name_not_string_warning(self):
+        """State with non-string 'name' value produces warning."""
+        config = {
+            "states": [
+                "To Do",
+                {"name": 123},  # name is int, not string
+                "Done",
+            ],
+            "workflows": {},
+            "transitions": [{"from": "To Do", "to": "Done"}],
+        }
+        result = WorkflowValidator(config).validate()
+        # Should still be valid (warning not error)
+        assert result.is_valid
+        warning_codes = [w.code for w in result.warnings]
+        assert "STATE_NAME_NOT_STRING" in warning_codes
+
+    def test_valid_state_object_no_warning(self):
+        """Valid state object with 'name' key produces no warning."""
+        config = {
+            "states": [
+                "To Do",
+                {"name": "In Progress", "description": "Working on it"},
+                "Done",
+            ],
+            "workflows": {},
+            "transitions": [
+                {"from": "To Do", "to": "In Progress"},
+                {"from": "In Progress", "to": "Done"},
+            ],
+        }
+        result = WorkflowValidator(config).validate()
+        state_warnings = [w for w in result.warnings if w.code.startswith("STATE_")]
+        assert len(state_warnings) == 0
