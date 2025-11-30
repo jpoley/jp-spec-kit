@@ -69,9 +69,10 @@ class TestStates:
     """Test the states configuration."""
 
     def test_has_all_required_states(self, workflow_config: dict[str, Any]) -> None:
-        """Verify all 8 required states are defined."""
+        """Verify all 9 required states are defined."""
         expected_states = [
             "To Do",
+            "Assessed",
             "Specified",
             "Researched",
             "Planned",
@@ -81,7 +82,7 @@ class TestStates:
             "Done",
         ]
         states = workflow_config["states"]
-        assert len(states) == 8, f"Expected 8 states, got {len(states)}"
+        assert len(states) == 9, f"Expected 9 states, got {len(states)}"
         for state in expected_states:
             assert state in states, f"Missing state: {state}"
 
@@ -105,8 +106,9 @@ class TestWorkflows:
     """Test the workflows configuration."""
 
     def test_has_all_six_workflows(self, workflow_config: dict[str, Any]) -> None:
-        """Verify all 6 /jpspec workflows are defined."""
+        """Verify all 7 /jpspec workflows are defined."""
         expected_workflows = [
+            "assess",
             "specify",
             "research",
             "plan",
@@ -115,8 +117,8 @@ class TestWorkflows:
             "operate",
         ]
         workflows = workflow_config["workflows"]
-        assert len(workflows) >= 6, (
-            f"Expected at least 6 workflows, got {len(workflows)}"
+        assert len(workflows) >= 7, (
+            f"Expected at least 7 workflows, got {len(workflows)}"
         )
         for workflow in expected_workflows:
             assert workflow in workflows, f"Missing workflow: {workflow}"
@@ -263,9 +265,12 @@ class TestTransitions:
             adj[t["from"]].append(t["to"])
 
         # Verify primary path exists
-        # To Do -> Specified -> (Researched or Planned) -> Planned -> In Implementation
-        # -> Validated -> Deployed -> Done
-        assert "Specified" in adj["To Do"], "No transition from 'To Do' to 'Specified'"
+        # To Do -> Assessed -> Specified -> (Researched or Planned) -> Planned
+        # -> In Implementation -> Validated -> Deployed -> Done
+        assert "Assessed" in adj["To Do"], "No transition from 'To Do' to 'Assessed'"
+        assert "Specified" in adj["Assessed"], (
+            "No transition from 'Assessed' to 'Specified'"
+        )
         # Specified can go to Researched or Planned
         assert "Researched" in adj["Specified"] or "Planned" in adj["Specified"], (
             "No transition from 'Specified'"

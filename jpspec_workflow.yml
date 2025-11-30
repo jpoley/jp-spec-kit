@@ -30,6 +30,7 @@ version: "1.0"
 #
 # State Descriptions:
 #   - To Do: Initial state - work has not started
+#   - Assessed: SDD workflow suitability evaluated via /jpspec:assess
 #   - Specified: Requirements captured via /jpspec:specify
 #   - Researched: Technical and business research completed via /jpspec:research
 #   - Planned: Architecture and infrastructure planned via /jpspec:plan
@@ -40,6 +41,7 @@ version: "1.0"
 
 states:
   - "To Do"
+  - "Assessed"
   - "Specified"
   - "Researched"
   - "Planned"
@@ -55,6 +57,29 @@ states:
 # the actual implementations in .claude/commands/jpspec/*.md
 
 workflows:
+  # ---------------------------------------------------------------------------
+  # /jpspec:assess - SDD Workflow Suitability Assessment
+  # ---------------------------------------------------------------------------
+  # Evaluates if full SDD workflow, spec-light mode, or skip-SDD is appropriate.
+  # Assesses complexity, risk, and architecture impact to recommend workflow path.
+  assess:
+    command: "/jpspec:assess"
+    description: "Evaluate SDD workflow suitability and complexity assessment"
+    agents:
+      - name: "workflow-assessor"
+        identity: "@workflow-assessor"
+        description: "SDD Workflow Assessor for complexity and risk evaluation"
+        responsibilities:
+          - "Complexity analysis (simple, medium, complex)"
+          - "Risk assessment and architecture impact evaluation"
+          - "SDD workflow path recommendation (Full/Light/Skip)"
+          - "Assessment report generation"
+    input_states:
+      - "To Do"
+    output_state: "Assessed"
+    optional: false
+    creates_backlog_tasks: false
+
   # ---------------------------------------------------------------------------
   # /jpspec:specify - Requirements and Specification Creation
   # ---------------------------------------------------------------------------
@@ -73,7 +98,7 @@ workflows:
           - "Conduct DVF+V risk assessment (Desirability, Usability, Feasibility, Viability)"
           - "Create implementation tasks in backlog via CLI"
     input_states:
-      - "To Do"
+      - "Assessed"
     output_state: "Specified"
     optional: false
     creates_backlog_tasks: true
@@ -283,75 +308,214 @@ workflows:
 # ==============================================================================
 # Valid state transitions in the workflow state machine.
 # Forward transitions via workflows, backward transitions for rework/rollback.
+#
+# Transition Artifact Definitions:
+# Each transition includes:
+#   - input_artifacts: Required artifacts that must exist before transition
+#   - output_artifacts: Artifacts produced by the workflow
+#   - validation: Gate mode (NONE | KEYWORD["..."] | PULL_REQUEST)
+#
+# Artifact Path Variables:
+#   - {feature}: Feature name slug (e.g., "user-authentication")
+#   - {NNN}: Zero-padded number (e.g., "001", "002", "003")
+#   - {slug}: Title slug derived from feature name
+#
+# Validation Modes:
+#   - NONE: No gate - transition proceeds automatically after artifacts created
+#   - KEYWORD["<string>"]: User must type exact keyword to proceed
+#   - PULL_REQUEST: Transition blocked until PR containing artifact is merged
 
 transitions:
   # Primary forward path
-  - from: "To Do"
+  - name: "assess"
+    from: "To Do"
+    to: "Assessed"
+    via: "assess"
+    description: "SDD workflow suitability assessed"
+    input_artifacts: []
+    output_artifacts:
+      - type: "assessment_report"
+        path: "./docs/assess/{feature}-assessment.md"
+    validation: "NONE"
+
+  - name: "specify"
+    from: "Assessed"
     to: "Specified"
     via: "specify"
     description: "Requirements captured and documented"
+    input_artifacts:
+      - type: "assessment_report"
+        path: "./docs/assess/{feature}-assessment.md"
+        required: true
+    output_artifacts:
+      - type: "prd"
+        path: "./docs/prd/{feature}.md"
+        required: true
+      - type: "backlog_tasks"
+        path: "./backlog/tasks/*.md"
+        required: true
+        multiple: true
+    validation: "NONE"
 
-  - from: "Specified"
+  - name: "research"
+    from: "Specified"
     to: "Researched"
     via: "research"
     description: "Technical and business research completed"
+    input_artifacts:
+      - type: "prd"
+        path: "./docs/prd/{feature}.md"
+        required: true
+    output_artifacts:
+      - type: "research_report"
+        path: "./docs/research/{feature}-research.md"
+      - type: "business_validation"
+        path: "./docs/research/{feature}-validation.md"
+    validation: "NONE"
 
-  - from: "Specified"
+  - name: "plan_from_specified"
+    from: "Specified"
     to: "Planned"
     via: "plan"
     description: "Architecture planned (skipping optional research)"
+    input_artifacts:
+      - type: "prd"
+        path: "./docs/prd/{feature}.md"
+        required: true
+    output_artifacts:
+      - type: "adr"
+        path: "./docs/adr/ADR-{NNN}-{slug}.md"
+        required: true
+        multiple: true
+      - type: "platform_design"
+        path: "./docs/platform/{feature}-platform.md"
+        required: false
+    validation: "NONE"
 
-  - from: "Researched"
+  - name: "plan_from_researched"
+    from: "Researched"
     to: "Planned"
     via: "plan"
     description: "Architecture planned after research"
+    input_artifacts:
+      - type: "prd"
+        path: "./docs/prd/{feature}.md"
+        required: true
+    output_artifacts:
+      - type: "adr"
+        path: "./docs/adr/ADR-{NNN}-{slug}.md"
+        required: true
+        multiple: true
+      - type: "platform_design"
+        path: "./docs/platform/{feature}-platform.md"
+        required: false
+    validation: "NONE"
 
-  - from: "Planned"
+  - name: "implement"
+    from: "Planned"
     to: "In Implementation"
     via: "implement"
     description: "Implementation work started"
+    input_artifacts:
+      - type: "adr"
+        path: "./docs/adr/ADR-*.md"
+        required: true
+    output_artifacts:
+      - type: "source_code"
+        path: "./src/"
+      - type: "tests"
+        path: "./tests/"
+        required: true
+      - type: "ac_coverage"
+        path: "./tests/ac-coverage.json"
+        required: true
+    validation: "NONE"
 
-  - from: "In Implementation"
+  - name: "validate"
+    from: "In Implementation"
     to: "Validated"
     via: "validate"
     description: "QA, security, and documentation validated"
+    input_artifacts:
+      - type: "tests"
+        required: true
+      - type: "ac_coverage"
+        required: true
+    output_artifacts:
+      - type: "qa_report"
+        path: "./docs/qa/{feature}-qa-report.md"
+      - type: "security_report"
+        path: "./docs/security/{feature}-security.md"
+    validation: "NONE"
 
-  - from: "Validated"
+  - name: "operate"
+    from: "Validated"
     to: "Deployed"
     via: "operate"
     description: "Deployed to production"
+    input_artifacts:
+      - type: "qa_report"
+      - type: "security_report"
+    output_artifacts:
+      - type: "deployment_manifest"
+        path: "./deploy/"
+    validation: "NONE"
 
   # Terminal transitions to Done
-  - from: "Deployed"
+  - name: "complete_from_deployed"
+    from: "Deployed"
     to: "Done"
     via: "manual"
     description: "Production deployment confirmed successful"
+    input_artifacts: []
+    output_artifacts: []
+    validation: "NONE"
 
-  - from: "Validated"
+  - name: "complete_from_validated"
+    from: "Validated"
     to: "Done"
     via: "manual"
     description: "Feature validated but deployment deferred"
+    input_artifacts: []
+    output_artifacts: []
+    validation: "NONE"
 
-  - from: "In Implementation"
+  - name: "complete_from_implementation"
+    from: "In Implementation"
     to: "Done"
     via: "manual"
     description: "Implementation complete, validation deferred"
+    input_artifacts: []
+    output_artifacts: []
+    validation: "NONE"
 
   # Backward transitions for rework
-  - from: "In Implementation"
+  - name: "rework_to_planned"
+    from: "In Implementation"
     to: "Planned"
     via: "rework"
     description: "Rework needed based on implementation findings"
+    input_artifacts: []
+    output_artifacts: []
+    validation: "NONE"
 
-  - from: "Validated"
+  - name: "rework_to_implementation"
+    from: "Validated"
     to: "In Implementation"
     via: "rework"
     description: "Rework needed based on validation findings"
+    input_artifacts: []
+    output_artifacts: []
+    validation: "NONE"
 
-  - from: "Deployed"
+  - name: "rollback"
+    from: "Deployed"
     to: "Validated"
     via: "rollback"
     description: "Rollback from production due to issues"
+    input_artifacts: []
+    output_artifacts: []
+    validation: "NONE"
 
 # ==============================================================================
 # AGENT LOOP CLASSIFICATION
@@ -393,6 +557,8 @@ agent_loops:
       - "Production deployment focus"
       - "Compliance and security gates"
     agents:
+      # Assessment phase
+      - "workflow-assessor"
       # Planning phase
       - "product-requirements-manager"
       - "researcher"
@@ -413,6 +579,9 @@ agent_loops:
 # Visual representation of the workflow state machine:
 #
 #   [To Do]
+#      |
+#      v (assess)
+#   [Assessed]
 #      |
 #      v (specify)
 #   [Specified]
@@ -448,12 +617,12 @@ metadata:
   last_updated: "2025-11-30"
 
   # Counts for validation
-  state_count: 8
-  workflow_count: 6
-  agent_count: 15
+  state_count: 9
+  workflow_count: 7
+  agent_count: 16
   inner_loop_agent_count: 5
-  outer_loop_agent_count: 10
-  transition_count: 12
+  outer_loop_agent_count: 11
+  transition_count: 15
 
   documentation:
     - "docs/reference/agent-loop-classification.md"
