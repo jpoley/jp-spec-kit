@@ -164,7 +164,9 @@ def render_excalidraw_to_png():
                     font_cache[size_scaled] = ImageFont.load_default()
             return font_cache[size_scaled]
     except Exception:
-        get_font = lambda size: ImageFont.load_default()
+
+        def get_font(size):  # noqa: ARG001
+            return ImageFont.load_default()
 
     print("Rendering elements...")
 

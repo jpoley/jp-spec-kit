@@ -114,8 +114,7 @@ class TestTaskMapper:
         mapper = TaskMapper(backlog_dir)
 
         # Generate first time
-        result1 = mapper.generate_from_tasks_file(sample_tasks_file)
-        files_created_first = result1["tasks_created"]
+        mapper.generate_from_tasks_file(sample_tasks_file)
 
         # Generate second time
         result2 = mapper.generate_from_tasks_file(sample_tasks_file, overwrite=False)
@@ -230,7 +229,7 @@ class TestTaskMapper:
         mapper = TaskMapper(backlog_dir)
 
         # Initial generation
-        initial_result = mapper.generate_from_tasks_file(sample_tasks_file)
+        mapper.generate_from_tasks_file(sample_tasks_file)
 
         # Regenerate with overwrite
         result = mapper.regenerate(sample_tasks_file, conflict_strategy="overwrite")
@@ -346,7 +345,7 @@ class TestTaskMapper:
         tasks_file.write_text(content)
 
         mapper = TaskMapper(backlog_dir)
-        result = mapper.generate_from_tasks_file(tasks_file)
+        mapper.generate_from_tasks_file(tasks_file)
 
         # Read generated file
         task_files = list((backlog_dir / "tasks").glob("task-001*.md"))

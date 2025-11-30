@@ -24,8 +24,7 @@ def extract_section(content: str, start_pattern: str, end_pattern: str) -> str |
     Returns None if patterns are not found, allowing tests to fail gracefully.
     """
     pattern = re.compile(
-        rf"{re.escape(start_pattern)}(.*?){re.escape(end_pattern)}",
-        re.DOTALL
+        rf"{re.escape(start_pattern)}(.*?){re.escape(end_pattern)}", re.DOTALL
     )
     match = pattern.search(content)
     return match.group(1) if match else None
@@ -62,7 +61,10 @@ class TestAssessmentPrompts:
 
     def test_has_modules_affected_question(self, assess_command_content):
         """Verify modules/components affected question exists."""
-        assert "Question 2: Number of Modules/Components Affected" in assess_command_content
+        assert (
+            "Question 2: Number of Modules/Components Affected"
+            in assess_command_content
+        )
         assert "1 module" in assess_command_content
         assert "7+ modules" in assess_command_content
 
@@ -115,9 +117,18 @@ class TestDecisionLogic:
     def test_has_complexity_classification(self, assess_command_content):
         """Verify complexity classification thresholds."""
         assert "Complexity Classification" in assess_command_content
-        assert "Simple" in assess_command_content and "8-12 points" in assess_command_content
-        assert "Medium" in assess_command_content and "13-20 points" in assess_command_content
-        assert "Complex" in assess_command_content and "21-32 points" in assess_command_content
+        assert (
+            "Simple" in assess_command_content
+            and "8-12 points" in assess_command_content
+        )
+        assert (
+            "Medium" in assess_command_content
+            and "13-20 points" in assess_command_content
+        )
+        assert (
+            "Complex" in assess_command_content
+            and "21-32 points" in assess_command_content
+        )
 
     def test_has_workflow_recommendations(self, assess_command_content):
         """Verify workflow recommendations exist for all complexity levels."""
@@ -184,17 +195,26 @@ class TestDocumentation:
     def test_simple_features_why_skip(self, assess_command_content):
         """Verify documentation explains why to skip SDD for simple features."""
         assert "Why Skip SDD?" in assess_command_content
-        assert "Overhead of specification would slow down delivery" in assess_command_content
+        assert (
+            "Overhead of specification would slow down delivery"
+            in assess_command_content
+        )
 
     def test_medium_features_why_spec_light(self, assess_command_content):
         """Verify documentation explains why spec-light for medium features."""
         assert "Why Spec-Light?" in assess_command_content
-        assert "Captures key decisions without excessive documentation" in assess_command_content
+        assert (
+            "Captures key decisions without excessive documentation"
+            in assess_command_content
+        )
 
     def test_complex_features_why_full_sdd(self, assess_command_content):
         """Verify documentation explains why full SDD for complex features."""
         assert "Why Full SDD?" in assess_command_content
-        assert "High coordination overhead requires clear specifications" in assess_command_content
+        assert (
+            "High coordination overhead requires clear specifications"
+            in assess_command_content
+        )
 
     def test_has_validation_and_calibration_section(self, assess_command_content):
         """Verify validation and calibration guidance exists."""
@@ -204,7 +224,9 @@ class TestDocumentation:
     def test_has_final_notes(self, assess_command_content):
         """Verify final notes about tool usage exist."""
         assert "This assessment is a tool, not a mandate" in assess_command_content
-        assert "When in doubt, err on the side of more planning" in assess_command_content
+        assert (
+            "When in doubt, err on the side of more planning" in assess_command_content
+        )
 
 
 class TestExampleScenarios:
@@ -243,13 +265,17 @@ class TestScoringConsistency:
         """Verify all questions use consistent A=1, B=2, C=3, D=4 scoring."""
         # Count score definitions - should be 8 (one per question)
         score_definitions = assess_command_content.count("Score: A=1, B=2, C=3, D=4")
-        assert score_definitions == 8, f"Expected 8 score definitions, found {score_definitions}"
+        assert score_definitions == 8, (
+            f"Expected 8 score definitions, found {score_definitions}"
+        )
 
     def test_all_questions_have_4_options(self, assess_command_content):
         """Verify all questions have 4 options (A, B, C, D)."""
         # Each question should have Options: section with A, B, C, D
         options_sections = assess_command_content.count("Options:")
-        assert options_sections >= 8, f"Expected at least 8 Options sections, found {options_sections}"
+        assert options_sections >= 8, (
+            f"Expected at least 8 Options sections, found {options_sections}"
+        )
 
 
 class TestRecommendationExamples:
@@ -258,9 +284,7 @@ class TestRecommendationExamples:
     def test_skip_sdd_has_example_features(self, assess_command_content):
         """Verify Skip SDD recommendation includes example features."""
         skip_sdd_section = extract_section(
-            assess_command_content,
-            "Simple Features (8-12 points)",
-            "Medium Features"
+            assess_command_content, "Simple Features (8-12 points)", "Medium Features"
         )
         assert skip_sdd_section is not None, "Could not find Simple Features section"
         assert "Bug fixes" in skip_sdd_section
@@ -270,9 +294,7 @@ class TestRecommendationExamples:
     def test_spec_light_has_example_features(self, assess_command_content):
         """Verify Spec-Light recommendation includes example features."""
         spec_light_section = extract_section(
-            assess_command_content,
-            "Medium Features (13-20 points)",
-            "Complex Features"
+            assess_command_content, "Medium Features (13-20 points)", "Complex Features"
         )
         assert spec_light_section is not None, "Could not find Medium Features section"
         assert "New API endpoint" in spec_light_section
@@ -284,7 +306,7 @@ class TestRecommendationExamples:
         full_sdd_section = extract_section(
             assess_command_content,
             "Complex Features (21-32 points)",
-            "### Output Format"
+            "### Output Format",
         )
         assert full_sdd_section is not None, "Could not find Complex Features section"
         assert "New product capabilities" in full_sdd_section
@@ -298,9 +320,7 @@ class TestPhaseInclusions:
     def test_spec_light_phases_documented(self, assess_command_content):
         """Verify Spec-Light mode documents which phases to skip and use."""
         spec_light_section = extract_section(
-            assess_command_content,
-            "Medium Features (13-20 points)",
-            "Complex Features"
+            assess_command_content, "Medium Features (13-20 points)", "Complex Features"
         )
         assert spec_light_section is not None, "Could not find Medium Features section"
         # Phases to skip
@@ -316,7 +336,7 @@ class TestPhaseInclusions:
         full_sdd_section = extract_section(
             assess_command_content,
             "Complex Features (21-32 points)",
-            "### Output Format"
+            "### Output Format",
         )
         assert full_sdd_section is not None, "Could not find Complex Features section"
         # Verify all phases are mentioned

@@ -139,8 +139,8 @@ class TaskMapper:
                 "user_stories": len(user_stories),
             }
 
-        # Build dependency graph
-        graph = DependencyGraphBuilder(tasks)
+        # Build dependency graph (validates task relationships)
+        DependencyGraphBuilder(tasks)
 
         if dry_run:
             return {
@@ -244,7 +244,6 @@ class TaskMapper:
         new_tasks = self.parser.parse_tasks_file(tasks_file)
 
         # Check for existing tasks
-        existing_files = list(self.writer.tasks_dir.glob("task-*.md"))
 
         conflicts = []
         for task in new_tasks:

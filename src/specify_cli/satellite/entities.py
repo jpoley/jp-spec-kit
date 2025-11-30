@@ -96,7 +96,6 @@ class RemoteTask:
             "backlog": "To Do",
             # Notion
             "not started": "To Do",
-            "in progress": "In Progress",
             "complete": "Done",
         }
         return status_map.get(self.status.lower(), self.status)

@@ -297,9 +297,6 @@ class TestTasksCLI:
         self, sample_tasks_file, temp_project_dir
     ):
         """Test that default output is ./backlog directory."""
-        # Get the parent directory of sample_tasks_file
-        source_dir = sample_tasks_file.parent
-
         result = runner.invoke(
             app,
             [
