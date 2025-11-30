@@ -72,6 +72,18 @@ Run GitHub Actions workflows locally:
 ./scripts/bash/run-local-ci.sh --help
 ```
 
+### Platform Support
+- **Primary platform**: Linux (Ubuntu 22.04/24.04) - fully tested and supported
+- **Portable design**: Script uses POSIX-compliant bash constructs and should work on macOS
+- **Future**: macOS CI matrix testing planned (separate task)
+
+**Script compatibility features**:
+- `#!/usr/bin/env bash` - finds bash via PATH (works on all platforms)
+- Bash 3.2+ compatible (macOS default bash version)
+- POSIX-compliant commands (`command -v`, `grep -q`, `read -r`)
+- No GNU-specific extensions
+- Cross-platform tools: `act`, `uv`, `docker`
+
 ### act Limitations
 - **Docker required**: act runs workflows in Docker containers
 - **OIDC not supported**: Jobs using OIDC authentication will fail
