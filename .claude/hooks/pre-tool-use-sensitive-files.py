@@ -2,7 +2,7 @@
 """
 PreToolUse hook: Sensitive file protection
 
-Blocks or asks for confirmation when Claude attempts to modify sensitive files:
+Asks for confirmation when Claude attempts to modify sensitive files:
 - .env files
 - .secrets files
 - package-lock.json
@@ -62,45 +62,51 @@ def main():
 
         # Only check Write and Edit tools
         if tool_name not in ["Write", "Edit"]:
-            print(json.dumps({
-                "decision": "allow",
-                "reason": f"Tool {tool_name} not subject to file protection"
-            }))
+            print(
+                json.dumps(
+                    {
+                        "decision": "allow",
+                        "reason": f"Tool {tool_name} not subject to file protection",
+                    }
+                )
+            )
             return 0
 
         # Get file path from tool input
         file_path = tool_input.get("file_path", "")
 
         if not file_path:
-            print(json.dumps({
-                "decision": "allow",
-                "reason": "No file path specified"
-            }))
+            print(json.dumps({"decision": "allow", "reason": "No file path specified"}))
             return 0
 
         # Check if file is sensitive
         is_sensitive, reason = is_sensitive_file(file_path)
 
         if is_sensitive:
-            print(json.dumps({
-                "decision": "ask",
-                "reason": reason,
-                "additionalContext": f"Attempting to modify {file_path}. This file is typically auto-generated or contains sensitive data. Are you sure you want to proceed?"
-            }))
+            print(
+                json.dumps(
+                    {
+                        "decision": "ask",
+                        "reason": reason,
+                        "additionalContext": f"Attempting to modify {file_path}. This file is typically auto-generated or contains sensitive data. Are you sure you want to proceed?",
+                    }
+                )
+            )
         else:
-            print(json.dumps({
-                "decision": "allow",
-                "reason": "File is not sensitive"
-            }))
+            print(json.dumps({"decision": "allow", "reason": "File is not sensitive"}))
 
         return 0
 
     except Exception as e:
         # On error, default to "allow" to not break Claude's workflow
-        print(json.dumps({
-            "decision": "allow",
-            "reason": f"Hook error (defaulting to allow): {str(e)}"
-        }))
+        print(
+            json.dumps(
+                {
+                    "decision": "allow",
+                    "reason": f"Hook error (defaulting to allow): {str(e)}",
+                }
+            )
+        )
         return 0
 
 

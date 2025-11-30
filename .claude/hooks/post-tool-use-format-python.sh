@@ -50,7 +50,7 @@ fi
 
 # Run ruff format
 if ruff format "$file_path" 2>&1 | grep -q "reformatted"; then
-    echo "{\"decision\": \"allow\", \"reason\": \"Auto-formatted Python file\", \"additionalContext\": \"Ran 'ruff format' on $file_path\"}"
+    FILE_PATH="$file_path" python3 -c "import json, os; print(json.dumps({'decision': 'allow', 'reason': 'Auto-formatted Python file', 'additionalContext': f\"Ran 'ruff format' on {os.environ['FILE_PATH']}\"}))"
 else
     echo '{"decision": "allow", "reason": "File already formatted or no changes needed"}'
 fi

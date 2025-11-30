@@ -51,7 +51,7 @@ fi
 # Run ruff check with auto-fix
 if output=$(ruff check --fix "$file_path" 2>&1); then
     if echo "$output" | grep -q "fixed"; then
-        echo "{\"decision\": \"allow\", \"reason\": \"Auto-fixed linting issues\", \"additionalContext\": \"Ran 'ruff check --fix' on $file_path\"}"
+        FILE_PATH="$file_path" python3 -c "import json, os; print(json.dumps({'decision': 'allow', 'reason': 'Auto-fixed linting issues', 'additionalContext': f\"Ran 'ruff check --fix' on {os.environ['FILE_PATH']}\"}))"
     else
         echo '{"decision": "allow", "reason": "No linting issues found or fixed"}'
     fi
