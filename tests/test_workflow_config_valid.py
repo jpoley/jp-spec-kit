@@ -14,7 +14,7 @@ Task: 118 - Create default jpspec_workflow.yml configuration
 
 from __future__ import annotations
 
-from collections import defaultdict
+from collections import defaultdict, deque
 from pathlib import Path
 from typing import Any
 
@@ -297,11 +297,11 @@ class TestStateReachability:
         for t in transitions:
             adj[t["from"]].append(t["to"])
 
-        # BFS from initial state
+        # BFS from initial state (using deque for O(1) popleft)
         visited: set[str] = set()
-        queue = ["To Do"]
+        queue: deque[str] = deque(["To Do"])
         while queue:
-            current = queue.pop(0)
+            current = queue.popleft()
             if current in visited:
                 continue
             visited.add(current)

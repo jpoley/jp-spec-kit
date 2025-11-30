@@ -69,7 +69,7 @@ workflows:
         responsibilities:
           - "Create comprehensive PRDs"
           - "Define user stories and acceptance criteria"
-          - "Conduct DVF+V risk assessment (Desirability, Usability, Feasibility, Viability)"
+          - "Conduct DUFV risk assessment (Desirability, Usability, Feasibility, Viability)"
           - "Create implementation tasks in backlog"
     input_states:
       - "To Do"
@@ -216,7 +216,7 @@ workflows:
           - "Performance testing"
           - "Risk analysis and failure mode identification"
       - name: "secure-by-design-engineer"
-        identity: "@security-engineer"
+        identity: "@secure-by-design-engineer"
         description: "Secure-by-Design Engineer for security assessment"
         responsibilities:
           - "Code security review"
