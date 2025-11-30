@@ -2,6 +2,9 @@
 
 This test module verifies that jpspec commands correctly interact with the
 backlog.md CLI for task management operations.
+
+IMPORTANT: All mock task IDs use MOCK- prefix to distinguish from real tasks.
+All fixtures use tmp_path - files are auto-cleaned after tests.
 """
 
 import pytest
@@ -46,35 +49,35 @@ def temp_backlog_dir(tmp_path):
 
 
 @pytest.fixture
-def sample_backlog_tasks(temp_backlog_dir):
-    """Create sample backlog tasks with known IDs and acceptance criteria.
+def mock_backlog_tasks(temp_backlog_dir):
+    """Create MOCK backlog tasks with known IDs for testing.
 
-    Creates three tasks:
-    - task-001: Simple task without ACs
-    - task-042: Task with 3 ACs (for testing AC operations)
-    - task-100: Task in "In Progress" state
+    Creates three MOCK tasks (auto-cleaned via tmp_path):
+    - MOCK-SIMPLE: Simple task without ACs
+    - MOCK-AC: Task with 3 ACs (for testing AC operations)
+    - MOCK-WIP: Task in "In Progress" state
 
     Returns:
         dict: Mapping of task IDs to task file paths
     """
     tasks_dir = temp_backlog_dir / "tasks"
 
-    # Task 001: Simple task
-    task_001 = tasks_dir / "task-001 - Simple test task.md"
-    task_001.write_text(
+    # MOCK-SIMPLE: Simple task
+    mock_simple = tasks_dir / "MOCK-SIMPLE - Mock simple test task.md"
+    mock_simple.write_text(
         dedent("""
         ---
-        id: task-001
-        title: Simple test task
+        id: MOCK-SIMPLE
+        title: Mock simple test task
         status: To Do
         assignee:
-        labels: [test]
+        labels: [mock, test]
         priority: Medium
         ---
 
         ## Description
 
-        A simple test task without acceptance criteria.
+        A MOCK test task without acceptance criteria.
 
         ## Acceptance Criteria
 
@@ -83,73 +86,80 @@ def sample_backlog_tasks(temp_backlog_dir):
     """).strip()
     )
 
-    # Task 042: Task with acceptance criteria
-    task_042 = tasks_dir / "task-042 - Task with acceptance criteria.md"
-    task_042.write_text(
+    # MOCK-AC: Task with acceptance criteria
+    mock_ac = tasks_dir / "MOCK-AC - Mock task with acceptance criteria.md"
+    mock_ac.write_text(
         dedent("""
         ---
-        id: task-042
-        title: Task with acceptance criteria
+        id: MOCK-AC
+        title: Mock task with acceptance criteria
         status: To Do
         assignee:
-        labels: [backend, api]
+        labels: [mock, backend, api]
         priority: High
         ---
 
         ## Description
 
-        A test task with multiple acceptance criteria for testing AC operations.
+        A MOCK test task with multiple acceptance criteria for testing AC operations.
 
         ## Acceptance Criteria
 
         <!-- AC:BEGIN -->
-        - [ ] #1 First acceptance criterion
-        - [ ] #2 Second acceptance criterion
-        - [ ] #3 Third acceptance criterion
+        - [ ] #1 First MOCK acceptance criterion
+        - [ ] #2 Second MOCK acceptance criterion
+        - [ ] #3 Third MOCK acceptance criterion
         <!-- AC:END -->
 
         ## Implementation Plan
 
-        1. Step one
-        2. Step two
+        1. MOCK step one
+        2. MOCK step two
 
         ## Implementation Notes
 
-        Initial notes go here.
+        MOCK initial notes go here.
     """).strip()
     )
 
-    # Task 100: In Progress task
-    task_100 = tasks_dir / "task-100 - In progress task.md"
-    task_100.write_text(
+    # MOCK-WIP: In Progress task
+    mock_wip = tasks_dir / "MOCK-WIP - Mock in progress task.md"
+    mock_wip.write_text(
         dedent("""
         ---
-        id: task-100
-        title: In progress task
+        id: MOCK-WIP
+        title: Mock in progress task
         status: In Progress
-        assignee: @engineer-1
-        labels: [frontend]
+        assignee: @mock-engineer
+        labels: [mock, frontend]
         priority: High
         ---
 
         ## Description
 
-        A task currently in progress.
+        A MOCK task currently in progress.
 
         ## Acceptance Criteria
 
         <!-- AC:BEGIN -->
-        - [x] #1 First criterion completed
-        - [ ] #2 Second criterion pending
+        - [x] #1 First MOCK criterion completed
+        - [ ] #2 Second MOCK criterion pending
         <!-- AC:END -->
     """).strip()
     )
 
     return {
-        "task-001": task_001,
-        "task-042": task_042,
-        "task-100": task_100,
+        "MOCK-SIMPLE": mock_simple,
+        "MOCK-AC": mock_ac,
+        "MOCK-WIP": mock_wip,
     }
+
+
+# Alias for backward compatibility
+@pytest.fixture
+def sample_backlog_tasks(mock_backlog_tasks):
+    """Alias for mock_backlog_tasks (deprecated)."""
+    return mock_backlog_tasks
 
 
 @pytest.fixture
@@ -291,22 +301,22 @@ class TestBacklogCLIIntegration:
         assert (temp_backlog_dir / "archive").exists()
         assert (temp_backlog_dir / "backlog.json").exists()
 
-    def test_sample_tasks_created(self, sample_backlog_tasks):
-        """Verify sample tasks are created with known IDs and content."""
-        assert "task-001" in sample_backlog_tasks
-        assert "task-042" in sample_backlog_tasks
-        assert "task-100" in sample_backlog_tasks
+    def test_mock_tasks_created(self, mock_backlog_tasks):
+        """Verify MOCK tasks are created with known IDs and content."""
+        assert "MOCK-SIMPLE" in mock_backlog_tasks
+        assert "MOCK-AC" in mock_backlog_tasks
+        assert "MOCK-WIP" in mock_backlog_tasks
 
         # Verify task files exist
-        for task_file in sample_backlog_tasks.values():
+        for task_file in mock_backlog_tasks.values():
             assert task_file.exists()
 
-        # Verify task-042 has acceptance criteria
-        task_042_content = sample_backlog_tasks["task-042"].read_text()
-        assert "id: task-042" in task_042_content
-        assert "- [ ] #1 First acceptance criterion" in task_042_content
-        assert "- [ ] #2 Second acceptance criterion" in task_042_content
-        assert "- [ ] #3 Third acceptance criterion" in task_042_content
+        # Verify MOCK-AC has acceptance criteria
+        mock_ac_content = mock_backlog_tasks["MOCK-AC"].read_text()
+        assert "id: MOCK-AC" in mock_ac_content
+        assert "- [ ] #1 First MOCK acceptance criterion" in mock_ac_content
+        assert "- [ ] #2 Second MOCK acceptance criterion" in mock_ac_content
+        assert "- [ ] #3 Third MOCK acceptance criterion" in mock_ac_content
 
     def test_verifier_search_called(self, mock_backlog_cli, backlog_verifier):
         """Test BacklogCLIVerifier.assert_search_called helper."""
@@ -441,45 +451,43 @@ class TestBacklogCLIIntegration:
 class TestTaskDiscovery:
     """Tests for task discovery operations (search and list)."""
 
-    def test_search_finds_tasks_by_keyword(
-        self, temp_backlog_dir, sample_backlog_tasks
-    ):
-        """Test that backlog search can find tasks by keyword."""
+    def test_search_finds_tasks_by_keyword(self, temp_backlog_dir, mock_backlog_tasks):
+        """Test that backlog search can find MOCK tasks by keyword."""
         # This would be an actual integration test if backlog CLI is available
         # For now, we test the fixture setup
-        assert len(sample_backlog_tasks) == 3
+        assert len(mock_backlog_tasks) == 3
 
         # Verify we can search task content
-        task_042 = sample_backlog_tasks["task-042"]
-        content = task_042.read_text()
+        mock_ac = mock_backlog_tasks["MOCK-AC"]
+        content = mock_ac.read_text()
         assert "acceptance criteria" in content.lower()
 
-    def test_list_filters_by_status(self, temp_backlog_dir, sample_backlog_tasks):
+    def test_list_filters_by_status(self, temp_backlog_dir, mock_backlog_tasks):
         """Test that task list can filter by status."""
         # Count tasks by status
         todo_tasks = []
         in_progress_tasks = []
 
-        for task_file in sample_backlog_tasks.values():
+        for task_file in mock_backlog_tasks.values():
             content = task_file.read_text()
             if "status: To Do" in content:
                 todo_tasks.append(task_file)
             elif "status: In Progress" in content:
                 in_progress_tasks.append(task_file)
 
-        assert len(todo_tasks) == 2  # task-001, task-042
-        assert len(in_progress_tasks) == 1  # task-100
+        assert len(todo_tasks) == 2  # MOCK-SIMPLE, MOCK-AC
+        assert len(in_progress_tasks) == 1  # MOCK-WIP
 
-    def test_list_filters_by_priority(self, temp_backlog_dir, sample_backlog_tasks):
+    def test_list_filters_by_priority(self, temp_backlog_dir, mock_backlog_tasks):
         """Test that task list can filter by priority."""
         high_priority_tasks = []
 
-        for task_file in sample_backlog_tasks.values():
+        for task_file in mock_backlog_tasks.values():
             content = task_file.read_text()
             if "priority: High" in content:
                 high_priority_tasks.append(task_file)
 
-        assert len(high_priority_tasks) == 2  # task-042, task-100
+        assert len(high_priority_tasks) == 2  # MOCK-AC, MOCK-WIP
 
 
 class TestTaskAssignment:

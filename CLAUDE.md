@@ -38,6 +38,14 @@ backlog task edit 42 -s Done     # Complete task
 
 ## Critical Rules
 
+### No Direct Commits to Main (ABSOLUTE - NO EXCEPTIONS)
+**NEVER commit directly to main.** All changes MUST go through a PR:
+1. Create branch → 2. Make changes → 3. Create PR → 4. CI passes → 5. Merge → 6. Mark task Done
+
+Not for "urgent" fixes. Not for "small" changes. **NO EXCEPTIONS.**
+
+See `memory/constitution.md` for full details.
+
 ### DCO Sign-off (Required)
 All commits MUST include sign-off:
 ```bash

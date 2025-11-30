@@ -74,6 +74,28 @@ This ensures:
 
 ## Git Commit Requirements (NON-NEGOTIABLE)
 
+### No Direct Commits to Main (ABSOLUTE)
+**NEVER commit directly to the main branch.** All changes MUST go through a PR:
+
+1. **Create a branch** for the task
+2. **Make changes** on the branch
+3. **Create a PR** referencing the backlog task
+4. **PR must pass CI** before merge
+5. **Task marked Done** only after PR is merged
+
+**NO EXCEPTIONS.** Not for "urgent" fixes, not for "small" changes, not for any reason.
+
+If a direct commit to main occurs:
+1. **Revert immediately**
+2. **Create proper branch and PR**
+3. **Document the violation**
+
+This rule exists because:
+- Direct commits bypass code review
+- Direct commits bypass CI validation
+- Direct commits break traceability
+- "Urgent" is never an excuse to skip process
+
 ### DCO Sign-Off Required
 All commits MUST include a `Signed-off-by` line (Developer Certificate of Origin).
 
