@@ -2,10 +2,9 @@
 id: task-089
 title: Create default jpspec_workflow.yml configuration
 status: Done
-assignee:
-  - '@claude-agent'
+assignee: []
 created_date: '2025-11-28 15:57'
-updated_date: '2025-11-30 01:59'
+updated_date: '2025-11-30 18:51'
 labels:
   - architecture
   - configuration
@@ -34,26 +33,17 @@ Create the default workflow configuration file that maps /jpspec commands to tas
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-Created default jpspec_workflow.yml:
+Implementation complete via PR #107 (merged).
 
-## Deliverables
-- jpspec_workflow.yml in project root
-- tests/test_workflow_config_valid.py with 36 validation tests
+Deliverables:
+- jpspec_workflow.yml: Complete workflow config with 8 states, 6 workflows, 15 agents, 12 transitions
+- docs/jpspec-workflow-spec.md: Comprehensive specification with JSON Schema for UI tools
+- tests/test_workflow_config_valid.py: 36 validation tests (all passing)
 
-## Features
-- All 6 phases mapped (specify, research, plan, implement, validate, operate)
-- 8 states: To Do, Specified, Researched, Planned, In Implementation, Validated, Deployed, Done
-- 15 unique agents mapped to workflows
-- Agent assignments match command implementations
-- Valid DAG with no cycles in forward transitions
-- Inner/outer loop classification for all agents
-- Extensive YAML comments for documentation
-
-## Validation Tests Cover
-- YAML syntax and structure
-- Required sections and fields
-- State reachability from initial state
-- No cycles in primary workflow path
-- Agent loop classification consistency
-- Metadata accuracy verification
+Key features:
+- States as ordered list (To Do → Done)
+- All /jpspec commands mapped with correct agent assignments
+- Inner/outer loop classification matching documentation
+- Metadata counts for validation
+- Extension guidelines for adding workflows/agents
 <!-- SECTION:NOTES:END -->
