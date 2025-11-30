@@ -6,6 +6,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
+pytest.importorskip("pipecat", reason="pipecat not installed (requires voice extras)")
+
 from specify_cli.voice.bot import VoiceBot, VoiceBotError
 
 
