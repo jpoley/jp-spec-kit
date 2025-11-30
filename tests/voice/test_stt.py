@@ -6,6 +6,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+pytest.importorskip("pipecat", reason="pipecat not installed (requires voice extras)")
+
 from specify_cli.voice.services.stt import DeepgramSTTService, STTServiceError
 
 
