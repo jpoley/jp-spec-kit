@@ -254,7 +254,6 @@ def test_multiple_in_progress_tasks():
     print("\nTest 8: Multiple In Progress tasks")
 
     # Create multiple test tasks
-    task_ids = []
     for i in range(3):
         subprocess.run(
             [
