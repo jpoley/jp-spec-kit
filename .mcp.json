@@ -8,7 +8,7 @@
     },
     "serena": {
       "command": "uvx",
-      "args": ["--from", "git+https://github.com/oraios/serena", "serena-mcp-server", "--project", "/Users/jasonpoley/ps/jp-spec-kit"],
+      "args": ["--from", "git+https://github.com/oraios/serena", "serena-mcp-server", "--project", "${PWD}"],
       "env": {},
       "description": "LSP-grade code understanding & safe semantic edits"
     },
