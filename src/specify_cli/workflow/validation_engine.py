@@ -226,7 +226,7 @@ class TransitionValidator:
             )
 
         logger.info(
-            f"✓ All required artifacts exist ({len([a for a in artifacts if a.required])} required)"
+            f"✓ All required artifacts exist ({sum(1 for a in artifacts if a.required)} required)"
         )
         return TransitionValidationResult(
             passed=True,
