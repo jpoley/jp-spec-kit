@@ -118,6 +118,9 @@ Implement `.claude/hooks/stop-quality-gate.py` that:
 - `create pull request`
 - `gh pr create`
 - `pull request.*create`
+- `open\s+a?\s*pull\s+request`
+- `pr\s+create`
+- `let'?s\s+pr\b`
 
 **Quality Gate Logic**:
 1. Parse conversation for PR intent
