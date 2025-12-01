@@ -506,14 +506,12 @@ class TransitionValidator:
     def _check_pr_merged(
         self,
         pr_number: int,
-        feature: str,
         transition: TransitionSchema,
     ) -> TransitionValidationResult:
         """Check if a specific PR is merged.
 
         Args:
             pr_number: GitHub PR number to check.
-            feature: Feature name.
             transition: Transition schema.
 
         Returns:
