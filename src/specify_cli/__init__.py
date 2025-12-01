@@ -679,9 +679,9 @@ WORKFLOW_TRANSITIONS = [
     {"name": "specify", "from": "Assessed", "to": "Specified", "default": "NONE"},
     {"name": "research", "from": "Specified", "to": "Researched", "default": "NONE"},
     {"name": "plan", "from": "Specified", "to": "Planned", "default": "NONE"},
-    {"name": "implement", "from": "Planned", "to": "Implemented", "default": "NONE"},
+    {"name": "implement", "from": "Planned", "to": "In Implementation", "default": "NONE"},
     {"name": "validate", "from": "Implemented", "to": "Validated", "default": "NONE"},
-    {"name": "operate", "from": "Validated", "to": "Operated", "default": "NONE"},
+    {"name": "operate", "from": "Validated", "to": "Deployed", "default": "NONE"},
 ]
 
 
