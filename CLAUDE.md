@@ -279,6 +279,23 @@ Automatically runs `ruff check --fix` on Python files after Edit/Write operation
 
 **Behavior**: Attempts to auto-fix linting issues and reports results. Manual fixes may be needed for complex issues.
 
+#### 5. Backlog Task Quality Gate (Stop)
+
+**Hook**: `.claude/hooks/stop-quality-gate.py`
+
+Enforces backlog task quality gate before session ends when PR creation is detected:
+- Detects PR creation intent in conversation context (e.g., "create PR", "gh pr create")
+- Checks for In Progress tasks via `backlog task list --plain -s "In Progress"`
+- Blocks session end if incomplete tasks exist with clear guidance
+- Provides list of incomplete tasks and remediation steps
+- Supports bypass with force/skip keywords
+
+**Behavior**: Returns `"continue": false` when PR detected with In Progress tasks. Returns `"continue": true` on errors (fail-open) or when quality gate passes.
+
+**Bypass**: Include "force stop" or "skip quality gate" in conversation to bypass.
+
+**Test**: Run `.claude/hooks/test-stop-quality-gate.py` to verify all edge cases.
+
 ### Testing Hooks
 
 Run the test suite to verify all hooks are working correctly:
