@@ -372,8 +372,8 @@
         },
         "validation": {
           "type": "string",
-          "enum": ["NONE", "KEYWORD", "PULL_REQUEST"],
-          "description": "Validation mode: NONE (automatic), KEYWORD[...] (user types keyword), PULL_REQUEST (blocked until PR merged)"
+          "pattern": "^(NONE|KEYWORD(\\[.+\\])?|PULL_REQUEST)$",
+          "description": "Validation mode: NONE (automatic), KEYWORD or KEYWORD[...] (user types keyword in brackets), PULL_REQUEST (blocked until PR merged). Valid values: NONE, KEYWORD, KEYWORD[any text], PULL_REQUEST."
         }
       }
     }
