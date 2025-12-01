@@ -1,0 +1,1 @@
+../../templates/commands/jpspec/assess.md
