@@ -59,4 +59,16 @@ PARTS=()
 [[ -n "$TASK_INFO" ]] && PARTS+=("$TASK_INFO") || { [[ -d "${CWD}/backlog" ]] && PARTS+=("No task"); }
 [[ -n "$GIT_INFO" ]] && { [[ ${#PARTS[@]} -gt 0 ]] && PARTS+=("|"); PARTS+=("$GIT_INFO"); }
 
-[[ ${#PARTS[@]} -gt 0 ]] && printf "%s\n" "${PARTS[*]}" || echo ""
+if [[ ${#PARTS[@]} -gt 0 ]]; then
+    out=""
+    for part in "${PARTS[@]}"; do
+        if [[ -z "$out" ]]; then
+            out="$part"
+        else
+            out="$out $part"
+        fi
+    done
+    printf "%s\n" "$out"
+else
+    echo ""
+fi
