@@ -1,10 +1,11 @@
 ---
 id: task-183
 title: Fix 401 auth error when fetching latest release
-status: To Do
-assignee: []
+status: Done
+assignee:
+  - '@claude'
 created_date: '2025-12-01 02:17'
-updated_date: '2025-12-01 02:17'
+updated_date: '2025-12-01 03:47'
 labels:
   - bug
   - github-api
@@ -48,9 +49,26 @@ All fail with 401 Unauthorized.
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Verify correct repository path is used (jpoley/jp-spec-kit, not github/spec-kit)
-- [ ] #2 CLI can fetch latest release from public repos without any authentication
-- [ ] #3 If an invalid token is present, either skip it or handle the 401 gracefully
-- [ ] #4 Add unit tests for release fetching from public repos
-- [ ] #5 Error messages clearly indicate the actual problem (not just 'add a token')
+- [x] #1 Verify correct repository path is used (jpoley/jp-spec-kit, not github/spec-kit)
+- [x] #2 CLI can fetch latest release from public repos without any authentication
+- [x] #3 If an invalid token is present, either skip it or handle the 401 gracefully
+- [x] #4 Add unit tests for release fetching from public repos
+- [x] #5 Error messages clearly indicate the actual problem (not just 'add a token')
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Completed via branch task-183-fix-401-auth-error
+
+Root Cause: Invalid GitHub tokens caused 401 errors even for public repos.
+Fix: Automatic retry without authentication when 401 occurs with a token.
+
+Files changed:
+- src/specify_cli/__init__.py (retry logic + better error messages)
+- tests/test_github_auth.py (11 new tests)
+
+All 1102 tests passing.
+
+PR #167: https://github.com/jpoley/jp-spec-kit/pull/167
+<!-- SECTION:NOTES:END -->
