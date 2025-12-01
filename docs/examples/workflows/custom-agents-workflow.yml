@@ -1,0 +1,434 @@
+# Custom Agents JP Spec Kit Workflow
+# ==============================================================================
+#
+# A workflow configuration demonstrating how to add organization-specific
+# custom agents to the standard SDD workflow. Examples include:
+#
+# - Legal/Compliance agents for regulated industries
+# - Data Science agents for ML/AI features
+# - DevRel agents for SDK/API development
+# - Accessibility specialists
+# - Performance engineers
+#
+# This configuration shows:
+# - How to define custom agents with clear responsibilities
+# - Where to inject custom agents in the workflow
+# - How to classify custom agents (inner vs outer loop)
+#
+# ==============================================================================
+
+version: "1.1"
+
+states:
+  - "To Do"
+  - "Assessed"
+  - "Specified"
+  - "Legal Reviewed"         # Custom state for legal review
+  - "Researched"
+  - "Planned"
+  - "Performance Designed"   # Custom state for performance planning
+  - "In Implementation"
+  - "Accessibility Tested"   # Custom state for accessibility
+  - "Validated"
+  - "Documentation Reviewed" # Custom state for DevRel docs review
+  - "Deployed"
+  - "Done"
+
+workflows:
+  assess:
+    command: "/jpspec:assess"
+    description: "Evaluate SDD workflow suitability"
+    agents:
+      - name: "workflow-assessor"
+        identity: "@workflow-assessor"
+        description: "SDD Workflow Assessor"
+        responsibilities:
+          - "Complexity analysis"
+          - "Risk assessment"
+    input_states: ["To Do"]
+    output_state: "Assessed"
+    optional: false
+
+  specify:
+    command: "/jpspec:specify"
+    description: "Create feature specifications"
+    agents:
+      - name: "product-requirements-manager"
+        identity: "@pm-planner"
+        description: "Senior Product Strategy Advisor"
+        responsibilities:
+          - "Create comprehensive PRDs"
+          - "Define user stories"
+      - name: "data-scientist"  # CUSTOM AGENT
+        identity: "@data-scientist"
+        description: "Senior Data Scientist"
+        responsibilities:
+          - "ML/AI requirements analysis"
+          - "Data pipeline requirements"
+          - "Model performance requirements"
+    input_states: ["Assessed"]
+    output_state: "Specified"
+    optional: false
+
+  legal-review:  # CUSTOM WORKFLOW
+    command: "/jpspec:legal-review"
+    description: "Legal and compliance review of specifications"
+    agents:
+      - name: "legal-counsel"  # CUSTOM AGENT
+        identity: "@legal-counsel"
+        description: "Corporate Legal Counsel"
+        responsibilities:
+          - "Terms of Service review"
+          - "Privacy policy compliance"
+          - "Intellectual property review"
+          - "Regulatory compliance verification"
+      - name: "compliance-officer"  # CUSTOM AGENT
+        identity: "@compliance-officer"
+        description: "Compliance Officer"
+        responsibilities:
+          - "SOC2/GDPR/HIPAA compliance"
+          - "Data retention policy review"
+          - "Audit requirements"
+    input_states: ["Specified"]
+    output_state: "Legal Reviewed"
+    optional: false
+    requires_human_approval: true
+
+  research:
+    command: "/jpspec:research"
+    description: "Execute research and business validation"
+    agents:
+      - name: "researcher"
+        identity: "@researcher"
+        description: "Senior Research Analyst"
+        responsibilities:
+          - "Market analysis"
+      - name: "business-validator"
+        identity: "@business-validator"
+        description: "Senior Business Analyst"
+        responsibilities:
+          - "Financial viability"
+      - name: "data-scientist"  # CUSTOM AGENT (reused)
+        identity: "@data-scientist"
+        description: "Senior Data Scientist"
+        responsibilities:
+          - "Dataset feasibility analysis"
+          - "ML model selection research"
+    input_states: ["Legal Reviewed"]
+    output_state: "Researched"
+    optional: true
+
+  plan:
+    command: "/jpspec:plan"
+    description: "Execute planning workflow"
+    agents:
+      - name: "software-architect"
+        identity: "@software-architect"
+        description: "Enterprise Software Architect"
+        responsibilities:
+          - "System architecture"
+      - name: "platform-engineer"
+        identity: "@platform-engineer"
+        description: "Principal Platform Engineer"
+        responsibilities:
+          - "Infrastructure architecture"
+      - name: "ml-architect"  # CUSTOM AGENT
+        identity: "@ml-architect"
+        description: "ML Platform Architect"
+        responsibilities:
+          - "ML pipeline architecture"
+          - "Feature store design"
+          - "Model serving architecture"
+          - "MLOps workflow design"
+    input_states: ["Legal Reviewed", "Researched"]
+    output_state: "Planned"
+    optional: false
+
+  performance-design:  # CUSTOM WORKFLOW
+    command: "/jpspec:performance-design"
+    description: "Performance engineering design and budgets"
+    agents:
+      - name: "performance-engineer"  # CUSTOM AGENT
+        identity: "@performance-engineer"
+        description: "Principal Performance Engineer"
+        responsibilities:
+          - "Performance budget definition"
+          - "Caching strategy design"
+          - "Query optimization planning"
+          - "Load testing strategy"
+    input_states: ["Planned"]
+    output_state: "Performance Designed"
+    optional: false
+
+  implement:
+    command: "/jpspec:implement"
+    description: "Execute implementation with code review"
+    agents:
+      - name: "frontend-engineer"
+        identity: "@frontend-engineer"
+        description: "Senior Frontend Engineer"
+        responsibilities:
+          - "Component development"
+      - name: "backend-engineer"
+        identity: "@backend-engineer"
+        description: "Senior Backend Engineer"
+        responsibilities:
+          - "API development"
+      - name: "ml-engineer"  # CUSTOM AGENT
+        identity: "@ml-engineer"
+        description: "Senior ML Engineer"
+        responsibilities:
+          - "Model training pipeline implementation"
+          - "Feature engineering"
+          - "Model deployment"
+      - name: "frontend-code-reviewer"
+        identity: "@frontend-code-reviewer"
+        description: "Frontend Code Reviewer"
+        responsibilities:
+          - "Code review"
+      - name: "backend-code-reviewer"
+        identity: "@backend-code-reviewer"
+        description: "Backend Code Reviewer"
+        responsibilities:
+          - "Code review"
+    input_states: ["Performance Designed"]
+    output_state: "In Implementation"
+    optional: false
+
+  accessibility-test:  # CUSTOM WORKFLOW
+    command: "/jpspec:accessibility-test"
+    description: "Comprehensive accessibility testing"
+    agents:
+      - name: "accessibility-specialist"  # CUSTOM AGENT
+        identity: "@accessibility-specialist"
+        description: "Accessibility Specialist (WCAG Expert)"
+        responsibilities:
+          - "WCAG 2.1 AA compliance testing"
+          - "Screen reader testing"
+          - "Keyboard navigation testing"
+          - "Color contrast verification"
+          - "ARIA attributes review"
+    input_states: ["In Implementation"]
+    output_state: "Accessibility Tested"
+    optional: false
+
+  validate:
+    command: "/jpspec:validate"
+    description: "Execute validation (QA, security, docs)"
+    agents:
+      - name: "quality-guardian"
+        identity: "@quality-guardian"
+        description: "Quality Guardian"
+        responsibilities:
+          - "Functional testing"
+      - name: "secure-by-design-engineer"
+        identity: "@secure-by-design-engineer"
+        description: "Secure-by-Design Engineer"
+        responsibilities:
+          - "Security testing"
+      - name: "tech-writer"
+        identity: "@tech-writer"
+        description: "Senior Technical Writer"
+        responsibilities:
+          - "API documentation"
+      - name: "release-manager"
+        identity: "@release-manager"
+        description: "Senior Release Manager"
+        responsibilities:
+          - "Release planning"
+      - name: "performance-engineer"  # CUSTOM AGENT (reused)
+        identity: "@performance-engineer"
+        description: "Principal Performance Engineer"
+        responsibilities:
+          - "Performance budget verification"
+          - "Load testing execution"
+    input_states: ["Accessibility Tested"]
+    output_state: "Validated"
+    optional: false
+
+  devrel-review:  # CUSTOM WORKFLOW
+    command: "/jpspec:devrel-review"
+    description: "Developer Relations documentation review"
+    agents:
+      - name: "developer-advocate"  # CUSTOM AGENT
+        identity: "@developer-advocate"
+        description: "Senior Developer Advocate"
+        responsibilities:
+          - "SDK documentation review"
+          - "API reference completeness"
+          - "Code examples validation"
+          - "Developer experience review"
+          - "Blog post/tutorial creation"
+    input_states: ["Validated"]
+    output_state: "Documentation Reviewed"
+    optional: false
+
+  operate:
+    command: "/jpspec:operate"
+    description: "Execute operations workflow"
+    agents:
+      - name: "sre-agent"
+        identity: "@sre-agent"
+        description: "Principal Site Reliability Engineer"
+        responsibilities:
+          - "CI/CD pipeline"
+          - "Kubernetes deployment"
+      - name: "ml-ops-engineer"  # CUSTOM AGENT
+        identity: "@ml-ops-engineer"
+        description: "MLOps Engineer"
+        responsibilities:
+          - "Model deployment to production"
+          - "Model monitoring setup"
+          - "A/B testing infrastructure"
+          - "Model versioning"
+    input_states: ["Documentation Reviewed"]
+    output_state: "Deployed"
+    optional: false
+
+transitions:
+  - name: "assess"
+    from: "To Do"
+    to: "Assessed"
+    via: "assess"
+    validation: "NONE"
+
+  - name: "specify"
+    from: "Assessed"
+    to: "Specified"
+    via: "specify"
+    output_artifacts:
+      - type: "prd"
+        path: "./docs/prd/{feature}.md"
+    validation: "NONE"
+
+  - name: "legal_review"
+    from: "Specified"
+    to: "Legal Reviewed"
+    via: "legal-review"
+    description: "Legal and compliance review completed"
+    output_artifacts:
+      - type: "legal_review"
+        path: "./docs/legal/{feature}-legal-review.md"
+    validation: "KEYWORD[LEGAL_APPROVED]"
+
+  - name: "research"
+    from: "Legal Reviewed"
+    to: "Researched"
+    via: "research"
+    validation: "NONE"
+
+  - name: "plan_from_legal"
+    from: "Legal Reviewed"
+    to: "Planned"
+    via: "plan"
+    description: "Planning (research skipped)"
+    validation: "NONE"
+
+  - name: "plan_from_researched"
+    from: "Researched"
+    to: "Planned"
+    via: "plan"
+    output_artifacts:
+      - type: "adr"
+        path: "./docs/adr/ADR-{NNN}-{slug}.md"
+        multiple: true
+    validation: "NONE"
+
+  - name: "performance_design"
+    from: "Planned"
+    to: "Performance Designed"
+    via: "performance-design"
+    output_artifacts:
+      - type: "performance_budget"
+        path: "./docs/performance/{feature}-budget.md"
+    validation: "NONE"
+
+  - name: "implement"
+    from: "Performance Designed"
+    to: "In Implementation"
+    via: "implement"
+    output_artifacts:
+      - type: "source_code"
+        path: "./src/"
+      - type: "tests"
+        path: "./tests/"
+    validation: "NONE"
+
+  - name: "accessibility_test"
+    from: "In Implementation"
+    to: "Accessibility Tested"
+    via: "accessibility-test"
+    output_artifacts:
+      - type: "accessibility_report"
+        path: "./docs/accessibility/{feature}-wcag-report.md"
+    validation: "NONE"
+
+  - name: "validate"
+    from: "Accessibility Tested"
+    to: "Validated"
+    via: "validate"
+    output_artifacts:
+      - type: "qa_report"
+        path: "./docs/qa/{feature}-qa-report.md"
+    validation: "NONE"
+
+  - name: "devrel_review"
+    from: "Validated"
+    to: "Documentation Reviewed"
+    via: "devrel-review"
+    output_artifacts:
+      - type: "devrel_docs"
+        path: "./docs/devrel/{feature}-developer-guide.md"
+    validation: "NONE"
+
+  - name: "operate"
+    from: "Documentation Reviewed"
+    to: "Deployed"
+    via: "operate"
+    validation: "NONE"
+
+  - name: "complete"
+    from: "Deployed"
+    to: "Done"
+    via: "manual"
+    validation: "NONE"
+
+agent_loops:
+  inner:
+    description: "Fast execution - development and code review"
+    agents:
+      - "frontend-engineer"
+      - "backend-engineer"
+      - "ml-engineer"  # CUSTOM
+      - "frontend-code-reviewer"
+      - "backend-code-reviewer"
+
+  outer:
+    description: "Governance-focused - planning, validation, compliance"
+    agents:
+      - "workflow-assessor"
+      - "product-requirements-manager"
+      - "data-scientist"  # CUSTOM
+      - "legal-counsel"  # CUSTOM
+      - "compliance-officer"  # CUSTOM
+      - "researcher"
+      - "business-validator"
+      - "software-architect"
+      - "platform-engineer"
+      - "ml-architect"  # CUSTOM
+      - "performance-engineer"  # CUSTOM
+      - "accessibility-specialist"  # CUSTOM
+      - "quality-guardian"
+      - "secure-by-design-engineer"
+      - "tech-writer"
+      - "release-manager"
+      - "developer-advocate"  # CUSTOM
+      - "sre-agent"
+      - "ml-ops-engineer"  # CUSTOM
+
+metadata:
+  schema_version: "1.1"
+  last_updated: "2025-12-01"
+  state_count: 13
+  workflow_count: 11
+  custom_agents: 9  # data-scientist, legal-counsel, compliance-officer, ml-architect, performance-engineer, ml-engineer, accessibility-specialist, developer-advocate, ml-ops-engineer

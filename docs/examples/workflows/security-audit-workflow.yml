@@ -1,0 +1,409 @@
+# Security-Focused JP Spec Kit Workflow
+# ==============================================================================
+#
+# A workflow configuration with enhanced security validation phases:
+# - Pre-implementation threat modeling
+# - Post-implementation security audit
+# - Compliance verification
+#
+# Use this for:
+# - Financial services applications
+# - Healthcare systems (HIPAA)
+# - Government contracts
+# - Customer-facing applications handling sensitive data
+# - SOC2/ISO27001 compliance requirements
+#
+# This workflow adds:
+# - Threat Modeling state (after Planning)
+# - Security Audited state (after Validation)
+# - Compliance-officer agent
+# - Security approval gates
+#
+# ==============================================================================
+
+version: "1.1"
+
+states:
+  - "To Do"
+  - "Assessed"
+  - "Specified"
+  - "Researched"
+  - "Planned"
+  - "Threat Modeled"        # New: Security design review
+  - "In Implementation"
+  - "Validated"
+  - "Security Audited"      # New: Security verification
+  - "Deployed"
+  - "Done"
+
+workflows:
+  assess:
+    command: "/jpspec:assess"
+    description: "Evaluate SDD workflow suitability"
+    agents:
+      - name: "workflow-assessor"
+        identity: "@workflow-assessor"
+        description: "SDD Workflow Assessor"
+        responsibilities:
+          - "Complexity and risk assessment"
+          - "Security risk classification"
+    input_states: ["To Do"]
+    output_state: "Assessed"
+    optional: false
+
+  specify:
+    command: "/jpspec:specify"
+    description: "Create feature specifications"
+    agents:
+      - name: "product-requirements-manager"
+        identity: "@pm-planner"
+        description: "Senior Product Strategy Advisor"
+        responsibilities:
+          - "Create comprehensive PRDs"
+          - "Security requirements analysis"
+    input_states: ["Assessed"]
+    output_state: "Specified"
+    optional: false
+
+  research:
+    command: "/jpspec:research"
+    description: "Research and business validation"
+    agents:
+      - name: "researcher"
+        identity: "@researcher"
+        description: "Senior Research Analyst"
+        responsibilities:
+          - "Market analysis"
+          - "Security landscape research"
+      - name: "business-validator"
+        identity: "@business-validator"
+        description: "Senior Business Analyst"
+        responsibilities:
+          - "Financial viability analysis"
+    input_states: ["Specified"]
+    output_state: "Researched"
+    optional: true
+
+  plan:
+    command: "/jpspec:plan"
+    description: "Execute planning workflow"
+    agents:
+      - name: "software-architect"
+        identity: "@software-architect"
+        description: "Enterprise Software Architect"
+        responsibilities:
+          - "System architecture"
+          - "Security architecture design"
+      - name: "platform-engineer"
+        identity: "@platform-engineer"
+        description: "Principal Platform Engineer"
+        responsibilities:
+          - "Infrastructure security design"
+    input_states: ["Specified", "Researched"]
+    output_state: "Planned"
+    optional: false
+
+  threat-model:
+    command: "/jpspec:threat-model"
+    description: "Security threat modeling and design review"
+    agents:
+      - name: "secure-by-design-engineer"
+        identity: "@secure-by-design-engineer"
+        description: "Secure-by-Design Engineer"
+        responsibilities:
+          - "STRIDE threat modeling"
+          - "Attack surface analysis"
+          - "Security controls design"
+          - "Data flow diagram security review"
+      - name: "compliance-officer"
+        identity: "@compliance-officer"
+        description: "Security Compliance Officer"
+        responsibilities:
+          - "Compliance requirement mapping"
+          - "Privacy impact assessment"
+          - "Regulatory framework verification"
+    input_states: ["Planned"]
+    output_state: "Threat Modeled"
+    optional: false
+    requires_human_approval: true
+
+  implement:
+    command: "/jpspec:implement"
+    description: "Execute implementation with code review"
+    agents:
+      - name: "frontend-engineer"
+        identity: "@frontend-engineer"
+        description: "Senior Frontend Engineer"
+        responsibilities:
+          - "Secure component development"
+      - name: "backend-engineer"
+        identity: "@backend-engineer"
+        description: "Senior Backend Engineer"
+        responsibilities:
+          - "Secure API development"
+      - name: "frontend-code-reviewer"
+        identity: "@frontend-code-reviewer"
+        description: "Frontend Code Reviewer"
+        responsibilities:
+          - "Security code review"
+      - name: "backend-code-reviewer"
+        identity: "@backend-code-reviewer"
+        description: "Backend Code Reviewer"
+        responsibilities:
+          - "Security and API design review"
+    input_states: ["Threat Modeled"]
+    output_state: "In Implementation"
+    optional: false
+
+  validate:
+    command: "/jpspec:validate"
+    description: "Execute validation (QA, security, docs)"
+    agents:
+      - name: "quality-guardian"
+        identity: "@quality-guardian"
+        description: "Quality Guardian"
+        responsibilities:
+          - "Functional and security testing"
+      - name: "secure-by-design-engineer"
+        identity: "@secure-by-design-engineer"
+        description: "Secure-by-Design Engineer"
+        responsibilities:
+          - "Initial security scanning"
+      - name: "tech-writer"
+        identity: "@tech-writer"
+        description: "Senior Technical Writer"
+        responsibilities:
+          - "Security documentation"
+      - name: "release-manager"
+        identity: "@release-manager"
+        description: "Senior Release Manager"
+        responsibilities:
+          - "Release planning"
+    input_states: ["In Implementation"]
+    output_state: "Validated"
+    optional: false
+
+  security-audit:
+    command: "/jpspec:security-audit"
+    description: "Comprehensive security audit before deployment"
+    agents:
+      - name: "secure-by-design-engineer"
+        identity: "@secure-by-design-engineer"
+        description: "Secure-by-Design Engineer"
+        responsibilities:
+          - "Penetration testing coordination"
+          - "Vulnerability assessment"
+          - "Security controls verification"
+          - "OWASP Top 10 validation"
+      - name: "compliance-officer"
+        identity: "@compliance-officer"
+        description: "Security Compliance Officer"
+        responsibilities:
+          - "SOC2 compliance verification"
+          - "GDPR/HIPAA compliance checks"
+          - "Audit trail validation"
+          - "Sign-off on security posture"
+    input_states: ["Validated"]
+    output_state: "Security Audited"
+    optional: false
+    requires_human_approval: true
+
+  operate:
+    command: "/jpspec:operate"
+    description: "Execute operations workflow"
+    agents:
+      - name: "sre-agent"
+        identity: "@sre-agent"
+        description: "Principal Site Reliability Engineer"
+        responsibilities:
+          - "Secure CI/CD pipeline"
+          - "Security monitoring setup"
+    input_states: ["Security Audited"]
+    output_state: "Deployed"
+    optional: false
+
+transitions:
+  - name: "assess"
+    from: "To Do"
+    to: "Assessed"
+    via: "assess"
+    description: "SDD workflow assessed"
+    validation: "NONE"
+
+  - name: "specify"
+    from: "Assessed"
+    to: "Specified"
+    via: "specify"
+    description: "Requirements captured"
+    output_artifacts:
+      - type: "prd"
+        path: "./docs/prd/{feature}.md"
+        required: true
+    validation: "NONE"
+
+  - name: "research"
+    from: "Specified"
+    to: "Researched"
+    via: "research"
+    description: "Research completed"
+    validation: "NONE"
+
+  - name: "plan_from_specified"
+    from: "Specified"
+    to: "Planned"
+    via: "plan"
+    description: "Architecture planned (research skipped)"
+    validation: "NONE"
+
+  - name: "plan_from_researched"
+    from: "Researched"
+    to: "Planned"
+    via: "plan"
+    description: "Architecture planned"
+    output_artifacts:
+      - type: "adr"
+        path: "./docs/adr/ADR-{NNN}-{slug}.md"
+        required: true
+        multiple: true
+    validation: "NONE"
+
+  - name: "threat_model"
+    from: "Planned"
+    to: "Threat Modeled"
+    via: "threat-model"
+    description: "Threat modeling completed"
+    input_artifacts:
+      - type: "adr"
+        path: "./docs/adr/ADR-*.md"
+        required: true
+    output_artifacts:
+      - type: "threat_model"
+        path: "./docs/security/{feature}-threat-model.md"
+        required: true
+      - type: "attack_surface"
+        path: "./docs/security/{feature}-attack-surface.md"
+        required: true
+    validation: "KEYWORD[SECURITY_APPROVED]"
+
+  - name: "implement"
+    from: "Threat Modeled"
+    to: "In Implementation"
+    via: "implement"
+    description: "Implementation started"
+    input_artifacts:
+      - type: "threat_model"
+        path: "./docs/security/{feature}-threat-model.md"
+        required: true
+    output_artifacts:
+      - type: "source_code"
+        path: "./src/"
+      - type: "tests"
+        path: "./tests/"
+        required: true
+    validation: "NONE"
+
+  - name: "validate"
+    from: "In Implementation"
+    to: "Validated"
+    via: "validate"
+    description: "QA and initial security validated"
+    output_artifacts:
+      - type: "qa_report"
+        path: "./docs/qa/{feature}-qa-report.md"
+      - type: "security_scan"
+        path: "./docs/security/{feature}-scan-results.md"
+    validation: "NONE"
+
+  - name: "security_audit"
+    from: "Validated"
+    to: "Security Audited"
+    via: "security-audit"
+    description: "Security audit completed"
+    input_artifacts:
+      - type: "threat_model"
+        path: "./docs/security/{feature}-threat-model.md"
+        required: true
+      - type: "security_scan"
+        path: "./docs/security/{feature}-scan-results.md"
+        required: true
+    output_artifacts:
+      - type: "security_audit_report"
+        path: "./docs/security/{feature}-audit-report.md"
+        required: true
+      - type: "compliance_report"
+        path: "./docs/security/{feature}-compliance.md"
+        required: true
+    validation: "KEYWORD[AUDIT_PASSED]"
+
+  - name: "operate"
+    from: "Security Audited"
+    to: "Deployed"
+    via: "operate"
+    description: "Deployed to production"
+    input_artifacts:
+      - type: "security_audit_report"
+        path: "./docs/security/{feature}-audit-report.md"
+        required: true
+    validation: "NONE"
+
+  - name: "complete"
+    from: "Deployed"
+    to: "Done"
+    via: "manual"
+    description: "Production deployment confirmed"
+    validation: "NONE"
+
+  # Security rework paths
+  - name: "security_rework_to_threat_model"
+    from: "In Implementation"
+    to: "Threat Modeled"
+    via: "rework"
+    description: "Security design issues found during implementation"
+    validation: "NONE"
+
+  - name: "security_rework_to_implementation"
+    from: "Security Audited"
+    to: "In Implementation"
+    via: "rework"
+    description: "Security vulnerabilities found in audit"
+    validation: "NONE"
+
+  - name: "rollback"
+    from: "Deployed"
+    to: "Security Audited"
+    via: "rollback"
+    description: "Security incident rollback"
+    validation: "NONE"
+
+agent_loops:
+  inner:
+    description: "Fast execution - optimized for velocity"
+    agents:
+      - "frontend-engineer"
+      - "backend-engineer"
+      - "frontend-code-reviewer"
+      - "backend-code-reviewer"
+
+  outer:
+    description: "Governance-focused - optimized for security and compliance"
+    agents:
+      - "workflow-assessor"
+      - "product-requirements-manager"
+      - "researcher"
+      - "business-validator"
+      - "software-architect"
+      - "platform-engineer"
+      - "secure-by-design-engineer"
+      - "compliance-officer"
+      - "quality-guardian"
+      - "tech-writer"
+      - "release-manager"
+      - "sre-agent"
+
+metadata:
+  schema_version: "1.1"
+  last_updated: "2025-12-01"
+  state_count: 11
+  workflow_count: 9
+  agent_count: 17
+  security_gates: 2  # Threat Modeling + Security Audit

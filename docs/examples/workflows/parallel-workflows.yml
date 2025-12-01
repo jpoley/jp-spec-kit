@@ -1,0 +1,388 @@
+# Parallel Workflows JP Spec Kit Configuration
+# ==============================================================================
+#
+# A workflow configuration supporting multiple parallel feature development
+# tracks with independent state machines. Useful for:
+#
+# - Multi-team organizations
+# - Feature flags / A/B testing development
+# - Parallel UI/backend work
+# - Independent microservice development
+#
+# This configuration adds:
+# - Frontend-specific states and workflows
+# - Backend-specific states and workflows
+# - Integration state for combining tracks
+#
+# NOTE: This is an advanced pattern. Ensure teams understand coordination points.
+#
+# ==============================================================================
+
+version: "1.1"
+
+states:
+  # Common states
+  - "To Do"
+  - "Assessed"
+  - "Specified"
+  - "Planned"
+
+  # Frontend track states
+  - "Frontend In Progress"
+  - "Frontend Validated"
+
+  # Backend track states
+  - "Backend In Progress"
+  - "Backend Validated"
+
+  # Integration states
+  - "Integration In Progress"
+  - "Integration Validated"
+
+  # Deployment states
+  - "Deployed"
+  - "Done"
+
+workflows:
+  assess:
+    command: "/jpspec:assess"
+    description: "Evaluate SDD workflow suitability"
+    agents:
+      - name: "workflow-assessor"
+        identity: "@workflow-assessor"
+        description: "SDD Workflow Assessor"
+        responsibilities:
+          - "Complexity and parallelization analysis"
+    input_states: ["To Do"]
+    output_state: "Assessed"
+    optional: false
+
+  specify:
+    command: "/jpspec:specify"
+    description: "Create feature specifications"
+    agents:
+      - name: "product-requirements-manager"
+        identity: "@pm-planner"
+        description: "Senior Product Strategy Advisor"
+        responsibilities:
+          - "Create comprehensive PRDs with frontend/backend breakdown"
+    input_states: ["Assessed"]
+    output_state: "Specified"
+    optional: false
+
+  plan:
+    command: "/jpspec:plan"
+    description: "Execute planning workflow"
+    execution_mode: "parallel"
+    agents:
+      - name: "software-architect"
+        identity: "@software-architect"
+        description: "Enterprise Software Architect"
+        responsibilities:
+          - "Define API contracts"
+          - "Define frontend/backend interfaces"
+      - name: "platform-engineer"
+        identity: "@platform-engineer"
+        description: "Principal Platform Engineer"
+        responsibilities:
+          - "Infrastructure design"
+    input_states: ["Specified"]
+    output_state: "Planned"
+    optional: false
+
+  # Frontend track workflows
+  implement-frontend:
+    command: "/jpspec:implement-frontend"
+    description: "Implement frontend components"
+    agents:
+      - name: "frontend-engineer"
+        identity: "@frontend-engineer"
+        description: "Senior Frontend Engineer"
+        responsibilities:
+          - "Component development"
+          - "State management"
+          - "Mock backend integration"
+      - name: "frontend-code-reviewer"
+        identity: "@frontend-code-reviewer"
+        description: "Frontend Code Reviewer"
+        responsibilities:
+          - "UI/UX review"
+          - "Accessibility review"
+    input_states: ["Planned"]
+    output_state: "Frontend In Progress"
+    optional: false
+
+  validate-frontend:
+    command: "/jpspec:validate-frontend"
+    description: "Validate frontend independently"
+    agents:
+      - name: "quality-guardian"
+        identity: "@quality-guardian"
+        description: "Quality Guardian (Frontend)"
+        responsibilities:
+          - "Component testing"
+          - "Visual regression testing"
+          - "Accessibility testing"
+    input_states: ["Frontend In Progress"]
+    output_state: "Frontend Validated"
+    optional: false
+
+  # Backend track workflows
+  implement-backend:
+    command: "/jpspec:implement-backend"
+    description: "Implement backend services"
+    agents:
+      - name: "backend-engineer"
+        identity: "@backend-engineer"
+        description: "Senior Backend Engineer"
+        responsibilities:
+          - "API implementation"
+          - "Business logic"
+          - "Database schema"
+      - name: "backend-code-reviewer"
+        identity: "@backend-code-reviewer"
+        description: "Backend Code Reviewer"
+        responsibilities:
+          - "API design review"
+          - "Security review"
+    input_states: ["Planned"]
+    output_state: "Backend In Progress"
+    optional: false
+
+  validate-backend:
+    command: "/jpspec:validate-backend"
+    description: "Validate backend independently"
+    agents:
+      - name: "quality-guardian"
+        identity: "@quality-guardian"
+        description: "Quality Guardian (Backend)"
+        responsibilities:
+          - "API contract testing"
+          - "Integration testing"
+          - "Performance testing"
+      - name: "secure-by-design-engineer"
+        identity: "@secure-by-design-engineer"
+        description: "Secure-by-Design Engineer"
+        responsibilities:
+          - "Security testing"
+    input_states: ["Backend In Progress"]
+    output_state: "Backend Validated"
+    optional: false
+
+  # Integration workflow (combines tracks)
+  integrate:
+    command: "/jpspec:integrate"
+    description: "Integrate frontend and backend"
+    agents:
+      - name: "frontend-engineer"
+        identity: "@frontend-engineer"
+        description: "Senior Frontend Engineer"
+        responsibilities:
+          - "Connect to real backend APIs"
+          - "Remove mocks"
+      - name: "backend-engineer"
+        identity: "@backend-engineer"
+        description: "Senior Backend Engineer"
+        responsibilities:
+          - "Verify API contracts"
+    input_states: ["Frontend Validated", "Backend Validated"]
+    output_state: "Integration In Progress"
+    optional: false
+
+  validate-integration:
+    command: "/jpspec:validate-integration"
+    description: "Validate end-to-end integration"
+    agents:
+      - name: "quality-guardian"
+        identity: "@quality-guardian"
+        description: "Quality Guardian (E2E)"
+        responsibilities:
+          - "End-to-end testing"
+          - "User acceptance testing"
+    input_states: ["Integration In Progress"]
+    output_state: "Integration Validated"
+    optional: false
+
+  operate:
+    command: "/jpspec:operate"
+    description: "Execute operations workflow"
+    agents:
+      - name: "sre-agent"
+        identity: "@sre-agent"
+        description: "Principal Site Reliability Engineer"
+        responsibilities:
+          - "CI/CD pipeline"
+          - "Kubernetes deployment"
+    input_states: ["Integration Validated"]
+    output_state: "Deployed"
+    optional: false
+
+transitions:
+  # Common path
+  - name: "assess"
+    from: "To Do"
+    to: "Assessed"
+    via: "assess"
+    validation: "NONE"
+
+  - name: "specify"
+    from: "Assessed"
+    to: "Specified"
+    via: "specify"
+    output_artifacts:
+      - type: "prd"
+        path: "./docs/prd/{feature}.md"
+        required: true
+    validation: "NONE"
+
+  - name: "plan"
+    from: "Specified"
+    to: "Planned"
+    via: "plan"
+    output_artifacts:
+      - type: "adr"
+        path: "./docs/adr/ADR-{NNN}-{slug}.md"
+        required: true
+        multiple: true
+      - type: "api_contract"
+        path: "./docs/api/{feature}-api-contract.yaml"
+        required: true
+    validation: "NONE"
+
+  # Frontend track
+  - name: "implement_frontend"
+    from: "Planned"
+    to: "Frontend In Progress"
+    via: "implement-frontend"
+    description: "Frontend implementation started (parallel with backend)"
+    input_artifacts:
+      - type: "api_contract"
+        path: "./docs/api/{feature}-api-contract.yaml"
+        required: true
+    output_artifacts:
+      - type: "frontend_code"
+        path: "./src/frontend/"
+      - type: "frontend_tests"
+        path: "./tests/frontend/"
+    validation: "NONE"
+
+  - name: "validate_frontend"
+    from: "Frontend In Progress"
+    to: "Frontend Validated"
+    via: "validate-frontend"
+    description: "Frontend validated independently"
+    output_artifacts:
+      - type: "frontend_qa_report"
+        path: "./docs/qa/{feature}-frontend-qa.md"
+    validation: "NONE"
+
+  # Backend track
+  - name: "implement_backend"
+    from: "Planned"
+    to: "Backend In Progress"
+    via: "implement-backend"
+    description: "Backend implementation started (parallel with frontend)"
+    input_artifacts:
+      - type: "api_contract"
+        path: "./docs/api/{feature}-api-contract.yaml"
+        required: true
+    output_artifacts:
+      - type: "backend_code"
+        path: "./src/backend/"
+      - type: "backend_tests"
+        path: "./tests/backend/"
+    validation: "NONE"
+
+  - name: "validate_backend"
+    from: "Backend In Progress"
+    to: "Backend Validated"
+    via: "validate-backend"
+    description: "Backend validated independently"
+    output_artifacts:
+      - type: "backend_qa_report"
+        path: "./docs/qa/{feature}-backend-qa.md"
+      - type: "security_report"
+        path: "./docs/security/{feature}-security.md"
+    validation: "NONE"
+
+  # Integration (requires both tracks complete)
+  - name: "integrate"
+    from: "Frontend Validated"
+    to: "Integration In Progress"
+    via: "integrate"
+    description: "Frontend and backend integration started"
+    requires_states: ["Backend Validated"]  # Both tracks must be done
+    validation: "NONE"
+
+  - name: "integrate_from_backend"
+    from: "Backend Validated"
+    to: "Integration In Progress"
+    via: "integrate"
+    description: "Backend and frontend integration started"
+    requires_states: ["Frontend Validated"]  # Both tracks must be done
+    validation: "NONE"
+
+  - name: "validate_integration"
+    from: "Integration In Progress"
+    to: "Integration Validated"
+    via: "validate-integration"
+    description: "End-to-end validation complete"
+    output_artifacts:
+      - type: "e2e_qa_report"
+        path: "./docs/qa/{feature}-e2e-qa.md"
+    validation: "NONE"
+
+  - name: "operate"
+    from: "Integration Validated"
+    to: "Deployed"
+    via: "operate"
+    validation: "NONE"
+
+  - name: "complete"
+    from: "Deployed"
+    to: "Done"
+    via: "manual"
+    validation: "NONE"
+
+  # Rework paths
+  - name: "rework_frontend"
+    from: "Integration In Progress"
+    to: "Frontend In Progress"
+    via: "rework"
+    description: "Integration found frontend issues"
+    validation: "NONE"
+
+  - name: "rework_backend"
+    from: "Integration In Progress"
+    to: "Backend In Progress"
+    via: "rework"
+    description: "Integration found backend issues"
+    validation: "NONE"
+
+agent_loops:
+  inner:
+    description: "Fast execution - parallel development teams"
+    agents:
+      - "frontend-engineer"
+      - "backend-engineer"
+      - "frontend-code-reviewer"
+      - "backend-code-reviewer"
+
+  outer:
+    description: "Governance-focused - integration and deployment"
+    agents:
+      - "workflow-assessor"
+      - "product-requirements-manager"
+      - "software-architect"
+      - "platform-engineer"
+      - "quality-guardian"
+      - "secure-by-design-engineer"
+      - "sre-agent"
+
+metadata:
+  schema_version: "1.1"
+  last_updated: "2025-12-01"
+  state_count: 12
+  workflow_count: 10
+  parallel_tracks: 2  # Frontend and Backend
+  integration_point: "Integration In Progress"

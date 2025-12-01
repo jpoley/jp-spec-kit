@@ -28,13 +28,91 @@ backlog task edit 42 -s Done     # Complete task
 ## Slash Commands
 
 ```bash
+/jpspec:assess    # Evaluate SDD workflow suitability
 /jpspec:specify   # Create/update feature specs
-/jpspec:plan      # Execute planning workflow
 /jpspec:research  # Research and validation
+/jpspec:plan      # Execute planning workflow
 /jpspec:implement # Implementation with code review
 /jpspec:validate  # QA, security, docs validation
 /jpspec:operate   # SRE operations (CI/CD, K8s)
 ```
+
+## Workflow Configuration
+
+JP Spec Kit uses a configurable workflow system defined in `jpspec_workflow.yml` at the project root.
+
+### Configuration File Location
+
+**Default**: `{project-root}/jpspec_workflow.yml`
+
+The workflow configuration defines:
+- **States**: Task progression stages (e.g., Specified, Planned, Validated)
+- **Workflows**: `/jpspec` commands with agent assignments
+- **Transitions**: Valid state changes between states
+- **Agent Loops**: Inner/outer loop classification
+
+### How /jpspec Commands Use Workflow Config
+
+Each `/jpspec` command:
+1. Checks current task state from backlog.md
+2. Validates state is a valid input for the command (from `jpspec_workflow.yml`)
+3. Executes agents assigned to the workflow
+4. Transitions task to the command's output state
+5. Creates artifacts defined in transitions
+
+Example:
+```yaml
+workflows:
+  implement:
+    command: "/jpspec:implement"
+    agents:
+      - frontend-engineer
+      - backend-engineer
+    input_states: ["Planned"]
+    output_state: "In Implementation"
+```
+
+### Validate Workflow Configuration
+
+```bash
+specify workflow validate
+
+# Example output:
+# ✓ Configuration structure valid (schema v1.1)
+# ✓ No cycles detected in state transitions
+# ✓ All states reachable from "To Do"
+# ✓ Terminal states configured
+```
+
+### Quick Reference: Commands and Workflow Phases
+
+| Command | Input State(s) | Output State | Agents |
+|---------|---------------|--------------|--------|
+| `/jpspec:assess` | To Do | Assessed | workflow-assessor |
+| `/jpspec:specify` | Assessed | Specified | product-requirements-manager |
+| `/jpspec:research` | Specified | Researched | researcher, business-validator |
+| `/jpspec:plan` | Specified, Researched | Planned | software-architect, platform-engineer |
+| `/jpspec:implement` | Planned | In Implementation | frontend/backend engineers, reviewers |
+| `/jpspec:validate` | In Implementation | Validated | quality-guardian, secure-by-design-engineer |
+| `/jpspec:operate` | Validated | Deployed | sre-agent |
+
+### Customizing Your Workflow
+
+You can customize the workflow by editing `jpspec_workflow.yml`:
+- Add/remove phases
+- Change agent assignments
+- Add custom states
+- Modify transitions
+
+See [Workflow Customization Guide](docs/guides/workflow-customization.md) for details.
+
+### Workflow Documentation
+
+- [Workflow State Mapping](docs/guides/workflow-state-mapping.md) - State and command mapping
+- [Workflow Customization Guide](docs/guides/workflow-customization.md) - How to modify workflows
+- [Workflow Architecture](docs/guides/workflow-architecture.md) - Overall design
+- [Workflow Troubleshooting](docs/guides/workflow-troubleshooting.md) - Common issues
+- [Configuration Examples](docs/examples/workflows/) - Working example configs
 
 ## Critical Rules
 
