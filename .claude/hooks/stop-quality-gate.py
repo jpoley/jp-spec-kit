@@ -82,6 +82,8 @@ def check_in_progress_tasks() -> list[dict]:
         #     [HIGH] task-189 - Title here
         #     task-190 - Another title
         tasks = []
+        if not result.stdout.strip():
+            return []
         for line in result.stdout.strip().split("\n"):
             line = line.strip()
             if not line or line == "No tasks found." or line.endswith(":"):
