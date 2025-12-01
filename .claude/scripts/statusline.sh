@@ -40,7 +40,7 @@ get_task() {
     local details=$(backlog task "$task" --plain 2>/dev/null || echo "")
     local checked=$(echo "$details" | grep -c "^\- \[x\]" 2>/dev/null || echo "0")
     local total=$(echo "$details" | grep -c "^\- \[[ x]\]" 2>/dev/null || echo "0")
-    [[ "$total" -gt 0 ]] && echo "$task ($checked/$total)" || echo "$task"
+    [[ "$total" -gt 0 ]] && echo "$task ($checked/$total AC)" || echo "$task"
 }
 
 # Get git branch
