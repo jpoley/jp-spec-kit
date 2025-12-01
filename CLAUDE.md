@@ -390,6 +390,89 @@ Hooks are configured in `.claude/settings.json`. To customize:
 - **Clear communication**: Hooks provide detailed reasons and context for decisions
 - **Non-blocking**: Only interactive commands (like `git rebase -i`) are denied; everything else asks for confirmation
 
+## Custom Statusline
+
+JP Spec Kit includes a custom statusline that displays workflow context in Claude Code.
+
+### Statusline Format
+
+```
+[Workflow Phase] task-ID (AC Progress) | git-branch
+```
+
+**Example**: `[Implement] task-197 (3/5 AC) | task-197-custom-statusline*`
+
+### Components
+
+| Component | Description | Example |
+|-----------|-------------|---------|
+| `[Phase]` | Current workflow phase from `jpspec_workflow.yml` | `[Implement]`, `[Validate]`, `[Plan]` |
+| `task-ID` | Active task from backlog (`In Progress` status) | `task-197` |
+| `(N/M AC)` | Acceptance criteria progress (checked/total) | `(3/5 AC)` |
+| `branch` | Current git branch (with `*` if uncommitted changes) | `main*`, `feature-auth` |
+
+### Phase Mapping
+
+The statusline maps `jpspec_workflow.yml` states to short phase indicators:
+
+| Workflow State | Status Line Display |
+|----------------|-------------------|
+| To Do, Assessed | `[Assess]` |
+| Specified | `[Specify]` |
+| Researched | `[Research]` |
+| Planned | `[Plan]` |
+| In Implementation | `[Implement]` |
+| Validated | `[Validate]` |
+| Deployed | `[Operate]` |
+| Done | `[Done]` |
+
+### Configuration
+
+The statusline is configured in `~/.claude/settings.json`:
+
+```json
+{
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/statusline-command.sh"
+  }
+}
+```
+
+### Script Location
+
+The statusline script is installed at: `~/.claude/statusline-command.sh`
+
+### Performance
+
+- **Execution time**: < 100ms (meets Claude Code requirements)
+- **Timeout safety**: Each component has individual timeout (30-50ms)
+- **Graceful degradation**: Missing data sources show partial information
+
+### Customization
+
+To customize the statusline, edit `~/.claude/statusline-command.sh`:
+
+1. **Change phase mapping**: Modify the `get_workflow_phase()` function `case` statement
+2. **Adjust timeouts**: Change timeout values in the main execution block
+3. **Add components**: Extend `STATUS_PARTS` array with new data sources
+4. **Disable features**: Comment out specific component extraction calls
+
+### Disable Statusline
+
+To disable the custom statusline and revert to Claude Code default:
+
+```bash
+# Remove statusLine section from ~/.claude/settings.json
+# OR set to empty command:
+{
+  "statusLine": {
+    "type": "command",
+    "command": ""
+  }
+}
+```
+
 ## Quick Troubleshooting
 
 ```bash
@@ -407,6 +490,9 @@ python --version
 
 # Test hooks
 .claude/hooks/test-hooks.sh
+
+# Test statusline
+echo '{"workspace":{"current_dir":"'"$(pwd)"'"}}' | ~/.claude/statusline-command.sh
 ```
 
 ---
