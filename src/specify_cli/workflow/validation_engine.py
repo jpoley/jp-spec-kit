@@ -181,8 +181,6 @@ class TransitionValidator:
 
         missing_artifacts = []
         for artifact in artifacts:
-            if not artifact.required:
-                continue
 
             # Resolve the artifact path
             resolved_path = artifact.resolve_path(feature=feature)
