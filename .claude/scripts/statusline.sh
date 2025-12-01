@@ -17,7 +17,7 @@ GIT_INFO=""
 get_phase() {
     local wf="${CWD}/jpspec_workflow.yml"
     [[ -f "$wf" ]] || return
-    local state=$(grep -m1 "^current_state:" "$wf" 2>/dev/null | awk '{print $2}' | tr -d '\"'"'" || echo "")
+    local state=$(grep -m1 "^current_state:" "$wf" 2>/dev/null | awk '{print $2}' | tr -d '"\'' || echo "")
     [[ -z "$state" ]] && return
     case "$state" in
         "To Do"|"Assessed") echo "Assess" ;;
