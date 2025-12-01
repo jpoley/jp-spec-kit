@@ -402,7 +402,7 @@ class TransitionValidator:
         # Check if PR number is provided in context (for testing)
         pr_number = context.get("pr_number")
         if pr_number is not None:
-            return self._check_pr_merged(pr_number, feature, transition)
+            return self._check_pr_merged(pr_number, transition)
 
         # Check for merged PR using gh CLI
         logger.info(
