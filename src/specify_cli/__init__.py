@@ -4081,6 +4081,107 @@ def ac_coverage_command(
         console.print("[green]✓ All acceptance criteria are covered by tests[/green]")
 
 
+# Workflow subcommand
+workflow_app = typer.Typer(
+    name="workflow",
+    help="Workflow configuration validation and management",
+    add_completion=False,
+)
+app.add_typer(workflow_app, name="workflow")
+
+
+@workflow_app.command("validate")
+def workflow_validate(
+    file: Optional[str] = typer.Option(
+        None,
+        "--file",
+        "-f",
+        help="Path to workflow config file (defaults to jpspec_workflow.yml in standard locations)",
+    ),
+    verbose: bool = typer.Option(
+        False,
+        "--verbose",
+        "-v",
+        help="Show detailed validation output",
+    ),
+):
+    """Validate workflow configuration file.
+
+    Validates jpspec_workflow.yml against:
+    1. JSON schema (structural validation)
+    2. Semantic validation (circular dependencies, reachability, etc.)
+
+    Examples:
+        specify workflow validate                    # Validate default config
+        specify workflow validate --file custom.yml  # Validate custom config
+        specify workflow validate --verbose          # Show detailed output
+    """
+    from pathlib import Path
+
+    from specify_cli.workflow.config import WorkflowConfig
+    from specify_cli.workflow.validator import WorkflowValidator
+
+    console.print("[cyan]Validating workflow configuration...[/cyan]\n")
+
+    # Load and validate config
+    try:
+        if file:
+            config = WorkflowConfig.load(path=Path(file), validate=True, cache=False)
+        else:
+            config = WorkflowConfig.load(validate=True, cache=False)
+
+        console.print("[green]✓[/green] Schema validation passed")
+        if verbose:
+            console.print(f"  Config file: {config.config_path}")
+            console.print(f"  Version: {config.version}")
+            console.print(f"  States: {len(config.states)}")
+            console.print(f"  Workflows: {len(config.workflows)}")
+            console.print()
+
+    except Exception as e:
+        console.print(f"[red]✗ Schema validation failed:[/red] {e}")
+        raise typer.Exit(1)
+
+    # Run semantic validation
+    console.print("[cyan]Running semantic validation...[/cyan]\n")
+
+    validator = WorkflowValidator(config._data)
+    result = validator.validate()
+
+    if result.is_valid:
+        console.print(
+            "[bold green]✓ Validation passed: workflow configuration is valid[/bold green]"
+        )
+
+        if verbose and result.warnings:
+            console.print(f"\n[yellow]Warnings ({len(result.warnings)}):[/yellow]")
+            for warning in result.warnings:
+                console.print(f"  [yellow]•[/yellow] {warning.message}")
+
+        raise typer.Exit(0)
+    else:
+        console.print(
+            f"[bold red]✗ Validation failed: {len(result.errors)} errors found[/bold red]\n"
+        )
+
+        # Display errors
+        for error in result.errors:
+            console.print(f"[red]ERROR [{error.code}]:[/red] {error.message}")
+            if verbose and error.context:
+                console.print(f"  [dim]Context: {error.context}[/dim]")
+            console.print()
+
+        # Display warnings if verbose
+        if verbose and result.warnings:
+            console.print(f"[yellow]Warnings ({len(result.warnings)}):[/yellow]")
+            for warning in result.warnings:
+                console.print(f"  [yellow]•[/yellow] {warning.message}")
+            console.print()
+
+        console.print("[dim]Fix the errors above and run validation again.[/dim]")
+        raise typer.Exit(1)
+
+
 def main():
     app()
 
