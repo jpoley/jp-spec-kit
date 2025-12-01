@@ -701,18 +701,20 @@ def generate_jpspec_workflow_yml(
 
     # Map CLI mode values to YAML format
     def format_mode(mode: str) -> str:
-        mode = mode.lower()
-        if mode == "none":
+        mode_lower = mode.lower()
+        if mode_lower == "none":
             return "NONE"
-        elif mode == "keyword":
+        elif mode_lower == "keyword":
             return 'KEYWORD["APPROVED"]'
-        elif mode == "pull-request" or mode == "pull_request":
+        elif mode_lower in ("pull-request", "pull_request"):
             return "PULL_REQUEST"
         elif mode.startswith("keyword["):
             # Already in KEYWORD["..."] format
             return mode.upper()
-        return "NONE"
-
+        raise ValueError(
+            f"Invalid validation mode: '{mode}'. "
+            "Expected 'none', 'keyword', or 'pull-request'"
+        )
     # Build YAML content
     lines = [
         "# JPSpec Workflow Configuration",
