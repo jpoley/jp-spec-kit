@@ -60,16 +60,22 @@ def _github_token(cli_token: str | None = None) -> str | None:
     return ((cli_token or os.getenv("GITHUB_JPSPEC") or "").strip()) or None
 
 
-def _github_headers(cli_token: str | None = None) -> dict:
-    """Return GitHub API headers including optional Authorization, Accept and User-Agent."""
+def _github_headers(cli_token: str | None = None, *, skip_auth: bool = False) -> dict:
+    """Return GitHub API headers including optional Authorization, Accept and User-Agent.
+
+    Args:
+        cli_token: Optional token to use (falls back to GITHUB_JPSPEC env var)
+        skip_auth: If True, never include Authorization header (for public repo fallback)
+    """
     headers = {
         "Accept": "application/vnd.github+json",
         "User-Agent": "jp-spec-kit/specify-cli",
         "X-GitHub-Api-Version": "2022-11-28",
     }
-    token = _github_token(cli_token)
-    if token:
-        headers["Authorization"] = f"Bearer {token}"
+    if not skip_auth:
+        token = _github_token(cli_token)
+        if token:
+            headers["Authorization"] = f"Bearer {token}"
     return headers
 
 
@@ -953,7 +959,9 @@ def download_template_from_github(
                 url,
                 timeout=30,
                 follow_redirects=True,
-                headers=_github_headers(None),  # No token
+                headers=_github_headers(
+                    skip_auth=True
+                ),  # Explicitly skip auth for retry
             )
 
         return response
