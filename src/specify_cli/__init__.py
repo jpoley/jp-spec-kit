@@ -1809,6 +1809,11 @@ def init(
         "--no-validation-prompts",
         help="Skip validation prompts and use NONE for all transitions",
     ),
+    light: bool = typer.Option(
+        False,
+        "--light",
+        help="Use spec-light mode for medium-complexity features (40-50% faster workflow)",
+    ),
 ):
     """
     Initialize a new Specify project from the latest template.
@@ -2136,6 +2141,13 @@ def init(
                     tracker.skip("git", "git not available")
             else:
                 tracker.skip("git", "--no-git flag")
+
+            # Handle light mode setup
+            if light:
+                light_marker = project_path / ".jpspec-light-mode"
+                light_marker.write_text("# Light mode enabled - 40-50% faster workflow\n# See docs/guides/when-to-use-light-mode.md\n")
+                tracker.add("light-mode", "Light mode enabled")
+                tracker.complete("light-mode", "marker created")
 
             tracker.complete("final", "project ready")
         except Exception as e:
