@@ -29,4 +29,4 @@ See `templates/assessment-template.md` for the standard assessment report format
 ## Related Documentation
 
 - [Workflow Artifact Flow](../../reference/workflow-artifact-flow.md)
-- [Assessment Template](../../templates/assessment-template.md)
+- [Assessment Template](../../assessment-template.md)
