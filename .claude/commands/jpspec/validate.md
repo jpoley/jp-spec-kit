@@ -2,44 +2,182 @@
 description: Execute validation and quality assurance using QA, security, documentation, and release management agents.
 ---
 
+# /jpspec:validate - Enhanced Phased Validation Workflow
+
+Execute comprehensive validation workflow with task orchestration, automated testing, agent validation, AC verification, and PR generation.
+
 ## User Input
 
 ```text
 $ARGUMENTS
 ```
 
-You **MUST** consider the user input before proceeding (if not empty).
+**Expected Input**: Optional task ID (e.g., `task-094`). If not provided, command discovers the current in-progress task automatically.
 
-## Backlog Task Discovery
+**Important**: You MUST consider the user input before proceeding (if not empty).
 
-Before starting validation, discover tasks that are ready for validation:
+## Workflow Overview
+
+This command orchestrates a phased validation workflow:
+
+- **Phase 0: Task Discovery & Load** - Find/load target task
+- **Phase 1: Automated Testing** - Run tests, linting, type checks
+- **Phase 2: Agent Validation (Parallel)** - QA Guardian + Security Engineer
+- **Phase 3: Documentation** - Technical Writer agent
+- **Phase 4: AC Verification** - Verify all acceptance criteria
+- **Phase 5: Task Completion** - Generate notes and mark Done
+- **Phase 6: PR Generation** - Create pull request with approval
+
+## Execution Instructions
+
+Follow these phases sequentially. **Phase failures MUST halt the workflow** with clear error messages indicating which phase failed and why.
+
+The command is **re-runnable** after fixing issues - it handles partial completion gracefully by checking task state at each phase.
+
+---
+
+### Phase 0: Task Discovery & Load
+
+**Report progress**: Print "Phase 0: Discovering and loading task..."
+
+#### Step 1: Determine Target Task ID
 
 ```bash
-# Find tasks In Progress or Done that need validation
-backlog task list -s "In Progress" --plain
-backlog task list -s "Done" --plain
+# If user provided task-id argument, use it
+TASK_ID="$ARGUMENTS"
 
-# View specific task details for validation context
-backlog task <id> --plain
+# Otherwise, discover in-progress task
+if [ -z "$TASK_ID" ]; then
+  # Find tasks in "In Progress" status
+  backlog task list -s "In Progress" --plain
+fi
 ```
 
-**Validation Context**: Each validator agent will receive the backlog task details to validate acceptance criteria completion and update task status accordingly.
+**Task Selection Logic**:
+- If user provided task ID: Use it directly
+- If no argument: Find the single "In Progress" task
+- If multiple "In Progress" tasks: Ask user which one to validate
+- If no "In Progress" tasks: Error and halt
 
-## Backlog Instructions Template
+**Error Handling**:
+- If task ID not found: "❌ Phase 0 Failed: Task {task-id} does not exist."
+- If no in-progress tasks: "❌ Phase 0 Failed: No tasks in 'In Progress' status. Please specify a task ID."
+- If multiple in-progress tasks: List them and ask user to specify which one
+
+#### Step 2: Load Full Task Details
+
+```bash
+# Load complete task data
+backlog task <task-id> --plain
+```
+
+**Parse critical fields**:
+- Task ID
+- Title
+- Description
+- Acceptance Criteria (list with checked status)
+- Current Status
+- Implementation Plan (if exists)
+- Implementation Notes (if exists)
+
+**Phase 0 Success**: Print task summary:
+```
+✅ Phase 0 Complete: Loaded task-094
+   Title: Integration - Enhanced /jpspec:validate Command
+   Status: In Progress
+   ACs: 0/8 complete
+```
+
+---
+
+### Phase 1: Automated Testing
+
+**Report progress**: Print "Phase 1: Running automated tests, linting, and type checks..."
+
+**Important**: Only run tests if code changes are involved. Skip for documentation-only tasks.
+
+#### Step 1: Detect Project Type
+
+```bash
+# Check for test frameworks
+if [ -f "pyproject.toml" ]; then
+  # Python project
+  echo "Detected Python project"
+elif [ -f "package.json" ]; then
+  # Node.js project
+  echo "Detected Node.js project"
+fi
+```
+
+#### Step 2: Run Test Suite
+
+**For Python projects**:
+```bash
+# Run pytest with coverage
+pytest tests/ -v --cov=src/specify_cli --cov-report=term-missing
+
+# Run linting
+ruff check . --output-format=concise
+
+# Run type checks (if mypy configured)
+if [ -f "pyproject.toml" ] && grep -q "mypy" pyproject.toml; then
+  mypy src/
+fi
+```
+
+**For Node.js projects**:
+```bash
+# Run tests
+npm test  # or bun test, pnpm test
+
+# Run linting
+npm run lint  # or eslint .
+
+# Run type checks
+npm run typecheck  # or tsc --noEmit
+```
+
+#### Step 3: Evaluate Results
+
+**Success criteria**:
+- All tests pass (exit code 0)
+- No critical linting errors
+- Type checks pass (if applicable)
+
+**Error Handling**:
+- If tests fail: "❌ Phase 1 Failed: {N} test(s) failed. Fix tests before continuing."
+- If linting fails: "⚠️  Phase 1 Warning: Linting issues detected. Review before continuing."
+- If type checks fail: "❌ Phase 1 Failed: Type check errors found."
+
+**Phase 1 Success**: Print test summary:
+```
+✅ Phase 1 Complete: All automated checks passed
+   Tests: 45 passed
+   Coverage: 87%
+   Linting: No issues
+   Type checks: Passed
+```
+
+**Re-run handling**: If tests already passed in previous run, skip and print:
+```
+⏭️  Phase 1 Skipped: Tests already validated in previous run
+```
+
+---
+
+### Phase 2: Agent Validation (Parallel Execution)
+
+**Report progress**: Print "Phase 2: Launching QA Guardian and Security Engineer agents (parallel)..."
+
+**IMPORTANT**: Launch QA and Security agents in parallel for efficiency using the Task tool.
+
+#### Backlog Instructions Template
 
 Each validator agent context below includes `{{BACKLOG_INSTRUCTIONS}}` which must be replaced with the content from `.claude/commands/jpspec/_backlog-instructions.md`. This ensures all agents have consistent backlog task management instructions.
 
 **When executing this command, include the full content of `_backlog-instructions.md` in place of each `{{BACKLOG_INSTRUCTIONS}}` marker.**
 
-## Execution Instructions
-
-This command executes comprehensive validation using multiple specialized agents, ensuring production readiness with human approval gates.
-
-### Phase 1: Testing and Security Validation (Parallel Execution)
-
-**IMPORTANT**: Launch QA and Security agents in parallel for efficiency.
-
-#### Quality Assurance Testing
+#### Agent 1: Quality Guardian (QA Testing)
 
 Use the Task tool to launch a **general-purpose** agent (Quality Guardian context):
 
@@ -127,7 +265,14 @@ Deliver comprehensive test report with:
 - Recommendations for production readiness
 ```
 
-#### Security Validation
+**Phase 2 Success**: Print summary when both agents complete:
+```
+✅ Phase 2 Complete: Agent validation passed
+   QA Guardian: 15 test scenarios validated
+   Security Engineer: No critical vulnerabilities found
+```
+
+#### Agent 2: Security Engineer
 
 Use the Task tool to launch a **general-purpose** agent (Secure-by-Design Engineer context):
 
@@ -223,7 +368,11 @@ Deliver comprehensive security report with:
 - Security gate approval status (Pass/Fail)
 ```
 
-### Phase 2: Documentation (After validation results available)
+---
+
+### Phase 3: Documentation
+
+**Report progress**: Print "Phase 3: Launching Technical Writer agent for documentation..."
 
 Use the Task tool to launch a **general-purpose** agent (Technical Writer context):
 
@@ -329,130 +478,400 @@ Ensure all documentation is:
 - Ready for publication
 ```
 
-### Phase 3: Release Management (Final gate with Human Approval)
-
-Use the Task tool to launch a **general-purpose** agent (Release Manager context):
-
+**Phase 3 Success**: Print summary:
 ```
-# AGENT CONTEXT: Senior Release Manager
+✅ Phase 3 Complete: Documentation updated
+   Files updated: 3
+   Sections added: User Guide, API Reference
+```
 
-You are a Senior Release Manager responsible for ensuring safe, reliable software releases. You orchestrate the release process from code validation through production deployment, coordinating across teams while maintaining high quality standards and managing risk. **Critical decisions require explicit human approval.**
+---
 
-## Core Responsibilities
-- **Release Coordination**: Orchestrating releases across teams
-- **Quality Validation**: Ensuring code meets production standards
-- **Risk Management**: Identifying and mitigating release risks
-- **Deployment Management**: Coordinating safe deployment to production
-- **Rollback Planning**: Preparing contingency plans
-- **Communication**: Keeping stakeholders informed
+### Phase 4: Acceptance Criteria Verification
 
-## Pre-Release Validation Checklist
-- ✓ Build success across all environments
-- ✓ All tests passing (unit, integration, e2e)
-- ✓ Code reviews completed and approved
-- ✓ Security scans passed (SAST, DAST, SCA)
-- ✓ Performance tests show no regressions
-- ✓ Documentation updated and complete
-- ✓ Monitoring and alerts configured
-- ✓ Rollback plan tested
+**Report progress**: Print "Phase 4: Verifying acceptance criteria completion..."
 
-## Release Types (all require human approval)
-- **Major (x.0.0)**: Breaking changes - Executive sign-off required
-- **Minor (x.y.0)**: New features - Product owner approval required
-- **Patch (x.y.z)**: Bug fixes - Engineering lead approval required
-- **Hotfix**: Critical fixes - On-call lead + stakeholder approval required
+This phase systematically verifies all task acceptance criteria are met.
 
-## Deployment Strategy
-- Progressive delivery (canary, blue-green, feature flags)
-- Staged rollout with monitoring
-- Automated rollback on failure detection
-- Post-deployment validation
-
-{{BACKLOG_INSTRUCTIONS}}
-
-# TASK: Conduct release readiness assessment for: [USER INPUT FEATURE]
-
-Validation Artifacts:
-[Include QA test report, security assessment, documentation, code review results]
-
-Backlog Context:
-[Include backlog tasks associated with this release]
-
-## Definition of Done Verification
-
-Before approving any release, verify all associated backlog tasks meet the Definition of Done:
-
-1. ✅ All acceptance criteria checked - Every task AC must be marked complete
-2. ✅ Implementation notes added - Each task must have implementation summary
-3. ✅ Tests passing - Verify test results for each task
-4. ✅ Code reviewed - Confirm review completion
-
-**Critical Rule**: Mark tasks as Done ONLY after ALL of the above criteria are verified.
+#### Step 1: Load Current Task State
 
 ```bash
-# Verify task readiness
-backlog task <id> --plain  # Check all ACs are marked complete
-
-# Only then mark as Done
-backlog task edit <id> -s Done
+# Reload task to get latest AC status
+backlog task <task-id> --plain
 ```
 
-Release Management Requirements:
+#### Step 2: Parse Acceptance Criteria
 
-1. **Pre-Release Validation**
-   - Review all quality gates status
-   - Verify all critical/high issues resolved
-   - Confirm test coverage meets threshold
-   - Validate security scan passed
-   - Check documentation completeness
-
-2. **Release Planning**
-   - Determine release type (major/minor/patch/hotfix)
-   - Plan deployment strategy (canary/blue-green/rolling)
-   - Schedule deployment window
-   - Identify stakeholders for approval
-   - Prepare rollback plan
-
-3. **Risk Assessment**
-   - Identify deployment risks
-   - Assess user impact
-   - Evaluate rollback complexity
-   - Review monitoring readiness
-
-4. **Release Checklist**
-   - [ ] All CI/CD pipelines passing
-   - [ ] Code reviews completed and approved
-   - [ ] Test coverage meets minimum threshold
-   - [ ] No critical or high severity bugs/security issues
-   - [ ] Performance benchmarks met
-   - [ ] Documentation updated
-   - [ ] Monitoring and alerts configured
-   - [ ] Rollback plan tested
-   - [ ] Stakeholders notified
-
-5. **Human Approval Request**
-   Prepare approval request with:
-   - Release summary
-   - Quality metrics
-   - Security status
-   - Risk assessment
-   - Deployment plan
-   - **REQUEST EXPLICIT HUMAN APPROVAL** before proceeding
-
-6. **Post-Approval Actions**
-   - Coordinate deployment execution
-   - Monitor deployment progress
-   - Validate post-deployment health
-   - Document release outcome
-
-Deliver release readiness report with clear go/no-go recommendation and human approval checkpoint.
+Extract the list of acceptance criteria with their checked status:
+```json
+{
+  "acceptanceCriteria": [
+    {"text": "Command accepts optional task-id argument", "checked": false},
+    {"text": "Executes phases in order", "checked": false},
+    ...
+  ]
+}
 ```
 
-### Deliverables
+#### Step 3: Verify Each AC
 
-- Comprehensive QA test report
-- Security assessment report
-- Complete documentation package
-- Release readiness assessment
-- **Human approval for production release**
-- Deployment plan and runbooks
+For each unchecked acceptance criterion:
+
+**Automated ACs** (can be verified by test results):
+- Check if corresponding tests passed in Phase 1
+- If tests passed, mark AC complete: `backlog task edit <task-id> --check-ac N`
+
+**Manual ACs** (require human verification):
+- Present AC to user
+- Show relevant evidence (test output, code changes, agent reports)
+- Ask user: "Has this acceptance criterion been met? [y/N]"
+- If yes, mark complete: `backlog task edit <task-id> --check-ac N`
+- If no, halt and report which AC failed
+
+#### Step 4: Verify 100% Completion
+
+After verification loop:
+```bash
+# Reload task to confirm all ACs checked
+backlog task <task-id> --plain
+```
+
+**Success criteria**: All ACs must have `"checked": true`
+
+**Error Handling**:
+- If any AC unchecked: "❌ Phase 4 Failed: {N} acceptance criteria not yet verified. Cannot proceed to completion."
+- List unchecked ACs by index and text
+
+**Phase 4 Success**: Print summary:
+```
+✅ Phase 4 Complete: All acceptance criteria verified
+   Total ACs: 8
+   Verified: 8
+   Status: 100% complete
+```
+
+---
+
+### Phase 5: Task Completion
+
+**Report progress**: Print "Phase 5: Generating implementation notes and marking task complete..."
+
+#### Step 1: Generate Implementation Summary
+
+Create comprehensive implementation notes based on:
+- What was implemented (from task description and changes)
+- How it was tested (from Phase 1 test results)
+- Key decisions made (from agent reports)
+- Validation results (from Phases 2-3)
+
+**Example implementation notes format**:
+```markdown
+## Implementation Summary (2025-12-01 15:30:00)
+
+### What Was Implemented
+Enhanced the /jpspec:validate command with phased orchestration workflow.
+Implemented 6 distinct phases with progress reporting and error handling.
+
+### Testing
+- All unit tests passing (45/45)
+- Integration tests passing (12/12)
+- Linting: No issues
+- Type checks: Passed
+
+### Key Decisions
+- Used TaskCompletionHandler pattern for AC verification
+- Implemented re-runnable workflow with state checks
+- Added progress reporting at each phase
+- Parallel agent execution in Phase 2 for efficiency
+
+### Validation Results
+- QA Guardian: 15 scenarios validated, all passed
+- Security Engineer: No critical vulnerabilities
+- Documentation: Updated 2 command files
+```
+
+#### Step 2: Add Implementation Notes
+
+```bash
+backlog task edit <task-id> --notes $'<implementation-summary>'
+```
+
+#### Step 3: Mark Task as Done
+
+**Important**: Only mark Done if task status is currently "In Progress"
+
+```bash
+# Check current status first
+backlog task <task-id> --plain
+
+# If status is "In Progress", mark Done
+if [ "$status" == "In Progress" ]; then
+  backlog task edit <task-id> -s Done
+fi
+```
+
+**Re-run handling**: If task already "Done", skip this step:
+```
+⏭️  Phase 5 Skipped: Task already marked Done
+```
+
+**Phase 5 Success**: Print summary:
+```
+✅ Phase 5 Complete: Task marked as Done
+   Task ID: task-094
+   Final Status: Done
+   Implementation notes: Added
+```
+
+---
+
+### Phase 6: Pull Request Generation
+
+**Report progress**: Print "Phase 6: Generating pull request with human approval..."
+
+This phase creates a well-formatted pull request using the PRGenerator pattern.
+
+#### Step 1: Check Branch Status
+
+```bash
+# Verify current branch is pushed to remote
+git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null
+```
+
+**If branch not pushed**:
+```
+⚠️  Warning: Current branch is not pushed to remote.
+Please push your branch first:
+  git push -u origin $(git branch --show-current)
+
+❌ Phase 6 Failed: Branch not pushed to remote
+```
+
+Halt and wait for user to push branch.
+
+#### Step 2: Generate PR Title
+
+Use conventional commit format derived from task title:
+```
+# Task title: "Integration - Enhanced /jpspec:validate Command"
+# PR title: "feat: enhanced /jpspec:validate command"
+```
+
+**PR Type Detection**:
+- If task has label "feature": `feat:`
+- If task has label "fix" or "bug": `fix:`
+- If task has label "docs": `docs:`
+- If task has label "refactor": `refactor:`
+- Default: `feat:`
+
+#### Step 3: Generate PR Body
+
+Create comprehensive PR body with sections:
+
+```markdown
+## Summary
+Completes task: task-094
+
+[Implementation notes from Phase 5]
+
+## Acceptance Criteria
+
+1. [x] Command accepts optional task-id argument; defaults to current in-progress task if not provided
+2. [x] Executes phases in order: 0 (load) → 1 (test) → 2 (agents, parallel) → 3 (verify) → 4 (complete) → 5 (PR)
+3. [x] Each phase reports progress to user before execution
+4. [x] Phase failures halt workflow with clear error message
+5. [x] Command can be re-run after fixing issues
+6. [x] Updates .claude/commands/jpspec/validate.md
+7. [x] Updates templates/commands/jpspec/validate.md
+8. [x] Includes comprehensive help text
+
+## Test Plan
+
+- ✅ Unit tests: 45 passed
+- ✅ Integration tests: 12 passed
+- ✅ Linting: No issues
+- ✅ Type checks: Passed
+- ✅ Manual testing: Validated all phases execute correctly
+
+## Validation Results
+
+- **QA Guardian**: 15 scenarios validated, all passed
+- **Security Engineer**: No critical vulnerabilities found
+- **Documentation**: Command files updated and validated
+```
+
+#### Step 4: Present PR Preview
+
+Display formatted PR preview to user:
+```
+================================================================================
+PR PREVIEW
+================================================================================
+
+Title: feat: enhanced /jpspec:validate command
+
+Body:
+--------------------------------------------------------------------------------
+[Full PR body as shown above]
+--------------------------------------------------------------------------------
+```
+
+#### Step 5: Request Human Approval
+
+**Critical**: Must get explicit approval before creating PR.
+
+```
+Create this pull request? [y/N]:
+```
+
+- If user enters `y` or `yes`: Proceed to Step 6
+- If user enters anything else: Cancel PR creation
+
+**If cancelled**:
+```
+❌ Phase 6 Cancelled: PR creation cancelled by user
+
+Next steps:
+- Review PR preview above
+- Make any needed changes
+- Re-run /jpspec:validate to try again
+```
+
+Exit gracefully without error.
+
+#### Step 6: Create PR Using gh CLI
+
+```bash
+gh pr create --title "<pr-title>" --body "<pr-body>"
+```
+
+**Error Handling**:
+- If `gh` not found: "❌ Phase 6 Failed: GitHub CLI not installed. Install from https://cli.github.com/"
+- If `gh pr create` fails: Display gh error message and halt
+- If PR already exists for branch: Display existing PR URL
+
+#### Step 7: Extract PR URL
+
+Parse PR URL from `gh` output and display to user.
+
+**Phase 6 Success**: Print summary:
+```
+✅ Phase 6 Complete: Pull request created successfully
+
+PR URL: https://github.com/owner/repo/pull/123
+Task: task-094 (Done)
+
+Workflow complete! 🎉
+```
+
+---
+
+## Workflow Complete
+
+After all phases complete successfully, display final summary:
+
+```
+================================================================================
+VALIDATION WORKFLOW COMPLETE
+================================================================================
+
+Task: task-094 - Integration - Enhanced /jpspec:validate Command
+Status: Done ✅
+
+Phase Summary:
+✅ Phase 0: Task loaded successfully
+✅ Phase 1: All automated tests passed
+✅ Phase 2: Agent validation passed (QA + Security)
+✅ Phase 3: Documentation updated
+✅ Phase 4: All acceptance criteria verified (8/8)
+✅ Phase 5: Task marked Done with implementation notes
+✅ Phase 6: Pull request created
+
+Pull Request: https://github.com/owner/repo/pull/123
+
+Next steps:
+1. Wait for CI/CD pipeline to complete
+2. Request code review if needed
+3. Merge PR once approved and all checks pass
+4. Delete feature branch after merge
+================================================================================
+```
+
+---
+
+## Error Recovery
+
+If any phase fails, the workflow halts with a clear error message. To recover:
+
+1. **Review the error message** - Identifies which phase failed and why
+2. **Fix the issue** - Address the root cause (failing tests, unchecked ACs, etc.)
+3. **Re-run the command** - Execute `/jpspec:validate <task-id>` again
+4. **Resume from where it left off** - Workflow is idempotent and handles partial completion
+
+**Example error recovery**:
+```bash
+# Phase 1 failed due to test failures
+❌ Phase 1 Failed: 3 test(s) failed. Fix tests before continuing.
+
+# Developer fixes tests
+# Re-run validate command
+/jpspec:validate task-094
+
+# Workflow detects tests now pass and continues from Phase 2
+```
+
+---
+
+## Help Text
+
+**Command**: `/jpspec:validate [task-id]`
+
+**Purpose**: Execute comprehensive validation workflow with task orchestration, automated testing, agent validation, AC verification, and PR generation.
+
+**Arguments**:
+- `task-id` (optional): Specific task ID to validate (e.g., `task-094`)
+- If not provided: Automatically discovers the single "In Progress" task
+
+**Workflow Phases**:
+1. **Phase 0: Task Discovery & Load** - Find and load target task
+2. **Phase 1: Automated Testing** - Run tests, linting, type checks
+3. **Phase 2: Agent Validation** - Launch QA Guardian and Security Engineer (parallel)
+4. **Phase 3: Documentation** - Launch Technical Writer agent
+5. **Phase 4: AC Verification** - Verify all acceptance criteria met
+6. **Phase 5: Task Completion** - Generate notes and mark task Done
+7. **Phase 6: PR Generation** - Create pull request with human approval
+
+**Examples**:
+
+```bash
+# Validate specific task
+/jpspec:validate task-094
+
+# Auto-discover in-progress task
+/jpspec:validate
+```
+
+**Features**:
+- ✅ Phased execution with progress reporting
+- ✅ Phase failures halt workflow with clear error messages
+- ✅ Re-runnable after fixing issues (handles partial completion)
+- ✅ Automated test execution and validation
+- ✅ Parallel agent execution for efficiency
+- ✅ Systematic AC verification (automated + manual)
+- ✅ Comprehensive implementation notes generation
+- ✅ PR generation with human approval gate
+
+**Requirements**:
+- Task must be in "In Progress" status
+- Tests must pass before proceeding
+- All acceptance criteria must be verified
+- Branch must be pushed to remote before PR creation
+- GitHub CLI (`gh`) must be installed for PR creation
+
+**Error Recovery**:
+If a phase fails, fix the issue and re-run the command. The workflow will resume from where it left off.
+
+**See Also**:
+- `/jpspec:implement` - Implementation workflow
+- `/jpspec:plan` - Planning workflow
+- `backlog task` - Task management commands
