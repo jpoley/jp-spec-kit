@@ -4104,6 +4104,11 @@ def workflow_validate(
         "-v",
         help="Show detailed validation output",
     ),
+    json_output: bool = typer.Option(
+        False,
+        "--json",
+        help="Output results in JSON format (for CI/automation)",
+    ),
 ):
     """Validate workflow configuration file.
 
@@ -4115,13 +4120,30 @@ def workflow_validate(
         specify workflow validate                    # Validate default config
         specify workflow validate --file custom.yml  # Validate custom config
         specify workflow validate --verbose          # Show detailed output
+        specify workflow validate --json             # JSON output for CI
     """
+    import json
     from pathlib import Path
 
     from specify_cli.workflow.config import WorkflowConfig
+    from specify_cli.workflow.exceptions import (
+        WorkflowConfigError,
+        WorkflowConfigNotFoundError,
+        WorkflowConfigValidationError,
+    )
     from specify_cli.workflow.validator import WorkflowValidator
 
-    console.print("[cyan]Validating workflow configuration...[/cyan]\n")
+    # Track results for JSON output
+    json_result = {
+        "valid": False,
+        "config_file": None,
+        "schema_validation": {"passed": False, "error": None},
+        "semantic_validation": {"passed": False, "errors": [], "warnings": []},
+    }
+
+    # Human-readable output (unless --json)
+    if not json_output:
+        console.print("[cyan]Validating workflow configuration...[/cyan]\n")
 
     # Load and validate config
     try:
@@ -4130,24 +4152,98 @@ def workflow_validate(
         else:
             config = WorkflowConfig.load(validate=True, cache=False)
 
-        console.print("[green]✓[/green] Schema validation passed")
-        if verbose:
-            console.print(f"  Config file: {config.config_path}")
-            console.print(f"  Version: {config.version}")
-            console.print(f"  States: {len(config.states)}")
-            console.print(f"  Workflows: {len(config.workflows)}")
-            console.print()
+        json_result["config_file"] = str(config.config_path)
+        json_result["schema_validation"]["passed"] = True
 
-    except Exception as e:
-        console.print(f"[red]✗ Schema validation failed:[/red] {e}")
+        if not json_output:
+            console.print("[green]✓[/green] Schema validation passed")
+            if verbose:
+                console.print(f"  Config file: {config.config_path}")
+                console.print(f"  Version: {config.version}")
+                console.print(f"  States: {len(config.states)}")
+                console.print(f"  Workflows: {len(config.workflows)}")
+                console.print()
+
+    except WorkflowConfigNotFoundError as e:
+        json_result["schema_validation"]["error"] = {
+            "type": "file_not_found",
+            "message": e.message,
+            "path": e.path,
+            "searched_paths": e.searched_paths,
+        }
+        if json_output:
+            print(json.dumps(json_result, indent=2))
+        else:
+            console.print(f"[red]✗ Config file not found:[/red] {e.path}")
+            if e.searched_paths:
+                console.print("[dim]Searched paths:[/dim]")
+                for path in e.searched_paths:
+                    console.print(f"  [dim]- {path}[/dim]")
+        raise typer.Exit(2)
+
+    except WorkflowConfigValidationError as e:
+        json_result["schema_validation"]["error"] = {
+            "type": "schema_validation",
+            "message": e.message,
+            "errors": e.errors,
+        }
+        if json_output:
+            print(json.dumps(json_result, indent=2))
+        else:
+            console.print(f"[red]✗ Schema validation failed:[/red] {e.message}")
+            if e.errors:
+                for err in e.errors:
+                    console.print(f"  [red]•[/red] {err}")
         raise typer.Exit(1)
 
+    except WorkflowConfigError as e:
+        json_result["schema_validation"]["error"] = {
+            "type": "config_error",
+            "message": str(e),
+            "details": e.details,
+        }
+        if json_output:
+            print(json.dumps(json_result, indent=2))
+        else:
+            console.print(f"[red]✗ Config error:[/red] {e}")
+        raise typer.Exit(2)
+
+    except Exception as e:
+        json_result["schema_validation"]["error"] = {
+            "type": "unexpected_error",
+            "message": str(e),
+        }
+        if json_output:
+            print(json.dumps(json_result, indent=2))
+        else:
+            console.print(f"[red]✗ Unexpected error:[/red] {e}")
+        raise typer.Exit(2)
+
     # Run semantic validation
-    console.print("[cyan]Running semantic validation...[/cyan]\n")
+    if not json_output:
+        console.print("[cyan]Running semantic validation...[/cyan]\n")
 
     validator = WorkflowValidator(config._data)
     result = validator.validate()
 
+    # Populate JSON result with semantic validation data
+    json_result["semantic_validation"]["passed"] = result.is_valid
+    json_result["semantic_validation"]["errors"] = [
+        {"code": e.code, "message": e.message, "context": e.context}
+        for e in result.errors
+    ]
+    json_result["semantic_validation"]["warnings"] = [
+        {"code": w.code, "message": w.message, "context": w.context}
+        for w in result.warnings
+    ]
+    json_result["valid"] = result.is_valid
+
+    # JSON output mode (use print() to avoid Rich formatting)
+    if json_output:
+        print(json.dumps(json_result, indent=2))
+        raise typer.Exit(0 if result.is_valid else 1)
+
+    # Human-readable output
     if result.is_valid:
         console.print(
             "[bold green]✓ Validation passed: workflow configuration is valid[/bold green]"

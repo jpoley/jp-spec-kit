@@ -477,13 +477,23 @@ class WorkflowValidator:
             agents = workflow.get("agents", [])
             if isinstance(agents, list):
                 for agent in agents:
-                    if agent and agent not in self.KNOWN_AGENTS:
+                    # Handle both string agents and agent objects with 'name' field
+                    if isinstance(agent, dict):
+                        agent_name = agent.get("name")
+                        if not agent_name:
+                            continue
+                    elif isinstance(agent, str):
+                        agent_name = agent
+                    else:
+                        continue
+
+                    if agent_name and agent_name not in self.KNOWN_AGENTS:
                         result.add_warning(
                             "UNKNOWN_AGENT",
                             f"Workflow '{workflow_name}' references unknown "
-                            f"agent '{agent}'. This may be a custom agent or typo.",
+                            f"agent '{agent_name}'. This may be a custom agent or typo.",
                             workflow=workflow_name,
-                            agent=agent,
+                            agent=agent_name,
                             known_agents=sorted(self.KNOWN_AGENTS),
                         )
 
@@ -491,13 +501,23 @@ class WorkflowValidator:
         for loop_type, agents in self._agent_loops.items():
             if isinstance(agents, list):
                 for agent in agents:
-                    if agent and agent not in self.KNOWN_AGENTS:
+                    # Handle both string agents and agent objects with 'name' field
+                    if isinstance(agent, dict):
+                        agent_name = agent.get("name")
+                        if not agent_name:
+                            continue
+                    elif isinstance(agent, str):
+                        agent_name = agent
+                    else:
+                        continue
+
+                    if agent_name and agent_name not in self.KNOWN_AGENTS:
                         result.add_warning(
                             "UNKNOWN_AGENT_IN_LOOP",
                             f"Agent loop '{loop_type}' references unknown "
-                            f"agent '{agent}'.",
+                            f"agent '{agent_name}'.",
                             loop_type=loop_type,
-                            agent=agent,
+                            agent=agent_name,
                         )
 
     def _check_cycles(self, result: ValidationResult) -> None:

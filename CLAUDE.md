@@ -75,13 +75,26 @@ workflows:
 ### Validate Workflow Configuration
 
 ```bash
+# Validate default jpspec_workflow.yml
 specify workflow validate
 
+# Validate custom workflow file
+specify workflow validate --file custom_workflow.yml
+
+# Show detailed output with warnings
+specify workflow validate --verbose
+
+# JSON output for CI/automation
+specify workflow validate --json
+
 # Example output:
-# ✓ Configuration structure valid (schema v1.1)
-# ✓ No cycles detected in state transitions
-# ✓ All states reachable from "To Do"
-# ✓ Terminal states configured
+# ✓ Schema validation passed
+# ✓ Validation passed: workflow configuration is valid
+
+# Exit codes:
+# 0 = validation passed
+# 1 = validation errors (schema or semantic)
+# 2 = file errors (not found, invalid YAML)
 ```
 
 ### Quick Reference: Commands and Workflow Phases
