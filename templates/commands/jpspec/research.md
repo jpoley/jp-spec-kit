@@ -11,6 +11,22 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
+## Output Artifacts
+
+All artifacts are written to standardized locations:
+
+| Artifact Type | Output Location | Description |
+|---------------|-----------------|-------------|
+| Research Report | `./docs/research/{feature}-research.md` | Comprehensive research findings and business validation |
+
+## Feature Naming
+
+The `{feature}` slug is derived from the feature name:
+- Convert to lowercase
+- Replace spaces with hyphens
+- Remove special characters
+- Example: "User Authentication" → "user-authentication" → `./docs/research/user-authentication-research.md`
+
 ## Outline
 
 This command orchestrates research and business validation using two specialized agents:
@@ -42,9 +58,29 @@ This command orchestrates research and business validation using two specialized
    - Generate validation report
 
 4. **Output**:
-   - Consolidated research document
+   - Consolidated research document at `./docs/research/{feature}-research.md`
    - Business validation assessment
    - Recommendations for next steps
+
+## Completion Checklist
+
+Before completing this command, verify:
+
+- [ ] `./docs/research/` directory exists
+- [ ] Research report created at `./docs/research/{feature}-research.md`
+- [ ] Market research findings are documented
+- [ ] Competitive landscape analysis is complete
+- [ ] Technical feasibility is assessed
+- [ ] Business validation includes clear Go/No-Go/Proceed-with-Caution recommendation
+- [ ] Follow-up implementation or spike tasks have been created
+
+## Transition Validation
+
+This command can transition workflow state: **"Assessed" → "Researched"** or **"Specified" → "Researched"**
+
+**Validation Mode**: Configured per project (see `.specify/workflow/transition-validation.yml`)
+
+See task-175 for validation mode implementation details.
 
 ## Notes
 
