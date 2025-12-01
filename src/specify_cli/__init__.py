@@ -711,6 +711,11 @@ def generate_jpspec_workflow_yml(
         elif mode.startswith("keyword["):
             # Already in KEYWORD["..."] format
             return mode.upper()
+        # Warn about invalid mode
+        console = Console(stderr=True)
+        console.print(
+            f"[yellow][bold]Warning:[/bold] Unknown validation mode '{mode}'. Defaulting to 'NONE'.[/yellow]"
+        )
         return "NONE"
 
     # Build YAML content
