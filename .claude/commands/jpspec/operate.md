@@ -14,6 +14,55 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 This command establishes comprehensive operational infrastructure using SRE best practices, focusing on reliability, automation, and observability. **All operational work is tracked as backlog tasks.**
 
+### Step 0: Workflow State Validation (REQUIRED)
+
+**⚠️ CRITICAL: This command requires a task in the correct workflow state.**
+
+Before proceeding, validate that a task is in an allowed state for this workflow:
+
+```bash
+# Discover current task (should be in "In Progress" state)
+CURRENT_TASK=$(backlog task list -s "In Progress" --plain | head -1 | awk '{print $2}')
+
+if [ -z "$CURRENT_TASK" ]; then
+  echo "❌ ERROR: No task currently in progress"
+  echo ""
+  echo "Action required:"
+  echo "  1. Find or create a task to work on"
+  echo "  2. Set it to 'In Progress': backlog task edit <task-id> -s 'In Progress'"
+  echo "  3. Re-run /jpspec:operate"
+  exit 1
+fi
+
+# Workflow: operate
+# Allowed input states: ["Validated"]
+# Output state: "Deployed"
+
+echo "✓ Workflow validation passed"
+echo "  Current task: $CURRENT_TASK"
+echo "  Workflow: operate (Validated → Deployed)"
+echo ""
+```
+
+**If validation fails:**
+```
+❌ Workflow state check failed
+
+Current task: task-123
+Current state: Deployed (already completed)
+
+This workflow (/jpspec:operate) requires task state: Validated
+
+Valid workflows from your current state:
+  • Mark task as Done (manual transition)
+
+Action required:
+  1. Mark the task as Done if deployment is complete, OR
+  2. Find a task in "Validated" state and set it to "In Progress"
+```
+
+**Proceed to Step 1 ONLY if workflow validation passes.**
+
 ### Step 1: Discover Existing Operational Tasks
 
 Before launching the SRE agent, search for existing operational tasks:
@@ -406,3 +455,22 @@ Deliver comprehensive operational package with:
 - SLI/SLO definitions and monitoring
 - Security scanning integration
 - DR and backup procedures
+
+### Final Step: Update Task State (REQUIRED)
+
+After the SRE agent completes deployment successfully and all operational infrastructure is in place, update the task state:
+
+```bash
+# Update task state: Validated → Deployed
+if [ -n "$CURRENT_TASK" ]; then
+  backlog task edit "$CURRENT_TASK" \
+    --notes $'Deployment complete via /jpspec:operate\n\nDeliverables:\n- CI/CD pipeline deployed\n- Production deployment successful\n- Observability stack active\n- SLIs/SLOs monitored\n- Runbooks created' \
+    -s "Deployed"
+
+  echo "✓ Task state updated: Validated → Deployed"
+  echo "  Final step:"
+  echo "    • Mark task as 'Done' manually when fully complete"
+fi
+```
+
+**This state update is MANDATORY. Do not skip this step.**

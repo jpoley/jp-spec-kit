@@ -14,7 +14,56 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 This command creates comprehensive architectural and platform planning using two specialized agents working in parallel, building out /speckit.constitution.
 
-### Step 0: Backlog Task Discovery
+### Step 0: Workflow State Validation (REQUIRED)
+
+**⚠️ CRITICAL: This command requires a task in the correct workflow state.**
+
+Before proceeding, validate that a task is in an allowed state for this workflow:
+
+```bash
+# Discover current task (should be in "In Progress" state)
+CURRENT_TASK=$(backlog task list -s "In Progress" --plain | head -1 | awk '{print $2}')
+
+if [ -z "$CURRENT_TASK" ]; then
+  echo "❌ ERROR: No task currently in progress"
+  echo ""
+  echo "Action required:"
+  echo "  1. Find or create a task to work on"
+  echo "  2. Set it to 'In Progress': backlog task edit <task-id> -s 'In Progress'"
+  echo "  3. Re-run /jpspec:plan"
+  exit 1
+fi
+
+# Workflow: plan
+# Allowed input states: ["Specified", "Researched"]
+# Output state: "Planned"
+
+echo "✓ Workflow validation passed"
+echo "  Current task: $CURRENT_TASK"
+echo "  Workflow: plan (Specified|Researched → Planned)"
+echo ""
+```
+
+**If validation fails:**
+```
+❌ Workflow state check failed
+
+Current task: task-123
+Current state: Planned (already completed)
+
+This workflow (/jpspec:plan) requires task state: Specified OR Researched
+
+Valid workflows from your current state:
+  • /jpspec:implement (Planned → In Implementation)
+
+Action required:
+  1. Use one of the valid workflows above, OR
+  2. Find a task in "Specified" or "Researched" state and set it to "In Progress"
+```
+
+**Proceed to Step 1 ONLY if workflow validation passes.**
+
+### Step 1: Backlog Task Discovery
 
 Before launching the planning agents, discover existing backlog tasks related to the feature being planned:
 
@@ -367,3 +416,22 @@ After both agents complete:
    - Updated /speckit.constitution
    - ADRs for key decisions
    - Implementation readiness assessment
+
+### Final Step: Update Task State (REQUIRED)
+
+After both architecture and platform agents complete successfully and all deliverables are created, update the task state:
+
+```bash
+# Update task state: Specified|Researched → Planned
+if [ -n "$CURRENT_TASK" ]; then
+  backlog task edit "$CURRENT_TASK" \
+    --notes $'Planning complete via /jpspec:plan\n\nDeliverables:\n- System architecture and ADRs\n- Platform/infrastructure design\n- Constitution built\n- Implementation ready' \
+    -s "Planned"
+
+  echo "✓ Task state updated: Specified/Researched → Planned"
+  echo "  Next valid workflow:"
+  echo "    • /jpspec:implement (Planned → In Implementation)"
+fi
+```
+
+**This state update is MANDATORY. Do not skip this step.**

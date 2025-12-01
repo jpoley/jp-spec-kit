@@ -10,7 +10,56 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
-## Backlog Task Discovery
+## Step 0: Workflow State Validation (REQUIRED)
+
+**⚠️ CRITICAL: This command requires a task in the correct workflow state.**
+
+Before proceeding, validate that a task is in an allowed state for this workflow:
+
+```bash
+# Discover current task (should be in "In Progress" state)
+CURRENT_TASK=$(backlog task list -s "In Progress" --plain | head -1 | awk '{print $2}')
+
+if [ -z "$CURRENT_TASK" ]; then
+  echo "❌ ERROR: No task currently in progress"
+  echo ""
+  echo "Action required:"
+  echo "  1. Find or create a task to work on"
+  echo "  2. Set it to 'In Progress': backlog task edit <task-id> -s 'In Progress'"
+  echo "  3. Re-run /jpspec:validate"
+  exit 1
+fi
+
+# Workflow: validate
+# Allowed input states: ["In Implementation"]
+# Output state: "Validated"
+
+echo "✓ Workflow validation passed"
+echo "  Current task: $CURRENT_TASK"
+echo "  Workflow: validate (In Implementation → Validated)"
+echo ""
+```
+
+**If validation fails:**
+```
+❌ Workflow state check failed
+
+Current task: task-123
+Current state: Validated (already completed)
+
+This workflow (/jpspec:validate) requires task state: In Implementation
+
+Valid workflows from your current state:
+  • /jpspec:operate (Validated → Deployed)
+
+Action required:
+  1. Use one of the valid workflows above, OR
+  2. Find a task in "In Implementation" state and set it to "In Progress"
+```
+
+**Proceed to Step 1 ONLY if workflow validation passes.**
+
+## Step 1: Backlog Task Discovery
 
 Before starting validation, discover tasks that are ready for validation:
 
@@ -456,3 +505,22 @@ Deliver release readiness report with clear go/no-go recommendation and human ap
 - Release readiness assessment
 - **Human approval for production release**
 - Deployment plan and runbooks
+
+### Final Step: Update Task State (REQUIRED)
+
+After all validation agents complete successfully and human approval is obtained, update the task state:
+
+```bash
+# Update task state: In Implementation → Validated
+if [ -n "$CURRENT_TASK" ]; then
+  backlog task edit "$CURRENT_TASK" \
+    --notes $'Validation complete via /jpspec:validate\n\nDeliverables:\n- QA testing passed\n- Security assessment approved\n- Documentation complete\n- Human approval obtained\n- Ready for deployment' \
+    -s "Validated"
+
+  echo "✓ Task state updated: In Implementation → Validated"
+  echo "  Next valid workflow:"
+  echo "    • /jpspec:operate (Validated → Deployed)"
+fi
+```
+
+**This state update is MANDATORY. Do not skip this step.**

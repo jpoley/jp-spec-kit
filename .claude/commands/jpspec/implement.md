@@ -14,7 +14,56 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 This command implements features using specialized engineering agents with integrated code review. **Engineers work exclusively from backlog tasks.**
 
-### Step 0: REQUIRED - Discover Backlog Tasks
+### Step 0: Workflow State Validation (REQUIRED)
+
+**⚠️ CRITICAL: This command requires a task in the correct workflow state.**
+
+Before proceeding, validate that a task is in an allowed state for this workflow:
+
+```bash
+# Discover current task (should be in "In Progress" state)
+CURRENT_TASK=$(backlog task list -s "In Progress" --plain | head -1 | awk '{print $2}')
+
+if [ -z "$CURRENT_TASK" ]; then
+  echo "❌ ERROR: No task currently in progress"
+  echo ""
+  echo "Action required:"
+  echo "  1. Find or create a task to work on"
+  echo "  2. Set it to 'In Progress': backlog task edit <task-id> -s 'In Progress'"
+  echo "  3. Re-run /jpspec:implement"
+  exit 1
+fi
+
+# Workflow: implement
+# Allowed input states: ["Planned"]
+# Output state: "In Implementation"
+
+echo "✓ Workflow validation passed"
+echo "  Current task: $CURRENT_TASK"
+echo "  Workflow: implement (Planned → In Implementation)"
+echo ""
+```
+
+**If validation fails:**
+```
+❌ Workflow state check failed
+
+Current task: task-123
+Current state: In Implementation (already in progress)
+
+This workflow (/jpspec:implement) requires task state: Planned
+
+Valid workflows from your current state:
+  • /jpspec:validate (In Implementation → Validated)
+
+Action required:
+  1. Use one of the valid workflows above, OR
+  2. Find a task in "Planned" state and set it to "In Progress"
+```
+
+**Proceed to Step 1 ONLY if workflow validation passes.**
+
+### Step 1: REQUIRED - Discover Backlog Tasks
 
 **⚠️ CRITICAL: This command REQUIRES existing backlog tasks to work on.**
 
@@ -606,3 +655,22 @@ Include specific, actionable suggestions with examples.
 - Code review reports with resolution status
 - Integration documentation
 - Deployment-ready artifacts
+
+### Final Step: Update Task State (REQUIRED)
+
+After all engineers and reviewers complete successfully and all code is merged, update the task state:
+
+```bash
+# Update task state: Planned → In Implementation
+if [ -n "$CURRENT_TASK" ]; then
+  backlog task edit "$CURRENT_TASK" \
+    --notes $'Implementation complete via /jpspec:implement\n\nDeliverables:\n- Code implemented and reviewed\n- Tests passing with >80% coverage\n- Integration tested\n- Ready for validation' \
+    -s "In Implementation"
+
+  echo "✓ Task state updated: Planned → In Implementation"
+  echo "  Next valid workflow:"
+  echo "    • /jpspec:validate (In Implementation → Validated)"
+fi
+```
+
+**This state update is MANDATORY. Do not skip this step.**

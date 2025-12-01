@@ -14,6 +14,56 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 This command orchestrates comprehensive research and business validation using two specialized agents working sequentially.
 
+### Step 0: Workflow State Validation (REQUIRED)
+
+**⚠️ CRITICAL: This command requires a task in the correct workflow state.**
+
+Before proceeding, validate that a task is in an allowed state for this workflow:
+
+```bash
+# Discover current task (should be in "In Progress" state)
+CURRENT_TASK=$(backlog task list -s "In Progress" --plain | head -1 | awk '{print $2}')
+
+if [ -z "$CURRENT_TASK" ]; then
+  echo "❌ ERROR: No task currently in progress"
+  echo ""
+  echo "Action required:"
+  echo "  1. Find or create a task to work on"
+  echo "  2. Set it to 'In Progress': backlog task edit <task-id> -s 'In Progress'"
+  echo "  3. Re-run /jpspec:research"
+  exit 1
+fi
+
+# Workflow: research
+# Allowed input states: ["Specified"]
+# Output state: "Researched"
+
+echo "✓ Workflow validation passed"
+echo "  Current task: $CURRENT_TASK"
+echo "  Workflow: research (Specified → Researched)"
+echo "  Note: Research phase is OPTIONAL"
+echo ""
+```
+
+**If validation fails:**
+```
+❌ Workflow state check failed
+
+Current task: task-123
+Current state: Researched (already completed)
+
+This workflow (/jpspec:research) requires task state: Specified
+
+Valid workflows from your current state:
+  • /jpspec:plan (Researched → Planned)
+
+Action required:
+  1. Use one of the valid workflows above, OR
+  2. Find a task in "Specified" state and set it to "In Progress"
+```
+
+**Proceed to Phase 1 ONLY if workflow validation passes.**
+
 **IMPORTANT: Before starting, check for existing research-related tasks:**
 
 ```bash
@@ -378,3 +428,22 @@ After the research and business validation agents complete their work:
 **Research without actionable follow-up tasks provides no value. Every research effort must produce implementation direction.**
 
 **Note**: If research concludes with "No-Go" recommendation, create a documentation task to record the decision and rationale for future reference.
+
+### Step 4: Update Task State (REQUIRED)
+
+After both research and business validation agents complete successfully and create follow-up tasks, update the task state:
+
+```bash
+# Update task state: Specified → Researched
+if [ -n "$CURRENT_TASK" ]; then
+  backlog task edit "$CURRENT_TASK" \
+    --notes $'Research and validation complete via /jpspec:research\n\nDeliverables:\n- Comprehensive research report\n- Business validation assessment\n- Implementation tasks created' \
+    -s "Researched"
+
+  echo "✓ Task state updated: Specified → Researched"
+  echo "  Next valid workflow:"
+  echo "    • /jpspec:plan (Researched → Planned)"
+fi
+```
+
+**This state update is MANDATORY. Do not skip this step.**

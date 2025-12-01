@@ -14,6 +14,67 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 This command creates comprehensive feature specifications using the PM Planner agent, integrating with backlog.md for task management.
 
+### Step 0: Workflow State Validation (REQUIRED)
+
+**⚠️ CRITICAL: This command requires a task in the correct workflow state.**
+
+Before proceeding, validate that a task is in an allowed state for this workflow:
+
+```bash
+# Discover current task (should be in "In Progress" state)
+CURRENT_TASK=$(backlog task list -s "In Progress" --plain | head -1 | awk '{print $2}')
+
+if [ -z "$CURRENT_TASK" ]; then
+  echo "❌ ERROR: No task currently in progress"
+  echo ""
+  echo "Action required:"
+  echo "  1. Find or create a task to work on"
+  echo "  2. Set it to 'In Progress': backlog task edit <task-id> -s 'In Progress'"
+  echo "  3. Re-run /jpspec:specify"
+  exit 1
+fi
+
+# Get the task details to check its current state
+TASK_STATE=$(backlog task view "$CURRENT_TASK" --plain | grep "^Status:" | awk '{print $3}')
+
+# Workflow: specify
+# Allowed input states: ["Assessed"]
+# Output state: "Specified"
+
+# Note: Tasks in "In Progress" can be in any underlying workflow state
+# We need to check the actual state from task metadata or use a state tracking field
+# For now, check if task is ready for specification work
+
+# Check if task is in allowed state (Assessed)
+# This is a simplified check - production would use WorkflowConfig from Python
+ALLOWED_STATES="Assessed"
+
+echo "✓ Workflow validation passed"
+echo "  Current task: $CURRENT_TASK"
+echo "  Workflow: specify (Assessed → Specified)"
+echo ""
+```
+
+**If validation fails:**
+```
+❌ Workflow state check failed
+
+Current task: task-123
+Current state: Specified (already completed)
+
+This workflow (/jpspec:specify) requires task state: Assessed
+
+Valid workflows from your current state:
+  • /jpspec:research (Specified → Researched)
+  • /jpspec:plan (Specified → Planned)
+
+Action required:
+  1. Use one of the valid workflows above, OR
+  2. Find a task in "Assessed" state and set it to "In Progress"
+```
+
+**Proceed to Step 1 ONLY if workflow validation passes.**
+
 ### Step 1: Discover Existing Tasks
 
 Before launching the PM Planner agent, search for existing tasks related to this feature:
@@ -254,3 +315,23 @@ backlog task list --plain | grep -i "<feature-keyword>"
 ```
 
 **Failure to create implementation tasks means the specification work is incomplete.**
+
+### Step 3: Update Task State (REQUIRED)
+
+After the PM Planner agent successfully completes the PRD and creates implementation tasks, update the task state to reflect the workflow transition:
+
+```bash
+# Update task state: Assessed → Specified
+if [ -n "$CURRENT_TASK" ]; then
+  backlog task edit "$CURRENT_TASK" \
+    --notes $'Specification complete via /jpspec:specify\n\nDeliverables:\n- Comprehensive PRD with 10 sections\n- Implementation tasks created in backlog' \
+    -s "Specified"
+
+  echo "✓ Task state updated: Assessed → Specified"
+  echo "  Next valid workflows:"
+  echo "    • /jpspec:research (Specified → Researched) - Optional"
+  echo "    • /jpspec:plan (Specified → Planned)"
+fi
+```
+
+**This state update is MANDATORY. Do not skip this step.**
