@@ -38,6 +38,24 @@ fi
 # Allowed input states: ["Validated"]
 # Output state: "Deployed"
 
+# Check that the current task is in the "Validated" state
+CURRENT_STATE=$(backlog task show "$CURRENT_TASK" --plain | grep "^State:" | awk '{print $2}')
+if [ "$CURRENT_STATE" != "Validated" ]; then
+  echo "❌ Workflow state check failed"
+  echo ""
+  echo "Current task: $CURRENT_TASK"
+  echo "Current state: $CURRENT_STATE"
+  echo ""
+  echo "This workflow (/jpspec:operate) requires task state: Validated"
+  echo ""
+  echo "Valid workflows from your current state:"
+  echo "  • Mark task as Done (manual transition)"
+  echo ""
+  echo "Action required:"
+  echo "  1. Mark the task as Done if deployment is complete, OR"
+  echo "  2. Find a task in \"Validated\" state and set it to \"In Progress\""
+  exit 1
+fi
 echo "✓ Workflow validation passed"
 echo "  Current task: $CURRENT_TASK"
 echo "  Workflow: operate (Validated → Deployed)"
