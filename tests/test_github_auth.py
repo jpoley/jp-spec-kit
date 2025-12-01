@@ -138,8 +138,8 @@ class TestGitHubAuthRetry:
             "tag_name": "v1.0.0",
             "assets": [
                 {
-                    "name": "templates.tar.gz",
-                    "browser_download_url": "https://example.com/t.tar.gz",
+                    "name": "spec-kit-template-claude-sh.zip",
+                    "browser_download_url": "https://example.com/t.zip",
                 }
             ],
         }
@@ -160,7 +160,7 @@ class TestGitHubAuthRetry:
                     verbose=False,
                 )
             except Exception:
-                pass  # Expected - no actual download
+                pass  # Expected - actual download will fail
 
         # Should have made at least one call
         assert mock_client.get.call_count >= 1
@@ -179,8 +179,8 @@ class TestGitHubAuthRetry:
             "tag_name": "v1.0.0",
             "assets": [
                 {
-                    "name": "templates.tar.gz",
-                    "browser_download_url": "https://example.com/t.tar.gz",
+                    "name": "spec-kit-template-claude-sh.zip",
+                    "browser_download_url": "https://example.com/t.zip",
                 }
             ],
         }
@@ -200,7 +200,7 @@ class TestGitHubAuthRetry:
                     verbose=False,
                 )
             except Exception:
-                pass  # Expected - no actual download
+                pass  # Expected - actual download will fail
 
         # Should have made 2 calls: first with token (401), second without (200)
         assert mock_client.get.call_count >= 2
@@ -310,8 +310,8 @@ class TestGitHubAuthRetry:
             "tag_name": "v1.0.0",
             "assets": [
                 {
-                    "name": "templates.tar.gz",
-                    "browser_download_url": "https://example.com/t.tar.gz",
+                    "name": "spec-kit-template-claude-sh.zip",
+                    "browser_download_url": "https://example.com/t.zip",
                 }
             ],
         }
@@ -331,7 +331,7 @@ class TestGitHubAuthRetry:
                     verbose=False,
                 )
             except Exception:
-                pass
+                pass  # Expected - actual download will fail but we're testing auth
 
         # All calls should have Authorization header (no retry without auth needed)
         for call in mock_client.get.call_args_list:
