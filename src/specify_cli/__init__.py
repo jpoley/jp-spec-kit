@@ -1812,7 +1812,7 @@ def init(
     light: bool = typer.Option(
         False,
         "--light",
-        help="Use spec-light mode for medium-complexity features (40-50% faster workflow)",
+        help="Use spec-light mode for medium-complexity features (~60% faster workflow)",
     ),
 ):
     """
