@@ -191,7 +191,7 @@ class TransitionValidator:
                 parent = full_path.parent
                 if not parent.exists():
                     missing_artifacts.append(artifact.type)
-                else:
+                    continue
                     # Check for matching files using relative paths from base_path
                     # artifact.matches_pattern expects paths like "./docs/adr/ADR-001-auth.md"
                     matched = False
