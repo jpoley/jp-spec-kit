@@ -14,6 +14,28 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 This command creates comprehensive feature specifications using the PM Planner agent, integrating with backlog.md for task management.
 
+### Step 0: Workflow State Validation
+
+**CRITICAL**: Before proceeding, validate that the current task is in an allowed state for this workflow.
+
+```bash
+# Get current task ID from user input or context
+# Example: TASK_ID="task-123"
+
+# Get current task state
+CURRENT_STATE=$(backlog task $TASK_ID --plain | grep "^Status:" | cut -d':' -f2 | xargs)
+
+# Validate state allows specify workflow
+python3 scripts/check-workflow-state.py specify "$CURRENT_STATE"
+
+# If the above command fails (exit code 1), STOP HERE and show the error message
+# The script will suggest valid workflows for the current state
+```
+
+If state validation fails, **DO NOT PROCEED** with the workflow. Show the user the error message and suggested next steps.
+
+If state validation passes (or no jpspec_workflow.yml exists), continue to Step 1.
+
 ### Step 1: Discover Existing Tasks
 
 Before launching the PM Planner agent, search for existing tasks related to this feature:
@@ -254,3 +276,15 @@ backlog task list --plain | grep -i "<feature-keyword>"
 ```
 
 **Failure to create implementation tasks means the specification work is incomplete.**
+
+### Final Step: Update Task State
+
+After the PM Planner agent completes successfully, update the task state:
+
+```bash
+# Update task state to "Specified" after successful completion
+backlog task edit $TASK_ID -s "Specified" \
+  --append-notes $'Workflow: /jpspec:specify completed\nPRD created and implementation tasks added to backlog'
+```
+
+This ensures the task progresses through the workflow state machine correctly.

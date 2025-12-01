@@ -10,6 +10,27 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
+## Workflow State Validation
+
+**CRITICAL**: Before proceeding, validate that the current task is in an allowed state for this workflow.
+
+```bash
+# Get current task ID from user input or context
+# Example: TASK_ID="task-123"
+
+# Get current task state
+CURRENT_STATE=$(backlog task $TASK_ID --plain | grep "^Status:" | cut -d':' -f2 | xargs)
+
+# Validate state allows validate workflow
+python3 scripts/check-workflow-state.py validate "$CURRENT_STATE"
+
+# If the above command fails (exit code 1), STOP HERE and show the error message
+```
+
+If state validation fails, **DO NOT PROCEED**. Show error message and suggested next steps.
+
+If state validation passes (or no jpspec_workflow.yml exists), continue.
+
 ## Backlog Task Discovery
 
 Before starting validation, discover tasks that are ready for validation:
@@ -456,3 +477,15 @@ Deliver release readiness report with clear go/no-go recommendation and human ap
 - Release readiness assessment
 - **Human approval for production release**
 - Deployment plan and runbooks
+
+### Final Step: Update Task State
+
+After validation completes successfully (including human approval), update the task state:
+
+```bash
+# Update task state to "Validated" after successful completion
+backlog task edit $TASK_ID -s "Validated" \
+  --append-notes $'Workflow: /jpspec:validate completed\nQA, security, docs validated\nHuman approval obtained\nReady for deployment'
+```
+
+This ensures the task progresses through the workflow state machine correctly.

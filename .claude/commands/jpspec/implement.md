@@ -14,7 +14,28 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 This command implements features using specialized engineering agents with integrated code review. **Engineers work exclusively from backlog tasks.**
 
-### Step 0: REQUIRED - Discover Backlog Tasks
+### Step 0: Workflow State Validation
+
+**CRITICAL**: Before proceeding, validate that the current task is in an allowed state for this workflow.
+
+```bash
+# Get current task ID from user input or context
+# Example: TASK_ID="task-123"
+
+# Get current task state
+CURRENT_STATE=$(backlog task $TASK_ID --plain | grep "^Status:" | cut -d':' -f2 | xargs)
+
+# Validate state allows implement workflow
+python3 scripts/check-workflow-state.py implement "$CURRENT_STATE"
+
+# If the above command fails (exit code 1), STOP HERE and show the error message
+```
+
+If state validation fails, **DO NOT PROCEED**. Show error message and suggested next steps.
+
+If state validation passes (or no jpspec_workflow.yml exists), continue to Step 1.
+
+### Step 1: REQUIRED - Discover Backlog Tasks
 
 **⚠️ CRITICAL: This command REQUIRES existing backlog tasks to work on.**
 
@@ -606,3 +627,15 @@ Include specific, actionable suggestions with examples.
 - Code review reports with resolution status
 - Integration documentation
 - Deployment-ready artifacts
+
+### Final Step: Update Task State
+
+After implementation completes successfully (code is reviewed and approved), update the task state:
+
+```bash
+# Update task state to "In Implementation" after successful completion
+backlog task edit $TASK_ID -s "In Implementation" \
+  --append-notes $'Workflow: /jpspec:implement completed\nCode implemented and reviewed\nTests passing\nReady for validation'
+```
+
+This ensures the task progresses through the workflow state machine correctly.

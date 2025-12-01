@@ -14,6 +14,27 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 This command establishes comprehensive operational infrastructure using SRE best practices, focusing on reliability, automation, and observability. **All operational work is tracked as backlog tasks.**
 
+### Step 0: Workflow State Validation
+
+**CRITICAL**: Before proceeding, validate that the current task is in an allowed state for this workflow.
+
+```bash
+# Get current task ID from user input or context
+# Example: TASK_ID="task-123"
+
+# Get current task state
+CURRENT_STATE=$(backlog task $TASK_ID --plain | grep "^Status:" | cut -d':' -f2 | xargs)
+
+# Validate state allows operate workflow
+python3 scripts/check-workflow-state.py operate "$CURRENT_STATE"
+
+# If the above command fails (exit code 1), STOP HERE and show the error message
+```
+
+If state validation fails, **DO NOT PROCEED**. Show error message and suggested next steps.
+
+If state validation passes (or no jpspec_workflow.yml exists), continue to Step 1.
+
 ### Step 1: Discover Existing Operational Tasks
 
 Before launching the SRE agent, search for existing operational tasks:
@@ -406,3 +427,15 @@ Deliver comprehensive operational package with:
 - SLI/SLO definitions and monitoring
 - Security scanning integration
 - DR and backup procedures
+
+### Final Step: Update Task State
+
+After operational infrastructure is deployed successfully, update the task state:
+
+```bash
+# Update task state to "Deployed" after successful completion
+backlog task edit $TASK_ID -s "Deployed" \
+  --append-notes $'Workflow: /jpspec:operate completed\nCI/CD pipeline deployed\nKubernetes infrastructure live\nObservability configured\nProduction ready'
+```
+
+This ensures the task progresses through the workflow state machine correctly.

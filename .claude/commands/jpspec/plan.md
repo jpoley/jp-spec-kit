@@ -14,7 +14,28 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 This command creates comprehensive architectural and platform planning using two specialized agents working in parallel, building out /speckit.constitution.
 
-### Step 0: Backlog Task Discovery
+### Step 0: Workflow State Validation
+
+**CRITICAL**: Before proceeding, validate that the current task is in an allowed state for this workflow.
+
+```bash
+# Get current task ID from user input or context
+# Example: TASK_ID="task-123"
+
+# Get current task state
+CURRENT_STATE=$(backlog task $TASK_ID --plain | grep "^Status:" | cut -d':' -f2 | xargs)
+
+# Validate state allows plan workflow (accepts "Specified" or "Researched")
+python3 scripts/check-workflow-state.py plan "$CURRENT_STATE"
+
+# If the above command fails (exit code 1), STOP HERE and show the error message
+```
+
+If state validation fails, **DO NOT PROCEED**. Show error message and suggested next steps.
+
+If state validation passes (or no jpspec_workflow.yml exists), continue to Step 1.
+
+### Step 1: Backlog Task Discovery
 
 Before launching the planning agents, discover existing backlog tasks related to the feature being planned:
 
@@ -367,3 +388,15 @@ After both agents complete:
    - Updated /speckit.constitution
    - ADRs for key decisions
    - Implementation readiness assessment
+
+### Final Step: Update Task State
+
+After planning completes successfully, update the task state:
+
+```bash
+# Update task state to "Planned" after successful completion
+backlog task edit $TASK_ID -s "Planned" \
+  --append-notes $'Workflow: /jpspec:plan completed\nArchitecture and platform design completed\nADRs created\n/speckit.constitution updated'
+```
+
+This ensures the task progresses through the workflow state machine correctly.

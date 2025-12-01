@@ -36,7 +36,7 @@ class TestPlanCommandStructure:
     def test_plan_command_has_task_discovery_section(self, plan_command_path):
         """Verify plan.md includes task discovery section."""
         content = plan_command_path.read_text()
-        assert "Step 0: Backlog Task Discovery" in content
+        assert "Step 0: Workflow State Validation" in content
         assert "backlog search" in content
         assert "backlog task list" in content
 
@@ -301,7 +301,7 @@ class TestIntegrationScenarios:
 
         # Should have all components needed for architect workflow
         workflow_components = [
-            "Step 0: Backlog Task Discovery",
+            "Step 0: Workflow State Validation",
             "Software Architect",
             "Architecture Tasks to Create",
             "ADR:",
@@ -319,7 +319,7 @@ class TestIntegrationScenarios:
 
         # Should have all components needed for platform workflow
         workflow_components = [
-            "Step 0: Backlog Task Discovery",
+            "Step 0: Workflow State Validation",
             "Platform Engineer",
             "Infrastructure Tasks to Create",
             "CI/CD Pipeline",

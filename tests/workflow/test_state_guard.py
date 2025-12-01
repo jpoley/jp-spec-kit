@@ -22,9 +22,18 @@ def sample_config():
             "assess": {"input_states": ["To Do"], "output_state": "Assessed"},
             "specify": {"input_states": ["Assessed"], "output_state": "Specified"},
             "research": {"input_states": ["Specified"], "output_state": "Researched"},
-            "plan": {"input_states": ["Specified", "Researched"], "output_state": "Planned"},
-            "implement": {"input_states": ["Planned"], "output_state": "In Implementation"},
-            "validate": {"input_states": ["In Implementation"], "output_state": "Validated"},
+            "plan": {
+                "input_states": ["Specified", "Researched"],
+                "output_state": "Planned",
+            },
+            "implement": {
+                "input_states": ["Planned"],
+                "output_state": "In Implementation",
+            },
+            "validate": {
+                "input_states": ["In Implementation"],
+                "output_state": "Validated",
+            },
             "operate": {"input_states": ["Validated"], "output_state": "Deployed"},
         }
     }
@@ -119,12 +128,16 @@ class TestCLIHelpers:
 
     def test_check_workflow_state_allowed(self, config_file):
         """Test CLI helper returns True for allowed state."""
-        can_proceed, msg = check_workflow_state("implement", "Planned", config_path=str(config_file))
+        can_proceed, msg = check_workflow_state(
+            "implement", "Planned", config_path=str(config_file)
+        )
         assert can_proceed is True
 
     def test_check_workflow_state_blocked(self, config_file):
         """Test CLI helper returns False for blocked state."""
-        can_proceed, msg = check_workflow_state("implement", "To Do", config_path=str(config_file))
+        can_proceed, msg = check_workflow_state(
+            "implement", "To Do", config_path=str(config_file)
+        )
         assert can_proceed is False
         assert "Cannot run" in msg
 

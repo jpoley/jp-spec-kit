@@ -36,7 +36,7 @@ class TestImplementCommandStructure:
     def test_has_required_task_discovery_section(self, implement_command_content):
         """AC #1: Command REQUIRES existing backlog tasks."""
         assert (
-            "### Step 0: REQUIRED - Discover Backlog Tasks" in implement_command_content
+            "### Step 0: Workflow State Validation" in implement_command_content
         )
         assert (
             "CRITICAL: This command REQUIRES existing backlog tasks"
@@ -141,7 +141,7 @@ class TestImplementationWorkflow:
     def test_workflow_requires_tasks_first(self, implement_command_content):
         """Verify workflow requires existing tasks."""
         # Step 0 should come before Phase 1
-        step0_pos = implement_command_content.find("Step 0: REQUIRED")
+        step0_pos = implement_command_content.find("Step 0: Workflow State Validation")
         phase1_pos = implement_command_content.find("Phase 1: Implementation")
         assert step0_pos < phase1_pos, "Step 0 should come before Phase 1"
 

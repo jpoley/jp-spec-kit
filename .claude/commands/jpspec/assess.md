@@ -23,6 +23,27 @@ The assess command:
 4. Transitions workflow state from "To Do" → "Assessed"
 5. Provides specific next-step commands
 
+### Step 0: Workflow State Validation
+
+**CRITICAL**: Before proceeding, validate that the current task is in an allowed state for this workflow.
+
+```bash
+# Get current task ID from user input or context
+# Example: TASK_ID="task-123"
+
+# Get current task state
+CURRENT_STATE=$(backlog task $TASK_ID --plain | grep "^Status:" | cut -d':' -f2 | xargs)
+
+# Validate state allows assess workflow
+python3 scripts/check-workflow-state.py assess "$CURRENT_STATE"
+
+# If the above command fails (exit code 1), STOP HERE and show the error message
+```
+
+If state validation fails, **DO NOT PROCEED**. Show error message and suggested next steps.
+
+If state validation passes (or no jpspec_workflow.yml exists), continue to Step 1.
+
 ### Step 1: Feature Analysis
 
 Analyze the feature request along three dimensions (1-10 scale):
@@ -270,3 +291,15 @@ Before completing:
 - [ ] Recommendation is clear and justified
 - [ ] Next steps are specific and actionable
 - [ ] Override instructions are provided
+
+### Final Step: Update Task State
+
+After assessment completes successfully, update the task state:
+
+```bash
+# Update task state to "Assessed" after successful completion
+backlog task edit $TASK_ID -s "Assessed" \
+  --append-notes $'Workflow: /jpspec:assess completed\nAssessment report generated\nRecommendation: {Full SDD | Spec-Light | Skip SDD}'
+```
+
+This ensures the task progresses through the workflow state machine correctly

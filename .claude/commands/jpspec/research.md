@@ -14,6 +14,27 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 This command orchestrates comprehensive research and business validation using two specialized agents working sequentially.
 
+### Step 0: Workflow State Validation
+
+**CRITICAL**: Before proceeding, validate that the current task is in an allowed state for this workflow.
+
+```bash
+# Get current task ID from user input or context
+# Example: TASK_ID="task-123"
+
+# Get current task state
+CURRENT_STATE=$(backlog task $TASK_ID --plain | grep "^Status:" | cut -d':' -f2 | xargs)
+
+# Validate state allows research workflow
+python3 scripts/check-workflow-state.py research "$CURRENT_STATE"
+
+# If the above command fails (exit code 1), STOP HERE and show the error message
+```
+
+If state validation fails, **DO NOT PROCEED**. Show error message and suggested next steps.
+
+If state validation passes (or no jpspec_workflow.yml exists), continue.
+
 **IMPORTANT: Before starting, check for existing research-related tasks:**
 
 ```bash
@@ -378,3 +399,15 @@ After the research and business validation agents complete their work:
 **Research without actionable follow-up tasks provides no value. Every research effort must produce implementation direction.**
 
 **Note**: If research concludes with "No-Go" recommendation, create a documentation task to record the decision and rationale for future reference.
+
+### Final Step: Update Task State
+
+After research and business validation completes successfully, update the task state:
+
+```bash
+# Update task state to "Researched" after successful completion
+backlog task edit $TASK_ID -s "Researched" \
+  --append-notes $'Workflow: /jpspec:research completed\nResearch report and business validation generated\nImplementation tasks created based on findings'
+```
+
+This ensures the task progresses through the workflow state machine correctly.

@@ -74,14 +74,20 @@ class WorkflowStateGuard:
 
         input_states = self.get_input_states(workflow_name)
         if not input_states:
-            return StateCheckResult.NO_CONFIG, f"No input states defined for '{workflow_name}'"
+            return (
+                StateCheckResult.NO_CONFIG,
+                f"No input states defined for '{workflow_name}'",
+            )
 
         # Normalize state comparison (case-insensitive)
         current_normalized = current_state.lower().strip()
         allowed_normalized = [s.lower().strip() for s in input_states]
 
         if current_normalized in allowed_normalized:
-            return StateCheckResult.ALLOWED, f"State '{current_state}' is valid for {workflow_name}"
+            return (
+                StateCheckResult.ALLOWED,
+                f"State '{current_state}' is valid for {workflow_name}",
+            )
 
         # Build helpful error message
         valid_workflows = self.get_valid_workflows_for_state(current_state)
@@ -93,7 +99,7 @@ class WorkflowStateGuard:
 
         msg = (
             f"Cannot run /jpspec:{workflow_name}\n\n"
-            f"Current state: \"{current_state}\"\n"
+            f'Current state: "{current_state}"\n'
             f"Required states: {input_states}\n\n"
             f"Suggestions:\n"
             f"  - {suggestions}\n"
@@ -113,7 +119,10 @@ class WorkflowStateGuard:
 
 
 def check_workflow_state(
-    workflow: str, current_state: str, skip: bool = False, config_path: Optional[str] = None
+    workflow: str,
+    current_state: str,
+    skip: bool = False,
+    config_path: Optional[str] = None,
 ) -> tuple[bool, str]:
     """CLI helper to check workflow state.
 
@@ -123,7 +132,11 @@ def check_workflow_state(
     path = Path(config_path) if config_path else None
     guard = WorkflowStateGuard(path)
     result, msg = guard.check_state(workflow, current_state, skip)
-    can_proceed = result in (StateCheckResult.ALLOWED, StateCheckResult.SKIPPED, StateCheckResult.NO_CONFIG)
+    can_proceed = result in (
+        StateCheckResult.ALLOWED,
+        StateCheckResult.SKIPPED,
+        StateCheckResult.NO_CONFIG,
+    )
     return can_proceed, msg
 
 
