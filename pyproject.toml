@@ -15,11 +15,6 @@ dependencies = [
     "jsonschema>=4.0.0",
 ]
 
-[project.optional-dependencies]
-voice = [
-    "pipecat-ai[daily,deepgram,openai,cartesia]>=0.0.50",
-]
-
 [project.scripts]
 specify = "specify_cli:main"
 
