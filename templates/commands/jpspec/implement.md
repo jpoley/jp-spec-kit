@@ -11,6 +11,56 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
+## Output Artifacts
+
+All artifacts are written to standardized locations:
+
+| Artifact Type | Output Location | Description |
+|---------------|-----------------|-------------|
+| AC Coverage Report | `./tests/ac-coverage.json` | JSON mapping acceptance criteria to test files |
+| Implementation Code | Per project structure | Feature implementation in appropriate directories |
+| Test Files | Per project structure | Unit, integration, and e2e tests |
+
+## Feature Naming
+
+The `{feature}` slug is derived from the feature name:
+- Convert to lowercase
+- Replace spaces with hyphens
+- Remove special characters
+- Example: "User Authentication" → "user-authentication"
+
+## AC Coverage Report Format
+
+The `./tests/ac-coverage.json` file must follow this structure:
+
+```json
+{
+  "feature": "user-authentication",
+  "generated": "2025-11-30T12:00:00Z",
+  "acceptance_criteria": [
+    {
+      "id": "AC-001",
+      "description": "User can log in with email and password",
+      "test_files": [
+        "tests/unit/auth/test_login.py",
+        "tests/integration/test_auth_flow.py"
+      ],
+      "coverage": "complete"
+    },
+    {
+      "id": "AC-002",
+      "description": "Invalid credentials return error",
+      "test_files": [
+        "tests/unit/auth/test_login.py"
+      ],
+      "coverage": "partial"
+    }
+  ]
+}
+```
+
+Coverage values: `complete`, `partial`, `none`
+
 ## Outline
 
 This command executes the implementation workflow using multiple specialized engineering agents:
@@ -72,12 +122,39 @@ This command executes the implementation workflow using multiple specialized eng
    - Ensure end-to-end functionality
    - Validate complete feature implementation
 
-6. **Output**:
+6. **AC Coverage Generation**:
+   - Map all acceptance criteria from PRD to test files
+   - Generate `./tests/ac-coverage.json` report
+   - Verify all ACs have test coverage
+
+7. **Output**:
    - Fully implemented feature code
    - Frontend and backend implementations
    - AI/ML components (if applicable)
    - Code review reports
+   - AC coverage report at `./tests/ac-coverage.json`
    - Integration documentation
+
+## Completion Checklist
+
+Before completing this command, verify:
+
+- [ ] `./tests/` directory exists
+- [ ] AC coverage report generated at `./tests/ac-coverage.json`
+- [ ] All acceptance criteria from PRD are mapped to tests
+- [ ] Test coverage meets project standards (typically >80%)
+- [ ] All tests pass successfully
+- [ ] Code reviews are complete and feedback addressed
+- [ ] Integration testing validates end-to-end functionality
+- [ ] Code follows project coding standards and conventions
+
+## Transition Validation
+
+This command transitions workflow state: **"Planned" → "Implemented"**
+
+**Validation Mode**: Configured per project (see `.specify/workflow/transition-validation.yml`)
+
+See task-175 for validation mode implementation details.
 
 ## Notes
 

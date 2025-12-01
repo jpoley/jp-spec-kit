@@ -11,6 +11,24 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
+## Output Artifacts
+
+All artifacts are written to standardized locations:
+
+| Artifact Type | Output Location | Description |
+|---------------|-----------------|-------------|
+| QA Test Report | `./docs/qa/{feature}-qa-report.md` | Comprehensive QA testing results |
+| Security Assessment | `./docs/security/{feature}-security-assessment.md` | Security scan and penetration test results |
+| Release Checklist | `./docs/qa/{feature}-release-checklist.md` | Pre-release validation checklist |
+
+## Feature Naming
+
+The `{feature}` slug is derived from the feature name:
+- Convert to lowercase
+- Replace spaces with hyphens
+- Remove special characters
+- Example: "User Authentication" → "user-authentication"
+
 ## Outline
 
 This command executes comprehensive validation using multiple specialized agents:
@@ -53,14 +71,14 @@ This command executes comprehensive validation using multiple specialized agents
    - Perform integration testing
    - Run performance and load tests
    - Use SRE debugging tools for deep analysis
-   - Generate test reports
+   - Generate test report at `./docs/qa/{feature}-qa-report.md`
 
 3. **Security Validation**:
    - Dispatch Cyber agent
    - Run security scans and penetration tests
    - Validate secure coding practices
    - Check for vulnerabilities and compliance issues
-   - Generate security assessment report
+   - Generate security assessment at `./docs/security/{feature}-security-assessment.md`
 
 4. **Documentation**:
    - Dispatch Tech Writer agent
@@ -72,16 +90,41 @@ This command executes comprehensive validation using multiple specialized agents
 5. **Release Validation**:
    - Dispatch Release Manager agent
    - Review all test and security results
+   - Generate release checklist at `./docs/qa/{feature}-release-checklist.md`
    - Validate code quality and readiness
    - **Request Human Approval** for release decision
    - Coordinate merge and promotion activities
 
 6. **Output**:
-   - Complete test suite results
-   - Security assessment report
+   - QA test report at `./docs/qa/{feature}-qa-report.md`
+   - Security assessment at `./docs/security/{feature}-security-assessment.md`
+   - Release checklist at `./docs/qa/{feature}-release-checklist.md`
    - Comprehensive documentation
-   - Release readiness assessment
    - Human approval checkpoints
+
+## Completion Checklist
+
+Before completing this command, verify:
+
+- [ ] `./docs/qa/` directory exists
+- [ ] `./docs/security/` directory exists
+- [ ] QA test report generated at `./docs/qa/{feature}-qa-report.md`
+- [ ] Security assessment generated at `./docs/security/{feature}-security-assessment.md`
+- [ ] Release checklist generated at `./docs/qa/{feature}-release-checklist.md`
+- [ ] All tests pass successfully (unit, integration, e2e)
+- [ ] No critical or high-severity security vulnerabilities
+- [ ] Test coverage meets project standards
+- [ ] Performance benchmarks meet requirements
+- [ ] Documentation is complete and accurate
+- [ ] Human approval obtained for release
+
+## Transition Validation
+
+This command transitions workflow state: **"Implemented" → "Validated"**
+
+**Validation Mode**: Configured per project (see `.specify/workflow/transition-validation.yml`)
+
+See task-175 for validation mode implementation details.
 
 ## Notes
 

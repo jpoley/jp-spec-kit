@@ -11,6 +11,29 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
+## Output Artifacts
+
+All artifacts are written to standardized locations:
+
+| Artifact Type | Output Location | Description |
+|---------------|-----------------|-------------|
+| Architecture Decision Records | `./docs/adr/ADR-{NNN}-{slug}.md` | Sequential ADRs documenting architectural decisions |
+| Implementation Plan | `./docs/plan/{feature}-plan.md` | Comprehensive implementation plan with architecture and platform design |
+
+## Feature Naming
+
+The `{feature}` slug is derived from the feature name:
+- Convert to lowercase
+- Replace spaces with hyphens
+- Remove special characters
+- Example: "User Authentication" → "user-authentication"
+
+ADR numbering (`{NNN}`):
+- Three-digit sequential number (001, 002, 003, etc.)
+- Find next available number by checking existing ADRs in `./docs/adr/`
+- Slug derived from ADR title
+- Example: "Use PostgreSQL for User Store" → `ADR-042-use-postgresql-for-user-store.md`
+
 ## Outline
 
 This command executes the planning workflow using two specialized agents:
@@ -38,7 +61,7 @@ This command executes the planning workflow using two specialized agents:
    - Generate system architecture design
    - Create architectural diagrams and documentation
    - Define architectural principles and patterns
-   - Document key architectural decisions
+   - Document key architectural decisions in ADRs
 
 3. **Platform Planning**:
    - Dispatch Platform Engineer agent
@@ -55,11 +78,34 @@ This command executes the planning workflow using two specialized agents:
      - Deployment and operational guidelines
 
 5. **Output**:
-   - Complete implementation plan
+   - Complete implementation plan at `./docs/plan/{feature}-plan.md`
    - Architecture design documents
    - Infrastructure design specifications
+   - ADRs at `./docs/adr/ADR-{NNN}-{slug}.md` for each major decision
    - Updated constitution with planning principles
    - Technical decision records
+
+## Completion Checklist
+
+Before completing this command, verify:
+
+- [ ] `./docs/adr/` directory exists
+- [ ] `./docs/plan/` directory exists
+- [ ] Implementation plan created at `./docs/plan/{feature}-plan.md`
+- [ ] All major architectural decisions have corresponding ADRs
+- [ ] ADRs follow sequential numbering convention
+- [ ] ADRs include context, decision, consequences, and alternatives
+- [ ] Platform engineering requirements are documented
+- [ ] Observability and monitoring approach is defined
+- [ ] Follow-up implementation tasks have been created
+
+## Transition Validation
+
+This command transitions workflow state: **"Specified" → "Planned"** or **"Researched" → "Planned"**
+
+**Validation Mode**: Configured per project (see `.specify/workflow/transition-validation.yml`)
+
+See task-175 for validation mode implementation details.
 
 ## Notes
 

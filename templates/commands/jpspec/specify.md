@@ -11,6 +11,22 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
+## Output Artifacts
+
+All artifacts are written to standardized locations:
+
+| Artifact Type | Output Location | Description |
+|---------------|-----------------|-------------|
+| Product Requirement Document | `./docs/prd/{feature}.md` | Comprehensive PRD with requirements, user stories, and acceptance criteria |
+
+## Feature Naming
+
+The `{feature}` slug is derived from the feature name:
+- Convert to lowercase
+- Replace spaces with hyphens
+- Remove special characters
+- Example: "User Authentication" → "user-authentication" → `./docs/prd/user-authentication.md`
+
 ## Outline
 
 This command creates feature specifications using a specialized PM (Product Manager) planner agent.
@@ -38,10 +54,29 @@ This command creates feature specifications using a specialized PM (Product Mana
    - Define success criteria and metrics
 
 4. **Output**:
-   - Complete feature specification document
+   - Complete feature specification document at `./docs/prd/{feature}.md`
    - PRD with detailed requirements
    - Task breakdown and dependencies
    - Success criteria and acceptance tests
+
+## Completion Checklist
+
+Before completing this command, verify:
+
+- [ ] `./docs/prd/` directory exists
+- [ ] PRD created at `./docs/prd/{feature}.md`
+- [ ] All required sections are complete (problem statement, requirements, user stories, acceptance criteria)
+- [ ] Dependencies and constraints are documented
+- [ ] Success criteria and metrics are defined
+- [ ] Follow-up implementation tasks have been created
+
+## Transition Validation
+
+This command transitions workflow state: **"Assessed" → "Specified"**
+
+**Validation Mode**: Configured per project (see `.specify/workflow/transition-validation.yml`)
+
+See task-175 for validation mode implementation details.
 
 ## Notes
 
