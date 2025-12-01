@@ -19,6 +19,13 @@
     "packageManager": "uv"
   },
   "hooks": {
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "bash .claude/hooks/session-start.sh",
+        "timeout": 60
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "Edit|Write",

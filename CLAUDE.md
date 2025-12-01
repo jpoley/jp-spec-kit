@@ -247,7 +247,31 @@ JP Spec Kit uses Claude Code hooks to provide automated safety checks and code q
 
 ### Implemented Hooks
 
-#### 1. Sensitive File Protection (PreToolUse)
+#### 1. SessionStart Hook (SessionStart)
+
+**Hook**: `.claude/hooks/session-start.sh`
+
+Runs when starting or resuming a Claude Code session to verify environment and display context:
+- Checks for `uv` (Python package manager)
+- Checks for `backlog` CLI (task management)
+- Displays versions of installed tools
+- Shows active "In Progress" backlog tasks
+- Provides warnings for missing dependencies
+
+**Output Example**:
+```json
+{
+  "decision": "allow",
+  "reason": "Session started - environment verified",
+  "additionalContext": "Session Context:\n  ✓ uv: uv 0.9.11\n  ✓ backlog: 1.22.0\n  ✓ Active tasks: 2 in progress"
+}
+```
+
+**Behavior**: Always returns `"decision": "allow"` with contextual information. Never blocks session startup (fail-open principle).
+
+**Performance**: Completes in <5 seconds typical, <60 seconds maximum (timeout configured).
+
+#### 2. Sensitive File Protection (PreToolUse)
 
 **Hook**: `.claude/hooks/pre-tool-use-sensitive-files.py`
 
@@ -261,7 +285,7 @@ Asks for confirmation before modifying sensitive files:
 
 **Behavior**: Returns `"decision": "ask"` for sensitive files, prompting Claude to get user confirmation.
 
-#### 2. Git Command Safety Validator (PreToolUse)
+#### 3. Git Command Safety Validator (PreToolUse)
 
 **Hook**: `.claude/hooks/pre-tool-use-git-safety.py`
 
@@ -276,7 +300,7 @@ Warns on dangerous Git commands:
 
 **Behavior**: Returns `"decision": "ask"` for dangerous commands, or `"decision": "deny"` for unsupported interactive commands.
 
-#### 3. Auto-format Python Files (PostToolUse)
+#### 4. Auto-format Python Files (PostToolUse)
 
 **Hook**: `.claude/hooks/post-tool-use-format-python.sh`
 
@@ -284,7 +308,7 @@ Automatically runs `ruff format` on Python files after Edit/Write operations.
 
 **Behavior**: Silently formats Python files and reports if formatting was applied.
 
-#### 4. Auto-lint Python Files (PostToolUse)
+#### 5. Auto-lint Python Files (PostToolUse)
 
 **Hook**: `.claude/hooks/post-tool-use-lint-python.sh`
 
@@ -300,9 +324,15 @@ Run the test suite to verify all hooks are working correctly:
 # Run all hook tests
 .claude/hooks/test-hooks.sh
 
+# Test SessionStart hook
+.claude/hooks/test-session-start.sh
+
 # Test a specific hook manually
 echo '{"tool_name": "Write", "tool_input": {"file_path": ".env"}}' | \
   python .claude/hooks/pre-tool-use-sensitive-files.py
+
+# Test SessionStart hook manually
+.claude/hooks/session-start.sh | python3 -m json.tool
 ```
 
 ### Customizing Hook Behavior
