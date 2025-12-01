@@ -200,7 +200,7 @@ class TransitionValidator:
                             # Construct relative path from base_path
                             try:
                                 rel_path = file.relative_to(base_path)
-                                relative_path = f"./{rel_path}"
+                                relative_path = f"./{rel_path.as_posix()}"
                                 if artifact.matches_pattern(relative_path):
                                     matched = True
                                     break
