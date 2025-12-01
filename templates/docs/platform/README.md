@@ -40,4 +40,4 @@ See `templates/platform-template.md` for the standard platform design format.
 ## Related Documentation
 
 - [Workflow Artifact Flow](../../reference/workflow-artifact-flow.md)
-- [Platform Template](../../templates/platform-template.md)
+- [Platform Template](../../platform-template.md)
