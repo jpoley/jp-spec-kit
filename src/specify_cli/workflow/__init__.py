@@ -47,6 +47,12 @@ from specify_cli.workflow.validation_engine import (
     TransitionValidationResult,
     TransitionValidator,
 )
+from specify_cli.workflow.state_guard import (
+    StateCheckResult,
+    WorkflowStateGuard,
+    check_workflow_state,
+    get_next_state,
+)
 from specify_cli.workflow.validator import (
     ValidationIssue,
     ValidationResult,
@@ -92,4 +98,9 @@ __all__ = [
     "ValidationResult",
     "WorkflowValidator",
     "validate_workflow",
+    # State Guard
+    "StateCheckResult",
+    "WorkflowStateGuard",
+    "check_workflow_state",
+    "get_next_state",
 ]
