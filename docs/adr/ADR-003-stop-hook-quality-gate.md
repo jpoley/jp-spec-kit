@@ -1,7 +1,7 @@
 # ADR-003: Stop Hook for Backlog Task Quality Gate
 
 **Status**: Accepted
-**Date**: 2024-12-01
+**Date**: 2025-12-01
 **Author**: Quality Guardian Agent
 **Context**: Task-189 - Implement Stop hook to enforce backlog task quality gate
 
