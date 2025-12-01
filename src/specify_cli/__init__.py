@@ -60,16 +60,22 @@ def _github_token(cli_token: str | None = None) -> str | None:
     return ((cli_token or os.getenv("GITHUB_JPSPEC") or "").strip()) or None
 
 
-def _github_headers(cli_token: str | None = None) -> dict:
-    """Return GitHub API headers including optional Authorization, Accept and User-Agent."""
+def _github_headers(cli_token: str | None = None, *, skip_auth: bool = False) -> dict:
+    """Return GitHub API headers including optional Authorization, Accept and User-Agent.
+
+    Args:
+        cli_token: Optional token to use (falls back to GITHUB_JPSPEC env var)
+        skip_auth: If True, never include Authorization header (for public repo fallback)
+    """
     headers = {
         "Accept": "application/vnd.github+json",
         "User-Agent": "jp-spec-kit/specify-cli",
         "X-GitHub-Api-Version": "2022-11-28",
     }
-    token = _github_token(cli_token)
-    if token:
-        headers["Authorization"] = f"Bearer {token}"
+    if not skip_auth:
+        token = _github_token(cli_token)
+        if token:
+            headers["Authorization"] = f"Bearer {token}"
     return headers
 
 
@@ -929,13 +935,43 @@ def download_template_from_github(
     # Resolve effective token once so env-based tokens are honored consistently (including fallbacks)
     effective_token = _github_token(github_token)
 
-    def _req(url: str) -> httpx.Response:
-        return client.get(
+    def _req(url: str, retry_without_auth: bool = True) -> httpx.Response:
+        """Make GitHub API request with automatic fallback for invalid tokens.
+
+        For public repositories, if we get a 401 with authentication, retry without auth.
+        This handles cases where an invalid/expired token is present.
+
+        Args:
+            url: The GitHub API URL to request.
+            retry_without_auth: If True (default), retry without auth on 401 errors when a token was provided. Useful for public repos with invalid/expired tokens.
+
+        Returns:
+            The HTTP response from the GitHub API.
+        """
+        response = client.get(
             url,
             timeout=30,
             follow_redirects=True,
             headers=_github_headers(effective_token),
         )
+
+        # If we got 401 with a token, the token might be invalid/expired
+        # For public repos, retry without authentication
+        if response.status_code == 401 and effective_token and retry_without_auth:
+            if debug:
+                console.print(
+                    "[yellow]Got 401 with token - retrying without authentication for public repo[/yellow]"
+                )
+            response = client.get(
+                url,
+                timeout=30,
+                follow_redirects=True,
+                headers=_github_headers(
+                    skip_auth=True
+                ),  # Explicitly skip auth for retry
+            )
+
+        return response
 
     def _pick_latest(releases: list[dict]) -> Optional[dict]:
         filtered = [
@@ -995,14 +1031,30 @@ def download_template_from_github(
             )
             # Add authentication hints for common error codes
             if last_status_code in (401, 403):
-                error_msg += (
-                    "\n\n[yellow]Authentication Error:[/yellow]\n"
-                    "This may be due to insufficient permissions or missing authentication.\n"
-                    "Try providing a GitHub token with the following options:\n"
-                    "  1. Use --github-token <token> flag\n"
-                    "  2. Set GITHUB_JPSPEC environment variable\n"
-                    f"  3. Ensure your token has 'repo' or 'public_repo' scope for {repo_owner}/{repo_name}"
-                )
+                if effective_token:
+                    error_msg += (
+                        "\n\n[yellow]Authentication Error:[/yellow]\n"
+                        "The provided GitHub token appears to be invalid or expired.\n"
+                        "The request was automatically retried without authentication, but still failed.\n\n"
+                        "This could mean:\n"
+                        "  1. The repository is private and requires a valid token\n"
+                        "  2. The token has expired or been revoked\n"
+                        "  3. The token lacks required permissions\n\n"
+                        "To fix this:\n"
+                        "  1. Check your token is still valid at https://github.com/settings/tokens\n"
+                        "  2. Ensure it has 'repo' or 'public_repo' scope\n"
+                        "  3. Remove invalid tokens from GITHUB_JPSPEC environment variable\n"
+                        f"  4. If {repo_owner}/{repo_name} is private, generate a new token"
+                    )
+                else:
+                    error_msg += (
+                        "\n\n[yellow]Authentication Error:[/yellow]\n"
+                        "This may be due to insufficient permissions or missing authentication.\n"
+                        "Try providing a GitHub token with the following options:\n"
+                        "  1. Use --github-token <token> flag\n"
+                        "  2. Set GITHUB_JPSPEC environment variable\n"
+                        f"  3. Ensure your token has 'repo' or 'public_repo' scope for {repo_owner}/{repo_name}"
+                    )
             elif last_status_code == 404:
                 if not effective_token:
                     error_msg += (
