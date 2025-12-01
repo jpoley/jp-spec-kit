@@ -2145,7 +2145,9 @@ def init(
             # Handle light mode setup
             if light:
                 light_marker = project_path / ".jpspec-light-mode"
-                light_marker.write_text("# Light mode enabled - 40-50% faster workflow\n# See docs/guides/when-to-use-light-mode.md\n")
+                light_marker.write_text(
+                    "# Light mode enabled - 40-50% faster workflow\n# See docs/guides/when-to-use-light-mode.md\n"
+                )
                 tracker.add("light-mode", "Light mode enabled")
                 tracker.complete("light-mode", "marker created")
 
