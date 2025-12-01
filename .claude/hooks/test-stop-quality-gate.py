@@ -93,7 +93,6 @@ def test_pr_mention_with_tasks():
         capture_output=True,
         text=True,
     )
-    initial_task_count = result.stdout.count("task-")
 
     # Create a test task
     subprocess.run(
