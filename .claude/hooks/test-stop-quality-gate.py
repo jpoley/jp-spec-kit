@@ -11,7 +11,9 @@ import sys
 from pathlib import Path
 
 
-def run_hook(conversation_summary: str = "", stop_reason: str = "user_requested") -> dict:
+def run_hook(
+    conversation_summary: str = "", stop_reason: str = "user_requested"
+) -> dict:
     """
     Run the stop-quality-gate hook with given input.
 
@@ -72,9 +74,7 @@ def test_pr_mention_no_tasks():
 
     if has_189:
         # If task-189 is In Progress, should block
-        assert (
-            response["continue"] is False
-        ), "Should block when task-189 In Progress"
+        assert response["continue"] is False, "Should block when task-189 In Progress"
         print("  ✓ Blocks stop when task-189 In Progress (expected during dev)")
     else:
         # If no tasks, should allow
@@ -87,7 +87,7 @@ def test_pr_mention_with_tasks():
     print("\nTest 3: PR mention with In Progress tasks")
 
     # Check if task-189 is already In Progress
-    result = subprocess.run(
+    subprocess.run(
         ["backlog", "task", "list", "--plain", "-s", "In Progress"],
         capture_output=True,
         text=True,
@@ -114,7 +114,9 @@ def test_pr_mention_with_tasks():
         assert response["continue"] is False, "Should block stop when tasks incomplete"
         assert "stopReason" in response, "Should include stopReason when blocking"
         assert "systemMessage" in response, "Should include guidance message"
-        assert "task" in response["systemMessage"].lower(), "Message should mention tasks"
+        assert "task" in response["systemMessage"].lower(), (
+            "Message should mention tasks"
+        )
 
         # Verify we see at least the test task (and possibly task-189)
         task_count = response["systemMessage"].count("task-")
@@ -202,9 +204,9 @@ def test_force_bypass():
     try:
         response = run_hook("Create PR. Force stop and skip quality gate checks.")
 
-        assert (
-            response["continue"] is True
-        ), "Should allow stop when force/skip requested"
+        assert response["continue"] is True, (
+            "Should allow stop when force/skip requested"
+        )
         assert "bypass" in response["systemMessage"].lower(), "Should confirm bypass"
         print("  ✓ Allows bypass with force/skip keywords")
 
@@ -258,7 +260,7 @@ def test_multiple_in_progress_tasks():
                 "backlog",
                 "task",
                 "create",
-                f"Test task {i+1} for multiple tasks",
+                f"Test task {i + 1} for multiple tasks",
                 "-s",
                 "In Progress",
                 "-a",
@@ -274,9 +276,9 @@ def test_multiple_in_progress_tasks():
         # Check that message mentions multiple tasks
         message = response["systemMessage"]
         # Should list all 3 tasks
-        assert (
-            message.count("Test task") >= 3
-        ), "Should list all In Progress tasks in message"
+        assert message.count("Test task") >= 3, (
+            "Should list all In Progress tasks in message"
+        )
         print("  ✓ Lists all In Progress tasks when blocking")
         print(f"  ✓ Found {message.count('Test task')} task references in message")
 
