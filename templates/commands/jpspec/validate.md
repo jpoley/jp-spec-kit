@@ -122,7 +122,7 @@ Before completing this command, verify:
 
 This command transitions workflow state: **"Implemented" → "Validated"**
 
-**Validation Mode**: Configured per project (see `.specify/workflow/transition-validation.yml`)
+**Validation Mode**: Configured per project (see `jpspec_workflow.yml`)
 
 See task-175 for validation mode implementation details.
 
