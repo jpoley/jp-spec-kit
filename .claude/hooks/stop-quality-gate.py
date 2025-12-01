@@ -148,7 +148,6 @@ def main():
         input_data = json.load(sys.stdin)
 
         conversation_summary = input_data.get("conversationSummary", "")
-        stop_reason = input_data.get("stopReason", "user_requested")
 
         # Check for force/skip intent
         if detect_force_or_skip(conversation_summary):
