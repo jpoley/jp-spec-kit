@@ -960,7 +960,7 @@ def download_template_from_github(
                 timeout=30,
                 follow_redirects=True,
                 headers=_github_headers(
-                    skip_auth=True
+                    cli_token=None, skip_auth=True
                 ),  # Explicitly skip auth for retry
             )
 
