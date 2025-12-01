@@ -411,6 +411,17 @@ class TestWorkflowConfigQueries:
         assert config.get_agent_loop("sre-agent") == "outer_loop"
         assert config.get_agent_loop("unknown-agent") is None
 
+    def test_get_agent_loops(self, config: WorkflowConfig):
+        """Test get_agent_loops returns full agent loop dict."""
+        loops = config.get_agent_loops()
+        assert isinstance(loops, dict)
+        assert "inner_loop" in loops
+        assert "outer_loop" in loops
+        assert isinstance(loops["inner_loop"], list)
+        assert isinstance(loops["outer_loop"], list)
+        assert "product-requirements-manager" in loops["inner_loop"]
+        assert "sre-agent" in loops["outer_loop"]
+
 
 class TestWorkflowConfigProperties:
     """Tests for config property accessors."""

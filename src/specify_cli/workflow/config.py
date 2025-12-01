@@ -428,6 +428,20 @@ class WorkflowConfig:
             return "outer_loop"
         return None
 
+    def get_agent_loops(self) -> dict[str, list[str]]:
+        """Get all agent loop classifications.
+
+        Returns:
+            Dictionary with 'inner_loop' and 'outer_loop' keys,
+            each containing a list of agent names.
+
+        Example:
+            >>> config.get_agent_loops()
+            {'inner_loop': ['frontend-engineer', 'backend-engineer'],
+             'outer_loop': ['sre-agent', 'security-engineer']}
+        """
+        return dict(self._data.get("agent_loops", {}))
+
     @property
     def states(self) -> list[str]:
         """Get all defined states.
