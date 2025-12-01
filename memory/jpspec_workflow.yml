@@ -453,4 +453,4 @@ metadata:
   agent_count: 16
   inner_loop_agent_count: 5
   outer_loop_agent_count: 11
-  transition_count: 15
+  transition_count: 14
