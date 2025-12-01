@@ -51,7 +51,8 @@ class TestTaskDiscoveryAC1:
         has_new_pattern = (
             "Phase 0:" in content
             or "Step 0: Workflow State Validation" in content
-            or "Task Discovery" in content
+            or "## Task Discovery" in content
+            or "### Task Discovery" in content
         )
         assert has_old_pattern or has_new_pattern, (
             "validate.md must have task discovery section"
