@@ -5,6 +5,7 @@
 ### bash/
 | Script | Purpose |
 |--------|---------|
+| `check-mcp-servers.sh` | Test MCP server connectivity and health |
 | `run-local-ci.sh` | Run full CI simulation locally |
 | `flush-backlog.sh` | Archive Done tasks with summary report |
 | `install-act.sh` | Install act for local GitHub Actions testing |
@@ -19,10 +20,65 @@ Git hooks and Claude Code hooks.
 
 Always run scripts from the project root:
 ```bash
+./scripts/bash/check-mcp-servers.sh        # Check MCP health
 ./scripts/bash/flush-backlog.sh --dry-run  # Preview
 ./scripts/bash/flush-backlog.sh            # Execute
 ./scripts/bash/run-local-ci.sh             # Local CI
 ```
+
+## check-mcp-servers.sh
+
+Tests connectivity and operational status for all configured MCP servers.
+
+```bash
+# Check all servers with default settings
+./scripts/bash/check-mcp-servers.sh
+
+# Verbose output with custom timeout
+./scripts/bash/check-mcp-servers.sh --verbose --timeout 15
+
+# JSON output for automation/CI
+./scripts/bash/check-mcp-servers.sh --json
+
+# Use custom config file
+./scripts/bash/check-mcp-servers.sh --config /path/to/.mcp.json
+
+# Show help
+./scripts/bash/check-mcp-servers.sh --help
+```
+
+**Exit codes:**
+- 0: All servers healthy
+- 1: Some servers failed health checks
+- 2: Configuration error (missing/invalid .mcp.json)
+- 3: Prerequisites missing (jq not installed)
+
+**Example output:**
+```
+MCP Server Health Check
+=======================
+[✓] github - Connected successfully
+[✓] serena - Connected successfully
+[✗] playwright-test - Failed: binary 'npx' not found
+[✓] backlog - Connected successfully
+
+Summary: 3/4 servers healthy
+
+Troubleshooting:
+  1. Verify required binaries are installed (npx, uvx, backlog)
+  2. Check network connectivity and firewall settings
+  3. Review server-specific logs for detailed errors
+  4. Ensure required environment variables are set
+  5. Try manually starting failed servers for detailed output
+```
+
+**Testing:**
+```bash
+# Run test suite to verify health check functionality
+./scripts/bash/test-mcp-health-check.sh
+```
+
+**Design rationale:** See `docs/adr/ADR-003-mcp-health-check-design.md`
 
 ## flush-backlog.sh
 
