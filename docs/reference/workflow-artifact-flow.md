@@ -392,20 +392,20 @@ for t in transitions:
     print(f"{t['from']} → {t['to']} via {t['via']}")
 ```
 
-### Example: Validating a Transition
+### Example: Validating the Workflow Configuration
 
 ```python
-from specify_cli.workflow import TransitionValidator
-from specify_cli.workflow.transition import get_transition_by_name
+from specify_cli.workflow import WorkflowConfig
+from specify_cli.workflow.validator import WorkflowValidator
 
-validator = TransitionValidator()
-transition = get_transition_by_name("specify")
-result = validator.validate(transition, {"feature": "auth"})
+config = WorkflowConfig.load()
+validator = WorkflowValidator(config)
+result = validator.validate()
 
 if result.passed:
-    print("Transition allowed")
+    print("Workflow configuration is valid")
 else:
-    print(f"Blocked: {result.message}")
+    print(f"Validation failed: {result.message}")
 ```
 
 ## Related Documentation
