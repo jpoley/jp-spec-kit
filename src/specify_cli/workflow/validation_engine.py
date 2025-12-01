@@ -196,7 +196,7 @@ class TransitionValidator:
                 pattern = (
                     full_path.name
                     if "*" in full_path.name
-                    else full_path.suffix and f"*{full_path.suffix}" or full_path.name
+                    else (f"*{full_path.suffix}" if full_path.suffix else full_path.name)
                 )
                 if not parent.exists() or not any(parent.glob(pattern)):
                     missing_artifacts.append(artifact.type)
