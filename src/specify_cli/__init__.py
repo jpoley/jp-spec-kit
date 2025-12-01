@@ -2268,12 +2268,34 @@ def init(
     console.print()
     console.print("[green]Generated jpspec_workflow.yml[/green]")
 
-    # Show non-default validation modes
-    non_default = {k: v for k, v in transition_modes.items() if v.lower() != "none"}
-    if non_default:
+    # Show non-default or explicit validation modes
+    # Assume WORKFLOW_TRANSITIONS is a dict mapping transition names to default modes
+    # If not defined, define it here (example: all default to "none")
+    WORKFLOW_TRANSITIONS = {
+        "assess": "none",
+        "research": "none",
+        "specify": "none",
+        "plan": "none",
+        "implement": "none",
+        "validate": "none",
+        "operate": "none",
+    }
+    # Find transitions where the mode is explicitly set (even if 'none') and differs from the default
+    explicit_modes = {
+        k: v for k, v in transition_modes.items()
+        if k in WORKFLOW_TRANSITIONS and v.lower() != WORKFLOW_TRANSITIONS[k].lower()
+    }
+    # Also find transitions where the user explicitly set 'none' (even if default is 'none')
+    explicit_none = {
+        k: v for k, v in transition_modes.items()
+        if k in WORKFLOW_TRANSITIONS and v.lower() == "none"
+    }
+    if explicit_modes:
         console.print("[dim]Custom validation modes:[/dim]")
-        for name, mode in non_default.items():
+        for name, mode in explicit_modes.items():
             console.print(f"  [dim]{name}: {mode.upper()}[/dim]")
+    elif explicit_none and len(explicit_none) == len(WORKFLOW_TRANSITIONS):
+        console.print("[dim]All validation modes explicitly set to NONE.[/dim]")
 
     steps_lines = []
     if not here:
