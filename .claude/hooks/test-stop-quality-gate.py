@@ -289,17 +289,18 @@ def test_multiple_in_progress_tasks():
             capture_output=True,
             text=True,
         )
-        for line in result.stdout.strip().split("\n"):
-            if "Test task" in line and "for multiple tasks" in line:
-                # Extract task ID from format: [HIGH] task-123 - Title
-                import re
+        if result.stdout.strip():
+            for line in result.stdout.strip().split("\n"):
+                if "Test task" in line and "for multiple tasks" in line:
+                    # Extract task ID from format: [HIGH] task-123 - Title
+                    import re
 
-                match = re.search(r"task-\d+", line)
-                if match:
-                    task_id = match.group()
-                    subprocess.run(
-                        ["backlog", "task", "archive", task_id], capture_output=True
-                    )
+                    match = re.search(r"task-\d+", line)
+                    if match:
+                        task_id = match.group()
+                        subprocess.run(
+                            ["backlog", "task", "archive", task_id], capture_output=True
+                        )
 
 
 def test_case_insensitive_detection():
