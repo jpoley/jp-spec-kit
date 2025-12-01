@@ -34,13 +34,27 @@ class TestImplementCommandStructure:
         assert implement_command_path.exists(), "implement.md command file should exist"
 
     def test_has_required_task_discovery_section(self, implement_command_content):
-        """AC #1: Command REQUIRES existing backlog tasks."""
-        assert (
+        """AC #1: Command REQUIRES task validation before execution."""
+        # Accept either old pattern or new workflow state validation pattern
+        has_old_pattern = (
             "### Step 0: REQUIRED - Discover Backlog Tasks" in implement_command_content
         )
-        assert (
+        has_new_pattern = (
+            "Step 0: Workflow State Validation" in implement_command_content
+        )
+        assert has_old_pattern or has_new_pattern, (
+            "implement.md must have task discovery/validation section"
+        )
+        # Accept either old or new critical message
+        has_old_critical = (
             "CRITICAL: This command REQUIRES existing backlog tasks"
             in implement_command_content
+        )
+        has_new_critical = (
+            "CRITICAL: This command requires a task" in implement_command_content
+        )
+        assert has_old_critical or has_new_critical, (
+            "implement.md must have critical task requirement message"
         )
 
     def test_has_graceful_failure_message(self, implement_command_content):

@@ -231,7 +231,9 @@ class WorkflowConfig:
         """
         self._validate_workflow_exists(workflow)
         workflow_def = self._data.get("workflows", {}).get(workflow, {})
-        return list(workflow_def.get("agents", []))
+        agents = workflow_def.get("agents", [])
+        # Handle both simple list of strings and list of agent objects
+        return [agent["name"] if isinstance(agent, dict) else agent for agent in agents]
 
     def get_next_state(self, current_state: str, workflow: str) -> str:
         """Get the output state for a workflow.
@@ -427,6 +429,22 @@ class WorkflowConfig:
         if agent in agent_loops.get("outer_loop", []):
             return "outer_loop"
         return None
+
+    def get_agent_loops(self) -> dict[str, list[str]]:
+        """Get all agent loop classifications.
+
+        Returns:
+            Dictionary with 'inner_loop' and 'outer_loop' keys,
+            each containing a list of agent names. Returns a deep copy
+            to prevent mutation of internal data.
+
+        Example:
+            >>> config.get_agent_loops()
+            {'inner_loop': ['frontend-engineer', 'backend-engineer'],
+             'outer_loop': ['sre-agent', 'security-engineer']}
+        """
+        agent_loops = self._data.get("agent_loops", {})
+        return {key: list(agents) for key, agents in agent_loops.items()}
 
     @property
     def states(self) -> list[str]:
