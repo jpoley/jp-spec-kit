@@ -216,17 +216,18 @@ def test_force_bypass():
             capture_output=True,
             text=True,
         )
-        for line in result.stdout.strip().split("\n"):
-            if "Test task for force bypass" in line:
-                # Extract task ID from format: [HIGH] task-123 - Title
-                import re
+        if result.stdout.strip():
+            for line in result.stdout.strip().split("\n"):
+                if "Test task for force bypass" in line:
+                    # Extract task ID from format: [HIGH] task-123 - Title
+                    import re
 
-                match = re.search(r"task-\d+", line)
-                if match:
-                    task_id = match.group()
-                    subprocess.run(
-                        ["backlog", "task", "archive", task_id], capture_output=True
-                    )
+                    match = re.search(r"task-\d+", line)
+                    if match:
+                        task_id = match.group()
+                        subprocess.run(
+                            ["backlog", "task", "archive", task_id], capture_output=True
+                        )
 
 
 def test_invalid_json_input():
