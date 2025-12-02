@@ -160,11 +160,7 @@ class TestSharedBacklogInstructionsAC2:
         )
 
         # Check for new phased workflow that covers same validation areas
-        has_phased_workflow = (
-            "Phase" in content
-            and ("QA" in content or "Quality" in content or "Test" in content)
-            and ("Security" in content)
-        )
+        has_phased_workflow = _has_phased_workflow(content)
 
         assert has_old_agents or has_phased_workflow, (
             "validate.md must have agent contexts or equivalent phased workflow"
