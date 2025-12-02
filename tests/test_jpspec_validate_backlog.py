@@ -209,7 +209,7 @@ class TestSharedBacklogInstructionsAC2:
         for agent in agents:
             agent_start = content.find(f"# AGENT CONTEXT: {agent}")
 
-            # Skip if agent context doesn't exist (phased workflow)
+            # Skip if agent context doesn't exist in agent-based workflow
             if agent_start == -1:
                 continue
 
