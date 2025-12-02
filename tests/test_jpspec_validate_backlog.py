@@ -125,11 +125,9 @@ class TestTaskDiscoveryAC1:
         content = validate_md_path.read_text()
         # Accept various task management patterns
         has_view = "backlog task <id> --plain" in content
-        has_edit = "backlog task edit" in content
-        # More specific fallback: look for "backlog task <id>" (without requiring --plain)
+        # Accept only specific patterns for task detail commands
 
-        has_task_id_ref = bool(re.search(r"backlog task <id>", content))
-        assert has_view or has_edit or has_task_id_ref, (
+        assert has_view or has_edit, (
             "validate.md must reference backlog task detail commands (view/edit)"
         )
 
