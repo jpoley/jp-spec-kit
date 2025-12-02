@@ -128,10 +128,18 @@ while [[ $# -gt 0 ]]; do
             shift
             ;;
         --timeout)
+            if [[ -z "${2:-}" ]]; then
+                log_error "--timeout requires a value"
+                exit 2
+            fi
             TIMEOUT="$2"
             shift 2
             ;;
         --config)
+            if [[ -z "${2:-}" ]]; then
+                log_error "--config requires a path"
+                exit 2
+            fi
             CONFIG_PATH="$2"
             shift 2
             ;;
