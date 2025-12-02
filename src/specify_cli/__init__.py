@@ -2145,12 +2145,21 @@ def init(
             # Handle light mode setup
             if light:
                 light_marker = project_path / ".jpspec-light-mode"
-                light_marker.write_text(
-                    "# Light mode enabled - ~60% faster workflow (example: 135 min → 50 min)\n# See docs/guides/when-to-use-light-mode.md for details\n"
-                )
-                tracker.add("light-mode", "Light mode enabled")
-                tracker.complete("light-mode", "marker created")
-
+                try:
+                    light_marker.write_text(
+                        "# Light mode enabled - ~60% faster workflow (example: 135 min → 50 min)\n# See docs/guides/when-to-use-light-mode.md for details\n"
+                    )
+                    tracker.add("light-mode", "Light mode enabled")
+                    tracker.complete("light-mode", "marker created")
+                except Exception as lm_exc:
+                    tracker.error("light-mode", f"Failed to create marker: {lm_exc}")
+                    console.print(
+                        Panel(
+                            f"Failed to enable light mode: {lm_exc}",
+                            title="Light Mode Error",
+                            border_style="red",
+                        )
+                    )
             tracker.complete("final", "project ready")
         except Exception as e:
             tracker.error("final", str(e))
