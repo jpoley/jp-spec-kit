@@ -18,6 +18,9 @@
     "testFramework": "pytest",
     "packageManager": "uv"
   },
+  "statusline": {
+    "command": ".claude/scripts/statusline.sh"
+  },
   "hooks": {
     "SessionStart": [
       {
