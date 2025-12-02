@@ -6,9 +6,34 @@ Tests all edge cases and defensive coding requirements.
 """
 
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
+
+
+def cleanup_test_tasks(task_name_pattern: str) -> None:
+    """
+    Clean up test tasks matching the given pattern by archiving them.
+
+    Args:
+        task_name_pattern: Substring to match in task titles
+    """
+    result = subprocess.run(
+        ["backlog", "task", "list", "--plain", "-s", "In Progress"],
+        capture_output=True,
+        text=True,
+    )
+    if result.stdout.strip():
+        for line in result.stdout.strip().split("\n"):
+            if task_name_pattern in line:
+                # Extract task ID from format: [HIGH] task-123 - Title
+                match = re.search(r"task-\d+", line)
+                if match:
+                    task_id = match.group()
+                    subprocess.run(
+                        ["backlog", "task", "archive", task_id], capture_output=True
+                    )
 
 
 def run_hook(
@@ -126,24 +151,7 @@ def test_pr_mention_with_tasks():
         print(f"  ✓ Lists {task_count} task(s) in message")
 
     finally:
-        # Clean up: archive the test task
-        result = subprocess.run(
-            ["backlog", "task", "list", "--plain", "-s", "In Progress"],
-            capture_output=True,
-            text=True,
-        )
-        if result.stdout.strip():
-            for line in result.stdout.strip().split("\n"):
-                if "Test task for stop hook" in line:
-                    # Extract task ID from format: [HIGH] task-123 - Title
-                    import re
-
-                    match = re.search(r"task-\d+", line)
-                    if match:
-                        task_id = match.group()
-                        subprocess.run(
-                            ["backlog", "task", "archive", task_id], capture_output=True
-                        )
+        cleanup_test_tasks("Test task for stop hook")
 
 
 def test_various_pr_phrases():
@@ -211,24 +219,7 @@ def test_force_bypass():
         print("  ✓ Allows bypass with force/skip keywords")
 
     finally:
-        # Clean up
-        result = subprocess.run(
-            ["backlog", "task", "list", "--plain", "-s", "In Progress"],
-            capture_output=True,
-            text=True,
-        )
-        if result.stdout.strip():
-            for line in result.stdout.strip().split("\n"):
-                if "Test task for force bypass" in line:
-                    # Extract task ID from format: [HIGH] task-123 - Title
-                    import re
-
-                    match = re.search(r"task-\d+", line)
-                    if match:
-                        task_id = match.group()
-                        subprocess.run(
-                            ["backlog", "task", "archive", task_id], capture_output=True
-                        )
+        cleanup_test_tasks("Test task for force bypass")
 
 
 def test_invalid_json_input():
@@ -284,24 +275,7 @@ def test_multiple_in_progress_tasks():
         print(f"  ✓ Found {message.count('Test task')} task references in message")
 
     finally:
-        # Clean up all test tasks
-        result = subprocess.run(
-            ["backlog", "task", "list", "--plain", "-s", "In Progress"],
-            capture_output=True,
-            text=True,
-        )
-        if result.stdout.strip():
-            for line in result.stdout.strip().split("\n"):
-                if "Test task" in line and "for multiple tasks" in line:
-                    # Extract task ID from format: [HIGH] task-123 - Title
-                    import re
-
-                    match = re.search(r"task-\d+", line)
-                    if match:
-                        task_id = match.group()
-                        subprocess.run(
-                            ["backlog", "task", "archive", task_id], capture_output=True
-                        )
+        cleanup_test_tasks("for multiple tasks")
 
 
 def test_case_insensitive_detection():
