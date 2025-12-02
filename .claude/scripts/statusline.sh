@@ -26,8 +26,7 @@ get_git_info() {
 get_phase() {
     command -v backlog >/dev/null 2>&1 || return
 
-    local task_id
-    task_id=$(backlog task list --plain -s "In Progress" 2>/dev/null | head -1 | awk '{print $1}') || return
+    local task_id="$1"
     [[ -z "$task_id" ]] && return
 
     local labels
