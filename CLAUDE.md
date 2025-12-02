@@ -422,7 +422,7 @@ The statusline maps `jpspec_workflow.yml` states to short phase indicators:
 | Researched | `[Research]` |
 | Planned | `[Plan]` |
 | In Implementation | `[Implement]` |
-| Validated | `[Validate]` |
+| Validated | `[Valid]` |
 | Deployed | `[Operate]` |
 | Done | `[Done]` |
 
