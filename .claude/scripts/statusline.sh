@@ -23,16 +23,7 @@ get_git_info() {
 }
 
 # Get workflow phase from task labels
-get_phase() {
-    command -v backlog >/dev/null 2>&1 || return
-
-    local task_id="$1"
-    [[ -z "$task_id" ]] && return
-
-    local labels
-    labels=$(backlog task "$task_id" --plain 2>/dev/null | grep "^Labels:" | cut -d: -f2-) || return
-
-    # Extract workflow state from labels
+    local task_details="$1"
     local state=""
     for label in $labels; do
         label=$(echo "$label" | xargs | tr -d ',')
