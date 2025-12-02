@@ -1,10 +1,10 @@
 ---
 id: task-097
 title: Create user customization guide for workflow config
-status: Done
+status: In Progress
 assignee: []
 created_date: '2025-11-28 15:58'
-updated_date: '2025-12-01 05:23'
+updated_date: '2025-12-02 23:47'
 labels:
   - documentation
   - user-guide
@@ -34,4 +34,6 @@ Create comprehensive guide for users who want to customize the workflow configur
 
 <!-- SECTION:NOTES:BEGIN -->
 Documentation created at docs/guides/workflow-customization.md
+
+⚠️ Reverted to In Progress - ACs #7 and #8 still incomplete
 <!-- SECTION:NOTES:END -->
