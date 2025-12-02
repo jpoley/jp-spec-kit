@@ -19,7 +19,8 @@
     "packageManager": "uv"
   },
   "statusLine": {
-    "script": ".claude/scripts/statusline.sh"
+    "type": "command",
+    "command": ".claude/scripts/statusline.sh"
   },
   "hooks": {
     "SessionStart": [
