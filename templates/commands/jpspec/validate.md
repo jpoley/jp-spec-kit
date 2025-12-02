@@ -677,7 +677,7 @@ Completes task: task-094
 ## Acceptance Criteria
 
 1. [x] Command accepts optional task-id argument; defaults to current in-progress task if not provided
-2. [x] Executes phases in order: 0 (load) → 1 (test) → 2 (agents, parallel) → 3 (verify) → 4 (complete) → 5 (PR)
+2. [x] Executes phases in order: 0 (load) → 1 (test) → 2 (agents, parallel) → 3 (docs) → 4 (verify) → 5 (complete) → 6 (PR)
 3. [x] Each phase reports progress to user before execution
 4. [x] Phase failures halt workflow with clear error message
 5. [x] Command can be re-run after fixing issues
