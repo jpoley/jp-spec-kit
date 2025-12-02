@@ -127,7 +127,6 @@ class TestTaskDiscoveryAC1:
         has_view = "backlog task <id> --plain" in content
         has_edit = "backlog task edit" in content
         # More specific fallback: look for "backlog task <id>" (without requiring --plain)
-        import re
 
         has_task_id_ref = bool(re.search(r"backlog task <id>", content))
         assert has_view or has_edit or has_task_id_ref, (
