@@ -199,7 +199,7 @@ class TestSharedBacklogInstructionsAC2:
         ]
 
         # Check if this is a phased workflow (new pattern)
-        has_phased_workflow = "Phase" in content and "backlog task" in content
+        has_phased_workflow = _has_phased_workflow(content)
 
         if has_phased_workflow:
             # For phased workflows, just verify backlog integration exists
