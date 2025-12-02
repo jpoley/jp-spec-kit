@@ -2,6 +2,15 @@
 
 ### Added
 
+- **Spec-Light Mode for Medium-Complexity Features**: Streamlined SDD workflow with `--light` flag
+  - Add `specify init --light` flag for medium-complexity features (complexity score 4-6/10)
+  - Creates `.jpspec-light-mode` marker file in project root
+  - New templates: `spec-light-template.md` (combined user stories + acceptance criteria) and `plan-light-template.md` (high-level approach only)
+  - Skips research and analyze phases for faster iteration (~60% faster workflow; see docs/guides/when-to-use-light-mode.md for example metrics)
+  - Maintains constitutional compliance requirements (security, test-first, PR workflow)
+  - Documentation: `docs/guides/when-to-use-light-mode.md` and `docs/adr/ADR-006-spec-light-mode-design.md`
+  - Easy upgrade path from light mode to full mode if complexity increases
+
 - **`specify backlog migrate` Command**: Migrate legacy tasks.md files to Backlog.md format
   - Converts legacy tasks.md to individual task files in `./backlog/tasks/`
   - Preserves all task metadata: IDs, labels, dependencies, status, user stories
