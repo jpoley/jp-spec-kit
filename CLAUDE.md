@@ -304,7 +304,11 @@ If health checks fail:
 
 ### MCP Configuration File
 
-MCP servers are configured in `.mcp.json` at the project root. See [MCP documentation](https://modelcontextprotocol.io/docs) for details.
+MCP servers are configured in `.mcp.json` at the project root. The configuration uses `${PWD}` for path portability across machines - see [ADR-004](docs/adr/ADR-004-mcp-path-portability.md) for details.
+
+**Important**: Start Claude Code from the project root directory for proper `${PWD}` resolution.
+
+See [MCP documentation](https://modelcontextprotocol.io/docs) for general MCP information.
 
 ## Environment Variables
 

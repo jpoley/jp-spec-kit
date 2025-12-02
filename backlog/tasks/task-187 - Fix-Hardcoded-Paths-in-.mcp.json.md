@@ -1,10 +1,11 @@
 ---
 id: task-187
 title: Fix Hardcoded Paths in .mcp.json
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@myself'
 created_date: '2025-12-01 05:04'
-updated_date: '2025-12-01 05:30'
+updated_date: '2025-12-02 15:53'
 labels:
   - claude-code
   - mcp
@@ -23,9 +24,9 @@ Cross-reference: See docs/prd/claude-capabilities-review.md Section 2.4 for MCP 
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Audit .mcp.json for hardcoded absolute paths
+- [x] #1 Audit .mcp.json for hardcoded absolute paths
 
-- [ ] #2 Replace hardcoded paths with relative paths or env vars
-- [ ] #3 Document any required environment variables
-- [ ] #4 Test configuration on clean environment
+- [x] #2 Replace hardcoded paths with relative paths or env vars
+- [x] #3 Document any required environment variables
+- [x] #4 Test configuration on clean environment
 <!-- AC:END -->
