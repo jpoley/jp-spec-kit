@@ -18,7 +18,7 @@
     "testFramework": "pytest",
     "packageManager": "uv"
   },
-  "statusline": {
+  "statusLine": {
     "script": ".claude/scripts/statusline.sh"
   },
   "hooks": {
