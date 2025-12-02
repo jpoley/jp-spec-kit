@@ -48,10 +48,10 @@ test_valid_config_single_server() {
     cat > "$TEST_DIR/.mcp.json" << 'EOF'
 {
   "mcpServers": {
-    "test-echo": {
-      "command": "echo",
-      "args": ["hello"],
-      "description": "Test echo server"
+    "test-sleep": {
+      "command": "sleep",
+      "args": ["10"],
+      "description": "Test sleep server"
     }
   }
 }
@@ -164,9 +164,9 @@ test_json_output() {
     cat > "$TEST_DIR/.mcp.json" << 'EOF'
 {
   "mcpServers": {
-    "test-echo": {
-      "command": "echo",
-      "args": ["hello"],
+    "test-sleep": {
+      "command": "sleep",
+      "args": ["10"],
       "description": "Test server"
     }
   }
@@ -175,7 +175,7 @@ EOF
 
     cd "$TEST_DIR"
     local output
-    output=$("$MCP_SCRIPT" --json 2>/dev/null)
+    output=$("$MCP_SCRIPT" --json --timeout 3 2>/dev/null)
 
     if echo "$output" | jq -e '.servers' >/dev/null 2>&1 && \
        echo "$output" | jq -e '.summary' >/dev/null 2>&1 && \
@@ -205,8 +205,8 @@ test_custom_config_path() {
 {
   "mcpServers": {
     "test": {
-      "command": "echo",
-      "args": ["test"],
+      "command": "sleep",
+      "args": ["10"],
       "description": "Test"
     }
   }
@@ -214,7 +214,7 @@ test_custom_config_path() {
 EOF
 
     cd "$TEST_DIR"
-    if "$MCP_SCRIPT" --config "$TEST_DIR/custom.json" --timeout 5 >/dev/null 2>&1; then
+    if "$MCP_SCRIPT" --config "$TEST_DIR/custom.json" --timeout 3 >/dev/null 2>&1; then
         log_pass "Custom config path accepted"
     else
         log_fail "Custom config path not working"
@@ -229,18 +229,18 @@ test_multiple_servers() {
 {
   "mcpServers": {
     "server1": {
-      "command": "echo",
-      "args": ["1"],
+      "command": "sleep",
+      "args": ["10"],
       "description": "Server 1"
     },
     "server2": {
-      "command": "echo",
-      "args": ["2"],
+      "command": "sleep",
+      "args": ["10"],
       "description": "Server 2"
     },
     "server3": {
-      "command": "echo",
-      "args": ["3"],
+      "command": "sleep",
+      "args": ["10"],
       "description": "Server 3"
     }
   }
@@ -249,7 +249,7 @@ EOF
 
     cd "$TEST_DIR"
     local output
-    output=$("$MCP_SCRIPT" --json 2>/dev/null)
+    output=$("$MCP_SCRIPT" --json --timeout 3 2>/dev/null)
     local count
     count=$(echo "$output" | jq '.summary.total')
 

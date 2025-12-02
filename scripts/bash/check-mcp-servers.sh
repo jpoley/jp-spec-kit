@@ -54,11 +54,13 @@ cleanup() {
     local exit_code=$?
 
     # Kill any spawned server processes
-    for pid in "${SPAWNED_PIDS[@]}"; do
-        if kill -0 "$pid" 2>/dev/null; then
-            kill -TERM "$pid" 2>/dev/null || true
-        fi
-    done
+    if [ ${#SPAWNED_PIDS[@]} -gt 0 ]; then
+        for pid in "${SPAWNED_PIDS[@]}"; do
+            if kill -0 "$pid" 2>/dev/null; then
+                kill -TERM "$pid" 2>/dev/null || true
+            fi
+        done
+    fi
 
     # Remove temporary files
     rm -f /tmp/mcp-health-*.tmp 2>/dev/null || true
@@ -256,7 +258,7 @@ test_server() {
         cmd_args+=("$arg")
     done < <(echo "$args" | jq -r '.[]')
 
-    # Start server in background
+    # Start server in background with timeout
     timeout "$TIMEOUT" "$command" "${cmd_args[@]}" >/dev/null 2>&1 &
     local server_pid=$!
     SPAWNED_PIDS+=("$server_pid")
@@ -266,33 +268,19 @@ test_server() {
 
     # Check if process is still running
     if kill -0 "$server_pid" 2>/dev/null; then
-        # Server started successfully
-        echo "success" > "$tmp_file"
+        # Server started successfully - kill it
         kill -TERM "$server_pid" 2>/dev/null || true
+        wait "$server_pid" 2>/dev/null || true
+        log_verbose "  ✓ Server started successfully"
+        echo "healthy" "" ""
+        rm -rf "$tmpdir"
+        return 0
     else
-        # Server crashed immediately
-        echo "failed" > "$tmp_file"
-    fi
-
-    local test_pid=$server_pid
-
-    # Wait for test to complete or timeout
-    if wait "$test_pid" 2>/dev/null; then
-        if [[ -f "$tmp_file" ]] && grep -q "success" "$tmp_file"; then
-            log_verbose "  ✓ Server started successfully"
-            echo "healthy" "" ""
-            rm -f "$tmp_file"
-            return 0
-        else
-            log_verbose "  ✗ Server failed to start"
-            echo "failed" "startup_failed" "Server process crashed or failed to start"
-            rm -f "$tmp_file"
-            return 1
-        fi
-    else
-        log_verbose "  ✗ Server startup timed out"
-        echo "failed" "timeout" "Server startup exceeded ${TIMEOUT}s timeout"
-        rm -f "$tmp_file"
+        # Server crashed immediately or completed
+        wait "$server_pid" 2>/dev/null || true
+        log_verbose "  ✗ Server failed to start"
+        echo "failed" "startup_failed" "Server process crashed or failed to start"
+        rm -rf "$tmpdir"
         return 1
     fi
 }
