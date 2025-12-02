@@ -35,17 +35,21 @@ class TestImplementCommandStructure:
 
     def test_has_required_task_discovery_section(self, implement_command_content):
         """AC #1: Command REQUIRES task validation before execution."""
-        # Accept either old pattern or new workflow state validation pattern
+        # Accept either old pattern, new workflow state validation, or include directive
         has_old_pattern = (
             "### Step 0: REQUIRED - Discover Backlog Tasks" in implement_command_content
         )
         has_new_pattern = (
             "Step 0: Workflow State Validation" in implement_command_content
         )
-        assert has_old_pattern or has_new_pattern, (
+        has_include_pattern = (
+            "{{INCLUDE:.claude/commands/jpspec/_workflow-state.md}}"
+            in implement_command_content
+        )
+        assert has_old_pattern or has_new_pattern or has_include_pattern, (
             "implement.md must have task discovery/validation section"
         )
-        # Accept either old or new critical message
+        # Accept either old or new critical message or include that provides it
         has_old_critical = (
             "CRITICAL: This command REQUIRES existing backlog tasks"
             in implement_command_content
@@ -53,7 +57,8 @@ class TestImplementCommandStructure:
         has_new_critical = (
             "CRITICAL: This command requires a task" in implement_command_content
         )
-        assert has_old_critical or has_new_critical, (
+        has_include_critical = has_include_pattern  # Include provides this
+        assert has_old_critical or has_new_critical or has_include_critical, (
             "implement.md must have critical task requirement message"
         )
 

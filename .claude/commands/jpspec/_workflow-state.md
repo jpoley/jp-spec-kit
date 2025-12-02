@@ -1,60 +1,103 @@
-# Workflow State Management
+# Workflow State Validation
 
-## Overview
+## Step 0: Workflow State Validation (REQUIRED)
 
-JP Spec Kit tracks workflow state using labels on backlog tasks. This enables proper workflow constraint enforcement.
+**CRITICAL**: This command requires a task to be in the correct workflow state before execution.
 
-## Workflow State Labels
-
-Tasks use labels with the `workflow:` prefix to track their current workflow state:
-
-- `workflow:Assessed` - SDD suitability evaluated
-- `workflow:Specified` - Requirements captured
-- `workflow:Researched` - Technical research completed
-- `workflow:Planned` - Architecture planned
-- `workflow:In Implementation` - Code being written
-- `workflow:Validated` - QA and security validated
-- `workflow:Deployed` - Released to production
-
-## Checking Workflow State
+### 1. Get Current Task and State
 
 ```bash
-# Get current task's workflow state from labels
-TASK_ID=$(backlog task list -s "In Progress" --plain | head -1 | awk '{print $2}')
-TASK_LABELS=$(backlog task "$TASK_ID" --plain | grep "^Labels:" | cut -d: -f2-)
+# Find the task you're working on
+# Option A: If task ID was provided in arguments, use that
+# Option B: Look for task currently "In Progress"
+backlog task list -s "In Progress" --plain
 
-# Extract workflow state from labels
-CURRENT_STATE=""
-for label in $TASK_LABELS; do
-  if [[ "$label" == workflow:* ]]; then
-    CURRENT_STATE="${label#workflow:}"
-    break
-  fi
-done
-
-echo "Task: $TASK_ID"
-echo "Workflow State: ${CURRENT_STATE:-Not Set}"
+# Get task details and extract workflow state from labels
+TASK_ID="<task-id>"  # Replace with actual task ID
+backlog task "$TASK_ID" --plain
 ```
 
-## Setting Workflow State
+### 2. Check Workflow State
 
-After completing a workflow, update the task's workflow state label:
+Extract the `workflow:*` label from the task. The state must match one of the **Required Input States** for this command:
+
+| Command | Required Input States | Output State |
+|---------|----------------------|--------------|
+| /jpspec:assess | (new task) | workflow:Assessed |
+| /jpspec:specify | workflow:Assessed | workflow:Specified |
+| /jpspec:research | workflow:Specified | workflow:Researched |
+| /jpspec:plan | workflow:Specified, workflow:Researched | workflow:Planned |
+| /jpspec:implement | workflow:Planned | workflow:In-Implementation |
+| /jpspec:validate | workflow:In-Implementation | workflow:Validated |
+| /jpspec:operate | workflow:Validated | workflow:Deployed |
+
+### 3. Handle Invalid State
+
+If the task's workflow state doesn't match the required input states:
+
+```text
+⚠️ Cannot run /jpspec:<command>
+
+Current state: "<current-workflow-label>"
+Required states: <list-of-valid-input-states>
+
+Suggestions:
+  - Valid workflows for current state: <list-valid-commands>
+  - Use --skip-state-check to bypass (not recommended)
+```
+
+**DO NOT PROCEED** unless:
+- The task is in a valid input state, OR
+- User explicitly requests to skip the check
+
+### 4. Update State After Completion
+
+After successful workflow completion, update the task's workflow state:
 
 ```bash
 # Remove old workflow label and add new one
-backlog task edit "$TASK_ID" -l "workflow:Planned"
+# Replace <output-state> with the output state from the table above
+backlog task edit "$TASK_ID" -l "workflow:<output-state>"
 ```
 
-## State Transitions
+## Workflow State Labels Reference
 
-Each `/jpspec:*` command has defined input and output states:
+Tasks use labels with the `workflow:` prefix to track their current workflow state:
 
-| Command | Input States | Output State |
-|---------|--------------|--------------|
-| /jpspec:assess | (new task) | Assessed |
-| /jpspec:specify | Assessed | Specified |
-| /jpspec:research | Specified | Researched |
-| /jpspec:plan | Specified, Researched | Planned |
-| /jpspec:implement | Planned | In Implementation |
-| /jpspec:validate | In Implementation | Validated |
-| /jpspec:operate | Validated | Deployed |
+- `workflow:Assessed` - SDD suitability evaluated (/jpspec:assess complete)
+- `workflow:Specified` - Requirements captured (/jpspec:specify complete)
+- `workflow:Researched` - Technical research completed (/jpspec:research complete)
+- `workflow:Planned` - Architecture planned (/jpspec:plan complete)
+- `workflow:In-Implementation` - Code being written (/jpspec:implement in progress)
+- `workflow:Validated` - QA and security validated (/jpspec:validate complete)
+- `workflow:Deployed` - Released to production (/jpspec:operate complete)
+
+## Programmatic State Checking
+
+The state guard module can also be used programmatically:
+
+```python
+from specify_cli.workflow import check_workflow_state, get_valid_workflows
+
+# Check if current state allows command execution
+can_proceed, message = check_workflow_state("implement", current_state)
+
+if not can_proceed:
+    print(message)
+    # Shows error with suggestions
+
+# Get valid commands for a state
+valid_commands = get_valid_workflows("Specified")
+# Returns: ['/jpspec:research', '/jpspec:plan']
+```
+
+## Bypassing State Checks (Power Users Only)
+
+State checks can be bypassed in special circumstances:
+- Emergency hotfixes
+- Iterative refinement of specifications
+- Recovery from failed workflows
+
+Use `--skip-state-check` flag or explicitly acknowledge the bypass.
+
+**Warning**: Bypassing state checks may result in incomplete artifacts or broken workflows.

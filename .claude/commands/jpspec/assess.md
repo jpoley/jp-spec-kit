@@ -14,6 +14,15 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 This command is the **mandatory entry point** to the jpspec workflow. It evaluates whether a feature requires the full Spec-Driven Development (SDD) workflow, a lighter specification approach, or can skip SDD entirely.
 
+{{INCLUDE:.claude/commands/jpspec/_workflow-state.md}}
+
+**For /jpspec:assess**: This is the workflow entry point. Required input state is `(new task)` or no workflow label. Output state will be `workflow:Assessed`.
+
+If the task already has a workflow state label (e.g., `workflow:Specified`), inform the user:
+- Assessment is meant for new features at the start of the workflow
+- For re-assessment: use `--skip-state-check` or remove the workflow label first
+- Consider whether you need `/jpspec:specify` or another workflow command instead
+
 ### Overview
 
 The assess command:

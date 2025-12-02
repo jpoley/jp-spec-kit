@@ -14,6 +14,14 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 This command orchestrates comprehensive research and business validation using two specialized agents working sequentially.
 
+{{INCLUDE:.claude/commands/jpspec/_workflow-state.md}}
+
+**For /jpspec:research**: Required input state is `workflow:Specified`. Output state will be `workflow:Researched`.
+
+If the task doesn't have the required workflow state, inform the user:
+- If task needs specification first: suggest running `/jpspec:specify`
+- If research needs to be done before specification: explain that this violates the workflow
+
 **IMPORTANT: Before starting, check for existing research-related tasks:**
 
 ```bash

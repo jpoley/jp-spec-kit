@@ -36,10 +36,13 @@ class TestPlanCommandStructure:
     def test_plan_command_has_task_discovery_section(self, plan_command_path):
         """Verify plan.md includes task discovery/validation section."""
         content = plan_command_path.read_text()
-        # Accept either old pattern or new workflow state validation pattern
+        # Accept either old pattern, new workflow state validation, or include directive
         has_old_pattern = "Step 0: Backlog Task Discovery" in content
         has_new_pattern = "Step 0: Workflow State Validation" in content
-        assert has_old_pattern or has_new_pattern, (
+        has_include_pattern = (
+            "{{INCLUDE:.claude/commands/jpspec/_workflow-state.md}}" in content
+        )
+        assert has_old_pattern or has_new_pattern or has_include_pattern, (
             "plan.md must have task discovery/validation section"
         )
         # Task list command should be present in either format
@@ -304,10 +307,11 @@ class TestIntegrationScenarios:
         """Verify plan command supports complete architecture workflow."""
         content = plan_command_path.read_text()
 
-        # Check for task discovery/validation (accept old or new pattern)
+        # Check for task discovery/validation (accept old, new, or include pattern)
         has_task_section = (
             "Step 0: Backlog Task Discovery" in content
             or "Step 0: Workflow State Validation" in content
+            or "{{INCLUDE:.claude/commands/jpspec/_workflow-state.md}}" in content
         )
         assert has_task_section, "plan.md must have task discovery/validation section"
 
@@ -328,10 +332,11 @@ class TestIntegrationScenarios:
         """Verify plan command supports complete platform workflow."""
         content = plan_command_path.read_text()
 
-        # Check for task discovery/validation (accept old or new pattern)
+        # Check for task discovery/validation (accept old, new, or include pattern)
         has_task_section = (
             "Step 0: Backlog Task Discovery" in content
             or "Step 0: Workflow State Validation" in content
+            or "{{INCLUDE:.claude/commands/jpspec/_workflow-state.md}}" in content
         )
         assert has_task_section, "plan.md must have task discovery/validation section"
 

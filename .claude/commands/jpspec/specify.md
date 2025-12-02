@@ -14,6 +14,14 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 This command creates comprehensive feature specifications using the PM Planner agent, integrating with backlog.md for task management.
 
+{{INCLUDE:.claude/commands/jpspec/_workflow-state.md}}
+
+**For /jpspec:specify**: Required input state is `workflow:Assessed`. Output state will be `workflow:Specified`.
+
+If no task is in progress or the task doesn't have the required workflow state, inform the user:
+- If task needs assessment first: suggest running `/jpspec:assess`
+- If this is a new feature: suggest creating a task with `/jpspec:assess` first
+
 ### Step 1: Discover Existing Tasks
 
 Before launching the PM Planner agent, search for existing tasks related to this feature:

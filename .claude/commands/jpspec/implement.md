@@ -14,75 +14,13 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 This command implements features using specialized engineering agents with integrated code review. **Engineers work exclusively from backlog tasks.**
 
-### Step 0: Workflow State Validation (REQUIRED)
+{{INCLUDE:.claude/commands/jpspec/_workflow-state.md}}
 
-**⚠️ CRITICAL: This command requires a task in the correct workflow state.**
+**For /jpspec:implement**: Required input state is `workflow:Planned`. Output state will be `workflow:In-Implementation`.
 
-Before proceeding, validate that a task is in an allowed state for this workflow:
-
-```bash
-# 1. Find the current in-progress task
-CURRENT_TASK=$(backlog task list -s "In Progress" --plain | head -1 | awk '{print $2}')
-
-if [ -z "$CURRENT_TASK" ]; then
-  echo "❌ ERROR: No task currently in progress"
-  echo ""
-  echo "Action required:"
-  echo "  1. Find or create a task to work on"
-  echo "  2. Set it to 'In Progress': backlog task edit <task-id> -s 'In Progress'"
-  echo "  3. Re-run /jpspec:implement"
-  exit 1
-fi
-
-# 2. Get task labels and extract workflow state
-TASK_INFO=$(backlog task "$CURRENT_TASK" --plain)
-TASK_LABELS=$(echo "$TASK_INFO" | grep "^Labels:" | cut -d: -f2- | tr ',' ' ')
-
-CURRENT_STATE=""
-for label in $TASK_LABELS; do
-  label=$(echo "$label" | xargs)  # trim whitespace
-  if [[ "$label" == workflow:* ]]; then
-    CURRENT_STATE="${label#workflow:}"
-    break
-  fi
-done
-
-# 3. Validate workflow state
-# Allowed input states for /jpspec:implement: Planned
-ALLOWED_STATES="Planned"
-
-if [ -z "$CURRENT_STATE" ]; then
-  echo "⚠️  WARNING: Task has no workflow state label"
-  echo "  Task: $CURRENT_TASK"
-  echo ""
-  echo "To set workflow state, add a label:"
-  echo "  backlog task edit $CURRENT_TASK -l workflow:Planned"
-  echo ""
-  echo "Proceeding with assumption that task is in a valid state..."
-elif [[ ! " $ALLOWED_STATES " =~ " $CURRENT_STATE " ]]; then
-  echo "❌ Workflow state check failed"
-  echo ""
-  echo "  Current task: $CURRENT_TASK"
-  echo "  Current state: $CURRENT_STATE"
-  echo ""
-  echo "This workflow (/jpspec:implement) requires state: Planned"
-  echo ""
-  echo "Valid workflows from '$CURRENT_STATE' state:"
-  case "$CURRENT_STATE" in
-    "Specified"|"Researched") echo "  • /jpspec:plan (Specified|Researched → Planned)" ;;
-    "In Implementation") echo "  • /jpspec:validate (In Implementation → Validated)" ;;
-    "Validated") echo "  • /jpspec:operate (Validated → Deployed)" ;;
-    *) echo "  • Check workflow configuration for valid transitions" ;;
-  esac
-  exit 1
-fi
-
-echo "✓ Workflow validation passed"
-echo "  Current task: $CURRENT_TASK"
-echo "  Workflow state: ${CURRENT_STATE:-Not Set}"
-echo "  Workflow: implement (Planned → In Implementation)"
-echo ""
-```
+If the task doesn't have the required workflow state, inform the user:
+- If task needs planning first: suggest running `/jpspec:plan`
+- If task needs specification: suggest running `/jpspec:specify` first
 
 **Proceed to Step 1 ONLY if workflow validation passes.**
 

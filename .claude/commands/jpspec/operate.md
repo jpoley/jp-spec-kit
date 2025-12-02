@@ -14,6 +14,16 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 This command establishes comprehensive operational infrastructure using SRE best practices, focusing on reliability, automation, and observability. **All operational work is tracked as backlog tasks.**
 
+{{INCLUDE:.claude/commands/jpspec/_workflow-state.md}}
+
+**For /jpspec:operate**: Required input state is `workflow:Validated`. Output state will be `workflow:Deployed`.
+
+If the task doesn't have the required workflow state, inform the user:
+- If task needs validation first: suggest running `/jpspec:validate`
+- If deploying before validation: use `--skip-state-check` only for emergency hotfixes
+
+**Proceed to Step 1 ONLY if workflow validation passes.**
+
 ### Step 1: Discover Existing Operational Tasks
 
 Before launching the SRE agent, search for existing operational tasks:
