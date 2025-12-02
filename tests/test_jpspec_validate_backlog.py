@@ -126,9 +126,11 @@ class TestTaskDiscoveryAC1:
         # Accept various task management patterns
         has_view = "backlog task <id> --plain" in content
         has_edit = "backlog task edit" in content
-        has_task_ref = "backlog task" in content
-        assert has_view or has_edit or has_task_ref, (
-            "validate.md must reference backlog task commands"
+        # More specific fallback: look for "backlog task <id>" (without requiring --plain)
+        import re
+        has_task_id_ref = bool(re.search(r"backlog task <id>", content))
+        assert has_view or has_edit or has_task_id_ref, (
+            "validate.md must reference backlog task detail commands (view/edit)"
         )
 
     def test_uses_plain_output_flag(self, validate_md_path):
