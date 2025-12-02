@@ -13,8 +13,9 @@ get_git_info() {
     local branch
     branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null) || return
 
-    # Check for uncommitted changes (fast check)
-    if ! git diff --quiet HEAD 2>/dev/null; then
+    # Check for uncommitted changes (staged, unstaged, or untracked)
+    if ! git diff-index --quiet HEAD -- 2>/dev/null || \
+       [[ -n "$(git ls-files --others --exclude-standard 2>/dev/null)" ]]; then
         echo "${branch}*"
     else
         echo "$branch"
