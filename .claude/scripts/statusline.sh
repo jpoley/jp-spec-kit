@@ -49,7 +49,7 @@ get_git() {
 }
 
 # Build status with timeouts
-PHASE=$(timeout 0.03 bash -c "$(declare -f get_phase); CWD='$CWD'; get_phase" 2>/dev/null || echo "")
+PHASE=$(CWD="$CWD" timeout 0.03 bash -c "$(declare -f get_phase); get_phase" 2>/dev/null || echo "")
 TASK_INFO=$(timeout 0.05 bash -c "$(declare -f get_task); get_task" 2>/dev/null || echo "")
 GIT_INFO=$(timeout 0.02 bash -c "$(declare -f get_git); get_git" 2>/dev/null || echo "")
 
