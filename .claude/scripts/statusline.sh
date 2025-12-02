@@ -37,9 +37,17 @@ get_task() {
     command -v backlog >/dev/null 2>&1 || return
     local task=$(backlog task list --plain -s "In Progress" 2>/dev/null | head -1 | awk '{print $1}' || echo "")
     [[ -z "$task" ]] && return
-    local details=$(backlog task "$task" --plain 2>/dev/null || echo "")
-    local checked=$(echo "$details" | grep -c "^\- \[x\]" 2>/dev/null || echo "0")
-    local total=$(echo "$details" | grep -c "^\- \[[ x]\]" 2>/dev/null || echo "0")
+    local cache="/tmp/backlog_ac_cache_${task}"
+    local checked total
+    # Use cache if fresh (<30s)
+    if [[ -f "$cache" ]] && [[ $(( $(date +%s) - $(stat -c %Y "$cache") )) -lt 30 ]]; then
+        read checked total < "$cache"
+    else
+        local details=$(backlog task "$task" --plain 2>/dev/null || echo "")
+        checked=$(echo "$details" | grep -c "^\- \[x\]" 2>/dev/null || echo "0")
+        total=$(echo "$details" | grep -c "^\- \[[ x]\]" 2>/dev/null || echo "0")
+        echo "$checked $total" > "$cache"
+    fi
     [[ "$total" -gt 0 ]] && echo "$task ($checked/$total)" || echo "$task"
 }
 
