@@ -7,7 +7,7 @@ Accepted
 2024-06-11
 
 ## Decision
-Implement Spec-Light Mode with:
+Jane Doe
 
 1. **`--light` flag on `specify init`**: Creates `.jpspec-light-mode` marker file
 2. **Simplified templates**: `spec-light.md` (combined stories + AC) and `plan-light.md` (high-level only)
