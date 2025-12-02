@@ -16,7 +16,7 @@ This command implements features using specialized engineering agents with integ
 
 {{INCLUDE:.claude/commands/jpspec/_workflow-state.md}}
 
-**For /jpspec:implement**: Required input state is `workflow:Planned`. Output state will be `workflow:In-Implementation`.
+**For /jpspec:implement**: Required input state is `workflow:Planned`. Output state will be `workflow:In Implementation`.
 
 If the task doesn't have the required workflow state, inform the user:
 - If task needs planning first: suggest running `/jpspec:plan`

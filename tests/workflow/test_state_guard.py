@@ -8,10 +8,9 @@ Tests cover all 8 acceptance criteria for task-096:
 - AC #5: Workflow suggestions for current state
 - AC #6: Support for multiple task systems
 - AC #7: No breaking changes (backward compatibility)
-- AC #8: All 6 commands implement checks
+- AC #8: All 7 commands implement checks
 """
 
-import tempfile
 from pathlib import Path
 from typing import Optional
 
@@ -90,23 +89,19 @@ def sample_config():
 
 
 @pytest.fixture
-def config_file(sample_config):
+def config_file(sample_config, tmp_path):
     """Create temporary config file."""
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".yml", delete=False) as f:
-        yaml.dump(sample_config, f)
-        return Path(f.name)
+    config_path = tmp_path / "jpspec_workflow.yml"
+    config_path.write_text(yaml.dump(sample_config))
+    return config_path
 
 
 @pytest.fixture
-def config_dir(sample_config):
+def config_dir(sample_config, tmp_path):
     """Create temp directory with config file for default path testing."""
-    import tempfile as tf
-
-    tmpdir = Path(tf.mkdtemp())
-    config_path = tmpdir / "jpspec_workflow.yml"
-    with open(config_path, "w") as f:
-        yaml.dump(sample_config, f)
-    return tmpdir
+    config_path = tmp_path / "jpspec_workflow.yml"
+    config_path.write_text(yaml.dump(sample_config))
+    return tmp_path
 
 
 class MockTaskSystem:
@@ -151,18 +146,18 @@ class TestConfigLoading:
         assert not guard.has_config
         assert guard.config == {}
 
-    def test_handles_empty_config_file(self):
+    def test_handles_empty_config_file(self, tmp_path):
         """Guard handles empty config file."""
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".yml", delete=False) as f:
-            f.write("")
-        guard = WorkflowStateGuard(Path(f.name))
+        empty_config = tmp_path / "empty.yml"
+        empty_config.write_text("")
+        guard = WorkflowStateGuard(empty_config)
         assert not guard.has_config
 
-    def test_handles_invalid_yaml(self):
+    def test_handles_invalid_yaml(self, tmp_path):
         """Guard handles invalid YAML gracefully."""
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".yml", delete=False) as f:
-            f.write("invalid: yaml: [\n")
-        guard = WorkflowStateGuard(Path(f.name))
+        invalid_config = tmp_path / "invalid.yml"
+        invalid_config.write_text("invalid: yaml: [\n")
+        guard = WorkflowStateGuard(invalid_config)
         assert guard.config == {}
 
     def test_searches_multiple_default_paths(self, sample_config):
@@ -475,7 +470,7 @@ class TestBackwardCompatibility:
 
 
 class TestAllCommandsCovered:
-    """Tests for AC #8: All 6 commands implement checks."""
+    """Tests for AC #8: All 7 commands implement checks."""
 
     JPSPEC_COMMANDS = [
         "assess",

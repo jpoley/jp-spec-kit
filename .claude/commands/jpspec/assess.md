@@ -16,7 +16,7 @@ This command is the **mandatory entry point** to the jpspec workflow. It evaluat
 
 {{INCLUDE:.claude/commands/jpspec/_workflow-state.md}}
 
-**For /jpspec:assess**: This is the workflow entry point. Required input state is `(new task)` or no workflow label. Output state will be `workflow:Assessed`.
+**For /jpspec:assess**: This is the workflow entry point. Required input state is `workflow:To Do` or no workflow label. Output state will be `workflow:Assessed`.
 
 If the task already has a workflow state label (e.g., `workflow:Specified`), inform the user:
 - Assessment is meant for new features at the start of the workflow

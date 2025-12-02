@@ -23,12 +23,12 @@ Extract the `workflow:*` label from the task. The state must match one of the **
 
 | Command | Required Input States | Output State |
 |---------|----------------------|--------------|
-| /jpspec:assess | (new task) | workflow:Assessed |
+| /jpspec:assess | workflow:To Do, (no workflow label) | workflow:Assessed |
 | /jpspec:specify | workflow:Assessed | workflow:Specified |
 | /jpspec:research | workflow:Specified | workflow:Researched |
 | /jpspec:plan | workflow:Specified, workflow:Researched | workflow:Planned |
-| /jpspec:implement | workflow:Planned | workflow:In-Implementation |
-| /jpspec:validate | workflow:In-Implementation | workflow:Validated |
+| /jpspec:implement | workflow:Planned | workflow:In Implementation |
+| /jpspec:validate | workflow:In Implementation | workflow:Validated |
 | /jpspec:operate | workflow:Validated | workflow:Deployed |
 
 ### 3. Handle Invalid State
@@ -68,7 +68,7 @@ Tasks use labels with the `workflow:` prefix to track their current workflow sta
 - `workflow:Specified` - Requirements captured (/jpspec:specify complete)
 - `workflow:Researched` - Technical research completed (/jpspec:research complete)
 - `workflow:Planned` - Architecture planned (/jpspec:plan complete)
-- `workflow:In-Implementation` - Code being written (/jpspec:implement in progress)
+- `workflow:In Implementation` - Code being written (/jpspec:implement in progress)
 - `workflow:Validated` - QA and security validated (/jpspec:validate complete)
 - `workflow:Deployed` - Released to production (/jpspec:operate complete)
 
