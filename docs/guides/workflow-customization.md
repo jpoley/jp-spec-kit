@@ -562,6 +562,111 @@ Incompatible versions will cause validation errors.
 
 Very complex workflows (50+ states, 100+ transitions) may impact performance. Keep workflows focused and simple when possible.
 
+## Troubleshooting
+
+When customizations cause issues, this section helps diagnose and resolve problems quickly.
+
+> **📖 For comprehensive troubleshooting coverage**, see [Workflow Troubleshooting Guide](./workflow-troubleshooting.md).
+
+### ⚠️ Critical Issues to Avoid
+
+These are the most common problems when customizing workflows. **Avoiding these saves significant debugging time.**
+
+#### Circular Dependencies (Most Common Error)
+
+**What it is**: A cycle in state transitions where states reference each other in a loop.
+
+**Example of the problem**:
+```yaml
+transitions:
+  - from: "Planned"
+    to: "In Implementation"
+  - from: "In Implementation"
+    to: "Planned"  # ❌ Creates cycle!
+```
+
+**Why it's critical**: Workflows must be a Directed Acyclic Graph (DAG). Cycles cause infinite loops and prevent workflow execution.
+
+**How to avoid**:
+- Draw your state diagram before implementing
+- Use `via: "rework"` for legitimate backward transitions (e.g., returning to planning after failed validation)
+- Run `specify workflow validate` after every change
+
+**Fix**: Remove or modify the transition creating the cycle:
+```yaml
+transitions:
+  - from: "In Implementation"
+    to: "Planned"
+    via: "rework"  # ✓ Explicit rework transition is allowed
+```
+
+#### Unreachable States (Second Most Common)
+
+**What it is**: A state that has no transition path from the initial "To Do" state.
+
+**Example of the problem**:
+```yaml
+states:
+  - "To Do"
+  - "Specified"
+  - "Security Audited"  # ❌ No way to reach this state!
+  - "Done"
+
+transitions:
+  - from: "To Do"
+    to: "Specified"
+  - from: "Specified"
+    to: "Done"
+  # Missing transition to "Security Audited"
+```
+
+**Why it's critical**: Tasks can never enter unreachable states, making them useless configuration bloat.
+
+**How to avoid**:
+- Every state (except "To Do") must have at least one incoming transition
+- Every state (except terminal states) must have at least one outgoing transition
+- Use `specify workflow validate` to detect unreachable states
+
+**Fix**: Add a transition path to the state:
+```yaml
+transitions:
+  - from: "Specified"
+    to: "Security Audited"
+    via: "security-audit"
+  - from: "Security Audited"
+    to: "Done"
+    via: "complete"
+```
+
+### Quick Reference: Common Issues
+
+| Issue | Symptom | Quick Fix |
+|-------|---------|-----------|
+| Config not found | `WorkflowConfigNotFoundError` | Create `jpspec_workflow.yml` in project root |
+| State typo | `UNDEFINED_OUTPUT_STATE` | Check spelling matches `states:` list exactly |
+| Wrong workflow order | "Cannot execute from state X" | Check `input_states` for the workflow |
+| Circular dependency | `CYCLE_DETECTED` | Use `via: "rework"` for backward transitions |
+| Unreachable state | `UNREACHABLE_STATE` | Add transition path from existing state |
+| Unknown agent | `UNKNOWN_AGENT` warning | Safe to ignore, or define custom agent |
+
+### Diagnostic Commands
+
+Run these when troubleshooting:
+
+```bash
+# 1. Validate configuration (catches most issues)
+specify workflow validate
+
+# 2. Check YAML syntax
+python -c "import yaml; yaml.safe_load(open('jpspec_workflow.yml'))"
+
+# 3. View current task state
+backlog task view task-123
+
+# 4. See valid workflows for a state
+grep -A 5 "input_states" jpspec_workflow.yml
+```
+
 ## Rollback and Recovery
 
 ### Undo Configuration Changes
