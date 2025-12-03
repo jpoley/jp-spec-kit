@@ -1,10 +1,28 @@
 # Critical Rules
 
+## Pre-PR Validation (MANDATORY - NO EXCEPTIONS)
+
+**BEFORE creating any PR, you MUST run and pass:**
+
+```bash
+# 1. Lint check - MUST pass with zero errors
+uv run ruff check .
+
+# 2. Tests - MUST pass with zero failures
+uv run pytest tests/ -x -q
+
+# 3. Only after BOTH pass, create PR
+```
+
+**DO NOT create a PR if lint or tests fail.** Fix issues first.
+
+This is NON-NEGOTIABLE. PRs that fail CI waste time and create noise.
+
 ## No Direct Commits to Main (ABSOLUTE - NO EXCEPTIONS)
 
 **NEVER commit directly to main.** All changes MUST go through a PR:
 
-1. Create branch → 2. Make changes → 3. Create PR → 4. CI passes → 5. Merge → 6. Mark task Done
+1. Create branch → 2. Make changes → 3. **Run lint + tests locally** → 4. Create PR → 5. CI passes → 6. Merge → 7. Mark task Done
 
 Not for "urgent" fixes. Not for "small" changes. **NO EXCEPTIONS.**
 

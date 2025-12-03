@@ -639,6 +639,49 @@ fi
 
 This phase creates a well-formatted pull request using the PRGenerator pattern.
 
+#### Step 0: Pre-PR Validation Gate (MANDATORY - NO EXCEPTIONS)
+
+**⚠️ CRITICAL: Before creating any PR, ALL validation checks MUST pass.**
+
+This is a blocking gate. Do NOT proceed to PR creation until ALL checks pass.
+
+```bash
+# 1. Run lint check - MUST pass with ZERO errors
+uv run ruff check .
+
+# 2. Run test suite - MUST pass with ZERO failures
+uv run pytest tests/ -x -q
+
+# 3. Check for unused imports/variables
+uv run ruff check --select F401,F841 .
+```
+
+**Validation Checklist (ALL REQUIRED)**:
+
+- [ ] `ruff check .` passes with zero errors
+- [ ] `pytest tests/ -x -q` passes with zero failures
+- [ ] No unused imports (`ruff check --select F401`)
+- [ ] No unused variables (`ruff check --select F841`)
+- [ ] Code is formatted (`ruff format .`)
+
+**If ANY check fails**:
+```
+❌ Pre-PR Gate Failed: Validation checks must pass before PR creation.
+
+Failures:
+- [List failed checks]
+
+Fix all issues and re-run /jpspec:validate
+```
+
+**⚠️ DO NOT proceed to Step 1 if ANY validation check fails.**
+
+PRs that fail CI:
+- Waste reviewer time
+- Create noise in the repository
+- Demonstrate lack of due diligence
+- Will be closed without review
+
 #### Step 1: Check Branch Status
 
 ```bash

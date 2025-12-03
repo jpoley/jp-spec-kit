@@ -609,6 +609,104 @@ Include specific, actionable suggestions with examples.
    - Add code comments for complex logic
    - Document configuration and deployment
 
+### Phase 4: Pre-PR Validation (MANDATORY - NO EXCEPTIONS)
+
+**⚠️ CRITICAL: Before creating any PR, you MUST run and pass ALL validation checks.**
+
+This is a blocking gate. Do NOT create a PR until ALL checks pass.
+
+#### Step 1: Run Lint Check
+
+```bash
+# Python projects
+uv run ruff check .
+
+# Go projects
+go vet ./...
+
+# TypeScript projects
+npm run lint
+```
+
+**MUST pass with ZERO errors.** Fix all linting issues before proceeding.
+
+#### Step 2: Run Test Suite
+
+```bash
+# Python projects
+uv run pytest tests/ -x -q
+
+# Go projects
+go test ./...
+
+# TypeScript projects
+npm test
+```
+
+**MUST pass with ZERO failures.** Fix all failing tests before proceeding.
+
+#### Step 3: Format Code
+
+```bash
+# Python projects
+uv run ruff format .
+
+# Go projects
+gofmt -w .
+
+# TypeScript projects
+npm run format
+```
+
+#### Step 4: Verify No Unused Code
+
+```bash
+# Python - check for unused imports and variables
+uv run ruff check --select F401,F841 .
+
+# Go - compiler enforces this automatically
+go build ./...
+
+# TypeScript - with noUnusedLocals enabled
+npx tsc --noEmit
+```
+
+**MUST have ZERO unused imports or variables.**
+
+#### Validation Checklist (ALL REQUIRED)
+
+Before creating the PR, verify ALL of these:
+
+- [ ] `ruff check .` passes with zero errors
+- [ ] `pytest tests/ -x -q` passes with zero failures
+- [ ] Code is formatted (`ruff format .`)
+- [ ] No unused imports (`ruff check --select F401`)
+- [ ] No unused variables (`ruff check --select F841`)
+- [ ] All acceptance criteria are marked complete in backlog
+- [ ] Implementation notes added to backlog task
+
+**⚠️ DO NOT proceed to create a PR if ANY checklist item is incomplete.**
+
+PRs that fail CI:
+- Waste reviewer time
+- Create noise in the repository
+- Demonstrate lack of due diligence
+- Will be closed without review
+
+#### Step 5: Create PR (Only After All Checks Pass)
+
+Once all validation passes:
+
+```bash
+# Commit changes with DCO sign-off
+git add .
+git commit -s -m "feat(scope): description"
+
+# Push and create PR
+git push origin <branch-name>
+gh pr create --title "feat: description" --body "..."
+```
+
 ### Deliverables
 
 - Fully implemented, reviewed code
@@ -616,3 +714,4 @@ Include specific, actionable suggestions with examples.
 - Code review reports with resolution status
 - Integration documentation
 - Deployment-ready artifacts
+- **All pre-PR validation checks passing**

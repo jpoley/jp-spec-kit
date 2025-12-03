@@ -93,6 +93,42 @@ backlog task create "Task title" \
 
 **Every task MUST have at least one acceptance criterion.**
 
+## Pre-PR Validation (MANDATORY - NO EXCEPTIONS)
+
+**⚠️ CRITICAL: Before creating ANY pull request, you MUST run and pass ALL validation checks.**
+
+This is a blocking gate. Do NOT create a PR until ALL checks pass.
+
+```bash
+# 1. Run lint check - MUST pass with ZERO errors
+uv run ruff check .
+
+# 2. Run test suite - MUST pass with ZERO failures
+uv run pytest tests/ -x -q
+
+# 3. Check for unused imports/variables
+uv run ruff check --select F401,F841 .
+
+# 4. Format code
+uv run ruff format .
+```
+
+### Pre-PR Validation Checklist (ALL REQUIRED)
+
+- [ ] `ruff check .` passes with zero errors
+- [ ] `pytest tests/ -x -q` passes with zero failures
+- [ ] No unused imports (`ruff check --select F401`)
+- [ ] No unused variables (`ruff check --select F841`)
+- [ ] Code is formatted (`ruff format .`)
+
+**⚠️ DO NOT proceed to create a PR if ANY checklist item fails.**
+
+PRs that fail CI:
+- Waste reviewer time
+- Create noise in the repository
+- Demonstrate lack of due diligence
+- Will be closed without review
+
 ## Completing Tasks
 
 Before marking a task Done, verify the Definition of Done:
@@ -104,6 +140,7 @@ Before marking a task Done, verify the Definition of Done:
 3. ✅ **Tests pass** - All relevant tests are green
 4. ✅ **Code reviewed** - Self-review completed
 5. ✅ **No regressions** - Existing functionality still works
+6. ✅ **Pre-PR validation passed** - Lint and tests pass locally
 
 ```bash
 # Mark task as done (only after DoD is satisfied)
