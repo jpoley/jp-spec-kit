@@ -25,11 +25,13 @@ IMPORTANT: All mock task IDs use E2E- prefix.
 All fixtures use tmp_path - files are auto-cleaned after tests.
 """
 
-import pytest
 import json
 from pathlib import Path
 from textwrap import dedent
 from typing import Optional
+
+import pytest
+import yaml
 
 from specify_cli.workflow.state_guard import (
     WorkflowStateGuard,
@@ -43,7 +45,7 @@ from specify_cli.workflow.state_guard import (
 
 
 @pytest.fixture
-def e2e_temp_backlog(tmp_path):
+def e2e_temp_backlog(tmp_path: Path) -> Path:
     """Create complete backlog directory structure for E2E testing.
 
     Returns:
@@ -80,7 +82,7 @@ def e2e_temp_backlog(tmp_path):
 
 
 @pytest.fixture
-def e2e_workflow_config():
+def e2e_workflow_config() -> dict:
     """Standard workflow configuration for E2E testing."""
     return {
         "version": "1.1",
@@ -142,7 +144,7 @@ class MockBacklogCLI:
     Tracks all CLI calls for verification.
     """
 
-    def __init__(self, backlog_root: Path):
+    def __init__(self, backlog_root: Path) -> None:
         self.backlog_root = backlog_root
         self.tasks: dict[str, dict] = {}
         self.cli_calls: list[str] = []
@@ -152,10 +154,10 @@ class MockBacklogCLI:
         self,
         title: str,
         description: str = "",
-        labels: list[str] = None,
+        labels: Optional[list[str]] = None,
         priority: str = "Medium",
         status: str = "To Do",
-        acceptance_criteria: list[str] = None,
+        acceptance_criteria: Optional[list[str]] = None,
     ) -> str:
         """Create a new task and return its ID."""
         task_id = f"E2E-{self._next_id:03d}"
@@ -184,9 +186,9 @@ class MockBacklogCLI:
     def task_edit(
         self,
         task_id: str,
-        status: str = None,
-        assignee: str = None,
-        check_ac: list[int] = None,
+        status: Optional[str] = None,
+        assignee: Optional[str] = None,
+        check_ac: Optional[list[int]] = None,
     ) -> bool:
         """Edit an existing task."""
         if task_id not in self.tasks:
@@ -199,9 +201,10 @@ class MockBacklogCLI:
         if assignee:
             task["assignee"] = assignee
         if check_ac:
+            acceptance_criteria = task.get("acceptance_criteria", [])
             for ac_num in check_ac:
-                if 0 < ac_num <= len(task["acceptance_criteria"]):
-                    task["acceptance_criteria"][ac_num - 1]["checked"] = True
+                if 0 < ac_num <= len(acceptance_criteria):
+                    acceptance_criteria[ac_num - 1]["checked"] = True
 
         # Record CLI call
         cmd = f"backlog task edit {task_id}"
@@ -216,7 +219,7 @@ class MockBacklogCLI:
         self._write_task_file(task)
         return True
 
-    def task_list(self, status: str = None) -> list[dict]:
+    def task_list(self, status: Optional[str] = None) -> list[dict]:
         """List tasks, optionally filtered by status."""
         self.cli_calls.append(
             f"backlog task list{' -s ' + status if status else ''} --plain"
@@ -231,36 +234,45 @@ class MockBacklogCLI:
         self.cli_calls.append(f"backlog task {task_id} --plain")
         return self.tasks.get(task_id)
 
-    def _write_task_file(self, task: dict):
+    def _write_task_file(self, task: dict) -> None:
         """Write task to markdown file."""
+        # Defensive: Ensure required fields exist
+        task_id = task.get("id", "UNKNOWN")
+        title = task.get("title", "Untitled")
+        status = task.get("status", "To Do")
+        priority = task.get("priority", "Medium")
+        labels = task.get("labels", [])
+        description = task.get("description", "")
+        acceptance_criteria = task.get("acceptance_criteria", [])
+
         task_file = (
-            self.backlog_root
-            / "tasks"
-            / f"{task['id']} - {task['title'].replace('/', '-')}.md"
+            self.backlog_root / "tasks" / f"{task_id} - {title.replace('/', '-')}.md"
         )
 
         ac_text = "\n".join(
-            f"- [{'x' if ac['checked'] else ' '}] #{i+1} {ac['text']}"
-            for i, ac in enumerate(task["acceptance_criteria"])
+            f"- [{'x' if ac.get('checked', False) else ' '}] #{i + 1} {ac.get('text', '')}"
+            for i, ac in enumerate(acceptance_criteria)
         )
 
-        content = dedent(f"""
+        content = dedent(
+            f"""
             ---
-            id: {task['id']}
-            title: {task['title']}
-            status: {task['status']}
-            priority: {task['priority']}
-            labels: {task['labels']}
+            id: {task_id}
+            title: {title}
+            status: {status}
+            priority: {priority}
+            labels: {labels}
             ---
 
             ## Description
 
-            {task['description']}
+            {description}
 
             ## Acceptance Criteria
 
-            {ac_text if ac_text else 'No acceptance criteria defined.'}
-        """).strip()
+            {ac_text if ac_text else "No acceptance criteria defined."}
+        """
+        ).strip()
 
         task_file.write_text(content)
 
@@ -268,7 +280,7 @@ class MockBacklogCLI:
 class E2ETaskSystem:
     """E2E task system implementing the WorkflowStateGuard protocol."""
 
-    def __init__(self, backlog: MockBacklogCLI):
+    def __init__(self, backlog: MockBacklogCLI) -> None:
         self.backlog = backlog
 
     def get_task_state(self, task_id: str) -> Optional[str]:
@@ -302,8 +314,6 @@ class TestFullWorkflowLifecycle:
 
         # Write config file
         config_file = tmp_path / "jpspec_workflow.yml"
-        import yaml
-
         config_file.write_text(yaml.dump(e2e_workflow_config))
 
         guard = WorkflowStateGuard(config_path=config_file, task_system=task_system)
@@ -325,43 +335,49 @@ class TestFullWorkflowLifecycle:
         # Phase 1: Assess
         current_state = task_system.get_task_state(feature_task)
         result = guard.check_state("assess", current_state)
-        assert result.result == StateCheckResult.ALLOWED, f"Assess should be allowed from To Do: {result.message}"
+        assert result.result == StateCheckResult.ALLOWED, (
+            f"Assess should be allowed from To Do: {result.message}"
+        )
         task_system.set_task_state(feature_task, "Assessed")
 
         # Phase 2: Specify
         current_state = task_system.get_task_state(feature_task)
         result = guard.check_state("specify", current_state)
-        assert result.result == StateCheckResult.ALLOWED, f"Specify should be allowed from Assessed: {result.message}"
+        assert result.result == StateCheckResult.ALLOWED, (
+            f"Specify should be allowed from Assessed: {result.message}"
+        )
         task_system.set_task_state(feature_task, "Specified")
 
         # Phase 3: Plan (skipping research in this path)
         current_state = task_system.get_task_state(feature_task)
         result = guard.check_state("plan", current_state)
-        assert result.result == StateCheckResult.ALLOWED, f"Plan should be allowed from Specified: {result.message}"
+        assert result.result == StateCheckResult.ALLOWED, (
+            f"Plan should be allowed from Specified: {result.message}"
+        )
         task_system.set_task_state(feature_task, "Planned")
 
         # Phase 4: Implement
         current_state = task_system.get_task_state(feature_task)
         result = guard.check_state("implement", current_state)
-        assert (
-            result.result == StateCheckResult.ALLOWED
-        ), f"Implement should be allowed from Planned: {result.message}"
+        assert result.result == StateCheckResult.ALLOWED, (
+            f"Implement should be allowed from Planned: {result.message}"
+        )
         task_system.set_task_state(feature_task, "In Implementation")
 
         # Phase 5: Validate
         current_state = task_system.get_task_state(feature_task)
         result = guard.check_state("validate", current_state)
-        assert (
-            result.result == StateCheckResult.ALLOWED
-        ), f"Validate should be allowed from In Implementation: {result.message}"
+        assert result.result == StateCheckResult.ALLOWED, (
+            f"Validate should be allowed from In Implementation: {result.message}"
+        )
         task_system.set_task_state(feature_task, "Validated")
 
         # Phase 6: Operate
         current_state = task_system.get_task_state(feature_task)
         result = guard.check_state("operate", current_state)
-        assert (
-            result.result == StateCheckResult.ALLOWED
-        ), f"Operate should be allowed from Validated: {result.message}"
+        assert result.result == StateCheckResult.ALLOWED, (
+            f"Operate should be allowed from Validated: {result.message}"
+        )
         task_system.set_task_state(feature_task, "Deployed")
 
         # Verify final state
@@ -375,8 +391,6 @@ class TestFullWorkflowLifecycle:
         task_system = E2ETaskSystem(backlog)
 
         config_file = tmp_path / "jpspec_workflow.yml"
-        import yaml
-
         config_file.write_text(yaml.dump(e2e_workflow_config))
 
         guard = WorkflowStateGuard(config_path=config_file, task_system=task_system)
@@ -395,13 +409,17 @@ class TestFullWorkflowLifecycle:
         # Research phase
         current_state = task_system.get_task_state(task_id)
         result = guard.check_state("research", current_state)
-        assert result.result == StateCheckResult.ALLOWED, "Research should be allowed from Specified"
+        assert result.result == StateCheckResult.ALLOWED, (
+            "Research should be allowed from Specified"
+        )
         task_system.set_task_state(task_id, "Researched")
 
         # Plan from Researched
         current_state = task_system.get_task_state(task_id)
         result = guard.check_state("plan", current_state)
-        assert result.result == StateCheckResult.ALLOWED, "Plan should be allowed from Researched"
+        assert result.result == StateCheckResult.ALLOWED, (
+            "Plan should be allowed from Researched"
+        )
         task_system.set_task_state(task_id, "Planned")
 
         assert task_system.get_task_state(task_id) == "Planned"
@@ -512,8 +530,8 @@ class TestImplementationPhaseTaskHandling:
         for i in range(3):
             task_ids.append(
                 backlog.task_create(
-                    title=f"Implementation task {i+1}",
-                    description=f"Task {i+1} from planning",
+                    title=f"Implementation task {i + 1}",
+                    description=f"Task {i + 1} from planning",
                     status="To Do",
                     acceptance_criteria=["Criterion 1", "Criterion 2"],
                 )
@@ -626,7 +644,7 @@ class TestWorkflowCompletion:
         for i in range(3):
             task_ids.append(
                 backlog.task_create(
-                    title=f"Feature task {i+1}",
+                    title=f"Feature task {i + 1}",
                     status="To Do",
                     acceptance_criteria=["Must work", "Must be tested"],
                 )
@@ -656,11 +674,9 @@ class TestCICompatibility:
     def test_uses_temporary_directory(self, e2e_temp_backlog):
         """Verify tests use tmp_path fixture for CI compatibility."""
         assert e2e_temp_backlog.exists(), "Backlog directory should exist"
-        assert "tmp" in str(
+        assert "tmp" in str(e2e_temp_backlog).lower() or "/tmp" in str(
             e2e_temp_backlog
-        ).lower() or "/tmp" in str(e2e_temp_backlog), (
-            "Should use temporary directory"
-        )
+        ), "Should use temporary directory"
 
     def test_no_persistent_state(self, e2e_temp_backlog):
         """Verify tests don't leave persistent state."""
@@ -737,9 +753,9 @@ class TestCLICallSequenceDocumentation:
 
         # Verify CLI calls match expected sequence
         for i, expected in enumerate(expected_sequence):
-            assert (
-                expected in backlog.cli_calls
-            ), f"Expected CLI call not found: {expected}"
+            assert expected in backlog.cli_calls, (
+                f"Expected CLI call not found: {expected}"
+            )
 
         # Print documented sequence for reference
         print("\n=== DOCUMENTED CLI CALL SEQUENCE ===")
