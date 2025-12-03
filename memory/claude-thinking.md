@@ -99,13 +99,16 @@ When Claude explains its reasoning, review for:
 
 ```bash
 # Architecture planning with extended thinking
-/jpspec:plan --think-hard
+/jpspec:plan
+# Then in your message: "Think hard about the architecture decisions. Consider scalability, technology tradeoffs, and long-term maintainability."
 
 # Security validation with focused analysis
-/jpspec:validate --think-hard
+/jpspec:validate
+# Then in your message: "Think hard about security implications. Analyze attack vectors, data flow security, and compliance requirements."
 
 # Comprehensive research
-/jpspec:research --megathink
+/jpspec:research
+# Then in your message: "Megathink on this research. Consider all relevant technologies, long-term implications, and market trends."
 ```
 
 ## Limitations
