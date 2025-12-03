@@ -1,8 +1,8 @@
-# Dogfood Consistency Guide
+# Dev Setup Consistency Guide
 
 ## Overview
 
-The JP Spec Kit project uses a "dogfooding" approach where the same commands used by consumers are used during development. This ensures what we ship is what we use, preventing content drift and quality issues.
+The JP Spec Kit project uses a "dev-setuping" approach where the same commands used by consumers are used during development. This ensures what we ship is what we use, preventing content drift and quality issues.
 
 ## The Single Source of Truth Principle
 
@@ -61,9 +61,9 @@ vim .claude/commands/speckit/analyze.md  # DON'T DO THIS
 # 1. Create the template
 vim templates/commands/speckit/new-command.md
 
-# 2. Run dogfood to create symlink
-specify dogfood --force
-# Or: make dogfood-fix
+# 2. Run dev-setup to create symlink
+specify dev-setup --force
+# Or: make dev-setup-fix
 
 # 3. Verify it works
 ls -la .claude/commands/speckit/new-command.md
@@ -83,17 +83,17 @@ If you accidentally edited `.claude/commands/` directly:
 cp .claude/commands/jpspec/implement.md templates/commands/jpspec/
 
 # 2. Recreate symlinks
-make dogfood-fix
+make dev-setup-fix
 
 # 3. Verify
-make dogfood-validate
+make dev-setup-validate
 ```
 
 Or use the automated fix:
 
 ```bash
 # Quick fix - recreates all symlinks
-make dogfood-fix
+make dev-setup-fix
 ```
 
 ## Validation Tools
@@ -114,14 +114,14 @@ pre-commit run --all-files
 ### Manual Validation
 
 ```bash
-# Check dogfood consistency
-make dogfood-validate
+# Check dev-setup consistency
+make dev-setup-validate
 
 # Show current status
-make dogfood-status
+make dev-setup-status
 
 # Run full test suite
-make test-dogfood
+make test-dev-setup
 ```
 
 ### CI/CD Pipeline
@@ -141,14 +141,14 @@ Every PR runs:
 **Fix**:
 ```bash
 # Option 1: Quick fix (loses local changes)
-make dogfood-fix
+make dev-setup-fix
 
 # Option 2: Preserve changes
 # 1. Copy changed files to templates
 cp .claude/commands/jpspec/implement.md templates/commands/jpspec/
 
 # 2. Recreate symlinks
-make dogfood-fix
+make dev-setup-fix
 ```
 
 ### Error: "Found broken symlinks"
@@ -158,13 +158,13 @@ make dogfood-fix
 **Fix**:
 ```bash
 # Check what's broken
-make dogfood-status
+make dev-setup-status
 
 # If templates are missing, restore them or remove symlinks
 rm .claude/commands/speckit/missing-file.md
 
 # Recreate valid symlinks
-make dogfood-fix
+make dev-setup-fix
 ```
 
 ### Pre-commit Hook Failing
@@ -174,10 +174,10 @@ make dogfood-fix
 **Fix**:
 ```bash
 # See what's wrong
-./scripts/bash/pre-commit-dogfood.sh
+./scripts/bash/pre-commit-dev-setup.sh
 
 # Fix automatically
-make dogfood-fix
+make dev-setup-fix
 
 # Retry commit
 git commit -s -m "your message"
@@ -198,7 +198,7 @@ vim templates/commands/speckit/my-command.md
 specify analyze
 
 # 4. Validate before commit
-make dogfood-validate
+make dev-setup-validate
 
 # 5. Commit
 git add templates/commands/speckit/my-command.md
@@ -211,7 +211,7 @@ When reviewing PRs:
 
 - [ ] Changes are in `templates/commands/`, not `.claude/commands/`
 - [ ] New commands have corresponding symlinks
-- [ ] CI dogfood-validation passes
+- [ ] CI dev-setup-validation passes
 - [ ] No broken symlinks
 - [ ] Content is consistent between template and usage
 
@@ -245,7 +245,7 @@ This architecture supports Elite DORA performance:
 - **Deployment Frequency**: Fast, safe changes to commands
 - **Lead Time**: Quick validation, immediate feedback
 - **Change Failure Rate**: Pre-commit hooks prevent bad commits
-- **MTTR**: `make dogfood-fix` restores consistency in seconds
+- **MTTR**: `make dev-setup-fix` restores consistency in seconds
 
 ## Future Enhancements
 
@@ -261,22 +261,22 @@ This architecture supports Elite DORA performance:
 Current focus:
 
 1. Migrate jpspec commands to `templates/commands/jpspec/`
-2. Update `specify dogfood` to create jpspec symlinks
+2. Update `specify dev-setup` to create jpspec symlinks
 3. Add jpspec commands to `specify init` distribution
-4. Validate full equivalence between dogfood and init
+4. Validate full equivalence between dev-setup and init
 
 ## References
 
 - [Backlog Quick Start](/docs/guides/backlog-quickstart.md)
-- [CI/CD Workflow](/.github/workflows/dogfood-validation.yml)
-- [Pre-commit Hook](/scripts/bash/pre-commit-dogfood.sh)
-- [Test Suite](/tests/test_dogfood_validation.py)
+- [CI/CD Workflow](/.github/workflows/dev-setup-validation.yml)
+- [Pre-commit Hook](/scripts/bash/pre-commit-dev-setup.sh)
+- [Test Suite](/tests/test_dev-setup_validation.py)
 
 ## Support
 
 If you encounter issues not covered here:
 
-1. Check `make dogfood-status` for current state
-2. Try `make dogfood-fix` for automatic repair
+1. Check `make dev-setup-status` for current state
+2. Try `make dev-setup-fix` for automatic repair
 3. Review CI logs for detailed error messages
 4. Open an issue with validation output

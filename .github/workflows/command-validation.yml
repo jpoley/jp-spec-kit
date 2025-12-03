@@ -1,4 +1,4 @@
-name: Dogfood Validation
+name: Command Validation
 
 on:
   push:
@@ -7,16 +7,16 @@ on:
       - 'templates/commands/**'
       - '.claude/commands/**'
       - 'src/specify_cli/__init__.py'
-      - 'tests/test_dogfood_*.py'
+      - 'tests/test_command_*.py'
   pull_request:
     paths:
       - 'templates/commands/**'
       - '.claude/commands/**'
       - 'src/specify_cli/__init__.py'
-      - 'tests/test_dogfood_*.py'
+      - 'tests/test_command_*.py'
 
 jobs:
-  validate-dogfood:
+  validate-commands:
     runs-on: ubuntu-latest
 
     steps:
@@ -54,8 +54,8 @@ jobs:
             echo ""
             echo "To fix:"
             echo "  1. Move enhanced content to templates/commands/"
-            echo "  2. Run: specify dogfood --force"
-            echo "  3. Or use: make dogfood-fix (if Makefile exists)"
+            echo "  2. Run: specify dev-setup --force"
+            echo "  3. Or use: make dev-setup-fix (if Makefile exists)"
             exit 1
           fi
 
@@ -81,7 +81,7 @@ jobs:
             echo ""
             echo "To fix:"
             echo "  1. Ensure corresponding files exist in templates/commands/"
-            echo "  2. Run: specify dogfood --force"
+            echo "  2. Run: specify dev-setup --force"
             exit 1
           fi
 
@@ -110,35 +110,35 @@ jobs:
 
           echo "✓ All speckit commands are symlinks ($SYMLINK_COUNT files)"
 
-      # VALIDATION STEP 4: Run dogfood command and verify
-      - name: Test dogfood command execution
+      # VALIDATION STEP 4: Run dev-setup command and verify
+      - name: Test dev-setup command execution
         run: |
-          echo "Testing specify dogfood command..."
+          echo "Testing specify dev-setup command..."
 
-          # Run dogfood (should be idempotent)
-          uv run specify dogfood --force
+          # Run dev-setup (should be idempotent)
+          uv run specify dev-setup --force
 
           # Verify expected structure exists
           if [ ! -d ".claude/commands/speckit" ]; then
-            echo "❌ ERROR: dogfood did not create speckit directory"
+            echo "❌ ERROR: dev-setup did not create speckit directory"
             exit 1
           fi
 
           if [ ! -d ".claude/commands/jpspec" ]; then
-            echo "❌ ERROR: dogfood did not create jpspec directory"
+            echo "❌ ERROR: dev-setup did not create jpspec directory"
             exit 1
           fi
 
-          echo "✓ Dogfood command executed successfully"
+          echo "✓ Dev-setup command executed successfully"
 
       # VALIDATION STEP 5: Run test suite
-      - name: Run dogfood validation test suite
+      - name: Run command validation test suite
         run: |
-          echo "Running dogfood validation tests..."
-          uv run pytest tests/test_dogfood_validation.py -v --tb=short
+          echo "Running command validation tests..."
+          uv run pytest tests/test_command_validation.py -v --tb=short
 
-          echo "Running dogfood-init equivalence tests..."
-          uv run pytest tests/test_dogfood_init_equivalence.py -v --tb=short
+          echo "Running command equivalence tests..."
+          uv run pytest tests/test_command_equivalence.py -v --tb=short
 
       # VALIDATION STEP 6: Report status
       - name: Report validation status
@@ -146,14 +146,14 @@ jobs:
         run: |
           echo ""
           echo "=========================================="
-          echo "✓ DOGFOOD VALIDATION PASSED"
+          echo "✓ COMMAND VALIDATION PASSED"
           echo "=========================================="
           echo ""
           echo "All checks passed:"
           echo "  ✓ No non-symlink .md files in .claude/commands/"
           echo "  ✓ All symlinks resolve correctly"
           echo "  ✓ Speckit commands are symlinks"
-          echo "  ✓ Dogfood command executes successfully"
+          echo "  ✓ Dev-setup command executes successfully"
           echo "  ✓ Test suite passes"
           echo ""
 
@@ -163,13 +163,13 @@ jobs:
         run: |
           echo ""
           echo "=========================================="
-          echo "❌ DOGFOOD VALIDATION FAILED"
+          echo "❌ COMMAND VALIDATION FAILED"
           echo "=========================================="
           echo ""
           echo "See above for specific failure details."
           echo ""
           echo "Quick fixes:"
-          echo "  - Run 'specify dogfood --force' to recreate symlinks"
+          echo "  - Run 'specify dev-setup --force' to recreate symlinks"
           echo "  - Check that all templates exist in templates/commands/"
           echo "  - Ensure no direct edits were made to .claude/commands/"
           echo ""

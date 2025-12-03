@@ -1,7 +1,7 @@
 # JP Spec Kit - Makefile
 # Development and maintenance commands
 
-.PHONY: help install test lint format clean dogfood-validate dogfood-fix dogfood-status
+.PHONY: help install test lint format clean dev-validate dev-fix dev-status
 
 # Default target
 help:
@@ -15,10 +15,10 @@ help:
 	@echo "  make format           - Format code (ruff format)"
 	@echo "  make clean            - Clean build artifacts"
 	@echo ""
-	@echo "Dogfood Management:"
-	@echo "  make dogfood-validate - Validate dogfood setup"
-	@echo "  make dogfood-fix      - Fix dogfood setup (recreate symlinks)"
-	@echo "  make dogfood-status   - Show dogfood status"
+	@echo "Development Setup Management:"
+	@echo "  make dev-validate     - Validate dev setup"
+	@echo "  make dev-fix          - Fix dev setup (recreate symlinks)"
+	@echo "  make dev-status       - Show dev setup status"
 	@echo ""
 	@echo "CLI:"
 	@echo "  make cli-install      - Install CLI locally"
@@ -37,9 +37,9 @@ test:
 	@echo "Running tests..."
 	uv run pytest tests/ -v
 
-test-dogfood:
-	@echo "Running dogfood-specific tests..."
-	uv run pytest tests/test_dogfood_*.py -v
+test-dev:
+	@echo "Running development setup tests..."
+	uv run pytest tests/test_command_*.py -v
 
 lint:
 	@echo "Running linter..."
@@ -58,18 +58,18 @@ clean:
 	@echo "✓ Cleaned"
 
 # ============================================================
-# DOGFOOD MANAGEMENT
+# DEVELOPMENT SETUP MANAGEMENT
 # ============================================================
 
-dogfood-validate:
-	@echo "Validating dogfood setup..."
-	@./scripts/bash/pre-commit-dogfood.sh
+dev-validate:
+	@echo "Validating development setup..."
+	@./scripts/bash/validate-commands.sh
 	@echo ""
-	@echo "Running dogfood tests..."
-	@uv run pytest tests/test_dogfood_validation.py tests/test_dogfood_init_equivalence.py -v
+	@echo "Running validation tests..."
+	@uv run pytest tests/test_command_validation.py tests/test_command_equivalence.py -v
 
-dogfood-fix:
-	@echo "Fixing dogfood setup..."
+dev-fix:
+	@echo "Fixing development setup..."
 	@echo ""
 	@echo "Step 1: Backing up current state..."
 	@if [ -d .claude/commands/jpspec ]; then \
@@ -83,19 +83,19 @@ dogfood-fix:
 	@rm -rf .claude/commands/jpspec .claude/commands/speckit 2>/dev/null || true
 	@echo "  ✓ Removed"
 	@echo ""
-	@echo "Step 3: Recreating symlinks with dogfood command..."
-	@uv run specify dogfood --force
+	@echo "Step 3: Recreating symlinks with dev-setup command..."
+	@uv run specify dev-setup --force
 	@echo ""
 	@echo "Step 4: Validating new setup..."
-	@./scripts/bash/pre-commit-dogfood.sh
+	@./scripts/bash/validate-commands.sh
 	@echo ""
 	@echo "=========================================="
-	@echo "✓ Dogfood setup restored successfully"
+	@echo "✓ Development setup restored successfully"
 	@echo "=========================================="
 
-dogfood-status:
+dev-status:
 	@echo "=========================================="
-	@echo "Dogfood Status"
+	@echo "Development Setup Status"
 	@echo "=========================================="
 	@echo ""
 	@echo "=== .claude/commands/ structure ==="
@@ -154,8 +154,8 @@ ci-local:
 	@echo "Step 2: Testing..."
 	@make test
 	@echo ""
-	@echo "Step 3: Dogfood validation..."
-	@make dogfood-validate
+	@echo "Step 3: Development setup validation..."
+	@make dev-validate
 	@echo ""
 	@echo "=========================================="
 	@echo "✓ Local CI simulation passed"

@@ -1,4 +1,4 @@
-# Implementation Readiness Report: Dogfood Single Source of Truth Architecture
+# Implementation Readiness Report: Dev Setup Single Source of Truth Architecture
 
 **Report Date**: 2025-12-03
 **Architect**: Senior IT Strategy Architect (Claude Code)
@@ -9,7 +9,7 @@
 
 ## Executive Summary
 
-The comprehensive architecture for resolving the dogfood command divergence problem has been completed and is ready for implementation. All deliverables have been created, backlog tasks generated, and risks identified with mitigations.
+The comprehensive architecture for resolving the dev-setup command divergence problem has been completed and is ready for implementation. All deliverables have been created, backlog tasks generated, and risks identified with mitigations.
 
 **Overall Readiness Score**: **9.3/10** - READY TO PROCEED
 
@@ -29,7 +29,7 @@ The comprehensive architecture for resolving the dogfood command divergence prob
 
 ### 1. Strategic Framing (Penthouse View) ✅
 
-**Location**: `/home/jpoley/ps/jp-spec-kit/docs/architecture/dogfood-single-source-of-truth.md` (Section 1)
+**Location**: `/home/jpoley/ps/jp-spec-kit/docs/architecture/dev-setup-single-source-of-truth.md` (Section 1)
 
 **Contents**:
 - Current state architecture problems (with diagrams)
@@ -47,7 +47,7 @@ The comprehensive architecture for resolving the dogfood command divergence prob
 
 ### 2. Architectural Blueprint (Engine Room View) ✅
 
-**Location**: `/home/jpoley/ps/jp-spec-kit/docs/architecture/dogfood-single-source-of-truth.md` (Section 2)
+**Location**: `/home/jpoley/ps/jp-spec-kit/docs/architecture/dev-setup-single-source-of-truth.md` (Section 2)
 
 **Contents**:
 - Proposed directory structure (ASCII diagrams)
@@ -63,7 +63,7 @@ templates/commands/          ← SINGLE SOURCE OF TRUTH
 └── speckit/
     └── implement.md
 
-.claude/commands/            ← SYMLINKS ONLY (dogfood)
+.claude/commands/            ← SYMLINKS ONLY (dev-setup)
 ├── jpspec/ [symlinks]
 └── speckit/ [symlinks]
 ```
@@ -78,7 +78,7 @@ templates/commands/          ← SINGLE SOURCE OF TRUTH
 - **Location**: `/home/jpoley/ps/jp-spec-kit/docs/architecture/adr-001-single-source-of-truth.md`
 - **Size**: 238 lines, 8.2KB
 - **Status**: Proposed
-- **Decision**: Move enhanced commands to templates/, use symlinks for dogfood
+- **Decision**: Move enhanced commands to templates/, use symlinks for dev-setup
 - **Options Evaluated**: 4 (dual-source, invert, single-source, preprocessing)
 - **Rationale**: Best long-term solution, eliminates sync overhead
 
@@ -106,7 +106,7 @@ templates/commands/          ← SINGLE SOURCE OF TRUTH
 
 ### 4. Component Design ✅
 
-**Location**: `/home/jpoley/ps/jp-spec-kit/docs/architecture/dogfood-single-source-of-truth.md` (Section 4)
+**Location**: `/home/jpoley/ps/jp-spec-kit/docs/architecture/dev-setup-single-source-of-truth.md` (Section 4)
 
 **Components Designed**:
 
@@ -116,7 +116,7 @@ templates/commands/          ← SINGLE SOURCE OF TRUTH
 - Validation requirements specified
 - Content requirements documented
 
-**B. Dogfood Command** (`specify dogfood`)
+**B. Dev Setup Command** (`specify dev-setup`)
 - Pseudocode provided
 - Both speckit and jpspec symlink creation
 - Error handling defined
@@ -140,7 +140,7 @@ templates/commands/          ← SINGLE SOURCE OF TRUTH
 
 ### 5. Migration Plan ✅
 
-**Location**: `/home/jpoley/ps/jp-spec-kit/docs/architecture/dogfood-single-source-of-truth.md` (Section 5)
+**Location**: `/home/jpoley/ps/jp-spec-kit/docs/architecture/dev-setup-single-source-of-truth.md` (Section 5)
 
 **Phases Defined**:
 
@@ -148,7 +148,7 @@ templates/commands/          ← SINGLE SOURCE OF TRUTH
 |-------|----------|-------|------------|
 | 1. Preparation | 1 day | Architecture docs, tasks | Low |
 | 2. Template Migration | 2-3 days | Move files to templates | Medium |
-| 3. Dogfood Update | 1 day | Add jpspec symlinks | Low |
+| 3. Dev Setup Update | 1 day | Add jpspec symlinks | Low |
 | 4. Replace Commands | 30 min | Delete files, create symlinks | Low |
 | 5. Init Update | 2 days | Subdirectory structure, tests | Medium |
 | 6. CI Validation | 1 day | Workflow, hooks | Low |
@@ -166,7 +166,7 @@ templates/commands/          ← SINGLE SOURCE OF TRUTH
 
 ### 6. Constitution Principles ✅
 
-**Location**: `/home/jpoley/ps/jp-spec-kit/docs/architecture/dogfood-single-source-of-truth.md` (Section 6)
+**Location**: `/home/jpoley/ps/jp-spec-kit/docs/architecture/dev-setup-single-source-of-truth.md` (Section 6)
 
 **Principles Documented**:
 1. Single Source of Truth for Commands
@@ -197,11 +197,11 @@ backlog task list --plain | grep task-27[0-9]
 - task-270: Design: Unified Command Template Structure
 - task-271: Migrate jpspec commands to templates
 - task-272: Migrate speckit commands to subdirectory
-- task-273: Update dogfood command for jpspec symlinks
+- task-273: Update dev-setup command for jpspec symlinks
 - task-274: Replace source repo commands with symlinks
 - task-275: Update init command for subdirectory structure
 - task-276: Create command migration script for users
-- task-277: Create dogfood-init equivalence validation tests
+- task-277: Create dev-setup-init equivalence validation tests
 - task-278: Add CI validation for command structure
 - task-279: Update documentation for new architecture
 
@@ -226,7 +226,7 @@ Labels: architecture, adr
 
 | File | Size | Lines | Purpose |
 |------|------|-------|---------|
-| `docs/architecture/dogfood-single-source-of-truth.md` | 53KB | 1,310 | Main architecture document |
+| `docs/architecture/dev-setup-single-source-of-truth.md` | 53KB | 1,310 | Main architecture document |
 | `docs/architecture/adr-001-single-source-of-truth.md` | 8.2KB | 238 | ADR for single source decision |
 | `docs/architecture/adr-002-directory-structure.md` | 9.9KB | 364 | ADR for subdirectory decision |
 | `docs/architecture/adr-003-shared-content-strategy.md` | 13KB | 392 | ADR for shared content decision |
@@ -260,7 +260,7 @@ Labels: architecture, adr
 - **Target**: 0 direct files in `.claude/commands/` (source repo)
 - **Target**: 100% symlink resolution rate
 - **Target**: 100% test pass rate
-- **Target**: <5 minutes dogfood execution time
+- **Target**: <5 minutes dev-setup execution time
 
 ### User Experience Metrics ✅
 - **Target**: User command files match developer command files (content hash equality)
@@ -301,7 +301,7 @@ Labels: architecture, adr
 
 ### Short Term (Next week)
 1. Begin Phase 1: Template migration
-2. Begin Phase 2: Dogfood command update
+2. Begin Phase 2: Dev Setup command update
 3. Start writing tests
 
 ### Medium Term (Next 2 weeks)
@@ -351,7 +351,7 @@ Labels: architecture, adr
 ## References
 
 ### Architecture Documents
-- Main Architecture: `/home/jpoley/ps/jp-spec-kit/docs/architecture/dogfood-single-source-of-truth.md`
+- Main Architecture: `/home/jpoley/ps/jp-spec-kit/docs/architecture/dev-setup-single-source-of-truth.md`
 - ADR-001: `/home/jpoley/ps/jp-spec-kit/docs/architecture/adr-001-single-source-of-truth.md`
 - ADR-002: `/home/jpoley/ps/jp-spec-kit/docs/architecture/adr-002-directory-structure.md`
 - ADR-003: `/home/jpoley/ps/jp-spec-kit/docs/architecture/adr-003-shared-content-strategy.md`
@@ -362,7 +362,7 @@ Labels: architecture, adr
 - View all: `backlog task list --plain | grep "task-26[7-9]\|task-27[0-9]"`
 
 ### Problem Analysis
-- Original Analysis: `/home/jpoley/ps/jp-spec-kit/docs/fix-dogfood.md`
+- Original Analysis: `/home/jpoley/ps/jp-spec-kit/docs/fix-dev-setup.md`
 
 ---
 
@@ -388,7 +388,7 @@ This architecture exemplifies the following principles from Gregor Hohpe's work:
 ### 4. Master Builder Perspective
 - **Long-term View**: Architecture designed for 50+ commands
 - **Consequences Understood**: Breaking change justified by permanent improvement
-- **System Thinking**: Not just fixing dogfood, but entire command lifecycle
+- **System Thinking**: Not just fixing dev-setup, but entire command lifecycle
 
 ### 5. Value Articulation
 - **Business Metrics**: 66% version reduction, 5-7x user capability

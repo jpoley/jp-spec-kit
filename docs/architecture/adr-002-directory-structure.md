@@ -10,13 +10,13 @@
 
 We have two different naming conventions in use:
 
-1. **Subdirectory structure**: `.claude/commands/jpspec/implement.md` (current dogfood output)
+1. **Subdirectory structure**: `.claude/commands/jpspec/implement.md` (current dev-setup output)
 2. **Flat structure with dots**: `.claude/commands/jpspec.implement.md` (current init output)
 
 Both work with Claude Code, but they create inconsistent experiences:
 
 ```
-# Subdirectory structure (dogfood)
+# Subdirectory structure (dev-setup)
 .claude/commands/
 ├── jpspec/
 │   ├── implement.md
@@ -44,7 +44,7 @@ Both work with Claude Code, but they create inconsistent experiences:
 
 ## Decision Drivers
 
-1. **Consistency**: Same structure whether installed via dogfood or init
+1. **Consistency**: Same structure whether installed via dev-setup or init
 2. **Scalability**: Structure should handle growing command library
 3. **Maintainability**: Support shared content (partials) without duplication
 4. **User Experience**: Clear organization makes commands discoverable
@@ -94,7 +94,7 @@ Both work with Claude Code, but they create inconsistent experiences:
 - ✅ Scales well as library grows
 - ✅ Easier to navigate and understand
 - ✅ Matches typical file organization patterns
-- ✅ Already used by dogfood (less change for source repo)
+- ✅ Already used by dev-setup (less change for source repo)
 
 **Cons**:
 - ❌ Breaking change for existing init users
@@ -153,7 +153,7 @@ Both work with Claude Code, but they create inconsistent experiences:
 
 ### Option 3: Support Both (Dual Mode)
 
-**Description**: Dogfood uses subdirectories, init uses flat structure, both work.
+**Description**: Dev Setup uses subdirectories, init uses flat structure, both work.
 
 **Pros**:
 - ✅ No breaking changes
@@ -245,7 +245,7 @@ templates/commands/
 - ✅ **Supports partials**: Shared content in `_backlog-instructions.md` (6KB single file vs 54KB duplicated)
 - ✅ **Scales well**: Can grow to 50+ commands without cluttering
 - ✅ **Discoverable**: Users can browse by namespace
-- ✅ **Consistent**: Same structure for dogfood and init
+- ✅ **Consistent**: Same structure for dev-setup and init
 - ✅ **Professional**: Matches industry-standard project organization
 
 ### Negative
@@ -307,9 +307,9 @@ bash scripts/bash/migrate-commands-to-subdirs.sh
 ### For jp-spec-kit Source Repo:
 
 1. Move flat template files to subdirectories
-2. Update dogfood to create subdirectory symlinks
+2. Update dev-setup to create subdirectory symlinks
 3. Update init to copy subdirectory structure
-4. Run dogfood to recreate symlinks
+4. Run dev-setup to recreate symlinks
 
 ### Communication:
 
@@ -323,7 +323,7 @@ bash scripts/bash/migrate-commands-to-subdirs.sh
 ## Validation Criteria
 
 1. **Technical**:
-   - Dogfood creates subdirectory structure
+   - Dev Setup creates subdirectory structure
    - Init creates subdirectory structure
    - Both produce identical layouts
    - Partials (`_backlog-instructions.md`) copied/symlinked correctly
@@ -342,7 +342,7 @@ bash scripts/bash/migrate-commands-to-subdirs.sh
 
 ## Related Documents
 
-- Main Architecture: `docs/architecture/dogfood-single-source-of-truth.md`
+- Main Architecture: `docs/architecture/dev-setup-single-source-of-truth.md`
 - ADR-001: Single Source of Truth for Commands
 - ADR-003: Shared Content Strategy
 - Migration Script: `scripts/bash/migrate-commands-to-subdirs.sh`

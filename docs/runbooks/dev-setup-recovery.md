@@ -1,18 +1,18 @@
-# Dogfood Recovery Runbook
+# Dev Setup Recovery Runbook
 
 ## Overview
 
-This runbook provides procedures for recovering from dogfood validation failures in the JP Spec Kit project. Use this when CI/CD checks fail or local development encounters inconsistencies.
+This runbook provides procedures for recovering from dev-setup validation failures in the JP Spec Kit project. Use this when CI/CD checks fail or local development encounters inconsistencies.
 
 ## Quick Reference
 
 | Scenario | Quick Fix | Details |
 |----------|-----------|---------|
-| Non-symlink files detected | `make dogfood-fix` | [Section 1](#scenario-1-non-symlink-files-detected) |
-| Broken symlinks | `make dogfood-fix` | [Section 2](#scenario-2-broken-symlinks) |
-| Pre-commit hook fails | `./scripts/bash/pre-commit-dogfood.sh` | [Section 3](#scenario-3-pre-commit-hook-failure) |
-| CI validation fails on PR | Check diff, then `make dogfood-fix` | [Section 4](#scenario-4-ci-validation-fails) |
-| Corrupted .claude directory | `rm -rf .claude/commands && make dogfood-fix` | [Section 5](#scenario-5-corrupted-claude-directory) |
+| Non-symlink files detected | `make dev-setup-fix` | [Section 1](#scenario-1-non-symlink-files-detected) |
+| Broken symlinks | `make dev-setup-fix` | [Section 2](#scenario-2-broken-symlinks) |
+| Pre-commit hook fails | `./scripts/bash/pre-commit-dev-setup.sh` | [Section 3](#scenario-3-pre-commit-hook-failure) |
+| CI validation fails on PR | Check diff, then `make dev-setup-fix` | [Section 4](#scenario-4-ci-validation-fails) |
+| Corrupted .claude directory | `rm -rf .claude/commands && make dev-setup-fix` | [Section 5](#scenario-5-corrupted-claude-directory) |
 
 ---
 
@@ -37,10 +37,10 @@ Files were edited directly in `.claude/commands/` instead of through `templates/
 
 ```bash
 # Recreate all symlinks from templates
-make dogfood-fix
+make dev-setup-fix
 
 # Verify
-make dogfood-validate
+make dev-setup-validate
 ```
 
 **Use when**: Changes in .claude/commands/ were accidental or can be discarded.
@@ -60,7 +60,7 @@ diff .claude/commands/jpspec/implement.md templates/commands/jpspec/implement.md
 vim templates/commands/jpspec/implement.md
 
 # 4. Recreate symlinks
-make dogfood-fix
+make dev-setup-fix
 
 # 5. Verify changes are present
 cat .claude/commands/jpspec/implement.md
@@ -119,7 +119,7 @@ find .claude/commands -type l ! -exec test -e {} \; -print
 git checkout main -- templates/commands/analyze.md
 
 # Recreate symlinks
-make dogfood-fix
+make dev-setup-fix
 ```
 
 **If templates were intentionally removed:**
@@ -129,23 +129,23 @@ make dogfood-fix
 rm .claude/commands/speckit/old-command.md
 
 # Verify
-make dogfood-validate
+make dev-setup-validate
 ```
 
 #### Step 3: Verify
 
 ```bash
 # Check all symlinks resolve
-make dogfood-status
+make dev-setup-status
 
 # Run full validation
-make dogfood-validate
+make dev-setup-validate
 ```
 
 ### Prevention
 
 - Don't delete templates without removing symlinks
-- Run `make dogfood-fix` after major branch merges
+- Run `make dev-setup-fix` after major branch merges
 - Use `git mv` when renaming templates
 
 ---
@@ -155,7 +155,7 @@ make dogfood-validate
 ### Symptoms
 
 ```
-🔍 Validating dogfood consistency...
+🔍 Validating dev-setup consistency...
 ❌ ERROR: Found non-symlink .md files in .claude/commands/
 ```
 
@@ -167,7 +167,7 @@ Commit is blocked.
 
 ```bash
 # Run validation manually to see full output
-./scripts/bash/pre-commit-dogfood.sh
+./scripts/bash/pre-commit-dev-setup.sh
 ```
 
 #### Step 2: Fix Issues
@@ -179,7 +179,7 @@ Follow recovery procedures for specific errors detected.
 ```bash
 # After fixing
 git add <fixed-files>
-git commit -s -m "fix: resolve dogfood issues"
+git commit -s -m "fix: resolve dev-setup issues"
 ```
 
 ### Bypass (Emergency Only)
@@ -189,16 +189,16 @@ git commit -s -m "fix: resolve dogfood issues"
 git commit --no-verify -s -m "emergency fix"
 
 # Immediately fix in next commit
-make dogfood-fix
+make dev-setup-fix
 git add .claude/commands/
-git commit -s -m "fix: restore dogfood consistency"
+git commit -s -m "fix: restore dev-setup consistency"
 ```
 
 **Only use `--no-verify` in emergencies.** Always fix in next commit.
 
 ### Prevention
 
-- Run `make dogfood-validate` before committing
+- Run `make dev-setup-validate` before committing
 - Install pre-commit hooks: `pre-commit install`
 - Test changes locally first
 
@@ -208,7 +208,7 @@ git commit -s -m "fix: restore dogfood consistency"
 
 ### Symptoms
 
-GitHub Actions workflow "Dogfood Validation" fails with validation errors.
+GitHub Actions workflow "Dev Setup Validation" fails with validation errors.
 
 ### Recovery Procedure
 
@@ -232,22 +232,22 @@ git fetch origin
 git checkout pr-branch-name
 
 # Run same checks as CI
-make dogfood-validate
-make test-dogfood
+make dev-setup-validate
+make test-dev-setup
 ```
 
 #### Step 3: Fix Issues
 
 ```bash
 # Fix identified issues
-make dogfood-fix
+make dev-setup-fix
 
 # Verify locally
 make ci-local  # Simulates full CI run
 
 # Commit fix
 git add .
-git commit -s -m "fix: restore dogfood consistency"
+git commit -s -m "fix: restore dev-setup consistency"
 git push origin pr-branch-name
 ```
 
@@ -289,20 +289,20 @@ cp -r .claude /tmp/claude-backup-$(date +%s)
 rm -rf .claude/commands
 
 # Recreate from scratch
-make dogfood-fix
+make dev-setup-fix
 ```
 
 #### Step 3: Verify Integrity
 
 ```bash
 # Check structure
-make dogfood-status
+make dev-setup-status
 
 # Run full validation
-make dogfood-validate
+make dev-setup-validate
 
 # Run tests
-make test-dogfood
+make test-dev-setup
 ```
 
 #### Step 4: Review Changes
@@ -319,8 +319,8 @@ git commit -s -m "fix: restore .claude/commands structure"
 ### Prevention
 
 - Don't manually manipulate `.claude/commands/` structure
-- Use `make dogfood-fix` for all symlink recreation
-- Regular validation: `make dogfood-validate`
+- Use `make dev-setup-fix` for all symlink recreation
+- Regular validation: `make dev-setup-validate`
 
 ---
 
@@ -330,8 +330,8 @@ git commit -s -m "fix: restore .claude/commands structure"
 
 Try automated recovery:
 ```bash
-make dogfood-fix
-make dogfood-validate
+make dev-setup-fix
+make dev-setup-validate
 ```
 
 ### Level 2: Manual Recovery (15 minutes)
@@ -345,7 +345,7 @@ make dogfood-validate
 If automated recovery fails:
 1. Create GitHub issue with:
    - Error messages
-   - `make dogfood-status` output
+   - `make dev-setup-status` output
    - Recent commits affecting templates/
 2. Tag: `@platform-team`
 3. Include reproduction steps
@@ -431,29 +431,29 @@ After resolving issues:
 
 ```bash
 # Status and validation
-make dogfood-status          # Show current state
-make dogfood-validate        # Run all checks
-./scripts/bash/pre-commit-dogfood.sh  # Manual pre-commit check
+make dev-setup-status          # Show current state
+make dev-setup-validate        # Run all checks
+./scripts/bash/pre-commit-dev-setup.sh  # Manual pre-commit check
 
 # Recovery
-make dogfood-fix            # Recreate all symlinks
-rm -rf .claude/commands && make dogfood-fix  # Nuclear reset
+make dev-setup-fix            # Recreate all symlinks
+rm -rf .claude/commands && make dev-setup-fix  # Nuclear reset
 
 # Testing
-make test-dogfood           # Run dogfood tests only
+make test-dev-setup           # Run dev-setup tests only
 make ci-local               # Simulate full CI pipeline
 
 # Development
-specify dogfood --force     # Run dogfood command directly
+specify dev-setup --force     # Run dev-setup command directly
 ```
 
 ---
 
 ## Additional Resources
 
-- [Dogfood Consistency Guide](/docs/reference/dogfood-consistency.md)
-- [CI/CD Workflow](/.github/workflows/dogfood-validation.yml)
-- [Test Suite](/tests/test_dogfood_validation.py)
+- [Dev Setup Consistency Guide](/docs/reference/dev-setup-consistency.md)
+- [CI/CD Workflow](/.github/workflows/dev-setup-validation.yml)
+- [Test Suite](/tests/test_dev-setup_validation.py)
 - [Backlog Quick Start](/docs/guides/backlog-quickstart.md)
 
 ---

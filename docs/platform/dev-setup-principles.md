@@ -1,12 +1,12 @@
-# Dogfood Platform Principles
+# Dev Setup Platform Principles
 
 ## For /speckit.constitution Integration
 
-This document contains operational standards and platform principles for the dogfood consistency architecture. These should be integrated into the project constitution as platform-level requirements.
+This document contains operational standards and platform principles for the dev-setup consistency architecture. These should be integrated into the project constitution as platform-level requirements.
 
 ---
 
-## Dogfood Consistency Requirements (NON-NEGOTIABLE)
+## Dev Setup Consistency Requirements (NON-NEGOTIABLE)
 
 ### Single Source of Truth
 
@@ -19,11 +19,11 @@ All command content MUST live in `templates/commands/`:
 
 ### CI/CD Gates
 
-All pull requests MUST pass dogfood validation:
+All pull requests MUST pass dev-setup validation:
 - No merge allowed with non-symlink command files in `.claude/commands/`
 - Symlink validation runs on every commit to main branch
 - Broken symlinks block merges
-- Tests must verify dogfood-init equivalence
+- Tests must verify dev-setup-init equivalence
 
 **Rationale**: Automated enforcement prevents human error and maintains architecture integrity.
 
@@ -32,8 +32,8 @@ All pull requests MUST pass dogfood validation:
 Standard operating procedure for command development:
 
 1. **Edit commands in `templates/commands/`** - Never edit `.claude/commands/` directly
-2. **Run `specify dogfood --force`** after adding new commands to create symlinks
-3. **Use `make dogfood-validate`** to verify setup before committing
+2. **Run `specify dev-setup --force`** after adding new commands to create symlinks
+3. **Use `make dev-setup-validate`** to verify setup before committing
 4. **Pre-commit hooks** automatically validate on every commit
 
 **Rationale**: Clear, consistent workflow reduces mistakes and cognitive load.
@@ -42,9 +42,9 @@ Standard operating procedure for command development:
 
 When validation fails, recovery is simple and fast:
 
-- **Quick fix**: `make dogfood-fix` recreates all symlinks correctly
-- **Status check**: `make dogfood-status` shows current state
-- **Full validation**: `make dogfood-validate` runs all checks
+- **Quick fix**: `make dev-setup-fix` recreates all symlinks correctly
+- **Status check**: `make dev-setup-status` shows current state
+- **Full validation**: `make dev-setup-validate` runs all checks
 - **Never manually create files** in `.claude/commands/` - always use automated tools
 
 **Rationale**: Self-healing infrastructure minimizes downtime and reduces operational burden.
@@ -72,7 +72,7 @@ This architecture directly supports DORA Elite metrics:
 
 ### Mean Time to Restore (MTTR)
 - **Target**: Less than one hour
-- **Support**: `make dogfood-fix` restores consistency in seconds
+- **Support**: `make dev-setup-fix` restores consistency in seconds
 - **Mechanism**: Runbook provides clear recovery procedures
 
 ---
@@ -81,9 +81,9 @@ This architecture directly supports DORA Elite metrics:
 
 ### Infrastructure as Code
 
-All dogfood infrastructure is versioned and automated:
-- CI/CD pipelines defined in `.github/workflows/dogfood-validation.yml`
-- Pre-commit hooks in `scripts/bash/pre-commit-dogfood.sh`
+All dev-setup infrastructure is versioned and automated:
+- CI/CD pipelines defined in `.github/workflows/dev-setup-validation.yml`
+- Pre-commit hooks in `scripts/bash/pre-commit-dev-setup.sh`
 - Make targets provide consistent interface
 - Test suites verify behavior
 
@@ -112,7 +112,7 @@ All validation provides detailed feedback:
 ### Self-Healing Systems
 
 Automated recovery reduces operational load:
-- `make dogfood-fix` recreates correct state
+- `make dev-setup-fix` recreates correct state
 - Idempotent operations safe to retry
 - No manual symlink management required
 - Clear escalation paths for complex issues
@@ -128,8 +128,8 @@ Automated recovery reduces operational load:
 All PRs must pass:
 - [ ] No non-symlink .md files in `.claude/commands/`
 - [ ] All symlinks resolve to existing templates
-- [ ] Dogfood command executes successfully
-- [ ] Test suite passes (test_dogfood_*.py)
+- [ ] Dev Setup command executes successfully
+- [ ] Test suite passes (test_dev-setup_*.py)
 - [ ] No broken symlinks
 - [ ] Template coverage is complete
 
@@ -138,7 +138,7 @@ All PRs must pass:
 Continuous validation on main:
 - Automated checks run on every push
 - Alerts on validation failures
-- Dashboard shows dogfood health
+- Dashboard shows dev-setup health
 - Quarterly architecture reviews
 
 ---
@@ -168,8 +168,8 @@ All validation failures must include:
 ### Consistent Interface
 
 All operations use standard commands:
-- `make dogfood-*` for all dogfood operations
-- `specify dogfood` for core functionality
+- `make dev-setup-*` for all dev-setup operations
+- `specify dev-setup` for core functionality
 - `backlog task *` for task management
 - No manual file manipulation required
 
@@ -238,7 +238,7 @@ For projects adopting this architecture:
 
 ### Phase 2: Content Migration (Week 2)
 - Move enhanced commands to templates
-- Create symlinks with dogfood command
+- Create symlinks with dev-setup command
 - Verify equivalence with tests
 - Document workflows
 
@@ -261,14 +261,14 @@ For projects adopting this architecture:
 ### Engineering Metrics
 - **Validation time**: < 2 minutes (P50), < 5 minutes (P95)
 - **False positive rate**: < 2%
-- **MTTR for dogfood issues**: < 5 minutes
+- **MTTR for dev-setup issues**: < 5 minutes
 - **Pre-commit hook adoption**: > 90%
 
 ### Quality Metrics
 - **Content drift incidents**: 0 per quarter
 - **Broken symlinks in main**: 0
 - **Non-symlink files in main**: 0
-- **Dogfood-init equivalence**: 100%
+- **Dev Setup-init equivalence**: 100%
 
 ### Developer Experience
 - **Time to understand workflow**: < 30 minutes
@@ -280,10 +280,10 @@ For projects adopting this architecture:
 
 ## References
 
-- [Dogfood Consistency Guide](/docs/reference/dogfood-consistency.md)
-- [Operational Runbook](/docs/runbooks/dogfood-recovery.md)
-- [CI/CD Workflow](/.github/workflows/dogfood-validation.yml)
-- [Test Suite](/tests/test_dogfood_validation.py)
+- [Dev Setup Consistency Guide](/docs/reference/dev-setup-consistency.md)
+- [Operational Runbook](/docs/runbooks/dev-setup-recovery.md)
+- [CI/CD Workflow](/.github/workflows/dev-setup-validation.yml)
+- [Test Suite](/tests/test_dev-setup_validation.py)
 
 ---
 

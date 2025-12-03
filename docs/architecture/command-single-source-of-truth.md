@@ -1,4 +1,4 @@
-# Single Source of Truth Architecture for Dogfood Command
+# Single Source of Truth Architecture for Dev Setup Command
 
 ## Executive Summary
 
@@ -10,7 +10,7 @@
 - Risk of feature drift (enhancements stay local, never reach users)
 - Confusion about canonical versions
 
-**Proposed Solution**: Architectural redesign where all command development occurs in `templates/commands/` and dogfood creates symlinks (like it already does for speckit). Enhanced jpspec commands become the distributed version.
+**Proposed Solution**: Architectural redesign where all command development occurs in `templates/commands/` and dev-setup creates symlinks (like it already does for speckit). Enhanced jpspec commands become the distributed version.
 
 **Investment Justification**:
 - **Reduced Maintenance**: Eliminate duplicate file management
@@ -87,7 +87,7 @@
 │           ↓                           ↓                     │
 │  ┌──────────────────┐       ┌──────────────────┐          │
 │  │ Development      │       │ Distribution     │          │
-│  │ (dogfood)        │       │ (specify init)   │          │
+│  │ (dev-setup)        │       │ (specify init)   │          │
 │  │                  │       │                  │          │
 │  │ .claude/commands/│       │ .claude/commands/│          │
 │  │   jpspec/        │       │   jpspec/        │          │
@@ -97,7 +97,7 @@
 │  └──────────────────┘       └──────────────────┘          │
 │                                                              │
 │  SOLUTION: One canonical version in templates/              │
-│  - Development uses symlinks (dogfood)                      │
+│  - Development uses symlinks (dev-setup)                      │
 │  - Distribution copies files (specify init)                 │
 │  - Both get IDENTICAL enhanced content                      │
 └─────────────────────────────────────────────────────────────┘
@@ -178,7 +178,7 @@ jp-spec-kit/
 │                     │                                       │
 │                     ↓                                       │
 │     ┌─────────────────────────────────────┐               │
-│     │ specify dogfood creates symlink     │               │
+│     │ specify dev-setup creates symlink     │               │
 │     │ .claude/commands/jpspec/implement.md│               │
 │     │    → templates/commands/...         │               │
 │     └───────────────┬─────────────────────┘               │
@@ -240,8 +240,8 @@ jp-spec-kit/
 │      │ read (symlink)            │ read (copy)               │
 │      ↓                           ↓                           │
 │  ┌─────────────────────┐    ┌─────────────────────┐        │
-│  │ Dogfood Command     │    │ Init Command        │        │
-│  │ (specify dogfood)   │    │ (specify init)      │        │
+│  │ Dev Setup Command     │    │ Init Command        │        │
+│  │ (specify dev-setup)   │    │ (specify init)      │        │
 │  │                     │    │                     │        │
 │  │ Creates:            │    │ Creates:            │        │
 │  │ - jpspec symlinks   │    │ - jpspec copies     │        │
@@ -265,7 +265,7 @@ jp-spec-kit/
 │  ┌──────────────────────────────────────────────────────┐   │
 │  │ Validation Component (CI/tests)                      │   │
 │  │ - Verify templates/ content is valid                 │   │
-│  │ - Check dogfood creates correct symlinks             │   │
+│  │ - Check dev-setup creates correct symlinks             │   │
 │  │ - Ensure init produces equivalent output             │   │
 │  │ - Detect drift between dev and distribution          │   │
 │  └──────────────────────────────────────────────────────┘   │
@@ -299,7 +299,7 @@ This creates:
 Establish `templates/commands/` as the **single source of truth**:
 
 1. **Move enhanced jpspec commands** from `.claude/commands/jpspec/` to `templates/commands/jpspec/`
-2. **Update dogfood command** to create jpspec symlinks (currently only does speckit)
+2. **Update dev-setup command** to create jpspec symlinks (currently only does speckit)
 3. **Keep init command unchanged** - it already copies from templates
 4. **Delete original .claude/commands/jpspec/ files** - replace with symlinks
 
@@ -331,7 +331,7 @@ Establish `templates/commands/` as the **single source of truth**:
 **Context**:
 
 We have two different naming conventions:
-- **Subdirectory structure**: `.claude/commands/jpspec/implement.md` (current dogfood output)
+- **Subdirectory structure**: `.claude/commands/jpspec/implement.md` (current dev-setup output)
 - **Flat structure with dots**: `.claude/commands/jpspec.implement.md` (current init output)
 
 Claude Code supports both, but they invoke differently:
@@ -363,7 +363,7 @@ Claude Code supports both, but they invoke differently:
 Rationale:
 - Better organization for growing command library
 - Enables shared partials like `_backlog-instructions.md`
-- Aligns dogfood and init behavior
+- Aligns dev-setup and init behavior
 - Breaking change is acceptable (document in upgrade guide)
 
 **Consequences**:
@@ -371,7 +371,7 @@ Rationale:
 **Positive**:
 - ✅ Cleaner command organization
 - ✅ Supports shared content patterns
-- ✅ Consistent structure across dogfood and init
+- ✅ Consistent structure across dev-setup and init
 
 **Negative**:
 - ❌ Breaking change for existing init users (upgrade path needed)
@@ -433,7 +433,7 @@ Rationale:
 Implementation:
 - Place `_backlog-instructions.md` in `templates/commands/jpspec/`
 - Add reference in each command: "See `_backlog-instructions.md` for task management workflow"
-- Dogfood creates symlink for it
+- Dev Setup creates symlink for it
 - Init copies it
 
 **Consequences**:
@@ -504,7 +504,7 @@ templates/commands/
 
 ---
 
-### 4.2 Dogfood Command (`specify dogfood`)
+### 4.2 Dev Setup Command (`specify dev-setup`)
 
 **Current State**:
 ```python
@@ -518,8 +518,8 @@ for template_file in templates_dir.glob("*.md"):
 
 **Target State** (pseudocode):
 ```python
-def dogfood(force: bool = False):
-    """Set up jp-spec-kit source repo for dogfooding."""
+def dev-setup(force: bool = False):
+    """Set up jp-spec-kit source repo for dev-setuping."""
 
     # 1. Verify source repository
     if not (project_path / ".jp-spec-kit-source").exists():
@@ -549,7 +549,7 @@ def dogfood(force: bool = False):
         if symlink.is_symlink() and not symlink.resolve().exists():
             error(f"Broken symlink: {symlink}")
 
-    success("Dogfood setup complete")
+    success("Dev Setup setup complete")
 ```
 
 **Key Changes**:
@@ -566,7 +566,7 @@ def dogfood(force: bool = False):
 
 **Testing**:
 - Unit test: Verify symlinks created correctly
-- Integration test: Run dogfood, check `.claude/commands/` structure
+- Integration test: Run dev-setup, check `.claude/commands/` structure
 - Validation test: Read command via symlink, verify content matches template
 
 ---
@@ -637,7 +637,7 @@ echo "Migration complete. Commands now in subdirectories."
 
 ### 4.4 Sync Validation Component
 
-**Purpose**: Automated verification that dogfood and init produce equivalent results.
+**Purpose**: Automated verification that dev-setup and init produce equivalent results.
 
 **Validation Checks**:
 
@@ -652,28 +652,28 @@ echo "Migration complete. Commands now in subdirectories."
    - No broken symlinks
 
 3. **Content Equivalence**
-   - Dogfood symlinks point to same files init would copy
+   - Dev Setup symlinks point to same files init would copy
    - File sizes match (no divergence)
    - MD5 hashes match for critical files
 
 4. **Structure Consistency**
-   - Both dogfood and init use subdirectory structure
+   - Both dev-setup and init use subdirectory structure
    - File naming conventions match
    - No forbidden characters in filenames
 
 **Implementation**:
 
 ```python
-# tests/test_dogfood_init_equivalence.py
-def test_dogfood_creates_jpspec_symlinks():
-    """Verify dogfood creates symlinks for jpspec commands."""
-    # Run dogfood in temp dir with test templates
+# tests/test_dev-setup_init_equivalence.py
+def test_dev-setup_creates_jpspec_symlinks():
+    """Verify dev-setup creates symlinks for jpspec commands."""
+    # Run dev-setup in temp dir with test templates
     # Assert all jpspec/*.md files have symlinks created
     # Assert symlinks point to correct template files
 
-def test_init_copies_same_files_as_dogfood_links():
-    """Verify init copies same content dogfood symlinks to."""
-    # Run dogfood in test-repo-1
+def test_init_copies_same_files_as_dev-setup_links():
+    """Verify init copies same content dev-setup symlinks to."""
+    # Run dev-setup in test-repo-1
     # Run init in test-repo-2
     # Compare file lists
     # Compare content (resolve symlinks vs read copies)
@@ -686,7 +686,7 @@ def test_no_direct_files_in_source_repo_commands():
     # Assert none are regular files
 
 def test_all_templates_have_corresponding_symlinks():
-    """Verify every template has a dogfood symlink."""
+    """Verify every template has a dev-setup symlink."""
     # List templates/commands/**/*.md
     # List .claude/commands/**/*.md
     # Assert 1:1 correspondence
@@ -705,17 +705,17 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Check dogfood symlinks
+      - name: Check dev-setup symlinks
         run: |
-          python -m pytest tests/test_dogfood_init_equivalence.py::test_dogfood_creates_jpspec_symlinks
+          python -m pytest tests/test_dev-setup_init_equivalence.py::test_dev-setup_creates_jpspec_symlinks
 
       - name: Check init equivalence
         run: |
-          python -m pytest tests/test_dogfood_init_equivalence.py::test_init_copies_same_files_as_dogfood_links
+          python -m pytest tests/test_dev-setup_init_equivalence.py::test_init_copies_same_files_as_dev-setup_links
 
       - name: Verify no direct files in source
         run: |
-          python -m pytest tests/test_dogfood_init_equivalence.py::test_no_direct_files_in_source_repo_commands
+          python -m pytest tests/test_dev-setup_init_equivalence.py::test_no_direct_files_in_source_repo_commands
 ```
 
 ---
@@ -812,24 +812,24 @@ jobs:
 
 ---
 
-### 5.3 Phase 3: Dogfood Command Update
+### 5.3 Phase 3: Dev Setup Command Update
 
 **Duration**: 1 day
 
 **Tasks**:
 
-1. **Update dogfood implementation** (3 hours)
-   - Modify `src/specify_cli/__init__.py` dogfood function
+1. **Update dev-setup implementation** (3 hours)
+   - Modify `src/specify_cli/__init__.py` dev-setup function
    - Add jpspec symlink creation logic
    - Handle subdirectory structure
    - Update help text
 
-2. **Test dogfood locally** (1 hour)
+2. **Test dev-setup locally** (1 hour)
    ```bash
    # In jp-spec-kit source repo
    rm -rf .claude/commands/*
    uv tool install . --force
-   specify dogfood
+   specify dev-setup
 
    # Verify
    ls -la .claude/commands/jpspec/
@@ -840,29 +840,29 @@ jobs:
 
 3. **Write unit tests** (2 hours)
    ```python
-   # tests/test_dogfood.py
-   def test_dogfood_creates_jpspec_symlinks():
+   # tests/test_dev-setup.py
+   def test_dev-setup_creates_jpspec_symlinks():
        # Test jpspec symlinks created
 
-   def test_dogfood_creates_speckit_symlinks():
+   def test_dev-setup_creates_speckit_symlinks():
        # Test speckit symlinks created
 
-   def test_dogfood_symlinks_resolve():
+   def test_dev-setup_symlinks_resolve():
        # Test all symlinks are valid
    ```
 
 4. **Update CLI help and docs** (1 hour)
-   - Update dogfood docstring
-   - Update CONTRIBUTING.md dogfood section
+   - Update dev-setup docstring
+   - Update CONTRIBUTING.md dev-setup section
    - Add troubleshooting guide
 
-5. **Commit dogfood changes** (15 min)
+5. **Commit dev-setup changes** (15 min)
    ```bash
    git add src/specify_cli/__init__.py
-   git add tests/test_dogfood.py
-   git commit -s -m "feat: dogfood creates symlinks for jpspec commands
+   git add tests/test_dev-setup.py
+   git commit -s -m "feat: dev-setup creates symlinks for jpspec commands
 
-   Extend dogfood command to create symlinks for both speckit and jpspec
+   Extend dev-setup command to create symlinks for both speckit and jpspec
    commands. This ensures developers use the same enhanced commands that
    will be distributed to users.
 
@@ -870,15 +870,15 @@ jobs:
    ```
 
 **Success Criteria**:
-- Dogfood creates jpspec symlinks
-- Dogfood creates speckit symlinks
+- Dev Setup creates jpspec symlinks
+- Dev Setup creates speckit symlinks
 - All symlinks resolve correctly
 - Tests pass
 - Documentation updated
 
 **Rollback Plan**:
 - Revert commit
-- Run old dogfood version
+- Run old dev-setup version
 
 ---
 
@@ -893,9 +893,9 @@ jobs:
    rm -rf .claude/commands/jpspec/*.md
    ```
 
-2. **Run dogfood to create symlinks** (5 min)
+2. **Run dev-setup to create symlinks** (5 min)
    ```bash
-   specify dogfood --force
+   specify dev-setup --force
    ```
 
 3. **Verify symlinks** (10 min)
@@ -967,11 +967,11 @@ jobs:
 
 3. **Write equivalence tests** (2 hours)
    ```python
-   # tests/test_init_dogfood_equivalence.py
-   def test_init_creates_same_structure_as_dogfood():
+   # tests/test_init_dev-setup_equivalence.py
+   def test_init_creates_same_structure_as_dev-setup():
        # Compare directory structures
 
-   def test_init_copies_same_content_as_dogfood_symlinks():
+   def test_init_copies_same_content_as_dev-setup_symlinks():
        # Compare file content
    ```
 
@@ -988,7 +988,7 @@ jobs:
 6. **Commit init changes** (15 min)
    ```bash
    git add src/specify_cli/__init__.py
-   git add tests/test_init_dogfood_equivalence.py
+   git add tests/test_init_dev-setup_equivalence.py
    git add scripts/bash/migrate-commands-to-subdirs.sh
    git commit -s -m "feat!: init uses subdirectory structure for commands
 
@@ -1022,7 +1022,7 @@ jobs:
 
 1. **Create validation workflow** (2 hours)
    - Write `.github/workflows/validate-commands.yml`
-   - Add dogfood symlink checks
+   - Add dev-setup symlink checks
    - Add init equivalence checks
    - Add template validation
 
@@ -1057,7 +1057,7 @@ jobs:
    git commit -s -m "ci: add command structure validation
 
    Add CI checks to ensure:
-   - Dogfood creates correct symlinks
+   - Dev Setup creates correct symlinks
    - Init produces equivalent structure
    - No direct files in source .claude/commands/
 
@@ -1149,14 +1149,14 @@ The following architectural principles should be added to `/speckit.constitution
 
 **Guidelines**:
 - ✅ DO edit files in `templates/commands/jpspec/` and `templates/commands/speckit/`
-- ✅ DO run `specify dogfood` after changing templates (to refresh symlinks)
+- ✅ DO run `specify dev-setup` after changing templates (to refresh symlinks)
 - ❌ DON'T edit files in `.claude/commands/` directly (they are symlinks)
 - ❌ DON'T create command files outside `templates/commands/`
 
 **Validation**:
 - CI enforces `.claude/commands/` contains only symlinks
 - Pre-commit hook warns if editing symlinks
-- Tests verify dogfood and init produce equivalent results
+- Tests verify dev-setup and init produce equivalent results
 
 ---
 
@@ -1195,14 +1195,14 @@ The following architectural principles should be added to `/speckit.constitution
 
 ### Principle: Symlink Strategy for Development
 
-**Statement**: The dogfood command creates symlinks from `.claude/commands/` to `templates/commands/` for development work on the source repository.
+**Statement**: The dev-setup command creates symlinks from `.claude/commands/` to `templates/commands/` for development work on the source repository.
 
 **Rationale**: Ensures developers test the exact content that will be distributed, prevents divergence.
 
 **Guidelines**:
-- ✅ DO use `specify dogfood` in jp-spec-kit source repo
+- ✅ DO use `specify dev-setup` in jp-spec-kit source repo
 - ✅ DO verify symlinks resolve correctly
-- ✅ DO restart Claude Code after running dogfood
+- ✅ DO restart Claude Code after running dev-setup
 - ❌ DON'T commit direct files to `.claude/commands/` in source repo
 - ❌ DON'T manually create symlinks (use the command)
 
@@ -1219,7 +1219,7 @@ The following architectural principles should be added to `/speckit.constitution
 **Checks**:
 - ✅ All files in `.claude/commands/` are symlinks (source repo)
 - ✅ All symlinks resolve to `templates/commands/`
-- ✅ Dogfood and init produce equivalent structures
+- ✅ Dev Setup and init produce equivalent structures
 - ✅ No forbidden file patterns or naming violations
 
 **Enforcement**: CI workflow fails on validation errors, blocking merge.
@@ -1251,7 +1251,7 @@ The following architectural principles should be added to `/speckit.constitution
 
 2. **Short Term** (Next week):
    - Start Phase 1: Template migration
-   - Start Phase 2: Dogfood command update
+   - Start Phase 2: Dev Setup command update
    - Begin writing tests
 
 3. **Medium Term** (Next 2 weeks):
@@ -1270,7 +1270,7 @@ The following architectural principles should be added to `/speckit.constitution
 - 0 direct files in `.claude/commands/` (source repo)
 - 100% symlink resolution rate
 - 100% test pass rate
-- <5 minutes dogfood execution time
+- <5 minutes dev-setup execution time
 
 **User Experience Metrics**:
 - User command files match developer command files (content hash equality)
@@ -1295,7 +1295,7 @@ This architecture document provides a comprehensive blueprint for transitioning 
 4. **Reduces risk** of content divergence
 
 **Approach**:
-- Pragmatic: Reuse existing dogfood pattern (symlinks)
+- Pragmatic: Reuse existing dev-setup pattern (symlinks)
 - Incremental: Phased migration with rollback plans
 - Validated: Comprehensive testing and CI checks
 - Documented: Clear ADRs, migration guide, constitution principles

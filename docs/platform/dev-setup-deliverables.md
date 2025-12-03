@@ -1,8 +1,8 @@
-# Dogfood Infrastructure Deliverables Summary
+# Dev Setup Infrastructure Deliverables Summary
 
 ## Executive Summary
 
-Complete platform and testing infrastructure has been designed and implemented to ensure dogfood consistency for the JP Spec Kit project. This infrastructure prevents content drift between development (`specify dogfood`) and distribution (`specify init`) through automated validation, clear recovery procedures, and comprehensive testing.
+Complete platform and testing infrastructure has been designed and implemented to ensure dev-setup consistency for the JP Spec Kit project. This infrastructure prevents content drift between development (`specify dev-setup`) and distribution (`specify init`) through automated validation, clear recovery procedures, and comprehensive testing.
 
 **Impact**: Achieves DORA Elite performance by catching issues in < 2 minutes, enabling self-healing in < 5 minutes, and eliminating entire class of content drift bugs.
 
@@ -26,7 +26,7 @@ Complete platform and testing infrastructure has been designed and implemented t
 ## 1. CI/CD Pipeline Design
 
 ### File Created
-- **`.github/workflows/dogfood-validation.yml`** (5944 bytes)
+- **`.github/workflows/dev-setup-validation.yml`** (5944 bytes)
 
 ### Features
 - Runs on every push/PR affecting commands
@@ -34,7 +34,7 @@ Complete platform and testing infrastructure has been designed and implemented t
   1. Check for non-symlink .md files
   2. Validate symlink targets exist
   3. Verify speckit structure
-  4. Test dogfood command execution
+  4. Test dev-setup command execution
   5. Run test suite
   6. Report status with actionable errors
 
@@ -43,7 +43,7 @@ Complete platform and testing infrastructure has been designed and implemented t
 ✓ No non-symlink .md files in .claude/commands/
 ✓ All symlinks resolve correctly
 ✓ Speckit commands are symlinks
-✓ Dogfood command executes successfully
+✓ Dev Setup command executes successfully
 ✓ Test suite passes
 ```
 
@@ -63,14 +63,14 @@ Complete platform and testing infrastructure has been designed and implemented t
 ## 2. Test Suite Design
 
 ### Files Created
-1. **`tests/test_dogfood_validation.py`** (12,485 bytes)
-2. **`tests/test_dogfood_init_equivalence.py`** (8,658 bytes)
+1. **`tests/test_dev-setup_validation.py`** (12,485 bytes)
+2. **`tests/test_dev-setup_init_equivalence.py`** (8,658 bytes)
 
 ### Test Coverage
 
-#### test_dogfood_validation.py
+#### test_dev-setup_validation.py
 
-**TestDogfoodValidation** (Core validation tests):
+**TestDev SetupValidation** (Core validation tests):
 - `test_claude_commands_are_symlinks_only` - Ensures no regular files
 - `test_all_symlinks_resolve` - Checks for broken symlinks
 - `test_jpspec_symlinks_exist` - Verifies jpspec directory
@@ -86,16 +86,16 @@ Complete platform and testing infrastructure has been designed and implemented t
 - `test_no_orphan_claude_commands` - Catches orphaned files
 - `test_template_files_are_not_empty` - Ensures content exists
 
-#### test_dogfood_init_equivalence.py
+#### test_dev-setup_init_equivalence.py
 
-**TestDogfoodInitEquivalence** (Equivalence tests):
+**TestDev SetupInitEquivalence** (Equivalence tests):
 - `test_same_speckit_commands_available` - Same commands in both
 - `test_speckit_command_content_matches` - Identical content
 - `test_jpspec_commands_exist_in_templates` - Future state verification
 - `test_naming_convention_consistency` - Naming standards
 
-**TestDogfoodIdempotency** (Safety tests):
-- `test_dogfood_can_run_multiple_times` - Idempotent operation
+**TestDev SetupIdempotency** (Safety tests):
+- `test_dev-setup_can_run_multiple_times` - Idempotent operation
 
 **TestCommandDiscoverability** (Quality tests):
 - `test_all_commands_have_descriptions` - Documentation completeness
@@ -112,7 +112,7 @@ Complete platform and testing infrastructure has been designed and implemented t
 ## 3. Pre-commit Hook Design
 
 ### Files Created
-1. **`scripts/bash/pre-commit-dogfood.sh`** (5,520 bytes, executable)
+1. **`scripts/bash/pre-commit-dev-setup.sh`** (5,520 bytes, executable)
 2. **`.pre-commit-config.yaml`** (1,507 bytes)
 
 ### Hook Features
@@ -138,7 +138,7 @@ Files that should be symlinks:
 
 To fix:
   1. Move enhanced content to templates/commands/
-  2. Run: specify dogfood --force
+  2. Run: specify dev-setup --force
 ```
 
 ### Integration
@@ -146,9 +146,9 @@ To fix:
 # .pre-commit-config.yaml
 - repo: local
   hooks:
-    - id: dogfood-validation
-      name: Dogfood Consistency Check
-      entry: ./scripts/bash/pre-commit-dogfood.sh
+    - id: dev-setup-validation
+      name: Dev Setup Consistency Check
+      entry: ./scripts/bash/pre-commit-dev-setup.sh
       language: system
       files: ^(\.claude/commands/.*\.md|templates/commands/.*\.md)$
 ```
@@ -172,17 +172,17 @@ To fix:
 ```bash
 make install          # Install dependencies with uv
 make test             # Run all tests
-make test-dogfood     # Run dogfood tests only
+make test-dev-setup     # Run dev-setup tests only
 make lint             # Run ruff linter
 make format           # Format code
 make clean            # Clean build artifacts
 ```
 
-#### Dogfood Management
+#### Dev Setup Management
 ```bash
-make dogfood-validate # Validate dogfood setup
-make dogfood-fix      # Fix dogfood setup (recreate symlinks)
-make dogfood-status   # Show dogfood status
+make dev-setup-validate # Validate dev-setup setup
+make dev-setup-fix      # Fix dev-setup setup (recreate symlinks)
+make dev-setup-status   # Show dev-setup status
 ```
 
 #### CLI
@@ -205,9 +205,9 @@ make ci-local         # Run local CI simulation
 
 ### Example Output
 ```bash
-$ make dogfood-status
+$ make dev-setup-status
 ==========================================
-Dogfood Status
+Dev Setup Status
 ==========================================
 
 === .claude/commands/ structure ===
@@ -227,34 +227,34 @@ Regular files: 0
 
 ### Files Created
 
-1. **`docs/reference/dogfood-consistency.md`** (9,156 bytes)
+1. **`docs/reference/dev-setup-consistency.md`** (9,156 bytes)
    - Architecture overview
    - Common workflows
    - Troubleshooting guide
    - Recovery procedures
 
-2. **`docs/runbooks/dogfood-recovery.md`** (14,237 bytes)
+2. **`docs/runbooks/dev-setup-recovery.md`** (14,237 bytes)
    - 5 common failure scenarios
    - Step-by-step recovery procedures
    - Escalation paths
    - Monitoring and alerts
    - Post-incident review process
 
-3. **`docs/platform/dogfood-platform-principles.md`** (9,847 bytes)
+3. **`docs/platform/dev-setup-platform-principles.md`** (9,847 bytes)
    - Platform engineering standards
    - DORA metrics alignment
    - Quality gates
    - Architecture decisions
    - Success metrics
 
-4. **`docs/platform/dogfood-implementation-sequence.md`** (11,532 bytes)
+4. **`docs/platform/dev-setup-implementation-sequence.md`** (11,532 bytes)
    - 4-phase rollout plan
    - Detailed implementation steps
    - Risk mitigation strategies
    - Rollback procedures
    - Timeline and milestones
 
-5. **`docs/platform/dogfood-deliverables-summary.md`** (This file)
+5. **`docs/platform/dev-setup-deliverables-summary.md`** (This file)
    - Executive summary
    - Complete deliverables list
    - Implementation guidance
@@ -274,30 +274,30 @@ All tasks created with proper acceptance criteria, descriptions, labels, and pri
 
 ### Infrastructure Tasks (High Priority)
 
-#### task-259: Create dogfood validation GitHub Action
-**Priority**: HIGH | **Labels**: infrastructure, cicd, dogfood
+#### task-259: Create dev-setup validation GitHub Action
+**Priority**: HIGH | **Labels**: infrastructure, cicd, dev-setup
 
 **Acceptance Criteria**:
-- [x] Workflow file created at .github/workflows/dogfood-validation.yml
+- [x] Workflow file created at .github/workflows/dev-setup-validation.yml
 - [x] Validates no non-symlink .md files exist in .claude/commands/
 - [x] Validates all symlinks resolve to existing templates
-- [x] Runs dogfood command and verifies output structure
-- [x] Executes test suite (test_dogfood_*.py)
+- [x] Runs dev-setup command and verifies output structure
+- [x] Executes test suite (test_dev-setup_*.py)
 - [x] Provides clear error messages on failure
 
 **Status**: Implementation complete, needs deployment (Phase 3)
 
 ---
 
-#### task-260: Create dogfood validation test suite
-**Priority**: HIGH | **Labels**: testing, infrastructure, dogfood
+#### task-260: Create dev-setup validation test suite
+**Priority**: HIGH | **Labels**: testing, infrastructure, dev-setup
 
 **Acceptance Criteria**:
-- [x] Test file created: tests/test_dogfood_validation.py
-- [x] Test file created: tests/test_dogfood_init_equivalence.py
+- [x] Test file created: tests/test_dev-setup_validation.py
+- [x] Test file created: tests/test_dev-setup_init_equivalence.py
 - [x] Tests verify .claude/commands contains only symlinks
 - [x] Tests verify all symlinks resolve correctly
-- [x] Tests verify dogfood-init command equivalence
+- [x] Tests verify dev-setup-init command equivalence
 - [x] Tests verify template coverage is complete
 - [ ] Tests pass with 100% success rate (after migration)
 
@@ -305,11 +305,11 @@ All tasks created with proper acceptance criteria, descriptions, labels, and pri
 
 ---
 
-#### task-261: Add dogfood validation pre-commit hook
-**Priority**: HIGH | **Labels**: infrastructure, hooks, dogfood
+#### task-261: Add dev-setup validation pre-commit hook
+**Priority**: HIGH | **Labels**: infrastructure, hooks, dev-setup
 
 **Acceptance Criteria**:
-- [x] Script created: scripts/bash/pre-commit-dogfood.sh
+- [x] Script created: scripts/bash/pre-commit-dev-setup.sh
 - [x] Script is executable (chmod +x)
 - [x] Added to .pre-commit-config.yaml
 - [x] Hook detects non-symlink .md files
@@ -321,17 +321,17 @@ All tasks created with proper acceptance criteria, descriptions, labels, and pri
 
 ---
 
-#### task-262: Add dogfood management Makefile commands
-**Priority**: HIGH | **Labels**: infrastructure, dx, dogfood
+#### task-262: Add dev-setup management Makefile commands
+**Priority**: HIGH | **Labels**: infrastructure, dx, dev-setup
 
 **Acceptance Criteria**:
-- [x] Makefile created with dogfood targets
-- [x] make dogfood-validate: runs validation checks
-- [x] make dogfood-fix: recreates all symlinks
-- [x] make dogfood-status: shows current state
-- [x] make test-dogfood: runs dogfood test suite
+- [x] Makefile created with dev-setup targets
+- [x] make dev-setup-validate: runs validation checks
+- [x] make dev-setup-fix: recreates all symlinks
+- [x] make dev-setup-status: shows current state
+- [x] make test-dev-setup: runs dev-setup test suite
 - [x] All targets work correctly and provide clear output
-- [x] help target documents dogfood commands
+- [x] help target documents dev-setup commands
 
 **Status**: Complete, ready for use
 
@@ -339,12 +339,12 @@ All tasks created with proper acceptance criteria, descriptions, labels, and pri
 
 ### Documentation Tasks (Medium Priority)
 
-#### task-263: Document dogfood workflow for contributors
-**Priority**: MEDIUM | **Labels**: documentation, dogfood
+#### task-263: Document dev-setup workflow for contributors
+**Priority**: MEDIUM | **Labels**: documentation, dev-setup
 
 **Acceptance Criteria**:
-- [x] Guide created: docs/reference/dogfood-consistency.md
-- [ ] CONTRIBUTING.md updated with dogfood workflow
+- [x] Guide created: docs/reference/dev-setup-consistency.md
+- [ ] CONTRIBUTING.md updated with dev-setup workflow
 - [x] Architecture diagrams showing file flow (text diagrams)
 - [x] Common workflows documented (edit, add, fix)
 - [x] Troubleshooting guide with error messages and solutions
@@ -357,13 +357,13 @@ All tasks created with proper acceptance criteria, descriptions, labels, and pri
 ### Migration Tasks (Critical Path)
 
 #### task-264: Migrate jpspec commands to templates
-**Priority**: HIGH | **Labels**: infrastructure, migration, dogfood
+**Priority**: HIGH | **Labels**: infrastructure, migration, dev-setup
 
 **Acceptance Criteria**:
 - [ ] Create templates/commands/jpspec/ directory
 - [ ] Copy all jpspec commands to templates
 - [ ] Include _backlog-instructions.md in templates
-- [ ] Update specify dogfood to create jpspec symlinks
+- [ ] Update specify dev-setup to create jpspec symlinks
 - [ ] Verify symlinks work correctly
 - [ ] Remove old jpspec files from .claude/commands/
 - [ ] Update tests to verify jpspec template coverage
@@ -373,7 +373,7 @@ All tasks created with proper acceptance criteria, descriptions, labels, and pri
 ---
 
 #### task-265: Add jpspec commands to specify init distribution
-**Priority**: MEDIUM | **Labels**: feature, dogfood
+**Priority**: MEDIUM | **Labels**: feature, dev-setup
 
 **Acceptance Criteria**:
 - [ ] Update init command to copy jpspec templates
@@ -388,11 +388,11 @@ All tasks created with proper acceptance criteria, descriptions, labels, and pri
 
 ### Operational Tasks (Low Priority)
 
-#### task-266: Create dogfood operational runbook
-**Priority**: LOW | **Labels**: documentation, operations, dogfood
+#### task-266: Create dev-setup operational runbook
+**Priority**: LOW | **Labels**: documentation, operations, dev-setup
 
 **Acceptance Criteria**:
-- [x] Runbook created: docs/runbooks/dogfood-recovery.md
+- [x] Runbook created: docs/runbooks/dev-setup-recovery.md
 - [x] Common failure scenarios documented
 - [x] Step-by-step recovery procedures
 - [x] Rollback procedures for production
@@ -449,8 +449,8 @@ All tasks created with proper acceptance criteria, descriptions, labels, and pri
 
 | Scenario | Quick Fix | MTTR Target | Details |
 |----------|-----------|-------------|---------|
-| Non-symlink files | `make dogfood-fix` | < 5 min | Section 1 |
-| Broken symlinks | `make dogfood-fix` | < 5 min | Section 2 |
+| Non-symlink files | `make dev-setup-fix` | < 5 min | Section 1 |
+| Broken symlinks | `make dev-setup-fix` | < 5 min | Section 2 |
 | Pre-commit failure | Run hook manually | < 5 min | Section 3 |
 | CI validation fails | Check diff, fix | < 15 min | Section 4 |
 | Corrupted .claude | Nuclear reset | < 10 min | Section 5 |
@@ -458,8 +458,8 @@ All tasks created with proper acceptance criteria, descriptions, labels, and pri
 ### Escalation Paths
 
 1. **Level 1: Self-Service** (5 min)
-   - `make dogfood-fix`
-   - `make dogfood-validate`
+   - `make dev-setup-fix`
+   - `make dev-setup-validate`
 
 2. **Level 2: Manual Recovery** (15 min)
    - Follow scenario-specific procedures
@@ -491,7 +491,7 @@ All tasks created with proper acceptance criteria, descriptions, labels, and pri
 ### Proposed Addition to memory/constitution.md
 
 ```markdown
-## Dogfood Consistency Requirements (NON-NEGOTIABLE)
+## Dev Setup Consistency Requirements (NON-NEGOTIABLE)
 
 ### Single Source of Truth
 All command content MUST live in `templates/commands/`:
@@ -500,7 +500,7 @@ All command content MUST live in `templates/commands/`:
 - File modifications happen in templates, never in `.claude/commands/`
 
 ### CI/CD Gates
-All PRs MUST pass dogfood validation:
+All PRs MUST pass dev-setup validation:
 - No merge allowed with non-symlink command files
 - Symlink validation runs on every commit to main
 - Broken symlinks block merges
@@ -508,17 +508,17 @@ All PRs MUST pass dogfood validation:
 ### Developer Workflow
 Standard procedure for command development:
 1. Edit commands in `templates/commands/`
-2. Run `specify dogfood --force` after adding new commands
-3. Use `make dogfood-validate` before committing
+2. Run `specify dev-setup --force` after adding new commands
+3. Use `make dev-setup-validate` before committing
 4. Pre-commit hooks validate automatically
 
 ### Recovery Procedures
-- Quick fix: `make dogfood-fix` recreates all symlinks
-- Status check: `make dogfood-status`
-- Full validation: `make dogfood-validate`
+- Quick fix: `make dev-setup-fix` recreates all symlinks
+- Status check: `make dev-setup-status`
+- Full validation: `make dev-setup-validate`
 - Never manually create files in `.claude/commands/`
 
-See: docs/reference/dogfood-consistency.md
+See: docs/reference/dev-setup-consistency.md
 ```
 
 ---
@@ -560,20 +560,20 @@ See: docs/reference/dogfood-consistency.md
 ### CI/CD (1 file)
 ```
 .github/workflows/
-└── dogfood-validation.yml         (5.9 KB) - GitHub Actions workflow
+└── dev-setup-validation.yml         (5.9 KB) - GitHub Actions workflow
 ```
 
 ### Testing (2 files)
 ```
 tests/
-├── test_dogfood_validation.py     (12.5 KB) - Core validation tests
-└── test_dogfood_init_equivalence.py (8.7 KB) - Equivalence tests
+├── test_dev-setup_validation.py     (12.5 KB) - Core validation tests
+└── test_dev-setup_init_equivalence.py (8.7 KB) - Equivalence tests
 ```
 
 ### Scripts (2 files)
 ```
 scripts/bash/
-└── pre-commit-dogfood.sh          (5.5 KB) - Pre-commit hook
+└── pre-commit-dev-setup.sh          (5.5 KB) - Pre-commit hook
 
 .pre-commit-config.yaml            (1.5 KB) - Pre-commit configuration
 ```
@@ -587,26 +587,26 @@ Makefile                           (5.1 KB) - Development commands
 ```
 docs/
 ├── reference/
-│   └── dogfood-consistency.md     (9.2 KB) - User guide
+│   └── dev-setup-consistency.md     (9.2 KB) - User guide
 ├── runbooks/
-│   └── dogfood-recovery.md        (14.2 KB) - Operations runbook
+│   └── dev-setup-recovery.md        (14.2 KB) - Operations runbook
 └── platform/
-    ├── dogfood-platform-principles.md     (9.8 KB) - Architecture principles
-    ├── dogfood-implementation-sequence.md (11.5 KB) - Rollout plan
-    └── dogfood-deliverables-summary.md    (This file) - Executive summary
+    ├── dev-setup-platform-principles.md     (9.8 KB) - Architecture principles
+    ├── dev-setup-implementation-sequence.md (11.5 KB) - Rollout plan
+    └── dev-setup-deliverables-summary.md    (This file) - Executive summary
 ```
 
 ### Backlog Tasks (8 tasks)
 ```
 backlog/tasks/
-├── task-259 - Create-dogfood-validation-GitHub-Action.md
-├── task-260 - Create-dogfood-validation-test-suite.md
-├── task-261 - Add-dogfood-validation-pre-commit-hook.md
-├── task-262 - Add-dogfood-management-Makefile-commands.md
-├── task-263 - Document-dogfood-workflow-for-contributors.md
+├── task-259 - Create-dev-setup-validation-GitHub-Action.md
+├── task-260 - Create-dev-setup-validation-test-suite.md
+├── task-261 - Add-dev-setup-validation-pre-commit-hook.md
+├── task-262 - Add-dev-setup-management-Makefile-commands.md
+├── task-263 - Document-dev-setup-workflow-for-contributors.md
 ├── task-264 - Migrate-jpspec-commands-to-templates.md
 ├── task-265 - Add-jpspec-commands-to-specify-init-distribution.md
-└── task-266 - Create-dogfood-operational-runbook.md
+└── task-266 - Create-dev-setup-operational-runbook.md
 ```
 
 **Total: 19 files created**
@@ -619,13 +619,13 @@ backlog/tasks/
 1. ✅ Review all created files
 2. ⏳ Test make commands locally
    ```bash
-   make dogfood-status
-   make dogfood-validate
-   make test-dogfood
+   make dev-setup-status
+   make dev-setup-validate
+   make test-dev-setup
    ```
 3. ⏳ Run pre-commit hook manually
    ```bash
-   ./scripts/bash/pre-commit-dogfood.sh
+   ./scripts/bash/pre-commit-dev-setup.sh
    ```
 4. ⏳ Get team approval for rollout
 
@@ -677,7 +677,7 @@ backlog/tasks/
 
 ### For Developers
 - **Fast feedback**: < 10 seconds pre-commit, < 2 min CI
-- **Self-service**: `make dogfood-fix` resolves most issues
+- **Self-service**: `make dev-setup-fix` resolves most issues
 - **Clear errors**: Actionable fix instructions
 - **Less cognitive load**: One source of truth, no manual sync
 
@@ -730,23 +730,23 @@ backlog/tasks/
 
 ```bash
 # CI/CD
-.github/workflows/dogfood-validation.yml
+.github/workflows/dev-setup-validation.yml
 
 # Tests
-tests/test_dogfood_validation.py
-tests/test_dogfood_init_equivalence.py
+tests/test_dev-setup_validation.py
+tests/test_dev-setup_init_equivalence.py
 
 # Scripts
-scripts/bash/pre-commit-dogfood.sh
+scripts/bash/pre-commit-dev-setup.sh
 .pre-commit-config.yaml
 Makefile
 
 # Documentation
-docs/reference/dogfood-consistency.md
-docs/runbooks/dogfood-recovery.md
-docs/platform/dogfood-platform-principles.md
-docs/platform/dogfood-implementation-sequence.md
-docs/platform/dogfood-deliverables-summary.md
+docs/reference/dev-setup-consistency.md
+docs/runbooks/dev-setup-recovery.md
+docs/platform/dev-setup-platform-principles.md
+docs/platform/dev-setup-implementation-sequence.md
+docs/platform/dev-setup-deliverables-summary.md
 
 # Tasks
 backlog/tasks/task-259-266*.md
@@ -756,20 +756,20 @@ backlog/tasks/task-259-266*.md
 
 ```bash
 # Status and validation
-make dogfood-status          # Show current state
-make dogfood-validate        # Run all checks
-./scripts/bash/pre-commit-dogfood.sh  # Manual pre-commit
+make dev-setup-status          # Show current state
+make dev-setup-validate        # Run all checks
+./scripts/bash/pre-commit-dev-setup.sh  # Manual pre-commit
 
 # Recovery
-make dogfood-fix            # Recreate all symlinks
+make dev-setup-fix            # Recreate all symlinks
 
 # Testing
-make test-dogfood           # Run dogfood tests
+make test-dev-setup           # Run dev-setup tests
 make ci-local               # Simulate full CI
 
 # Development
-specify dogfood --force     # Run dogfood command
-backlog search dogfood      # List related tasks
+specify dev-setup --force     # Run dev-setup command
+backlog search dev-setup      # List related tasks
 ```
 
 ---

@@ -2495,8 +2495,8 @@ def check():
         )
 
 
-@app.command()
-def dogfood(
+@app.command(name="dev-setup")
+def dev_setup(
     force: bool = typer.Option(
         False,
         "--force",
@@ -2504,7 +2504,7 @@ def dogfood(
     ),
 ):
     """
-    Set up jp-spec-kit source repository for dogfooding.
+    Set up jp-spec-kit source repository for development.
 
     This command prepares the jp-spec-kit source repository to use its own
     /jpspec.* and /speckit.* commands during development. It creates symlinks from
@@ -2515,8 +2515,8 @@ def dogfood(
     projects, use 'specify init' instead.
 
     Examples:
-        specify dogfood           # Set up dogfooding in current directory
-        specify dogfood --force   # Recreate symlinks if they exist
+        specify dev-setup           # Set up development in current directory
+        specify dev-setup --force   # Recreate symlinks if they exist
     """
     show_banner()
 
@@ -2555,9 +2555,9 @@ def dogfood(
     jpspec_commands_dir.mkdir(parents=True, exist_ok=True)
     speckit_commands_dir.mkdir(parents=True, exist_ok=True)
 
-    console.print("[cyan]Setting up dogfooding for jp-spec-kit...[/cyan]\n")
+    console.print("[cyan]Setting up development environment for jp-spec-kit...[/cyan]\n")
 
-    tracker = StepTracker("Dogfood Setup")
+    tracker = StepTracker("Development Setup")
     tracker.add("check", "Check prerequisites")
     tracker.complete("check", "jp-spec-kit source repository detected")
 
@@ -2657,12 +2657,12 @@ def dogfood(
     else:
         tracker.complete("verify", f"{valid} valid symlinks")
 
-    tracker.add("final", "Dogfood setup complete")
+    tracker.add("final", "Development setup complete")
     tracker.complete("final", "ready for development")
 
     console.print(tracker.render())
 
-    console.print("\n[bold green]Dogfood setup complete![/bold green]")
+    console.print("\n[bold green]Development setup complete![/bold green]")
     console.print("\nThe following commands are now available:")
     console.print("\n[bold]/jpspec:* commands:[/bold]")
     for template_file in sorted(jpspec_files):

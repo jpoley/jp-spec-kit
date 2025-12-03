@@ -322,7 +322,7 @@ Phase 3: User Story 1 (MVP)
 
 **Week 3-4** (MVP Development):
 - Build US1 (Task Generation)
-- Self-dogfood on jp-spec-kit project
+- Self-dev-setup on jp-spec-kit project
 - Test with 3 existing features
 
 **Week 5-6** (Beta Release):
@@ -402,7 +402,7 @@ Phase 3: User Story 1 (MVP)
    - Implement mapper (`src/specify_cli/backlog/mapper.py`)
    - Create CLI command: `specify tasks generate --format backlog-md`
 
-5. **Self-Dogfooding**: Use integration on jp-spec-kit project
+5. **Self-Dev Setuping**: Use integration on jp-spec-kit project
    - Migrate 2-3 existing features
    - Document pain points and improvements
 

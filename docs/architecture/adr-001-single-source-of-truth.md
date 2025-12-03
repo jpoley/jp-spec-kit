@@ -76,7 +76,7 @@ End users get a vastly inferior experience (3KB stub) compared to what jp-spec-k
 - ✅ No change to current development workflow
 
 **Cons**:
-- ❌ Dogfood would need to copy instead of symlink (slower, more complex)
+- ❌ Dev Setup would need to copy instead of symlink (slower, more complex)
 - ❌ Breaks existing pattern (templates should be canonical for distribution)
 - ❌ Confusing: Why are distribution templates sourced from `.claude/`?
 - ❌ Requires build-time preprocessing
@@ -87,7 +87,7 @@ End users get a vastly inferior experience (3KB stub) compared to what jp-spec-k
 
 ### Option 3: Single Source in `templates/` with Symlinks (SELECTED)
 
-**Description**: Move enhanced commands to `templates/commands/jpspec/` (the canonical source). Dogfood creates symlinks from `.claude/commands/` to templates.
+**Description**: Move enhanced commands to `templates/commands/jpspec/` (the canonical source). Dev Setup creates symlinks from `.claude/commands/` to templates.
 
 **Pros**:
 - ✅ One canonical source (templates/)
@@ -131,8 +131,8 @@ End users get a vastly inferior experience (3KB stub) compared to what jp-spec-k
 ### Implementation Approach:
 
 1. **Move enhanced jpspec commands** from `.claude/commands/jpspec/` to `templates/commands/jpspec/`
-2. **Update dogfood command** to create jpspec symlinks (currently only does speckit)
-3. **Delete original `.claude/commands/jpspec/` files** - replace with symlinks created by dogfood
+2. **Update dev-setup command** to create jpspec symlinks (currently only does speckit)
+3. **Delete original `.claude/commands/jpspec/` files** - replace with symlinks created by dev-setup
 4. **Keep init command unchanged** - it already copies from templates
 
 ### File Flow:
@@ -140,7 +140,7 @@ End users get a vastly inferior experience (3KB stub) compared to what jp-spec-k
 ```
 templates/commands/jpspec/implement.md   ◄─── CANONICAL SOURCE (20KB enhanced)
                 │
-                ├─► (dogfood symlink) .claude/commands/jpspec/implement.md
+                ├─► (dev-setup symlink) .claude/commands/jpspec/implement.md
                 │
                 └─► (init copy) user-project/.claude/commands/jpspec/implement.md
 ```
@@ -179,7 +179,7 @@ templates/commands/jpspec/implement.md   ◄─── CANONICAL SOURCE (20KB enh
 - Document in CONTRIBUTING.md with clear examples
 - Add pre-commit hook to warn if editing symlinks
 - CI check ensures `.claude/commands/` contains only symlinks
-- Phased rollout: migrate templates first, then update dogfood, then replace files
+- Phased rollout: migrate templates first, then update dev-setup, then replace files
 
 ### For Windows Symlink Issue:
 - Document Windows Developer Mode requirement
@@ -216,7 +216,7 @@ The decision will be validated by:
 
 ## Related Documents
 
-- Main Architecture: `docs/architecture/dogfood-single-source-of-truth.md`
+- Main Architecture: `docs/architecture/dev-setup-single-source-of-truth.md`
 - ADR-002: Directory Structure Convention
 - ADR-003: Shared Content Strategy
 - Migration Plan: See main architecture doc Section 5

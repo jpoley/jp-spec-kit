@@ -1,8 +1,8 @@
-# Dogfood Infrastructure Implementation Sequence
+# Dev Setup Infrastructure Implementation Sequence
 
 ## Overview
 
-This document provides a recommended implementation sequence for rolling out the dogfood consistency infrastructure. Follow this sequence to minimize disruption while maximizing safety.
+This document provides a recommended implementation sequence for rolling out the dev-setup consistency infrastructure. Follow this sequence to minimize disruption while maximizing safety.
 
 ---
 
@@ -73,11 +73,11 @@ This document provides a recommended implementation sequence for rolling out the
 
 ```bash
 # Files already created:
-# - tests/test_dogfood_validation.py
-# - tests/test_dogfood_init_equivalence.py
+# - tests/test_dev-setup_validation.py
+# - tests/test_dev-setup_init_equivalence.py
 
 # Verify tests work
-pytest tests/test_dogfood_validation.py -v
+pytest tests/test_dev-setup_validation.py -v
 
 # Expected: Some tests may fail (current state has non-symlink files)
 # This is EXPECTED and documents current drift
@@ -98,18 +98,18 @@ pytest tests/test_dogfood_validation.py -v
 # - Makefile
 
 # Test commands
-make dogfood-status     # Should show current state
-make dogfood-validate   # May fail - expected
-make dogfood-fix       # Should recreate symlinks
+make dev-setup-status     # Should show current state
+make dev-setup-validate   # May fail - expected
+make dev-setup-fix       # Should recreate symlinks
 
 # Verify fix works
-make dogfood-status    # Check symlinks created
+make dev-setup-status    # Check symlinks created
 ```
 
 **Success criteria**:
 - All make targets work
-- dogfood-fix creates correct symlinks
-- dogfood-status shows clear output
+- dev-setup-fix creates correct symlinks
+- dev-setup-status shows clear output
 
 #### 3. Pre-commit Hook (MEDIUM PRIORITY)
 **Task**: task-261
@@ -118,11 +118,11 @@ make dogfood-status    # Check symlinks created
 
 ```bash
 # Files already created:
-# - scripts/bash/pre-commit-dogfood.sh
+# - scripts/bash/pre-commit-dev-setup.sh
 # - .pre-commit-config.yaml
 
 # Test hook manually
-./scripts/bash/pre-commit-dogfood.sh
+./scripts/bash/pre-commit-dev-setup.sh
 
 # Install pre-commit
 pip install pre-commit
@@ -130,7 +130,7 @@ pre-commit install
 
 # Test with staged changes
 git add .
-pre-commit run dogfood-validation
+pre-commit run dev-setup-validation
 ```
 
 **Success criteria**:
@@ -145,17 +145,17 @@ pre-commit run dogfood-validation
 
 ```bash
 # Files already created:
-# - docs/reference/dogfood-consistency.md
-# - docs/runbooks/dogfood-recovery.md
-# - docs/platform/dogfood-platform-principles.md
-# - docs/platform/dogfood-implementation-sequence.md (this file)
+# - docs/reference/dev-setup-consistency.md
+# - docs/runbooks/dev-setup-recovery.md
+# - docs/platform/dev-setup-platform-principles.md
+# - docs/platform/dev-setup-implementation-sequence.md (this file)
 
 # Review docs
-cat docs/reference/dogfood-consistency.md
-cat docs/runbooks/dogfood-recovery.md
+cat docs/reference/dev-setup-consistency.md
+cat docs/runbooks/dev-setup-recovery.md
 
 # Update CONTRIBUTING.md
-vim CONTRIBUTING.md  # Add link to dogfood guide
+vim CONTRIBUTING.md  # Add link to dev-setup guide
 ```
 
 **Success criteria**:
@@ -211,13 +211,13 @@ git commit -s -m "feat: migrate jpspec commands to templates
 Moves enhanced jpspec commands to templates/commands/jpspec/
 to establish single source of truth and eliminate content drift.
 
-Part of dogfood consistency architecture rollout."
+Part of dev-setup consistency architecture rollout."
 
-# Update specify dogfood to create jpspec symlinks
-vim src/specify_cli/commands/dogfood.py  # Add jpspec symlink creation
+# Update specify dev-setup to create jpspec symlinks
+vim src/specify_cli/commands/dev-setup.py  # Add jpspec symlink creation
 
-# Test dogfood command
-specify dogfood --force
+# Test dev-setup command
+specify dev-setup --force
 
 # Verify symlinks created correctly
 ls -la .claude/commands/jpspec/
@@ -226,18 +226,18 @@ ls -la .claude/commands/jpspec/
 rm -f .claude/commands/jpspec/*.md
 
 # Recreate as symlinks
-specify dogfood --force
+specify dev-setup --force
 
 # Verify all are symlinks
-make dogfood-status
+make dev-setup-status
 
 # Commit symlink changes
 git add .claude/commands/jpspec/
-git add src/specify_cli/commands/dogfood.py
+git add src/specify_cli/commands/dev-setup.py
 git commit -s -m "fix: convert jpspec commands to symlinks
 
 Replaces regular files with symlinks to templates/commands/jpspec/.
-Completes dogfood consistency architecture for jpspec commands."
+Completes dev-setup consistency architecture for jpspec commands."
 ```
 
 **Success criteria**:
@@ -287,7 +287,7 @@ Ensures users get full feature set from the start."
 - [ ] jpspec commands in templates/
 - [ ] Symlinks replace regular files
 - [ ] init distributes jpspec commands
-- [ ] Full dogfood-init equivalence
+- [ ] Full dev-setup-init equivalence
 
 ### Duration: 4-6 hours
 
@@ -309,16 +309,16 @@ Ensures users get full feature set from the start."
 
 ```bash
 # File already created:
-# - .github/workflows/dogfood-validation.yml
+# - .github/workflows/dev-setup-validation.yml
 
 # Commit workflow (after Phase 2 complete!)
-git add .github/workflows/dogfood-validation.yml
-git commit -s -m "feat: add dogfood validation CI/CD pipeline
+git add .github/workflows/dev-setup-validation.yml
+git commit -s -m "feat: add dev-setup validation CI/CD pipeline
 
 Automated validation ensures:
 - No non-symlink .md files in .claude/commands/
 - All symlinks resolve correctly
-- Dogfood-init equivalence maintained
+- Dev Setup-init equivalence maintained
 - Tests pass on every PR
 
 Blocks merges when validation fails."
@@ -347,17 +347,17 @@ git push origin main
 ```bash
 # Team announcement template
 echo "
-🚀 New: Dogfood Consistency Architecture
+🚀 New: Dev Setup Consistency Architecture
 
 Starting today, all command development uses our new
-dogfood architecture to prevent content drift.
+dev-setup architecture to prevent content drift.
 
 Quick Guide:
 - Edit files in templates/commands/
-- Use 'make dogfood-validate' before committing
-- Run 'make dogfood-fix' if validation fails
+- Use 'make dev-setup-validate' before committing
+- Run 'make dev-setup-fix' if validation fails
 
-Full docs: docs/reference/dogfood-consistency.md
+Full docs: docs/reference/dev-setup-consistency.md
 Questions: #jp-spec-kit channel
 "
 ```
@@ -415,12 +415,12 @@ If critical issues arise:
 
 ```bash
 # Disable CI/CD enforcement
-# Edit .github/workflows/dogfood-validation.yml
+# Edit .github/workflows/dev-setup-validation.yml
 # Change: on: [push, pull_request]
 # To: on: workflow_dispatch  # Manual trigger only
 
-git add .github/workflows/dogfood-validation.yml
-git commit -s -m "fix: temporarily disable dogfood CI enforcement"
+git add .github/workflows/dev-setup-validation.yml
+git commit -s -m "fix: temporarily disable dev-setup CI enforcement"
 git push origin main
 ```
 
@@ -454,15 +454,15 @@ git push --force origin main  # Requires approval
 ### Technical Metrics
 - [ ] All tests pass on main branch
 - [ ] CI/CD validation runs in < 2 minutes
-- [ ] No content drift between dogfood and init
+- [ ] No content drift between dev-setup and init
 - [ ] Zero broken symlinks in main
 - [ ] Zero non-symlink command files in main
 
 ### Team Metrics
-- [ ] All developers can run dogfood-validate locally
+- [ ] All developers can run dev-setup-validate locally
 - [ ] Pre-commit hooks installed for > 90% of team
 - [ ] < 5% of commits blocked by validation (after Week 1)
-- [ ] MTTR for dogfood issues < 5 minutes
+- [ ] MTTR for dev-setup issues < 5 minutes
 - [ ] Developer satisfaction > 4/5
 
 ### Quality Metrics
@@ -480,7 +480,7 @@ git push --force origin main  # Requires approval
 - Clear communication of benefits
 - Excellent documentation
 - Fast validation (< 2 min)
-- Easy recovery (`make dogfood-fix`)
+- Easy recovery (`make dev-setup-fix`)
 
 ### Risk: False Positives
 **Mitigation**:
@@ -559,8 +559,8 @@ git push --force origin main  # Requires approval
 During rollout:
 - **Slack**: #jp-spec-kit channel
 - **Office Hours**: Daily standups for questions
-- **Documentation**: docs/reference/dogfood-consistency.md
-- **Runbook**: docs/runbooks/dogfood-recovery.md
+- **Documentation**: docs/reference/dev-setup-consistency.md
+- **Runbook**: docs/runbooks/dev-setup-recovery.md
 
 ---
 

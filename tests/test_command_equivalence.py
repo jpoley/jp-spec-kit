@@ -1,7 +1,7 @@
-"""Tests to verify dogfood and init commands produce equivalent results.
+"""Tests to verify dev-setup and init commands produce equivalent results.
 
 This test suite ensures that:
-- `specify dogfood` (for development)
+- `specify dev-setup` (for development)
 - `specify init` (for user projects)
 
 Both commands create the same command structure and make the same commands available.
@@ -14,8 +14,8 @@ from pathlib import Path
 from unittest.mock import patch
 
 
-class TestDogfoodInitEquivalence:
-    """Verify dogfood and init produce equivalent command sets."""
+class TestDevSetupInitEquivalence:
+    """Verify dev-setup and init produce equivalent command sets."""
 
     @pytest.fixture
     def repo_root(self):
@@ -28,7 +28,7 @@ class TestDogfoodInitEquivalence:
         return repo_root / "templates" / "commands"
 
     def test_same_speckit_commands_available(self, repo_root, templates_commands_dir):
-        """Both dogfood and init should make same speckit commands available.
+        """Both dev-setup and init should make same speckit commands available.
 
         Verifies that all speckit commands in templates are accessible.
         """
@@ -40,10 +40,10 @@ class TestDogfoodInitEquivalence:
         for md_file in templates_commands_dir.glob("*.md"):
             template_speckit_commands.add(md_file.stem)  # filename without .md
 
-        # Get speckit commands from .claude (what dogfood creates)
+        # Get speckit commands from .claude (what dev-setup creates)
         claude_speckit_dir = repo_root / ".claude" / "commands" / "speckit"
         if not claude_speckit_dir.exists():
-            pytest.skip(".claude/commands/speckit does not exist - run dogfood first")
+            pytest.skip(".claude/commands/speckit does not exist - run dev-setup first")
 
         claude_speckit_commands = set()
         for md_file in claude_speckit_dir.glob("*.md"):
@@ -73,7 +73,7 @@ class TestDogfoodInitEquivalence:
 
         claude_speckit_dir = repo_root / ".claude" / "commands" / "speckit"
         if not claude_speckit_dir.exists():
-            pytest.skip(".claude/commands/speckit does not exist - run dogfood first")
+            pytest.skip(".claude/commands/speckit does not exist - run dev-setup first")
 
         content_mismatches = []
 
@@ -159,16 +159,16 @@ class TestDogfoodInitEquivalence:
         )
 
 
-class TestDogfoodIdempotency:
-    """Verify dogfood command is idempotent and safe to re-run."""
+class TestDevSetupIdempotency:
+    """Verify dev-setup command is idempotent and safe to re-run."""
 
     @pytest.fixture
     def repo_root(self):
         """Get the repository root directory."""
         return Path(__file__).parent.parent
 
-    def test_dogfood_can_run_multiple_times(self, repo_root):
-        """Running dogfood multiple times should be safe and produce same result.
+    def test_dev-setup_can_run_multiple_times(self, repo_root):
+        """Running dev-setup multiple times should be safe and produce same result.
 
         This is a critical property for CI/CD safety.
         """
@@ -183,7 +183,7 @@ class TestDogfoodIdempotency:
             if symlink.is_symlink():
                 initial_symlinks.add(str(symlink.relative_to(claude_commands_dir)))
 
-        # Note: We don't actually run dogfood here to avoid side effects
+        # Note: We don't actually run dev-setup here to avoid side effects
         # This test documents expected behavior
 
         assert initial_symlinks, "Should have symlinks in .claude/commands/"

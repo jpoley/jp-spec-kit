@@ -4,13 +4,13 @@ This directory contains architectural design documents and decision records for 
 
 ## Architecture Documents
 
-### [Dogfood Single Source of Truth Architecture](./dogfood-single-source-of-truth.md)
+### [Dev Setup Single Source of Truth Architecture](./dev-setup-single-source-of-truth.md)
 
 Comprehensive architecture document for resolving the command file divergence problem.
 
 **Problem**: Three versions of jpspec commands exist (enhanced dev, minimal template, distributed), creating maintenance burden and inconsistent user experience.
 
-**Solution**: Establish `templates/commands/` as single source of truth, use symlinks for development (dogfood), copies for distribution (init).
+**Solution**: Establish `templates/commands/` as single source of truth, use symlinks for development (dev-setup), copies for distribution (init).
 
 **Key Sections**:
 1. Strategic Framing (Penthouse View) - Business objectives and investment justification
@@ -53,7 +53,7 @@ Comprehensive architecture document for resolving the command file divergence pr
 
 **Decision**: Use subdirectory structure (`jpspec/implement.md`) instead of flat structure with dots (`jpspec.implement.md`).
 
-**Context**: Dogfood uses subdirectories, init uses flat structure, creating inconsistent experience.
+**Context**: Dev Setup uses subdirectories, init uses flat structure, creating inconsistent experience.
 
 **Rationale**:
 - Better organization for 17+ commands
@@ -63,7 +63,7 @@ Comprehensive architecture document for resolving the command file divergence pr
 
 **Consequences**:
 - ✅ Cleaner organization, supports partials
-- ✅ Consistent structure across dogfood and init
+- ✅ Consistent structure across dev-setup and init
 - ❌ Breaking change for existing init users
 - ❌ Migration script required
 
@@ -109,11 +109,11 @@ The following backlog tasks have been created for implementation:
 | task-270 | Design: Unified Command Template Structure | HIGH | architecture, design |
 | task-271 | Migrate jpspec commands to templates | HIGH | architecture, migration |
 | task-272 | Migrate speckit commands to subdirectory | HIGH | architecture, migration |
-| task-273 | Update dogfood command for jpspec symlinks | HIGH | cli, dogfood, implementation |
+| task-273 | Update dev-setup command for jpspec symlinks | HIGH | cli, dev-setup, implementation |
 | task-274 | Replace source repo commands with symlinks | HIGH | architecture, migration |
 | task-275 | Update init command for subdirectory structure | HIGH | cli, init, implementation |
 | task-276 | Create command migration script for users | HIGH | tooling, migration |
-| task-277 | Create dogfood-init equivalence validation tests | HIGH | testing, validation |
+| task-277 | Create dev-setup-init equivalence validation tests | HIGH | testing, validation |
 | task-278 | Add CI validation for command structure | HIGH | ci, validation |
 | task-279 | Update documentation for new architecture | HIGH | documentation |
 
@@ -134,13 +134,13 @@ The following backlog tasks have been created for implementation:
 - Reorganize speckit commands to subdirectory
 - Update documentation
 
-### Phase 3: Dogfood Command Update - 1 day
+### Phase 3: Dev Setup Command Update - 1 day
 - Add jpspec symlink creation
 - Test and validate
 
 ### Phase 4: Replace Source Commands - 30 minutes
 - Delete direct files
-- Create symlinks via dogfood
+- Create symlinks via dev-setup
 
 ### Phase 5: Init Command Update - 2 days
 - Update to subdirectory structure
@@ -175,7 +175,7 @@ Commands organized in subdirectories by namespace (`jpspec/`, `speckit/`), not f
 Distributed commands should be fully-featured (10-20KB) with comprehensive guidance, not minimal placeholders (2-3KB).
 
 ### 4. Symlink Strategy for Development
-Dogfood creates symlinks from `.claude/commands/` to `templates/commands/` to ensure developers test distributed content.
+Dev Setup creates symlinks from `.claude/commands/` to `templates/commands/` to ensure developers test distributed content.
 
 ### 5. Automated Validation of Structure
 CI validates command structure to prevent content divergence and structural errors.
@@ -188,7 +188,7 @@ CI validates command structure to prevent content divergence and structural erro
 - 0 direct files in `.claude/commands/` (source repo)
 - 100% symlink resolution rate
 - 100% test pass rate
-- <5 minutes dogfood execution time
+- <5 minutes dev-setup execution time
 
 ### User Experience Metrics
 - User command files match developer command files (content hash equality)
@@ -204,8 +204,8 @@ CI validates command structure to prevent content divergence and structural erro
 
 ## References
 
-- Problem Analysis: `docs/fix-dogfood.md`
-- Main Architecture: `./dogfood-single-source-of-truth.md`
+- Problem Analysis: `docs/fix-dev-setup.md`
+- Main Architecture: `./dev-setup-single-source-of-truth.md`
 - ADR-001: `./adr-001-single-source-of-truth.md`
 - ADR-002: `./adr-002-directory-structure.md`
 - ADR-003: `./adr-003-shared-content-strategy.md`

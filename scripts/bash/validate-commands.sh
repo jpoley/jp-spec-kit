@@ -1,5 +1,5 @@
 #!/bin/bash
-# Pre-commit hook to validate dogfood consistency
+# Pre-commit hook to validate dev-setup consistency
 # Ensures .claude/commands/ only contains symlinks to templates/
 
 set -e
@@ -7,7 +7,7 @@ set -e
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 cd "$REPO_ROOT"
 
-echo "🔍 Validating dogfood consistency..."
+echo "🔍 Validating dev-setup consistency..."
 
 # Color codes for output
 RED='\033[0;31m'
@@ -37,8 +37,8 @@ if [ -n "$NON_SYMLINKS" ]; then
     echo "  1. Move enhanced content to templates/commands/"
     echo "     Example: mv .claude/commands/jpspec/implement.md templates/commands/jpspec/"
     echo ""
-    echo "  2. Run: specify dogfood --force"
-    echo "     Or: uv run specify dogfood --force"
+    echo "  2. Run: specify dev-setup --force"
+    echo "     Or: uv run specify dev-setup --force"
     echo ""
     VALIDATION_FAILED=1
 else
@@ -67,7 +67,7 @@ if [ -n "$BROKEN_SYMLINKS" ]; then
     echo ""
     echo "To fix:"
     echo "  1. Ensure corresponding files exist in templates/commands/"
-    echo "  2. Run: specify dogfood --force"
+    echo "  2. Run: specify dev-setup --force"
     echo ""
     VALIDATION_FAILED=1
 else
@@ -83,7 +83,7 @@ echo "📦 Checking speckit commands structure..."
 SPECKIT_DIR=".claude/commands/speckit"
 if [ ! -d "$SPECKIT_DIR" ]; then
     echo -e "${YELLOW}⚠ Warning: $SPECKIT_DIR directory does not exist${NC}"
-    echo "Run: specify dogfood --force"
+    echo "Run: specify dev-setup --force"
 else
     # Count symlinks vs total .md files
     SYMLINK_COUNT=$(find "$SPECKIT_DIR" -maxdepth 1 -type l -name "*.md" 2>/dev/null | wc -l)
@@ -136,7 +136,7 @@ fi
 echo ""
 echo "=========================================="
 if [ $VALIDATION_FAILED -eq 0 ]; then
-    echo -e "${GREEN}✓ DOGFOOD VALIDATION PASSED${NC}"
+    echo -e "${GREEN}✓ COMMAND VALIDATION PASSED${NC}"
     echo "=========================================="
     echo ""
     echo "All checks passed:"
@@ -146,13 +146,13 @@ if [ $VALIDATION_FAILED -eq 0 ]; then
     echo ""
     exit 0
 else
-    echo -e "${RED}❌ DOGFOOD VALIDATION FAILED${NC}"
+    echo -e "${RED}❌ COMMAND VALIDATION FAILED${NC}"
     echo "=========================================="
     echo ""
     echo "Please fix the issues above before committing."
     echo ""
     echo "Quick fix command:"
-    echo "  specify dogfood --force"
+    echo "  specify dev-setup --force"
     echo ""
     exit 1
 fi

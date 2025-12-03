@@ -1,9 +1,9 @@
-"""Tests to ensure dogfood and init commands stay synchronized.
+"""Tests to ensure dev-setup and init commands stay synchronized.
 
 This test suite validates the single-source-of-truth approach where:
 - All command content lives in templates/commands/
 - .claude/commands/ contains ONLY symlinks
-- No content drift between dogfood and init
+- No content drift between dev-setup and init
 """
 
 import os
@@ -11,8 +11,8 @@ import pytest
 from pathlib import Path
 
 
-class TestDogfoodValidation:
-    """Validate dogfood setup maintains single source of truth."""
+class TestDevSetupValidation:
+    """Validate dev-setup setup maintains single source of truth."""
 
     @pytest.fixture
     def repo_root(self):
@@ -51,7 +51,7 @@ class TestDogfoodValidation:
             f"All command files must be symlinks to templates/.\n"
             f"To fix:\n"
             f"  1. Move content to templates/commands/\n"
-            f"  2. Run: specify dogfood --force"
+            f"  2. Run: specify dev-setup --force"
         )
 
     def test_all_symlinks_resolve(self, claude_commands_dir):
@@ -77,7 +77,7 @@ class TestDogfoodValidation:
             f"{chr(10).join(f'{s['link']} -> {s['target']}' for s in broken_symlinks)}\n\n"
             f"To fix:\n"
             f"  1. Ensure target files exist in templates/commands/\n"
-            f"  2. Run: specify dogfood --force"
+            f"  2. Run: specify dev-setup --force"
         )
 
     def test_jpspec_symlinks_exist(self, claude_commands_dir):
@@ -126,7 +126,7 @@ class TestDogfoodValidation:
 
         assert speckit_dir.exists(), (
             "speckit directory should exist in .claude/commands/\n"
-            "Run: specify dogfood --force"
+            "Run: specify dev-setup --force"
         )
 
         # Expected speckit commands
@@ -174,7 +174,7 @@ class TestDogfoodValidation:
         assert not missing_symlinks, (
             f"Templates without corresponding symlinks:\n"
             f"{chr(10).join(sorted(missing_symlinks))}\n\n"
-            f"Run: specify dogfood --force"
+            f"Run: specify dev-setup --force"
         )
 
 

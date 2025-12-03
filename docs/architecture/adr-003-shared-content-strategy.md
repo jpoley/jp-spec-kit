@@ -178,7 +178,7 @@ See `_backlog-instructions.md` for complete workflow, examples, and best practic
 - Clear semantic: "This is included/referenced elsewhere"
 
 **Distribution**:
-- Dogfood: Creates symlink `.claude/commands/jpspec/_backlog-instructions.md → templates/commands/jpspec/_backlog-instructions.md`
+- Dev Setup: Creates symlink `.claude/commands/jpspec/_backlog-instructions.md → templates/commands/jpspec/_backlog-instructions.md`
 - Init: Copies `_backlog-instructions.md` to user project
 
 **Pros**:
@@ -251,7 +251,7 @@ Quick commands:
 - Complete: `backlog task edit <id> -s Done`
 ```
 
-**Dogfood Behavior**:
+**Dev Setup Behavior**:
 ```python
 # Create symlink for partial
 symlink_path = ".claude/commands/jpspec/_backlog-instructions.md"
@@ -365,7 +365,7 @@ The decision will be validated by:
 
 ## Related Documents
 
-- Main Architecture: `docs/architecture/dogfood-single-source-of-truth.md`
+- Main Architecture: `docs/architecture/dev-setup-single-source-of-truth.md`
 - ADR-001: Single Source of Truth for Commands
 - ADR-002: Directory Structure Convention
 - Shared Content: `templates/commands/jpspec/_backlog-instructions.md`
