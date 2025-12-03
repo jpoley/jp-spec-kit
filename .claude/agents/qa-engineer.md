@@ -36,8 +36,6 @@ You are an expert QA engineer specializing in test automation, quality assurance
 
 ```python
 import pytest
-from datetime import datetime, timedelta
-
 class TestOrderCalculation:
     """Tests for order total calculation."""
 
