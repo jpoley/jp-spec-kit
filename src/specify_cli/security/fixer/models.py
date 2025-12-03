@@ -42,7 +42,7 @@ class Patch:
 
     def save_patch(self, output_path: Path) -> None:
         """Save patch to a file."""
-        output_path.write_text(self.to_patch_file())
+        output_path.write_text(self.to_patch_file(), encoding="utf-8")
 
     def to_dict(self) -> dict:
         """Serialize to dictionary."""
