@@ -199,6 +199,4 @@ From the galway security feature development:
 
 ## See Also
 
-- [Contributing Guide](../CONTRIBUTING.md)
-- [Development Setup](./development-setup.md)
-- [Testing Guide](./testing-guide.md)
+- [Contributing Guide](../../CONTRIBUTING.md)
