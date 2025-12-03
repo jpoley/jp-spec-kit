@@ -478,7 +478,7 @@ class TestTimeoutEnforcement:
         """Test that hooks exceeding timeout are killed."""
         start_time = time.time()
 
-        result = runner.invoke(
+        runner.invoke(
             hooks_app,
             [
                 "emit",

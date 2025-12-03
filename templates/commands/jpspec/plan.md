@@ -149,3 +149,23 @@ After the architecture and platform agents complete their work:
 3. **Only then mark the planning task as Done**
 
 **Architecture without implementation tasks is incomplete design work.**
+
+## Post-Completion: Emit Workflow Event
+
+After successfully completing this command, emit the workflow event to trigger any configured hooks:
+
+```bash
+# Emit the plan.created event
+specify hooks emit plan.created \
+  --spec-id "$FEATURE_NAME" \
+  --task-id "$TASK_ID" \
+  -f "docs/adr/*.md" \
+  -f "docs/plan/${FEATURE_NAME}-plan.md"
+```
+
+This triggers any configured hooks in `.specify/hooks/hooks.yaml`. Common use cases:
+- Auto-notify architecture review board
+- Generate implementation tickets in external systems
+- Trigger security review workflows
+
+**Note**: If the `specify` CLI is not available or hooks are not configured, this step can be skipped without affecting the workflow.

@@ -13,7 +13,6 @@ from specify_cli.hooks.emitter import (
     emit_spec_created,
     emit_task_completed,
 )
-from specify_cli.hooks.runner import HookResult
 from specify_cli.hooks.schema import EventMatcher, HookDefinition, HooksConfig
 
 

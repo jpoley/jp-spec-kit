@@ -616,3 +616,23 @@ Include specific, actionable suggestions with examples.
 - Code review reports with resolution status
 - Integration documentation
 - Deployment-ready artifacts
+
+### Post-Completion: Emit Workflow Event
+
+After successfully completing this command, emit the workflow event to trigger any configured hooks:
+
+```bash
+# Emit the implement.completed event
+specify hooks emit implement.completed \
+  --spec-id "$FEATURE_NAME" \
+  --task-id "$TASK_ID" \
+  -f "src/**/*.{ts,tsx,py,go}"
+```
+
+This triggers any configured hooks in `.specify/hooks/hooks.yaml`. Common use cases:
+- Auto-run test suites
+- Trigger code quality analysis
+- Update CI/CD pipelines
+- Notify QA team implementation is ready for validation
+
+**Note**: If the `specify` CLI is not available or hooks are not configured, this step can be skipped without affecting the workflow.
