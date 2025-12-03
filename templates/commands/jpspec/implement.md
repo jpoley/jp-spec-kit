@@ -161,3 +161,23 @@ See task-175 for validation mode implementation details.
 - This command is a placeholder for future agent implementation
 - Full engineer and reviewer agent integration will be completed in a future task
 - Coordinates multiple specialist agents for comprehensive implementation
+
+### Post-Completion: Emit Workflow Event
+
+After successfully completing this command, emit the workflow event to trigger any configured hooks:
+
+```bash
+# Emit the implement.completed event
+specify hooks emit implement.completed \
+  --spec-id "$FEATURE_NAME" \
+  --task-id "$TASK_ID" \
+  -f "src/**/*.{ts,tsx,py,go}"
+```
+
+This triggers any configured hooks in `.specify/hooks/hooks.yaml`. Common use cases:
+- Auto-run test suites
+- Trigger code quality analysis
+- Update CI/CD pipelines
+- Notify QA team implementation is ready for validation
+
+**Note**: If the `specify` CLI is not available or hooks are not configured, this step can be skipped without affecting the workflow.

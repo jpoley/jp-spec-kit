@@ -47,6 +47,9 @@ from typer.core import TyperGroup
 
 # For cross-platform keyboard input
 import readchar
+
+# Hooks module
+from specify_cli.hooks.cli import hooks_app
 import ssl
 import truststore
 import yaml
@@ -4120,8 +4123,6 @@ workflow_app = typer.Typer(
 app.add_typer(workflow_app, name="workflow")
 
 # Hooks app (event emission and hook management)
-from specify_cli.hooks.cli import hooks_app  # noqa: E402
-
 app.add_typer(hooks_app, name="hooks")
 
 

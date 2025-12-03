@@ -119,3 +119,22 @@ After the PM Planner agent completes its work:
 3. **Only then mark the specification task as Done**
 
 **Failure to create implementation tasks means the specification work is incomplete.**
+
+### Post-Completion: Emit Workflow Event
+
+After successfully completing this command, emit the workflow event to trigger any configured hooks:
+
+```bash
+# Emit the spec.created event
+specify hooks emit spec.created \
+  --spec-id "$FEATURE_NAME" \
+  --task-id "$TASK_ID" \
+  -f "docs/prd/${FEATURE_NAME}-prd.md"
+```
+
+This triggers any configured hooks in `.specify/hooks/hooks.yaml`. Common use cases:
+- Auto-notify stakeholders of new PRD
+- Generate architecture diagrams from spec
+- Trigger dependency analysis
+
+**Note**: If the `specify` CLI is not available or hooks are not configured, this step can be skipped without affecting the workflow.

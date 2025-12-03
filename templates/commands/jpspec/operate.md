@@ -81,3 +81,25 @@ This command executes the operations workflow using two specialized agents:
 - This command is a placeholder for future agent implementation
 - Full SRE and Operations Manager agent integration will be completed in a future task
 - Operations Manager requires explicit human approval for critical operational decisions
+
+### Post-Completion: Emit Workflow Event
+
+After successfully completing this command, emit the workflow event to trigger any configured hooks:
+
+```bash
+# Emit the deploy.completed event
+specify hooks emit deploy.completed \
+  --spec-id "$FEATURE_NAME" \
+  --task-id "$TASK_ID" \
+  -f ".github/workflows/*.yml" \
+  -f "k8s/**/*.yaml" \
+  -f "terraform/**/*.tf"
+```
+
+This triggers any configured hooks in `.specify/hooks/hooks.yaml`. Common use cases:
+- Notify on-call team of deployment
+- Update deployment tracking systems
+- Trigger smoke tests
+- Send release notifications to stakeholders
+
+**Note**: If the `specify` CLI is not available or hooks are not configured, this step can be skipped without affecting the workflow.

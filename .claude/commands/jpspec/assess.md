@@ -279,3 +279,22 @@ Before completing:
 - [ ] Recommendation is clear and justified
 - [ ] Next steps are specific and actionable
 - [ ] Override instructions are provided
+
+### Post-Completion: Emit Workflow Event
+
+After successfully completing this command, emit the workflow event to trigger any configured hooks:
+
+```bash
+# Emit the workflow.assessed event
+specify hooks emit workflow.assessed \
+  --spec-id "$FEATURE_NAME" \
+  --task-id "$TASK_ID" \
+  -f "docs/assess/${FEATURE_NAME}-assessment.md"
+```
+
+This triggers any configured hooks in `.specify/hooks/hooks.yaml`. Common use cases:
+- Auto-notify team of assessment completion
+- Update project tracking dashboards
+- Trigger downstream automation
+
+**Note**: If the `specify` CLI is not available or hooks are not configured, this step can be skipped without affecting the workflow.

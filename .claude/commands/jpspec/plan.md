@@ -388,3 +388,24 @@ After both agents complete:
    echo "✓ Workflow state updated to: Planned"
    echo "  Next step: /jpspec:implement"
    ```
+
+### Post-Completion: Emit Workflow Event
+
+After successfully completing this command, emit the workflow event to trigger any configured hooks:
+
+```bash
+# Emit the plan.created event
+specify hooks emit plan.created \
+  --spec-id "$FEATURE_NAME" \
+  --task-id "$TASK_ID" \
+  -f "docs/adr/*.md" \
+  -f "docs/architecture/${FEATURE_NAME}-architecture.md" \
+  -f "docs/platform/${FEATURE_NAME}-*.md"
+```
+
+This triggers any configured hooks in `.specify/hooks/hooks.yaml`. Common use cases:
+- Auto-notify architecture review board
+- Generate implementation tickets in external systems
+- Trigger security review workflows
+
+**Note**: If the `specify` CLI is not available or hooks are not configured, this step can be skipped without affecting the workflow.

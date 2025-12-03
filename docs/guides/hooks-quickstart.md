@@ -458,6 +458,90 @@ go vet ./...
 golangci-lint run
 ```
 
+## /jpspec Command Integration
+
+The `/jpspec` workflow commands automatically emit events at the end of each phase. This enables powerful automation pipelines that react to workflow progression.
+
+### Events Emitted by /jpspec Commands
+
+| Command | Event Type | Artifacts Included |
+|---------|------------|-------------------|
+| `/jpspec:assess` | `workflow.assessed` | Assessment report |
+| `/jpspec:specify` | `spec.created` | PRD document |
+| `/jpspec:research` | `research.completed` | Research and validation reports |
+| `/jpspec:plan` | `plan.created` | ADRs, architecture docs |
+| `/jpspec:implement` | `implement.completed` | Source code files |
+| `/jpspec:validate` | `validate.completed` | QA and security reports |
+| `/jpspec:operate` | `deploy.completed` | Workflows, K8s manifests |
+
+### Example: Full Workflow Automation
+
+Configure hooks to automate your entire SDD workflow:
+
+```yaml
+hooks:
+  # After assessment, notify the team
+  - name: assessment-notification
+    events:
+      - type: workflow.assessed
+    script: notify-assessment.sh
+    enabled: true
+
+  # After spec creation, run dependency analysis
+  - name: analyze-dependencies
+    events:
+      - type: spec.created
+    script: analyze-deps.sh
+    enabled: true
+
+  # After plan creation, trigger architecture review
+  - name: arch-review
+    events:
+      - type: plan.created
+    script: request-arch-review.sh
+    enabled: true
+
+  # After implementation, run full test suite
+  - name: run-tests
+    events:
+      - type: implement.completed
+    script: run-tests.sh
+    timeout: 600
+    fail_mode: stop
+    enabled: true
+
+  # After validation, update dashboards
+  - name: update-metrics
+    events:
+      - type: validate.completed
+    script: update-metrics.sh
+    enabled: true
+
+  # After deployment, send release notification
+  - name: release-notification
+    events:
+      - type: deploy.completed
+    script: notify-release.sh
+    enabled: true
+```
+
+### Manual Event Emission
+
+You can manually emit events using the CLI, which is useful for testing or integrating with external tools:
+
+```bash
+# Emit after completing a workflow step manually
+specify hooks emit spec.created \
+  --spec-id user-authentication \
+  --task-id task-123 \
+  -f docs/prd/user-authentication-prd.md
+
+# Dry-run to see what hooks would execute
+specify hooks emit implement.completed \
+  --spec-id user-authentication \
+  --dry-run
+```
+
 ## Next Steps
 
 1. **Enable your first hook** - Start with a simple test hook
