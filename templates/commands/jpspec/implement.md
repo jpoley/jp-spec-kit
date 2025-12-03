@@ -57,6 +57,13 @@ Then re-run /jpspec:implement
 
 **If tasks ARE found, proceed to Phase 0.**
 
+### Checkpoint Reminder
+
+> **💡 Safety Tip**: Claude creates checkpoints before each code change. If implementation doesn't work as expected, you can press `Esc Esc` to instantly undo changes, or use `/rewind` for interactive rollback. This is especially useful for:
+> - Multi-file refactoring
+> - Experimental approaches
+> - Complex migrations
+
 ### Phase 0: Quality Gate (MANDATORY)
 
 **⚠️ CRITICAL: Spec quality must pass before implementation begins.**
