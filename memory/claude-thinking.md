@@ -6,10 +6,10 @@ Claude Code supports extended thinking mode for complex reasoning tasks. Use thi
 
 | Trigger | Budget | Use Case |
 |---------|--------|----------|
-| `think` | Standard | Quick decisions, simple analysis |
-| `think hard` | High | Architecture decisions, security review |
-| `megathink` | Very High | Complex research, comprehensive analysis |
-| `ultrathink` | Maximum | Critical decisions, multi-factor tradeoffs |
+| `think` | 4,000 tokens | Quick decisions, simple analysis |
+| `think hard` | 10,000 tokens | Architecture decisions, security review |
+| `megathink` | 10,000 tokens | Complex research, comprehensive analysis |
+| `ultrathink` | 31,999 tokens | Critical decisions, multi-factor tradeoffs |
 
 ## When to Trigger Extended Thinking
 
