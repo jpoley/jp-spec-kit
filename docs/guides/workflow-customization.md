@@ -647,7 +647,7 @@ transitions:
 | Wrong workflow order | "Cannot execute from state X" | Check `input_states` for the workflow |
 | Circular dependency | `CYCLE_DETECTED` | Use `via: "rework"` for backward transitions |
 | Unreachable state | `UNREACHABLE_STATE` | Add transition path from existing state |
-| Unknown agent | `UNKNOWN_AGENT` warning | Safe to ignore, or define custom agent |
+| Unknown agent | `UNKNOWN_AGENT` | Safe to ignore, or define custom agent |
 
 ### Diagnostic Commands
 
