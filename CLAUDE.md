@@ -119,8 +119,30 @@ You can customize the workflow by editing `jpspec_workflow.yml`:
 
 See [Workflow Customization Guide](docs/guides/workflow-customization.md) for details.
 
+### /jpspec + Backlog.md Integration
+
+Every `/jpspec` command integrates with backlog.md:
+
+**Design commands create tasks**:
+```bash
+# /jpspec:specify creates implementation tasks with ACs
+backlog task create "Implement feature X" --ac "AC 1" --ac "AC 2" -l backend
+```
+
+**Implementation commands consume tasks**:
+```bash
+# /jpspec:implement discovers and works from existing tasks
+backlog task edit task-42 -s "In Progress" -a @backend-engineer
+backlog task edit task-42 --check-ac 1  # Check ACs progressively
+```
+
+**Key rule**: Never run `/jpspec:implement` without first running `/jpspec:specify` to create tasks.
+
+See [JP Spec + Backlog.md Integration Guide](docs/guides/jpspec-backlog-workflow.md) for complete details.
+
 ### Workflow Documentation
 
+- [JP Spec + Backlog.md Integration](docs/guides/jpspec-backlog-workflow.md) - Complete integration guide
 - [Workflow State Mapping](docs/guides/workflow-state-mapping.md) - State and command mapping
 - [Workflow Customization Guide](docs/guides/workflow-customization.md) - How to modify workflows
 - [Workflow Architecture](docs/guides/workflow-architecture.md) - Overall design
