@@ -21,28 +21,45 @@ Test connectivity for all configured MCP servers:
 
 ```bash
 # Check all servers with default settings
-./scripts/bash/check-mcp-servers.sh
+./scripts/check-mcp-servers.sh
 
-# Verbose output with custom timeout
-./scripts/bash/check-mcp-servers.sh --verbose --timeout 15
+# Verbose output showing command paths and versions
+./scripts/check-mcp-servers.sh -v
 
-# JSON output for automation
-./scripts/bash/check-mcp-servers.sh --json
+# Quiet mode - only errors and summary
+./scripts/check-mcp-servers.sh -q
+
+# Custom config file
+./scripts/check-mcp-servers.sh -c /path/to/.mcp.json
+
+# Show help
+./scripts/check-mcp-servers.sh --help
 ```
 
 **Example output:**
 ```
-[✓] github - Connected successfully
-[✓] serena - Connected successfully
-[✗] playwright-test - Failed: binary 'npx' not found
-[✓] trivy - Connected successfully
-[✓] semgrep - Connected successfully
-[✓] shadcn-ui - Connected successfully
-[✓] chrome-devtools - Connected successfully
-[✓] backlog - Connected successfully
+[INFO] Checking MCP server configuration: .mcp.json
 
-Summary: 7/8 servers healthy
+[PASS] github (npx)
+[PASS] serena (uvx)
+[FAIL] playwright-test: Command 'npx' not found
+[PASS] backlog (backlog)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+MCP Server Health Check Summary
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Total:    4
+Passed:   3
+Failed:   1
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Some MCP servers are unavailable.
+Run with -v flag for installation hints.
 ```
+
+**Exit codes:**
+- `0` - All servers healthy
+- `1` - One or more servers failed
+- `2` - Configuration error (file not found, invalid JSON)
 
 ## Troubleshooting MCP Issues
 
