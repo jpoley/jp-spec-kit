@@ -1,9 +1,11 @@
 ---
 id: task-242
 title: Add --constitution flag to specify init command
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@myself'
 created_date: '2025-12-03 02:36'
+updated_date: '2025-12-03 03:16'
 labels:
   - cli
   - init
