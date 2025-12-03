@@ -3185,8 +3185,8 @@ def dev_setup(
         console.print(
             "[red]Error:[/red] Template directories not found. Expected:"
         )
-        console.print(f"  templates/commands/jpspec/")
-        console.print(f"  templates/commands/speckit/")
+        console.print("  templates/commands/jpspec/")
+        console.print("  templates/commands/speckit/")
         raise typer.Exit(1)
 
     console.print("[cyan]Setting up development environment...[/cyan]\n")
