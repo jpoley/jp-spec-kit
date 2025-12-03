@@ -13,6 +13,46 @@ from typing import Optional
 
 import pytest
 
+# =============================================================================
+# Constants - Avoid magic numbers, make requirements clear
+# =============================================================================
+
+# Minimum README length to ensure meaningful content (not just a title)
+MIN_README_LENGTH = 100
+
+# Minimum case study length - a real case study should be substantial
+# (includes metrics, phases, feedback, recommendations, appendix)
+MIN_CASE_STUDY_LENGTH = 2000
+
+# Maximum placeholder count before content is considered mostly unfilled
+# Template has ~30 placeholders, so 20 indicates mostly template
+MAX_PLACEHOLDER_COUNT = 20
+
+# Minimum placeholders expected in template for customization guidance
+MIN_TEMPLATE_PLACEHOLDERS = 10
+
+# Regex for two-digit naming convention (e.g., 01-name.md, 02-name.md)
+CASE_STUDY_NAMING_PATTERN = re.compile(r"^\d{2}-[a-z0-9-]+$")
+
+# =============================================================================
+# Shared fixtures
+# =============================================================================
+
+
+@pytest.fixture
+def case_studies_dir() -> Path:
+    """Get the case studies directory path.
+
+    Returns:
+        Path to docs/case-studies directory.
+    """
+    return get_project_root() / "docs" / "case-studies"
+
+
+# =============================================================================
+# Helper functions
+# =============================================================================
+
 
 def get_project_root() -> Path:
     """Get the project root directory reliably.
@@ -36,6 +76,7 @@ def safe_read_file(file_path: Path) -> Optional[str]:
         if file_path.exists() and file_path.is_file():
             return file_path.read_text(encoding="utf-8")
     except (OSError, IOError, PermissionError):
+        # Suppress file read errors; function returns None if file can't be read
         pass
     return None
 
@@ -81,15 +122,6 @@ REQUIRED_OVERVIEW_ATTRS = [
 class TestCaseStudyStructure:
     """Tests for case study directory and file structure."""
 
-    @pytest.fixture
-    def case_studies_dir(self) -> Path:
-        """Get the case studies directory path.
-
-        Returns:
-            Path to docs/case-studies directory.
-        """
-        return get_project_root() / "docs" / "case-studies"
-
     def test_case_studies_directory_exists(self, case_studies_dir: Path) -> None:
         """Case studies directory should exist at docs/case-studies."""
         assert case_studies_dir.exists(), (
@@ -106,7 +138,9 @@ class TestCaseStudyStructure:
 
         content = safe_read_file(readme)
         assert content is not None, f"Could not read {readme}"
-        assert len(content) > 100, "README.md appears to be too short"
+        assert len(content) > MIN_README_LENGTH, (
+            f"README.md appears too short ({len(content)} chars, min {MIN_README_LENGTH})"
+        )
 
     def test_template_exists(self, case_studies_dir: Path) -> None:
         """Template file should exist for creating new case studies."""
@@ -124,31 +158,25 @@ class TestCaseStudyStructure:
         )
 
     def test_case_study_naming_convention(self, case_studies_dir: Path) -> None:
-        """Case studies should follow XX-name.md naming convention for ordering."""
+        """Case studies should follow XX-name.md naming convention for ordering.
+
+        The naming convention requires:
+        - Two-digit prefix (01, 02, etc.) for consistent ordering
+        - Dash separator after the number
+        - Lowercase alphanumeric name with dashes
+        """
         case_studies = get_case_study_files(case_studies_dir)
 
         for cs in case_studies:
-            # Should start with number(s) followed by dash
             name = cs.stem  # filename without extension
-            assert name[0].isdigit(), (
-                f"Case study {cs.name} should start with a number (e.g., 01-name.md)"
-            )
-            assert "-" in name, (
-                f"Case study {cs.name} should use dash separator (e.g., 01-name.md)"
+            assert CASE_STUDY_NAMING_PATTERN.match(name), (
+                f"Case study {cs.name} doesn't follow naming convention. "
+                f"Expected format: XX-name.md (e.g., 01-workflow-hook-system.md)"
             )
 
 
 class TestCaseStudyContent:
     """Tests for case study content quality and completeness."""
-
-    @pytest.fixture
-    def case_studies_dir(self) -> Path:
-        """Get the case studies directory path.
-
-        Returns:
-            Path to docs/case-studies directory.
-        """
-        return get_project_root() / "docs" / "case-studies"
 
     def test_case_studies_have_required_sections(self, case_studies_dir: Path) -> None:
         """Each case study should have all required sections for completeness."""
@@ -202,35 +230,30 @@ class TestCaseStudyContent:
             content = safe_read_file(cs)
             assert content is not None, f"Could not read {cs}"
 
-            # Should be reasonably long (at least 2000 chars for a real case study)
-            assert len(content) > 2000, (
+            # Should be reasonably long for a real case study
+            assert len(content) > MIN_CASE_STUDY_LENGTH, (
                 f"Case study {cs.name} appears too short ({len(content)} chars). "
-                "Expected substantial documentation."
+                f"Expected at least {MIN_CASE_STUDY_LENGTH} chars for substantial documentation."
             )
 
             # Should not have excessive template placeholders
-            placeholder_patterns = [r"\[.*?\]", r"X hours", r"XX-"]
+            # Use word boundary for XX- to avoid matching task-XXX
+            placeholder_patterns = [
+                r"\[e\.g\.,",  # Template placeholder hints
+                r"X hours",  # Time placeholders
+                r"\bXX-\w+",  # Filename placeholders like XX-name.md
+            ]
             placeholder_count = sum(
                 len(re.findall(pattern, content)) for pattern in placeholder_patterns
             )
-            # Allow some placeholders but not too many (template has ~30)
-            assert placeholder_count < 20, (
+            assert placeholder_count < MAX_PLACEHOLDER_COUNT, (
                 f"Case study {cs.name} has {placeholder_count} placeholder patterns. "
-                "Appears to be mostly unfilled template."
+                f"Max allowed: {MAX_PLACEHOLDER_COUNT}. Appears to be mostly unfilled template."
             )
 
 
 class TestCaseStudyReadme:
     """Tests for the case studies README file."""
-
-    @pytest.fixture
-    def case_studies_dir(self) -> Path:
-        """Get the case studies directory path.
-
-        Returns:
-            Path to docs/case-studies directory.
-        """
-        return get_project_root() / "docs" / "case-studies"
 
     def test_readme_has_case_study_table(self, case_studies_dir: Path) -> None:
         """README should have a table listing all case studies."""
@@ -315,10 +338,11 @@ class TestCaseStudyTemplate:
             "Template should have placeholder markers in brackets"
         )
 
-        # Should have several placeholders
+        # Should have several placeholders for guidance
         placeholders = re.findall(r"\[([^\]]+)\]", content)
-        assert len(placeholders) >= 10, (
-            f"Template should have multiple placeholders, found {len(placeholders)}"
+        assert len(placeholders) >= MIN_TEMPLATE_PLACEHOLDERS, (
+            f"Template should have at least {MIN_TEMPLATE_PLACEHOLDERS} placeholders "
+            f"for customization guidance, found {len(placeholders)}"
         )
 
     def test_template_has_overview_attributes(self, template_path: Path) -> None:

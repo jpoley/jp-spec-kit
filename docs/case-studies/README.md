@@ -14,22 +14,22 @@ These case studies document actual projects built using JP Spec Kit's Spec-Drive
 
 ## Case Studies
 
-| Case Study | Domain | Metrics | Status |
-|------------|--------|---------|--------|
-| [Workflow Hook System](01-workflow-hook-system.md) | DevTools | 40% rework reduction | Complete |
-| [Constitution Template System](02-constitution-templates.md) | CLI | 35% faster implementation | Complete |
-| [Security Scanner Integration](03-security-scanner.md) | Security | 90% test coverage | Complete |
+| Case Study | Domain | Key Outcome | Status |
+|------------|--------|-------------|--------|
+| [Workflow Hook System](01-workflow-hook-system.md) | DevTools | Significant rework reduction | Complete |
+| [Constitution Template System](02-constitution-templates.md) | CLI | Faster implementation | Complete |
+| [Security Scanner Integration](03-security-scanner.md) | Security | High test coverage achieved | Complete |
 
 ## Key Findings
 
 ### Time Savings
-- Average 35% reduction in implementation time
-- 60% reduction in clarification cycles
+- Substantial reduction in implementation time across all projects
+- Significantly fewer clarification cycles needed
 - Near-zero rework due to misunderstood requirements
 
 ### Quality Improvements
-- Average 85% test coverage (vs 60% baseline)
-- 70% fewer bugs in production
+- High test coverage achieved consistently
+- Fewer bugs reaching production
 - Security issues caught during validate phase
 
 ### Developer Experience

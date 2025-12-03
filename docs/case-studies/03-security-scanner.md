@@ -85,7 +85,7 @@ Architecture Quality: 3 ADRs ensured consistent design
 
 #### Implement
 - Time spent: 18 hours
-- Tasks completed: 8 (core functionality)
+- Tasks completed: 5 (core functionality)
 - Test coverage achieved: 90%
 - Subagents used: backend-engineer, security-reviewer, qa-engineer
 
@@ -145,9 +145,9 @@ Architecture Quality: 3 ADRs ensured consistent design
 | task-215 | Implement /jpspec:security CLI Commands | Done | 3h |
 | task-247 | Plan /jpspec:security Architecture | Done | 2h |
 | task-255 | Implement ADR-005: Scanner Orchestration | Done | 2h |
-| task-256 | Implement ADR-006: AI Triage Engine | In Progress | 4h |
 | task-257 | Implement ADR-007: Unified Finding Format | Done | 2h |
-| task-258 | Implement ADR-008: Security MCP Server | Planned | - |
+
+*Note: Additional tasks (AI Triage Engine, Security MCP Server) are planned for future iterations.*
 
 ### Artifacts Created
 

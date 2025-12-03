@@ -40,7 +40,7 @@
 | Test Coverage | X% | 80% | Met/Not Met |
 | Bugs Found in Review | X | <5 | Met/Not Met |
 | Security Issues | X | 0 | Met/Not Met |
-| Acceptance Criteria Met | X/Y | 100% | Met/Not Met |
+| Acceptance Criteria Met | X/Y | Y/Y (all) | Met/Not Met |
 
 ### ROI Calculation
 
