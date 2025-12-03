@@ -14,7 +14,15 @@ $ARGUMENTS
 
 **Expected Input**: Optional task ID (e.g., `task-094`). If not provided, command discovers the current in-progress task automatically.
 
-**Important**: You MUST consider the user input before proceeding (if not empty).
+{{INCLUDE:.claude/commands/jpspec/_workflow-state.md}}
+
+**For /jpspec:validate**: Required input state is `workflow:In Implementation`. Output state will be `workflow:Validated`.
+
+If the task doesn't have the required workflow state, inform the user:
+- If task needs implementation first: suggest running `/jpspec:implement`
+- If validation is being re-run on deployed work: use `--skip-state-check` if appropriate
+
+**Proceed to Phase 0 ONLY if workflow validation passes.**
 
 ## Workflow Overview
 
