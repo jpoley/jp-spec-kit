@@ -1,9 +1,10 @@
 ---
 id: task-228
 title: Create Claude Code hook to auto-emit events on /jpspec completion
-status: To Do
+status: Done
 assignee: []
 created_date: '2025-12-03 02:10'
+updated_date: '2025-12-03 22:27'
 labels:
   - hooks
   - claude-code

@@ -1,10 +1,10 @@
 ---
 id: task-189
 title: Create Stop Hook for Backlog Task Quality Gate
-status: To Do
+status: Done
 assignee: []
 created_date: '2025-12-01 05:04'
-updated_date: '2025-12-01 05:29'
+updated_date: '2025-12-03 22:27'
 labels:
   - claude-code
   - hooks

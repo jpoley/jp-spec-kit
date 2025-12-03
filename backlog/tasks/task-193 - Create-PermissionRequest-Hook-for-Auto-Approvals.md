@@ -1,10 +1,10 @@
 ---
 id: task-193
 title: Create PermissionRequest Hook for Auto-Approvals
-status: To Do
+status: Done
 assignee: []
 created_date: '2025-12-01 05:05'
-updated_date: '2025-12-01 05:31'
+updated_date: '2025-12-03 22:27'
 labels:
   - claude-code
   - hooks

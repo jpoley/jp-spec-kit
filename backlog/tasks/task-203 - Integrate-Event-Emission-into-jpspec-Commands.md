@@ -1,11 +1,11 @@
 ---
 id: task-203
 title: Integrate Event Emission into /jpspec Commands
-status: To Do
+status: Done
 assignee:
   - '@pm-planner'
 created_date: '2025-12-03 00:41'
-updated_date: '2025-12-03 01:41'
+updated_date: '2025-12-03 22:27'
 labels:
   - implement
   - integration

@@ -3,9 +3,10 @@ id: task-229
 title: >-
   Create agent progress tracking via event emission (multi-machine
   observability)
-status: To Do
+status: Done
 assignee: []
 created_date: '2025-12-03 02:10'
+updated_date: '2025-12-03 22:27'
 labels:
   - hooks
   - observability
