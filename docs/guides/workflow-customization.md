@@ -585,7 +585,7 @@ transitions:
     to: "Planned"  # ❌ Creates cycle!
 ```
 
-**Why it's critical**: Workflows must be a Directed Acyclic Graph (DAG). Cycles cause infinite loops and prevent workflow execution.
+**Why it's critical**: Workflows must be a Directed Acyclic Graph (DAG). Cycles violate this constraint and prevent the workflow from being valid.
 
 **How to avoid**:
 - Draw your state diagram before implementing
