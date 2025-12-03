@@ -71,5 +71,7 @@ else
     echo ""
     echo "Quick fix all:"
     echo "  ruff check . --fix && ruff format . && git add -A && git commit --amend -s --no-edit"
+    echo "  Note: This only adds DCO sign-off to the most recent commit."
+    echo "  For multiple commits without sign-off, use: git rebase -i HEAD~N and add '-s' to each commit."
     exit 1
 fi
