@@ -69,10 +69,12 @@ class PathTraversalClassifier(FindingClassifier):
 
         if validation_found and has_file_op:
             # Both validation and file operation found, but we can't verify
-            # that validation is applied to the same path used in file operation
+            # that validation is applied to the same path used in file operation.
+            # Using 0.6 confidence since finding validation suggests security awareness,
+            # even if we can't verify application order.
             return ClassificationResult(
                 classification=Classification.NEEDS_INVESTIGATION,
-                confidence=0.5,
+                confidence=0.6,
                 reasoning=(
                     f"Found both path validation ({validation_pattern}) and file operation, "
                     "but cannot verify that validation is applied to the file operation "

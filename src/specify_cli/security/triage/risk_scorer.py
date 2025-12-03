@@ -131,7 +131,8 @@ class RiskScorer:
             abs_path = file_path_obj.resolve()
 
             # Find git repository root by looking for .git directory
-            git_root = self._find_git_root(abs_path.parent)
+            # Pass abs_path directly - _find_git_root handles files vs directories
+            git_root = self._find_git_root(abs_path)
             if not git_root:
                 return 30
 
@@ -176,13 +177,23 @@ class RiskScorer:
         return 30  # Default: 30 days if git unavailable
 
     def _find_git_root(self, start_path: Path) -> Path | None:
-        """Find the git repository root by traversing up the directory tree."""
-        current = start_path
-        while current != current.parent:
+        """Find the git repository root by traversing up the directory tree.
+
+        Handles both files and directories as input. Checks start_path's
+        directory first (if file) or start_path itself (if directory).
+        """
+        # If start_path is a file, start from its parent directory
+        current = start_path.parent if start_path.is_file() else start_path
+
+        # Check current directory first, then traverse up
+        while True:
             if (current / ".git").exists():
                 return current
-            current = current.parent
-        return None
+            parent = current.parent
+            if parent == current:
+                # Reached filesystem root without finding .git
+                return None
+            current = parent
 
 
 def calculate_risk_score(

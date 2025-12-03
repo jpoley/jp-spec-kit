@@ -4,6 +4,8 @@ Specialized classifier for SQL injection vulnerabilities. Analyzes
 query construction patterns and input sanitization.
 """
 
+import re
+
 from specify_cli.security.models import Finding
 from specify_cli.security.triage.models import Classification
 from specify_cli.security.triage.classifiers.base import (
@@ -60,25 +62,17 @@ class SQLInjectionClassifier(FindingClassifier):
                 )
 
         # Check for string concatenation (likely TP)
-        # Include patterns with and without spaces around operators
+        # Use regex to handle optional whitespace around operators
         concat_patterns = [
-            '+ "',  # with space
-            '+"',  # without space
-            '" +',  # with space
-            '"+',  # without space
-            "' +",  # with space
-            "'+",  # without space
-            "+ '",  # with space
-            "+'",  # without space
-            'f"',  # f-string
-            "f'",
-            ".format(",
-            "% (",  # % formatting
-            "%(",  # % formatting without space
+            r'\+\s*["\']',  # + followed by quote (with optional space)
+            r'["\']\s*\+',  # quote followed by + (with optional space)
+            r'f["\']',  # f-string
+            r"\.format\(",  # .format()
+            r"%\s*\(",  # % formatting (with optional space)
         ]
 
         for pattern in concat_patterns:
-            if pattern in code:
+            if re.search(pattern, code):
                 return ClassificationResult(
                     classification=Classification.TRUE_POSITIVE,
                     confidence=0.8,

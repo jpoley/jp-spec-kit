@@ -6,7 +6,7 @@
 
 ## Summary
 
-PR #342 introduced the AI-powered vulnerability triage engine with 16 code quality issues identified by Copilot review. This document captures the learnings to prevent these issues in future code.
+PR #342 introduced the AI-powered vulnerability triage engine with 16 code quality issues identified by GitHub Copilot review. This document captures the learnings to prevent these issues in future code.
 
 ---
 
@@ -191,4 +191,4 @@ Before submitting PRs with heuristic/pattern-matching code:
 ## References
 
 - [PR #342](https://github.com/jpoley/jp-spec-kit/pull/342) - Original PR with Copilot review
-- [Copilot Review Comments](https://github.com/jpoley/jp-spec-kit/pull/342#pullrequestreview-*) - 16 issues identified
+- [GitHub Copilot Review Comments](https://github.com/jpoley/jp-spec-kit/pull/342#pullrequestreview-*) - 16 issues identified
