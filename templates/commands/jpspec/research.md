@@ -22,6 +22,14 @@ If the task doesn't have the required workflow state, inform the user:
 - If task needs specification first: suggest running `/jpspec:specify`
 - If research needs to be done before specification: explain that this violates the workflow
 
+### Extended Thinking Mode
+
+> **🧠 Megathink**: Comprehensive research requires deep analysis across multiple dimensions. Apply extended thinking to:
+> - Technology landscape and emerging trends
+> - Competitive positioning and market dynamics
+> - Long-term feasibility and risk assessment
+> - Integration options and architectural implications
+
 **IMPORTANT: Before starting, check for existing research-related tasks:**
 
 ```bash
