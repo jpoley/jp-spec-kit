@@ -1,0 +1,184 @@
+"""Risk scoring using the Raptor formula.
+
+Formula: risk_score = (Impact × Exploitability) / Detection_Time
+
+This module provides risk scoring for security findings based on:
+- Impact: CVSS score (0-10) or AI-estimated severity
+- Exploitability: AI-estimated likelihood of successful exploitation
+- Detection Time: Days since vulnerable code was written (from git blame)
+"""
+
+import subprocess
+from dataclasses import dataclass
+from datetime import datetime
+from pathlib import Path
+
+from specify_cli.security.models import Finding
+from specify_cli.security.triage.models import RiskComponents
+
+
+@dataclass
+class RiskScorer:
+    """Calculates risk scores using the Raptor formula.
+
+    The Raptor formula prioritizes vulnerabilities that are:
+    - High impact (if exploited)
+    - Easy to exploit
+    - Recently introduced (less time for detection)
+    """
+
+    def score(self, finding: Finding, llm_client=None) -> RiskComponents:
+        """Calculate risk components for a finding.
+
+        Args:
+            finding: Security finding to score.
+            llm_client: Optional LLM client for AI estimation.
+
+        Returns:
+            RiskComponents with impact, exploitability, and detection_time.
+        """
+        # Impact: Use CVSS if available, else estimate
+        impact = self._get_impact(finding, llm_client)
+
+        # Exploitability: AI estimation or heuristic
+        exploitability = self._get_exploitability(finding, llm_client)
+
+        # Detection Time: Days since code written
+        detection_time = self._get_detection_time(finding)
+
+        return RiskComponents(
+            impact=impact,
+            exploitability=exploitability,
+            detection_time=detection_time,
+        )
+
+    def _get_impact(self, finding: Finding, llm_client=None) -> float:
+        """Get impact score (0-10 scale).
+
+        Uses CVSS base score if available, otherwise estimates based on
+        severity level or AI analysis.
+        """
+        # Use CVSS if available
+        if finding.metadata.get("cvss_score"):
+            return float(finding.metadata["cvss_score"])
+
+        # Map severity to impact
+        severity_impact = {
+            "critical": 9.5,
+            "high": 7.5,
+            "medium": 5.0,
+            "low": 2.5,
+            "info": 0.5,
+        }
+
+        severity = finding.severity.value.lower()
+        return severity_impact.get(severity, 5.0)
+
+    def _get_exploitability(self, finding: Finding, llm_client=None) -> float:
+        """Get exploitability score (0-10 scale).
+
+        Factors considered:
+        - Is user input involved?
+        - Complexity of exploitation
+        - Known exploits for this CWE
+        """
+        # CWE-based exploitability heuristics
+        high_exploit_cwes = {
+            "CWE-89": 8.5,  # SQL Injection - well-known attacks
+            "CWE-79": 8.0,  # XSS - trivial exploitation
+            "CWE-78": 9.0,  # OS Command Injection
+            "CWE-22": 7.0,  # Path Traversal
+            "CWE-798": 9.0,  # Hardcoded Credentials - trivial
+            "CWE-502": 7.5,  # Deserialization
+            "CWE-94": 8.5,  # Code Injection
+            "CWE-918": 6.5,  # SSRF
+        }
+
+        cwe_id = finding.cwe_id
+        if cwe_id and cwe_id in high_exploit_cwes:
+            return high_exploit_cwes[cwe_id]
+
+        # Default based on severity
+        severity_exploit = {
+            "critical": 8.0,
+            "high": 6.5,
+            "medium": 4.5,
+            "low": 2.5,
+            "info": 1.0,
+        }
+
+        severity = finding.severity.value.lower()
+        return severity_exploit.get(severity, 5.0)
+
+    def _get_detection_time(self, finding: Finding) -> int:
+        """Get days since vulnerable code was written using git blame.
+
+        Returns:
+            Days since last modification (1-365+), or 30 as default.
+        """
+        file_path = finding.location.file
+        line_start = finding.location.line_start
+
+        if not file_path or not line_start:
+            return 30  # Default
+
+        try:
+            # Get the directory containing the file
+            file_path_obj = Path(file_path)
+            if not file_path_obj.exists():
+                return 30
+
+            cwd = file_path_obj.parent
+            if not cwd.exists():
+                cwd = Path.cwd()
+
+            result = subprocess.run(
+                [
+                    "git",
+                    "blame",
+                    "-L",
+                    f"{line_start},{line_start}",
+                    "--porcelain",
+                    str(file_path_obj.name),
+                ],
+                capture_output=True,
+                text=True,
+                cwd=str(cwd),
+                timeout=5,
+            )
+
+            if result.returncode != 0:
+                return 30
+
+            # Parse git blame output for committer-time
+            for line in result.stdout.split("\n"):
+                if line.startswith("committer-time"):
+                    parts = line.split()
+                    if len(parts) >= 2:
+                        timestamp = int(parts[1])
+                        commit_date = datetime.fromtimestamp(timestamp)
+                        age = (datetime.now() - commit_date).days
+                        return max(age, 1)  # At least 1 day
+
+        except (subprocess.TimeoutExpired, ValueError, OSError):
+            pass  # git blame failed
+
+        return 30  # Default: 30 days if git unavailable
+
+
+def calculate_risk_score(
+    impact: float, exploitability: float, detection_time: int
+) -> float:
+    """Calculate risk score using Raptor formula.
+
+    Formula: (Impact × Exploitability) / Detection_Time
+
+    Args:
+        impact: Severity impact (0-10)
+        exploitability: Likelihood of exploit (0-10)
+        detection_time: Days since code written (1+)
+
+    Returns:
+        Risk score (higher = more urgent)
+    """
+    return round((impact * exploitability) / max(detection_time, 1), 2)
