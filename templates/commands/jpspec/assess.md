@@ -10,25 +10,18 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
-## Output Artifacts
-
-All artifacts are written to standardized locations:
-
-| Artifact Type | Output Location | Description |
-|---------------|-----------------|-------------|
-| Assessment Report | `./docs/assess/{feature}-assessment.md` | Feature complexity and workflow recommendation |
-
-## Feature Naming
-
-The `{feature}` slug is derived from the feature name:
-- Convert to lowercase
-- Replace spaces with hyphens
-- Remove special characters
-- Example: "User Authentication" → "user-authentication"
-
 ## Execution Instructions
 
 This command is the **mandatory entry point** to the jpspec workflow. It evaluates whether a feature requires the full Spec-Driven Development (SDD) workflow, a lighter specification approach, or can skip SDD entirely.
+
+{{INCLUDE:.claude/commands/jpspec/_workflow-state.md}}
+
+**For /jpspec:assess**: This is the workflow entry point. Required input state is `workflow:To Do` or no workflow label. Output state will be `workflow:Assessed`.
+
+If the task already has a workflow state label (e.g., `workflow:Specified`), inform the user:
+- Assessment is meant for new features at the start of the workflow
+- For re-assessment: use `--skip-state-check` or remove the workflow label first
+- Consider whether you need `/jpspec:specify` or another workflow command instead
 
 ### Overview
 
@@ -105,9 +98,7 @@ Analyze the feature request along three dimensions (1-10 scale):
 Calculate recommendation based on scores:
 
 ```
-# Each score (Complexity, Risk, Architecture Impact) is the average of three sub-scores (range 1-10).
-# Total Score = Complexity + Risk + Architecture Impact
-# Total Score range: 3 (all scores = 1) to 30 (all scores = 10)
+Total Score = Complexity + Risk + Architecture Impact
 
 IF any individual score >= 7 OR Total Score >= 18:
     Recommendation: Full SDD
@@ -266,35 +257,25 @@ For Skip SDD:
     Proceed to implementation, document in ADRs as needed
 ```
 
-## Completion Checklist
-
-Before completing this command, verify:
-
-- [ ] `./docs/assess/` directory exists
-- [ ] Assessment report created at `./docs/assess/{feature}-assessment.md`
-- [ ] All scoring dimensions are documented with rationale
-- [ ] Recommendation is clear and justified
-- [ ] Next steps are specific and actionable
-- [ ] Override instructions are provided
-
-## Transition Validation
-
-This command transitions workflow state: **"To Do" → "Assessed"**
-
-**Validation Mode**: NONE (automatic transition, no approval required)
-
-See task-175 for validation mode implementation details.
-
-## Implementation Notes
+### Implementation Notes
 
 1. **State Transition**: This command transitions from "To Do" → "Assessed"
 2. **Artifact**: Produces `./docs/assess/{feature}-assessment.md`
 3. **Validation Mode**: NONE (automatic transition)
 4. **Override Support**: `--mode {full|light|skip}` flag bypasses scoring
 
-## Error Handling
+### Error Handling
 
 - If `./docs/assess/` directory doesn't exist, create it
 - If feature name is ambiguous, ask for clarification
 - If assessment already exists, ask whether to overwrite
 - If override mode is invalid, show valid options
+
+### Quality Checks
+
+Before completing:
+- [ ] Assessment report exists at correct path
+- [ ] All scoring dimensions are documented
+- [ ] Recommendation is clear and justified
+- [ ] Next steps are specific and actionable
+- [ ] Override instructions are provided
