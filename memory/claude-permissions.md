@@ -81,6 +81,7 @@ Edit `.claude/settings.json` to modify rules:
 ### Pattern Syntax
 
 - `Tool(pattern)`: Deny specific tool with glob pattern
+- `Bash(cmd:arg1:arg2:...)`: For Bash, arguments are separated by colons, and `|` matches pipe characters
 - `*` matches any characters
 - `**` matches nested directories
 - Patterns are relative to project root
