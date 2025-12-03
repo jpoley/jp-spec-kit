@@ -160,8 +160,11 @@ class TestConstitutionValidation:
                 "--constitution",
                 "light",
             ],
+            input="n\n",  # Answer 'no' to backlog-md install prompt
         )
-        assert result.exit_code == 0, f"Expected exit code 0, got {result.exit_code}. Output: {result.stdout}"
+        assert result.exit_code == 0, (
+            f"Expected exit code 0, got {result.exit_code}. Output: {result.stdout}"
+        )
         constitution_file = tmp_path / "test-project" / "memory" / "constitution.md"
         assert constitution_file.exists(), "constitution.md should be created"
         # Verify content matches light tier template
