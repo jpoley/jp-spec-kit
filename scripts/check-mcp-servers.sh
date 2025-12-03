@@ -57,6 +57,11 @@ parse_args() {
                 shift
                 ;;
             -c|--config)
+                if [[ -z "${2:-}" ]]; then
+                    echo "Error: -c/--config requires a path argument"
+                    show_help
+                    exit 2
+                fi
                 CONFIG_FILE="$2"
                 shift 2
                 ;;
