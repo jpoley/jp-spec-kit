@@ -169,6 +169,369 @@ CONSTITUTION_TIER_CHOICES = {
     "heavy": "Enterprise controls for regulated environments",
 }
 
+# Embedded constitution templates (bundled with package for reliable access)
+CONSTITUTION_TEMPLATES = {
+    "light": """# [PROJECT_NAME] Constitution
+<!-- TIER: Light - Minimal controls for startups/hobby projects -->
+<!-- NEEDS_VALIDATION: Project name -->
+
+## Core Principles
+
+### Simplicity First
+Keep things simple. Ship fast, iterate quickly. Avoid over-engineering.
+
+### Working Software
+Prioritize working software over documentation. Code that runs is better than perfect designs.
+
+### Pragmatic Quality
+<!-- SECTION:QUALITY:BEGIN -->
+<!-- NEEDS_VALIDATION: Quality standards appropriate for your project -->
+- Write tests for critical paths
+- Fix bugs before adding features
+- Code review when time permits
+<!-- SECTION:QUALITY:END -->
+
+## Development Workflow
+
+### Git Practices
+<!-- SECTION:GIT:BEGIN -->
+<!-- NEEDS_VALIDATION: Git workflow matches team size -->
+- Use feature branches for larger changes
+- Direct commits to main acceptable for small fixes
+- Commit messages should be descriptive
+<!-- SECTION:GIT:END -->
+
+### Task Management
+<!-- SECTION:TASKS:BEGIN -->
+<!-- NEEDS_VALIDATION: Task tracking approach -->
+Tasks should have:
+- Clear description of what needs to be done
+- Basic acceptance criteria when scope is unclear
+<!-- SECTION:TASKS:END -->
+
+## Technology Stack
+<!-- SECTION:TECH_STACK:BEGIN -->
+<!-- NEEDS_VALIDATION: Populate with detected languages/frameworks -->
+[LANGUAGES_AND_FRAMEWORKS]
+<!-- SECTION:TECH_STACK:END -->
+
+## Governance
+
+This constitution is a living document. Update it as the project evolves.
+
+**Version**: 1.0.0 | **Created**: [DATE]
+<!-- NEEDS_VALIDATION: Version and date -->
+""",
+    "medium": """# [PROJECT_NAME] Constitution
+<!-- TIER: Medium - Standard controls for typical business projects -->
+<!-- NEEDS_VALIDATION: Project name -->
+
+## Core Principles
+
+### Quality-Driven Development
+<!-- SECTION:QUALITY_PRINCIPLES:BEGIN -->
+<!-- NEEDS_VALIDATION: Adjust quality principles to team practices -->
+Code quality is a shared responsibility. Every team member maintains the codebase.
+
+- **Test Coverage**: Critical paths must have test coverage
+- **Code Review**: All changes require at least one reviewer
+- **Documentation**: Public APIs and complex logic must be documented
+<!-- SECTION:QUALITY_PRINCIPLES:END -->
+
+### Continuous Improvement
+Regularly evaluate and improve processes. Technical debt should be tracked and addressed.
+
+## Git Commit Requirements
+
+### Branch Strategy
+<!-- SECTION:BRANCHING:BEGIN -->
+<!-- NEEDS_VALIDATION: Branch strategy matches team workflow -->
+- All changes go through feature branches
+- Branch naming: `feature/`, `fix/`, `chore/` prefixes
+- Main branch is protected - no direct commits
+<!-- SECTION:BRANCHING:END -->
+
+### Pull Request Requirements
+<!-- SECTION:PR_REQUIREMENTS:BEGIN -->
+<!-- NEEDS_VALIDATION: PR requirements appropriate for team -->
+- Descriptive title following conventional commits
+- Link to related issue/task when applicable
+- At least one approval required before merge
+- CI checks must pass
+<!-- SECTION:PR_REQUIREMENTS:END -->
+
+### DCO Sign-Off
+All commits MUST include a `Signed-off-by` line (Developer Certificate of Origin).
+
+Use `git commit -s` to automatically add the sign-off.
+
+## Task Management
+
+### Task Quality
+<!-- SECTION:TASK_QUALITY:BEGIN -->
+<!-- NEEDS_VALIDATION: Task requirements match team workflow -->
+Every task MUST have:
+- **Clear description** explaining the "why"
+- **Acceptance criteria** that are testable and verifiable
+- **Labels** for categorization and filtering
+<!-- SECTION:TASK_QUALITY:END -->
+
+### Definition of Done
+A task is complete when:
+1. All acceptance criteria are met
+2. Code is reviewed and approved
+3. Tests pass
+4. Documentation is updated (if applicable)
+5. PR is merged
+
+## Testing Standards
+<!-- SECTION:TESTING:BEGIN -->
+<!-- NEEDS_VALIDATION: Testing requirements based on project needs -->
+- Unit tests for business logic
+- Integration tests for API endpoints
+- E2E tests for critical user flows
+- Minimum coverage target: 70%
+<!-- SECTION:TESTING:END -->
+
+## Technology Stack
+<!-- SECTION:TECH_STACK:BEGIN -->
+<!-- NEEDS_VALIDATION: Populate with detected languages/frameworks -->
+[LANGUAGES_AND_FRAMEWORKS]
+
+### Linting & Formatting
+<!-- NEEDS_VALIDATION: Detected linting tools -->
+[LINTING_TOOLS]
+<!-- SECTION:TECH_STACK:END -->
+
+## Security
+<!-- SECTION:SECURITY:BEGIN -->
+<!-- NEEDS_VALIDATION: Security practices appropriate for project -->
+- No secrets in code - use environment variables
+- Dependencies regularly updated for security patches
+- Input validation on all external data
+<!-- SECTION:SECURITY:END -->
+
+## Governance
+
+This constitution guides team practices. Changes require team consensus.
+
+**Version**: 1.0.0 | **Ratified**: [DATE] | **Last Amended**: [DATE]
+<!-- NEEDS_VALIDATION: Version and dates -->
+""",
+    "heavy": """# [PROJECT_NAME] Constitution
+<!-- TIER: Heavy - Strict controls for enterprise/regulated environments -->
+<!-- NEEDS_VALIDATION: Project name -->
+
+## Core Principles (NON-NEGOTIABLE)
+
+### Production-Grade Quality
+<!-- SECTION:QUALITY_PRINCIPLES:BEGIN -->
+<!-- NEEDS_VALIDATION: Verify quality standards meet regulatory requirements -->
+There is no distinction between "dev code" and "production code". All code is production code.
+
+- **Test-First Development**: TDD is mandatory - write tests, verify they fail, then implement
+- **Code Review**: Minimum two reviewers required, including one senior engineer
+- **Documentation**: All public APIs, architectural decisions, and complex logic must be documented
+- **No Technical Debt**: Address issues immediately; do not defer quality
+<!-- SECTION:QUALITY_PRINCIPLES:END -->
+
+### Security by Design
+Security is not an afterthought. Threat modeling during design phase is mandatory.
+
+### Auditability
+All changes must be traceable. Decisions must be documented and justified.
+
+## Git Commit Requirements (NON-NEGOTIABLE)
+
+### No Direct Commits to Main (ABSOLUTE)
+**NEVER commit directly to the main branch.** All changes MUST go through a PR.
+
+1. Create a branch for the task
+2. Make changes on the branch
+3. Create a PR referencing the backlog task
+4. PR must pass CI before merge
+5. Task marked Done only after PR is merged
+
+**NO EXCEPTIONS.** Not for "urgent" fixes, not for "small" changes, not for any reason.
+
+### Branch Protection
+<!-- SECTION:BRANCH_PROTECTION:BEGIN -->
+<!-- NEEDS_VALIDATION: Branch protection rules match security requirements -->
+- Main branch: Protected, requires 2 approvals
+- Release branches: Protected, requires security team approval
+- Feature branches: Must be deleted after merge
+- Force push: Disabled on protected branches
+<!-- SECTION:BRANCH_PROTECTION:END -->
+
+### DCO Sign-Off Required
+All commits MUST include a `Signed-off-by` line (Developer Certificate of Origin).
+
+**Always use `git commit -s` to automatically add the sign-off.**
+
+Commits without sign-off will block PRs from being merged.
+
+### Conventional Commits
+All commit messages must follow conventional commit format:
+```
+type(scope): description
+
+[body]
+
+Signed-off-by: Name <email>
+```
+
+Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`, `security`
+
+## Pull Request Requirements (NON-NEGOTIABLE)
+<!-- SECTION:PR_REQUIREMENTS:BEGIN -->
+<!-- NEEDS_VALIDATION: PR requirements meet compliance needs -->
+- Descriptive title following conventional commits
+- Link to backlog task (mandatory)
+- Security impact assessment for changes touching sensitive areas
+- Minimum 2 approvals required
+- CI pipeline must pass (tests, lint, security scan)
+- No merge until all review comments are resolved
+<!-- SECTION:PR_REQUIREMENTS:END -->
+
+## Task Management (NON-NEGOTIABLE)
+
+### Task Quality
+Every task created MUST have:
+- **At least one acceptance criterion** - Tasks without ACs are incomplete
+- **Clear, testable criteria** - Each AC must be outcome-oriented and objectively verifiable
+- **Proper description** - Explains the "why" and context
+- **Risk assessment** - Security/compliance implications noted
+
+Tasks without acceptance criteria will be rejected or archived.
+
+### PR-Task Synchronization
+When creating a PR that completes a backlog task:
+
+1. **Before PR creation**: Mark all completed acceptance criteria
+2. **With PR creation**: Update task status and reference the PR
+3. **PR-Task coupling**: If the PR fails CI or is rejected, revert task status
+4. **Traceability**: Every PR must reference its task; every task must reference its PR
+
+## Testing Standards (NON-NEGOTIABLE)
+<!-- SECTION:TESTING:BEGIN -->
+<!-- NEEDS_VALIDATION: Testing requirements meet regulatory standards -->
+- **Unit Tests**: Mandatory for all business logic (minimum 80% coverage)
+- **Integration Tests**: Mandatory for all API endpoints and service boundaries
+- **E2E Tests**: Mandatory for all critical user journeys
+- **Security Tests**: SAST, DAST, and dependency scanning on every PR
+- **Performance Tests**: Load testing for user-facing endpoints
+- **Contract Tests**: Required for all inter-service communication
+<!-- SECTION:TESTING:END -->
+
+## Security Requirements (NON-NEGOTIABLE)
+<!-- SECTION:SECURITY:BEGIN -->
+<!-- NEEDS_VALIDATION: Security controls meet compliance requirements -->
+### Secrets Management
+- No secrets in code, configs, or environment files checked into git
+- Use approved secrets management solution
+- Rotate secrets according to policy
+
+### Access Control
+- Principle of least privilege
+- All access logged and auditable
+- Regular access reviews (quarterly minimum)
+
+### Vulnerability Management
+- Dependencies scanned on every build
+- Critical vulnerabilities: Fix within 24 hours
+- High vulnerabilities: Fix within 7 days
+- Security patches applied within SLA
+
+### Data Protection
+- PII/sensitive data encrypted at rest and in transit
+- Data classification enforced
+- Retention policies applied
+<!-- SECTION:SECURITY:END -->
+
+## Compliance
+<!-- SECTION:COMPLIANCE:BEGIN -->
+<!-- NEEDS_VALIDATION: Compliance frameworks applicable to project -->
+This project must comply with:
+- [COMPLIANCE_FRAMEWORKS]
+
+### Audit Requirements
+- All changes logged with user, timestamp, and justification
+- Audit logs retained for [RETENTION_PERIOD]
+- Regular compliance audits scheduled
+<!-- SECTION:COMPLIANCE:END -->
+
+## Technology Stack
+<!-- SECTION:TECH_STACK:BEGIN -->
+<!-- NEEDS_VALIDATION: Populate with detected languages/frameworks -->
+[LANGUAGES_AND_FRAMEWORKS]
+
+### Approved Technologies
+All technology choices must be from the approved list or require architecture review.
+
+### Linting & Formatting
+<!-- NEEDS_VALIDATION: Detected linting tools -->
+[LINTING_TOOLS]
+
+### CI/CD Pipeline
+<!-- NEEDS_VALIDATION: CI/CD configuration matches security requirements -->
+[CI_CD_TOOLS]
+<!-- SECTION:TECH_STACK:END -->
+
+## Parallel Task Execution
+
+### Git Worktree Requirements
+When executing tasks in parallel, git worktrees MUST be used:
+
+1. **Worktree name must match branch name**
+2. **One branch per worktree**
+3. **Clean isolation** - no cross-contamination between parallel work
+4. **Worktree cleanup** - remove when work is complete
+
+## Change Management
+<!-- SECTION:CHANGE_MANAGEMENT:BEGIN -->
+<!-- NEEDS_VALIDATION: Change management process meets requirements -->
+### Standard Changes
+- Pre-approved, low-risk changes
+- Follow standard PR process
+
+### Normal Changes
+- Require change request documentation
+- Impact assessment required
+- Rollback plan documented
+
+### Emergency Changes
+- Require incident ticket reference
+- Post-implementation review mandatory
+- Retrospective within 48 hours
+<!-- SECTION:CHANGE_MANAGEMENT:END -->
+
+## Incident Response
+<!-- SECTION:INCIDENT_RESPONSE:BEGIN -->
+<!-- NEEDS_VALIDATION: Incident response meets regulatory requirements -->
+- All security incidents reported within [REPORTING_WINDOW]
+- Incident severity classification enforced
+- Post-incident reviews mandatory
+- Lessons learned documented and shared
+<!-- SECTION:INCIDENT_RESPONSE:END -->
+
+## Governance
+
+### Constitution Authority
+This constitution supersedes all other practices. Violations are escalated.
+
+### Amendments
+Changes to this constitution require:
+1. Written proposal with justification
+2. Impact assessment
+3. Security/compliance review
+4. Approval from [APPROVAL_AUTHORITY]
+5. Migration plan for existing work
+
+**Version**: 1.0.0 | **Ratified**: [DATE] | **Last Amended**: [DATE]
+<!-- NEEDS_VALIDATION: Version, dates, and approval authority -->
+""",
+}
+
 CLAUDE_LOCAL_PATH = Path.home() / ".claude" / "local" / "claude"
 
 BANNER = """
@@ -2211,20 +2574,14 @@ def init(
             # Set up constitution template
             tracker.start("constitution")
             try:
-                # Get constitution template from package templates
-                package_root = Path(__file__).parent.parent.parent
-                constitution_src = (
-                    package_root
-                    / "templates"
-                    / "constitutions"
-                    / f"constitution-{selected_constitution}.md"
-                )
-                memory_dir = project_path / "memory"
-                constitution_dest = memory_dir / "constitution.md"
-
-                if constitution_src.exists():
+                # Get constitution template from embedded templates
+                if selected_constitution in CONSTITUTION_TEMPLATES:
+                    memory_dir = project_path / "memory"
+                    constitution_dest = memory_dir / "constitution.md"
                     memory_dir.mkdir(parents=True, exist_ok=True)
-                    shutil.copy2(constitution_src, constitution_dest)
+                    constitution_dest.write_text(
+                        CONSTITUTION_TEMPLATES[selected_constitution]
+                    )
                     tracker.complete(
                         "constitution",
                         f"{selected_constitution} tier → memory/constitution.md",
@@ -2232,7 +2589,7 @@ def init(
                 else:
                     tracker.error(
                         "constitution",
-                        f"template not found: {constitution_src.name}",
+                        f"unknown tier: {selected_constitution}",
                     )
             except Exception as const_error:
                 tracker.error("constitution", f"setup failed: {const_error}")
