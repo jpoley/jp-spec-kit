@@ -964,6 +964,73 @@ backlog board --filter US1  # Instead of viewing all tasks
 
 ---
 
+## /jpspec Command Integration
+
+Backlog.md integrates seamlessly with the `/jpspec` workflow commands. Each command creates, discovers, or updates tasks in your backlog.
+
+### Quick Reference
+
+| Command | Backlog Action | Task State Change |
+|---------|---------------|-------------------|
+| `/jpspec:assess` | Labels with complexity | To Do → Assessed |
+| `/jpspec:specify` | Creates implementation tasks | Assessed → Specified |
+| `/jpspec:research` | Creates research + follow-up tasks | Specified → Researched |
+| `/jpspec:plan` | Creates architecture/infra tasks | Researched → Planned |
+| `/jpspec:implement` | Assigns and tracks existing tasks | Planned → In Implementation |
+| `/jpspec:validate` | Validates task completion | In Implementation → Validated |
+| `/jpspec:operate` | Creates operational tasks | Validated → Deployed |
+
+### How Commands Use Backlog
+
+**Design commands** (specify, research, plan) create tasks:
+
+```bash
+# /jpspec:specify creates tasks with acceptance criteria
+backlog task create "Implement user login" \
+  --ac "POST /auth/login returns JWT" \
+  --ac "Invalid credentials return 401" \
+  -l backend,US1
+```
+
+**Implementation commands** (implement, validate, operate) work from tasks:
+
+```bash
+# /jpspec:implement discovers and assigns tasks
+backlog search "authentication" --plain
+backlog task edit task-42 -s "In Progress" -a @backend-engineer
+backlog task edit task-42 --check-ac 1  # Mark AC complete
+```
+
+### Task Format Requirements
+
+For full `/jpspec` compatibility, tasks should include:
+
+1. **Status field** - Valid workflow state (To Do, Specified, Planned, etc.)
+2. **Acceptance criteria** - Numbered checkboxes for tracking
+3. **Labels** - User story references (US1, US2) and categories
+
+```markdown
+---
+id: task-042
+status: To Do
+labels: [backend, US1]
+---
+
+## Acceptance Criteria
+- [ ] #1 First criterion
+- [ ] #2 Second criterion
+```
+
+### Learn More
+
+See **[JP Spec + Backlog.md Integration Guide](jpspec-backlog-workflow.md)** for:
+- Complete workflow state transitions
+- Task format specifications
+- Command integration details
+- Troubleshooting guide
+
+---
+
 **Status**: This integration is in active development. Some features (like automatic task generation) are coming soon.
 
 **Feedback**: Your input helps shape this integration. Please share your experiences and suggestions!

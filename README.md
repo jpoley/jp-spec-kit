@@ -281,6 +281,7 @@ specify init my-project --ai claude,copilot,cursor-agent
 ### Task Management
 - **[Backlog Quick Start](docs/guides/backlog-quickstart.md)** - Get started in 5 minutes
 - **[Backlog User Guide](docs/guides/backlog-user-guide.md)** - Complete task management guide
+- **[JP Spec + Backlog Integration](docs/guides/jpspec-backlog-workflow.md)** - How /jpspec commands integrate with backlog.md
 
 ### Guides
 - **[Problem Sizing Assessment](docs/guides/problem-sizing-assessment.md)** - When to use SDD
