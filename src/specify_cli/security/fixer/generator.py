@@ -230,7 +230,7 @@ Respond in JSON format:
             # Validate syntax if enabled
             if self.config.validate_syntax:
                 is_valid, syntax_error = self._validate_syntax(
-                    fixed_code, finding.location.file
+                    fixed_code, str(finding.location.file)
                 )
                 if not is_valid:
                     warnings.append(f"Syntax validation warning: {syntax_error}")
