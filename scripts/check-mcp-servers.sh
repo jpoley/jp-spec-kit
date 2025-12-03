@@ -271,7 +271,7 @@ check_server() {
                 log_verbose "Install uv: curl -LsSf https://astral.sh/uv/install.sh | sh"
                 ;;
             backlog)
-                log_verbose "Install backlog: npm install -g backlog.md"
+                log_verbose "Install backlog MCP server: npm install -g @backlog/mcp-server"
                 ;;
         esac
 
