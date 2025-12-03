@@ -664,7 +664,10 @@ python -c "import yaml; yaml.safe_load(open('jpspec_workflow.yml'))"
 backlog task view task-123
 
 # 4. See valid workflows for a state
+# Linux/macOS:
 grep -A 5 "input_states" jpspec_workflow.yml
+# Windows or cross-platform (Python):
+python -c "import re; print(''.join(re.findall(r'input_states.*(?:\n.*){0,5}', open('jpspec_workflow.yml').read())))"
 ```
 
 ## Rollback and Recovery
