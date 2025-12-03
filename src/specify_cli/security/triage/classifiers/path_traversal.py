@@ -33,6 +33,8 @@ class PathTraversalClassifier(FindingClassifier):
         code_lower = code.lower()
 
         # Check for path validation (likely FP)
+        # Note: path.join alone does NOT prevent path traversal
+        # (e.g., os.path.join('/safe', '../../../etc/passwd') -> '/etc/passwd')
         safe_patterns = [
             "realpath",
             "abspath",
@@ -41,13 +43,14 @@ class PathTraversalClassifier(FindingClassifier):
             ".startswith(",
             "is_relative_to",
             "secure_filename",
-            "path.join",  # Often safe when combined with validation
         ]
 
         validation_found = False
+        validation_pattern = None
         for pattern in safe_patterns:
             if pattern in code_lower:
                 validation_found = True
+                validation_pattern = pattern
                 break
 
         # Check for dangerous patterns
@@ -65,12 +68,15 @@ class PathTraversalClassifier(FindingClassifier):
         has_file_op = any(p in code_lower for p in dangerous_patterns)
 
         if validation_found and has_file_op:
+            # Both validation and file operation found, but we can't verify
+            # that validation is applied to the same path used in file operation
             return ClassificationResult(
                 classification=Classification.NEEDS_INVESTIGATION,
-                confidence=0.6,
+                confidence=0.5,
                 reasoning=(
-                    "Found file operation with some path validation. "
-                    "Verify validation is applied before file access."
+                    f"Found both path validation ({validation_pattern}) and file operation, "
+                    "but cannot verify that validation is applied to the file operation "
+                    "or occurs before it. Manual review required."
                 ),
             )
 
@@ -78,7 +84,7 @@ class PathTraversalClassifier(FindingClassifier):
             return ClassificationResult(
                 classification=Classification.FALSE_POSITIVE,
                 confidence=0.7,
-                reasoning="Path validation detected. Likely safe.",
+                reasoning=f"Path validation detected ({validation_pattern}). Likely safe.",
             )
 
         if has_file_op:

@@ -64,8 +64,8 @@ class WeakCryptoClassifier(FindingClassifier):
         for algo, reason in self.WEAK_ALGORITHMS.items():
             if algo in code_lower:
                 # Check context - is it for security or just checksums?
-                checksum_contexts = ["checksum", "hash file", "file hash", "etag"]
-                is_checksum = any(ctx in code_lower for ctx in checksum_contexts)
+                # More precise detection: look for algorithm + context in same line
+                is_checksum = self._is_checksum_context(code_lower, algo)
 
                 if is_checksum and algo in ("md5", "sha1"):
                     return ClassificationResult(
@@ -74,6 +74,20 @@ class WeakCryptoClassifier(FindingClassifier):
                         reasoning=(
                             f"{algo.upper()} used for checksums/integrity, not security. "
                             "This is an acceptable use case."
+                        ),
+                    )
+
+                # Check for password/security context (definitely TP)
+                security_contexts = ["password", "credential", "auth", "encrypt"]
+                is_security = any(ctx in code_lower for ctx in security_contexts)
+
+                if is_security:
+                    return ClassificationResult(
+                        classification=Classification.TRUE_POSITIVE,
+                        confidence=0.9,
+                        reasoning=(
+                            f"Weak algorithm {algo.upper()} used in security context. "
+                            f"{reason}."
                         ),
                     )
 
@@ -97,6 +111,61 @@ class WeakCryptoClassifier(FindingClassifier):
             confidence=0.5,
             reasoning="Could not identify cryptographic algorithm in use.",
         )
+
+    def _is_checksum_context(self, code_lower: str, algo: str) -> bool:
+        """Check if algorithm is used in checksum/integrity context.
+
+        More precise than simple substring matching:
+        - Analyzes line by line
+        - Skips comments
+        - Looks for algorithm + context on same line
+        - Excludes security contexts (password, credential, etc.)
+        """
+        # Checksum/integrity context patterns (standalone words)
+        checksum_patterns = [
+            "checksum",
+            "file_hash",
+            "hash_file",
+            "etag",
+            "integrity",
+            "verify_file",
+            "compare_hash",
+        ]
+
+        # Security contexts that should NOT be treated as checksum
+        security_patterns = [
+            "password",
+            "credential",
+            "auth",
+            "secret",
+            "token",
+            "key",
+        ]
+
+        # Split into lines for more precise analysis
+        for line in code_lower.splitlines():
+            # Skip comment lines
+            stripped = line.strip()
+            if stripped.startswith(("#", "//", "*", "/*")):
+                continue
+
+            # If algorithm is on this line
+            if algo in line:
+                # First check for security context - if found, NOT checksum
+                for sec in security_patterns:
+                    if sec in line:
+                        return False
+
+                # Then check for checksum context
+                for ctx in checksum_patterns:
+                    if ctx in line:
+                        return True
+
+                # Check for naming patterns like md5_checksum, file_md5
+                if f"file_{algo}" in line or f"{algo}_file" in line:
+                    return True
+
+        return False
 
     def _ai_classify(self, finding: Finding) -> ClassificationResult:
         """AI-powered weak crypto classification."""

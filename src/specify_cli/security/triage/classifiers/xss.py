@@ -32,7 +32,7 @@ class XSSClassifier(FindingClassifier):
         code = finding.location.code_snippet or ""
         code_lower = code.lower()
 
-        # Check for encoding/escaping (likely FP)
+        # Check for encoding/escaping patterns
         safe_patterns = [
             "escape(",
             "htmlescape",
@@ -45,18 +45,12 @@ class XSSClassifier(FindingClassifier):
             "createtextnode",
         ]
 
+        safe_found = []
         for pattern in safe_patterns:
             if pattern in code_lower:
-                return ClassificationResult(
-                    classification=Classification.FALSE_POSITIVE,
-                    confidence=0.75,
-                    reasoning=(
-                        f"Found output encoding pattern: {pattern}. "
-                        "Input appears to be properly escaped."
-                    ),
-                )
+                safe_found.append(pattern)
 
-        # Check for dangerous sinks (likely TP)
+        # Check for dangerous sinks
         dangerous_patterns = [
             "innerhtml",
             "outerhtml",
@@ -67,16 +61,43 @@ class XSSClassifier(FindingClassifier):
             "[innerhtml]",  # Angular
         ]
 
+        dangerous_found = []
         for pattern in dangerous_patterns:
             if pattern in code_lower:
-                return ClassificationResult(
-                    classification=Classification.TRUE_POSITIVE,
-                    confidence=0.8,
-                    reasoning=(
-                        f"Found dangerous sink: {pattern}. "
-                        "This pattern is vulnerable to XSS if input is not sanitized."
-                    ),
-                )
+                dangerous_found.append(pattern)
+
+        # Nuanced classification based on both patterns
+        if dangerous_found and safe_found:
+            # Both found - could be sanitizing one input but not another
+            return ClassificationResult(
+                classification=Classification.NEEDS_INVESTIGATION,
+                confidence=0.6,
+                reasoning=(
+                    f"Found both dangerous sink ({', '.join(dangerous_found)}) and "
+                    f"encoding ({', '.join(safe_found)}). Cannot verify that encoding "
+                    "is applied to the dangerous sink. Manual review required."
+                ),
+            )
+
+        if dangerous_found:
+            return ClassificationResult(
+                classification=Classification.TRUE_POSITIVE,
+                confidence=0.8,
+                reasoning=(
+                    f"Found dangerous sink: {', '.join(dangerous_found)}. "
+                    "This pattern is vulnerable to XSS if input is not sanitized."
+                ),
+            )
+
+        if safe_found:
+            return ClassificationResult(
+                classification=Classification.FALSE_POSITIVE,
+                confidence=0.75,
+                reasoning=(
+                    f"Found output encoding pattern: {', '.join(safe_found)}. "
+                    "Input appears to be properly escaped."
+                ),
+            )
 
         return ClassificationResult(
             classification=Classification.NEEDS_INVESTIGATION,

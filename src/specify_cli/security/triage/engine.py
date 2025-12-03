@@ -9,6 +9,8 @@ This module provides the core TriageEngine that orchestrates:
 See ADR-006 for architectural design.
 """
 
+import json
+import logging
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
@@ -38,6 +40,8 @@ from specify_cli.security.triage.classifiers.hardcoded_secrets import (
     HardcodedSecretsClassifier,
 )
 from specify_cli.security.triage.classifiers.weak_crypto import WeakCryptoClassifier
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -256,8 +260,6 @@ Generate a developer-friendly explanation in JSON format:
 Keep each section under 200 characters. Use simple language.
 """
         try:
-            import json
-
             response = self.llm.complete(prompt)
 
             # Parse JSON response

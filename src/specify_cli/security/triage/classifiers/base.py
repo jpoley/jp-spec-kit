@@ -4,6 +4,8 @@ This module defines the abstract FindingClassifier interface that all
 specialized classifiers must implement. Follows the Strategy Pattern.
 """
 
+import json
+import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
@@ -11,6 +13,8 @@ from typing import Protocol
 
 from specify_cli.security.models import Finding
 from specify_cli.security.triage.models import Classification
+
+logger = logging.getLogger(__name__)
 
 
 class LLMClient(Protocol):
@@ -102,8 +106,6 @@ class FindingClassifier(ABC):
             "reasoning": "explanation"
         }
         """
-        import json
-
         try:
             # Try to extract JSON from response
             response = response.strip()
@@ -132,10 +134,16 @@ class FindingClassifier(ABC):
                 confidence=confidence,
                 reasoning=reasoning,
             )
-        except (json.JSONDecodeError, ValueError, KeyError):
+        except (json.JSONDecodeError, ValueError, KeyError) as exc:
+            # Log the error for debugging LLM prompt issues
+            logger.warning(
+                "Failed to parse LLM classification response: %s - Error: %s",
+                response[:200],
+                exc,
+            )
             # Default to needs investigation if parsing fails
             return ClassificationResult(
                 classification=Classification.NEEDS_INVESTIGATION,
                 confidence=0.3,
-                reasoning=f"Failed to parse LLM response: {response[:200]}",
+                reasoning=f"Failed to parse LLM response: {response[:200]}. Error: {exc}",
             )

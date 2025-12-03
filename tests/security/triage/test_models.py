@@ -42,10 +42,16 @@ class TestRiskComponents:
         assert components.risk_score == 7.2
 
     def test_risk_score_minimum_detection_time(self):
-        """Test detection time clamped to at least 1."""
+        """Test risk_score calculation clamps detection_time to at least 1.
+
+        Note: The stored detection_time value is NOT modified, but the
+        risk_score property uses max(detection_time, 1) in its calculation.
+        """
         components = RiskComponents(impact=9.0, exploitability=8.0, detection_time=0)
-        # Should use max(0, 1) = 1
+        # risk_score uses max(detection_time, 1) = max(0, 1) = 1
         assert components.risk_score == 72.0
+        # Verify stored value is unchanged
+        assert components.detection_time == 0
 
 
 class TestExplanation:
