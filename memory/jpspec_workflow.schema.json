@@ -44,8 +44,8 @@
         "$ref": "#/$defs/workflow"
       },
       "propertyNames": {
-        "pattern": "^[a-z][a-z0-9_]*$",
-        "description": "Workflow names must be lowercase alphanumeric with underscores, starting with a letter"
+        "pattern": "^[a-z][a-z0-9_-]*$",
+        "description": "Workflow names must be lowercase alphanumeric with underscores or hyphens, starting with a letter"
       }
     },
     "transitions": {
@@ -226,7 +226,7 @@
       "properties": {
         "command": {
           "type": "string",
-          "pattern": "^/jpspec:[a-z][a-z0-9_]*$",
+          "pattern": "^/jpspec:[a-z][a-z0-9_-]*$",
           "description": "The /jpspec slash command that triggers this workflow (e.g., '/jpspec:specify', '/jpspec:implement')"
         },
         "description": {
@@ -372,8 +372,17 @@
         },
         "validation": {
           "type": "string",
-          "enum": ["NONE", "KEYWORD", "PULL_REQUEST"],
-          "description": "Validation mode: NONE (automatic), KEYWORD[...] (user types keyword), PULL_REQUEST (blocked until PR merged)"
+          "oneOf": [
+            {
+              "enum": ["NONE", "KEYWORD", "PULL_REQUEST"],
+              "description": "Predefined validation modes"
+            },
+            {
+              "pattern": "^KEYWORD\\[[A-Z_]+\\]$",
+              "description": "KEYWORD with custom value in brackets (e.g., 'KEYWORD[SECURITY_APPROVED]')"
+            }
+          ],
+          "description": "Validation mode: NONE (automatic), KEYWORD (user types keyword), KEYWORD[...] (custom keyword), PULL_REQUEST (blocked until PR merged)"
         }
       }
     }

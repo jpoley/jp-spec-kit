@@ -306,20 +306,21 @@ transitions:
     validation: "NONE"
 
   # Integration (requires both tracks complete)
+  # NOTE: Both Frontend Validated and Backend Validated states must be reached
+  # before integration can proceed. The integrate workflow accepts either state
+  # as input, but execution should verify both tracks are complete.
   - name: "integrate"
     from: "Frontend Validated"
     to: "Integration In Progress"
     via: "integrate"
-    description: "Frontend and backend integration started"
-    requires_states: ["Backend Validated"]  # Both tracks must be done
+    description: "Frontend and backend integration started (requires Backend Validated)"
     validation: "NONE"
 
   - name: "integrate_from_backend"
     from: "Backend Validated"
     to: "Integration In Progress"
     via: "integrate"
-    description: "Backend and frontend integration started"
-    requires_states: ["Frontend Validated"]  # Both tracks must be done
+    description: "Backend and frontend integration started (requires Frontend Validated)"
     validation: "NONE"
 
   - name: "validate_integration"

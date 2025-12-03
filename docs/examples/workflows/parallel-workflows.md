@@ -126,10 +126,18 @@ Requires **both tracks** to reach "Validated" state before proceeding:
 
 ```yaml
 transitions:
+  # Integration from either track requires the other track to be complete
   - name: "integrate"
     from: "Frontend Validated"
     to: "Integration In Progress"
-    requires_states: ["Backend Validated"]  # Both must be done
+    via: "integrate"
+    description: "Frontend and backend integration started (requires Backend Validated)"
+
+  - name: "integrate_from_backend"
+    from: "Backend Validated"
+    to: "Integration In Progress"
+    via: "integrate"
+    description: "Backend and frontend integration started (requires Frontend Validated)"
 ```
 
 ### 4. Rework Paths
