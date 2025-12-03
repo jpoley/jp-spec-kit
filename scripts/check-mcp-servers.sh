@@ -337,9 +337,9 @@ main() {
     local servers
     servers=$(get_server_names "$CONFIG_FILE")
 
-    for server in $servers; do
+    while IFS= read -r server; do
         check_server "$server" "$CONFIG_FILE" || true
-    done
+    done < <(get_server_names "$CONFIG_FILE")
 
     # Print summary
     print_summary
