@@ -4,6 +4,7 @@ This module defines the data models for security configuration,
 supporting scanner selection, severity thresholds, and AI settings.
 """
 
+import fnmatch
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
@@ -89,8 +90,6 @@ class ExclusionConfig:
         Returns:
             True if path matches any exclusion.
         """
-        import fnmatch
-
         path_str = str(path)
 
         # Check exact paths

@@ -2,7 +2,6 @@
 
 from pathlib import Path
 
-
 from specify_cli.security.config.models import (
     SecurityConfig,
     ScannerType,

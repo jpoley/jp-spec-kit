@@ -168,7 +168,7 @@ class ConfigSchema:
                     SchemaError(
                         path=f"{path}.timeout",
                         error_type=SchemaErrorType.INVALID_VALUE,
-                        message="timeout must be a positive integer",
+                        message="timeout must be a non-negative integer",
                     )
                 )
 
@@ -403,7 +403,7 @@ class ConfigSchema:
                     SchemaError(
                         path="reporting.max_remediations",
                         error_type=SchemaErrorType.INVALID_VALUE,
-                        message="max_remediations must be a positive integer",
+                        message="max_remediations must be a non-negative integer",
                     )
                 )
 
@@ -432,7 +432,7 @@ class ConfigSchema:
                     SchemaError(
                         path="max_findings",
                         error_type=SchemaErrorType.INVALID_VALUE,
-                        message="max_findings must be a positive integer",
+                        message="max_findings must be a non-negative integer",
                     )
                 )
 
