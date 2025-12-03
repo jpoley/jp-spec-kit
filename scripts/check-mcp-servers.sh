@@ -144,7 +144,7 @@ get_command_path() {
 # Check if jq is available (required for parsing JSON)
 check_dependencies() {
     if ! check_command "jq"; then
-        log_error "jq is required but not installed. Install with: brew install jq"
+        log_error "jq is required but not installed. Please install jq for your platform: https://jqlang.github.io/jq/download/"
         exit 2
     fi
 }
