@@ -144,6 +144,7 @@ jp-spec-kit/
 │   │   ├── platform/       # Platform design docs (/jpspec:plan)
 │   │   ├── qa/             # QA reports (/jpspec:validate)
 │   │   └── security/       # Security reports (/jpspec:validate)
+│   ├── skills/             # Skill templates (copied to .claude/skills/)
 │   ├── *-template.md       # Artifact templates
 │   └── commands/           # Slash command templates
 ├── docs/                   # Documentation
@@ -152,7 +153,8 @@ jp-spec-kit/
 ├── memory/                 # Constitution & specs
 ├── scripts/bash/           # Automation scripts
 ├── backlog/                # Task management
-└── .claude/commands/       # Slash command implementations
+├── .claude/commands/       # Slash command implementations
+└── .claude/skills/         # Model-invoked skills (5 core SDD skills)
 ```
 
 @import memory/code-standards.md
@@ -186,6 +188,8 @@ Additional context loaded when working in specific directories:
 | `SPECIFY_FEATURE` | Override feature detection for non-Git repos |
 
 @import memory/claude-hooks.md
+
+@import memory/claude-skills.md
 
 ## Quick Troubleshooting
 
