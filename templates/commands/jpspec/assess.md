@@ -282,3 +282,18 @@ Before completing:
 - [ ] Recommendation is clear and justified
 - [ ] Next steps are specific and actionable
 - [ ] Override instructions are provided
+
+## Post-Completion: Emit Workflow Event
+
+After successfully completing this command (assessment report generated), emit the workflow event:
+
+```bash
+specify hooks emit workflow.assessed \
+  --spec-id "$FEATURE_NAME" \
+  --task-id "$TASK_ID" \
+  -f docs/assess/<feature>-assessment.md
+```
+
+Replace `$FEATURE_NAME` with the feature being assessed and `$TASK_ID` with the backlog task ID if available.
+
+This triggers any configured hooks in `.specify/hooks/hooks.yaml` (e.g., notifications, workflow tracking).

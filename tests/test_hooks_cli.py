@@ -693,3 +693,159 @@ def test_emit_creates_audit_entry(temp_workspace, sample_hooks_config):
     output = json.loads(result.stdout)
     assert output["count"] >= 1
     assert any(e["hook_name"] == "test-hook" for e in output["entries"])
+
+
+# --- Agent Progress Events Tests ---
+
+
+def test_emit_agent_progress_event(temp_workspace, sample_hooks_config):
+    """Test emitting agent.progress event with progress and message flags."""
+    result = runner.invoke(
+        hooks_app,
+        [
+            "emit",
+            "agent.progress",
+            "--task-id",
+            "task-229",
+            "--spec-id",
+            "agent-hooks",
+            "--progress",
+            "60",
+            "--message",
+            "Implementing hooks",
+            "--json",
+            "--project-root",
+            str(temp_workspace),
+        ],
+    )
+
+    assert result.exit_code == 0
+    output = json.loads(result.stdout)
+
+    # Verify event structure
+    event = output["event"]
+    assert event["event_type"] == "agent.progress"
+    assert event["feature"] == "agent-hooks"
+    assert event["context"]["task_id"] == "task-229"
+    assert event["context"]["progress_percent"] == 60
+    assert event["context"]["status_message"] == "Implementing hooks"
+    assert "agent_id" in event["context"]
+    assert "machine" in event["context"]
+
+
+def test_emit_agent_started_event(temp_workspace, sample_hooks_config):
+    """Test emitting agent.started event."""
+    result = runner.invoke(
+        hooks_app,
+        [
+            "emit",
+            "agent.started",
+            "--task-id",
+            "task-229",
+            "--spec-id",
+            "agent-hooks",
+            "--json",
+            "--project-root",
+            str(temp_workspace),
+        ],
+    )
+
+    assert result.exit_code == 0
+    output = json.loads(result.stdout)
+
+    event = output["event"]
+    assert event["event_type"] == "agent.started"
+    assert "agent_id" in event["context"]
+    assert "machine" in event["context"]
+
+
+def test_emit_agent_event_with_custom_agent_id(temp_workspace, sample_hooks_config):
+    """Test emitting agent event with custom agent_id."""
+    result = runner.invoke(
+        hooks_app,
+        [
+            "emit",
+            "agent.progress",
+            "--agent-id",
+            "claude-code@kinsale",
+            "--progress",
+            "50",
+            "--json",
+            "--project-root",
+            str(temp_workspace),
+        ],
+    )
+
+    assert result.exit_code == 0
+    output = json.loads(result.stdout)
+
+    event = output["event"]
+    assert event["context"]["agent_id"] == "claude-code@kinsale"
+
+
+def test_multi_machine_agent_simulation(temp_workspace, sample_hooks_config):
+    """Test simulating multi-machine agent events with different machines."""
+    # Emit from "muckross"
+    result1 = runner.invoke(
+        hooks_app,
+        [
+            "emit",
+            "agent.started",
+            "--agent-id",
+            "claude-code@muckross",
+            "--task-id",
+            "task-198",
+            "--json",
+            "--project-root",
+            str(temp_workspace),
+        ],
+    )
+    assert result1.exit_code == 0
+    event1 = json.loads(result1.stdout)["event"]
+    assert event1["context"]["agent_id"] == "claude-code@muckross"
+
+    # Emit from "galway"
+    result2 = runner.invoke(
+        hooks_app,
+        [
+            "emit",
+            "agent.progress",
+            "--agent-id",
+            "claude-code@galway",
+            "--task-id",
+            "task-198",
+            "--progress",
+            "30",
+            "--message",
+            "Security scanning in progress",
+            "--json",
+            "--project-root",
+            str(temp_workspace),
+        ],
+    )
+    assert result2.exit_code == 0
+    event2 = json.loads(result2.stdout)["event"]
+    assert event2["context"]["agent_id"] == "claude-code@galway"
+    assert event2["context"]["progress_percent"] == 30
+
+    # Emit from "kinsale"
+    result3 = runner.invoke(
+        hooks_app,
+        [
+            "emit",
+            "agent.completed",
+            "--agent-id",
+            "claude-code@kinsale",
+            "--task-id",
+            "task-229",
+            "--message",
+            "Implementation complete",
+            "--json",
+            "--project-root",
+            str(temp_workspace),
+        ],
+    )
+    assert result3.exit_code == 0
+    event3 = json.loads(result3.stdout)["event"]
+    assert event3["context"]["agent_id"] == "claude-code@kinsale"
+    assert event3["context"]["status_message"] == "Implementation complete"

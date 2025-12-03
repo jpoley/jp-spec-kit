@@ -51,7 +51,7 @@ hooks_app = typer.Typer(
 def hooks_emit(
     event_type: str = typer.Argument(
         ...,
-        help="Event type to emit (e.g., spec.created, task.completed, implement.completed)",
+        help="Event type to emit (e.g., spec.created, task.completed, agent.progress)",
     ),
     spec_id: Optional[str] = typer.Option(
         None,
@@ -68,6 +68,25 @@ def hooks_emit(
         "--file",
         "-f",
         help="Files involved (can be specified multiple times)",
+    ),
+    progress: Optional[int] = typer.Option(
+        None,
+        "--progress",
+        "-p",
+        help="Progress percentage 0-100 (for agent.progress events)",
+        min=0,
+        max=100,
+    ),
+    message: Optional[str] = typer.Option(
+        None,
+        "--message",
+        "-m",
+        help="Status message (for agent.* events)",
+    ),
+    agent_id: Optional[str] = typer.Option(
+        None,
+        "--agent-id",
+        help="Agent identifier (for agent.* events, default: claude-code@<hostname>)",
     ),
     dry_run: bool = typer.Option(
         False,
@@ -91,6 +110,7 @@ def hooks_emit(
     - Testing hooks before integrating them into /jpspec commands
     - Manual triggering of quality gates
     - Integration with external tools and scripts
+    - Multi-machine agent progress tracking
 
     Examples:
         # Emit spec.created event
@@ -101,6 +121,12 @@ def hooks_emit(
 
         # Emit implement.completed with files
         specify hooks emit implement.completed --spec-id auth -f src/auth/login.py -f src/auth/signup.py
+
+        # Emit agent.progress for multi-machine observability
+        specify hooks emit agent.progress --task-id task-229 --progress 60 --message "Implementing hooks"
+
+        # Emit agent.started when beginning work
+        specify hooks emit agent.started --task-id task-229 --spec-id agent-hooks
 
         # Dry run (show what would execute)
         specify hooks emit spec.created --spec-id test --dry-run
@@ -117,6 +143,20 @@ def hooks_emit(
         context["task_id"] = task_id
     if spec_id:
         context["feature"] = spec_id
+
+    # Add agent-specific context for agent.* events
+    if event_type.startswith("agent."):
+        import socket
+
+        # Default agent_id to claude-code@<hostname>
+        resolved_agent_id = agent_id or f"claude-code@{socket.gethostname()}"
+        context["agent_id"] = resolved_agent_id
+        context["machine"] = socket.gethostname()
+
+        if progress is not None:
+            context["progress_percent"] = progress
+        if message:
+            context["status_message"] = message
 
     # Create event
     try:

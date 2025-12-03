@@ -54,6 +54,14 @@ class EventType(str, Enum):
         TASK_AC_UNCHECKED: Acceptance criterion unmarked
         TASK_COMPLETED: Task marked as Done
         TASK_ARCHIVED: Task moved to archive
+
+    Agent Events (multi-machine observability):
+        AGENT_STARTED: Agent began working on task
+        AGENT_PROGRESS: Agent reports progress (percentage, status message)
+        AGENT_BLOCKED: Agent is waiting for something
+        AGENT_COMPLETED: Agent finished task
+        AGENT_ERROR: Agent encountered error
+        AGENT_HANDOFF: Agent handing off to another agent/machine
     """
 
     # Workflow events
@@ -79,6 +87,14 @@ class EventType(str, Enum):
     TASK_AC_UNCHECKED = "task.ac_unchecked"
     TASK_COMPLETED = "task.completed"
     TASK_ARCHIVED = "task.archived"
+
+    # Agent events (multi-machine observability)
+    AGENT_STARTED = "agent.started"
+    AGENT_PROGRESS = "agent.progress"
+    AGENT_BLOCKED = "agent.blocked"
+    AGENT_COMPLETED = "agent.completed"
+    AGENT_ERROR = "agent.error"
+    AGENT_HANDOFF = "agent.handoff"
 
 
 @dataclass
@@ -421,6 +437,197 @@ def create_implement_completed_event(
                 files_changed=files_changed,
             ),
         ],
+    )
+
+
+def create_agent_progress_event(
+    project_root: str | Path,
+    agent_id: str,
+    task_id: str | None = None,
+    feature: str | None = None,
+    progress_percent: int | None = None,
+    status_message: str | None = None,
+    machine: str | None = None,
+) -> Event:
+    """Create an agent.progress event for multi-machine observability.
+
+    Args:
+        project_root: Project root directory.
+        agent_id: Agent identifier (e.g., "claude-code@kinsale").
+        task_id: Associated task ID (optional).
+        feature: Feature being worked on (optional).
+        progress_percent: Completion percentage 0-100 (optional).
+        status_message: Human-readable status message (optional).
+        machine: Machine hostname (optional, auto-detected if not provided).
+
+    Returns:
+        Event instance for agent.progress.
+
+    Example:
+        >>> event = create_agent_progress_event(
+        ...     project_root="/home/user/project",
+        ...     agent_id="claude-code@kinsale",
+        ...     task_id="task-229",
+        ...     progress_percent=60,
+        ...     status_message="Implementing event emission"
+        ... )
+    """
+    import socket
+
+    context: dict[str, Any] = {
+        "agent_id": agent_id,
+    }
+
+    if task_id:
+        context["task_id"] = task_id
+    if progress_percent is not None:
+        context["progress_percent"] = progress_percent
+    if status_message:
+        context["status_message"] = status_message
+
+    # Auto-detect machine hostname if not provided
+    context["machine"] = machine or socket.gethostname()
+
+    return Event(
+        event_type=EventType.AGENT_PROGRESS.value,
+        project_root=str(project_root),
+        feature=feature,
+        context=context,
+    )
+
+
+def create_agent_started_event(
+    project_root: str | Path,
+    agent_id: str,
+    task_id: str | None = None,
+    feature: str | None = None,
+    machine: str | None = None,
+) -> Event:
+    """Create an agent.started event.
+
+    Args:
+        project_root: Project root directory.
+        agent_id: Agent identifier (e.g., "claude-code@kinsale").
+        task_id: Associated task ID (optional).
+        feature: Feature being worked on (optional).
+        machine: Machine hostname (optional, auto-detected if not provided).
+
+    Returns:
+        Event instance for agent.started.
+    """
+    import socket
+
+    context: dict[str, Any] = {
+        "agent_id": agent_id,
+        "machine": machine or socket.gethostname(),
+    }
+
+    if task_id:
+        context["task_id"] = task_id
+
+    return Event(
+        event_type=EventType.AGENT_STARTED.value,
+        project_root=str(project_root),
+        feature=feature,
+        context=context,
+    )
+
+
+def create_agent_completed_event(
+    project_root: str | Path,
+    agent_id: str,
+    task_id: str | None = None,
+    feature: str | None = None,
+    machine: str | None = None,
+    status_message: str | None = None,
+) -> Event:
+    """Create an agent.completed event.
+
+    Args:
+        project_root: Project root directory.
+        agent_id: Agent identifier (e.g., "claude-code@kinsale").
+        task_id: Associated task ID (optional).
+        feature: Feature being worked on (optional).
+        machine: Machine hostname (optional, auto-detected if not provided).
+        status_message: Completion summary message (optional).
+
+    Returns:
+        Event instance for agent.completed.
+    """
+    import socket
+
+    context: dict[str, Any] = {
+        "agent_id": agent_id,
+        "machine": machine or socket.gethostname(),
+    }
+
+    if task_id:
+        context["task_id"] = task_id
+    if status_message:
+        context["status_message"] = status_message
+
+    return Event(
+        event_type=EventType.AGENT_COMPLETED.value,
+        project_root=str(project_root),
+        feature=feature,
+        context=context,
+    )
+
+
+def create_agent_handoff_event(
+    project_root: str | Path,
+    agent_id: str,
+    target_agent: str,
+    target_machine: str | None = None,
+    task_id: str | None = None,
+    feature: str | None = None,
+    machine: str | None = None,
+    handoff_message: str | None = None,
+) -> Event:
+    """Create an agent.handoff event for multi-machine coordination.
+
+    Args:
+        project_root: Project root directory.
+        agent_id: Source agent identifier.
+        target_agent: Target agent identifier for handoff.
+        target_machine: Target machine for handoff (optional).
+        task_id: Associated task ID (optional).
+        feature: Feature being worked on (optional).
+        machine: Source machine hostname (optional, auto-detected).
+        handoff_message: Message for the receiving agent (optional).
+
+    Returns:
+        Event instance for agent.handoff.
+
+    Example:
+        >>> event = create_agent_handoff_event(
+        ...     project_root="/home/user/project",
+        ...     agent_id="claude-code@muckross",
+        ...     target_agent="claude-code@galway",
+        ...     task_id="task-198",
+        ...     handoff_message="Planning complete, ready for implementation"
+        ... )
+    """
+    import socket
+
+    context: dict[str, Any] = {
+        "agent_id": agent_id,
+        "target_agent": target_agent,
+        "machine": machine or socket.gethostname(),
+    }
+
+    if target_machine:
+        context["target_machine"] = target_machine
+    if task_id:
+        context["task_id"] = task_id
+    if handoff_message:
+        context["handoff_message"] = handoff_message
+
+    return Event(
+        event_type=EventType.AGENT_HANDOFF.value,
+        project_root=str(project_root),
+        feature=feature,
+        context=context,
     )
 
 

@@ -115,6 +115,14 @@ This checks:
 - `deploy.started` - Deployment started
 - `deploy.completed` - Deployment finished
 
+### Agent Events (Multi-Machine Observability)
+- `agent.started` - Agent began working on a task
+- `agent.progress` - Agent reports progress (percentage, status message)
+- `agent.blocked` - Agent is waiting for something
+- `agent.completed` - Agent finished task
+- `agent.error` - Agent encountered error
+- `agent.handoff` - Agent handing off to another agent/machine
+
 ## Common Use Cases
 
 ### 1. Run Tests After Implementation
@@ -218,6 +226,68 @@ SPEC_ID=$(echo "$HOOK_EVENT" | jq -r '.feature')
 curl -X POST $SLACK_WEBHOOK_URL \
   -H 'Content-Type: application/json' \
   -d "{\"text\":\"Deployment completed: $SPEC_ID\"}"
+```
+
+### 6. Multi-Machine Agent Progress Tracking
+
+Track agent progress across multiple machines working on the same project:
+
+```yaml
+- name: aggregate-progress
+  events:
+    - pattern: "agent.*"  # Match all agent events
+  script: aggregate-progress.sh
+  enabled: true
+```
+
+Script:
+```bash
+#!/bin/bash
+# Aggregate agent progress to a central summary file
+set -e
+
+EVENT_TYPE=$(echo "$HOOK_EVENT" | jq -r '.event_type')
+AGENT_ID=$(echo "$HOOK_EVENT" | jq -r '.context.agent_id // "unknown"')
+MACHINE=$(echo "$HOOK_EVENT" | jq -r '.context.machine // "unknown"')
+TASK_ID=$(echo "$HOOK_EVENT" | jq -r '.context.task_id // "none"')
+PROGRESS=$(echo "$HOOK_EVENT" | jq -r '.context.progress_percent // "n/a"')
+MESSAGE=$(echo "$HOOK_EVENT" | jq -r '.context.status_message // ""')
+TIMESTAMP=$(echo "$HOOK_EVENT" | jq -r '.timestamp')
+
+# Append to progress summary
+SUMMARY_FILE=".specify/hooks/progress-summary.log"
+echo "[$TIMESTAMP] $MACHINE: $EVENT_TYPE | $AGENT_ID | $TASK_ID | ${PROGRESS}% | $MESSAGE" >> "$SUMMARY_FILE"
+
+# Keep only last 100 entries
+tail -100 "$SUMMARY_FILE" > "$SUMMARY_FILE.tmp" && mv "$SUMMARY_FILE.tmp" "$SUMMARY_FILE"
+```
+
+Emitting agent progress events:
+```bash
+# When starting work on a task
+specify hooks emit agent.started --task-id task-229 --spec-id agent-hooks
+
+# Report progress periodically
+specify hooks emit agent.progress --task-id task-229 --progress 50 --message "Implementing hooks"
+
+# When handing off to another machine
+specify hooks emit agent.handoff --task-id task-229 --agent-id claude-code@muckross
+
+# When completing work
+specify hooks emit agent.completed --task-id task-229 --message "All ACs verified"
+```
+
+Multi-machine coordination example:
+```
+muckross (planning)     → emit agent.completed --message "Planning done"
+    ↓
+central progress log    → stores event
+    ↓
+kinsale (implementing)  → emit agent.started --task-id task-229
+    ↓
+kinsale                 → emit agent.progress --progress 50
+    ↓
+galway (reviewing)      → reads progress log, sees kinsale at 50%
 ```
 
 ## Event Data Access

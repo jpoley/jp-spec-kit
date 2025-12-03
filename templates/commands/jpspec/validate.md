@@ -934,3 +934,19 @@ If a phase fails, fix the issue and re-run the command. The workflow will resume
 - `/jpspec:implement` - Implementation workflow
 - `/jpspec:plan` - Planning workflow
 - `backlog task` - Task management commands
+
+## Post-Completion: Emit Workflow Event
+
+After successfully completing this command (all validation phases passed, PR created), emit the workflow event:
+
+```bash
+specify hooks emit validate.completed \
+  --spec-id "$FEATURE_ID" \
+  --task-id "$TASK_ID" \
+  -f docs/qa/<feature>-qa-report.md \
+  -f docs/security/<feature>-security-report.md
+```
+
+Replace `$FEATURE_ID` with the feature name/identifier and `$TASK_ID` with the backlog task ID if available.
+
+This triggers any configured hooks in `.specify/hooks/hooks.yaml` (e.g., notifications, deployment triggers).

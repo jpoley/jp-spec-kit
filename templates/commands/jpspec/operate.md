@@ -416,3 +416,19 @@ Deliver comprehensive operational package with:
 - SLI/SLO definitions and monitoring
 - Security scanning integration
 - DR and backup procedures
+
+## Post-Completion: Emit Workflow Event
+
+After successfully completing this command (deployment complete, operational readiness achieved), emit the workflow event:
+
+```bash
+specify hooks emit deploy.completed \
+  --spec-id "$FEATURE_ID" \
+  --task-id "$TASK_ID" \
+  -f .github/workflows/<feature>.yml \
+  -f k8s/<feature>/
+```
+
+Replace `$FEATURE_ID` with the feature name/identifier and `$TASK_ID` with the backlog task ID if available.
+
+This triggers any configured hooks in `.specify/hooks/hooks.yaml` (e.g., notifications, monitoring alerts, post-deployment validation).

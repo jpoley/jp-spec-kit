@@ -396,3 +396,19 @@ After both agents complete:
    echo "✓ Workflow state updated to: Planned"
    echo "  Next step: /jpspec:implement"
    ```
+
+## Post-Completion: Emit Workflow Event
+
+After successfully completing this command (architecture and platform designs created), emit the workflow event:
+
+```bash
+specify hooks emit plan.created \
+  --spec-id "$FEATURE_ID" \
+  --task-id "$TASK_ID" \
+  -f docs/adr/<feature>-architecture.md \
+  -f docs/platform/<feature>-platform.md
+```
+
+Replace `$FEATURE_ID` with the feature name/identifier and `$TASK_ID` with the backlog task ID if available.
+
+This triggers any configured hooks in `.specify/hooks/hooks.yaml` (e.g., notifications, quality gates).

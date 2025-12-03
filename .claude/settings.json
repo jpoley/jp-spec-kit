@@ -32,6 +32,16 @@
     ],
     "PreToolUse": [
       {
+        "matcher": "Read|Glob|Grep|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python .claude/hooks/permission-auto-approve.py",
+            "timeout": 3
+          }
+        ]
+      },
+      {
         "matcher": "Edit|Write",
         "hooks": [
           {
@@ -65,6 +75,16 @@
             "type": "command",
             "command": "bash .claude/hooks/post-tool-use-lint-python.sh",
             "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "SlashCommand",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python .claude/hooks/post-slash-command-emit.py",
+            "timeout": 35
           }
         ]
       }

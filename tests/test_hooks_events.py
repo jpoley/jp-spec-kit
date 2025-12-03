@@ -10,6 +10,10 @@ from specify_cli.hooks.events import (
     Artifact,
     Event,
     EventType,
+    create_agent_completed_event,
+    create_agent_handoff_event,
+    create_agent_progress_event,
+    create_agent_started_event,
     create_implement_completed_event,
     create_spec_created_event,
     create_task_completed_event,
@@ -157,6 +161,15 @@ class TestEventType:
         assert EventType.TASK_COMPLETED.value == "task.completed"
         assert EventType.TASK_AC_CHECKED.value == "task.ac_checked"
 
+    def test_agent_event_types(self):
+        """Test agent event types for multi-machine observability."""
+        assert EventType.AGENT_STARTED.value == "agent.started"
+        assert EventType.AGENT_PROGRESS.value == "agent.progress"
+        assert EventType.AGENT_BLOCKED.value == "agent.blocked"
+        assert EventType.AGENT_COMPLETED.value == "agent.completed"
+        assert EventType.AGENT_ERROR.value == "agent.error"
+        assert EventType.AGENT_HANDOFF.value == "agent.handoff"
+
 
 class TestEventFactories:
     """Test event factory functions."""
@@ -202,6 +215,98 @@ class TestEventFactories:
         assert event.context["task_id"] == "task-189"
         assert len(event.artifacts) == 1
         assert event.artifacts[0].files_changed == 15
+
+
+class TestAgentEventFactories:
+    """Test agent event factory functions for multi-machine observability."""
+
+    def test_create_agent_progress_event(self):
+        """Test creating agent.progress event with all fields."""
+        event = create_agent_progress_event(
+            project_root="/tmp/project",
+            agent_id="claude-code@kinsale",
+            task_id="task-229",
+            feature="agent-hooks",
+            progress_percent=60,
+            status_message="Implementing event emission",
+            machine="kinsale",
+        )
+        assert event.event_type == "agent.progress"
+        assert event.feature == "agent-hooks"
+        assert event.context["agent_id"] == "claude-code@kinsale"
+        assert event.context["task_id"] == "task-229"
+        assert event.context["progress_percent"] == 60
+        assert event.context["status_message"] == "Implementing event emission"
+        assert event.context["machine"] == "kinsale"
+
+    def test_create_agent_progress_event_auto_machine(self):
+        """Test agent.progress event auto-detects machine hostname."""
+        import socket
+
+        event = create_agent_progress_event(
+            project_root="/tmp/project",
+            agent_id="claude-code@test",
+            progress_percent=50,
+        )
+        assert event.context["machine"] == socket.gethostname()
+
+    def test_create_agent_started_event(self):
+        """Test creating agent.started event."""
+        event = create_agent_started_event(
+            project_root="/tmp/project",
+            agent_id="claude-code@galway",
+            task_id="task-198",
+            feature="security-scanner",
+        )
+        assert event.event_type == "agent.started"
+        assert event.feature == "security-scanner"
+        assert event.context["agent_id"] == "claude-code@galway"
+        assert event.context["task_id"] == "task-198"
+        assert "machine" in event.context
+
+    def test_create_agent_completed_event(self):
+        """Test creating agent.completed event."""
+        event = create_agent_completed_event(
+            project_root="/tmp/project",
+            agent_id="claude-code@muckross",
+            task_id="task-100",
+            feature="cleanup",
+            status_message="All tasks completed successfully",
+        )
+        assert event.event_type == "agent.completed"
+        assert event.context["agent_id"] == "claude-code@muckross"
+        assert event.context["status_message"] == "All tasks completed successfully"
+
+    def test_create_agent_handoff_event(self):
+        """Test creating agent.handoff event for multi-machine coordination."""
+        event = create_agent_handoff_event(
+            project_root="/tmp/project",
+            agent_id="claude-code@muckross",
+            target_agent="claude-code@galway",
+            target_machine="galway",
+            task_id="task-198",
+            feature="security-scanner",
+            handoff_message="Planning complete, ready for implementation",
+        )
+        assert event.event_type == "agent.handoff"
+        assert event.context["agent_id"] == "claude-code@muckross"
+        assert event.context["target_agent"] == "claude-code@galway"
+        assert event.context["target_machine"] == "galway"
+        assert event.context["task_id"] == "task-198"
+        assert (
+            event.context["handoff_message"]
+            == "Planning complete, ready for implementation"
+        )
+
+    def test_agent_events_have_event_id_and_timestamp(self):
+        """Test all agent events get proper event_id and timestamp."""
+        event = create_agent_progress_event(
+            project_root="/tmp/project",
+            agent_id="test-agent",
+        )
+        assert event.event_id.startswith("evt_")
+        assert event.timestamp.endswith("Z")
+        assert event.schema_version == "1.0"
 
 
 class TestEventIdGeneration:

@@ -394,3 +394,19 @@ After the research and business validation agents complete their work:
 **Research without actionable follow-up tasks provides no value. Every research effort must produce implementation direction.**
 
 **Note**: If research concludes with "No-Go" recommendation, create a documentation task to record the decision and rationale for future reference.
+
+## Post-Completion: Emit Workflow Event
+
+After successfully completing this command (research and validation reports generated), emit the workflow event:
+
+```bash
+specify hooks emit research.completed \
+  --spec-id "$FEATURE_ID" \
+  --task-id "$TASK_ID" \
+  -f docs/research/<feature>-research.md \
+  -f docs/research/<feature>-validation.md
+```
+
+Replace `$FEATURE_ID` with the feature name/identifier and `$TASK_ID` with the backlog task ID if available.
+
+This triggers any configured hooks in `.specify/hooks/hooks.yaml` (e.g., notifications, quality gates).

@@ -263,3 +263,18 @@ backlog task list --plain | grep -i "<feature-keyword>"
 ```
 
 **Failure to create implementation tasks means the specification work is incomplete.**
+
+## Post-Completion: Emit Workflow Event
+
+After successfully completing this command (PRD created and tasks defined), emit the workflow event:
+
+```bash
+specify hooks emit spec.created \
+  --spec-id "$FEATURE_ID" \
+  --task-id "$TASK_ID" \
+  -f docs/prd/<feature>-spec.md
+```
+
+Replace `$FEATURE_ID` with the feature name/identifier and `$TASK_ID` with the backlog task ID if available.
+
+This triggers any configured hooks in `.specify/hooks/hooks.yaml` (e.g., notifications, quality gates).
