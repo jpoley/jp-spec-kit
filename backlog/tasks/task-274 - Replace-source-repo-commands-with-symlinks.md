@@ -1,9 +1,11 @@
 ---
 id: task-274
 title: Replace source repo commands with symlinks
-status: To Do
-assignee: []
+status: Done
+assignee:
+  - '@cli-engineer'
 created_date: '2025-12-03 14:01'
+updated_date: '2025-12-03 14:17'
 labels:
   - architecture
   - migration
@@ -27,3 +29,9 @@ Delete direct files in .claude/commands/ and replace with symlinks created by do
 - [ ] #5 Test Claude Code reads commands via symlinks successfully
 - [ ] #6 Commit symlink replacement to git
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Replaced all command files with symlinks to templates subdirectories. jpspec: 8 commands, speckit: 8 commands
+<!-- SECTION:NOTES:END -->

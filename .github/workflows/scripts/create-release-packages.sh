@@ -40,88 +40,29 @@ rewrite_paths() {
 generate_commands() {
   local agent=$1 ext=$2 arg_format=$3 output_dir=$4 script_variant=$5
   mkdir -p "$output_dir"
-  
-  # Process base commands
-  for template in templates/commands/*.md; do
-    [[ -f "$template" ]] || continue
-    local name description script_command agent_script_command body
-    name=$(basename "$template" .md)
-    
-    # Normalize line endings
-    file_content=$(tr -d '\r' < "$template")
-    
-    # Extract description and script command from YAML frontmatter
-    description=$(printf '%s\n' "$file_content" | awk '/^description:/ {sub(/^description:[[:space:]]*/, ""); print; exit}')
-    script_command=$(printf '%s\n' "$file_content" | awk -v sv="$script_variant" '/^[[:space:]]*'"$script_variant"':[[:space:]]*/ {sub(/^[[:space:]]*'"$script_variant"':[[:space:]]*/, ""); print; exit}')
-    
-    if [[ -z $script_command ]]; then
-      echo "Warning: no script command found for $script_variant in $template" >&2
-      script_command="(Missing script command for $script_variant)"
-    fi
-    
-    # Extract agent_script command from YAML frontmatter if present
-    agent_script_command=$(printf '%s\n' "$file_content" | awk '
-      /^agent_scripts:$/ { in_agent_scripts=1; next }
-      in_agent_scripts && /^[[:space:]]*'"$script_variant"':[[:space:]]*/ {
-        sub(/^[[:space:]]*'"$script_variant"':[[:space:]]*/, "")
-        print
-        exit
-      }
-      in_agent_scripts && /^[a-zA-Z]/ { in_agent_scripts=0 }
-    ')
-    
-    # Replace {SCRIPT} placeholder with the script command
-    body=$(printf '%s\n' "$file_content" | sed "s|{SCRIPT}|${script_command}|g")
-    
-    # Replace {AGENT_SCRIPT} placeholder with the agent script command if found
-    if [[ -n $agent_script_command ]]; then
-      body=$(printf '%s\n' "$body" | sed "s|{AGENT_SCRIPT}|${agent_script_command}|g")
-    fi
-    
-    # Remove the scripts: and agent_scripts: sections from frontmatter while preserving YAML structure
-    body=$(printf '%s\n' "$body" | awk '
-      /^---$/ { print; if (++dash_count == 1) in_frontmatter=1; else in_frontmatter=0; next }
-      in_frontmatter && /^scripts:$/ { skip_scripts=1; next }
-      in_frontmatter && /^agent_scripts:$/ { skip_scripts=1; next }
-      in_frontmatter && /^[a-zA-Z].*:/ && skip_scripts { skip_scripts=0 }
-      in_frontmatter && skip_scripts && /^[[:space:]]/ { next }
-      { print }
-    ')
-    
-    # Apply other substitutions
-    body=$(printf '%s\n' "$body" | sed "s/{ARGS}/$arg_format/g" | sed "s/__AGENT__/$agent/g" | rewrite_paths)
-    
-    case $ext in
-      toml)
-        body=$(printf '%s\n' "$body" | sed 's/\\/\\\\/g')
-        { echo "description = \"$description\""; echo; echo "prompt = \"\"\""; echo "$body"; echo "\"\"\""; } > "$output_dir/speckit.$name.$ext" ;;
-      md)
-        echo "$body" > "$output_dir/speckit.$name.$ext" ;;
-      prompt.md)
-        echo "$body" > "$output_dir/speckit.$name.$ext" ;;
-    esac
-  done
-  
-  # Process jpspec commands if they exist (jp-spec-kit extension)
-  if [[ -d templates/commands/jpspec ]]; then
-    echo "Processing jpspec commands for $agent..."
-    for template in templates/commands/jpspec/*.md; do
+
+  # Process speckit commands from templates/commands/speckit/
+  local speckit_output_dir="$output_dir/speckit"
+  if [[ -d templates/commands/speckit ]]; then
+    echo "Processing speckit commands for $agent..."
+    mkdir -p "$speckit_output_dir"
+    for template in templates/commands/speckit/*.md; do
       [[ -f "$template" ]] || continue
       local name description script_command agent_script_command body
       name=$(basename "$template" .md)
-      
+
       # Normalize line endings
       file_content=$(tr -d '\r' < "$template")
-      
+
       # Extract description and script command from YAML frontmatter
       description=$(printf '%s\n' "$file_content" | awk '/^description:/ {sub(/^description:[[:space:]]*/, ""); print; exit}')
       script_command=$(printf '%s\n' "$file_content" | awk -v sv="$script_variant" '/^[[:space:]]*'"$script_variant"':[[:space:]]*/ {sub(/^[[:space:]]*'"$script_variant"':[[:space:]]*/, ""); print; exit}')
-      
+
       if [[ -z $script_command ]]; then
-        echo "Warning: no script command found for $script_variant in jpspec/$template" >&2
+        echo "Warning: no script command found for $script_variant in speckit/$template" >&2
         script_command="(Missing script command for $script_variant)"
       fi
-      
+
       # Extract agent_script command from YAML frontmatter if present
       agent_script_command=$(printf '%s\n' "$file_content" | awk '
         /^agent_scripts:$/ { in_agent_scripts=1; next }
@@ -132,15 +73,15 @@ generate_commands() {
         }
         in_agent_scripts && /^[a-zA-Z]/ { in_agent_scripts=0 }
       ')
-      
+
       # Replace {SCRIPT} placeholder with the script command
       body=$(printf '%s\n' "$file_content" | sed "s|{SCRIPT}|${script_command}|g")
-      
+
       # Replace {AGENT_SCRIPT} placeholder with the agent script command if found
       if [[ -n $agent_script_command ]]; then
         body=$(printf '%s\n' "$body" | sed "s|{AGENT_SCRIPT}|${agent_script_command}|g")
       fi
-      
+
       # Remove the scripts: and agent_scripts: sections from frontmatter while preserving YAML structure
       body=$(printf '%s\n' "$body" | awk '
         /^---$/ { print; if (++dash_count == 1) in_frontmatter=1; else in_frontmatter=0; next }
@@ -150,18 +91,87 @@ generate_commands() {
         in_frontmatter && skip_scripts && /^[[:space:]]/ { next }
         { print }
       ')
-      
+
       # Apply other substitutions
       body=$(printf '%s\n' "$body" | sed "s/{ARGS}/$arg_format/g" | sed "s/__AGENT__/$agent/g" | rewrite_paths)
-      
+
       case $ext in
         toml)
           body=$(printf '%s\n' "$body" | sed 's/\\/\\\\/g')
-          { echo "description = \"$description\""; echo; echo "prompt = \"\"\""; echo "$body"; echo "\"\"\""; } > "$output_dir/jpspec.$name.$ext" ;;
+          { echo "description = \"$description\""; echo; echo "prompt = \"\"\""; echo "$body"; echo "\"\"\""; } > "$speckit_output_dir/$name.$ext" ;;
         md)
-          echo "$body" > "$output_dir/jpspec.$name.$ext" ;;
+          echo "$body" > "$speckit_output_dir/$name.$ext" ;;
         prompt.md)
-          echo "$body" > "$output_dir/jpspec.$name.$ext" ;;
+          echo "$body" > "$speckit_output_dir/$name.$ext" ;;
+      esac
+    done
+  fi
+
+  # Process jpspec commands if they exist (jp-spec-kit extension)
+  local jpspec_output_dir="$output_dir/jpspec"
+  if [[ -d templates/commands/jpspec ]]; then
+    echo "Processing jpspec commands for $agent..."
+    mkdir -p "$jpspec_output_dir"
+    for template in templates/commands/jpspec/*.md; do
+      [[ -f "$template" ]] || continue
+      # Skip partial files (starting with _)
+      [[ $(basename "$template") =~ ^_ ]] && continue
+
+      local name description script_command agent_script_command body
+      name=$(basename "$template" .md)
+
+      # Normalize line endings
+      file_content=$(tr -d '\r' < "$template")
+
+      # Extract description and script command from YAML frontmatter
+      description=$(printf '%s\n' "$file_content" | awk '/^description:/ {sub(/^description:[[:space:]]*/, ""); print; exit}')
+      script_command=$(printf '%s\n' "$file_content" | awk -v sv="$script_variant" '/^[[:space:]]*'"$script_variant"':[[:space:]]*/ {sub(/^[[:space:]]*'"$script_variant"':[[:space:]]*/, ""); print; exit}')
+
+      if [[ -z $script_command ]]; then
+        echo "Warning: no script command found for $script_variant in jpspec/$template" >&2
+        script_command="(Missing script command for $script_variant)"
+      fi
+
+      # Extract agent_script command from YAML frontmatter if present
+      agent_script_command=$(printf '%s\n' "$file_content" | awk '
+        /^agent_scripts:$/ { in_agent_scripts=1; next }
+        in_agent_scripts && /^[[:space:]]*'"$script_variant"':[[:space:]]*/ {
+          sub(/^[[:space:]]*'"$script_variant"':[[:space:]]*/, "")
+          print
+          exit
+        }
+        in_agent_scripts && /^[a-zA-Z]/ { in_agent_scripts=0 }
+      ')
+
+      # Replace {SCRIPT} placeholder with the script command
+      body=$(printf '%s\n' "$file_content" | sed "s|{SCRIPT}|${script_command}|g")
+
+      # Replace {AGENT_SCRIPT} placeholder with the agent script command if found
+      if [[ -n $agent_script_command ]]; then
+        body=$(printf '%s\n' "$body" | sed "s|{AGENT_SCRIPT}|${agent_script_command}|g")
+      fi
+
+      # Remove the scripts: and agent_scripts: sections from frontmatter while preserving YAML structure
+      body=$(printf '%s\n' "$body" | awk '
+        /^---$/ { print; if (++dash_count == 1) in_frontmatter=1; else in_frontmatter=0; next }
+        in_frontmatter && /^scripts:$/ { skip_scripts=1; next }
+        in_frontmatter && /^agent_scripts:$/ { skip_scripts=1; next }
+        in_frontmatter && /^[a-zA-Z].*:/ && skip_scripts { skip_scripts=0 }
+        in_frontmatter && skip_scripts && /^[[:space:]]/ { next }
+        { print }
+      ')
+
+      # Apply other substitutions
+      body=$(printf '%s\n' "$body" | sed "s/{ARGS}/$arg_format/g" | sed "s/__AGENT__/$agent/g" | rewrite_paths)
+
+      case $ext in
+        toml)
+          body=$(printf '%s\n' "$body" | sed 's/\\/\\\\/g')
+          { echo "description = \"$description\""; echo; echo "prompt = \"\"\""; echo "$body"; echo "\"\"\""; } > "$jpspec_output_dir/$name.$ext" ;;
+        md)
+          echo "$body" > "$jpspec_output_dir/$name.$ext" ;;
+        prompt.md)
+          echo "$body" > "$jpspec_output_dir/$name.$ext" ;;
       esac
     done
   fi

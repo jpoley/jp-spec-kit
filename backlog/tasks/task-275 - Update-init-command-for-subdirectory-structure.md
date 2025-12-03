@@ -1,9 +1,11 @@
 ---
 id: task-275
 title: Update init command for subdirectory structure
-status: To Do
-assignee: []
+status: Done
+assignee:
+  - '@cli-engineer'
 created_date: '2025-12-03 14:01'
+updated_date: '2025-12-03 14:19'
 labels:
   - cli
   - init
@@ -26,3 +28,9 @@ Modify specify init to create subdirectory structure for commands instead of fla
 - [ ] #4 Test init creates correct subdirectory structure
 - [ ] #5 Verify init output matches dogfood structure (files vs symlinks)
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Updated create-release-packages.sh to generate subdirectory structure for commands. Init command extracts ZIPs as-is, so no changes needed there.
+<!-- SECTION:NOTES:END -->

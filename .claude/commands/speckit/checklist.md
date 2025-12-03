@@ -1,1 +1,1 @@
-../../../templates/commands/checklist.md
+../../../templates/commands/speckit/checklist.md

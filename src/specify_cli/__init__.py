@@ -2507,9 +2507,9 @@ def dogfood(
     Set up jp-spec-kit source repository for dogfooding.
 
     This command prepares the jp-spec-kit source repository to use its own
-    /speckit.* commands during development. It creates symlinks from
-    .claude/commands/speckit/ to templates/commands/ so that Claude Code
-    can discover the commands.
+    /jpspec.* and /speckit.* commands during development. It creates symlinks from
+    .claude/commands/jpspec/ and .claude/commands/speckit/ to templates/commands/
+    so that Claude Code can discover the commands.
 
     This is only useful when developing jp-spec-kit itself. For normal
     projects, use 'specify init' instead.
@@ -2536,24 +2536,24 @@ def dogfood(
         )
         raise typer.Exit(1)
 
-    templates_dir = project_path / "templates" / "commands"
-    if not templates_dir.exists():
+    # Template directories
+    jpspec_templates_dir = project_path / "templates" / "commands" / "jpspec"
+    speckit_templates_dir = project_path / "templates" / "commands" / "speckit"
+
+    # Verify template directories exist
+    if not jpspec_templates_dir.exists() or not speckit_templates_dir.exists():
         console.print(
-            f"[red]Error:[/red] Templates directory not found: {templates_dir}"
+            f"[red]Error:[/red] Template directories not found in templates/commands/"
         )
         raise typer.Exit(1)
 
-    # Create .claude/commands/speckit/ directory
+    # Target directories for symlinks
+    jpspec_commands_dir = project_path / ".claude" / "commands" / "jpspec"
     speckit_commands_dir = project_path / ".claude" / "commands" / "speckit"
-    speckit_commands_dir.mkdir(parents=True, exist_ok=True)
 
-    # Get list of template command files
-    template_files = list(templates_dir.glob("*.md"))
-    if not template_files:
-        console.print(
-            f"[yellow]Warning:[/yellow] No command templates found in {templates_dir}"
-        )
-        raise typer.Exit(1)
+    # Create directories
+    jpspec_commands_dir.mkdir(parents=True, exist_ok=True)
+    speckit_commands_dir.mkdir(parents=True, exist_ok=True)
 
     console.print("[cyan]Setting up dogfooding for jp-spec-kit...[/cyan]\n")
 
@@ -2561,16 +2561,22 @@ def dogfood(
     tracker.add("check", "Check prerequisites")
     tracker.complete("check", "jp-spec-kit source repository detected")
 
-    tracker.add("symlinks", "Create command symlinks")
+    tracker.add("jpspec", "Create jpspec command symlinks")
 
     created = 0
     skipped = 0
     errors = []
 
-    for template_file in template_files:
-        symlink_path = speckit_commands_dir / template_file.name
+    # Create jpspec symlinks
+    jpspec_files = list(jpspec_templates_dir.glob("*.md"))
+    for template_file in jpspec_files:
+        # Skip _backlog-instructions.md partial
+        if template_file.name.startswith("_"):
+            continue
+
+        symlink_path = jpspec_commands_dir / template_file.name
         relative_target = (
-            Path("..") / ".." / ".." / "templates" / "commands" / template_file.name
+            Path("..") / ".." / ".." / "templates" / "commands" / "jpspec" / template_file.name
         )
 
         try:
@@ -2585,20 +2591,60 @@ def dogfood(
                 symlink_path.symlink_to(relative_target)
                 created += 1
         except OSError as e:
-            errors.append(f"{template_file.name}: {e}")
+            errors.append(f"jpspec/{template_file.name}: {e}")
 
     if errors:
-        tracker.fail("symlinks", f"{len(errors)} errors")
+        tracker.fail("jpspec", f"{len(errors)} errors")
         for error in errors:
             console.print(f"  [red]Error:[/red] {error}")
     else:
-        tracker.complete("symlinks", f"{created} created, {skipped} skipped")
+        tracker.complete("jpspec", f"{created} created, {skipped} skipped")
+
+    tracker.add("speckit", "Create speckit command symlinks")
+
+    created = 0
+    skipped = 0
+
+    # Create speckit symlinks
+    speckit_files = list(speckit_templates_dir.glob("*.md"))
+    for template_file in speckit_files:
+        symlink_path = speckit_commands_dir / template_file.name
+        relative_target = (
+            Path("..") / ".." / ".." / "templates" / "commands" / "speckit" / template_file.name
+        )
+
+        try:
+            if symlink_path.exists() or symlink_path.is_symlink():
+                if force:
+                    symlink_path.unlink()
+                    symlink_path.symlink_to(relative_target)
+                    created += 1
+                else:
+                    skipped += 1
+            else:
+                symlink_path.symlink_to(relative_target)
+                created += 1
+        except OSError as e:
+            errors.append(f"speckit/{template_file.name}: {e}")
+
+    if errors:
+        tracker.fail("speckit", f"{len(errors)} errors")
+        for error in errors:
+            console.print(f"  [red]Error:[/red] {error}")
+    else:
+        tracker.complete("speckit", f"{created} created, {skipped} skipped")
 
     tracker.add("verify", "Verify symlinks")
 
     # Verify symlinks work
     valid = 0
     broken = 0
+    for symlink_path in jpspec_commands_dir.glob("*.md"):
+        if symlink_path.is_symlink():
+            if symlink_path.resolve().exists():
+                valid += 1
+            else:
+                broken += 1
     for symlink_path in speckit_commands_dir.glob("*.md"):
         if symlink_path.is_symlink():
             if symlink_path.resolve().exists():
@@ -2617,8 +2663,13 @@ def dogfood(
     console.print(tracker.render())
 
     console.print("\n[bold green]Dogfood setup complete![/bold green]")
-    console.print("\nThe following /speckit.* commands are now available:")
-    for template_file in sorted(template_files):
+    console.print("\nThe following commands are now available:")
+    console.print("\n[bold]/jpspec:* commands:[/bold]")
+    for template_file in sorted(jpspec_files):
+        if not template_file.name.startswith("_"):
+            console.print(f"  [cyan]/jpspec:{template_file.stem}[/cyan]")
+    console.print("\n[bold]/speckit:* commands:[/bold]")
+    for template_file in sorted(speckit_files):
         console.print(f"  [cyan]/speckit:{template_file.stem}[/cyan]")
     console.print("\n[dim]Note: Restart Claude Code to pick up the new commands.[/dim]")
 
