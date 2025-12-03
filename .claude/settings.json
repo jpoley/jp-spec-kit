@@ -17,8 +17,8 @@
       "Bash(rm:-rf:*)",
       "Bash(rm:-fr:*)",
       "Bash(chmod:777:*)",
-      "Bash(curl:|:*)",
-      "Bash(wget:|:*)"
+      "Bash(curl:*:|:*)",
+      "Bash(wget:*:|:*)"
     ]
   },
   "allowedTools": [

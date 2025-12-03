@@ -34,8 +34,8 @@ The following operations are blocked by `.claude/settings.json`:
 | `Bash(rm:-rf:*)` | Recursive force delete |
 | `Bash(rm:-fr:*)` | Force recursive delete |
 | `Bash(chmod:777:*)` | World-writable permissions |
-| `Bash(curl:\|:*)` | Piped curl commands |
-| `Bash(wget:\|:*)` | Piped wget commands |
+| `Bash(curl:*:|:*)` | Piped curl commands |
+| `Bash(wget:*:|:*)` | Piped wget commands |
 
 ## Why These Rules?
 
