@@ -1,10 +1,10 @@
 ---
 id: task-097
 title: Create user customization guide for workflow config
-status: In Progress
+status: Done
 assignee: []
 created_date: '2025-11-28 15:58'
-updated_date: '2025-12-02 23:47'
+updated_date: '2025-12-03 00:13'
 labels:
   - documentation
   - user-guide
@@ -26,14 +26,19 @@ Create comprehensive guide for users who want to customize the workflow configur
 - [x] #4 Guide explains how to add custom agents to workflows
 - [x] #5 Guide explains how to create new states
 - [x] #6 Guide explains how to validate customizations
-- [ ] #7 Guide includes troubleshooting section
-- [ ] #8 Guide warns about potential issues (circular deps, unreachable states)
+- [x] #7 Guide includes troubleshooting section
+- [x] #8 Guide warns about potential issues (circular deps, unreachable states)
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-Documentation created at docs/guides/workflow-customization.md
+Completed via PR #231
 
-⚠️ Reverted to In Progress - ACs #7 and #8 still incomplete
+Implementation:
+- Added Troubleshooting section with Critical Issues to Avoid
+- Documented circular dependencies with examples and fixes
+- Documented unreachable states with examples and fixes
+- Added quick reference table and diagnostic commands
+- 31 tests verifying all ACs
 <!-- SECTION:NOTES:END -->
