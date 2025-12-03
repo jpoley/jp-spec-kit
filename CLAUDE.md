@@ -152,7 +152,8 @@ jp-spec-kit/
 ├── memory/                 # Constitution & specs
 ├── scripts/bash/           # Automation scripts
 ├── backlog/                # Task management
-└── .claude/commands/       # Slash command implementations
+├── .claude/commands/       # Slash command implementations
+└── .claude/agents/         # Subagents (5 engineering specialists)
 ```
 
 @import memory/code-standards.md
@@ -186,6 +187,8 @@ Additional context loaded when working in specific directories:
 | `SPECIFY_FEATURE` | Override feature detection for non-Git repos |
 
 @import memory/claude-hooks.md
+
+@import memory/claude-subagents.md
 
 ## Quick Troubleshooting
 
