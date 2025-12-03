@@ -24,6 +24,14 @@ If the task doesn't have the required workflow state, inform the user:
 
 **Proceed to Step 1 ONLY if workflow validation passes.**
 
+### Extended Thinking Mode
+
+> **🧠 Think Hard**: Architecture and platform decisions require deep analysis. Apply extended thinking to:
+> - Technology tradeoffs and long-term implications
+> - Scalability, maintainability, and security considerations
+> - Integration complexity and dependency management
+> - Alternative approaches and their consequences
+
 ### Step 1: Backlog Task Discovery
 
 Before launching the planning agents, discover existing backlog tasks related to the feature being planned:

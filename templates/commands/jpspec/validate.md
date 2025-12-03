@@ -24,6 +24,14 @@ If the task doesn't have the required workflow state, inform the user:
 
 **Proceed to Phase 0 ONLY if workflow validation passes.**
 
+### Extended Thinking Mode
+
+> **🧠 Think Hard**: Security and quality validation require thorough analysis. Apply extended thinking to:
+> - Attack vectors and vulnerability assessment
+> - Data flow security and authentication boundaries
+> - Test coverage gaps and edge cases
+> - Compliance requirements and best practices
+
 ## Workflow Overview
 
 This command orchestrates a phased validation workflow:
