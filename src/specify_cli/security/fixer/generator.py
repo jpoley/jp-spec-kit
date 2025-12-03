@@ -235,6 +235,7 @@ Respond in JSON format:
                 if not is_valid:
                     warnings.append(f"Syntax validation warning: {syntax_error}")
                     confidence *= 0.7  # Reduce confidence
+                    confidence = max(0.0, min(1.0, confidence))
 
             patch = Patch(
                 file_path=Path(finding.location.file),
