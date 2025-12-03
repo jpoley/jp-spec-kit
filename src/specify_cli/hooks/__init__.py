@@ -43,6 +43,7 @@ from .events import (
 )
 from .runner import HookResult, HookRunner
 from .schema import EventMatcher, HookDefinition, HooksConfig
+from .security import AuditLogger, SecurityConfig, SecurityValidator
 
 __all__ = [
     # Events
@@ -72,4 +73,8 @@ __all__ = [
     # Runner
     "HookRunner",
     "HookResult",
+    # Security
+    "SecurityConfig",
+    "SecurityValidator",
+    "AuditLogger",
 ]

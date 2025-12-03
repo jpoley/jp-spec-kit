@@ -30,6 +30,7 @@ from typing import Any
 
 from .events import Event
 from .schema import HookDefinition
+from .security import SecurityConfig, SecurityValidator
 
 logger = logging.getLogger(__name__)
 
@@ -128,6 +129,7 @@ class HookRunner:
         self,
         workspace_root: Path,
         audit_log_path: Path | None = None,
+        security_config: SecurityConfig | None = None,
     ):
         """Initialize runner with workspace and audit log.
 
@@ -135,6 +137,8 @@ class HookRunner:
             workspace_root: Project root directory.
             audit_log_path: Path to audit log file (optional). Defaults to
                 workspace_root/.specify/hooks/audit.log.
+            security_config: Security configuration (optional). Defaults to
+                default SecurityConfig.
 
         Example:
             >>> runner = HookRunner(workspace_root=Path.cwd())
@@ -142,6 +146,12 @@ class HookRunner:
             >>> runner = HookRunner(
             ...     workspace_root=Path.cwd(),
             ...     audit_log_path=Path("/var/log/hooks.log")
+            ... )
+            >>> # With custom security config
+            >>> config = SecurityConfig(max_output_size=2048)
+            >>> runner = HookRunner(
+            ...     workspace_root=Path.cwd(),
+            ...     security_config=config
             ... )
         """
         self.workspace_root = workspace_root
@@ -152,6 +162,11 @@ class HookRunner:
 
         # Create audit log directory if it doesn't exist
         self.audit_log_path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Initialize security validator
+        if security_config is None:
+            security_config = SecurityConfig()
+        self.security_validator = SecurityValidator(security_config, workspace_root)
 
     def run_hook(self, hook: HookDefinition, event: Event) -> HookResult:
         """Execute a single hook with security controls.
@@ -196,6 +211,13 @@ class HookRunner:
             # Validate and prepare based on method
             if method_type == "script":
                 script_path = self._validate_script_path(method_value)
+
+                # Perform security validation on script content
+                warnings = self.security_validator.validate_script_content(script_path)
+                if warnings:
+                    for warning in warnings:
+                        logger.warning(f"Security warning for hook '{hook.name}': {warning}")
+
                 command = [str(script_path)]
             elif method_type == "command":
                 # For command, use shell
