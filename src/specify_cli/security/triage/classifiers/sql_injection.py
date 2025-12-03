@@ -33,14 +33,20 @@ class SQLInjectionClassifier(FindingClassifier):
         code_lower = code.lower()
 
         # Check for parameterized queries (likely FP)
+        # Note: bare "?" is too broad - must be in SQL context
         parameterized_patterns = [
-            "?",  # Placeholder
+            "?, ?",  # Multiple SQL placeholders
+            ", ?)",  # SQL placeholder in VALUES
+            "(?, ",  # SQL placeholder in VALUES
+            "= ?",  # SQL placeholder in WHERE
             "$1",
             "$2",  # PostgreSQL placeholders
             ":param",  # Named parameters
-            "execute(",  # Usually parameterized
             "prepared",
         ]
+
+        # Check execute() separately - it's context-dependent
+        has_execute = "execute(" in code_lower
 
         for pattern in parameterized_patterns:
             if pattern in code_lower:
@@ -54,11 +60,16 @@ class SQLInjectionClassifier(FindingClassifier):
                 )
 
         # Check for string concatenation (likely TP)
+        # Include patterns with and without spaces around operators
         concat_patterns = [
-            '+ "',
-            '" +',
-            "' +",
-            "+ '",
+            '+ "',  # with space
+            '+"',  # without space
+            '" +',  # with space
+            '"+',  # without space
+            "' +",  # with space
+            "'+",  # without space
+            "+ '",  # with space
+            "+'",  # without space
             'f"',  # f-string
             "f'",
             ".format(",
@@ -76,6 +87,18 @@ class SQLInjectionClassifier(FindingClassifier):
                         "Likely vulnerable to SQL injection."
                     ),
                 )
+
+        # If execute() is found without concat patterns, it might be using
+        # parameterized queries with a params argument
+        if has_execute:
+            return ClassificationResult(
+                classification=Classification.NEEDS_INVESTIGATION,
+                confidence=0.6,
+                reasoning=(
+                    "Found execute() call. Check if query uses parameterized "
+                    "queries with params argument or string concatenation."
+                ),
+            )
 
         return ClassificationResult(
             classification=Classification.NEEDS_INVESTIGATION,

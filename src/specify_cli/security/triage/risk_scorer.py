@@ -123,14 +123,24 @@ class RiskScorer:
             return 30  # Default
 
         try:
-            # Get the directory containing the file
             file_path_obj = Path(file_path)
             if not file_path_obj.exists():
                 return 30
 
-            cwd = file_path_obj.parent
-            if not cwd.exists():
-                cwd = Path.cwd()
+            # Use absolute path and find git root
+            abs_path = file_path_obj.resolve()
+
+            # Find git repository root by looking for .git directory
+            git_root = self._find_git_root(abs_path.parent)
+            if not git_root:
+                return 30
+
+            # Get path relative to git root for git blame
+            try:
+                rel_path = abs_path.relative_to(git_root)
+            except ValueError:
+                # File is not under git root
+                return 30
 
             result = subprocess.run(
                 [
@@ -139,11 +149,11 @@ class RiskScorer:
                     "-L",
                     f"{line_start},{line_start}",
                     "--porcelain",
-                    str(file_path_obj.name),
+                    str(rel_path),
                 ],
                 capture_output=True,
                 text=True,
-                cwd=str(cwd),
+                cwd=str(git_root),
                 timeout=5,
             )
 
@@ -164,6 +174,15 @@ class RiskScorer:
             pass  # git blame failed
 
         return 30  # Default: 30 days if git unavailable
+
+    def _find_git_root(self, start_path: Path) -> Path | None:
+        """Find the git repository root by traversing up the directory tree."""
+        current = start_path
+        while current != current.parent:
+            if (current / ".git").exists():
+                return current
+            current = current.parent
+        return None
 
 
 def calculate_risk_score(

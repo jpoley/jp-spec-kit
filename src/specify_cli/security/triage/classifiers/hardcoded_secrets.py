@@ -4,7 +4,9 @@ Specialized classifier for hardcoded credential vulnerabilities.
 Analyzes secret patterns and determines if they're real secrets.
 """
 
+import math
 import re
+from collections import Counter
 
 from specify_cli.security.models import Finding
 from specify_cli.security.triage.models import Classification
@@ -108,11 +110,24 @@ class HardcodedSecretsClassifier(FindingClassifier):
         )
 
     def _extract_secret_value(self, code: str) -> str | None:
-        """Extract the secret value from code snippet."""
-        # Common patterns for secret assignment
+        """Extract the secret value from code snippet.
+
+        Uses specific patterns to find secret assignment values,
+        not just any quoted string.
+        """
+        # More specific patterns for secret assignment
+        # Look for common secret variable names followed by assignment
         patterns = [
-            r'["\']([^"\']+)["\']',  # Quoted string
-            r"=\s*([^\s;]+)",  # Assignment
+            # Matches: KEY = "value" or KEY = 'value' (with common secret names)
+            r"(?i)\b(?:key|secret|token|password|pwd|pass|api[_-]?key|"
+            r"access[_-]?key|auth[_-]?token|credentials?)\b\s*[=:]\s*"
+            r'["\']([^"\']+)["\']',
+            # Matches: "key": "value" in JSON/dict
+            r'(?i)["\'](?:key|secret|token|password|pwd|pass|api[_-]?key|'
+            r'access[_-]?key|auth[_-]?token|credentials?)["\']'
+            r'\s*:\s*["\']([^"\']+)["\']',
+            # Fallback: quoted string (less specific)
+            r'["\']([^"\']{8,})["\']',  # At least 8 chars
         ]
 
         for pattern in patterns:
@@ -124,9 +139,6 @@ class HardcodedSecretsClassifier(FindingClassifier):
 
     def _calculate_entropy(self, value: str) -> float:
         """Calculate Shannon entropy of a string (bits per character)."""
-        import math
-        from collections import Counter
-
         if not value:
             return 0.0
 

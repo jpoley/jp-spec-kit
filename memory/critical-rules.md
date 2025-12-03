@@ -53,3 +53,29 @@ Worktree name MUST match branch name:
 git worktree add ../feature-auth feature-auth  # Correct
 git worktree add ../work1 feature-auth         # Wrong
 ```
+
+## Code Quality Standards (from PR #342 learnings)
+
+### Imports
+All imports MUST be at module level, never inside functions/methods.
+
+### Pattern Matching in Security Code
+When writing heuristic classifiers:
+1. Consider what ELSE could match the pattern (adversarial examples)
+2. Add context requirements (same line, specific surrounding patterns)
+3. Use negative patterns to exclude known false matches
+4. NEVER return early on a single pattern - check for conflicting patterns
+
+### Exception Handling
+Exception handlers MUST:
+1. Log the actual exception with context using `logger.warning()` or `logger.error()`
+2. Include relevant data (truncated to reasonable size)
+3. Return error details in user-facing messages when appropriate
+
+### File Path Operations
+For file-system operations:
+1. Use absolute paths resolved from a known root
+2. Find the actual git root, don't assume it's the file's parent
+3. Use paths relative to git root for git commands
+
+See: `memory/learnings/pr-342-triage-engine.md` for detailed examples.
