@@ -1,14 +1,13 @@
 ---
 id: task-215
 title: 'Implement /jpspec:security CLI Commands'
-status: To Do
+status: Done
 assignee:
   - '@pm-planner'
 created_date: '2025-12-03 01:58'
+updated_date: '2025-12-03 03:04'
 labels:
-  - security
-  - implement
-  - cli
+  - 'workflow:Planned'
 dependencies: []
 priority: high
 ---

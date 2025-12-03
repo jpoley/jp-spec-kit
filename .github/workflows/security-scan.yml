@@ -1,0 +1,236 @@
+# Reusable Security Scan Workflow for JP Spec Kit
+#
+# This workflow provides security scanning capabilities using /jpspec:security commands.
+# It can be called from other workflows to perform security scans with configurable options.
+#
+# Usage Example:
+#
+#   jobs:
+#     security:
+#       uses: ./.github/workflows/security-scan.yml
+#       with:
+#         scan-type: incremental
+#         fail-on: critical,high
+#         upload-sarif: true
+#
+
+name: Security Scan (Reusable)
+
+on:
+  workflow_call:
+    inputs:
+      scan-type:
+        description: 'Scan type: incremental, full, fast'
+        required: false
+        type: string
+        default: 'incremental'
+      fail-on:
+        description: 'Severity levels to block on: critical, high, medium, low'
+        required: false
+        type: string
+        default: 'critical,high'
+      upload-sarif:
+        description: 'Upload SARIF to GitHub Security tab'
+        required: false
+        type: boolean
+        default: true
+      scan-path:
+        description: 'Path to scan (default: entire repo)'
+        required: false
+        type: string
+        default: '.'
+    outputs:
+      findings-count:
+        description: 'Total number of findings'
+        value: ${{ jobs.scan.outputs.findings }}
+      critical-count:
+        description: 'Number of critical findings'
+        value: ${{ jobs.scan.outputs.critical }}
+      high-count:
+        description: 'Number of high severity findings'
+        value: ${{ jobs.scan.outputs.high }}
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    # Required permissions for SARIF upload and PR comments
+    permissions:
+      contents: read
+      security-events: write
+      pull-requests: write
+
+    outputs:
+      findings: ${{ steps.scan.outputs.total }}
+      critical: ${{ steps.scan.outputs.critical }}
+      high: ${{ steps.scan.outputs.high }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for incremental scanning
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Cache Semgrep Binary
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/bin/semgrep
+          key: semgrep-${{ runner.os }}-1.50.0
+          restore-keys: |
+            semgrep-${{ runner.os }}-
+
+      - name: Install JP Spec Kit
+        run: |
+          pip install uv
+          uv tool install specify-cli
+
+      - name: Install Semgrep
+        run: pip install semgrep==1.50.0
+
+      - name: Run Security Scan
+        id: scan
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Determine baseline commit for incremental scanning
+          if [ "${{ inputs.scan-type }}" == "incremental" ]; then
+            if [ "${{ github.event_name }}" == "pull_request" ]; then
+              BASELINE="${{ github.event.pull_request.base.sha }}"
+              SCAN_FLAGS="--incremental --baseline-commit=${BASELINE}"
+            else
+              # For push events, use previous commit
+              BASELINE="${{ github.event.before }}"
+              SCAN_FLAGS="--incremental --baseline-commit=${BASELINE}"
+            fi
+          elif [ "${{ inputs.scan-type }}" == "fast" ]; then
+            SCAN_FLAGS="--fast --changed-only"
+          else
+            SCAN_FLAGS="--full"
+          fi
+
+          # Execute scan
+          echo "Running security scan with flags: ${SCAN_FLAGS}"
+          specify security scan \
+            ${SCAN_FLAGS} \
+            --path "${{ inputs.scan-path }}" \
+            --format sarif \
+            --output security-results.sarif \
+            --fail-on "${{ inputs.fail-on }}" \
+            --ci-mode || SCAN_EXIT_CODE=$?
+
+          # Parse results for outputs (even if scan failed)
+          if [ -f security-results.sarif ]; then
+            TOTAL=$(jq '.runs[0].results | length' security-results.sarif || echo "0")
+            CRITICAL=$(jq '[.runs[0].results[] | select(.level == "error" and (.properties.severity == "critical" or .properties.severity == "CRITICAL"))] | length' security-results.sarif || echo "0")
+            HIGH=$(jq '[.runs[0].results[] | select(.level == "error" and (.properties.severity == "high" or .properties.severity == "HIGH"))] | length' security-results.sarif || echo "0")
+
+            echo "total=${TOTAL}" >> $GITHUB_OUTPUT
+            echo "critical=${CRITICAL}" >> $GITHUB_OUTPUT
+            echo "high=${HIGH}" >> $GITHUB_OUTPUT
+
+            echo "📊 Scan Results: ${TOTAL} total findings (${CRITICAL} critical, ${HIGH} high)"
+          else
+            echo "⚠️ No SARIF results file generated"
+            echo "total=0" >> $GITHUB_OUTPUT
+            echo "critical=0" >> $GITHUB_OUTPUT
+            echo "high=0" >> $GITHUB_OUTPUT
+          fi
+
+          # Exit with scan result code
+          exit ${SCAN_EXIT_CODE:-0}
+
+      - name: Upload SARIF to GitHub Security
+        if: ${{ inputs.upload-sarif && always() }}
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: security-results.sarif
+          category: jpspec-security
+
+      - name: Upload Scan Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-scan-results-${{ github.sha }}
+          path: |
+            security-results.sarif
+            docs/security/*.md
+            docs/security/*.json
+          retention-days: 90
+
+      - name: Comment PR with Summary
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const total = ${{ steps.scan.outputs.total || 0 }};
+            const critical = ${{ steps.scan.outputs.critical || 0 }};
+            const high = ${{ steps.scan.outputs.high || 0 }};
+
+            const severity_icon = critical > 0 ? '🔴' : high > 0 ? '🟡' : '🟢';
+            const action_required = critical > 0 ? '⚠️ **Action Required**: Fix critical findings before merge.' :
+                                    high > 0 ? '⚠️ **Recommended**: Fix high severity findings.' :
+                                    '✅ No critical or high severity issues found.';
+
+            const comment = `## ${severity_icon} Security Scan Results
+
+            - **Total Findings**: ${total}
+            - **Critical**: ${critical}
+            - **High**: ${high}
+
+            ${action_required}
+
+            <details>
+            <summary>How to remediate</summary>
+
+            \`\`\`bash
+            # View detailed scan results
+            gh run download ${{ github.run_id }} -n security-scan-results-${{ github.sha }}
+
+            # Triage findings with AI assistance
+            specify security triage
+
+            # Generate fix suggestions
+            specify security fix
+
+            # Apply fixes and re-scan
+            specify security scan --incremental
+            \`\`\`
+
+            See the [Security tab](https://github.com/${{ github.repository }}/security/code-scanning) for detailed findings.
+            </details>`;
+
+            // Find existing comment from bot
+            const { data: comments } = await github.rest.issues.listComments({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' && comment.body.includes('Security Scan Results')
+            );
+
+            if (botComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                comment_id: botComment.id,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            }

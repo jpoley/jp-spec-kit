@@ -175,7 +175,7 @@ BANNER = """
 """
 
 # Version - keep in sync with pyproject.toml
-__version__ = "0.0.203"
+__version__ = "0.0.204"
 
 TAGLINE = (
     f"(jp extension v{__version__}) GitHub Spec Kit - Spec-Driven Development Toolkit"
@@ -4123,6 +4123,370 @@ app.add_typer(workflow_app, name="workflow")
 from specify_cli.hooks.cli import hooks_app  # noqa: E402
 
 app.add_typer(hooks_app, name="hooks")
+
+
+# Security scanning sub-app
+security_app = typer.Typer(
+    name="security",
+    help="Security scanning commands",
+    add_completion=False,
+)
+app.add_typer(security_app, name="security")
+
+
+@security_app.command("scan")
+def security_scan(
+    target: Path = typer.Argument(
+        Path("."),
+        help="Directory or file to scan",
+        exists=True,
+    ),
+    tool: list[str] = typer.Option(
+        ["semgrep"],
+        "--tool",
+        "-t",
+        help="Scanner(s) to use (semgrep, etc)",
+    ),
+    config: str = typer.Option(
+        "auto",
+        "--config",
+        "-c",
+        help="Scanner config to use",
+    ),
+    fail_on: str = typer.Option(
+        "high",
+        "--fail-on",
+        help="Fail on severity threshold (critical|high|medium|low|info)",
+    ),
+    format: str = typer.Option(
+        "text",
+        "--format",
+        "-f",
+        help="Output format (text|json|sarif)",
+    ),
+    output: Optional[Path] = typer.Option(
+        None,
+        "--output",
+        "-o",
+        help="Output file (defaults to stdout)",
+    ),
+):
+    """Run security scan on target directory.
+
+    This command scans your code for security vulnerabilities using
+    configured security scanners (e.g., Semgrep).
+
+    Exit codes:
+    - 0: No findings at or above fail-on threshold
+    - 1: Findings found at or above fail-on threshold
+    - 2: Error during scan
+
+    Examples:
+        specify security scan                           # Scan current directory
+        specify security scan /path/to/code             # Scan specific path
+        specify security scan --tool semgrep            # Specify scanner
+        specify security scan --fail-on critical        # Fail only on critical
+        specify security scan --format json -o out.json # JSON output to file
+    """
+    import json
+    from specify_cli.security.orchestrator import ScannerOrchestrator
+    from specify_cli.security.adapters.semgrep import SemgrepAdapter
+    from specify_cli.security.exporters.sarif import SARIFExporter
+    from specify_cli.security.exporters.json import JSONExporter
+    from specify_cli.security.exporters.markdown import MarkdownExporter
+    from specify_cli.security.models import Severity
+
+    # Validate fail-on severity
+    try:
+        fail_severity = Severity(fail_on.lower())
+    except ValueError:
+        console.print(
+            f"[red]Invalid severity level: {fail_on}[/red]",
+        )
+        console.print(
+            "Valid levels: critical, high, medium, low, info",
+        )
+        raise typer.Exit(2)
+
+    # Initialize orchestrator
+    orchestrator = ScannerOrchestrator()
+
+    # Register scanners based on --tool flags
+    scanner_map = {
+        "semgrep": SemgrepAdapter,
+    }
+
+    for tool_name in tool:
+        if tool_name not in scanner_map:
+            console.print(
+                f"[yellow]⚠ Unknown scanner: {tool_name}[/yellow]",
+            )
+            continue
+
+        adapter_class = scanner_map[tool_name]
+        adapter = adapter_class()
+
+        # Check tool availability
+        if not adapter.is_available():
+            console.print(
+                f"[yellow]⚠ {adapter.name} not available[/yellow]",
+            )
+            console.print(adapter.get_install_instructions())
+            raise typer.Exit(2)
+
+        orchestrator.register(adapter)
+
+    if not orchestrator.list_scanners():
+        console.print("[red]No scanners available[/red]")
+        raise typer.Exit(2)
+
+    # Build scanner config
+    scanner_config = {}
+    if config != "auto":
+        # Parse config as JSON or file path
+        try:
+            scanner_config = json.loads(config)
+        except json.JSONDecodeError:
+            # Try as file path
+            config_path = Path(config)
+            if config_path.exists():
+                scanner_config = json.loads(config_path.read_text())
+            else:
+                console.print(f"[red]Invalid config: {config}[/red]")
+                raise typer.Exit(2)
+
+    # Run scan with progress indicator
+    try:
+        with console.status(
+            "[bold blue]Scanning for security vulnerabilities...[/bold blue]"
+        ):
+            findings = orchestrator.scan(
+                target=target,
+                scanners=tool,
+                deduplicate=True,
+                config=scanner_config,
+            )
+    except Exception as e:
+        console.print(f"[red]Scan failed: {e}[/red]")
+        raise typer.Exit(2)
+
+    # Output results based on format
+    if format == "sarif":
+        exporter = SARIFExporter()
+        result = exporter.export(findings)  # Returns dict
+        output_text = json.dumps(result, indent=2)
+
+        if output:
+            output.write_text(output_text)
+            console.print(f"[green]✓ SARIF output written to {output}[/green]")
+        else:
+            console.print_json(data=result)
+
+    elif format == "json":
+        exporter = JSONExporter(pretty=True)
+        result = exporter.export_dict(findings)  # Returns dict
+        output_text = json.dumps(result, indent=2)
+
+        if output:
+            output.write_text(output_text)
+            console.print(f"[green]✓ JSON output written to {output}[/green]")
+        else:
+            console.print_json(data=result)
+
+    else:
+        # Text format with table
+        _print_findings_table(console, findings)
+
+        if output:
+            # Export as markdown for text format
+            exporter = MarkdownExporter()
+            markdown = exporter.export(findings)
+            output.write_text(markdown)
+            console.print(f"\n[green]✓ Markdown report written to {output}[/green]")
+
+    # Determine exit code based on fail_on threshold
+    severity_order = {
+        Severity.CRITICAL: 0,
+        Severity.HIGH: 1,
+        Severity.MEDIUM: 2,
+        Severity.LOW: 3,
+        Severity.INFO: 4,
+    }
+
+    has_failures = any(
+        severity_order[f.severity] <= severity_order[fail_severity] for f in findings
+    )
+
+    if has_failures:
+        failing_count = sum(
+            1
+            for f in findings
+            if severity_order[f.severity] <= severity_order[fail_severity]
+        )
+        console.print(
+            f"\n[red]✗ Found {failing_count} findings at or above {fail_on} severity[/red]"
+        )
+        raise typer.Exit(1)
+    elif findings:
+        console.print(
+            f"\n[yellow]Found {len(findings)} findings below {fail_on} threshold[/yellow]"
+        )
+        raise typer.Exit(0)
+    else:
+        console.print("\n[green]✓ No security issues found[/green]")
+        raise typer.Exit(0)
+
+
+def _print_findings_table(console: Console, findings: list) -> None:
+    """Print findings as a rich table.
+
+    Args:
+        console: Rich console for output
+        findings: List of Finding objects to display
+    """
+    if not findings:
+        console.print("[green]✓ No security issues found[/green]")
+        return
+
+    from rich.table import Table
+
+    table = Table(title="Security Findings", show_lines=False)
+    table.add_column("Severity", style="bold", width=10)
+    table.add_column("Title", style="", width=40)
+    table.add_column("Location", style="cyan", width=30)
+    table.add_column("CWE", style="dim", width=10)
+
+    severity_colors = {
+        "critical": "red",
+        "high": "red",
+        "medium": "yellow",
+        "low": "blue",
+        "info": "dim",
+    }
+
+    for f in findings:
+        color = severity_colors.get(f.severity.value, "white")
+        title_text = f.title[:40] + "..." if len(f.title) > 40 else f.title
+        location_text = f"{f.location.file.name}:{f.location.line_start}"
+
+        table.add_row(
+            f"[{color}]{f.severity.value.upper()}[/{color}]",
+            title_text,
+            location_text,
+            f.cwe_id or "-",
+        )
+
+    console.print()
+    console.print(table)
+    console.print(f"\nTotal: {len(findings)} findings")
+
+
+@security_app.command("triage")
+def security_triage(
+    findings_file: Path = typer.Argument(
+        ...,
+        help="Findings JSON file to triage",
+        exists=True,
+    ),
+    interactive: bool = typer.Option(
+        True,
+        "--interactive/--non-interactive",
+        help="Interactive triage mode",
+    ),
+    min_severity: str = typer.Option(
+        "low",
+        "--min-severity",
+        help="Minimum severity to show (critical|high|medium|low|info)",
+    ),
+):
+    """AI-assisted triage of security findings.
+
+    This command helps you triage security findings with AI assistance.
+    (Currently a placeholder for future implementation)
+
+    Examples:
+        specify security triage findings.json
+        specify security triage findings.json --min-severity high
+    """
+    console.print("[yellow]Triage command coming in Phase 2[/yellow]")
+    console.print(f"Would triage: {findings_file}")
+    console.print(f"Interactive: {interactive}, Min severity: {min_severity}")
+
+
+@security_app.command("fix")
+def security_fix(
+    finding_id: Optional[str] = typer.Argument(
+        None,
+        help="Finding ID to fix",
+    ),
+    apply: bool = typer.Option(
+        False,
+        "--apply",
+        help="Apply fix automatically",
+    ),
+    dry_run: bool = typer.Option(
+        True,
+        "--dry-run",
+        help="Show fix without applying",
+    ),
+):
+    """Generate and optionally apply security fixes.
+
+    This command generates fixes for security findings with AI assistance.
+    (Currently a placeholder for future implementation)
+
+    Examples:
+        specify security fix SEMGREP-001 --dry-run
+        specify security fix SEMGREP-001 --apply
+    """
+    console.print("[yellow]Fix command coming in Phase 2[/yellow]")
+    if finding_id:
+        console.print(f"Would fix: {finding_id}")
+        console.print(f"Apply: {apply}, Dry run: {dry_run}")
+    else:
+        console.print("No finding ID provided")
+
+
+@security_app.command("audit")
+def security_audit(
+    target: Path = typer.Argument(
+        Path("."),
+        help="Directory to audit",
+        exists=True,
+    ),
+    format: str = typer.Option(
+        "markdown",
+        "--format",
+        "-f",
+        help="Report format (markdown|html|json)",
+    ),
+    compliance: Optional[str] = typer.Option(
+        None,
+        "--compliance",
+        help="Compliance framework (owasp|pci|hipaa)",
+    ),
+    output: Optional[Path] = typer.Option(
+        None,
+        "--output",
+        "-o",
+        help="Output file",
+    ),
+):
+    """Generate security audit report.
+
+    This command generates a comprehensive security audit report.
+    (Currently a placeholder for future implementation)
+
+    Examples:
+        specify security audit
+        specify security audit --format html --output audit.html
+        specify security audit --compliance owasp
+    """
+    console.print("[yellow]Audit command coming in Phase 2[/yellow]")
+    console.print(f"Would audit: {target}")
+    console.print(f"Format: {format}, Compliance: {compliance}")
+    if output:
+        console.print(f"Output: {output}")
 
 
 @workflow_app.command("validate")
