@@ -361,19 +361,19 @@ Respond in JSON format:
                 f.write(code)
                 temp_path = f.name
 
-            result = subprocess.run(
-                ["node", "--check", temp_path],
-                capture_output=True,
-                text=True,
-                timeout=5,
-            )
+            try:
+                result = subprocess.run(
+                    ["node", "--check", temp_path],
+                    capture_output=True,
+                    text=True,
+                    timeout=5,
+                )
 
-            Path(temp_path).unlink(missing_ok=True)
-
-            if result.returncode == 0:
-                return True, ""
-            return False, result.stderr
-
+                if result.returncode == 0:
+                    return True, ""
+                return False, result.stderr
+            finally:
+                Path(temp_path).unlink(missing_ok=True)
         except (subprocess.TimeoutExpired, FileNotFoundError):
             # Node.js not available, skip validation
             return True, ""
