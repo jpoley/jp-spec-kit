@@ -57,6 +57,10 @@ parse_args() {
                 shift
                 ;;
             -c|--config)
+                if [[ -z "${2:-}" ]]; then
+                    echo "Error: -c requires an argument"
+                    exit 2
+                fi
                 CONFIG_FILE="$2"
                 shift 2
                 ;;
