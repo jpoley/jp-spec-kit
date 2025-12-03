@@ -4,7 +4,9 @@ This module generates comprehensive security audit reports from
 scan and triage results in multiple output formats.
 """
 
+import html
 import json
+import re
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -170,10 +172,11 @@ class ReportGenerator:
         )
 
         for finding in sorted_findings:
-            # Skip false positives
+            # Skip false positives unless explicitly included via config
             triage = triage_map.get(finding.id)
             if triage and triage.classification.value == "FP":
-                continue
+                if not self.config.include_false_positives:
+                    continue
 
             # Estimate effort based on severity
             effort_map = {
@@ -273,11 +276,14 @@ class ReportGenerator:
         return md
 
     def to_html(self, report: AuditReport) -> str:
-        """Generate HTML report."""
+        """Generate HTML report with proper markdown conversion."""
         markdown_content = self.to_markdown(report)
 
-        # Basic HTML wrapper with styling
-        html = f"""<!DOCTYPE html>
+        # Convert markdown to HTML
+        html_content = self._markdown_to_html(markdown_content)
+
+        # HTML wrapper with styling
+        html_output = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -312,17 +318,83 @@ class ReportGenerator:
         .posture-conditional {{ color: #ffc107; }}
         .posture-at-risk {{ color: #dc3545; }}
         hr {{ border: 0; border-top: 1px solid #eee; margin: 2rem 0; }}
+        strong {{ font-weight: 600; }}
     </style>
 </head>
 <body>
     <div class="content">
-        <!-- Markdown content would be converted here -->
-        <pre style="white-space: pre-wrap; font-family: inherit;">{markdown_content}</pre>
+{html_content}
     </div>
 </body>
 </html>
 """
-        return html
+        return html_output
+
+    def _markdown_to_html(self, md: str) -> str:
+        """Convert markdown to HTML.
+
+        Handles the specific markdown patterns used in security reports:
+        - Headers (h1, h2, h3)
+        - Tables
+        - Bold text
+        - Horizontal rules
+        - Paragraphs
+        """
+        lines = md.split("\n")
+        html_lines = []
+        in_table = False
+        in_table_header = False
+
+        for line in lines:
+            # Escape HTML entities first (except for our formatting)
+            escaped = html.escape(line)
+
+            # Headers
+            if escaped.startswith("### "):
+                html_lines.append(f"<h3>{escaped[4:]}</h3>")
+            elif escaped.startswith("## "):
+                html_lines.append(f"<h2>{escaped[3:]}</h2>")
+            elif escaped.startswith("# "):
+                html_lines.append(f"<h1>{escaped[2:]}</h1>")
+            # Horizontal rule
+            elif escaped.strip() == "---":
+                html_lines.append("<hr>")
+            # Table rows
+            elif escaped.startswith("|"):
+                if not in_table:
+                    html_lines.append("<table>")
+                    in_table = True
+                    in_table_header = True
+
+                # Skip separator rows (|---|---|)
+                if re.match(r"^\|[\s\-:|]+\|$", escaped):
+                    continue
+
+                cells = [c.strip() for c in escaped.split("|")[1:-1]]
+                if in_table_header:
+                    row = "<tr>" + "".join(f"<th>{c}</th>" for c in cells) + "</tr>"
+                    in_table_header = False
+                else:
+                    row = "<tr>" + "".join(f"<td>{c}</td>" for c in cells) + "</tr>"
+                html_lines.append(row)
+            else:
+                # Close table if we were in one
+                if in_table:
+                    html_lines.append("</table>")
+                    in_table = False
+
+                # Bold text (**text**)
+                escaped = re.sub(r"\*\*([^*]+)\*\*", r"<strong>\1</strong>", escaped)
+
+                # Non-empty paragraph
+                if escaped.strip():
+                    html_lines.append(f"<p>{escaped}</p>")
+
+        # Close any open table
+        if in_table:
+            html_lines.append("</table>")
+
+        return "\n".join(html_lines)
 
     def to_json(self, report: AuditReport) -> str:
         """Generate JSON report."""

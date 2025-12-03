@@ -53,3 +53,16 @@ Worktree name MUST match branch name:
 git worktree add ../feature-auth feature-auth  # Correct
 git worktree add ../work1 feature-auth         # Wrong
 ```
+
+## Code Quality Standards (from PR #349 learnings)
+
+### Configuration Fields
+Every configuration field MUST be used somewhere in the code. Before adding a config option, implement its functionality first or remove the field entirely.
+
+### Output Formats
+Output format methods MUST produce properly formatted content for their target format. No placeholder implementations that output raw/unconverted content.
+
+### Variable Naming
+Never use variable names that shadow imported modules (`html`, `json`, `re`, `os`, `sys`). Use descriptive names like `html_output`, `json_data`.
+
+See: `memory/learnings/pr-349-audit-report.md` for detailed examples.
