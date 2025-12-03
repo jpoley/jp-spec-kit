@@ -154,7 +154,8 @@ jp-spec-kit/
 ├── scripts/bash/           # Automation scripts
 ├── backlog/                # Task management
 ├── .claude/commands/       # Slash command implementations
-└── .claude/skills/         # Model-invoked skills (5 core SDD skills)
+├── .claude/skills/         # Model-invoked skills (5 core SDD skills)
+└── .claude/agents/         # Subagents (4 engineering specialists)
 ```
 
 @import memory/code-standards.md
@@ -190,6 +191,8 @@ Additional context loaded when working in specific directories:
 @import memory/claude-hooks.md
 
 @import memory/claude-skills.md
+
+@import memory/claude-subagents.md
 
 ## Quick Troubleshooting
 
