@@ -10,13 +10,17 @@ from pathlib import Path
 @pytest.fixture
 def customization_guide_path():
     """Return path to the workflow-customization.md guide."""
-    return Path(__file__).parent.parent / "docs" / "guides" / "workflow-customization.md"
+    return (
+        Path(__file__).parent.parent / "docs" / "guides" / "workflow-customization.md"
+    )
 
 
 @pytest.fixture
 def guide_content(customization_guide_path):
     """Return the content of the customization guide."""
-    assert customization_guide_path.exists(), f"Guide not found at {customization_guide_path}"
+    assert customization_guide_path.exists(), (
+        f"Guide not found at {customization_guide_path}"
+    )
     return customization_guide_path.read_text()
 
 
@@ -40,7 +44,10 @@ class TestConfigurationStructure:
     def test_explains_states(self, guide_content):
         """Verify guide explains the states configuration."""
         assert "states:" in guide_content
-        assert "Task progression stages" in guide_content or "Task states" in guide_content.lower()
+        assert (
+            "Task progression stages" in guide_content
+            or "Task states" in guide_content.lower()
+        )
 
     def test_explains_workflows(self, guide_content):
         """Verify guide explains the workflows configuration."""
@@ -61,7 +68,9 @@ class TestConfigurationStructure:
     def test_explains_file_location(self, guide_content):
         """Verify guide explains where the config file should be located."""
         assert "jpspec_workflow.yml" in guide_content
-        assert "project-root" in guide_content or "project root" in guide_content.lower()
+        assert (
+            "project-root" in guide_content or "project root" in guide_content.lower()
+        )
 
 
 class TestCommonCustomizations:
@@ -69,16 +78,24 @@ class TestCommonCustomizations:
 
     def test_add_phase_example(self, guide_content):
         """Verify guide has example for adding a custom phase."""
-        assert "Adding a Custom Phase" in guide_content or "Add the state" in guide_content
-        assert "Step-by-Step" in guide_content or "step-by-step" in guide_content.lower()
+        assert (
+            "Adding a Custom Phase" in guide_content or "Add the state" in guide_content
+        )
+        assert (
+            "Step-by-Step" in guide_content or "step-by-step" in guide_content.lower()
+        )
 
     def test_remove_phase_example(self, guide_content):
         """Verify guide has example for removing a phase."""
-        assert "Removing a Phase" in guide_content or "Remove the state" in guide_content
+        assert (
+            "Removing a Phase" in guide_content or "Remove the state" in guide_content
+        )
 
     def test_reorder_phases_example(self, guide_content):
         """Verify guide has example for reordering phases."""
-        assert "Reordering Phases" in guide_content or "reorder" in guide_content.lower()
+        assert (
+            "Reordering Phases" in guide_content or "reorder" in guide_content.lower()
+        )
 
 
 class TestCustomAgents:
@@ -86,7 +103,9 @@ class TestCustomAgents:
 
     def test_custom_agent_section(self, guide_content):
         """Verify guide has section on adding custom agents."""
-        assert "Custom Agents" in guide_content or "custom agent" in guide_content.lower()
+        assert (
+            "Custom Agents" in guide_content or "custom agent" in guide_content.lower()
+        )
 
     def test_agent_definition_example(self, guide_content):
         """Verify guide shows how to define an agent in workflow config."""
@@ -100,13 +119,19 @@ class TestCustomStates:
 
     def test_new_state_example(self, guide_content):
         """Verify guide shows how to add a new state."""
-        assert "Security Audited" in guide_content or "custom state" in guide_content.lower()
+        assert (
+            "Security Audited" in guide_content
+            or "custom state" in guide_content.lower()
+        )
         # Should show adding to states list
         assert "states:" in guide_content
 
     def test_state_naming_guidance(self, guide_content):
         """Verify guide provides guidance on naming states."""
-        assert "Descriptive Names" in guide_content or "descriptive name" in guide_content.lower()
+        assert (
+            "Descriptive Names" in guide_content
+            or "descriptive name" in guide_content.lower()
+        )
 
 
 class TestValidation:
@@ -130,11 +155,16 @@ class TestTroubleshooting:
 
     def test_troubleshooting_has_diagnostic_commands(self, guide_content):
         """Verify troubleshooting section has diagnostic commands."""
-        assert "Diagnostic Commands" in guide_content or "diagnostic" in guide_content.lower()
+        assert (
+            "Diagnostic Commands" in guide_content
+            or "diagnostic" in guide_content.lower()
+        )
 
     def test_troubleshooting_has_quick_reference(self, guide_content):
         """Verify troubleshooting section has quick reference table."""
-        assert "Quick Reference" in guide_content or "quick fix" in guide_content.lower()
+        assert (
+            "Quick Reference" in guide_content or "quick fix" in guide_content.lower()
+        )
 
     def test_links_to_full_troubleshooting_guide(self, guide_content):
         """Verify link to comprehensive troubleshooting guide."""
@@ -154,7 +184,10 @@ class TestWarnings:
         """Verify warning about unreachable states."""
         assert "Unreachable" in guide_content
         # Should explain what it is and how to fix
-        assert "transition path" in guide_content.lower() or "reachable" in guide_content.lower()
+        assert (
+            "transition path" in guide_content.lower()
+            or "reachable" in guide_content.lower()
+        )
 
     def test_critical_issues_section(self, guide_content):
         """Verify there's a section highlighting critical issues to avoid."""
@@ -168,7 +201,10 @@ class TestWarnings:
     def test_unreachable_state_fix_documented(self, guide_content):
         """Verify fix for unreachable states is documented."""
         # Should explain adding transition path
-        assert "Add a transition" in guide_content or "add transition" in guide_content.lower()
+        assert (
+            "Add a transition" in guide_content
+            or "add transition" in guide_content.lower()
+        )
 
 
 class TestRelatedDocumentation:
@@ -180,7 +216,10 @@ class TestRelatedDocumentation:
 
     def test_links_to_state_mapping_guide(self, guide_content):
         """Verify link to state mapping documentation."""
-        assert "workflow-state-mapping.md" in guide_content or "state-mapping" in guide_content.lower()
+        assert (
+            "workflow-state-mapping.md" in guide_content
+            or "state-mapping" in guide_content.lower()
+        )
 
     def test_links_to_examples(self, guide_content):
         """Verify links to configuration examples."""
