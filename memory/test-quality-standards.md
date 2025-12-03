@@ -196,9 +196,43 @@ from typing import Dict, Optional
 import pytest
 ```
 
-## Constants at Module Level
+## Constants at Module Level - NO MAGIC NUMBERS
 
-Define expected values as module-level constants:
+Define ALL numeric values and patterns as module-level constants with explanatory comments:
+
+```python
+# WRONG - Magic numbers with unclear meaning
+assert len(content) > 100
+assert placeholder_count < 20
+assert len(placeholders) >= 10
+```
+
+```python
+# CORRECT - Named constants with explanation
+# Minimum README length to ensure meaningful content (not just a title)
+MIN_README_LENGTH = 100
+
+# Minimum case study length - a real case study should be substantial
+# (includes metrics, phases, feedback, recommendations, appendix)
+MIN_CASE_STUDY_LENGTH = 2000
+
+# Maximum placeholder count before content is considered mostly unfilled
+# Template has ~30 placeholders, so 20 indicates mostly template
+MAX_PLACEHOLDER_COUNT = 20
+
+# Minimum placeholders expected in template for customization guidance
+MIN_TEMPLATE_PLACEHOLDERS = 10
+
+# Regex for two-digit naming convention (e.g., 01-name.md, 02-name.md)
+CASE_STUDY_NAMING_PATTERN = re.compile(r"^\d{2}-[a-z0-9-]+$")
+```
+
+**Why This Matters**:
+- Magic numbers make requirements unclear
+- Future maintainers can't understand why `20` was chosen
+- Constants document the reasoning and make changes easier
+
+Also define expected values as module-level constants:
 
 ```python
 # Constants
@@ -210,6 +244,51 @@ REQUIRED_CONTENT_SECTIONS = [
     "## Core Technologies",
     "## Implementation Standards",
 ]
+```
+
+## Shared Fixtures - Avoid Duplication
+
+When multiple test classes need the same fixture, define it at module level:
+
+```python
+# WRONG - Same fixture duplicated in every test class
+class TestStructure:
+    @pytest.fixture
+    def case_studies_dir(self) -> Path:
+        return get_project_root() / "docs" / "case-studies"
+
+class TestContent:
+    @pytest.fixture
+    def case_studies_dir(self) -> Path:  # Duplicated!
+        return get_project_root() / "docs" / "case-studies"
+
+class TestReadme:
+    @pytest.fixture
+    def case_studies_dir(self) -> Path:  # Duplicated again!
+        return get_project_root() / "docs" / "case-studies"
+```
+
+```python
+# CORRECT - Single shared fixture at module level
+@pytest.fixture
+def case_studies_dir() -> Path:
+    """Get the case studies directory path.
+
+    Returns:
+        Path to docs/case-studies directory.
+    """
+    return get_project_root() / "docs" / "case-studies"
+
+
+class TestStructure:
+    def test_directory_exists(self, case_studies_dir: Path) -> None:
+        # Uses shared fixture
+        ...
+
+class TestContent:
+    def test_has_required_sections(self, case_studies_dir: Path) -> None:
+        # Uses same shared fixture
+        ...
 ```
 
 ## Type Hints
@@ -334,6 +413,58 @@ return None
 - [ ] Dependencies explained with comments (get_db, User model)
 - [ ] Uses proper validators (EmailStr, not regex for email)
 - [ ] Could be copy-pasted and would run
+
+## Documentation Quality Standards
+
+### Avoid Exact Percentages in Summary Tables
+
+Exact percentages in overview/summary tables cause maintenance toil. Every time underlying metrics change, the summary must be updated.
+
+```markdown
+<!-- WRONG - Exact percentages cause toil -->
+| Case Study | Domain | Metrics | Status |
+|------------|--------|---------|--------|
+| Workflow Hook System | DevTools | 40% rework reduction | Complete |
+| Constitution Templates | CLI | 35% faster implementation | Complete |
+```
+
+```markdown
+<!-- CORRECT - Qualitative descriptions -->
+| Case Study | Domain | Key Outcome | Status |
+|------------|--------|-------------|--------|
+| Workflow Hook System | DevTools | Significant rework reduction | Complete |
+| Constitution Templates | CLI | Faster implementation | Complete |
+```
+
+**Why**: When the case study is updated with new metrics, only that case study needs to change - not the summary table in README.
+
+### Completed Documentation Should Only Have Completed Tasks
+
+Case studies or project documentation marked "Complete" should NOT include:
+- Tasks marked "In Progress"
+- Tasks marked "Planned"
+- Tasks with no time spent
+
+```markdown
+<!-- WRONG - Incomplete tasks in "completed" case study -->
+### Task List
+| Task ID | Title | Status | Time |
+|---------|-------|--------|------|
+| task-255 | Scanner Orchestration | Done | 2h |
+| task-256 | AI Triage Engine | In Progress | 4h |  <!-- BAD! -->
+| task-258 | Security MCP Server | Planned | - |  <!-- BAD! -->
+```
+
+```markdown
+<!-- CORRECT - Only completed tasks, with note about future work -->
+### Task List
+| Task ID | Title | Status | Time |
+|---------|-------|--------|------|
+| task-255 | Scanner Orchestration | Done | 2h |
+| task-257 | Unified Finding Format | Done | 2h |
+
+*Note: Additional tasks (AI Triage Engine, Security MCP Server) are planned for future iterations.*
+```
 
 ## NEVER CLAIM CODE WORKS WITHOUT TESTING
 
