@@ -1112,5 +1112,4 @@ class TestStateCheckResultEnum:
 
     def test_enum_comparison(self):
         """Enum values support comparison."""
-        assert StateCheckResult.ALLOWED == StateCheckResult.ALLOWED
         assert StateCheckResult.ALLOWED != StateCheckResult.BLOCKED
