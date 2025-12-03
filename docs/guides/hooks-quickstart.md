@@ -274,7 +274,7 @@ specify hooks emit agent.started --task-id task-229 --spec-id agent-hooks
 specify hooks emit agent.progress --task-id task-229 --progress 50 --message "Implementing hooks"
 
 # When handing off to another machine
-specify hooks emit agent.handoff --task-id task-229 --agent-id claude-code@muckross
+specify hooks emit agent.handoff --task-id task-229 --agent-id claude-code@muckross --message "Planning complete, ready for implementation"
 
 # When completing work
 specify hooks emit agent.completed --task-id task-229 --message "All ACs verified"
