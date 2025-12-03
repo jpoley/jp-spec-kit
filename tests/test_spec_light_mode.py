@@ -1,7 +1,5 @@
 """Tests for spec-light mode workflow functionality."""
 
-import os
-import tempfile
 from pathlib import Path
 
 import pytest
