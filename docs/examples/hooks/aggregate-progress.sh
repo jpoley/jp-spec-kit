@@ -11,6 +11,10 @@
 #     script: aggregate-progress.sh
 #     enabled: true
 #
+# Dependencies: jq, flock (util-linux)
+# Install: apt-get install jq util-linux (Debian/Ubuntu)
+#          brew install jq (macOS - flock via homebrew-core)
+#
 set -e
 
 # Parse event data from HOOK_EVENT environment variable
