@@ -45,39 +45,36 @@ When working on spec-kit:
 3. Test script functionality in the `scripts/` directory
 4. Ensure memory files (`memory/constitution.md`) are updated if major process changes are made
 
-## Dogfooding jp-spec-kit
+## Development Setup for jp-spec-kit
 
-jp-spec-kit can use its own `/speckit.*` and `/jpspec:*` commands during development. This is called "dogfooding" - using the product to develop itself.
+jp-spec-kit can use its own `/speckit.*` and `/jpspec:*` commands during development. This ensures developers test the same commands that users receive.
 
 ### Quick Setup
 
-Run the dogfood command in the jp-spec-kit repository root:
+Run the dev-setup command in the jp-spec-kit repository root:
 
 ```bash
-specify dogfood
+specify dev-setup
 ```
 
-This creates symlinks from `.claude/commands/speckit/` to `templates/commands/` so Claude Code can discover the commands.
+This creates symlinks from `.claude/commands/` to `templates/commands/` so Claude Code can discover the commands while maintaining a single source of truth.
 
 ### Manual Setup
 
-If you prefer to set up manually or the command fails:
+If you prefer to set up manually or the command fails, you can use the Makefile:
 
 ```bash
-# Create the speckit commands directory
-mkdir -p .claude/commands/speckit
+# Recreate all symlinks
+make dev-fix
 
-# Create symlinks to each template command
-cd .claude/commands/speckit
-ln -sf ../../../templates/commands/analyze.md analyze.md
-ln -sf ../../../templates/commands/checklist.md checklist.md
-ln -sf ../../../templates/commands/clarify.md clarify.md
-ln -sf ../../../templates/commands/constitution.md constitution.md
-ln -sf ../../../templates/commands/implement.md implement.md
-ln -sf ../../../templates/commands/plan.md plan.md
-ln -sf ../../../templates/commands/specify.md specify.md
-ln -sf ../../../templates/commands/tasks.md tasks.md
+# Validate setup
+make dev-validate
+
+# Check status
+make dev-status
 ```
+
+For advanced troubleshooting, see [Dev-Setup Consistency Guide](docs/reference/dev-setup-consistency.md).
 
 ### Platform Notes
 
@@ -95,9 +92,14 @@ The jp-spec-kit repository contains a `.jp-spec-kit-source` marker file that:
 - Prevents `specify upgrade` from clobbering development work
 - Identifies the repository as the source (not a project created by `specify init`)
 
-The symlinks allow Claude Code to discover the `/speckit.*` commands while keeping `templates/commands/` as the single source of truth.
+The symlinks allow Claude Code to discover commands while keeping `templates/commands/` as the **single source of truth**. This ensures:
+- What developers test is exactly what users receive
+- No content divergence between development and distribution
+- Changes to templates are immediately reflected via symlinks
 
-### Available Commands After Dogfooding
+For complete details, see [Dev-Setup Consistency Guide](docs/reference/dev-setup-consistency.md).
+
+### Available Commands After Dev-Setup
 
 Once set up, you can use these commands in Claude Code:
 
