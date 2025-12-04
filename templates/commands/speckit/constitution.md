@@ -527,7 +527,7 @@ Review your constitution at memory/constitution.md and verify:
 □ Testing requirements are achievable
 □ Security controls are appropriate
 
-Look for NEEDS_VALIDATION markers in the constitution file and update them:
+Look for NEEDS_VALIDATION markers in the constitution file and resolve them:
 - Search for: <!-- NEEDS_VALIDATION:
 - Each marker indicates a section requiring manual review
 
