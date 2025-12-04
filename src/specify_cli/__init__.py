@@ -51,6 +51,9 @@ import ssl
 import truststore
 import yaml
 
+# Project detection
+from specify_cli.detection import ProjectDetector
+
 ssl_context = truststore.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
 client = httpx.Client(verify=ssl_context)
 
@@ -2411,6 +2414,34 @@ def init(
         else:
             selected_script = default_script
 
+    # Detect existing project without constitution
+    detector = ProjectDetector(project_path)
+    if detector.needs_constitution_prompt():
+        # This is an existing project without a constitution
+        detected_markers = detector.get_detected_markers()
+        markers_display = ", ".join(detected_markers[:3])
+        if len(detected_markers) > 3:
+            markers_display += f", +{len(detected_markers) - 3} more"
+
+        info_panel = Panel(
+            f"[yellow]Existing project detected[/yellow]\n\n"
+            f"Found project markers: [cyan]{markers_display}[/cyan]\n\n"
+            "No constitution found at [cyan]memory/constitution.md[/cyan]\n\n"
+            "A constitution defines your project's standards, principles,\n"
+            "and constraints for AI-assisted development.",
+            title="[yellow]Constitution Setup Needed[/yellow]",
+            border_style="yellow",
+            padding=(1, 2),
+        )
+        console.print()
+        console.print(info_panel)
+        console.print()
+
+        # If constitution was not provided via CLI flag, prompt for it
+        # Otherwise, we'll use the provided tier
+        if not constitution:
+            console.print("[cyan]Select a constitution tier for your project:[/cyan]\n")
+
     # Handle constitution tier selection
     if constitution:
         if constitution not in CONSTITUTION_TIER_CHOICES:
@@ -2927,6 +2958,31 @@ def upgrade(
     console.print(f"  AI Assistant: [green]{ai_assistant}[/green]")
     console.print(f"  Script Type:  [green]{script_type}[/green]")
     console.print()
+
+    # Check for missing constitution
+    detector = ProjectDetector(project_path)
+    if detector.needs_constitution_prompt():
+        detected_markers = detector.get_detected_markers()
+        markers_display = ", ".join(detected_markers[:3])
+        if len(detected_markers) > 3:
+            markers_display += f", +{len(detected_markers) - 3} more"
+
+        warning_panel = Panel(
+            f"[yellow]No constitution found[/yellow]\n\n"
+            f"Found project markers: [cyan]{markers_display}[/cyan]\n\n"
+            "This project is missing [cyan]memory/constitution.md[/cyan]\n\n"
+            "A constitution defines your project's standards, principles,\n"
+            "and constraints for AI-assisted development.\n\n"
+            "[cyan]To create a constitution:[/cyan]\n"
+            "  1. Run: [green]specify init --here[/green] to add one interactively\n"
+            "  2. Or use: [green]specify init --here --constitution medium[/green]",
+            title="[yellow]Constitution Missing[/yellow]",
+            border_style="yellow",
+            padding=(1, 2),
+        )
+        console.print()
+        console.print(warning_panel)
+        console.print()
 
     if dry_run:
         console.print("[yellow]DRY RUN MODE - No changes will be made[/yellow]\n")
