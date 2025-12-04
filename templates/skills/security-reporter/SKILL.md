@@ -424,12 +424,12 @@ ELSE:
 ### HTML (Optional)
 - Generated from markdown using Pandoc
 - Enhanced with styling for stakeholder presentation
-- Command: `specify security report --format html`
+- Command: `/jpspec:security report --format html`
 
 ### PDF (Optional)
 - Generated from HTML using wkhtmltopdf
 - For audit compliance and archival
-- Command: `specify security report --format pdf`
+- Command: `/jpspec:security report --format pdf`
 
 ## Integration Points
 
