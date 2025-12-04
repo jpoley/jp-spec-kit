@@ -1,11 +1,11 @@
 ---
 id: task-258
 title: 'Implement ADR-008: Security MCP Server Architecture'
-status: To Do
+status: In Progress
 assignee:
-  - '@muckross'
+  - '@backend-engineer'
 created_date: '2025-12-03 02:32'
-updated_date: '2025-12-04 14:21'
+updated_date: '2025-12-04 17:21'
 labels:
   - architecture
   - security
@@ -24,19 +24,19 @@ Build MCP server exposing security scanning capabilities for tool composition (v
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Implement SecurityScannerMCPServer in src/specify_cli/security/mcp_server.py
-- [ ] #2 Implement security_scan tool (MCP)
-- [ ] #3 Implement security_triage tool (MCP)
-- [ ] #4 Implement security_fix tool (MCP)
-- [ ] #5 Implement security://findings resource
-- [ ] #6 Implement security://findings/{id} resource
-- [ ] #7 Implement security://status resource
-- [ ] #8 Implement security://config resource
-- [ ] #9 Add MCP server configuration to .mcp.json
+- [x] #1 Implement SecurityScannerMCPServer in src/specify_cli/security/mcp_server.py
+- [x] #2 Implement security_scan tool (MCP)
+- [x] #3 Implement security_triage tool (MCP)
+- [x] #4 Implement security_fix tool (MCP)
+- [x] #5 Implement security://findings resource
+- [x] #6 Implement security://findings/{id} resource
+- [x] #7 Implement security://status resource
+- [x] #8 Implement security://config resource
+- [x] #9 Add MCP server configuration to .mcp.json
 - [ ] #10 Create Claude agent example
 - [ ] #11 Create cross-repo dashboard example
 - [ ] #12 Test with MCP Inspector
-- [ ] #13 Write MCP server documentation
+- [x] #13 Write MCP server documentation
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -396,3 +396,9 @@ MCP (Model Context Protocol) server enables tool composition, allowing other AI 
 
 **Note:** This is a v2.0 feature. Implementation should be deferred until core functionality is validated and demand is confirmed.
 <!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Implemented MCP server with ZERO API CALLS architecture. Server exposes tools (scan, triage, fix) and resources (findings, status, config). Tools return skill invocation instructions rather than calling LLMs directly. All 19 tests passing. Files created: src/specify_cli/security/mcp_server.py, tests/security/test_mcp_server.py, docs/guides/security-mcp-guide.md. Updated .mcp.json with jpspec-security server config.
+<!-- SECTION:NOTES:END -->
