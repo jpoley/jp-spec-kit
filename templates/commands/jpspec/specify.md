@@ -11,6 +11,94 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
+## Step 0.1: Constitution Check (REQUIRED)
+
+Before executing this workflow command, verify project constitutional compliance.
+
+Check if constitution exists and is validated:
+
+```bash
+# Check constitution existence
+if [ ! -f "memory/constitution.md" ]; then
+  echo "⚠️  No constitution found at memory/constitution.md"
+  echo ""
+  echo "The constitution defines project-specific rules and quality standards."
+  echo ""
+  echo "To create one:"
+  echo "  specify init --here"
+  echo ""
+  echo "After creating, customize memory/constitution.md with your project's principles."
+  exit 1
+fi
+
+# Detect tier (default to Medium if not found)
+TIER=$(head -10 memory/constitution.md | grep -oP '<!-- TIER: \K(Light|Medium|Heavy)' || echo "Medium")
+
+# Count unvalidated sections
+UNVALIDATED=$(grep -c "NEEDS_VALIDATION" memory/constitution.md || echo "0")
+
+echo "Constitution tier: $TIER"
+echo "Unvalidated sections: $UNVALIDATED"
+```
+
+**Tier-specific enforcement:**
+
+- **Light tier**: Warn only, proceed automatically
+- **Medium tier**: Warn and ask for confirmation if unvalidated sections exist
+- **Heavy tier**: Block execution until all sections validated
+
+**If unvalidated sections found:**
+
+```text
+⚠️ Constitution has X unvalidated sections (TIER)
+
+Unvalidated sections may contain placeholder or incomplete rules.
+
+To validate:
+  1. Review memory/constitution.md
+  2. Replace [PLACEHOLDER] values with actual project rules
+  3. Remove NEEDS_VALIDATION markers when complete
+
+Alternatively:
+  specify constitution validate  # Interactive validation
+```
+
+**Heavy tier blocking message:**
+```text
+🛑 Constitution validation required (Heavy tier)
+
+Heavy tier blocks execution until all sections are validated.
+
+To proceed:
+  1. Review and validate memory/constitution.md
+  2. Remove all NEEDS_VALIDATION markers
+  3. Re-run this command
+
+Or skip validation (NOT RECOMMENDED):
+  /jpspec:specify --skip-validation
+```
+
+**Skip validation flag:**
+
+If user provides `--skip-validation` flag, bypass all checks with warning:
+```text
+⚠️ SKIPPING CONSTITUTION VALIDATION
+
+Bypassing constitutional checks. Use only in emergencies.
+
+Proceeding with workflow...
+```
+
+**If check fails (no --skip-validation):**
+- STOP execution
+- Show appropriate error/warning based on tier
+- Provide remediation instructions
+- DO NOT proceed to workflow execution
+
+**If check passes or --skip-validation provided:**
+- Log check result
+- Proceed to workflow execution
+
 ## Light Mode Detection
 
 Check if this project is in light mode:
