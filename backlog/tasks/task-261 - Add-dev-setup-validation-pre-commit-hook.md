@@ -1,9 +1,10 @@
 ---
 id: task-261
-title: Add dogfood validation pre-commit hook
-status: To Do
+title: Add dev-setup validation pre-commit hook
+status: In Progress
 assignee: []
 created_date: '2025-12-03 13:54'
+updated_date: '2025-12-04 01:40'
 labels:
   - infrastructure
   - hooks

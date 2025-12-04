@@ -1,16 +1,16 @@
 ---
 id: task-266
-title: Create dogfood operational runbook
-status: To Do
+title: Create dev-setup operational runbook
+status: In Progress
 assignee: []
 created_date: '2025-12-03 13:55'
-updated_date: '2025-12-04 01:25'
+updated_date: '2025-12-04 01:39'
 labels:
   - documentation
   - operations
   - dogfood
 dependencies: []
-priority: low
+priority: high
 ---
 
 ## Description

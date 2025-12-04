@@ -1,9 +1,10 @@
 ---
 id: task-259
-title: Create dogfood validation GitHub Action
-status: To Do
+title: Create dev-setup validation GitHub Action
+status: In Progress
 assignee: []
 created_date: '2025-12-03 13:54'
+updated_date: '2025-12-04 01:40'
 labels:
   - infrastructure
   - cicd

@@ -1,9 +1,10 @@
 ---
 id: task-260
-title: Create dogfood validation test suite
-status: To Do
+title: Create dev-setup validation test suite
+status: In Progress
 assignee: []
 created_date: '2025-12-03 13:54'
+updated_date: '2025-12-04 01:40'
 labels:
   - testing
   - infrastructure

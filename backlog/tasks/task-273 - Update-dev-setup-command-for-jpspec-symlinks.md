@@ -1,11 +1,11 @@
 ---
 id: task-273
-title: Update dogfood command for jpspec symlinks
+title: Update dev-setup command for jpspec symlinks
 status: Done
 assignee:
   - '@cli-engineer'
 created_date: '2025-12-03 14:01'
-updated_date: '2025-12-04 01:24'
+updated_date: '2025-12-04 01:34'
 labels:
   - cli
   - dogfood

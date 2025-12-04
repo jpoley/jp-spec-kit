@@ -1,10 +1,10 @@
 ---
 id: task-262
-title: Add dogfood management Makefile commands
+title: Add dev-setup management Makefile commands
 status: Done
 assignee: []
 created_date: '2025-12-03 13:54'
-updated_date: '2025-12-04 01:25'
+updated_date: '2025-12-04 01:34'
 labels:
   - infrastructure
   - dx

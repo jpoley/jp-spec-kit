@@ -1,9 +1,10 @@
 ---
 id: task-277
-title: Create dogfood-init equivalence validation tests
-status: To Do
+title: Create dev-setup/init equivalence validation tests
+status: In Progress
 assignee: []
 created_date: '2025-12-03 14:01'
+updated_date: '2025-12-04 01:40'
 labels:
   - testing
   - validation

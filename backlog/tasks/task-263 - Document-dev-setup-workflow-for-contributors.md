@@ -1,15 +1,15 @@
 ---
 id: task-263
-title: Document dogfood workflow for contributors
-status: To Do
+title: Document dev-setup workflow for contributors
+status: In Progress
 assignee: []
 created_date: '2025-12-03 13:54'
-updated_date: '2025-12-04 01:25'
+updated_date: '2025-12-04 01:39'
 labels:
   - documentation
   - dogfood
 dependencies: []
-priority: medium
+priority: high
 ---
 
 ## Description
