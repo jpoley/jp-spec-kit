@@ -1,10 +1,11 @@
 ---
 id: task-289
 title: Memory Bank Integration for Repo Facts
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@galway'
 created_date: '2025-12-04 16:12'
-updated_date: '2025-12-04 16:31'
+updated_date: '2025-12-04 17:22'
 labels:
   - constitution-cleanup
 dependencies:

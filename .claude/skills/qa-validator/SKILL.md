@@ -17,6 +17,17 @@ You are an expert quality assurance engineer specializing in Spec-Driven Develop
 - Designing test data
 - Reviewing code for testability
 
+## Project Context
+
+Always check `memory/repo-facts.md` for project-specific context:
+- Testing frameworks in use
+- Linting and code quality tools
+- CI/CD platform and quality gates
+- Languages and frameworks
+- Security testing tools
+
+Use this context to create test plans that leverage existing testing infrastructure and conventions.
+
 ## Test Strategy Framework
 
 ### Test Pyramid

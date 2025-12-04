@@ -217,6 +217,84 @@ mkdir -p memory
 # (perform the actual write operation)
 ```
 
+### Step 6.5: Write Repository Facts
+
+After detecting all repository characteristics, write them to `memory/repo-facts.md` for LLM context:
+
+**File Format** (YAML frontmatter + markdown sections):
+
+```markdown
+---
+generated: 2025-12-04
+updated: 2025-12-04
+generator: /speckit:constitution
+---
+
+# Repository Facts
+
+## Languages
+- Python 3.11
+- TypeScript 5.0
+
+## Frameworks
+- FastAPI
+- React
+
+## Testing
+- pytest
+- jest
+
+## Linting & Formatting
+- ruff
+- eslint
+- prettier
+
+## CI/CD
+- GitHub Actions
+
+## Security Tools
+- Dependabot
+- Trivy
+
+## Build Tools
+- uv
+- pnpm
+
+## Notes
+[Preserve any existing manual notes from previous runs]
+```
+
+**Update Logic**:
+1. If `memory/repo-facts.md` exists:
+   - Preserve the `Notes` section (everything from "## Notes" to end of file)
+   - Update all other sections with fresh detections
+   - Update `updated` timestamp in frontmatter
+   - Keep original `generated` timestamp
+
+2. If `memory/repo-facts.md` does NOT exist:
+   - Create new file with all detected facts
+   - Set both `generated` and `updated` to current date
+   - Add placeholder text in Notes section
+
+3. Include in detected facts:
+   - **Languages**: Python, TypeScript, Go, Rust, Java (with versions if detectable)
+   - **Frameworks**: FastAPI, React, Next.js, Express, etc.
+   - **Testing**: pytest, jest, vitest, Go testing, etc.
+   - **Linting & Formatting**: ruff, black, eslint, prettier, golangci-lint, clippy
+   - **CI/CD**: GitHub Actions, GitLab CI, Jenkins, CircleCI
+   - **Security Tools**: Dependabot, Renovate, Trivy, Snyk, Semgrep, Bandit
+   - **Build Tools**: uv, pnpm, npm, cargo, maven, gradle, make, mage
+
+**Write Operation**:
+
+```bash
+# Create memory/ directory if it doesn't exist
+mkdir -p memory
+
+# Write repo-facts.md (perform the actual write operation)
+# Preserve Notes section if file exists
+```
+
 ### Step 7: Output Validation Checklist
 
 After generating the constitution, output a validation checklist showing:
@@ -256,9 +334,10 @@ After generating the constitution, output a validation checklist showing:
    ```
    Next steps:
    1. Review memory/constitution.md
-   2. Update any NEEDS_VALIDATION sections
-   3. Commit: git commit -s -m "docs: add customized constitution"
-   4. Share with team for review
+   2. Review memory/repo-facts.md (used for LLM context)
+   3. Update any NEEDS_VALIDATION sections
+   4. Commit: git commit -s -m "docs: add customized constitution and repo facts"
+   5. Share with team for review
    ```
 
 ## Detection Logic Summary
@@ -340,7 +419,9 @@ Code Review:
 Tier Recommendation: Medium (7 indicators)
 Template: templates/constitutions/constitution-medium.md
 
-Constitution generated at: memory/constitution.md
+Files generated:
+- memory/constitution.md (customized governance rules)
+- memory/repo-facts.md (repository characteristics for LLM context)
 
 Validation Checklist:
 [ ] Project name: jp-spec-kit (auto-detected from git remote)
