@@ -1,226 +1,324 @@
 # Security Configuration Schema
-# This is an example configuration file showing all available options
-# with inline documentation. Place this file at .jpspec/security-config.yml
-# to customize security scanning behavior.
+#
+# This file documents the security configuration options for jp-spec-kit.
+# Place your configuration in `.jpspec/security-config.yml` at the project root.
 
 # Scanner Configuration
-# Configure which scanners to run and their settings
 scanners:
-  # Semgrep - Fast SAST scanner supporting 30+ languages
+  # Semgrep - Static analysis for security vulnerabilities
   semgrep:
-    enabled: true  # Enable/disable this scanner
-
-    # Registry rulesets from Semgrep Registry (https://semgrep.dev/explore)
+    enabled: true
+    custom_rules_dir: .security/rules  # Optional: Custom Semgrep rules
     registry_rulesets:
-      - p/default            # Comprehensive security rules
-      - p/owasp-top-ten     # OWASP Top 10 vulnerabilities
-      - p/cwe-top-25        # CWE Top 25 dangerous software weaknesses
+      - p/default              # Default security rules
+      - p/owasp-top-ten        # OWASP Top 10 rules
+      - p/security-audit       # Security audit rules
+    timeout: 300               # Scan timeout in seconds
+    extra_args: []             # Additional Semgrep arguments
 
-    # Local ruleset files (if you have custom rules)
-    rulesets: []
-
-    # Directory containing custom Semgrep rules (.yml files)
-    custom_rules_dir: .security/rules/
-
-    # Maximum time (seconds) for Semgrep to run
-    timeout: 300  # 5 minutes
-
-    # Additional command-line arguments to pass to Semgrep
-    extra_args: []
-
-  # CodeQL - GitHub's semantic code analysis engine
+  # CodeQL - GitHub's semantic code analysis
   codeql:
-    enabled: false  # Disabled by default (requires database setup)
-
-    # Languages to scan (leave empty to auto-detect)
-    languages:
-      - python
-      - javascript
-      - go
-
-    # CodeQL query suites to run
+    enabled: false             # Requires GitHub Enterprise or CodeQL CLI
+    languages: []              # Auto-detected if empty: python, javascript, etc.
     query_suites:
-      - security-extended    # Extended security queries
-      - security-and-quality # Security + code quality
-
-    # Path to CodeQL database (must be created first)
-    database_path: .codeql/database/
-
-    # Local query files
-    rulesets: []
-
-    # Additional command-line arguments
-    extra_args: []
+      - security-extended      # Extended security queries
+    database_path: null        # Optional: Path to existing CodeQL database
 
   # Bandit - Python security linter
   bandit:
-    enabled: true  # Enable by default for Python projects
-
-    # Confidence level: low, medium, high
-    # Lower = more findings, more false positives
-    # Higher = fewer findings, fewer false positives
-    confidence_level: medium
-
-    # Bandit test IDs to skip (e.g., ["B101", "B201"])
-    # B101 = assert_used, B201 = flask_debug_true
-    skips: []
-
-    # Local Bandit config files
-    rulesets: []
-
-    # Additional command-line arguments
-    extra_args: []
+    enabled: true
+    skips: []                  # Skip specific test IDs: ["B101", "B102"]
+    confidence_level: medium   # Options: low, medium, high
 
 # Severity Threshold
-# Determines which findings cause scan to fail
-# Options: critical, high, medium, low, none
-fail_on: high  # Fail on high and critical findings
+# Fail the scan if findings at or above this severity are found
+fail_on: high  # Options: critical, high, medium, low, none
 
 # Path and Pattern Exclusions
-# Files/directories to exclude from scanning
 exclusions:
-  # Exact directory paths
   paths:
-    - node_modules/      # JavaScript dependencies
-    - .venv/            # Python virtual environment
+    - node_modules/
+    - .venv/
     - venv/
-    - vendor/           # Go dependencies
-    - dist/             # Build output
+    - __pycache__/
+    - .git/
+    - dist/
     - build/
-    - .git/             # Git directory
-    - __pycache__/      # Python cache
-    - .pytest_cache/
-    - .mypy_cache/
-    - coverage/         # Test coverage output
-    - .coverage/
-
-  # Glob patterns
   patterns:
-    - "*.min.js"        # Minified JavaScript
-    - "*.min.css"       # Minified CSS
-    - "*.bundle.js"     # Bundled JavaScript
-    - "*.bundle.css"
-    - "*_test.go"       # Go test files
-    - "*_test.py"       # Python test files
+    - "*_test.py"
+    - "*_test.go"
+    - "*.test.js"
     - "test_*.py"
-    - "*.generated.*"   # Generated code
-    - "*.pb.go"         # Protobuf generated Go
-    - "*.pb.py"         # Protobuf generated Python
-    - "**/migrations/*" # Database migrations
-    - "**/fixtures/*"   # Test fixtures
-
-  # File extensions to exclude
   file_extensions:
-    - .map              # Source maps
-    - .lock             # Lock files (package-lock.json, Pipfile.lock)
-    - .sum              # Checksum files (go.sum)
-    - .svg              # SVG files
-    - .png
-    - .jpg
-    - .gif
-    - .ico
+    - .md
+    - .txt
 
 # AI Triage Configuration
-# Settings for AI-powered finding analysis
 triage:
-  enabled: true  # Enable AI triage to reduce false positives
+  enabled: true
 
-  # Confidence threshold (0.0 - 1.0)
-  # Findings with AI confidence below this are flagged as uncertain
-  # 0.7 = 70% confidence minimum (recommended balance)
+  # Persona Selection - Controls output style and detail level
+  # Options:
+  #   - beginner: Simple explanations, step-by-step fixes, learning resources
+  #   - expert: Technical depth, exploitation analysis, CVE references
+  #   - compliance: Regulatory mapping, audit evidence, compliance frameworks
+  persona: expert
+
+  # Confidence threshold for AI classification (0.0-1.0)
+  # Findings below this threshold will be marked "Needs Investigation"
   confidence_threshold: 0.7
 
-  # Auto-dismiss false positives
-  # If true, findings with very low confidence are automatically dismissed
-  # If false, humans review all findings (recommended)
+  # Auto-dismiss false positives below confidence threshold
+  # WARNING: Only enable if you trust the AI model's accuracy
   auto_dismiss_fp: false
 
-  # Cluster similar findings together
-  # Groups findings with similar root causes
+  # Cluster similar findings by CWE, file, or pattern
+  # Helps identify systemic issues
   cluster_similar: true
 
-# Report Generation
-# Configure output format and content
+# Report Configuration
 reporting:
-  # Output format: markdown, html, json, sarif
-  format: markdown
+  format: markdown  # Options: markdown, html, json, sarif
+  output_dir: null  # Default: .jpspec/security-reports/
+  include_false_positives: false  # Include FP findings in report
+  max_remediations: 10  # Max number of remediation examples
 
-  # Output directory (null = stdout)
-  output_dir: docs/security/reports/
+# Performance Configuration
+parallel_scans: true  # Run multiple scanners in parallel
+max_findings: 1000    # Limit total findings to prevent overwhelming output
 
-  # Include findings marked as false positives in report
-  include_false_positives: false
+# ==============================================================================
+# PERSONA CONFIGURATION EXAMPLES
+# ==============================================================================
 
-  # Maximum number of AI-generated remediation suggestions
-  # Limits AI output to avoid overwhelming developers
-  max_remediations: 10
+# Example 1: Beginner-Friendly Configuration
+# Use this for teams new to security or onboarding junior developers
+#
+# triage:
+#   enabled: true
+#   persona: beginner           # Simple, non-technical language
+#   confidence_threshold: 0.8   # Higher threshold = more conservative
+#   auto_dismiss_fp: false      # Never auto-dismiss for learning
+#   cluster_similar: true
 
-# Top-Level Options
+# Example 2: Expert Security Team Configuration
+# Use this for experienced security engineers and penetration testers
+#
+# triage:
+#   enabled: true
+#   persona: expert             # Technical depth, exploitation scenarios
+#   confidence_threshold: 0.6   # Lower threshold = catch more edge cases
+#   auto_dismiss_fp: true       # Trusted AI can auto-dismiss
+#   cluster_similar: true
 
-# Run scanners in parallel (faster, uses more CPU)
-parallel_scans: true
+# Example 3: Compliance Audit Configuration
+# Use this when preparing for PCI-DSS, SOC2, HIPAA, or ISO 27001 audits
+#
+# triage:
+#   enabled: true
+#   persona: compliance         # Regulatory mapping, audit evidence
+#   confidence_threshold: 0.7
+#   auto_dismiss_fp: false      # Never auto-dismiss for audit trail
+#   cluster_similar: true
+#
+# reporting:
+#   format: markdown
+#   output_dir: audit-evidence/security-findings
+#   include_false_positives: true  # Include all findings for audit
 
-# Maximum number of findings to report
-# Prevents overwhelming output when there are many issues
-max_findings: 1000
-
-# Example Profiles for Different Use Cases
-# (Remove or comment out the sections above and use one of these)
-
-# --- DEVELOPMENT PROFILE (Fast, Local Scans) ---
-# scanners:
-#   semgrep:
-#     enabled: true
-#     registry_rulesets: [p/default]
-#   bandit:
-#     enabled: true
-# fail_on: high
+# Example 4: CI/CD Pipeline Configuration
+# Use this in automated pipelines with strict thresholds
+#
+# fail_on: high                  # Fail on high and critical findings
+# triage:
+#   enabled: true
+#   persona: expert
+#   confidence_threshold: 0.8    # Higher threshold for CI/CD
+#   auto_dismiss_fp: true        # Auto-dismiss to reduce noise
+#   cluster_similar: false       # Each finding evaluated independently
 # parallel_scans: true
+# max_findings: 100              # Fail fast if too many findings
 
-# --- CI/CD PROFILE (Comprehensive, Blocks PRs) ---
-# scanners:
-#   semgrep:
-#     enabled: true
-#     registry_rulesets: [p/default, p/owasp-top-ten, p/cwe-top-25]
-#     timeout: 600
-#   codeql:
-#     enabled: true
-#   bandit:
-#     enabled: true
-# fail_on: high
+# Example 5: Development Environment Configuration
+# Use this for daily development with balanced settings
+#
+# fail_on: medium                # Catch medium+ issues
 # triage:
-#   auto_dismiss_fp: true
-# reporting:
-#   format: sarif
-#   output_dir: .security/results/
-
-# --- AUDIT PROFILE (Deep Analysis, Review Everything) ---
-# scanners:
-#   semgrep:
-#     enabled: true
-#     registry_rulesets: [p/default, p/owasp-top-ten, p/cwe-top-25, p/security-audit]
-#   codeql:
-#     enabled: true
-#     query_suites: [security-extended]
-#   bandit:
-#     enabled: true
-#     confidence_level: low
-# fail_on: medium
-# triage:
-#   confidence_threshold: 0.5
+#   enabled: true
+#   persona: beginner            # Help developers learn
+#   confidence_threshold: 0.7
 #   auto_dismiss_fp: false
+#   cluster_similar: true
 # reporting:
-#   include_false_positives: true
+#   format: markdown
+#   max_remediations: 5          # Focus on top issues
 
-# --- MINIMAL PROFILE (Quick Pre-Commit Checks) ---
-# scanners:
-#   semgrep:
-#     enabled: true
-#     registry_rulesets: [p/security-audit]
-#     timeout: 60
-#   codeql:
-#     enabled: false
-#   bandit:
-#     enabled: false
-# fail_on: critical
-# max_findings: 100
+# ==============================================================================
+# PERSONA OUTPUT EXAMPLES
+# ==============================================================================
+
+# BEGINNER PERSONA OUTPUT:
+# ========================
+# ## Finding: SQL Injection in Login Form
+#
+# ### What Is This?
+# Someone could trick your database into running bad commands by entering
+# special characters in the login form.
+#
+# ### Why Does It Matter?
+# An attacker could steal all user data, modify records, or delete the database.
+#
+# ### How Do I Fix It?
+# 1. Open the file `auth/login.py`
+# 2. Find line 42 where the SQL query is built
+# 3. Replace this:
+#    ```python
+#    query = f"SELECT * FROM users WHERE username = '{username}'"
+#    ```
+#    With this:
+#    ```python
+#    query = "SELECT * FROM users WHERE username = %s"
+#    cursor.execute(query, (username,))
+#    ```
+# 4. Test by trying to log in with username: `' OR '1'='1`
+#    (It should fail to log in, not return all users)
+#
+# ### Learn More
+# - [OWASP SQL Injection Guide](https://owasp.org/www-community/attacks/SQL_Injection)
+# - [Python SQL Security](https://docs.python.org/3/library/sqlite3.html#sqlite3-placeholders)
+
+# EXPERT PERSONA OUTPUT:
+# ======================
+# ## Finding: SQL Injection (CWE-89)
+#
+# ### Vulnerability Analysis
+# - **CWE:** CWE-89 - SQL Injection
+# - **CVSS Score:** 9.8 (Critical)
+# - **Vector:** CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H
+# - **Attack Vector:** Network (unauthenticated endpoint)
+# - **Complexity:** Low (trivial exploitation)
+#
+# ### Technical Description
+# String concatenation in SQL query construction at `auth/login.py:42` allows
+# unvalidated user input to modify query semantics. No parameterization or
+# input validation present in the authentication flow.
+#
+# ### Exploitation Analysis
+# - **Exploitability:** Critical - public PoCs available, SQLMap compatible
+# - **Attack Scenario:**
+#   ```bash
+#   curl -X POST https://api.example.com/login \
+#     -d "username=admin' OR '1'='1' -- &password=anything"
+#   ```
+#   Bypass authentication, enumerate users via UNION injection, exfiltrate data
+# - **Prerequisites:** None (public endpoint, no rate limiting)
+# - **Impact:** Full database compromise (CIA triad: High/High/High)
+#
+# ### Remediation
+# - **Immediate:** Parameterized queries
+#   ```python
+#   cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
+#   ```
+# - **Defense in Depth:**
+#   - Input validation (allowlist for username format)
+#   - WAF rule for SQL injection patterns
+#   - Least privilege DB user (no DROP/DELETE permissions)
+#   - Query logging and alerting
+# - **Performance:** Negligible (<1ms per query)
+#
+# ### References
+# - [CWE-89](https://cwe.mitre.org/data/definitions/89.html)
+# - [SQLMap Documentation](https://sqlmap.org/)
+# - [OWASP SQL Injection](https://owasp.org/www-community/attacks/SQL_Injection)
+
+# COMPLIANCE PERSONA OUTPUT:
+# ==========================
+# ## Finding: SQL Injection Vulnerability
+#
+# ### Classification
+# - **CWE:** CWE-89 - Improper Neutralization of Special Elements in SQL Command
+# - **OWASP Top 10 2021:** A03:2021 - Injection
+# - **Severity:** Critical
+# - **CVSS 3.1 Score:** 9.8
+#
+# ### Regulatory Impact
+# - **PCI-DSS v4.0:** Requirement 6.5.1 - Injection flaws (particularly SQL injection)
+# - **SOC2:** CC7.1 - System monitoring to detect potential cyber threats
+# - **HIPAA:** 164.308(a)(1)(ii)(D) - Information system activity review
+# - **ISO 27001:** A.14.2.1 - Secure development policy
+# - **GDPR:** Article 32 - Security of processing (integrity violation)
+#
+# ### Evidence
+# - **Location:** `auth/login.py:42`
+# - **Discovery Date:** 2025-12-04T16:30:00Z
+# - **Scanner:** Semgrep v1.50.0 (rule: python.lang.security.audit.sqli.string-concat)
+# - **Verification:** Manual code review confirmed true positive
+#
+# ### Compliance Status
+# - **Status:** Non-Compliant
+# - **Risk Rating:** Critical
+# - **Required Remediation Timeframe:** 24 hours (Critical findings per security policy)
+#
+# ### Remediation
+# - **Required Actions:**
+#   1. Implement parameterized SQL queries per OWASP guidelines
+#   2. Deploy fix to all environments (dev, staging, production)
+#   3. Conduct code review for similar patterns in codebase
+#   4. Update secure coding standards documentation
+# - **Verification Method:**
+#   - [ ] Code review confirms parameterized queries
+#   - [ ] Re-scan shows no SQL injection findings
+#   - [ ] Penetration test confirms exploitation not possible
+#   - [ ] Audit evidence collected and documented
+# - **Responsible Party:** Development Team - Authentication Squad
+# - **Target Date:** 2025-12-05 (24 hours)
+#
+# ### Audit Notes
+# **Control Deficiency:** Input validation control (PCI-DSS 6.5.1) not effective.
+# String concatenation allows SQL injection in authentication endpoint.
+#
+# **Compensating Controls:** None identified. Database user has excessive
+# privileges (DROP, DELETE). No WAF rules for SQL injection patterns.
+#
+# **Business Impact:** Potential cardholder data exposure (PCI-DSS scope).
+# Material weakness for SOC2 Type II attestation. HIPAA violation if ePHI
+# accessible via SQL injection.
+#
+# **Audit Trail:**
+# - 2025-12-04 16:30 UTC: Finding discovered by automated scan
+# - 2025-12-04 17:00 UTC: Manual verification confirmed true positive
+# - 2025-12-04 17:30 UTC: Development team notified via ticket SEC-2025-001
+# - 2025-12-04 18:00 UTC: Remediation plan approved by security team
+# - [Pending] Remediation deployment
+# - [Pending] Verification and closure
+
+# ==============================================================================
+# ADVANCED CONFIGURATION OPTIONS
+# ==============================================================================
+
+# Custom LLM Configuration (if using local models)
+# llm:
+#   provider: anthropic  # Options: anthropic, openai, local
+#   model: claude-3-opus-20240229
+#   api_key_env: ANTHROPIC_API_KEY
+#   temperature: 0.0  # Deterministic for security analysis
+#   max_tokens: 4096
+
+# Risk Scoring Configuration (Raptor formula)
+# risk_scoring:
+#   formula: raptor  # (Impact × Exploitability) / Detection_Time
+#   impact_weights:
+#     confidentiality: 1.0
+#     integrity: 1.0
+#     availability: 0.5
+#   exploitability_factors:
+#     attack_vector: [network: 1.0, adjacent: 0.8, local: 0.6, physical: 0.4]
+#     attack_complexity: [low: 1.0, high: 0.5]
+#     privileges_required: [none: 1.0, low: 0.7, high: 0.4]
+
+# False Positive Feedback Loop
+# feedback:
+#   enabled: true
+#   collection_method: interactive  # Options: interactive, file, api
+#   feedback_file: .jpspec/security-feedback.jsonl
+#   # Future: Use feedback to fine-tune classification model

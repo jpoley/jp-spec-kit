@@ -1,266 +1,430 @@
-# /jpspec:security_triage - AI-Powered Vulnerability Triage
+# /jpspec:security_triage
+
+Triage security scan findings using AI-powered analysis with persona-specific output.
 
 ## Purpose
 
-Perform AI-powered triage of security findings from scanners (Semgrep, CodeQL, etc.). Classify findings as true/false positives, calculate risk scores, generate explanations, and cluster related vulnerabilities.
+This command analyzes security findings from scanners (Semgrep, CodeQL, Bandit) and provides:
+- Classification (True Positive, False Positive, Needs Investigation)
+- Risk scoring using Raptor formula: (Impact × Exploitability) / Detection_Time
+- Plain-English explanations tailored to expertise level
+- Remediation guidance
+- Root cause clustering
 
 ## Prerequisites
 
-- Security scan has been run (via `/jpspec:validate` or manual scan)
-- Findings exist in `docs/security/findings.json` (Unified Finding Format)
+- Security scan results available (from `/jpspec:security scan`)
+- Configuration file at `.jpspec/security-config.yml`
+- Findings to triage (JSON or SARIF format)
 
 ## Workflow
 
-### 1. Invoke Security Triage Skill
+### 1. Load Configuration
 
-Execute the security triage skill to analyze all findings:
-
-```markdown
-I will now triage the security findings using the Security Triage Skill.
-
-@skill security-triage
-```
-
-The skill will:
-1. Read findings from `docs/security/findings.json`
-2. For each finding:
-   - Read code context (5 lines before/after)
-   - Classify as TP/FP/NI using triage guidelines
-   - Calculate risk score: (impact × exploitability) / detection_time
-   - Generate plain-English explanation (What/Why/How)
-3. Cluster findings by CWE, file, or architectural pattern
-4. Sort by risk score (highest first)
-5. Write results to `docs/security/triage-results.json`
-
-### 2. Report Summary
-
-After triage completes, provide a summary:
-
-```markdown
-## Triage Summary
-
-**Total Findings**: {total}
-**Classifications**:
-- True Positives (TP): {tp_count} ({tp_percent}%)
-- False Positives (FP): {fp_count} ({fp_percent}%)
-- Needs Investigation (NI): {ni_count} ({ni_percent}%)
-
-**Top 5 Risks** (by risk score):
-1. [{finding_id}] {title} - Risk: {risk_score} ({classification})
-2. ...
-
-**Clusters Identified**:
-- CLUSTER-CWE-CWE-89: {count} SQL injection findings
-- CLUSTER-FILE-auth: {count} issues in auth.py
-- ...
-
-**Recommendations**:
-1. Address {tp_count} true positives starting with highest risk scores
-2. Review {ni_count} uncertain findings (NI) with security expert
-3. Fix systemic issues identified in clusters
-4. Dismiss {fp_count} false positives
-
-Results saved to: `docs/security/triage-results.json`
-```
-
-### 3. Interactive Mode (Optional)
-
-If user requests interactive confirmation:
-
-```markdown
-Do you want to review and confirm AI classifications? (y/n)
-```
-
-If yes, for each finding marked NI or with confidence <0.9:
-
-1. Display finding details:
-   ```
-   Finding: SEMGREP-CWE-89-001
-   File: src/auth.py:42-45
-   Classification: TP (confidence: 0.85)
-
-   Code:
-   40: def login(request):
-   41:     username = request.POST['username']
-   42:     query = f"SELECT * FROM users WHERE username = '{username}'"
-   43:     cursor.execute(query)
-   44:     ...
-
-   AI Reasoning: User input from request.POST flows directly to cursor.execute()
-   with f-string formatting. No parameterized queries used.
-
-   [y] Accept  [o] Override  [s] Skip  [?] More info
-   ```
-
-2. Handle user response:
-   - **y (Accept)**: Keep AI classification
-   - **o (Override)**: Prompt for correct classification and reason, update result
-   - **s (Skip)**: Move to next finding
-   - **? (More info)**: Show full code context (20 lines)
-
-3. Save feedback for overrides to `~/.specify/triage_feedback.jsonl`
-
-### 4. Update Backlog Tasks (If Requested)
-
-Optionally create backlog tasks for true positives:
+Read the security configuration to determine persona and settings:
 
 ```bash
-# For each TP with high risk score (>5.0)
-backlog task create "Fix {title}" \
-  --description "Finding: {finding_id}\nSeverity: {severity}\nCWE: {cwe_id}\n\n{explanation.what}\n\n{explanation.how_to_fix}" \
-  --label security \
-  --label urgent \
-  --assignee @secure-by-design-engineer
+# Check if config exists
+if [ -f .jpspec/security-config.yml ]; then
+    echo "Using configuration from .jpspec/security-config.yml"
+else
+    echo "No configuration found. Using defaults (expert persona)."
+fi
 ```
 
-## Input Format
+**Configuration Parameters:**
+- `triage.persona` - Output style: `beginner`, `expert`, `compliance`
+- `triage.confidence_threshold` - Minimum confidence for classification (0.0-1.0)
+- `triage.auto_dismiss_fp` - Auto-dismiss false positives below threshold
+- `triage.cluster_similar` - Group findings by root cause
 
-Expects findings in `docs/security/findings.json` (Unified Finding Format):
+### 2. Select Persona Skill
 
-```json
-[
-  {
-    "id": "SEMGREP-CWE-89-001",
-    "scanner": "semgrep",
-    "severity": "high",
-    "title": "SQL Injection in login query",
-    "description": "User input concatenated into SQL query",
-    "location": {
-      "file": "src/auth.py",
-      "line_start": 42,
-      "line_end": 45,
-      "code_snippet": "query = f\"SELECT * FROM users WHERE username = '{username}'\""
-    },
-    "cwe_id": "CWE-89",
-    "cvss_score": 8.5
-  }
-]
+Based on the `persona` configuration, invoke the appropriate triage skill:
+
+```markdown
+**Persona Selection Logic:**
+
+- If `persona: beginner` → Use **security-triage-beginner** skill
+  - Simple, non-technical explanations
+  - Step-by-step fixes with code examples
+  - Learning resources and tutorials
+  - Explanations under 100 words
+
+- If `persona: expert` → Use **security-triage-expert** skill
+  - Technical depth with CWE/CVE references
+  - Advanced exploitation scenarios
+  - Performance and edge case considerations
+  - Defense in depth strategies
+
+- If `persona: compliance` → Use **security-triage-compliance** skill
+  - Regulatory mapping (PCI-DSS, SOC2, HIPAA, ISO 27001)
+  - Audit evidence format
+  - Compliance status assessment
+  - Remediation timeframes per policy
+
+- If no persona specified → Default to **expert**
 ```
 
-## Output Format
+### 3. Load Findings
 
-Writes triage results to `docs/security/triage-results.json`:
+Load security findings from the most recent scan:
 
-```json
-[
-  {
-    "finding_id": "SEMGREP-CWE-89-001",
-    "classification": "TP",
-    "confidence": 0.95,
-    "risk_score": 4.2,
-    "explanation": {
-      "what": "SQL query built with string concatenation of user input",
-      "why_it_matters": "Attacker can inject SQL commands to steal passwords, delete data, or bypass authentication",
-      "how_to_exploit": "Enter ' OR 1=1 -- in username field to bypass login",
-      "how_to_fix": "Use parameterized query: cursor.execute('SELECT * FROM users WHERE username = ?', (username,))"
-    },
-    "cluster_id": "CLUSTER-CWE-CWE-89",
-    "cluster_type": "cwe",
-    "ai_reasoning": "User input from request.POST flows to cursor.execute with f-string. No parameterized queries used.",
-    "metadata": {
-      "impact": 8,
-      "exploitability": 9,
-      "detection_time": 17
-    }
-  }
-]
+```bash
+# Find most recent scan results
+SCAN_RESULTS=$(ls -t .jpspec/security-reports/*.json 2>/dev/null | head -1)
+
+if [ -z "$SCAN_RESULTS" ]; then
+    echo "ERROR: No scan results found. Run /jpspec:security scan first."
+    exit 1
+fi
+
+echo "Triaging findings from: $SCAN_RESULTS"
 ```
 
-Results are sorted by `risk_score` descending (highest risk first).
+### 4. Invoke Triage Skill
+
+Using the selected persona skill, analyze each finding:
+
+**For each finding:**
+
+1. **Extract finding details:**
+   - ID, title, description
+   - CWE, severity, CVSS score
+   - File path, line numbers
+   - Code snippet with context
+
+2. **Classify:**
+   - Analyze code context and data flow
+   - Determine if user input reaches dangerous sink
+   - Check for validation/sanitization
+   - Return classification (TP/FP/NI) with confidence
+
+3. **Score risk:**
+   - Impact: CVSS score or AI-estimated (0-10)
+   - Exploitability: AI-estimated likelihood (0-10)
+   - Detection time: Days since code written (git blame)
+   - Risk = (Impact × Exploitability) / Detection_Time
+
+4. **Generate explanation:**
+   - Use persona-specific format and language
+   - Provide What, Why, How to Exploit (if TP), How to Fix
+   - Include references appropriate to persona
+
+5. **Cluster findings:**
+   - Group by CWE category (≥3 findings)
+   - Group by file (≥2 findings)
+   - Identify systemic issues
+
+### 5. Generate Report
+
+Create triage report with persona-specific formatting:
+
+**Report Structure:**
+
+```markdown
+# Security Triage Report
+
+**Generated:** [ISO 8601 timestamp]
+**Persona:** [beginner/expert/compliance]
+**Total Findings:** [count]
+**Classification Breakdown:**
+- True Positive: [count] ([percentage]%)
+- False Positive: [count] ([percentage]%)
+- Needs Investigation: [count] ([percentage]%)
+
+## Executive Summary
+[High-level overview of findings and risk]
+
+## Critical Findings (Risk Score > 8.0)
+[Findings sorted by risk score, highest first]
+
+## High Priority Findings (Risk Score 5.0-8.0)
+[Findings sorted by risk score]
+
+## Medium Priority Findings (Risk Score 2.0-5.0)
+[Findings sorted by risk score]
+
+## Low Priority Findings (Risk Score < 2.0)
+[Findings sorted by risk score]
+
+## Clustered Findings (Systemic Issues)
+[Findings grouped by root cause with fix recommendations]
+
+## Remediation Summary
+[Top remediations that would fix multiple findings]
+
+## False Positives
+[Findings classified as false positives with reasoning]
+[Only included if reporting.include_false_positives: true]
+```
+
+### 6. Output Report
+
+Save report and display summary:
+
+```bash
+# Save report
+REPORT_FILE=".jpspec/security-reports/triage-$(date +%Y%m%d-%H%M%S).md"
+echo "Triage report saved to: $REPORT_FILE"
+
+# Display summary
+echo "
+Triage Complete
+===============
+Total Findings: [count]
+True Positive: [count]
+False Positive: [count]
+Needs Investigation: [count]
+
+Critical Risk: [count]
+High Risk: [count]
+Medium Risk: [count]
+Low Risk: [count]
+
+Report: $REPORT_FILE
+"
+```
+
+## Persona Examples
+
+### Beginner Mode Example
+
+```markdown
+## Finding: SQL Injection in Authentication
+
+### What Is This?
+Your login form has a security hole. Someone could type special characters
+in the username field to trick the database into giving them access without
+a password.
+
+### Why Does It Matter?
+An attacker could:
+- Log in as any user (including administrators)
+- Steal all user data from the database
+- Delete or modify data
+
+### How Do I Fix It?
+1. Open the file `src/auth/login.py`
+2. Find line 42 where it says:
+   ```python
+   query = f"SELECT * FROM users WHERE username = '{username}'"
+   ```
+3. Change it to:
+   ```python
+   query = "SELECT * FROM users WHERE username = %s"
+   cursor.execute(query, (username,))
+   ```
+4. The `%s` is a placeholder. It keeps the username safe.
+
+### Learn More
+- [What is SQL Injection?](https://owasp.org/www-community/attacks/SQL_Injection)
+- [How to prevent it](https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html)
+```
+
+### Expert Mode Example
+
+```markdown
+## Finding: SQL Injection (CWE-89)
+
+### Vulnerability Analysis
+- **CWE:** CWE-89 - SQL Injection
+- **CVSS 3.1:** 9.8 (Critical) - CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H
+- **Attack Vector:** Network (unauthenticated public endpoint)
+- **Complexity:** Low (trivial exploitation, public PoCs)
+
+### Technical Description
+String concatenation in SQL query construction allows second-order SQL injection.
+User input flows through `request.form['username']` → `build_query()` → `cursor.execute()`
+without sanitization or parameterization. No WAF or input validation present.
+
+### Exploitation Analysis
+- **Exploitability:** Critical (9.0/10)
+- **Attack Scenario:**
+  ```bash
+  # Boolean-based blind injection
+  POST /api/login
+  username=admin' AND (SELECT 1 FROM users WHERE username='admin' AND password LIKE 'a%')--
+
+  # UNION-based data exfiltration
+  username=' UNION SELECT password,email,1 FROM users WHERE '1'='1
+
+  # Time-based blind injection
+  username=admin' AND (SELECT CASE WHEN (1=1) THEN pg_sleep(5) ELSE 0 END)='0
+  ```
+- **Prerequisites:** None (public endpoint, no rate limiting, no WAF)
+- **Impact:** Full database compromise, lateral movement via stored credentials
+
+### Remediation
+- **Immediate Fix:**
+  ```python
+  # Use parameterized queries
+  cursor.execute("SELECT * FROM users WHERE username = %s AND password = %s",
+                 (username, password_hash))
+  ```
+- **Defense in Depth:**
+  - Input validation: `^[a-zA-Z0-9_-]{3,20}$`
+  - WAF rule: ModSecurity CRS SQL injection rules
+  - Least privilege: Read-only DB user for authentication
+  - Query logging: Alert on `UNION`, `--`, `/**/`
+- **Performance:** Parameterization adds <0.5ms per query
+
+### References
+- [CWE-89](https://cwe.mitre.org/data/definitions/89.html)
+- [SQLMap](https://sqlmap.org/) - Automated exploitation tool
+- [PayloadsAllTheThings](https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/SQL%20Injection)
+```
+
+### Compliance Mode Example
+
+```markdown
+## Finding: SQL Injection Vulnerability
+
+### Classification
+- **CWE:** CWE-89 - Improper Neutralization of Special Elements in SQL Command
+- **OWASP Top 10 2021:** A03:2021 - Injection
+- **Severity:** Critical
+- **CVSS 3.1 Score:** 9.8
+
+### Regulatory Impact
+- **PCI-DSS v4.0:**
+  - Requirement 6.5.1: Injection flaws, particularly SQL injection
+  - Status: **Non-Compliant** (Failed control test)
+- **SOC2:**
+  - CC7.1: System monitoring to detect potential cyber threats
+  - Status: **Control Deficiency** (Material weakness)
+- **HIPAA:**
+  - 164.308(a)(1)(ii)(D): Information system activity review
+  - 164.312(c)(1): Integrity controls
+  - Status: **Non-Compliant** (ePHI at risk)
+- **ISO 27001:2022:**
+  - A.14.2.1: Secure development policy
+  - Status: **Non-Compliant**
+
+### Evidence
+- **Location:** `src/auth/login.py:42`
+- **Discovery Date:** 2025-12-04T18:30:00Z
+- **Scanner:** Semgrep v1.50.0
+- **Rule:** python.lang.security.audit.sqli.string-concat
+- **Verification:** Manual code review confirmed true positive (2025-12-04T19:00:00Z)
+
+### Compliance Status
+- **Status:** Non-Compliant
+- **Risk Rating:** Critical
+- **Required Remediation Timeframe:** 24 hours (per critical vulnerability policy)
+- **Business Impact:** Potential PCI-DSS non-compliance, SOC2 Type II material weakness
+
+### Remediation
+- **Required Actions:**
+  1. Implement parameterized SQL queries per OWASP SQL Injection Prevention Cheat Sheet
+  2. Code review to identify similar patterns across codebase
+  3. Deploy fix to all environments (dev, staging, production)
+  4. Update secure coding standards documentation
+  5. Developer training on SQL injection prevention
+- **Verification Method:**
+  - [ ] Code review confirms parameterized queries used
+  - [ ] Static analysis re-scan shows no SQL injection findings
+  - [ ] Dynamic testing (penetration test) confirms not exploitable
+  - [ ] Audit evidence collected and filed
+- **Responsible Party:** Development Team - Authentication Squad (Lead: John Doe)
+- **Target Date:** 2025-12-05T18:30:00Z (24 hours)
+
+### Audit Notes
+**Control Effectiveness Assessment:**
+Input validation control (PCI-DSS 6.5.1) ineffective. String concatenation
+in SQL query construction bypasses parameterization controls. No secondary
+controls (WAF, input validation) in place.
+
+**Compensating Controls:** None identified.
+
+**Root Cause:** Lack of secure coding training, missing code review checklist
+for SQL injection vulnerabilities, inadequate SAST integration in CI/CD.
+
+**Evidence Collection:**
+- Source code snapshot: `evidence/security/SF-2025-001-code.txt`
+- Scan report: `evidence/security/SF-2025-001-scan.json`
+- Manual verification notes: `evidence/security/SF-2025-001-verification.md`
+
+**Remediation Verification:**
+- Post-remediation code review required (security team sign-off)
+- Re-scan must show clean (no SQL injection findings)
+- Penetration test must confirm not exploitable
+- Evidence documented in `evidence/security/SF-2025-001-remediation.md`
+
+**Audit Trail:**
+- 2025-12-04 18:30 UTC: Finding discovered (automated scan)
+- 2025-12-04 19:00 UTC: Manual verification (security analyst)
+- 2025-12-04 19:30 UTC: Development team notified (ticket SEC-2025-001)
+- 2025-12-04 20:00 UTC: Remediation plan approved (security manager)
+- [Pending] 2025-12-05 18:30 UTC: Target remediation date
+- [Pending] Verification and closure
+```
 
 ## Command Options
 
 ```bash
-/jpspec:security_triage [options]
+/jpspec:security_triage [OPTIONS]
 
 Options:
-  --input PATH          Path to findings file (default: docs/security/findings.json)
-  --output PATH         Path to output file (default: docs/security/triage-results.json)
-  --interactive         Enable interactive mode for confirmation
-  --create-tasks        Create backlog tasks for high-risk TPs
-  --min-confidence N    Only show findings with confidence >= N (default: 0.0)
+  --persona [beginner|expert|compliance]  Override config persona
+  --input FILE                            Scan results file (JSON/SARIF)
+  --output FILE                           Output report file
+  --confidence FLOAT                      Override confidence threshold
+  --format [markdown|html|json]           Report format
+  --interactive                           Interactive mode (confirm each classification)
+  --cluster                               Enable finding clustering
+  --no-cluster                            Disable finding clustering
 ```
 
-## Integration with /jpspec:validate
+## Integration with Backlog
 
-This command is typically run as part of the validation workflow:
+After triage, findings can be converted to backlog tasks:
 
 ```bash
-# 1. Run security scan
-/jpspec:validate --security
+# For each True Positive finding:
+backlog task create "Fix [finding title]" \
+  -d "[finding description]" \
+  --ac "Implement remediation per triage report" \
+  --ac "Verify fix with re-scan" \
+  --ac "Update documentation if needed" \
+  -l security,bug \
+  --priority high
 
-# 2. Triage findings
-/jpspec:security_triage --interactive
-
-# 3. Fix true positives
-# (Manual or via /jpspec:implement with security tasks)
-
-# 4. Re-scan to verify fixes
-/jpspec:validate --security
+# Add triage report reference to task notes
+backlog task edit [task-id] --notes "See triage report: [report-file]"
 ```
 
-## Skills Used
+## Error Handling
 
-- **security-triage**: Main triage logic (classification, risk scoring, explanation generation)
+- **No scan results found:** Prompt to run `/jpspec:security scan` first
+- **Invalid configuration:** Use default settings, warn user
+- **Persona not recognized:** Default to `expert` persona
+- **LLM API errors:** Fall back to rule-based classification, warn user
+- **Git blame errors:** Use default detection time (30 days)
 
-## Memory References
+## Performance Considerations
 
-- `memory/security/triage-guidelines.md`: Classification rules, risk scoring, explanation format
-- `memory/security/cwe-knowledge.md`: CWE patterns, true/false positive indicators, remediation guidance
+- **Parallel processing:** Triage findings concurrently (up to 10 at a time)
+- **Caching:** Cache classification results for identical findings
+- **Batch requests:** Group LLM requests to reduce API overhead
+- **Progress indicators:** Show progress for large finding sets (>20)
 
-## Example Usage
+## Success Criteria
 
-### Basic Triage
+- All findings classified (TP/FP/NI)
+- Risk scores calculated
+- Report generated in persona-specific format
+- Clusters identified (if enabled)
+- Exit code 0 if successful, 1 if errors
 
-```bash
-/jpspec:security_triage
-```
+## Related Commands
 
-Output:
-```
-Triaging 47 security findings...
+- `/jpspec:security scan` - Run security scanners
+- `/jpspec:security fix` - Apply automated fixes
+- `/jpspec:security report` - Generate comprehensive security report
 
-[==================================================] 47/47
+## References
 
-Triage Summary:
-- True Positives: 12 (26%)
-- False Positives: 31 (66%)
-- Needs Investigation: 4 (8%)
-
-Top 5 Risks:
-1. SEMGREP-CWE-89-001: SQL injection in login - Risk: 8.4 (TP)
-2. SEMGREP-CWE-22-003: Path traversal in file upload - Risk: 6.7 (TP)
-3. SEMGREP-CWE-798-002: Hardcoded AWS key - Risk: 5.2 (TP)
-4. CODEQL-CWE-79-001: XSS in search results - Risk: 4.1 (TP)
-5. SEMGREP-CWE-327-001: MD5 password hashing - Risk: 3.8 (TP)
-
-Clusters:
-- CLUSTER-CWE-CWE-89: 5 SQL injection findings
-- CLUSTER-FILE-auth: 3 issues in auth.py
-
-Results saved to: docs/security/triage-results.json
-```
-
-### Interactive Mode
-
-```bash
-/jpspec:security_triage --interactive
-```
-
-Prompts for confirmation on uncertain findings and allows overrides.
-
-### Create Tasks for High-Risk Findings
-
-```bash
-/jpspec:security_triage --create-tasks
-```
-
-Automatically creates backlog tasks for TP findings with risk_score > 5.0.
-
-## Notes
-
-- This command uses the **security-triage skill**, not Python LLM API calls
-- All AI reasoning happens in Claude Code natively
-- Python code only handles data structures and file I/O
-- Target accuracy: >85% classification correctness
-- Use interactive mode for critical systems or when confidence is low
+- [Security Triage Guidelines](../../../memory/security/triage-guidelines.md)
+- [ADR-006: AI Triage Engine Design](../../../docs/adr/ADR-006-ai-triage-engine-design.md)
+- [Security Configuration Schema](../../../docs/security/config-schema.yaml)
