@@ -779,7 +779,7 @@ def write_repo_facts(project_path: Path) -> None:
         "# Repository Facts",
         "",
         "This file contains automatically detected facts about your repository.",
-        "It is generated during `specify init` and can be regenerated with `specify check`.",
+        "It is generated during `specify init`. Regeneration via `specify check` is a planned feature.",
         "",
         "## Languages",
         "",
