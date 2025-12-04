@@ -451,6 +451,11 @@ Replace these placeholders in the template:
 4. `[CI_CD_TOOLS]` → CI/CD platform details (heavy only)
 5. `[DATE]` → Current date in YYYY-MM-DD format
 
+**IMPORTANT**: For heavy tier, the following placeholders must remain as NEEDS_VALIDATION and should NOT be replaced:
+- `[COMPLIANCE_FRAMEWORKS]`
+- `[RETENTION_PERIOD]`
+- `[APPROVAL_AUTHORITY]`
+- `[REPORTING_WINDOW]`
 **IMPORTANT**: Keep ALL existing `<!-- NEEDS_VALIDATION: ... -->` markers from the template. Do NOT remove them.
 
 #### 4.5 Write Constitution File
