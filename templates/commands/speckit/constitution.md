@@ -448,7 +448,7 @@ Replace these placeholders in the template:
 1. `[PROJECT_NAME]` → Detected project name (from Step 4.2)
 2. `[LANGUAGES_AND_FRAMEWORKS]` → Formatted tech stack (from Step 4.3)
 3. `[LINTING_TOOLS]` → Linting tools list (medium/heavy only)
-4. `[CI_CD_TOOLS]` → CI/CD platform details (heavy only)
+4. `[CI_CD_TOOLS]` → CI/CD platform details (medium/heavy only)
 5. `[DATE]` → Current date in YYYY-MM-DD format
 
 **IMPORTANT**: For heavy tier, the following placeholders must remain as NEEDS_VALIDATION and should NOT be replaced:
