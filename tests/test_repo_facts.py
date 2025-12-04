@@ -299,7 +299,7 @@ class TestWriteRepoFacts:
         assert "- Go" in content
         assert "- GitLab CI" in content
         # Old content should be gone
-        assert "- Python" not in content or "## Languages" not in content
+        assert "- Python" not in content
 
 
 class TestRepoFactsTemplate:
