@@ -33,6 +33,29 @@ Not for "urgent" fixes. Not for "small" changes. **NO EXCEPTIONS.**
 
 See `memory/constitution.md` for full details.
 
+## Branch Naming Convention (MANDATORY)
+
+**ALL branches MUST include the machine hostname prefix:**
+
+```bash
+# Correct branch naming:
+kinsale/task-083-quality-gates     # Machine name + task reference
+galway/feature-auth-refactor       # Machine name + description
+muckross/task-212-triage-engine    # Machine name + task reference
+
+# WRONG - will be deleted:
+task-083-quality-gates             # Missing hostname
+feature/task-083                   # Wrong prefix pattern
+feature-auth-refactor              # Missing hostname
+```
+
+**Why?** Branch names identify which machine/agent created the work. This enables:
+- Parallel work across multiple machines
+- Clear ownership and accountability
+- Easy identification of work source
+
+**Hostname is derived from the machine running Claude Code** (e.g., kinsale, galway, muckross).
+
 ## DCO Sign-off (Required)
 
 All commits MUST include sign-off:
