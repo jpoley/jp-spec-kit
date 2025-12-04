@@ -396,7 +396,7 @@ flowchart TB
         CU[Cursor<br/>.cursor/]
         WS[Windsurf<br/>.windsurf/]
         KC[Kilo Code<br/>.kilocode/]
-        AU[Auggie CLI<br/>.augment/]
+        AU[Auggie<br/>.augment/]
         CB[CodeBuddy<br/>.codebuddy/]
         RO[Roo Code<br/>.roo/]
     end
