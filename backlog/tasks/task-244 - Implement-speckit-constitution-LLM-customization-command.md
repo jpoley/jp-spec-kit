@@ -5,9 +5,10 @@ status: To Do
 assignee:
   - '@kinsale'
 created_date: '2025-12-03 02:40'
-updated_date: '2025-12-04 16:31'
+updated_date: '2025-12-04 17:07'
 labels:
   - constitution-cleanup
+  - 'workflow:Specified'
 dependencies:
   - task-241
   - task-243

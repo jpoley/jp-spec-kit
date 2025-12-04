@@ -5,12 +5,13 @@ status: To Do
 assignee:
   - '@kinsale'
 created_date: '2025-11-27 21:53'
-updated_date: '2025-12-04 04:01'
+updated_date: '2025-12-04 17:07'
 labels:
   - specify-cli
   - claude-code
   - plugin
   - marketplace
+  - 'workflow:Specified'
 dependencies: []
 priority: medium
 ---

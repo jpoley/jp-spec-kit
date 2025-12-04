@@ -5,10 +5,11 @@ status: To Do
 assignee:
   - '@kinsale'
 created_date: '2025-11-30 16:49'
-updated_date: '2025-12-04 04:01'
+updated_date: '2025-12-04 17:07'
 labels:
   - ci-cd
   - enhancement
+  - 'workflow:Specified'
 dependencies: []
 priority: low
 ---

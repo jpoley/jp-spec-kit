@@ -5,11 +5,12 @@ status: To Do
 assignee:
   - '@kinsale'
 created_date: '2025-12-01 05:05'
-updated_date: '2025-12-04 04:01'
+updated_date: '2025-12-04 17:07'
 labels:
   - claude-code
   - output-styles
   - experimentation
+  - 'workflow:Specified'
 dependencies: []
 priority: low
 ---

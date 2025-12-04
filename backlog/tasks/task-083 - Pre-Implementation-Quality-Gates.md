@@ -5,12 +5,13 @@ status: To Do
 assignee:
   - '@kinsale'
 created_date: '2025-11-27 21:54'
-updated_date: '2025-12-04 04:01'
+updated_date: '2025-12-04 17:07'
 labels:
   - jpspec
   - feature
   - quality
   - P0
+  - 'workflow:Specified'
 dependencies: []
 priority: high
 ---

@@ -5,12 +5,13 @@ status: To Do
 assignee:
   - '@kinsale'
 created_date: '2025-11-28 22:03'
-updated_date: '2025-12-04 04:01'
+updated_date: '2025-12-04 17:07'
 labels:
   - observability
   - documentation
   - outer-loop
   - tooling
+  - 'workflow:Specified'
 dependencies: []
 priority: medium
 ---
