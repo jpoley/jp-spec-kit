@@ -13,6 +13,20 @@
     "Task",
     "TodoWrite"
   ],
+  "permissions": {
+    "deny": [
+      "Read(.env)",
+      "Read(.env.*)",
+      "Read(./secrets/**)",
+      "Edit(./CLAUDE.md)",
+      "Edit(./memory/constitution.md)",
+      "Edit(./uv.lock)",
+      "Edit(./package-lock.json)",
+      "Bash(sudo *)",
+      "Bash(rm -rf *)",
+      "Bash(sudo rm *)"
+    ]
+  },
   "preferences": {
     "codeStyle": "ruff",
     "testFramework": "pytest",

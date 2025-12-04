@@ -181,6 +181,51 @@ Hooks are configured in `.claude/settings.json`. To customize:
 3. **Adjust timeouts**: Modify timeout values in `.claude/settings.json`
 4. **Disable specific hooks**: Remove or comment out hooks in `.claude/settings.json`
 
+## Permission Deny Rules
+
+In addition to hooks, JP Spec Kit uses `permissions.deny` rules in `.claude/settings.json` to block access to sensitive files and dangerous commands. These rules provide a first line of defense before hooks even run.
+
+### Denied Operations
+
+| Category | Rule | Purpose |
+|----------|------|---------|
+| **Environment Files** | `Read(.env)`, `Read(.env.*)` | Prevent accidental exposure of secrets |
+| **Secrets Directory** | `Read(./secrets/**)` | Block access to sensitive credential files |
+| **Configuration Protection** | `Edit(./CLAUDE.md)`, `Edit(./memory/constitution.md)` | Prevent modification of critical project config |
+| **Lock Files** | `Edit(./uv.lock)`, `Edit(./package-lock.json)` | Prevent accidental dependency changes |
+| **Dangerous Commands** | `Bash(sudo *)`, `Bash(rm -rf *)`, `Bash(sudo rm *)` | Block destructive system operations |
+
+### How Permission Rules Work
+
+1. **Deny rules take precedence** - If a path matches a deny rule, the operation is blocked regardless of other settings
+2. **Pattern matching uses glob syntax** - `*` matches any characters, `**` matches directories recursively
+3. **Bash rules use prefix matching** - `Bash(sudo *)` matches any command starting with "sudo "
+
+### Defense in Depth
+
+Permission deny rules work alongside hooks for layered security:
+1. **First layer**: `permissions.deny` blocks obviously dangerous operations
+2. **Second layer**: PreToolUse hooks ask for confirmation on sensitive operations
+3. **Third layer**: PostToolUse hooks validate and format changes
+
+### Customizing Permission Rules
+
+To modify permission rules, edit `.claude/settings.json`:
+
+```json
+{
+  "permissions": {
+    "deny": [
+      "Read(.env)",
+      "Edit(./CLAUDE.md)",
+      "Bash(sudo *)"
+    ]
+  }
+}
+```
+
+**Note**: Bash permission patterns can be bypassed through workarounds (e.g., shell escaping). Use them for accidental protection, not as a complete security boundary.
+
 ## Hook Design Principles
 
 - **Fail open**: Hooks default to "allow" on errors to avoid breaking Claude's workflow
