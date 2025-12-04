@@ -46,6 +46,8 @@ Continue with the workflow below, but:
 
 This command creates comprehensive feature specifications using the PM Planner agent, integrating with backlog.md for task management.
 
+{{INCLUDE:.claude/commands/jpspec/_constitution-check.md}}
+
 {{INCLUDE:.claude/commands/jpspec/_workflow-state.md}}
 
 **For /jpspec:specify**: Required input state is `workflow:Assessed`. Output state will be `workflow:Specified`.

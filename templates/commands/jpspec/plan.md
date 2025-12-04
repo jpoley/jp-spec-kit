@@ -42,6 +42,8 @@ Continue with the workflow below, but:
 
 This command creates comprehensive architectural and platform planning using two specialized agents working in parallel, building out /speckit.constitution.
 
+{{INCLUDE:.claude/commands/jpspec/_constitution-check.md}}
+
 {{INCLUDE:.claude/commands/jpspec/_workflow-state.md}}
 
 **For /jpspec:plan**: Required input states are `workflow:Specified` OR `workflow:Researched`. Output state will be `workflow:Planned`.

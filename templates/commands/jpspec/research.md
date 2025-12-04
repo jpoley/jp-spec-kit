@@ -47,6 +47,8 @@ Current workflow path: Specified → Planned (skipping Researched)
 
 This command orchestrates comprehensive research and business validation using two specialized agents working sequentially.
 
+{{INCLUDE:.claude/commands/jpspec/_constitution-check.md}}
+
 {{INCLUDE:.claude/commands/jpspec/_workflow-state.md}}
 
 **For /jpspec:research**: Required input state is `workflow:Specified`. Output state will be `workflow:Researched`.

@@ -14,6 +14,8 @@ $ARGUMENTS
 
 **Expected Input**: Optional task ID (e.g., `task-094`). If not provided, command discovers the current in-progress task automatically.
 
+{{INCLUDE:.claude/commands/jpspec/_constitution-check.md}}
+
 {{INCLUDE:.claude/commands/jpspec/_workflow-state.md}}
 
 **For /jpspec:validate**: Required input state is `workflow:In Implementation`. Output state will be `workflow:Validated`.

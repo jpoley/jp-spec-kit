@@ -14,6 +14,8 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 This command implements features using specialized engineering agents with integrated code review. **Engineers work exclusively from backlog tasks.**
 
+{{INCLUDE:.claude/commands/jpspec/_constitution-check.md}}
+
 {{INCLUDE:.claude/commands/jpspec/_workflow-state.md}}
 
 **For /jpspec:implement**: Required input state is `workflow:Planned`. Output state will be `workflow:In Implementation`.
