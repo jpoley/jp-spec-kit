@@ -431,10 +431,10 @@ Create formatted tech stack content replacing `[LANGUAGES_AND_FRAMEWORKS]`:
 - `[CI_CD_TOOLS]` - Detected CI/CD platforms
 
 **For heavy tier only**, populate:
-- `[COMPLIANCE_FRAMEWORKS]` - Leave as NEEDS_VALIDATION placeholder (user must specify)
-- `[RETENTION_PERIOD]` - Leave as NEEDS_VALIDATION placeholder
-- `[APPROVAL_AUTHORITY]` - Leave as NEEDS_VALIDATION placeholder
-- `[REPORTING_WINDOW]` - Leave as NEEDS_VALIDATION placeholder
+- <!-- NEEDS_VALIDATION: [COMPLIANCE_FRAMEWORKS] --> - Leave as NEEDS_VALIDATION placeholder (user must specify)
+- <!-- NEEDS_VALIDATION: [RETENTION_PERIOD] --> - Leave as NEEDS_VALIDATION placeholder
+- <!-- NEEDS_VALIDATION: [APPROVAL_AUTHORITY] --> - Leave as NEEDS_VALIDATION placeholder
+- <!-- NEEDS_VALIDATION: [REPORTING_WINDOW] --> - Leave as NEEDS_VALIDATION placeholder
 
 #### 4.4 Perform Template Replacements
 
