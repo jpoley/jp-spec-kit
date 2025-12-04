@@ -160,7 +160,7 @@ Writes triage results to `docs/security/triage-results.json`:
     "metadata": {
       "impact": 8,
       "exploitability": 9,
-      "detection_time": 90
+      "detection_time": 17
     }
   }
 ]

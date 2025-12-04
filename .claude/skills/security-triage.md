@@ -68,7 +68,7 @@ Apply classification rules from `memory/security/triage-guidelines.md`:
 - Context makes exploitation impossible
 
 **NEEDS_INVESTIGATION (NI)** when:
-- Insufficient context (confidence <70%)
+- Insufficient context (confidence <0.7)
 - Complex dataflow requiring human analysis
 
 ### Step 3: Assign Confidence Score
@@ -181,7 +181,7 @@ Write triage results to `docs/security/triage-results.json`:
     "metadata": {
       "impact": 8,
       "exploitability": 9,
-      "detection_time": 90
+      "detection_time": 17
     }
   }
 ]

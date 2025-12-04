@@ -105,7 +105,7 @@ Generate explanations in plain English for junior developers:
 ### How to Fix (2-4 sentences)
 - Concrete fix with code example
 - Link to documentation or best practices
-- Example: "Replace string concatenation with parameterized queries: `cursor.execute('SELECT * FROM users WHERE username = ?', (username,))`. This treats user input as data, not code. See: https://docs.python.org/3/library/sqlite3.html#sqlite3-placeholders"
+- Example: "Use parameterized queries: `cursor.execute('SELECT * FROM users WHERE username = ?', (username,))`. This prevents SQL injection by treating user input as data, not code."
 
 Keep each section under 200 characters. Prioritize clarity over completeness.
 
