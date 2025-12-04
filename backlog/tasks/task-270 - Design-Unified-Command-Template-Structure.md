@@ -5,7 +5,7 @@ status: Done
 assignee:
   - '@template-migrator'
 created_date: '2025-12-03 14:00'
-updated_date: '2025-12-03 14:14'
+updated_date: '2025-12-04 01:24'
 labels:
   - architecture
   - design
@@ -21,11 +21,11 @@ Design the new templates/commands/ directory structure with subdirectories for j
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Define directory layout: templates/commands/jpspec/ and templates/commands/speckit/
-- [ ] #2 Define shared content strategy for _backlog-instructions.md partial
-- [ ] #3 Define naming conventions (underscore prefix = partial)
-- [ ] #4 Document file organization and discovery patterns
-- [ ] #5 Create migration checklist for phases
+- [x] #1 Define directory layout: templates/commands/jpspec/ and templates/commands/speckit/
+- [x] #2 Define shared content strategy for _backlog-instructions.md partial
+- [x] #3 Define naming conventions (underscore prefix = partial)
+- [x] #4 Document file organization and discovery patterns
+- [x] #5 Create migration checklist for phases
 <!-- AC:END -->
 
 ## Implementation Notes

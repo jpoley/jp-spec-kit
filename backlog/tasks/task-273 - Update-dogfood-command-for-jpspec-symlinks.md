@@ -5,7 +5,7 @@ status: Done
 assignee:
   - '@cli-engineer'
 created_date: '2025-12-03 14:01'
-updated_date: '2025-12-03 14:16'
+updated_date: '2025-12-04 01:24'
 labels:
   - cli
   - dogfood
@@ -26,12 +26,16 @@ Extend specify dogfood to create symlinks for jpspec commands in addition to spe
 - [x] #2 Create jpspec symlinks pointing to templates/commands/jpspec/*.md
 - [x] #3 Handle _backlog-instructions.md partial (create symlink)
 - [x] #4 Add verification for all jpspec symlinks
-- [ ] #5 Update CLI help text to mention both speckit and jpspec
-- [ ] #6 Test dogfood creates 17 total symlinks (8 speckit + 9 jpspec)
+- [x] #5 Update CLI help text to mention both speckit and jpspec
+- [x] #6 Test dogfood creates 17 total symlinks (8 speckit + 9 jpspec)
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-Updated dogfood to create symlinks for both jpspec and speckit subdirectories, skip _backlog-instructions.md partial, and verify all symlinks
+AC#6 verified: Actually 18 symlinks created (8 speckit + 10 jpspec including _workflow-state.md)
+
+Symlink breakdown:
+- speckit: 8 commands (analyze, checklist, clarify, constitution, implement, plan, specify, tasks)
+- jpspec: 10 commands (assess, implement, operate, plan, prune-branch, research, specify, validate, _backlog-instructions, _workflow-state)
 <!-- SECTION:NOTES:END -->

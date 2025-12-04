@@ -1,11 +1,11 @@
 ---
 id: task-272
 title: Migrate speckit commands to subdirectory
-status: Done
+status: To Do
 assignee:
   - '@template-migrator'
 created_date: '2025-12-03 14:01'
-updated_date: '2025-12-03 14:14'
+updated_date: '2025-12-04 01:24'
 labels:
   - architecture
   - migration
@@ -31,5 +31,14 @@ Move speckit template commands into templates/commands/speckit/ subdirectory for
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-Moved speckit commands into subdirectory
+REOPENED: Task was marked Done but speckit commands are NOT in subdirectory.
+
+Current state:
+- templates/commands/ has flat speckit files (analyze.md, checklist.md, etc.)
+- .claude/commands/speckit/ symlinks point to flat templates/commands/
+- Task AC#2 requires: "Move all 8 speckit command files into subdirectory"
+- AC#3 requires: "Verify no flat files remain in templates/commands/"
+
+The implementation did NOT move speckit to templates/commands/speckit/.
+Need to complete migration to match jpspec subdirectory pattern.
 <!-- SECTION:NOTES:END -->

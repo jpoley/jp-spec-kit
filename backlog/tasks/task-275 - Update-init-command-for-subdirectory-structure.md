@@ -5,7 +5,7 @@ status: Done
 assignee:
   - '@cli-engineer'
 created_date: '2025-12-03 14:01'
-updated_date: '2025-12-03 14:19'
+updated_date: '2025-12-04 01:24'
 labels:
   - cli
   - init
@@ -22,11 +22,11 @@ Modify specify init to create subdirectory structure for commands instead of fla
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Update command copying logic to use subdirectories (jpspec/, speckit/)
-- [ ] #2 Ensure subdirectories are created before copying files
-- [ ] #3 Copy _backlog-instructions.md partial along with commands
-- [ ] #4 Test init creates correct subdirectory structure
-- [ ] #5 Verify init output matches dogfood structure (files vs symlinks)
+- [x] #1 Update command copying logic to use subdirectories (jpspec/, speckit/)
+- [x] #2 Ensure subdirectories are created before copying files
+- [x] #3 Copy _backlog-instructions.md partial along with commands
+- [x] #4 Test init creates correct subdirectory structure
+- [x] #5 Verify init output matches dogfood structure (files vs symlinks)
 <!-- AC:END -->
 
 ## Implementation Notes

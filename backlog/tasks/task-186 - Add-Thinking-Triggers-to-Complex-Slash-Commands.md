@@ -1,10 +1,10 @@
 ---
 id: task-186
 title: Add Thinking Triggers to Complex Slash Commands
-status: To Do
+status: Done
 assignee: []
 created_date: '2025-12-01 05:04'
-updated_date: '2025-12-01 05:29'
+updated_date: '2025-12-04 01:25'
 labels:
   - claude-code
   - slash-commands
@@ -23,9 +23,27 @@ Cross-reference: See docs/prd/claude-capabilities-review.md Section 2.11 for thi
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 /jpspec:plan includes 'think hard' guidance for architecture decisions
+- [x] #1 /jpspec:plan includes 'think hard' guidance for architecture decisions
 
-- [ ] #2 /jpspec:validate includes 'think hard' guidance for security analysis
-- [ ] #3 /jpspec:research includes 'megathink' guidance for comprehensive analysis
-- [ ] #4 CLAUDE.md documents thinking budget levels (think, megathink, ultrathink)
+- [x] #2 /jpspec:validate includes 'think hard' guidance for security analysis
+- [x] #3 /jpspec:research includes 'megathink' guidance for comprehensive analysis
+- [x] #4 CLAUDE.md documents thinking budget levels (think, megathink, ultrathink)
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Thinking triggers added to all relevant jpspec commands:
+
+- /jpspec:plan: "🧠 Think Hard" section for architecture decisions
+- /jpspec:validate: "🧠 Think Hard" section for security analysis
+- /jpspec:research: "🧠 Megathink" section for comprehensive analysis
+
+Documented in memory/claude-thinking.md with thinking budget levels:
+- think (4K tokens)
+- think hard (10K tokens)
+- megathink (10K tokens)
+- ultrathink (31,999 tokens)
+
+Included via @import in CLAUDE.md
+<!-- SECTION:NOTES:END -->
