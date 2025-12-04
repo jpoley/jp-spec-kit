@@ -282,7 +282,9 @@ Respond in JSON format:
         # Find matching example
         for example in pattern.examples:
             if example["before"] in original_code:
-                fixed_code = original_code.replace(example["before"], example["after"], 1)
+                fixed_code = original_code.replace(
+                    example["before"], example["after"], 1
+                )
 
                 unified_diff = self._generate_diff(original_code, fixed_code)
 

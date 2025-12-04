@@ -125,3 +125,62 @@ Before creating a PR, verify:
 - [ ] All imports at module level
 - [ ] Example templates show best practices
 - [ ] Ran grep verification commands above
+
+## Git & CI Compliance (Critical - from PR #381 learnings)
+
+### Pre-Commit Checks (Run ALL of these)
+
+```bash
+# 1. Fetch and rebase onto latest main FIRST
+git fetch origin main && git rebase origin/main
+
+# 2. Format check (CI runs this - MUST pass)
+uv run ruff format --check .
+
+# 3. Lint check
+uv run ruff check .
+
+# 4. Tests
+uv run pytest tests/ -x -q
+```
+
+**Common failure**: Running `ruff check .` but NOT `ruff format --check .` - these are DIFFERENT checks. CI runs both.
+
+### DCO (Developer Certificate of Origin) Compliance
+
+**ALWAYS use `-s` flag when committing:**
+```bash
+git commit -s -m "feat: your message"
+```
+
+**DCO Requirements:**
+1. Commit must have `Signed-off-by: Name <email>` line
+2. Sign-off email MUST match commit author email
+3. Use `--author="Name <email>"` if author differs from git config
+
+**Example of correct commit:**
+```bash
+git commit -s --author="Jason Poley <jason.poley@gmail.com>" -m "feat: add feature"
+```
+
+**Fixing DCO after the fact:**
+```bash
+# Get message and fix sign-off
+git log -1 --format="%B" | sed 's/old-email/correct-email/' > /tmp/msg.txt
+git commit --amend -F /tmp/msg.txt --author="Name <correct-email>"
+```
+
+### Why Rebasing Before PR Matters
+
+Other PRs may introduce formatting issues or new files that affect CI checks:
+- PR #378 added `security/fixer/generator.py` with formatting issues
+- If you don't rebase, CI tests the merge result which includes those issues
+- Your PR fails even though your code is fine
+
+**Always rebase before pushing:**
+```bash
+git fetch origin main
+git rebase origin/main
+# Re-run all checks after rebase
+uv run ruff format --check . && uv run ruff check . && uv run pytest tests/ -x -q
+```
