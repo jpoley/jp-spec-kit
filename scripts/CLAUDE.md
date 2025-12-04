@@ -176,9 +176,9 @@ Run GitHub Actions workflows locally:
 ```
 
 ### Platform Support
-- **Primary platform**: Linux (Ubuntu 22.04/24.04) - fully tested and supported
-- **Portable design**: Script uses POSIX-compliant bash constructs and should work on macOS
-- **Future**: macOS CI matrix testing planned (separate task)
+- **Primary platforms**: Linux (Ubuntu 22.04/24.04) and macOS - both tested in CI
+- **CI Matrix**: GitHub Actions runs tests on ubuntu-latest and macos-latest
+- **Portable design**: Scripts use POSIX-compliant bash constructs
 
 **Script compatibility features**:
 - `#!/usr/bin/env bash` - finds bash via PATH (works on all platforms)
