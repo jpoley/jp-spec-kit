@@ -5,7 +5,11 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from specify_cli.security.tools.manager import ToolManager, VERSION_PATTERN
+from specify_cli.security.tools.manager import (
+    ToolManager,
+    VERSION_PATTERN,
+    VERSION_SEARCH_PATTERN,
+)
 from specify_cli.security.tools.models import (
     InstallMethod,
     ToolConfig,
@@ -193,7 +197,16 @@ class TestVersionValidation:
     def test_invalid_versions(self, tmp_path):
         """Invalid versions are rejected."""
         manager = ToolManager(cache_dir=tmp_path)
-        invalid_versions = ["", "abc", "version", "...", "1-2-3"]
+        invalid_versions = [
+            "",
+            "abc",
+            "version",
+            "...",
+            "1-2-3",
+            "1.2.3.4",  # Too many segments
+            "1.2.3.4.5",  # Way too many segments
+            "1.2.3.4.5.6",  # Even more segments
+        ]
         for version in invalid_versions:
             assert not manager._is_valid_version(version), f"Should reject: {version}"
 
@@ -207,8 +220,8 @@ class TestVersionValidation:
 class TestVersionParsing:
     """Test version parsing from tool output."""
 
-    def test_version_pattern_matches(self):
-        """VERSION_PATTERN extracts versions correctly."""
+    def test_version_search_pattern_matches(self):
+        """VERSION_SEARCH_PATTERN extracts versions from tool output correctly."""
         test_cases = [
             ("semgrep 1.45.0", "1.45.0"),
             ("v2.15.0", "2.15.0"),
@@ -217,9 +230,19 @@ class TestVersionParsing:
             ("Version: 3.2.1", "3.2.1"),
         ]
         for output, expected in test_cases:
-            match = VERSION_PATTERN.search(output)
+            match = VERSION_SEARCH_PATTERN.search(output)
             assert match is not None, f"Should match: {output}"
             assert match.group(1) == expected, f"For '{output}': expected {expected}"
+
+    def test_version_pattern_is_anchored(self):
+        """VERSION_PATTERN requires exact match (anchored)."""
+        # Should match exact versions
+        assert VERSION_PATTERN.match("1.0.0")
+        assert VERSION_PATTERN.match("v2.15.0")
+
+        # Should NOT match versions embedded in other text
+        assert VERSION_PATTERN.match("semgrep 1.45.0") is None
+        assert VERSION_PATTERN.match("1.2.3.4") is None
 
     def test_get_tool_version_parses_output(self, tmp_path):
         """_get_tool_version correctly parses subprocess output."""
@@ -276,15 +299,20 @@ class TestCacheInfo:
 
     def test_cache_info_handles_permission_error(self, tmp_path):
         """Handles permission errors gracefully."""
+        # Create manager with a mock cache_dir that raises PermissionError
         manager = ToolManager(cache_dir=tmp_path)
 
-        # Create a directory we can't read
-        bad_dir = tmp_path / "unreadable"
-        bad_dir.mkdir()
+        # Create a mock that raises PermissionError on iterdir
+        mock_cache_dir = MagicMock(spec=Path)
+        mock_cache_dir.exists.return_value = True
+        mock_cache_dir.iterdir.side_effect = PermissionError("Permission denied")
 
-        with patch.object(Path, "iterdir", side_effect=PermissionError("denied")):
-            info = manager.get_cache_info()
-            assert info.tool_count == 0
+        # Replace the cache_dir with our mock
+        manager.cache_dir = mock_cache_dir
+
+        info = manager.get_cache_info()
+        assert info.tool_count == 0
+        assert info.total_size_mb == 0.0
 
 
 class TestFindInDirectory:
@@ -507,3 +535,84 @@ class TestDetectInstallMethod:
         manager = ToolManager(cache_dir=tmp_path)
         tool_path = Path("/usr/bin/semgrep")
         assert manager._detect_install_method(tool_path) == InstallMethod.SYSTEM
+
+
+class TestSecurityProtections:
+    """Test security protections in tool manager."""
+
+    def test_download_rejects_http_urls(self, tmp_path):
+        """HTTP URLs are rejected for security - only HTTPS allowed."""
+        manager = ToolManager(cache_dir=tmp_path)
+        dest = tmp_path / "download.zip"
+
+        with pytest.raises(ValueError, match="Only HTTPS URLs are allowed"):
+            manager._download_file("http://example.com/tool.zip", dest)
+
+    def test_download_accepts_https_urls(self, tmp_path):
+        """HTTPS URLs are accepted."""
+        manager = ToolManager(cache_dir=tmp_path)
+        dest = tmp_path / "download.zip"
+
+        # Mock urlopen to avoid actual network call
+        with patch("specify_cli.security.tools.manager.urlopen") as mock_urlopen:
+            mock_response = MagicMock()
+            mock_response.read.side_effect = [b"data", b""]
+            mock_response.__enter__ = MagicMock(return_value=mock_response)
+            mock_response.__exit__ = MagicMock(return_value=False)
+            mock_urlopen.return_value = mock_response
+
+            # Should not raise
+            manager._download_file("https://example.com/tool.zip", dest)
+
+    def test_archive_extraction_rejects_path_traversal(self, tmp_path):
+        """Archives with path traversal (..) are rejected."""
+        import zipfile
+
+        manager = ToolManager(cache_dir=tmp_path)
+        extract_dir = tmp_path / "extract"
+        extract_dir.mkdir()
+
+        # Create malicious zip with path traversal
+        malicious_zip = tmp_path / "evil.zip"
+        with zipfile.ZipFile(malicious_zip, "w") as zf:
+            zf.writestr("../../../etc/passwd", "malicious content")
+
+        with pytest.raises(RuntimeError, match="path traversal"):
+            manager._safe_extract_archive(malicious_zip, extract_dir)
+
+    def test_archive_extraction_rejects_absolute_paths(self, tmp_path):
+        """Archives with absolute paths are rejected."""
+        import zipfile
+
+        manager = ToolManager(cache_dir=tmp_path)
+        extract_dir = tmp_path / "extract"
+        extract_dir.mkdir()
+
+        # Create malicious zip with absolute path
+        malicious_zip = tmp_path / "evil.zip"
+        with zipfile.ZipFile(malicious_zip, "w") as zf:
+            zf.writestr("/etc/passwd", "malicious content")
+
+        with pytest.raises(RuntimeError, match="absolute path"):
+            manager._safe_extract_archive(malicious_zip, extract_dir)
+
+    def test_archive_extraction_allows_safe_files(self, tmp_path):
+        """Safe archives extract correctly."""
+        import zipfile
+
+        manager = ToolManager(cache_dir=tmp_path)
+        extract_dir = tmp_path / "extract"
+        extract_dir.mkdir()
+
+        # Create safe zip
+        safe_zip = tmp_path / "safe.zip"
+        with zipfile.ZipFile(safe_zip, "w") as zf:
+            zf.writestr("tool/bin/mytool", "#!/bin/bash\necho test")
+            zf.writestr("tool/README.md", "# My Tool")
+
+        # Should not raise
+        manager._safe_extract_archive(safe_zip, extract_dir)
+
+        # Verify files extracted
+        assert (extract_dir / "tool" / "bin" / "mytool").exists()
+        assert (extract_dir / "tool" / "README.md").exists()

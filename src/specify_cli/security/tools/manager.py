@@ -18,6 +18,7 @@ import re
 import shutil
 import subprocess
 import sys
+import zipfile
 from pathlib import Path
 from urllib.error import URLError
 from urllib.request import urlopen
@@ -34,8 +35,11 @@ from specify_cli.security.tools.models import (
 
 logger = logging.getLogger(__name__)
 
-# Regex pattern for semantic version extraction
-VERSION_PATTERN = re.compile(r"v?(\d+\.\d+(?:\.\d+)?(?:-[\w.]+)?)")
+# Regex pattern for semantic version extraction (anchored to reject extra segments)
+VERSION_PATTERN = re.compile(r"^v?(\d+\.\d+(?:\.\d+)?(?:-[\w.]+)?)$")
+
+# Regex for extracting version from tool output (not anchored for search)
+VERSION_SEARCH_PATTERN = re.compile(r"v?(\d+\.\d+(?:\.\d+)?(?:-[\w.]+)?)")
 
 
 class ToolManager:
@@ -284,10 +288,10 @@ class ToolManager:
             # Count files before extraction for validation
             files_before = set(dest_dir.rglob("*"))
 
-            # Extract archive
-            shutil.unpack_archive(download_path, dest_dir)
+            # Extract archive with path traversal protection
+            self._safe_extract_archive(download_path, dest_dir)
 
-            # FIX #1: Validate archive integrity after extraction
+            # Validate archive produced files
             files_after = set(dest_dir.rglob("*"))
             new_files = files_after - files_before - {download_path}
             if not new_files:
@@ -337,14 +341,22 @@ class ToolManager:
     def _download_file(self, url: str, dest: Path) -> None:
         """Download a file from URL with timeout.
 
+        Security:
+            - Only HTTPS URLs are allowed for downloading binaries
+            - SSL/TLS certificates are validated by default
+
         Args:
-            url: URL to download.
+            url: URL to download (must be HTTPS).
             dest: Destination path.
 
         Raises:
+            ValueError: If URL is not HTTPS.
             RuntimeError: If download fails or times out.
         """
-        # FIX #4: Add timeout to download
+        # Security: Enforce HTTPS for binary downloads
+        if not url.startswith("https://"):
+            raise ValueError(f"Only HTTPS URLs are allowed for security, got: {url}")
+
         try:
             with urlopen(url, timeout=self.DOWNLOAD_TIMEOUT_SECONDS) as response:
                 with open(dest, "wb") as f:
@@ -361,6 +373,57 @@ class ToolManager:
             raise RuntimeError(
                 f"Download timed out after {self.DOWNLOAD_TIMEOUT_SECONDS}s"
             ) from e
+
+    def _safe_extract_archive(self, archive_path: Path, dest_dir: Path) -> None:
+        """Safely extract archive with path traversal protection.
+
+        Security:
+            - Validates all paths are within destination directory
+            - Rejects absolute paths in archive
+            - Prevents directory traversal attacks (../)
+
+        Args:
+            archive_path: Path to archive file.
+            dest_dir: Destination directory.
+
+        Raises:
+            RuntimeError: If archive contains suspicious paths.
+        """
+        dest_dir_resolved = dest_dir.resolve()
+
+        # Handle ZIP files with security validation
+        if str(archive_path).endswith(".zip"):
+            with zipfile.ZipFile(archive_path, "r") as zf:
+                for member in zf.namelist():
+                    # Check for absolute paths
+                    if Path(member).is_absolute():
+                        raise RuntimeError(f"Archive contains absolute path: {member}")
+
+                    # Check for path traversal
+                    if ".." in member:
+                        raise RuntimeError(f"Archive contains path traversal: {member}")
+
+                    # Verify resolved path is within dest_dir
+                    member_path = (dest_dir / member).resolve()
+                    if not str(member_path).startswith(str(dest_dir_resolved)):
+                        raise RuntimeError(
+                            f"Archive member escapes destination: {member}"
+                        )
+
+                # All paths validated, safe to extract
+                zf.extractall(dest_dir)
+        else:
+            # For other archive types, use shutil but still validate after
+            shutil.unpack_archive(archive_path, dest_dir)
+
+            # Post-extraction validation
+            for item in dest_dir.rglob("*"):
+                item_resolved = item.resolve()
+                if not str(item_resolved).startswith(str(dest_dir_resolved)):
+                    # Remove the suspicious file
+                    if item.is_file():
+                        item.unlink()
+                    raise RuntimeError(f"Extracted file escaped destination: {item}")
 
     def _is_valid_version(self, version: str) -> bool:
         """Validate version string format.
@@ -616,8 +679,8 @@ class ToolManager:
             )
             output = result.stdout.strip() or result.stderr.strip()
             if output:
-                # FIX #9: Use robust regex for version parsing
-                match = VERSION_PATTERN.search(output)
+                # Use unanchored pattern for searching in tool output
+                match = VERSION_SEARCH_PATTERN.search(output)
                 if match:
                     return match.group(1)
             return "unknown"
