@@ -265,7 +265,7 @@ Yet another: [placeholder]
     assert "Found 3 section(s) requiring validation" in result.stdout
 
 
-def test_validate_ignores_code_blocks(temp_constitution: Path, monkeypatch):
+def test_validate_detects_markers_in_code_blocks(temp_constitution: Path, monkeypatch):
     """Test that markers in code examples are properly detected (not ignored)."""
     # Note: We DO want to detect markers even in code blocks, as they might be
     # placeholder code that needs updating
