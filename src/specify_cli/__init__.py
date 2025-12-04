@@ -220,8 +220,10 @@ Tasks should have:
 
 This constitution is a living document. Update it as the project evolves.
 
-**Version**: 1.0.0 | **Created**: [DATE]
-<!-- NEEDS_VALIDATION: Version and date -->
+**Version**: 1.0.0
+**Ratified**: [DATE]
+**Last Amended**: [DATE]
+<!-- NEEDS_VALIDATION: Version and dates -->
 """,
     "medium": """# [PROJECT_NAME] Constitution
 <!-- TIER: Medium - Standard controls for typical business projects -->
@@ -316,7 +318,9 @@ A task is complete when:
 
 This constitution guides team practices. Changes require team consensus.
 
-**Version**: 1.0.0 | **Ratified**: [DATE] | **Last Amended**: [DATE]
+**Version**: 1.0.0
+**Ratified**: [DATE]
+**Last Amended**: [DATE]
 <!-- NEEDS_VALIDATION: Version and dates -->
 """,
     "heavy": """# [PROJECT_NAME] Constitution
@@ -528,7 +532,9 @@ Changes to this constitution require:
 4. Approval from [APPROVAL_AUTHORITY]
 5. Migration plan for existing work
 
-**Version**: 1.0.0 | **Ratified**: [DATE] | **Last Amended**: [DATE]
+**Version**: 1.0.0
+**Ratified**: [DATE]
+**Last Amended**: [DATE]
 <!-- NEEDS_VALIDATION: Version, dates, and approval authority -->
 """,
 }
@@ -585,6 +591,9 @@ BANNER = """
 
 # Version - keep in sync with pyproject.toml
 __version__ = "0.0.266"
+
+# Constitution template version
+CONSTITUTION_VERSION = "1.0.0"
 
 TAGLINE = (
     f"(jp extension v{__version__}) GitHub Spec Kit - Spec-Driven Development Toolkit"
@@ -5261,6 +5270,167 @@ def security_audit(
     console.print(f"Format: {format}, Compliance: {compliance}")
     if output:
         console.print(f"Output: {output}")
+
+
+# Constitution management sub-app
+constitution_app = typer.Typer(
+    name="constitution",
+    help="Constitution management commands",
+    add_completion=False,
+)
+app.add_typer(constitution_app, name="constitution")
+
+
+@constitution_app.command("validate")
+def constitution_validate_cmd(
+    path: Optional[Path] = typer.Option(
+        None,
+        "--path",
+        help="Path to constitution file (defaults to memory/constitution.md)",
+    ),
+    verbose: bool = typer.Option(
+        False,
+        "-v",
+        "--verbose",
+        help="Show detailed validation output",
+    ),
+):
+    """Validate constitution for NEEDS_VALIDATION markers.
+
+    Scans your constitution file for NEEDS_VALIDATION markers that indicate
+    sections requiring customization. A fully validated constitution has no
+    markers remaining.
+
+    Exit codes:
+    - 0: Validation passed (no markers found)
+    - 1: Validation failed (markers found or file not found)
+
+    Examples:
+        specify constitution validate                 # Validate default location
+        specify constitution validate --path my.md    # Validate custom file
+        specify constitution validate --verbose       # Show detailed output
+    """
+    show_banner()
+
+    # Determine constitution path
+    constitution_path = path or Path.cwd() / "memory" / "constitution.md"
+
+    if not constitution_path.exists():
+        console.print(
+            f"[red]Error:[/red] Constitution not found at {constitution_path}"
+        )
+        console.print("[yellow]Tip:[/yellow] Run 'specify init --here' to create one")
+        raise typer.Exit(1)
+
+    # Read constitution content
+    content = constitution_path.read_text()
+
+    # Find NEEDS_VALIDATION markers
+    import re
+
+    pattern = r"<!-- NEEDS_VALIDATION: (.+?) -->"
+    markers = re.findall(pattern, content)
+
+    if not markers:
+        # Success: no markers found
+        panel = Panel(
+            "[green]✓ Constitution is fully validated[/green]\n\n"
+            "No NEEDS_VALIDATION markers found. Your constitution is ready to use.",
+            title="[green]Validation Passed[/green]",
+            border_style="green",
+        )
+        console.print(panel)
+        raise typer.Exit(0)
+
+    # Failure: markers found
+    console.print(
+        f"\n[yellow]Found {len(markers)} section(s) requiring validation:[/yellow]\n"
+    )
+    for i, marker in enumerate(markers, 1):
+        console.print(f"  {i}. [cyan]{marker}[/cyan]")
+
+    if verbose:
+        console.print(
+            f"\n[dim]Constitution location:[/dim] [cyan]{constitution_path}[/cyan]"
+        )
+
+    console.print()
+    panel = Panel(
+        "1. Review each section listed above in your constitution\n"
+        "2. Update placeholder values to match your project\n"
+        "3. Remove the NEEDS_VALIDATION comment when complete\n\n"
+        "[dim]Example:[/dim]\n"
+        "[dim]<!-- NEEDS_VALIDATION: Update team size -->[/dim]\n"
+        "[dim]Team size: 5 engineers  [strike](was: [Your team size])[/strike][/dim]\n"
+        "[dim][strike]<!-- NEEDS_VALIDATION: Update team size -->[/strike][/dim]",
+        title="[yellow]Action Required[/yellow]",
+        border_style="yellow",
+    )
+    console.print(panel)
+    raise typer.Exit(1)
+
+
+@constitution_app.command("version")
+def constitution_version_cmd(
+    path: Optional[Path] = typer.Option(
+        None,
+        "--path",
+        help="Path to constitution file (default: memory/constitution.md)",
+    ),
+) -> None:
+    """Show constitution version information."""
+    import re
+
+    show_banner()
+
+    constitution_path = path or Path.cwd() / "memory" / "constitution.md"
+
+    if not constitution_path.exists():
+        console.print(
+            f"[red]Error:[/red] Constitution not found at {constitution_path}"
+        )
+        console.print("\n[yellow]Run 'specify init --here' to create one[/yellow]")
+        raise typer.Exit(1)
+
+    content = constitution_path.read_text()
+
+    # Extract version information
+    version_match = re.search(r"\*\*Version\*\*:\s*(\S+)", content)
+    ratified_match = re.search(r"\*\*Ratified\*\*:\s*(.+?)(?:\n|$)", content)
+    amended_match = re.search(r"\*\*Last Amended\*\*:\s*(.+?)(?:\n|$)", content)
+
+    # Detect tier from comment
+    tier = "Medium"
+    if "<!-- TIER: Light" in content:
+        tier = "Light"
+    elif "<!-- TIER: Heavy" in content:
+        tier = "Heavy"
+
+    # Build version info table
+    table = Table(show_header=False, box=None, padding=(0, 2))
+    table.add_column("Field", style="cyan", no_wrap=True)
+    table.add_column("Value", style="green")
+
+    table.add_row("Version", version_match.group(1) if version_match else "Unknown")
+    table.add_row("Tier", tier)
+    table.add_row(
+        "Ratified", ratified_match.group(1).strip() if ratified_match else "Unknown"
+    )
+    table.add_row(
+        "Last Amended", amended_match.group(1).strip() if amended_match else "Unknown"
+    )
+    table.add_row("Template Version", CONSTITUTION_VERSION)
+
+    console.print(Panel(table, title="[cyan]Constitution Version[/cyan]"))
+
+    # Check for upgrade available
+    if version_match and version_match.group(1) != CONSTITUTION_VERSION:
+        console.print(
+            f"\n[yellow]⚠  Template version {CONSTITUTION_VERSION} is available[/yellow]"
+        )
+        console.print(
+            "[dim]Consider reviewing template updates at templates/constitutions/[/dim]"
+        )
 
 
 @workflow_app.command("validate")
