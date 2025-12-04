@@ -193,7 +193,7 @@ class TestVersionValidation:
     def test_invalid_versions(self, tmp_path):
         """Invalid versions are rejected."""
         manager = ToolManager(cache_dir=tmp_path)
-        invalid_versions = ["", "abc", "version", "...", "1-2-3"]
+        invalid_versions = ["", "abc", "version", "...", "v", "1.2.3.4.5"]
         for version in invalid_versions:
             assert not manager._is_valid_version(version), f"Should reject: {version}"
 
