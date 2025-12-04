@@ -725,15 +725,21 @@ def write_repo_facts(project_path: Path) -> None:
         "Java": ["pom.xml", "build.gradle", "build.gradle.kts"],
         "Ruby": ["Gemfile", "Gemfile.lock"],
         "PHP": ["composer.json", "composer.lock"],
-        "C#": [".csproj", ".sln"],
+        "C#": ["*.csproj", "*.sln"],
     }
 
     for lang, files in package_files.items():
         for file in files:
-            if (project_path / file).exists():
-                if lang not in languages:
-                    languages.append(lang)
-                break
+            if "*" in file:
+                if any(project_path.glob(file)):
+                    if lang not in languages:
+                        languages.append(lang)
+                    break
+            else:
+                if (project_path / file).exists():
+                    if lang not in languages:
+                        languages.append(lang)
+                    break
 
     # Detect CI/CD
     cicd_systems = []
