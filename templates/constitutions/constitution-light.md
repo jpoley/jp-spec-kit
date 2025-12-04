@@ -1,5 +1,8 @@
 # [PROJECT_NAME] Constitution
 <!-- TIER: Light - Minimal controls for startups/hobby projects -->
+<!-- VERSION: 1.0.0 -->
+<!-- RATIFIED: [DATE] -->
+<!-- LAST_AMENDED: [DATE] -->
 <!-- NEEDS_VALIDATION: Project name -->
 
 <!--

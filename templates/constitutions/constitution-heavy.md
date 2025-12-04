@@ -1,5 +1,8 @@
 # [PROJECT_NAME] Constitution
 <!-- TIER: Heavy - Strict controls for enterprise/regulated environments -->
+<!-- VERSION: 1.0.0 -->
+<!-- RATIFIED: [DATE] -->
+<!-- LAST_AMENDED: [DATE] -->
 <!-- NEEDS_VALIDATION: Project name -->
 
 <!--

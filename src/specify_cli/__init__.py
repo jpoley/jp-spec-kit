@@ -173,6 +173,9 @@ CONSTITUTION_TIER_CHOICES = {
 CONSTITUTION_TEMPLATES = {
     "light": """# [PROJECT_NAME] Constitution
 <!-- TIER: Light - Minimal controls for startups/hobby projects -->
+<!-- VERSION: 1.0.0 -->
+<!-- RATIFIED: [DATE] -->
+<!-- LAST_AMENDED: [DATE] -->
 <!-- NEEDS_VALIDATION: Project name -->
 
 <!--
@@ -235,6 +238,9 @@ This constitution is a living document. Update it as the project evolves.
 """,
     "medium": """# [PROJECT_NAME] Constitution
 <!-- TIER: Medium - Standard controls for typical business projects -->
+<!-- VERSION: 1.0.0 -->
+<!-- RATIFIED: [DATE] -->
+<!-- LAST_AMENDED: [DATE] -->
 <!-- NEEDS_VALIDATION: Project name -->
 
 <!--
@@ -341,6 +347,9 @@ This constitution guides team practices. Changes require team consensus.
 """,
     "heavy": """# [PROJECT_NAME] Constitution
 <!-- TIER: Heavy - Strict controls for enterprise/regulated environments -->
+<!-- VERSION: 1.0.0 -->
+<!-- RATIFIED: [DATE] -->
+<!-- LAST_AMENDED: [DATE] -->
 <!-- NEEDS_VALIDATION: Project name -->
 
 <!--
@@ -576,6 +585,9 @@ BANNER = """
 
 # Version - keep in sync with pyproject.toml
 __version__ = "0.0.255"
+
+# Constitution version tracking
+CONSTITUTION_VERSION = "1.0.0"
 
 TAGLINE = (
     f"(jp extension v{__version__}) GitHub Spec Kit - Spec-Driven Development Toolkit"
@@ -2651,9 +2663,16 @@ def init(
                     memory_dir = project_path / "memory"
                     constitution_dest = memory_dir / "constitution.md"
                     memory_dir.mkdir(parents=True, exist_ok=True)
-                    constitution_dest.write_text(
-                        CONSTITUTION_TEMPLATES[selected_constitution]
-                    )
+
+                    # Replace [DATE] with current date
+                    from datetime import datetime
+
+                    today = datetime.now().strftime("%Y-%m-%d")
+                    constitution_content = CONSTITUTION_TEMPLATES[
+                        selected_constitution
+                    ].replace("[DATE]", today)
+
+                    constitution_dest.write_text(constitution_content)
                     tracker.complete(
                         "constitution",
                         f"{selected_constitution} tier → memory/constitution.md",
@@ -3032,9 +3051,16 @@ def upgrade(
                 memory_dir = project_path / "memory"
                 memory_dir.mkdir(parents=True, exist_ok=True)
                 constitution_dest = memory_dir / "constitution.md"
-                constitution_dest.write_text(
-                    CONSTITUTION_TEMPLATES[selected_constitution]
-                )
+
+                # Replace [DATE] with current date
+                from datetime import datetime
+
+                today = datetime.now().strftime("%Y-%m-%d")
+                constitution_content = CONSTITUTION_TEMPLATES[
+                    selected_constitution
+                ].replace("[DATE]", today)
+
+                constitution_dest.write_text(constitution_content)
                 console.print(
                     f"[green]✓[/green] Constitution created: [cyan]memory/constitution.md[/cyan] ({selected_constitution} tier)"
                 )
@@ -3045,6 +3071,68 @@ def upgrade(
             console.print(
                 "[dim]Run 'specify init --here' in interactive mode to add a constitution[/dim]\n"
             )
+    else:
+        # Check constitution version
+        import re
+
+        constitution_path = project_path / "memory" / "constitution.md"
+        content = constitution_path.read_text()
+        version_match = re.search(r"<!-- VERSION: ([\d.]+) -->", content)
+
+        if version_match:
+            current_version = version_match.group(1)
+            if current_version != CONSTITUTION_VERSION:
+                try:
+                    current_parts = [int(x) for x in current_version.split(".")]
+                    latest_parts = [int(x) for x in CONSTITUTION_VERSION.split(".")]
+
+                    if latest_parts > current_parts:
+                        console.print(
+                            f"[yellow]Constitution update available: {CONSTITUTION_VERSION}[/yellow]"
+                        )
+                        console.print(f"You have version {current_version}.")
+
+                        if sys.stdin.isatty():
+                            upgrade_const = typer.confirm(
+                                "Upgrade constitution?", default=False
+                            )
+                            if upgrade_const:
+                                # Detect tier from existing constitution
+                                tier_match = re.search(r"<!-- TIER: (\w+)", content)
+                                tier = (
+                                    tier_match.group(1).lower()
+                                    if tier_match
+                                    else "medium"
+                                )
+
+                                # Backup existing constitution
+                                backup_path = constitution_path.with_suffix(
+                                    ".md.backup"
+                                )
+                                shutil.copy(constitution_path, backup_path)
+
+                                # Update constitution with new template
+                                from datetime import datetime
+
+                                today = datetime.now().strftime("%Y-%m-%d")
+                                new_content = CONSTITUTION_TEMPLATES[tier].replace(
+                                    "[DATE]", today
+                                )
+                                constitution_path.write_text(new_content)
+
+                                console.print(
+                                    f"[green]✓[/green] Constitution upgraded to {CONSTITUTION_VERSION}"
+                                )
+                                console.print(
+                                    f"[dim]Backup saved to: {backup_path.name}[/dim]\n"
+                                )
+                        else:
+                            console.print(
+                                "[dim]Run in interactive mode to upgrade constitution[/dim]\n"
+                            )
+                except ValueError:
+                    # Invalid version format
+                    pass
 
     if dry_run:
         console.print("[yellow]DRY RUN MODE - No changes will be made[/yellow]\n")
@@ -4742,6 +4830,15 @@ security_app = typer.Typer(
 app.add_typer(security_app, name="security")
 
 
+# Constitution management sub-app
+constitution_app = typer.Typer(
+    name="constitution",
+    help="Constitution version management commands",
+    add_completion=False,
+)
+app.add_typer(constitution_app, name="constitution")
+
+
 @security_app.command("scan")
 def security_scan(
     target: Path = typer.Argument(
@@ -5095,6 +5192,74 @@ def security_audit(
     console.print(f"Format: {format}, Compliance: {compliance}")
     if output:
         console.print(f"Output: {output}")
+
+
+@constitution_app.command("version")
+def constitution_version():
+    """Show constitution version information.
+
+    Displays the current constitution version, ratified date, and last amended date.
+    Compares with the latest available template version.
+
+    Examples:
+        specify constitution version
+    """
+    import re
+
+    constitution_path = Path.cwd() / "memory" / "constitution.md"
+
+    if not constitution_path.exists():
+        console.print(
+            "[red]Error:[/red] No constitution found at memory/constitution.md"
+        )
+        console.print("Run [cyan]specify init[/cyan] to create a constitution.")
+        raise typer.Exit(1)
+
+    content = constitution_path.read_text()
+
+    # Parse version metadata from HTML comments
+    version_match = re.search(r"<!-- VERSION: ([\d.]+) -->", content)
+    ratified_match = re.search(r"<!-- RATIFIED: (.+?) -->", content)
+    amended_match = re.search(r"<!-- LAST_AMENDED: (.+?) -->", content)
+    tier_match = re.search(r"<!-- TIER: (\w+)", content)
+
+    current_version = version_match.group(1) if version_match else "Unknown"
+    ratified_date = ratified_match.group(1) if ratified_match else "Unknown"
+    last_amended = amended_match.group(1) if amended_match else "Unknown"
+    tier = tier_match.group(1) if tier_match else "Unknown"
+
+    # Create info table
+    table = Table(show_header=False, box=None)
+    table.add_column("Field", style="cyan", width=20)
+    table.add_column("Value", style="white")
+
+    table.add_row("Constitution Version:", current_version)
+    table.add_row("Tier:", tier)
+    table.add_row("Ratified:", ratified_date)
+    table.add_row("Last Amended:", last_amended)
+    table.add_row("Latest Available:", CONSTITUTION_VERSION)
+
+    console.print("\n[bold]Constitution Information[/bold]\n")
+    console.print(table)
+
+    # Check if upgrade available
+    if current_version != CONSTITUTION_VERSION:
+        try:
+            current_parts = [int(x) for x in current_version.split(".")]
+            latest_parts = [int(x) for x in CONSTITUTION_VERSION.split(".")]
+
+            if latest_parts > current_parts:
+                console.print(
+                    f"\n[yellow]⚠ New constitution version available: {CONSTITUTION_VERSION}[/yellow]"
+                )
+                console.print(
+                    f"You have version {current_version}. Run [cyan]specify upgrade[/cyan] to update.\n"
+                )
+        except ValueError:
+            # Invalid version format, skip comparison
+            pass
+    else:
+        console.print("\n[green]✓ Constitution is up to date[/green]\n")
 
 
 @workflow_app.command("validate")

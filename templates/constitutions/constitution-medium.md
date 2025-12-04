@@ -1,5 +1,8 @@
 # [PROJECT_NAME] Constitution
 <!-- TIER: Medium - Standard controls for typical business projects -->
+<!-- VERSION: 1.0.0 -->
+<!-- RATIFIED: [DATE] -->
+<!-- LAST_AMENDED: [DATE] -->
 <!-- NEEDS_VALIDATION: Project name -->
 
 <!--
