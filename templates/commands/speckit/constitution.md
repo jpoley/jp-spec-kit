@@ -549,7 +549,7 @@ Run this to find all validation markers:
    git add memory/repo-facts.md memory/constitution.md
    git commit -s -m "docs: add constitution and repo facts
 
-   - Auto-detected [tier] tier based on project complexity
+   - Auto-detected {light|medium|heavy} tier based on project complexity
    - Customized constitution with detected tech stack
    - Created structured repository facts for LLM agents
 
