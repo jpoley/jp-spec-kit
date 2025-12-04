@@ -1,12 +1,11 @@
 # Security Quickstart Guide
 
-This guide helps you integrate security scanning into your development workflow using `/jpspec:security` commands.
+This guide helps you get started with security scanning in 5 minutes using `/jpspec:security` commands.
 
 ## Prerequisites
 
 - Python 3.11+
-- JP Spec Kit installed (`pip install specify-cli`)
-- At least one security scanner (Semgrep recommended)
+- At least one security scanner installed (Semgrep recommended)
 
 ### Installing Semgrep
 
@@ -21,127 +20,181 @@ brew install semgrep
 semgrep --version
 ```
 
-## Quick Start
+## Quick Start (5 Minutes)
 
 ### 1. Run Your First Scan
 
-```bash
-# Scan current directory
-specify security scan
+In a Claude Code session:
 
-# Scan specific path
-specify security scan ./src
-
-# Output as JSON for CI/CD
-specify security scan --format json --output results.json
+```
+/jpspec:security scan
 ```
 
-### 2. Triage Findings with AI
+This will:
+- Detect available scanners (Semgrep, Bandit, CodeQL)
+- Scan your codebase for security vulnerabilities
+- Save results to `docs/security/scan-results.json`
+- Display a summary of findings
 
-```bash
-# AI-powered triage to classify true/false positives
-specify security triage results.json
-
-# Interactive mode for manual confirmation
-specify security triage results.json --interactive
+**Example Output:**
+```
+✅ Security Scan Complete
+   Scanner: Semgrep v1.50.0
+   Findings: 12 total (3 critical, 5 high, 4 medium)
+   Report: docs/security/scan-results.json
 ```
 
-### 3. Generate Fix Suggestions
+### 2. Understand Your Results
+
+View the findings in the generated report:
 
 ```bash
-# Generate fix patches for findings
-specify security fix results.json
-
-# Auto-apply patches (use with caution)
-specify security fix results.json --apply
+cat docs/security/scan-results.json
 ```
 
-### 4. Generate Audit Report
+Findings include:
+- **Severity**: Critical, High, Medium, Low, Info
+- **CWE**: Common Weakness Enumeration ID
+- **OWASP**: OWASP Top 10 2021 mapping
+- **Location**: File path and line number
+- **Remediation**: Fix recommendations
 
-```bash
-# Generate compliance-ready report
-specify security audit results.json --format markdown
+### 3. Triage with AI (Beginner Mode)
 
-# Generate SARIF for GitHub Code Scanning
-specify security audit results.json --format sarif --output results.sarif
+Use AI to classify findings and get simple explanations:
+
+```
+/jpspec:security triage --persona beginner
 ```
 
-## CLI Command Summary
+**What this does:**
+- Analyzes each finding to determine if it's a real vulnerability (True Positive) or false alarm (False Positive)
+- Provides simple, non-technical explanations
+- Shows step-by-step fix instructions
+- Includes learning resources
 
-| Command | Description |
-|---------|-------------|
-| `specify security scan [PATH]` | Run security scanners on codebase |
-| `specify security triage RESULTS` | AI-powered finding classification |
-| `specify security fix RESULTS` | Generate remediation patches |
-| `specify security audit RESULTS` | Generate compliance reports |
-| `specify security status` | Show scan status and configuration |
+**Example Beginner Output:**
+```markdown
+## Finding: SQL Injection in Login Form
 
-## Slash Commands
+### What Is This?
+Someone could trick your database by entering special characters in the login form.
 
-Use these within Claude Code sessions:
+### Why Does It Matter?
+An attacker could steal all user data or delete the database.
 
-| Command | Description |
-|---------|-------------|
-| `/jpspec:security scan` | Interactive security scan |
-| `/jpspec:security triage` | AI triage with explanations |
-| `/jpspec:security fix` | Generate and review fixes |
-| `/jpspec:security audit` | Generate security report |
+### How Do I Fix It?
+1. Open `src/auth/login.py`
+2. Find line 42
+3. Change the code to use safe queries (see example below)
+
+[Step-by-step instructions with code examples]
+```
+
+### 4. Fix Your First Vulnerability
+
+Generate and review a security patch:
+
+```
+/jpspec:security fix
+```
+
+**Workflow:**
+1. AI generates secure code patches for all True Positive findings
+2. Shows you a preview of each patch (diff format)
+3. Asks for confirmation before applying
+4. Applies patches and creates backups
+
+**Example Patch:**
+```diff
+- cursor.execute(f"SELECT * FROM users WHERE id = {user_id}")
++ cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))
+```
+
+### 5. Generate Your First Audit Report
+
+Create a comprehensive security report:
+
+```
+/jpspec:security report
+```
+
+**Generated Report Includes:**
+- Executive summary (non-technical)
+- Finding breakdown by severity
+- OWASP Top 10 compliance checklist
+- Detailed remediation recommendations
+- Sign-off section for stakeholders
+
+## Command Summary
+
+| Command | Purpose | When to Use |
+|---------|---------|-------------|
+| `/jpspec:security scan` | Find vulnerabilities | Before every PR, commit, or release |
+| `/jpspec:security triage` | Classify findings | After scanning to prioritize fixes |
+| `/jpspec:security fix` | Apply security patches | When ready to fix vulnerabilities |
+| `/jpspec:security report` | Generate audit report | For compliance, reviews, stakeholders |
 
 ## Configuration
 
-Create `.specify/security.yml` in your project root:
+Create `.jpspec/security-config.yml` in your project root:
 
 ```yaml
 # Security scanning configuration
-version: "1.0"
-
-# Scanner configuration
 scanners:
   semgrep:
     enabled: true
-    config: auto  # Use "auto" for OWASP rules
-    severity_threshold: warning
+    registry_rulesets:
+      - p/default           # Default security rules
+      - p/owasp-top-ten     # OWASP Top 10 rules
+    custom_rules_dir: .security/rules
 
   bandit:
-    enabled: false
-    severity_threshold: medium
+    enabled: true
+    confidence_level: medium
 
 # Fail threshold for CI/CD
-fail_on:
-  severity: high  # critical, high, medium, low
-  confidence: high
+fail_on: high  # critical, high, medium, low, none
 
-# Exclusions
+# Path exclusions
 exclusions:
   paths:
-    - "**/tests/**"
-    - "**/node_modules/**"
-    - "**/.venv/**"
+    - node_modules/
+    - .venv/
+    - tests/
   patterns:
-    - "*.test.py"
-    - "*.spec.ts"
+    - "*_test.py"
+    - "*.test.js"
 
-# Triage configuration
+# AI Triage configuration
 triage:
-  auto_dismiss_info: true
-  require_review_for: critical
+  persona: beginner       # beginner, expert, compliance
+  confidence_threshold: 0.7
+  auto_dismiss_fp: false
+  cluster_similar: true
 
 # Reporting
 reporting:
-  formats:
-    - markdown
-    - sarif
-  owasp_mapping: true
-  include_remediation: true
+  format: markdown
+  output_dir: docs/security/
+  include_false_positives: false
 ```
+
+See [docs/security/config-schema.yaml](../security/config-schema.yaml) for complete configuration options.
 
 ## CI/CD Integration
 
-### GitHub Actions
+See [Security CI/CD Integration Guide](./security-cicd-integration.md) for complete examples.
+
+### Quick GitHub Actions Example
 
 ```yaml
 name: Security Scan
 on: [push, pull_request]
+
+permissions:
+  contents: read
+  security-events: write
 
 jobs:
   security:
@@ -154,12 +207,12 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install dependencies
-        run: |
-          pip install specify-cli semgrep
+      - name: Install scanners
+        run: pip install semgrep
 
       - name: Run security scan
-        run: specify security scan --format sarif --output results.sarif
+        run: |
+          semgrep --config=auto --sarif --output=results.sarif .
 
       - name: Upload SARIF
         uses: github/codeql-action/upload-sarif@v3
@@ -167,62 +220,39 @@ jobs:
           sarif_file: results.sarif
 ```
 
-### GitLab CI
-
-```yaml
-security-scan:
-  stage: security
-  image: python:3.11
-  script:
-    - pip install specify-cli semgrep
-    - specify security scan --format json --output gl-sast-report.json
-  artifacts:
-    reports:
-      sast: gl-sast-report.json
-```
+**Note**: For full CI/CD integration with AI triage and fix generation, see the detailed guide.
 
 ## Common Workflows
 
-### Workflow 1: Quick Security Check
+### Workflow 1: Pre-Commit Quick Check
 
-```bash
-# Fast scan with default settings
-specify security scan --quick
+In Claude Code, before committing:
 
-# View summary
-specify security status
+```
+/jpspec:security scan
 ```
 
-### Workflow 2: Pre-Commit Hook
+Reviews critical issues only before commit.
 
-Add to `.pre-commit-config.yaml`:
+### Workflow 2: Pull Request Security Review
 
-```yaml
-repos:
-  - repo: local
-    hooks:
-      - id: jpspec-security
-        name: Security Scan
-        entry: specify security scan --fail-on high
-        language: python
-        pass_filenames: false
+```
+/jpspec:security scan
+/jpspec:security triage --persona expert
+/jpspec:security fix --review
 ```
 
-### Workflow 3: Full Security Audit
+Full security check with AI triage and fix generation.
 
-```bash
-# Comprehensive scan
-specify security scan --all-scanners
+### Workflow 3: Compliance Audit
 
-# AI triage
-specify security triage results.json --interactive
-
-# Generate fixes
-specify security fix results.json
-
-# Generate audit report
-specify security audit results.json --format markdown --compliance soc2
 ```
+/jpspec:security scan --all-scanners
+/jpspec:security triage --persona compliance
+/jpspec:security report --format pdf --compliance soc2
+```
+
+Comprehensive audit for regulatory requirements.
 
 ## Severity Levels
 
@@ -251,45 +281,71 @@ Findings are automatically mapped to OWASP Top 10 2021:
 | A09 Logging Failures | CWE-117, CWE-223 | Log injection |
 | A10 SSRF | CWE-918 | Server-side request forgery |
 
+## Personas Explained
+
+The `/jpspec:security triage` command supports three personas:
+
+### Beginner Persona
+**Use when**: Training junior developers, onboarding new team members
+- Simple, non-technical language
+- Step-by-step fix instructions with code examples
+- Learning resources and tutorials
+- Explanations under 100 words
+
+### Expert Persona
+**Use when**: Security reviews, penetration testing, advanced development
+- Technical depth with CWE/CVE references
+- Exploitation scenarios and proof-of-concepts
+- Defense-in-depth strategies
+- Performance and edge case considerations
+
+### Compliance Persona
+**Use when**: Preparing for audits, regulatory compliance, stakeholder reporting
+- Regulatory mapping (PCI-DSS, SOC2, HIPAA, ISO 27001)
+- Audit evidence format with sign-off checklist
+- Compliance status assessment
+- Remediation timeframes per policy
+
 ## Troubleshooting
 
-### Scanner Not Found
+### "Scanner not found"
 
+**Problem**: Semgrep or Bandit not installed
+
+**Solution**:
 ```bash
-# Check if scanner is installed
-which semgrep
-
-# Install if missing
-pip install semgrep
+pip install semgrep bandit
 ```
 
-### Permission Denied
+### "No scan results found"
 
-```bash
-# Ensure scanner is executable
-chmod +x $(which semgrep)
+**Problem**: Triage/fix/report commands can't find results
+
+**Solution**: Run scan first:
 ```
+/jpspec:security scan
+```
+
+### "AI API error"
+
+**Problem**: AI triage failed
+
+**Solution**:
+- Check `ANTHROPIC_API_KEY` environment variable is set
+- Verify you have API access and quota
+- Try with lower confidence threshold: `--confidence 0.6`
 
 ### High False Positive Rate
 
-1. Use conservative rulesets: `--config auto`
-2. Enable AI triage: `specify security triage results.json`
-3. Add exclusions for test files
-4. Tune sensitivity in `.specify/security.yml`
-
-### Memory Issues on Large Codebases
-
-```bash
-# Scan incrementally
-specify security scan --incremental
-
-# Limit parallel jobs
-specify security scan --jobs 2
-```
+**Solution**:
+1. Use AI triage to auto-classify: `/jpspec:security triage`
+2. Add exclusions to `.jpspec/security-config.yml`
+3. Create custom rules to reduce noise (see Custom Rules guide)
 
 ## Next Steps
 
-- [Command Reference](../reference/jpspec-security-commands.md) - Full CLI documentation
+- [Command Reference](../reference/jpspec-security-commands.md) - Complete command documentation
 - [CI/CD Integration](./security-cicd-integration.md) - Detailed pipeline setup
-- [Custom Rules](./security-custom-rules.md) - Writing custom security rules
+- [Custom Rules Guide](./security-custom-rules.md) - Writing custom security rules
 - [Threat Model](../reference/security-threat-model.md) - Security limitations
+- [AI Privacy Policy](../security/ai-privacy-policy.md) - Data handling and privacy

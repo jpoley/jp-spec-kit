@@ -1,23 +1,21 @@
-# Security Commands Reference
+# /jpspec:security Commands Reference
 
-Complete reference for `/jpspec:security` slash commands and `specify security` CLI commands.
+Complete reference for `/jpspec:security` slash commands used in Claude Code sessions.
 
 ## Command Overview
 
-```
-specify security <command> [options]
-```
+The `/jpspec:security` command suite provides AI-powered security scanning, triage, remediation, and reporting integrated into your Claude Code workflow.
 
 ### Available Commands
 
-| Command | Description |
-|---------|-------------|
-| `scan` | Run security scanners on codebase |
-| `triage` | AI-powered finding classification |
-| `fix` | Generate remediation patches |
-| `audit` | Generate compliance reports |
-| `status` | Show configuration and scan status |
-| `init` | Initialize security configuration |
+| Command | Purpose | Input Required | Output Generated |
+|---------|---------|----------------|------------------|
+| `/jpspec:security scan` | Discover vulnerabilities | None | scan-results.json |
+| `/jpspec:security triage` | Classify findings with AI | scan-results.json | triage-report.md |
+| `/jpspec:security fix` | Generate security patches | triage-results.json | patches/, fix-summary.md |
+| `/jpspec:security report` | Generate audit report | scan & triage results | audit-report.md |
+
+**Note**: For CI/CD pipeline integration (GitHub Actions, GitLab CI, Jenkins), use scanner CLIs directly. See [CI/CD Integration Guide](../guides/security-cicd-integration.md).
 
 ---
 

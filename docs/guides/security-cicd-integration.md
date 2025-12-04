@@ -1,15 +1,19 @@
 # CI/CD Security Integration Guide
 
-Complete examples for integrating `/jpspec:security` into your CI/CD pipelines.
+Complete examples for integrating security scanning into your CI/CD pipelines.
 
 ## Overview
 
-Security scanning should be integrated at multiple stages:
+This guide shows how to integrate security scanners directly in CI/CD pipelines. For interactive security workflows in Claude Code sessions, use the `/jpspec:security` slash commands (see [Security Quickstart](./security-quickstart.md)).
 
-1. **Pre-commit** - Fast checks before code is committed
-2. **Pull Request** - Full scan with AI triage on PR
+**CI/CD Integration Strategy:**
+
+1. **Pre-commit** - Fast scans before code is committed (local hooks)
+2. **Pull Request** - Full scan with SARIF upload for code review
 3. **Main Branch** - Comprehensive audit with reporting
 4. **Scheduled** - Regular scans for new vulnerabilities
+
+**Note**: `/jpspec:security` commands are designed for Claude Code sessions, not CI/CD automation. This guide uses scanner CLIs directly (Semgrep, Bandit, etc.) for pipeline integration.
 
 ## GitHub Actions
 
@@ -43,16 +47,13 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
+      - name: Install scanners
         run: |
-          pip install specify-cli semgrep
+          pip install semgrep bandit
 
       - name: Run security scan
         run: |
-          specify security scan \
-            --format sarif \
-            --output results.sarif \
-            --fail-on high
+          semgrep --config=auto --sarif --output=results.sarif .
         continue-on-error: true
 
       - name: Upload SARIF to GitHub Security
