@@ -454,8 +454,8 @@ Write the customized content to `memory/constitution.md`:
 
 **Pre-write checks**:
 1. Ensure `memory/` directory exists (create if needed)
-2. Validate all placeholders were replaced (no remaining `[PLACEHOLDER]` text except in NEEDS_VALIDATION comments)
-3. Verify NEEDS_VALIDATION markers are preserved
+2. Validate that all placeholders outside of NEEDS_VALIDATION comments have been replaced. Placeholders within NEEDS_VALIDATION comments (e.g., `[COMPLIANCE_FRAMEWORKS]`, `[RETENTION_PERIOD]`) should remain for user review.
+3. Verify NEEDS_VALIDATION markers and their contained placeholders are preserved.
 
 **If `memory/constitution.md` already exists**:
 - Warn user that existing constitution will be overwritten
