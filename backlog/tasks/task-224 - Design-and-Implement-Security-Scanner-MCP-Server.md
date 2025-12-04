@@ -5,12 +5,9 @@ status: To Do
 assignee:
   - '@muckross'
 created_date: '2025-12-03 02:16'
-updated_date: '2025-12-04 14:21'
+updated_date: '2025-12-04 16:32'
 labels:
-  - security
-  - mcp
-  - infrastructure
-  - v2.0
+  - 'workflow:Planned'
 dependencies: []
 priority: high
 ---
@@ -37,90 +34,51 @@ Create MCP server exposing security scanning capabilities for tool composition. 
 ## Implementation Plan
 
 <!-- SECTION:PLAN:BEGIN -->
-## Implementation Plan: Design and Implement Security Scanner MCP Server
+CORRECTED IMPLEMENTATION PLAN:
 
-### Overview
-Create MCP server exposing security scanning capabilities as tools/resources for IDE integrations and cross-repo dashboards.
+MCP server exposes data and invokes skills - NO LLM API calls.
 
-### Step-by-Step Implementation
+## What to Build
 
-#### Step 1: Design MCP Server Schema (2 hours)
-**File**: `docs/adr/ADR-007-security-mcp-server.md`
+1. MCP Server Skeleton (Pure Python)
+   - Implement security_scan tool (runs Semgrep via subprocess)
+   - Implement security_triage tool (returns skill invocation instruction)
+   - Implement security_fix tool (returns skill invocation instruction)
+   - Implement security://findings resource (returns JSON data)
+   - Implement security://status resource (returns computed stats)
 
-MCP tools to expose:
-- `security_scan`: Run scan on repository
-- `security_triage`: Triage findings with AI
-- `security_fix`: Generate fixes
-- `security_status`: Get security posture summary
+2. Scanner Integration (subprocess only)
+   - Run Semgrep via subprocess.run()
+   - Parse Semgrep JSON output
+   - Write findings to docs/security/findings.json
+   - NO AI processing
 
-MCP resources to expose:
-- `security://findings`: List all findings
-- `security://status`: Overall security status
-- `security://config`: Current security configuration
+3. Skill Invocation Instructions
+   - security_triage returns: { action: invoke_skill, skill: .claude/skills/security-triage.md }
+   - security_fix returns: { action: invoke_skill, skill: .claude/skills/security-fix.md }
+   - AI coding tool executes skills using its own LLM access
 
-#### Step 2: Implement MCP Server (4 hours)
-**File**: `src/specify_cli/security/mcp_server.py`
+## What NOT to Build
 
-```python
-from mcp.server import Server
-from mcp.types import Tool, Resource
+- ❌ LLM API integration (no import anthropic)
+- ❌ API key handling
+- ❌ AI triage engine in MCP server
+- ❌ Prompt execution in MCP server
 
-server = Server("security-scanner")
+## Testing
 
-@server.tool()
-async def security_scan(repo_path: str, fail_on: str = "critical,high") -> dict:
-    """Run security scan on repository."""
-    result = subprocess.run([
-        "specify", "security", "scan",
-        "--path", repo_path,
-        "--fail-on", fail_on,
-        "--format", "json"
-    ], capture_output=True)
-    
-    return json.loads(result.stdout)
+- Test Semgrep subprocess execution
+- Test MCP tool returns correct instructions
+- Test MCP resources return correct data
+- Do NOT test AI inference (that's skill tests)
 
-@server.resource("security://findings")
-async def get_findings() -> str:
-    """Get all security findings."""
-    findings_file = "docs/security/scan-results.json"
-    if Path(findings_file).exists():
-        with open(findings_file) as f:
-            return f.read()
-    return json.dumps({"findings": []})
-```
+## Dependencies
 
-#### Step 3: Add to .mcp.json Configuration (1 hour)
-```json
-{
-  "mcpServers": {
-    "security-scanner": {
-      "command": "uv",
-      "args": ["tool", "run", "specify-mcp-security"]
-    }
-  }
-}
-```
+- mcp-python (MCP protocol)
+- subprocess (Python stdlib)
+- json (Python stdlib)
+- NO anthropic package
+- NO openai package
 
-#### Step 4: Documentation (2 hours)
-**File**: `docs/reference/security-mcp-server.md`
-
-Sections:
-1. MCP server overview
-2. Available tools
-3. Available resources
-4. Integration examples (Claude Desktop, IDEs)
-5. Cross-repo security dashboard use case
-
-#### Step 5: Testing (2 hours)
-- Test MCP tool invocations
-- Test MCP resource access
-- Test error handling
-- Test with Claude Desktop
-
-### Dependencies
-- MCP SDK
-- Security commands implemented
-
-### Estimated Effort
-**Total**: 11 hours (1.4 days)
+CRITICAL: ZERO API KEYS. ZERO LLM SDK CALLS.
 <!-- SECTION:PLAN:END -->

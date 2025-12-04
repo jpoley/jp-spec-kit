@@ -5,12 +5,9 @@ status: To Do
 assignee:
   - '@muckross'
 created_date: '2025-12-03 02:16'
-updated_date: '2025-12-04 14:19'
+updated_date: '2025-12-04 16:32'
 labels:
-  - security
-  - codeql
-  - sast
-  - v2.0
+  - 'workflow:Planned'
 dependencies: []
 priority: medium
 ---

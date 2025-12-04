@@ -5,11 +5,9 @@ status: To Do
 assignee:
   - '@muckross'
 created_date: '2025-12-03 02:26'
-updated_date: '2025-12-04 14:16'
+updated_date: '2025-12-04 16:32'
 labels:
-  - infrastructure
-  - cicd
-  - security
+  - 'workflow:Planned'
 dependencies: []
 priority: high
 ---
