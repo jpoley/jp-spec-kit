@@ -655,7 +655,7 @@ Before writing `memory/constitution.md`:
 1. Verify tier is valid (light, medium, or heavy)
 2. Confirm template file exists and is readable
 3. Ensure all placeholders are replaced (except those in NEEDS_VALIDATION comments)
-4. Verify NEEDS_VALIDATION markers are preserved from template
+4. Verify NEEDS_VALIDATION markers are preserved from the template
 5. Validate project name was detected or defaults to directory name
 6. Check date format is YYYY-MM-DD
 
