@@ -4733,6 +4733,352 @@ from specify_cli.hooks.cli import hooks_app  # noqa: E402
 app.add_typer(hooks_app, name="hooks")
 
 
+# Constitution management sub-app
+constitution_app = typer.Typer(
+    name="constitution",
+    help="Constitution diff and merge commands",
+    add_completion=False,
+)
+app.add_typer(constitution_app, name="constitution")
+
+
+def detect_constitution_tier(content: str) -> str | None:
+    """Detect constitution tier from content.
+
+    Args:
+        content: Constitution file content
+
+    Returns:
+        Tier name (light/medium/heavy) or None if not detected
+    """
+    import re
+
+    tier_match = re.search(r"<!-- TIER: (\w+)", content)
+    if tier_match:
+        tier = tier_match.group(1).lower()
+        if tier in CONSTITUTION_TIER_CHOICES:
+            return tier
+    return None
+
+
+def extract_sections(content: str) -> dict[str, str]:
+    """Extract marked sections from constitution content.
+
+    Args:
+        content: Constitution file content
+
+    Returns:
+        Dictionary mapping section names to their content
+    """
+    import re
+
+    sections = {}
+    # Match sections between <!-- SECTION:NAME:BEGIN --> and <!-- SECTION:NAME:END -->
+    pattern = r"<!-- SECTION:(\w+):BEGIN -->(.*?)<!-- SECTION:\1:END -->"
+    for match in re.finditer(pattern, content, re.DOTALL):
+        section_name = match.group(1)
+        section_content = match.group(2)
+        sections[section_name] = section_content
+    return sections
+
+
+def is_non_negotiable_section(content: str, section_name: str) -> bool:
+    """Check if a section is marked as NON-NEGOTIABLE in the content.
+
+    Args:
+        content: Constitution content
+        section_name: Name of the section to check
+
+    Returns:
+        True if section is non-negotiable
+    """
+    import re
+
+    # Look for NON-NEGOTIABLE marker near the section
+    section_pattern = rf"<!-- SECTION:{section_name}:BEGIN -->(.*?)<!-- SECTION:{section_name}:END -->"
+    match = re.search(section_pattern, content, re.DOTALL)
+    if match:
+        section_content = match.group(1)
+        return (
+            "NON-NEGOTIABLE" in section_content
+            or "NON-NEGOTIABLE" in content[: match.start()]
+        )
+    return False
+
+
+@constitution_app.command("diff")
+def constitution_diff(
+    tier: str | None = typer.Option(
+        None,
+        "--tier",
+        help="Compare against specific tier (light/medium/heavy)",
+    ),
+):
+    """Show differences between your constitution and the latest template.
+
+    Compares your project's constitution.md with the latest template version
+    to identify updates and changes.
+
+    Examples:
+        specify constitution diff
+        specify constitution diff --tier medium
+    """
+    import difflib
+
+    # Find project root and constitution
+    project_path = Path.cwd()
+    constitution_path = project_path / "memory" / "constitution.md"
+
+    if not constitution_path.exists():
+        console.print(
+            "[red]Error:[/red] No constitution found at memory/constitution.md"
+        )
+        console.print(
+            "[dim]Run 'specify init --here' to create a constitution for this project[/dim]"
+        )
+        raise typer.Exit(1)
+
+    # Read current constitution
+    current_content = constitution_path.read_text()
+
+    # Detect tier if not specified
+    if tier is None:
+        tier = detect_constitution_tier(current_content)
+        if tier is None:
+            console.print(
+                "[yellow]Warning:[/yellow] Could not detect constitution tier from file"
+            )
+            console.print("Specify tier manually with --tier option")
+            raise typer.Exit(1)
+
+    # Validate tier
+    if tier not in CONSTITUTION_TIER_CHOICES:
+        console.print(
+            f"[red]Error:[/red] Invalid tier '{tier}'. Must be one of: {', '.join(CONSTITUTION_TIER_CHOICES.keys())}"
+        )
+        raise typer.Exit(1)
+
+    # Get template for comparison
+    template_content = CONSTITUTION_TEMPLATES[tier]
+
+    # Extract sections from both
+    current_sections = extract_sections(current_content)
+    template_sections = extract_sections(template_content)
+
+    # Show header
+    console.print(f"\n[bold]Constitution Diff ({tier.title()} Tier)[/bold]")
+    console.print("=" * 50)
+    console.print(f"Your constitution: {constitution_path}")
+    console.print(f"Latest template: {tier} tier (v1.0.0)\n")
+
+    # Track differences
+    diff_count = 0
+    sections_with_diffs = []
+
+    # Compare each section
+    all_sections = set(current_sections.keys()) | set(template_sections.keys())
+
+    for section_name in sorted(all_sections):
+        current_sec = current_sections.get(section_name, "")
+        template_sec = template_sections.get(section_name, "")
+
+        if current_sec.strip() != template_sec.strip():
+            diff_count += 1
+            sections_with_diffs.append(section_name)
+
+            console.print(f"[yellow]@@ Section: {section_name} @@[/yellow]")
+
+            # Generate unified diff
+            current_lines = current_sec.splitlines(keepends=True)
+            template_lines = template_sec.splitlines(keepends=True)
+
+            diff = difflib.unified_diff(
+                current_lines,
+                template_lines,
+                fromfile="Your constitution",
+                tofile="Latest template",
+                lineterm="",
+            )
+
+            # Print diff with color
+            for line in diff:
+                if line.startswith("---") or line.startswith("+++"):
+                    console.print(f"[dim]{line}[/dim]")
+                elif line.startswith("@@"):
+                    console.print(f"[cyan]{line}[/cyan]")
+                elif line.startswith("-"):
+                    console.print(f"[red]{line}[/red]")
+                elif line.startswith("+"):
+                    console.print(f"[green]{line}[/green]")
+                else:
+                    console.print(line)
+
+            console.print()
+
+    # Summary
+    if diff_count == 0:
+        console.print(
+            "[green]✓[/green] Your constitution is up to date with the latest template"
+        )
+    else:
+        console.print(
+            f"[yellow]{diff_count}[/yellow] section(s) differ from the latest template:"
+        )
+        for section in sections_with_diffs:
+            console.print(f"  • {section}")
+        console.print(
+            "\nRun [cyan]specify constitution merge[/cyan] to update your constitution"
+        )
+
+
+@constitution_app.command("merge")
+def constitution_merge(
+    auto: bool = typer.Option(
+        False,
+        "--auto",
+        help="Auto-merge without prompts (use with caution)",
+    ),
+):
+    """Merge latest template updates with your constitution.
+
+    Intelligently merges updates from the latest constitution template while
+    preserving your customizations. NON-NEGOTIABLE sections are always updated
+    from the template, while customized sections are preserved.
+
+    The merged result is written to memory/constitution-merged.md for review.
+
+    Examples:
+        specify constitution merge
+        specify constitution merge --auto
+    """
+    from datetime import datetime
+
+    # Find project root and constitution
+    project_path = Path.cwd()
+    constitution_path = project_path / "memory" / "constitution.md"
+
+    if not constitution_path.exists():
+        console.print(
+            "[red]Error:[/red] No constitution found at memory/constitution.md"
+        )
+        console.print(
+            "[dim]Run 'specify init --here' to create a constitution for this project[/dim]"
+        )
+        raise typer.Exit(1)
+
+    # Read current constitution
+    current_content = constitution_path.read_text()
+
+    # Detect tier
+    tier = detect_constitution_tier(current_content)
+    if tier is None:
+        console.print(
+            "[yellow]Warning:[/yellow] Could not detect constitution tier from file"
+        )
+        if auto:
+            console.print("[red]Error:[/red] Cannot auto-merge without detected tier")
+            raise typer.Exit(1)
+
+        console.print("\nAvailable tiers:")
+        for t, desc in CONSTITUTION_TIER_CHOICES.items():
+            console.print(f"  {t}: {desc}")
+
+        tier = typer.prompt("Which tier is your constitution based on?")
+        if tier not in CONSTITUTION_TIER_CHOICES:
+            console.print(f"[red]Error:[/red] Invalid tier '{tier}'")
+            raise typer.Exit(1)
+
+    # Get template
+    template_content = CONSTITUTION_TEMPLATES[tier]
+
+    console.print(f"\n[cyan]Merging {tier} tier constitution...[/cyan]\n")
+
+    # Extract sections
+    current_sections = extract_sections(current_content)
+    template_sections = extract_sections(template_content)
+
+    # Build merged content starting with template
+    merged_content = template_content
+
+    # Process each section
+    merge_actions = []
+
+    for section_name, template_section in template_sections.items():
+        current_section = current_sections.get(section_name)
+
+        if current_section is None:
+            # New section in template - always add
+            merge_actions.append(f"[green]+ Added new section:[/green] {section_name}")
+            continue
+
+        # Check if section is non-negotiable
+        if is_non_negotiable_section(template_content, section_name):
+            # Always use template version
+            merge_actions.append(
+                f"[yellow]↻ Updated NON-NEGOTIABLE section:[/yellow] {section_name}"
+            )
+            continue
+
+        # Check if user customized this section
+        if current_section.strip() != template_section.strip():
+            # User has customizations - preserve them
+            import re
+
+            section_pattern = rf"(<!-- SECTION:{section_name}:BEGIN -->)(.*?)(<!-- SECTION:{section_name}:END -->)"
+            merged_content = re.sub(
+                section_pattern,
+                rf"\g<1>{current_section}\g<3>",
+                merged_content,
+                flags=re.DOTALL,
+            )
+            merge_actions.append(
+                f"[blue]✓ Preserved customized section:[/blue] {section_name}"
+            )
+        else:
+            # No changes - use template
+            merge_actions.append(f"[dim]= No changes to section:[/dim] {section_name}")
+
+    # Add custom sections from user's constitution that aren't in template
+    for section_name, section_content in current_sections.items():
+        if section_name not in template_sections:
+            merge_actions.append(
+                f"[cyan]✓ Preserved custom section:[/cyan] {section_name}"
+            )
+            # Append to end of document
+            section_block = f"\n<!-- SECTION:{section_name}:BEGIN -->{section_content}<!-- SECTION:{section_name}:END -->\n"
+            merged_content += section_block
+
+    # Add merge metadata header
+    merge_date = datetime.now().strftime("%Y-%m-%d")
+    merge_header = f"""<!-- MERGED: {merge_date} -->
+<!-- REVIEW REQUIRED: Review this merged constitution and rename to constitution.md when satisfied -->
+
+"""
+    merged_content = merge_header + merged_content
+
+    # Write merged result
+    merged_path = project_path / "memory" / "constitution-merged.md"
+    merged_path.write_text(merged_content)
+
+    # Show summary
+    console.print("[bold]Merge Summary:[/bold]\n")
+    for action in merge_actions:
+        console.print(f"  {action}")
+
+    console.print("\n[green]✓[/green] Merged constitution written to:")
+    console.print(f"  [cyan]{merged_path}[/cyan]\n")
+
+    console.print("[yellow]Next steps:[/yellow]")
+    console.print("1. Review the merged constitution in memory/constitution-merged.md")
+    console.print("2. Make any additional adjustments if needed")
+    console.print(
+        "3. When satisfied, replace your constitution: mv memory/constitution-merged.md memory/constitution.md"
+    )
+
+    if not auto:
+        console.print("\n[dim]Tip: Use --auto flag to skip prompts in the future[/dim]")
+
+
 # Security scanning sub-app
 security_app = typer.Typer(
     name="security",
