@@ -204,6 +204,164 @@ This ensures:
 - PRs are traceable to tasks
 - Failed PRs don't leave orphaned "Done" tasks
 
+## Committer Skill (Separation of Concerns)
+
+### Purpose
+
+The **Committer** is a specialized skill/agent that handles ALL git operations. This creates a clear separation of concerns:
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                      SEPARATION OF CONCERNS                              │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│   DOMAIN AGENTS                          COMMITTER SKILL                 │
+│   ─────────────                          ──────────────                  │
+│                                                                          │
+│   ┌─────────────────┐                    ┌─────────────────┐            │
+│   │ Frontend Eng    │                    │                 │            │
+│   │ Backend Eng     │ ───── Code ─────►  │   Committer     │            │
+│   │ Architect       │                    │                 │            │
+│   │ PM Planner      │                    │  • Lint         │            │
+│   │ QA Engineer     │                    │  • Format       │            │
+│   │ SRE Agent       │                    │  • Test         │            │
+│   └─────────────────┘                    │  • DCO Sign-off │            │
+│                                          │  • Commit       │            │
+│   Focus: Domain expertise                │  • PR Creation  │            │
+│   NOT: Git mechanics                     │  • CI Validation│            │
+│                                          │                 │            │
+│                                          └─────────────────┘            │
+│                                                                          │
+│                                          Focus: Git mechanics           │
+│                                          NOT: Domain logic              │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### Why This Matters
+
+Git operations are **noise** for domain agents. When a Backend Engineer needs to:
+- Know `ruff` vs `black` formatting rules
+- Remember DCO sign-off syntax (`-s` flag)
+- Handle pre-commit hook failures
+- Resolve merge conflicts
+- Ensure CI passes before PR
+
+...they lose focus on their actual job: writing good backend code.
+
+### Committer Responsibilities
+
+| Task | Command | Validation |
+|------|---------|------------|
+| **Lint** | `ruff check . --fix` | No lint errors |
+| **Format** | `ruff format .` | Consistent formatting |
+| **Test** | `pytest tests/` | All tests pass |
+| **Type Check** | `mypy src/` (if configured) | No type errors |
+| **DCO Sign-off** | `git commit -s` | Sign-off present |
+| **Commit** | Conventional commits | Message format correct |
+| **Branch** | Create/switch branches | Branch naming convention |
+| **PR Creation** | `gh pr create` | PR template filled |
+| **CI Validation** | Check CI status | All checks green |
+
+### Committer Workflow
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                        COMMITTER WORKFLOW                                │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│   Domain Agent completes work                                            │
+│         │                                                                │
+│         ▼                                                                │
+│   ┌──────────────┐                                                      │
+│   │ 1. Lint      │  ruff check . --fix                                  │
+│   └──────┬───────┘                                                      │
+│          │                                                               │
+│          ▼                                                               │
+│   ┌──────────────┐                                                      │
+│   │ 2. Format    │  ruff format .                                       │
+│   └──────┬───────┘                                                      │
+│          │                                                               │
+│          ▼                                                               │
+│   ┌──────────────┐                                                      │
+│   │ 3. Test      │  pytest tests/ -v                                    │
+│   └──────┬───────┘                                                      │
+│          │                                                               │
+│          ▼                                                               │
+│   ┌──────────────┐     ┌─────────────────────────────────────────────┐ │
+│   │ 4. Stage     │────►│ git add -A                                   │ │
+│   └──────┬───────┘     └─────────────────────────────────────────────┘ │
+│          │                                                               │
+│          ▼                                                               │
+│   ┌──────────────┐     ┌─────────────────────────────────────────────┐ │
+│   │ 5. Commit    │────►│ git commit -s -m "type(scope): message"     │ │
+│   └──────┬───────┘     └─────────────────────────────────────────────┘ │
+│          │                                                               │
+│          ▼                                                               │
+│   ┌──────────────┐     ┌─────────────────────────────────────────────┐ │
+│   │ 6. Push      │────►│ git push -u origin branch-name              │ │
+│   └──────┬───────┘     └─────────────────────────────────────────────┘ │
+│          │                                                               │
+│          ▼                                                               │
+│   ┌──────────────┐     ┌─────────────────────────────────────────────┐ │
+│   │ 7. PR        │────►│ gh pr create --title "..." --body "..."     │ │
+│   └──────┬───────┘     └─────────────────────────────────────────────┘ │
+│          │                                                               │
+│          ▼                                                               │
+│   ┌──────────────┐                                                      │
+│   │ 8. CI Check  │  Wait for CI, report status                          │
+│   └──────────────┘                                                      │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### Integration with /jpspec Commands
+
+Every `/jpspec` command that produces artifacts should invoke the Committer:
+
+| Command | Domain Work | Committer Invocation |
+|---------|-------------|---------------------|
+| `/jpspec:specify` | Creates PRD, functional spec | Commits docs, creates PR |
+| `/jpspec:plan` | Creates technical spec, ADRs | Commits docs, creates PR |
+| `/jpspec:implement` | Writes code, tests, docs | Lint, format, test, commit, PR |
+| `/jpspec:validate` | Creates QA/security reports | Commits reports, creates PR |
+| `/jpspec:operate` | Creates runbooks, configs | Commits ops docs, creates PR |
+
+### Committer Skill Definition
+
+```yaml
+# .claude/skills/committer.md
+name: committer
+description: |
+  Handles all git operations: lint, format, test, commit with DCO,
+  create branches and PRs, validate CI. Invoked at end of every
+  workflow step that produces artifacts.
+
+triggers:
+  - "commit these changes"
+  - "create a PR"
+  - "prepare for merge"
+  - After any /jpspec command completes
+
+responsibilities:
+  - Pre-commit validation (lint, format, test)
+  - DCO sign-off on all commits
+  - Conventional commit message format
+  - Branch creation with proper naming
+  - PR creation with template
+  - CI status monitoring
+```
+
+### Benefits
+
+1. **Domain agents stay focused** - No context switching to git mechanics
+2. **Consistent quality** - Every commit passes lint, format, tests
+3. **Proper compliance** - DCO sign-off never forgotten
+4. **Reduced errors** - No accidental commits to main, proper branch naming
+5. **Clean history** - Conventional commits, proper PR descriptions
+
+---
+
 ## Git Commit Requirements (NON-NEGOTIABLE)
 
 ### No Direct Commits to Main (ABSOLUTE)

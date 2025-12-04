@@ -18,210 +18,136 @@
 
 ## What is JP Spec Kit?
 
-JP Spec Kit combines **Spec-Driven Development** with **[Backlog.md](https://github.com/MrLesk/Backlog.md)** task management through a suite of AI-powered slash commands. Each command launches specialized agents (PM planners, architects, engineers, SREs) that create and track tasks in your backlog.
+JP Spec Kit transforms how you build software with AI. Instead of giving AI loose instructions, you give it **structured specifications** and **tracked tasks**. Each `/jpspec` command launches specialized AI agents that:
 
-**The key insight**: AI agents work from backlog tasks, not loose instructions. Every `/jpspec` command discovers existing tasks, creates new ones with acceptance criteria, and tracks progress through the backlog CLI.
+1. **Read** existing specifications and tasks
+2. **Create** the right artifacts for each phase
+3. **Track** progress in your backlog
+4. **Commit** with proper formatting and validation
+
+## Choose Your Workflow Mode
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                        WORKFLOW MODE SELECTION                          │
+├────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  ┌─────────────┐     ┌─────────────┐     ┌─────────────┐              │
+│  │   SIMPLE    │     │   MEDIUM    │     │   COMPLEX   │              │
+│  │  (Score 8-12)│     │ (Score 13-20)│    │ (Score 21+) │              │
+│  └──────┬──────┘     └──────┬──────┘     └──────┬──────┘              │
+│         │                   │                   │                      │
+│         ▼                   ▼                   ▼                      │
+│    Skip SDD           Light/Medium            Full SDD                 │
+│    Just code          Quick specs             All phases               │
+│                                                                         │
+│  Examples:            Examples:               Examples:                 │
+│  • Bug fix            • New endpoint          • New auth system         │
+│  • Config change      • UI component          • Payment integration     │
+│  • Doc update         • Small feature         • Major refactor          │
+│                                                                         │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+### Quick Decision: Run `/jpspec:assess` first
+
+```bash
+/jpspec:assess Build a REST API with user authentication
+```
+
+This scores your feature across 8 dimensions and recommends: **Skip SDD**, **Light/Medium**, or **Full SDD**.
+
+## Workflow Modes Explained
+
+All modes produce the same artifacts - only the **review depth** changes:
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                           WORKFLOW MODES                                 │
+├───────────┬─────────────────────────┬───────────────────────────────────┤
+│   MODE    │    ARTIFACTS PRODUCED   │         REVIEW APPROACH           │
+├───────────┼─────────────────────────┼───────────────────────────────────┤
+│   FULL    │ PRD                     │ Deep review at each stage         │
+│           │ Functional Spec         │ Explicit approval gates           │
+│           │ Technical Spec          │ Formal ADRs                       │
+│           │ ADRs                    │ Multi-reviewer sign-off           │
+│           │ Code + Tests            │                                   │
+│           │ Runbook                 │                                   │
+├───────────┼─────────────────────────┼───────────────────────────────────┤
+│  MEDIUM   │ PRD                     │ Quick review                      │
+│           │ Functional Spec         │ Proceed unless issues found       │
+│           │ Technical Spec          │ Combined passes allowed           │
+│           │ ADRs                    │ Single reviewer OK                │
+│           │ Code + Tests            │                                   │
+│           │ Runbook                 │                                   │
+├───────────┼─────────────────────────┼───────────────────────────────────┤
+│   LIGHT   │ PRD                     │ Minimal review                    │
+│           │ Functional Spec         │ Trust the process                 │
+│           │ Technical Spec          │ Decision notes (not full ADRs)    │
+│           │ ADRs                    │ Fast iteration                    │
+│           │ Code + Tests            │                                   │
+│           │ Runbook                 │                                   │
+└───────────┴─────────────────────────┴───────────────────────────────────┘
+
+Light mode is NOT an excuse to skip artifacts. It's permission to move faster.
+```
+
+## The Workflow: Commands → Artifacts → States
+
+```
+┌────────────────────────────────────────────────────────────────────────────────┐
+│                         /JPSPEC WORKFLOW STATE MACHINE                          │
+├────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                 │
+│   COMMAND              STATE                ARTIFACTS PRODUCED                  │
+│   ───────              ─────                ─────────────────                   │
+│                                                                                 │
+│   (start)          ┌──────────┐                                                │
+│                    │  To Do   │            (none)                               │
+│                    └────┬─────┘                                                 │
+│                         │                                                       │
+│                         ▼                                                       │
+│   /jpspec:specify  ┌──────────┐            • [feature]-prd.md                   │
+│                    │Specified │            • [feature]-functional.md            │
+│                    └────┬─────┘                                                 │
+│                         │                                                       │
+│                         ▼                                                       │
+│   /jpspec:research ┌──────────┐            • Research reports          OPTIONAL │
+│   (optional)       │Researched│            • Competitive analysis               │
+│                    └────┬─────┘                                                 │
+│                         │                                                       │
+│                         ▼                                                       │
+│   /jpspec:plan     ┌──────────┐            • [feature]-technical.md             │
+│                    │ Planned  │            • adr-XXX-[topic].md                 │
+│                    └────┬─────┘            • Platform design docs               │
+│                         │                                                       │
+│                         ▼                                                       │
+│   /jpspec:implement┌──────────┐            • Source code (src/)                 │
+│                    │   In     │            • Unit & integration tests           │
+│                    │Progress  │            • API documentation                  │
+│                    └────┬─────┘                                                 │
+│                         │                                                       │
+│                         ▼                                                       │
+│   /jpspec:validate ┌──────────┐            • QA reports                         │
+│                    │Validated │            • Security scan results              │
+│                    └────┬─────┘            • Test coverage reports              │
+│                         │                                                       │
+│                         ▼                                                       │
+│   /jpspec:operate  ┌──────────┐            • [service]-runbook.md               │
+│                    │Deployed  │            • Deployment configs                 │
+│                    └────┬─────┘            • Monitoring dashboards              │
+│                         │                                                       │
+│                         ▼                                                       │
+│                    ┌──────────┐                                                │
+│                    │   Done   │                                                 │
+│                    └──────────┘                                                 │
+│                                                                                 │
+└────────────────────────────────────────────────────────────────────────────────┘
+```
 
 ## Quick Start
 
-```bash
-# Install the tools
-uv tool install specify-cli --from git+https://github.com/jpoley/jp-spec-kit.git
-pnpm i -g backlog.md
-
-# Initialize a project
-specify init my-project --ai claude
-cd my-project
-backlog init "$(basename "$PWD")"
-
-# Establish the principles
-
-/speckit.constitution Create principles focused on code quality, testing standards, user experience consistency, and performance requirements.  Only Humans merge PRs.
-
-# Assess complexity first (optional but recommended)
-/jpspec:assess Build a REST API with authentication
-
-# Create specification with tasks
-/jpspec:specify Build a REST API for task management with JWT authentication
-
-# View and work on tasks
-backlog board
-backlog task list --plain
-```
-
-## The /jpspec Workflow
-
-The `/jpspec` commands form a complete development lifecycle, each backed by specialized AI agents:
-
-```
-/jpspec:assess   →  Is SDD appropriate? (Full/Light/Skip)
-       ↓
-/jpspec:specify  →  PRD + backlog tasks (PM Planner agent)
-       ↓
-/jpspec:research →  Market & technical validation (Researcher + Business Validator)
-       ↓
-/jpspec:plan     →  Architecture + infrastructure design (Architect + Platform Engineer)
-       ↓
-/jpspec:implement → Code with review (Frontend/Backend Engineers + Code Reviewers)
-       ↓
-/jpspec:validate →  QA, security, docs, release (Multiple validation agents)
-       ↓
-/jpspec:operate  →  CI/CD, K8s, observability (SRE agent)
-```
-
-### Command Reference
-
-| Command | Purpose | Subagents | Execution |
-|---------|---------|-----------|-----------|
-| `/jpspec:assess` | Evaluate feature complexity (8-question scoring) | Interactive | Single |
-| `/jpspec:specify` | Create PRD with implementation tasks | Product Requirements Manager | Single |
-| `/jpspec:research` | Market research + business validation | Research Analyst → Business Validator | Sequential |
-| `/jpspec:plan` | System architecture + platform design | Software Architect + Platform Engineer | Parallel |
-| `/jpspec:implement` | Implementation with code review | Frontend/Backend/ML Engineers + Code Reviewers | Multi-phase |
-| `/jpspec:validate` | QA, security, docs, release readiness | Quality Guardian + Security Engineer → Tech Writer → Release Manager | Multi-phase |
-| `/jpspec:operate` | CI/CD, Kubernetes, observability setup | Site Reliability Engineer | Single |
-| `/jpspec:prune-branch` | Clean up merged local branches | — | Utility |
-
-See **[JP Spec Workflow Diagram](docs/diagrams/jpspec-workflow.md)** for the complete visual workflow with all 15 specialized agents.
-
-### Subagent Details
-
-<details>
-<summary><strong>/jpspec:specify</strong> — 1 agent</summary>
-
-- **Product Requirements Manager** (SVPG Principles Expert)
-  - Creates comprehensive PRD with user stories
-  - Applies DVF+V risk framework (Desirability, Usability, Feasibility, Viability)
-  - Creates backlog tasks with acceptance criteria
-</details>
-
-<details>
-<summary><strong>/jpspec:plan</strong> — 2 agents (parallel)</summary>
-
-- **Software Architect** (Hohpe's Principles Expert)
-  - System architecture and component design
-  - Enterprise Integration Patterns
-  - Architecture Decision Records (ADRs)
-
-- **Platform Engineer** (DevSecOps & CI/CD Excellence)
-  - DORA metrics optimization
-  - CI/CD pipeline architecture
-  - Infrastructure and observability design
-</details>
-
-<details>
-<summary><strong>/jpspec:research</strong> — 2 agents (sequential)</summary>
-
-1. **Senior Research Analyst**
-   - Market intelligence (TAM/SAM/SOM)
-   - Competitive analysis
-   - Technical feasibility assessment
-
-2. **Business Analyst & Strategic Advisor**
-   - Financial viability analysis
-   - Go/No-Go recommendation
-   - Risk assessment with mitigations
-</details>
-
-<details>
-<summary><strong>/jpspec:implement</strong> — 3-5 agents (multi-phase)</summary>
-
-**Phase 1 — Implementation (parallel):**
-- **Frontend Engineer** (React/React Native, TypeScript)
-- **Backend Engineer** (Go, TypeScript/Node.js, Python)
-- **AI/ML Engineer** (MLOps, model deployment) — conditional
-
-**Phase 2 — Code Review (sequential):**
-- **Frontend Code Reviewer** (Principal Engineer)
-- **Backend Code Reviewer** (Principal Engineer)
-</details>
-
-<details>
-<summary><strong>/jpspec:validate</strong> — 4 agents (multi-phase with human gate)</summary>
-
-**Phase 1 — Testing (parallel):**
-- **Quality Guardian** (QA, risk analysis, failure modes)
-- **Secure-by-Design Engineer** (security assessment, threat modeling)
-
-**Phase 2 — Documentation (sequential):**
-- **Technical Writer** (API docs, user guides, release notes)
-
-**Phase 3 — Release (sequential with human approval):**
-- **Release Manager** (deployment coordination)
-- **Human Approval Gate** — manual checkpoint required
-</details>
-
-<details>
-<summary><strong>/jpspec:operate</strong> — 1 agent</summary>
-
-- **Site Reliability Engineer** (SRE)
-  - CI/CD pipelines (GitHub Actions)
-  - Kubernetes deployment manifests
-  - Observability stack (metrics, logs, traces)
-  - SLI/SLO definitions
-  - Runbooks and incident response
-</details>
-
-### Backlog Integration
-
-Every `/jpspec` command:
-1. **Discovers** existing tasks: `backlog search "<feature>" --plain`
-2. **Creates** tasks with acceptance criteria via CLI
-3. **Assigns** agent identity (e.g., `@pm-planner`, `@sre-agent`)
-4. **Tracks** progress by checking ACs: `backlog task edit <id> --check-ac 1`
-5. **Marks** tasks done only when Definition of Done is met
-
-## Complexity Assessment
-
-Not every feature needs full SDD. Use `/jpspec:assess` first:
-
-| Score | Classification | Recommendation |
-|-------|----------------|----------------|
-| 8-12 | Simple | **Skip SDD** - Just create a task and implement |
-| 13-20 | Medium | **Spec-Light** - Use `/jpspec:specify` + `/jpspec:implement` |
-| 21-32 | Complex | **Full SDD** - Use all `/jpspec` phases |
-
-## Working with Tasks
-
-```bash
-# View kanban board
-backlog board
-
-# List tasks (AI-friendly output)
-backlog task list --plain
-backlog task list -s "To Do" --plain
-
-# Search for tasks
-backlog search "authentication" --plain
-
-# View task details
-backlog task 42 --plain
-
-# Start work on a task
-backlog task edit 42 -s "In Progress" -a @myself
-
-# Check off acceptance criteria as you work
-backlog task edit 42 --check-ac 1
-backlog task edit 42 --check-ac 2
-
-# Add implementation notes
-backlog task edit 42 --notes $'Implemented JWT auth using jose library\n\nChanges:\n- Added auth middleware\n- Created token service'
-
-# Complete task
-backlog task edit 42 -s Done
-```
-
-## Installation
-
-### Prerequisites
-
-- Python 3.11+
-- [uv](https://docs.astral.sh/uv/) for Python package management
-- Node.js 18+ with pnpm
-- Git
-- A supported AI coding agent
-
-### Install Both Tools
+### 1. Install the Tools
 
 ```bash
 # Specify CLI (project initialization)
@@ -231,11 +157,146 @@ uv tool install specify-cli --from git+https://github.com/jpoley/jp-spec-kit.git
 pnpm i -g backlog.md
 ```
 
-### Upgrade
+### 2. Initialize Your Project
 
 ```bash
-uv tool install specify-cli --force --from git+https://github.com/jpoley/jp-spec-kit.git
-pnpm update -g backlog.md
+specify init my-project --ai claude
+cd my-project
+backlog init "$(basename "$PWD")"
+```
+
+### 3. Establish Principles (Optional but Recommended)
+
+```bash
+/speckit:constitution Create principles focused on code quality, testing, and user experience.
+```
+
+### 4. Assess Your Feature
+
+```bash
+/jpspec:assess Build a REST API for task management with JWT authentication
+```
+
+### 5. Run the Appropriate Workflow
+
+**For Full SDD (complex features):**
+```bash
+/jpspec:specify Build a REST API for task management with JWT authentication
+/jpspec:plan
+/jpspec:implement
+/jpspec:validate
+/jpspec:operate
+```
+
+**For Light/Medium (medium features):**
+```bash
+/jpspec:specify Build a new user settings page
+/jpspec:implement
+```
+
+**For Simple tasks:**
+```bash
+# Just create a task and implement
+backlog task create "Fix login button alignment" --ac "Button aligns with form fields"
+# Then code directly
+```
+
+## Command Reference
+
+```
+┌────────────────────────────────────────────────────────────────────────────────┐
+│                            /JPSPEC COMMAND REFERENCE                            │
+├──────────────────┬───────────────┬────────────────┬────────────────────────────┤
+│     COMMAND      │  INPUT STATE  │  OUTPUT STATE  │     PRIMARY AGENTS         │
+├──────────────────┼───────────────┼────────────────┼────────────────────────────┤
+│ /jpspec:assess   │ (any)         │ (no change)    │ Complexity Scorer          │
+│ /jpspec:specify  │ To Do         │ Specified      │ PM Planner                 │
+│ /jpspec:research │ Specified     │ Researched     │ Researcher, Validator      │
+│ /jpspec:plan     │ Specified*    │ Planned        │ Architect, Platform Eng    │
+│ /jpspec:implement│ Planned       │ In Progress    │ Frontend/Backend Engineers │
+│ /jpspec:validate │ In Progress   │ Validated      │ QA, Security Engineers     │
+│ /jpspec:operate  │ Validated     │ Deployed       │ SRE Agent                  │
+└──────────────────┴───────────────┴────────────────┴────────────────────────────┘
+* Also accepts "Researched" state
+```
+
+## Artifact Progression
+
+Every feature follows this document progression:
+
+```
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                          ARTIFACT PROGRESSION                                 │
+│                                                                               │
+│   PRD ──► Functional ──► Technical ──► ADR ──► Code ──► Runbook             │
+│           Spec           Spec                                                 │
+│                                                                               │
+│   "What &    "What        "How to      "Why this   Actual    "How to         │
+│    Why"      behaviors"    build"       path"      code      operate"        │
+│                                                                               │
+└──────────────────────────────────────────────────────────────────────────────┘
+```
+
+| Stage | Artifact | Question Answered | Location |
+|-------|----------|-------------------|----------|
+| 1 | **PRD** | What must it do and why the user cares | `docs/prd/` |
+| 2 | **Functional Spec** | What behaviors are required | `docs/specs/` |
+| 3 | **Technical Spec** | How will we build it | `docs/specs/` |
+| 4 | **ADR** | Why we chose this technical path | `docs/adr/` |
+| 5 | **Implementation** | The code itself | `src/` |
+| 6 | **Runbook** | How to operate and troubleshoot | `docs/runbooks/` |
+
+### Document Naming
+
+| Document | Pattern | Example |
+|----------|---------|---------|
+| PRD | `[feature]-prd.md` | `user-auth-prd.md` |
+| Functional Spec | `[feature]-functional.md` | `user-auth-functional.md` |
+| Technical Spec | `[feature]-technical.md` | `user-auth-technical.md` |
+| ADR | `adr-[number]-[topic].md` | `adr-015-auth-provider.md` |
+| Runbook | `[service]-runbook.md` | `auth-service-runbook.md` |
+
+## Working with Tasks
+
+```bash
+# View kanban board
+backlog board
+
+# List tasks (AI-friendly)
+backlog task list --plain
+
+# Start work on a task
+backlog task edit 42 -s "In Progress" -a @myself
+
+# Check off acceptance criteria as you work
+backlog task edit 42 --check-ac 1
+backlog task edit 42 --check-ac 2
+
+# Complete task
+backlog task edit 42 -s Done
+```
+
+## Implementation = Code + Docs + Tests
+
+Every `/jpspec:implement` produces **three mandatory deliverables**:
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    IMPLEMENTATION DELIVERABLES                           │
+├─────────────────┬─────────────────────┬─────────────────────────────────┤
+│   DELIVERABLE   │    DESCRIPTION      │        VERIFICATION             │
+├─────────────────┼─────────────────────┼─────────────────────────────────┤
+│   Code          │ Production-ready    │ PR passes CI, review approved   │
+│                 │ reviewed source     │                                 │
+├─────────────────┼─────────────────────┼─────────────────────────────────┤
+│   Documents     │ API docs, comments  │ Docs updated, comments added    │
+│                 │ config examples     │                                 │
+├─────────────────┼─────────────────────┼─────────────────────────────────┤
+│   Tests         │ Unit, integration   │ Test suite passes               │
+│                 │ edge cases          │ Coverage threshold met          │
+└─────────────────┴─────────────────────┴─────────────────────────────────┘
+
+Implementation is NOT complete until all three are delivered.
 ```
 
 ## Supported AI Agents
@@ -249,59 +310,51 @@ pnpm update -g backlog.md
 | [Codex CLI](https://github.com/openai/codex) | Fully supported |
 | [Windsurf](https://windsurf.com/) | Fully supported |
 
-### Multi-Agent Support
-
-Initialize with multiple agents for teams using different tools:
+### Multi-Agent Setup
 
 ```bash
-# Interactive selection
-specify init my-project
-
-# Multiple agents via CLI
+# Initialize with multiple agents
 specify init my-project --ai claude,copilot,cursor-agent
 ```
 
-## Specify CLI Commands
+## File Structure
 
-| Command | Description |
-|---------|-------------|
-| `specify init <name>` | Initialize new project with SDD templates |
-| `specify upgrade` | Upgrade to latest template versions |
-| `specify check` | Verify tool installation |
-| `specify backlog migrate` | Convert legacy tasks.md to backlog.md format |
+```
+project/
+├── docs/
+│   ├── prd/                    # PRDs from /jpspec:specify
+│   ├── specs/                  # Functional & Technical specs
+│   ├── adr/                    # Architecture Decision Records
+│   ├── platform/               # Platform design docs
+│   ├── qa/                     # QA reports from /jpspec:validate
+│   ├── security/               # Security scans
+│   └── runbooks/               # Operational runbooks
+├── src/                        # Implementation code
+├── tests/                      # Test suites
+├── backlog/                    # Task management
+└── memory/                     # Constitution and specs
+    └── constitution.md         # Project principles
+```
 
 ## Documentation
 
-### Workflow & Architecture
-- **[JP Spec Workflow Diagram](docs/diagrams/jpspec-workflow.md)** - Visual workflow with all 15 subagents
-- **[Agent Loop Classification](docs/reference/agent-loop-classification.md)** - Which agents for which phases
-- **[Inner Loop Reference](docs/reference/inner-loop.md)** - Development cycle details
-- **[Outer Loop Reference](docs/reference/outer-loop.md)** - CI/CD and deployment
-
-### Task Management
-- **[Backlog Quick Start](docs/guides/backlog-quickstart.md)** - Get started in 5 minutes
-- **[Backlog User Guide](docs/guides/backlog-user-guide.md)** - Complete task management guide
-- **[JP Spec + Backlog Integration](docs/guides/jpspec-backlog-workflow.md)** - How /jpspec commands integrate with backlog.md
-
-### Guides
+### Getting Started
+- **[Backlog Quick Start](docs/guides/backlog-quickstart.md)** - 5-minute intro
 - **[Problem Sizing Assessment](docs/guides/problem-sizing-assessment.md)** - When to use SDD
+
+### Workflow Details
+- **[JP Spec Workflow Diagram](docs/diagrams/jpspec-workflow.md)** - Full visual workflow
+- **[JP Spec + Backlog Integration](docs/guides/jpspec-backlog-workflow.md)** - How commands integrate
+- **[Agent Loop Classification](docs/reference/agent-loop-classification.md)** - Which agents for which phases
+
+### Reference
+- **[Backlog User Guide](docs/guides/backlog-user-guide.md)** - Complete task management
+- **[Inner Loop Reference](docs/reference/inner-loop.md)** - Development cycle
+- **[Outer Loop Reference](docs/reference/outer-loop.md)** - CI/CD and deployment
 
 ## Legacy /speckit Commands
 
-The original `/speckit.*` commands from [GitHub's spec-kit](https://github.com/github/spec-kit) are still available but **do not integrate with backlog.md**:
-
-| Command | Status |
-|---------|--------|
-| `/speckit:specify` | Available (no backlog integration) |
-| `/speckit:plan` | Available (no backlog integration) |
-| `/speckit:tasks` | Available (generates tasks.md, not backlog) |
-| `/speckit:implement` | Available (no backlog integration) |
-| `/speckit:clarify` | Available (no backlog integration) |
-| `/speckit:constitution` | Available (no backlog integration) |
-| `/speckit:checklist` | Available (no backlog integration) |
-| `/speckit:analyze` | Available (no backlog integration) |
-
-**Recommendation**: Use `/jpspec` commands for the integrated backlog workflow. Use `/speckit` commands only if you prefer the traditional tasks.md approach.
+The original `/speckit.*` commands from [GitHub's spec-kit](https://github.com/github/spec-kit) are available but **do not integrate with backlog.md**. Use `/jpspec` commands for the integrated workflow.
 
 ## Contributing
 
