@@ -578,7 +578,14 @@ def write_repo_facts(project_path: Path, facts: dict) -> None:
 
     Args:
         project_path: Root of the project
-        facts: Dictionary with detected facts (languages, frameworks, ci_cd, test_framework, linter, formatter, security_tools)
+        facts: Dictionary with detected facts:
+            - languages (list[str]): Programming languages detected
+            - frameworks (list[str]): Frameworks detected
+            - ci_cd (str): CI/CD platform name
+            - test_framework (str): Testing framework name
+            - linter (str): Linter tool name
+            - formatter (str): Formatter tool name
+            - security_tools (list[str]): Security scanning tools
     """
     memory_dir = project_path / "memory"
     memory_dir.mkdir(parents=True, exist_ok=True)
