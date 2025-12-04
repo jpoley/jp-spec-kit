@@ -159,8 +159,23 @@ else
 fi
 echo ""
 
-# 4. Quick test run (only fast tests if marked)
-echo -e "${BLUE}4. Running quick tests...${NC}"
+# 4. Dev-setup validation (fast)
+echo -e "${BLUE}4. Validating dev-setup structure...${NC}"
+if [ -f "scripts/bash/pre-commit-dev-setup.sh" ]; then
+    if ./scripts/bash/pre-commit-dev-setup.sh > /dev/null 2>&1; then
+        echo -e "${GREEN}✓ Dev-setup validation passed${NC}"
+    else
+        echo -e "${RED}✗ Dev-setup validation failed${NC}"
+        echo "Run: ./scripts/bash/pre-commit-dev-setup.sh"
+        STATUS=1
+    fi
+else
+    echo -e "${YELLOW}⚠ Dev-setup validation script not found, skipping${NC}"
+fi
+echo ""
+
+# 5. Quick test run (only fast tests if marked)
+echo -e "${BLUE}5. Running quick tests...${NC}"
 if command -v pytest &> /dev/null; then
     # Run tests marked as 'quick' or all tests if no markers
     if pytest tests/ -m quick --tb=short > /dev/null 2>&1; then
