@@ -290,26 +290,54 @@ def calculate_quality_score(content: str) -> int:
 
 
 def get_quality_recommendations(content: str, score: int, threshold: int) -> list[str]:
-    """Generate recommendations to improve quality score."""
+    """Generate recommendations to improve quality score, prioritized by estimated impact."""
     recommendations = []
     gap = threshold - score
 
     words = len(content.split())
-    if words < 500:
-        recommendations.append(f"Add more detail (current: {words} words)")
+    # Estimate how many more words are needed for max points
+    word_points = min(25, words // 40)
+    if word_points < 25:
+        missing_words = max(0, (25 - word_points) * 40)
+        est_points = 25 - word_points
+        recommendations.append((est_points, f"Add more detail (current: {words} words, est. +{est_points} pts by adding ~{missing_words} words)"))
 
     headings = len(re.findall(r"^#+\s+", content, re.MULTILINE))
-    if headings < 5:
-        recommendations.append(f"Add more sections (current: {headings} headings)")
+    heading_points = min(25, headings * 5)
+    if heading_points < 25:
+        missing_headings = max(0, (5 - headings))
+        est_points = min(25 - heading_points, missing_headings * 5)
+        recommendations.append((est_points, f"Add more sections (current: {headings} headings, est. +{est_points} pts by adding {missing_headings} headings)"))
 
     list_items = len(re.findall(r"^[\s]*[-*]\s+", content, re.MULTILINE))
-    if list_items < 10:
-        recommendations.append("Add structured lists for requirements")
+    list_points = min(25, list_items * 2)
+    if list_points < 25:
+        missing_items = max(0, (10 - list_items))
+        est_points = min(25 - list_points, missing_items * 2)
+        recommendations.append((est_points, f"Add structured lists for requirements (current: {list_items} items, est. +{est_points} pts by adding {missing_items} items)"))
+
+    specificity_markers = [
+        r"\d+",  # Numbers
+        r"must\s+",  # Requirements language
+        r"shall\s+",
+        r"will\s+",
+        r"should\s+",
+    ]
+    specificity_count = sum(
+        len(re.findall(p, content, re.IGNORECASE)) for p in specificity_markers
+    )
+    specificity_points = min(25, specificity_count)
+    if specificity_points < 25:
+        est_points = 25 - specificity_points
+        recommendations.append((est_points, f"Increase specificity (current: {specificity_count} markers, est. +{est_points} pts by adding more requirements language/numbers)"))
 
     if gap > 20:
-        recommendations.append("Consider using /speckit:clarify for guided improvement")
+        recommendations.append((0, "Consider using /speckit:clarify for guided improvement"))
 
-    return recommendations
+    # Sort recommendations by estimated points descending
+    recommendations.sort(reverse=True, key=lambda x: x[0])
+    # Return only the recommendation text
+    return [rec for _, rec in recommendations]
 
 
 def run_quality_gates(
