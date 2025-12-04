@@ -1,0 +1,142 @@
+name: Dev-Setup Validation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.claude/commands/**'
+      - 'templates/commands/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - '.claude/commands/**'
+      - 'templates/commands/**'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Check for non-symlink .md files in .claude/commands/
+        run: |
+          echo "==========================================
+          Checking for non-symlink .md files in .claude/commands/
+          =========================================="
+
+          # Find all .md files in .claude/commands/
+          NON_SYMLINKS=$(find .claude/commands -type f -name "*.md" 2>/dev/null || true)
+
+          if [ -n "$NON_SYMLINKS" ]; then
+            echo "❌ ERROR: Found non-symlink .md files in .claude/commands/"
+            echo "Files that should be symlinks:"
+            echo "$NON_SYMLINKS"
+            echo ""
+            echo "To fix:"
+            echo "  1. Move enhanced content to templates/commands/"
+            echo "  2. Run: uv run specify dev-setup --force"
+            exit 1
+          else
+            echo "✓ All .md files in .claude/commands/ are symlinks"
+          fi
+
+      - name: Check for broken symlinks in .claude/commands/
+        run: |
+          echo "==========================================
+          Checking for broken symlinks
+          =========================================="
+
+          # Find broken symlinks
+          BROKEN_SYMLINKS=$(find .claude/commands -type l ! -exec test -e {} \; -print 2>/dev/null || true)
+
+          if [ -n "$BROKEN_SYMLINKS" ]; then
+            echo "❌ ERROR: Found broken symlinks in .claude/commands/"
+            echo "Broken symlinks:"
+            echo "$BROKEN_SYMLINKS"
+            echo ""
+            echo "To fix:"
+            echo "  1. Verify templates exist at expected paths"
+            echo "  2. Run: uv run specify dev-setup --force"
+            exit 1
+          else
+            echo "✓ All symlinks resolve correctly"
+          fi
+
+      - name: Run dev-setup validation tests
+        run: |
+          echo "==========================================
+          Running dev-setup test suite
+          =========================================="
+
+          # Check if test files exist
+          if [ -f tests/test_dev_setup_validation.py ] || [ -f tests/test_dev_setup_init_equivalence.py ]; then
+            uv run pytest tests/test_dev_setup_validation.py tests/test_dev_setup_init_equivalence.py -v
+          else
+            echo "⚠️  WARNING: Test files not found. Tests will be added in task-260."
+            echo "Skipping test execution for now."
+          fi
+
+      - name: Verify dev-setup command execution
+        run: |
+          echo "==========================================
+          Verifying dev-setup command
+          =========================================="
+
+          # Create a temporary directory for testing
+          TEMP_DIR=$(mktemp -d)
+          echo "Testing dev-setup in temporary directory: $TEMP_DIR"
+
+          # Initialize a git repo (required for dev-setup)
+          cd "$TEMP_DIR"
+          git init
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+
+          # Run dev-setup
+          uv run --directory "$GITHUB_WORKSPACE" specify dev-setup --force
+
+          # Verify .claude/commands structure was created
+          if [ ! -d .claude/commands ]; then
+            echo "❌ ERROR: dev-setup did not create .claude/commands directory"
+            exit 1
+          fi
+
+          # Verify symlinks exist
+          SYMLINK_COUNT=$(find .claude/commands -type l -name "*.md" | wc -l)
+          if [ "$SYMLINK_COUNT" -eq 0 ]; then
+            echo "❌ ERROR: dev-setup did not create any symlinks"
+            exit 1
+          fi
+
+          echo "✓ dev-setup created .claude/commands with $SYMLINK_COUNT symlinks"
+
+          # Cleanup
+          cd "$GITHUB_WORKSPACE"
+          rm -rf "$TEMP_DIR"
+
+      - name: Summary
+        if: success()
+        run: |
+          echo "=========================================="
+          echo "✅ All dev-setup validations passed!"
+          echo "=========================================="
+          echo ""
+          echo "Validation results:"
+          echo "  ✓ No non-symlink .md files in .claude/commands/"
+          echo "  ✓ All symlinks resolve correctly"
+          echo "  ✓ dev-setup command executes successfully"
+          echo "  ✓ Test suite passed (or skipped if not present)"
+          echo ""
+          echo "dev-setup structure is valid and consistent."
