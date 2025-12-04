@@ -47,6 +47,12 @@
       "args": ["mcp", "start"],
       "env": {},
       "description": "Backlog.md task management: create, update, search tasks with kanban board integration"
+    },
+    "jpspec-security": {
+      "command": "python",
+      "args": ["-m", "specify_cli.security.mcp_server"],
+      "env": {},
+      "description": "JP Spec Kit Security Scanner: scan, triage, and fix security findings with AI assistance"
     }
   },
   "_notes": {
