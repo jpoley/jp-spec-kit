@@ -5324,6 +5324,221 @@ def workflow_validate(
         raise typer.Exit(1)
 
 
+# Constitution subcommand
+constitution_app = typer.Typer(
+    name="constitution",
+    help="Constitution management commands",
+    add_completion=False,
+)
+app.add_typer(constitution_app, name="constitution")
+
+
+@constitution_app.command("diff")
+def constitution_diff(
+    path: Path = typer.Option(
+        None,
+        "--path",
+        help="Path to constitution file (default: memory/constitution.md)",
+    ),
+    tier: str = typer.Option(
+        None,
+        "--tier",
+        help="Tier to compare against (light/medium/heavy, default: auto-detect)",
+    ),
+):
+    """Show differences between your constitution and the template.
+
+    Compares your constitution file against the standard template for its tier.
+    Useful for identifying customizations or checking for template updates.
+
+    Examples:
+        specify constitution diff
+        specify constitution diff --tier medium
+        specify constitution diff --path custom/constitution.md
+    """
+    import difflib
+
+    show_banner()
+
+    constitution_path = path or Path.cwd() / "memory" / "constitution.md"
+
+    if not constitution_path.exists():
+        console.print(
+            f"[red]Error:[/red] Constitution not found at {constitution_path}"
+        )
+        console.print()
+        console.print(
+            "[dim]Create one with:[/dim] [cyan]specify init --here[/cyan] (interactive mode)"
+        )
+        raise typer.Exit(1)
+
+    content = constitution_path.read_text()
+
+    # Detect tier from content
+    detected_tier = "medium"  # default
+    if "<!-- TIER: Light" in content:
+        detected_tier = "light"
+    elif "<!-- TIER: Heavy" in content:
+        detected_tier = "heavy"
+
+    use_tier = tier or detected_tier
+    template = CONSTITUTION_TEMPLATES.get(use_tier, CONSTITUTION_TEMPLATES["medium"])
+
+    # Generate unified diff
+    diff_lines = list(
+        difflib.unified_diff(
+            template.splitlines(keepends=True),
+            content.splitlines(keepends=True),
+            fromfile=f"template ({use_tier})",
+            tofile=str(constitution_path),
+            lineterm="",
+        )
+    )
+
+    if not diff_lines:
+        console.print(
+            f"[green]✓ Your constitution matches the {use_tier} tier template[/green]"
+        )
+        console.print()
+    else:
+        console.print(
+            f"[cyan]Comparing {use_tier} tier template to your constitution:[/cyan]"
+        )
+        console.print()
+
+        # Display diff with color
+        for line in diff_lines:
+            if line.startswith("+++") or line.startswith("---"):
+                console.print(f"[bold]{line}[/bold]")
+            elif line.startswith("+"):
+                console.print(f"[green]{line}[/green]")
+            elif line.startswith("-"):
+                console.print(f"[red]{line}[/red]")
+            elif line.startswith("@@"):
+                console.print(f"[cyan]{line}[/cyan]")
+            else:
+                console.print(f"[dim]{line}[/dim]")
+
+        console.print()
+        console.print(
+            "[dim]Legend: [green]+added[/green] [red]-removed[/red] from template[/dim]"
+        )
+        console.print()
+
+
+@constitution_app.command("merge")
+def constitution_merge(
+    path: Path = typer.Option(
+        None,
+        "--path",
+        help="Path to constitution file (default: memory/constitution.md)",
+    ),
+    output: Path = typer.Option(
+        None,
+        "--output",
+        help="Output path for merged file (default: memory/constitution-merged.md)",
+    ),
+    backup: bool = typer.Option(
+        True,
+        "--backup/--no-backup",
+        help="Create backup of original constitution",
+    ),
+):
+    """Merge template updates with your constitution.
+
+    Creates a merged constitution file that preserves your customizations while
+    incorporating template changes. The output file should be reviewed before
+    replacing your current constitution.
+
+    NOTE: This is a simple merge that creates a review file. You must manually
+    review and copy the merged file to replace your constitution.
+
+    Examples:
+        specify constitution merge
+        specify constitution merge --output merged.md
+        specify constitution merge --no-backup
+    """
+    import datetime
+
+    show_banner()
+
+    constitution_path = path or Path.cwd() / "memory" / "constitution.md"
+
+    if not constitution_path.exists():
+        console.print(
+            f"[red]Error:[/red] Constitution not found at {constitution_path}"
+        )
+        console.print()
+        console.print(
+            "[dim]Create one with:[/dim] [cyan]specify init --here[/cyan] (interactive mode)"
+        )
+        raise typer.Exit(1)
+
+    content = constitution_path.read_text()
+
+    # Set default output path based on constitution location
+    if not output:
+        output_path = constitution_path.parent / "constitution-merged.md"
+    else:
+        output_path = output
+
+    # Detect tier
+    tier = "medium"
+    if "<!-- TIER: Light" in content:
+        tier = "light"
+    elif "<!-- TIER: Heavy" in content:
+        tier = "heavy"
+
+    # Create backup if requested
+    if backup:
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        backup_path = constitution_path.parent / f"constitution.backup.{timestamp}.md"
+        backup_path.write_text(content)
+        console.print(f"[green]✓[/green] Backup created: {backup_path}")
+
+    # Create merged file with review header
+    console.print(f"[cyan]Creating merged constitution at {output_path}[/cyan]")
+    console.print()
+
+    merged = f"""<!-- MERGED CONSTITUTION - REVIEW REQUIRED -->
+<!-- Original tier: {tier} -->
+<!-- Generated: {datetime.datetime.now().isoformat()} -->
+<!--
+    This is a MERGED constitution file for review.
+
+    NEXT STEPS:
+    1. Review this file carefully
+    2. Resolve any conflicts or duplicate sections
+    3. Update customizations as needed
+    4. When satisfied, copy to memory/constitution.md
+
+    CURRENT APPROACH:
+    - Your original constitution is preserved below
+    - Template for reference is available via: specify constitution diff --tier {tier}
+-->
+
+{content}
+"""
+
+    output_path.write_text(merged)
+
+    console.print(f"[green]✓ Merged file created: {output_path}[/green]")
+    console.print()
+    console.print(
+        "[yellow]Important:[/yellow] This is a review file, not a replacement"
+    )
+    console.print()
+    console.print("[bold]Next steps:[/bold]")
+    console.print(
+        f"  1. Review changes: [cyan]specify constitution diff --tier {tier}[/cyan]"
+    )
+    console.print(f"  2. Edit merged file: [cyan]{output_path}[/cyan]")
+    console.print(
+        f"  3. Replace when ready: [cyan]cp {output_path} {constitution_path}[/cyan]"
+    )
+    console.print()
+
+
 def main():
     app()
 
