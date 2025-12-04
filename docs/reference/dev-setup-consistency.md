@@ -1197,9 +1197,9 @@ The project includes automated validation in CI/CD pipelines:
 - [Test Suite](../../tests/test_command_*.py) - Validation tests
 
 ### Related ADRs
-- ADR-001: Single Source of Truth for Commands
-- ADR-002: Directory Structure Convention
-- ADR-003: Shared Content Strategy
+- [ADR-001: Single Source of Truth for Commands](../architecture/adr-001-single-source-of-truth.md)
+- [ADR-002: Directory Structure Convention](../architecture/adr-002-directory-structure-convention.md)
+- [ADR-003: Shared Content Strategy](../architecture/adr-003-shared-content-strategy.md)
 
 ---
 
