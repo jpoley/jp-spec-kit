@@ -1,11 +1,11 @@
 ---
 id: task-281
 title: Create archive-tasks.sh script for agent hooks
-status: To Do
+status: Done
 assignee:
   - '@galway'
 created_date: '2025-12-04 03:26'
-updated_date: '2025-12-04 04:01'
+updated_date: '2025-12-04 04:06'
 labels:
   - backend
   - script
@@ -25,15 +25,15 @@ Create a bash script that can archive backlog tasks with flexible filtering opti
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Script accepts -a/--all flag to archive ALL tasks (not just Done)
-- [ ] #2 Script accepts --done-by DATE flag to archive tasks completed on or before the specified date
-- [ ] #3 Date parsing handles ISO 8601 format (YYYY-MM-DD)
-- [ ] #4 Validates date format and provides clear error messages for invalid dates
-- [ ] #5 Supports --dry-run flag to preview what would be archived without making changes
-- [ ] #6 Integrates with backlog CLI for task querying and archiving
-- [ ] #7 Script is executable and follows existing script conventions in scripts/bash/
-- [ ] #8 Returns appropriate exit codes (0=success, 1=error, 2=no tasks matched)
-- [ ] #9 Documentation includes usage examples and hook integration guidance
+- [x] #1 Script accepts -a/--all flag to archive ALL tasks (not just Done)
+- [x] #2 Script accepts --done-by DATE flag to archive tasks completed on or before the specified date
+- [x] #3 Date parsing handles ISO 8601 format (YYYY-MM-DD)
+- [x] #4 Validates date format and provides clear error messages for invalid dates
+- [x] #5 Supports --dry-run flag to preview what would be archived without making changes
+- [x] #6 Integrates with backlog CLI for task querying and archiving
+- [x] #7 Script is executable and follows existing script conventions in scripts/bash/
+- [x] #8 Returns appropriate exit codes (0=success, 1=error, 2=no tasks matched)
+- [x] #9 Documentation includes usage examples and hook integration guidance
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -67,3 +67,23 @@ Create a bash script that can archive backlog tasks with flexible filtering opti
 - ADR-002: Use GNU `date` for date parsing
 - ADR-003: Complement (not replace) flush-backlog.sh
 <!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Implementation complete via PRs #400 and #401.
+
+**Deliverables:**
+- `scripts/bash/archive-tasks.sh` - Main script with --all, --done-by, --dry-run flags
+- `docs/adr/archive-tasks-architecture.md` - Architecture decision record
+- `docs/platform/archive-tasks-integration.md` - Integration guide
+
+**Subtasks completed:**
+- task-281.01: Core script implementation
+
+**Related follow-up tasks created:**
+- task-282: GitHub Actions workflow
+- task-283: Hook integration (blocked on event model)
+- task-284: Documentation
+- task-285: CI check for stale tasks
+<!-- SECTION:NOTES:END -->
