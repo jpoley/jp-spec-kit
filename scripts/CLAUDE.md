@@ -9,6 +9,7 @@
 | `run-local-ci.sh` | Run full CI simulation locally |
 | `flush-backlog.sh` | Archive Done tasks with summary report |
 | `install-act.sh` | Install act for local GitHub Actions testing |
+| `pre-commit-dev-setup.sh` | Validate dev-setup symlink structure |
 
 ### powershell/
 PowerShell equivalents of bash scripts for Windows.
@@ -24,6 +25,7 @@ Always run scripts from the project root:
 ./scripts/bash/flush-backlog.sh --dry-run  # Preview
 ./scripts/bash/flush-backlog.sh            # Execute
 ./scripts/bash/run-local-ci.sh             # Local CI
+./scripts/bash/pre-commit-dev-setup.sh     # Validate dev-setup structure
 ```
 
 ## check-mcp-servers.sh
@@ -101,6 +103,53 @@ Archives completed tasks and generates summary reports.
 - 1: Validation error
 - 2: No Done tasks to archive
 - 3: Partial failure
+
+## pre-commit-dev-setup.sh
+
+Validates .claude/commands/ structure to ensure single-source-of-truth architecture.
+
+```bash
+# Run validation manually
+./scripts/bash/pre-commit-dev-setup.sh
+```
+
+**Validation rules:**
+- R1: All .md files in .claude/commands/ must be symlinks (no regular files)
+- R2: All symlinks must resolve to existing files (no broken symlinks)
+- R3: All symlinks must point to templates/commands/ directory
+- R7: Expected subdirectories (jpspec/, speckit/) must exist
+
+**Exit codes:**
+- 0: All validations passed
+- 1: One or more validation failures
+
+**Integration with git hooks:**
+
+To run this automatically before commits, add to `.git/hooks/pre-commit`:
+```bash
+#!/bin/bash
+./scripts/bash/pre-commit-dev-setup.sh || exit 1
+```
+
+Or install via symlink:
+```bash
+ln -s ../../scripts/bash/pre-commit-dev-setup.sh .git/hooks/pre-commit-dev-setup
+```
+
+**If using pre-commit framework**, add to `.pre-commit-config.yaml`:
+```yaml
+repos:
+  - repo: local
+    hooks:
+      - id: dev-setup-validation
+        name: Dev Setup Validation
+        entry: ./scripts/bash/pre-commit-dev-setup.sh
+        language: system
+        pass_filenames: false
+        always_run: true
+```
+
+**Design rationale:** See `docs/architecture/command-single-source-of-truth.md`
 
 ## Local CI with act
 
