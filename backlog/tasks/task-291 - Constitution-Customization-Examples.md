@@ -1,10 +1,10 @@
 ---
 id: task-291
 title: Constitution Customization Examples
-status: To Do
+status: Done
 assignee: []
 created_date: '2025-12-04 16:16'
-updated_date: '2025-12-04 17:48'
+updated_date: '2025-12-04 17:51'
 labels:
   - constitution-cleanup
 dependencies:
