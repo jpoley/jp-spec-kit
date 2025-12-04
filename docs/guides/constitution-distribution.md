@@ -270,7 +270,7 @@ specify init --here --constitution heavy
 - JP Spec Kit detects existing project if any of these exist:
   - `.git/` directory
   - `package.json` (Node.js)
-  - `pyproject.toml` or `requirements.txt` (Python)
+  - `pyproject.toml` (Python)
   - `Cargo.toml` (Rust)
   - `go.mod` (Go)
 - If `memory/constitution.md` already exists, **it is preserved** (no overwrite)
