@@ -220,8 +220,10 @@ Tasks should have:
 
 This constitution is a living document. Update it as the project evolves.
 
-**Version**: 1.0.0 | **Created**: [DATE]
-<!-- NEEDS_VALIDATION: Version and date -->
+**Version**: 1.0.0
+**Ratified**: [DATE]
+**Last Amended**: [DATE]
+<!-- NEEDS_VALIDATION: Version and dates -->
 """,
     "medium": """# [PROJECT_NAME] Constitution
 <!-- TIER: Medium - Standard controls for typical business projects -->
@@ -316,7 +318,9 @@ A task is complete when:
 
 This constitution guides team practices. Changes require team consensus.
 
-**Version**: 1.0.0 | **Ratified**: [DATE] | **Last Amended**: [DATE]
+**Version**: 1.0.0
+**Ratified**: [DATE]
+**Last Amended**: [DATE]
 <!-- NEEDS_VALIDATION: Version and dates -->
 """,
     "heavy": """# [PROJECT_NAME] Constitution
@@ -528,7 +532,9 @@ Changes to this constitution require:
 4. Approval from [APPROVAL_AUTHORITY]
 5. Migration plan for existing work
 
-**Version**: 1.0.0 | **Ratified**: [DATE] | **Last Amended**: [DATE]
+**Version**: 1.0.0
+**Ratified**: [DATE]
+**Last Amended**: [DATE]
 <!-- NEEDS_VALIDATION: Version, dates, and approval authority -->
 """,
 }
@@ -585,6 +591,9 @@ BANNER = """
 
 # Version - keep in sync with pyproject.toml
 __version__ = "0.0.265"
+
+# Constitution template version
+CONSTITUTION_VERSION = "1.0.0"
 
 TAGLINE = (
     f"(jp extension v{__version__}) GitHub Spec Kit - Spec-Driven Development Toolkit"
@@ -5129,6 +5138,104 @@ def security_audit(
     console.print(f"Format: {format}, Compliance: {compliance}")
     if output:
         console.print(f"Output: {output}")
+
+
+# Constitution management sub-app
+constitution_app = typer.Typer(
+    name="constitution",
+    help="Constitution management commands",
+    add_completion=False,
+)
+app.add_typer(constitution_app, name="constitution")
+
+
+@constitution_app.command("validate")
+def constitution_validate_cmd(
+    path: Optional[Path] = typer.Option(
+        None,
+        "--path",
+        help="Path to constitution file (defaults to memory/constitution.md)",
+    ),
+    verbose: bool = typer.Option(
+        False,
+        "-v",
+        "--verbose",
+        help="Show detailed validation output",
+    ),
+):
+    """Validate constitution for NEEDS_VALIDATION markers.
+
+    Scans your constitution file for NEEDS_VALIDATION markers that indicate
+    sections requiring customization. A fully validated constitution has no
+    markers remaining.
+
+    Exit codes:
+    - 0: Validation passed (no markers found)
+    - 1: Validation failed (markers found or file not found)
+
+    Examples:
+        specify constitution validate                 # Validate default location
+        specify constitution validate --path my.md    # Validate custom file
+        specify constitution validate --verbose       # Show detailed output
+    """
+    show_banner()
+
+    # Determine constitution path
+    constitution_path = path or Path.cwd() / "memory" / "constitution.md"
+
+    if not constitution_path.exists():
+        console.print(
+            f"[red]Error:[/red] Constitution not found at {constitution_path}"
+        )
+        console.print("[yellow]Tip:[/yellow] Run 'specify init --here' to create one")
+        raise typer.Exit(1)
+
+    # Read constitution content
+    content = constitution_path.read_text()
+
+    # Find NEEDS_VALIDATION markers
+    import re
+
+    pattern = r"<!-- NEEDS_VALIDATION: (.+?) -->"
+    markers = re.findall(pattern, content)
+
+    if not markers:
+        # Success: no markers found
+        panel = Panel(
+            "[green]✓ Constitution is fully validated[/green]\n\n"
+            "No NEEDS_VALIDATION markers found. Your constitution is ready to use.",
+            title="[green]Validation Passed[/green]",
+            border_style="green",
+        )
+        console.print(panel)
+        raise typer.Exit(0)
+
+    # Failure: markers found
+    console.print(
+        f"\n[yellow]Found {len(markers)} section(s) requiring validation:[/yellow]\n"
+    )
+    for i, marker in enumerate(markers, 1):
+        console.print(f"  {i}. [cyan]{marker}[/cyan]")
+
+    if verbose:
+        console.print(
+            f"\n[dim]Constitution location:[/dim] [cyan]{constitution_path}[/cyan]"
+        )
+
+    console.print()
+    panel = Panel(
+        "1. Review each section listed above in your constitution\n"
+        "2. Update placeholder values to match your project\n"
+        "3. Remove the NEEDS_VALIDATION comment when complete\n\n"
+        "[dim]Example:[/dim]\n"
+        "[dim]<!-- NEEDS_VALIDATION: Update team size -->[/dim]\n"
+        "[dim]Team size: 5 engineers  [strike](was: [Your team size])[/strike][/dim]\n"
+        "[dim][strike]<!-- NEEDS_VALIDATION: Update team size -->[/strike][/dim]",
+        title="[yellow]Action Required[/yellow]",
+        border_style="yellow",
+    )
+    console.print(panel)
+    raise typer.Exit(1)
 
 
 @workflow_app.command("validate")
