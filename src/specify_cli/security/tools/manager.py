@@ -307,7 +307,7 @@ class ToolManager:
                     error_message=f"Downloaded but could not find {config.name} executable",
                 )
 
-            # FIX #7: Validate file before chmod
+            # Validate file before chmod
             if tool_path.is_file() and tool_path.exists():
                 tool_path.chmod(tool_path.stat().st_mode | 0o755)
             else:
