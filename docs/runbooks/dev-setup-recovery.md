@@ -326,6 +326,18 @@ git commit -s -m "fix: restore .claude/commands structure"
 
 ## Escalation Paths
 
+Use this decision tree to determine appropriate escalation level:
+
+### When to Escalate
+
+| Scenario | Severity | Escalation Level | Response Time |
+|----------|----------|------------------|---------------|
+| Local pre-commit failure | Low | Level 1: Self-Service | 5 min |
+| PR validation failure | Medium | Level 2: Manual Recovery | 15 min |
+| Repeated failures (> 3x) | High | Level 3: Team Review | 30 min |
+| Main branch broken | Critical | Level 4: Emergency | Immediate |
+| Multiple developers blocked | Critical | Level 4: Emergency | Immediate |
+
 ### Level 1: Self-Service (5 minutes)
 
 Try automated recovery:
@@ -334,11 +346,19 @@ make dev-fix
 make dev-validate
 ```
 
+**Escalate to Level 2 if**: Issue persists after automated fix
+
 ### Level 2: Manual Recovery (15 minutes)
 
 1. Review specific error messages
 2. Follow scenario-specific procedures above
 3. Test locally before committing
+
+**Escalate to Level 3 if**:
+- Same error occurs 3+ times
+- Multiple different errors appear
+- Recovery procedure fails
+- Uncertainty about root cause
 
 ### Level 3: Team Review (30 minutes)
 
@@ -347,8 +367,10 @@ If automated recovery fails:
    - Error messages
    - `make dev-status` output
    - Recent commits affecting templates/
-2. Tag: `@platform-team`
+   - Output of `git log --oneline -10`
+2. Tag: `@jpoley` (project maintainer)
 3. Include reproduction steps
+4. Label issue with: `priority:high`, `type:bug`, `area:dev-setup`
 
 ### Level 4: Rollback (Emergency)
 
@@ -364,9 +386,9 @@ git push --force origin main  # DANGEROUS - requires approval
 ```
 
 **Production rollback requires**:
-- Team lead approval
-- Incident post-mortem
-- Root cause analysis
+- Project maintainer approval (@jpoley)
+- Incident post-mortem documented in docs/incidents/
+- Root cause analysis added to this runbook
 
 ---
 
@@ -383,16 +405,46 @@ git push --force origin main  # DANGEROUS - requires approval
 
 ### Alert Channels
 
-- **Slack**: `#jp-spec-kit-alerts`
-- **Email**: `platform-team@example.com`
-- **PagerDuty**: For production failures only
+- **GitHub Issues**: Primary communication channel
+  - Create issue with label `type:incident`
+  - Tag: `@jpoley` for urgent issues
+- **GitHub Actions**: Automated notifications
+  - Failed workflow runs notify repository maintainers
+  - Enable branch protection rules for main branch
+- **Pull Request Comments**: For PR-specific failures
+  - CI bot comments on validation failures
+  - Review GitHub Actions summary in PR checks
+
+### CI/CD Monitoring Checklist
+
+Monitor these indicators in GitHub Actions:
+
+#### Pre-commit Hook Validation
+- **What to watch**: Developer commits being blocked
+- **Threshold**: > 3 failures per day indicates training gap
+- **Action**: Update developer documentation, add examples
+
+#### PR Validation Workflow
+- **What to watch**: `.github/workflows/dev-setup-validation.yml` (when implemented)
+- **Key checks**:
+  - Symlink validation (must pass)
+  - Template consistency (must pass)
+  - Test suite execution (must pass)
+- **Threshold**: > 10% PR failure rate
+- **Action**: Review recent template changes, enhance validation
+
+#### Main Branch Protection
+- **What to watch**: Direct pushes to main
+- **Threshold**: Any direct push without PR
+- **Action**: Enforce branch protection rules
 
 ### Dashboard
 
 Access real-time status:
 - **CI/CD**: https://github.com/jpoley/jp-spec-kit/actions
 - **Test Results**: See latest workflow run
-- **Coverage**: Review test coverage reports
+- **Coverage**: Review test coverage reports in workflow artifacts
+- **Recent Failures**: Filter actions by status:failed
 
 ---
 
@@ -465,4 +517,7 @@ specify dev-setup --force     # Run dev-setup command directly
 **Review Cycle**: Quarterly or after major incidents
 
 **Changelog**:
+- 2025-12-03: Enhanced escalation paths with decision tree and severity levels
+- 2025-12-03: Added CI/CD monitoring checklist with specific thresholds
+- 2025-12-03: Updated alert channels to use GitHub-native notifications
 - 2025-12-03: Initial version created
