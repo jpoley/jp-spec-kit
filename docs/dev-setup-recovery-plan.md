@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-The `dogfood-cli` worktree contains valuable architecture documentation and planning artifacts for completing the dev-setup command improvements. However, the worktree is 554 commits behind main and includes deletions of security/workflow/hooks code that we want to keep. This plan extracts the valuable work while preserving main's codebase.
+The `dogfood-cli` worktree (now referred to as `dev-setup`) contains valuable architecture documentation and planning artifacts for completing the dev-setup command improvements. However, the worktree is 554 commits behind main and includes deletions of security/workflow/hooks code that we want to keep. This plan extracts the valuable work while preserving main's codebase.
 
 ---
 
