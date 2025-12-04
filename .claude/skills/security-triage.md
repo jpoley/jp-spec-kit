@@ -55,7 +55,7 @@ line_end = finding["location"]["line_end"] + 5
 
 ### Step 2: Classify as TP/FP/NI
 
-Apply classification rules from `@import memory/security/triage-guidelines.md`:
+Apply classification rules from [triage-guidelines.md](memory/security/triage-guidelines.md):
 
 **TRUE_POSITIVE (TP)** when:
 - User input flows to dangerous sink without sanitization
@@ -73,17 +73,16 @@ Apply classification rules from `@import memory/security/triage-guidelines.md`:
 
 ### Step 3: Assign Confidence Score
 
-- **0.9-1.0**: Clear vulnerability pattern, no mitigations
-- **0.7-0.89**: Vulnerability likely, some ambiguity
-- **0.5-0.69**: Uncertain, mark as NI
-- **<0.5**: Likely FP or missing context
+- **0.9-1.0**: Clear vulnerability pattern, no mitigations → TP
+- **0.7-0.89**: Vulnerability likely, some ambiguity → TP with lower confidence
+- **<0.7**: Insufficient confidence → mark as NEEDS_INVESTIGATION (NI)
 
 ### Step 4: Calculate Risk Score
 
-Use the Raptor formula: **risk_score = (impact × exploitability) / detection_time**
+Use the risk scoring formula: **risk_score = (impact × exploitability) / detection_time**
 
 #### Impact (0-10)
-Map from severity or CWE (see `@import memory/security/cwe-knowledge.md`):
+Map from severity or CWE (see [cwe-knowledge.md](memory/security/cwe-knowledge.md)):
 - CRITICAL: 9-10 (RCE, auth bypass)
 - HIGH: 7-8 (SQL injection, XSS)
 - MEDIUM: 4-6 (info disclosure)
@@ -107,7 +106,7 @@ Calculate days since commit. If git unavailable, default to 30 days.
 
 ### Step 5: Generate Plain-English Explanation
 
-Create 4-part explanation (see `@import memory/security/triage-guidelines.md`):
+Create 4-part explanation (see [triage-guidelines.md](memory/security/triage-guidelines.md)):
 
 **What** (1 sentence):
 - Clear description for junior developers
@@ -210,15 +209,15 @@ If user requests interactive confirmation:
 
 ## Knowledge Base
 
-Import CWE patterns and triage guidelines:
+Reference the following files for CWE patterns and triage guidelines:
 
-@import memory/security/triage-guidelines.md
-@import memory/security/cwe-knowledge.md
+- [memory/security/triage-guidelines.md](memory/security/triage-guidelines.md) - Classification rules and explanation format
+- [memory/security/cwe-knowledge.md](memory/security/cwe-knowledge.md) - CWE patterns and remediation guidance
 
 ## Success Criteria
 
 - Classify all findings as TP/FP/NI with confidence scores
-- Calculate risk scores using Raptor formula
+- Calculate risk scores using risk scoring formula
 - Generate clear, actionable explanations
 - Cluster related findings (3+ per cluster)
 - Sort by risk score (highest first)
@@ -235,7 +234,7 @@ Import CWE patterns and triage guidelines:
 2. For each finding:
    - Read code context from file
    - Classify using triage guidelines
-   - Calculate risk score (Raptor formula)
+   - Calculate risk score using formula
    - Generate explanation
 3. Cluster findings by CWE/file/pattern
 4. Sort by risk_score descending
