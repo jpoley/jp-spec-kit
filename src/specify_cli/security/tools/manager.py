@@ -848,7 +848,7 @@ class ToolManager:
                 # Check for symlinks BEFORE calling resolve() to prevent TOCTOU
                 if item.is_symlink():
                     logger.warning(
-                        f"Removing symlink from archive (security risk): {item}"
+                        f"Removing symlink: {item}"
                     )
                     shutil.rmtree(temp_extract)
                     raise RuntimeError(
