@@ -238,22 +238,28 @@ class PatchApplicator:
         # Try to apply the patch
         try:
             # Read current file content with encoding fallback
+            encoding_used = "utf-8"
             try:
                 current_content = file_path.read_text(encoding="utf-8")
             except UnicodeDecodeError:
                 # Fallback to latin-1 for files with non-UTF-8 encoding
                 current_content = file_path.read_text(encoding="latin-1")
+                encoding_used = "latin-1"
+
+            # Normalize line endings for comparison (handle CRLF vs LF)
+            normalized_content = current_content.replace("\r\n", "\n")
+            normalized_original = patch.original_code.replace("\r\n", "\n")
 
             # Try to find and replace the vulnerable code using line-based replacement
             # This is more precise than simple string replacement
-            if patch.original_code in current_content:
+            if normalized_original in normalized_content:
                 # Use line-based replacement to avoid matching wrong occurrences
                 lines = current_content.splitlines(keepends=True)
                 original_lines = patch.original_code.splitlines(keepends=True)
 
                 # Find the line range to replace
                 replaced = False
-                for i in range(len(lines) - len(original_lines) + 1):
+                for i in range(max(0, len(lines) - len(original_lines) + 1)):
                     # Check if this is the matching section
                     if lines[i : i + len(original_lines)] == original_lines:
                         # Replace with fixed code
@@ -266,10 +272,7 @@ class PatchApplicator:
                     fixed_content = "".join(lines)
 
                     # Write the fixed content (use same encoding as read)
-                    try:
-                        file_path.write_text(fixed_content, encoding="utf-8")
-                    except UnicodeEncodeError:
-                        file_path.write_text(fixed_content, encoding="latin-1")
+                    file_path.write_text(fixed_content, encoding=encoding_used)
 
                     return ApplyResult(
                         finding_id=finding_id,
@@ -284,10 +287,8 @@ class PatchApplicator:
                         patch.original_code, patch.fixed_code, 1
                     )
 
-                    try:
-                        file_path.write_text(fixed_content, encoding="utf-8")
-                    except UnicodeEncodeError:
-                        file_path.write_text(fixed_content, encoding="latin-1")
+                    # Write using same encoding as read
+                    file_path.write_text(fixed_content, encoding=encoding_used)
 
                     return ApplyResult(
                         finding_id=finding_id,
@@ -392,6 +393,10 @@ class PatchApplicator:
 
         # Remove leading dots to prevent hidden files
         safe = safe.lstrip(".")
+
+        # Fallback for empty result (e.g., input was "...")
+        if not safe:
+            safe = "unnamed"
 
         # Truncate to reasonable length
         if len(safe) > 200:

@@ -233,7 +233,7 @@ fix_results = generator.generate_fixes(test_findings)
 # Calculate quality metrics
 total = len(fix_results)
 high_quality = len([f for f in fix_results if f.confidence >= 0.75])
-quality_rate = high_quality / total
+quality_rate = high_quality / total if total > 0 else 0.0
 
 print(f"Fix quality: {quality_rate:.1%}")
 print(f"High quality fixes: {high_quality}/{total}")
@@ -242,8 +242,9 @@ print(f"High quality fixes: {high_quality}/{total}")
 for result in fix_results[:10]:  # Review sample
     print(f"\nFinding: {result.finding_id}")
     print(f"Confidence: {result.confidence:.0%}")
-    print(f"Original: {result.patch.original_code[:50]}...")
-    print(f"Fixed: {result.patch.fixed_code[:50]}...")
+    if result.patch:
+        print(f"Original: {result.patch.original_code[:50]}...")
+        print(f"Fixed: {result.patch.fixed_code[:50]}...")
     # Manually verify correctness
 ```
 
