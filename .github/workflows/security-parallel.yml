@@ -74,20 +74,20 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # Sanitize component name for file paths (replace / with -)
+          COMPONENT_NAME=$(echo "${{ matrix.component }}" | tr '/' '-')
+
           specify security scan \
             --path "${{ matrix.component }}" \
             --format sarif \
-            --output security-results-${{ matrix.component }}.sarif \
+            --output "security-results-${COMPONENT_NAME}.sarif" \
             --fail-on "${{ inputs.fail-on || 'critical,high' }}" \
             --ci-mode || SCAN_EXIT_CODE=$?
 
-          # Replace slashes in component name for artifact naming
-          COMPONENT_NAME=$(echo "${{ matrix.component }}" | tr '/' '-')
-
           # Parse results for metrics
-          if [ -f "security-results-${{ matrix.component }}.sarif" ]; then
-            TOTAL=$(jq '.runs[0].results | length' "security-results-${{ matrix.component }}.sarif" || echo "0")
-            CRITICAL=$(jq '[.runs[0].results[] | select(.level == "error" and (.properties.severity == "critical" or .properties.severity == "CRITICAL"))] | length' "security-results-${{ matrix.component }}.sarif" || echo "0")
+          if [ -f "security-results-${COMPONENT_NAME}.sarif" ]; then
+            TOTAL=$(jq '.runs[0].results | length' "security-results-${COMPONENT_NAME}.sarif" || echo "0")
+            CRITICAL=$(jq '[.runs[0].results[] | select(.level == "error" and (.properties.severity == "critical" or .properties.severity == "CRITICAL"))] | length' "security-results-${COMPONENT_NAME}.sarif" || echo "0")
 
             echo "total=${TOTAL}" >> $GITHUB_OUTPUT
             echo "critical=${CRITICAL}" >> $GITHUB_OUTPUT
@@ -106,7 +106,7 @@ jobs:
         if: always()
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: security-results-${{ matrix.component }}.sarif
+          sarif_file: security-results-${{ steps.scan.outputs.component_name }}.sarif
           category: jpspec-security-${{ steps.scan.outputs.component_name }}
 
       - name: Upload Scan Artifacts
@@ -115,7 +115,7 @@ jobs:
         with:
           name: security-scan-${{ steps.scan.outputs.component_name }}
           path: |
-            security-results-${{ matrix.component }}.sarif
+            security-results-${{ steps.scan.outputs.component_name }}.sarif
           retention-days: 30
 
   # Aggregate results from all components
