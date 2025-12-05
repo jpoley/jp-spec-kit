@@ -111,7 +111,7 @@ jobs:
           # Don't fail the workflow - security scan is advisory
           exit 0
 
-      - name: Upload SARIF for ${{ matrix.component }}
+      - name: Upload SARIF for ${{ steps.scan.outputs.component_name }}
         if: always()
         continue-on-error: true
         uses: github/codeql-action/upload-sarif@v3
