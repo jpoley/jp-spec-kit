@@ -1,11 +1,11 @@
 ---
 id: task-182
 title: Extend specify init to Configure Transition Validation Modes
-status: In Progress
+status: Done
 assignee:
   - '@myself'
 created_date: '2025-11-30 21:34'
-updated_date: '2025-12-05 16:35'
+updated_date: '2025-12-05 18:50'
 labels:
   - workflow-artifacts
   - critical
@@ -15,15 +15,15 @@ priority: high
 ---
 
 <!-- AC:BEGIN -->
-- [ ] AC1: Add validation mode prompts to specify init command
-- [ ] AC2: Support NONE selection (default, press Enter)
-- [ ] AC3: Support KEYWORD selection with custom keyword input
-- [ ] AC4: Support PULL_REQUEST selection
-- [ ] AC5: Generate jpspec_workflow.yml with configured validation modes
-- [ ] AC6: Add --validation-mode {none|keyword|pull-request} flag for batch config
-- [ ] AC7: Add --no-validation-prompts flag to skip questions (use NONE)
-- [ ] AC8: Display summary of configured validation modes at end
-- [ ] AC9: Support reconfiguration via `specify config validation`
+- [x] AC1: Add validation mode prompts to specify init command
+- [x] AC2: Support NONE selection (default, press Enter)
+- [x] AC3: Support KEYWORD selection with custom keyword input
+- [x] AC4: Support PULL_REQUEST selection
+- [x] AC5: Generate jpspec_workflow.yml with configured validation modes
+- [x] AC6: Add --validation-mode {none|keyword|pull-request} flag for batch config
+- [x] AC7: Add --no-validation-prompts flag to skip questions (use NONE)
+- [x] AC8: Display summary of configured validation modes at end
+- [x] AC9: Support reconfiguration via `specify config validation`
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -192,4 +192,6 @@ specify config validation --transition specify --mode KEYWORD["APPROVED"]
 - task-172 (Workflow Transition Validation Schema)
 - task-175 (Transition Validation Mode Engine)
 - task-179 (Directory Scaffolding)
+
+PR #537 merged to main (2025-12-05). All 9 acceptance criteria complete.
 <!-- SECTION:NOTES:END -->
