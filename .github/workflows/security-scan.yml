@@ -114,6 +114,9 @@ jobs:
           # Note: Only the first severity is used (e.g., "critical,high" -> "critical")
           # The CLI currently only supports a single severity level for --fail-on
           FAIL_SEVERITY=$(echo "$FAIL_ON" | cut -d',' -f1)
+          if [[ "$FAIL_ON" == *,* ]]; then
+            echo "⚠️ Warning: Multiple severities detected in 'fail-on' ('$FAIL_ON'). Only the first ('$FAIL_SEVERITY') will be used."
+          fi
 
           specify security scan \
             "$SCAN_PATH" \
