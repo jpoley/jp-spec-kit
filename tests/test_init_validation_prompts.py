@@ -28,7 +28,9 @@ runner = CliRunner()
 class TestPromptValidationModes:
     """Tests for the prompt_validation_modes() helper function."""
 
-    def test_all_defaults_returns_all_none(self, monkeypatch: pytest.MonkeyPatch) -> None:
+    def test_all_defaults_returns_all_none(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
         """Test that pressing Enter for all prompts returns all NONE modes."""
         # Mock typer.prompt to return default "1" for mode and empty for keyword
         mock_prompt = MagicMock(side_effect=["1"] * 7)
@@ -162,14 +164,18 @@ class TestPromptValidationModes:
 class TestDisplayValidationSummary:
     """Tests for the display_validation_summary() helper function."""
 
-    def test_empty_modes_shows_default_message(self, capsys: pytest.CaptureFixture) -> None:
+    def test_empty_modes_shows_default_message(
+        self, capsys: pytest.CaptureFixture
+    ) -> None:
         """Test that empty modes dict shows default message."""
         with patch("specify_cli.console.print") as mock_print:
             display_validation_summary({})
 
             # Verify the default message was printed
             printed_calls = [str(call) for call in mock_print.call_args_list]
-            assert any("All transitions using NONE" in str(call) for call in printed_calls)
+            assert any(
+                "All transitions using NONE" in str(call) for call in printed_calls
+            )
 
     def test_all_none_shows_default_message(self) -> None:
         """Test that all NONE modes shows default message."""
@@ -183,7 +189,9 @@ class TestDisplayValidationSummary:
             display_validation_summary(modes)
 
             printed_calls = [str(call) for call in mock_print.call_args_list]
-            assert any("All transitions using NONE" in str(call) for call in printed_calls)
+            assert any(
+                "All transitions using NONE" in str(call) for call in printed_calls
+            )
 
     def test_non_default_modes_displayed(self) -> None:
         """Test that non-default modes are displayed in summary."""
@@ -241,11 +249,18 @@ class TestInitInteractivePrompts:
         project_dir = tmp_path / "test-project"
         result = runner.invoke(
             app,
-            ["init", str(project_dir), "--ai", "claude", "--no-git"],
-            catch_exceptions=False,
+            [
+                "init",
+                str(project_dir),
+                "--ai",
+                "claude",
+                "--no-git",
+                "--ignore-agent-tools",
+            ],
+            input="n\n",  # Decline backlog-md install
         )
 
-        assert result.exit_code == 0
+        assert result.exit_code == 0, f"Command failed: {result.output}"
         # Should generate workflow file with defaults
         workflow_file = project_dir / "jpspec_workflow.yml"
         assert workflow_file.exists()
@@ -253,9 +268,7 @@ class TestInitInteractivePrompts:
         # All should be NONE (default)
         assert content.count("validation: NONE") >= 7
 
-    def test_no_validation_prompts_flag_skips_interactive(
-        self, tmp_path: Path
-    ) -> None:
+    def test_no_validation_prompts_flag_skips_interactive(self, tmp_path: Path) -> None:
         """Test that --no-validation-prompts skips interactive prompts."""
         from specify_cli import app
 
@@ -268,12 +281,13 @@ class TestInitInteractivePrompts:
                 "--ai",
                 "claude",
                 "--no-git",
+                "--ignore-agent-tools",
                 "--no-validation-prompts",
             ],
-            catch_exceptions=False,
+            input="n\n",  # Decline backlog-md install
         )
 
-        assert result.exit_code == 0
+        assert result.exit_code == 0, f"Command failed: {result.output}"
         workflow_file = project_dir / "jpspec_workflow.yml"
         assert workflow_file.exists()
         content = workflow_file.read_text()

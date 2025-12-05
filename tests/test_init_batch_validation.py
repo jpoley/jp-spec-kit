@@ -29,13 +29,14 @@ class TestBatchValidationModeFlag:
                 "--ai",
                 "claude",
                 "--no-git",
+                "--ignore-agent-tools",
                 "--validation-mode",
                 "none",
             ],
-            catch_exceptions=False,
+            input="n\n",  # Decline backlog-md install
         )
 
-        assert result.exit_code == 0
+        assert result.exit_code == 0, f"Command failed: {result.output}"
         assert "Generated jpspec_workflow.yml" in result.output
 
         workflow_file = project_dir / "jpspec_workflow.yml"
@@ -55,13 +56,14 @@ class TestBatchValidationModeFlag:
                 "--ai",
                 "claude",
                 "--no-git",
+                "--ignore-agent-tools",
                 "--validation-mode",
                 "keyword",
             ],
-            catch_exceptions=False,
+            input="n\n",  # Decline backlog-md install
         )
 
-        assert result.exit_code == 0
+        assert result.exit_code == 0, f"Command failed: {result.output}"
         assert "Generated jpspec_workflow.yml" in result.output
 
         workflow_file = project_dir / "jpspec_workflow.yml"
@@ -71,7 +73,7 @@ class TestBatchValidationModeFlag:
         assert content.count('KEYWORD["APPROVED"]') >= 7
 
     def test_batch_pull_request_sets_all_pull_request(self, tmp_path: Path) -> None:
-        """Test --validation-mode pull-request sets all transitions to PULL_REQUEST."""
+        """Test --validation-mode pull-request sets all to PULL_REQUEST."""
         project_dir = tmp_path / "test-project"
         result = runner.invoke(
             app,
@@ -81,13 +83,14 @@ class TestBatchValidationModeFlag:
                 "--ai",
                 "claude",
                 "--no-git",
+                "--ignore-agent-tools",
                 "--validation-mode",
                 "pull-request",
             ],
-            catch_exceptions=False,
+            input="n\n",  # Decline backlog-md install
         )
 
-        assert result.exit_code == 0
+        assert result.exit_code == 0, f"Command failed: {result.output}"
         assert "Generated jpspec_workflow.yml" in result.output
 
         workflow_file = project_dir / "jpspec_workflow.yml"
@@ -107,10 +110,11 @@ class TestBatchValidationModeFlag:
                 "--ai",
                 "claude",
                 "--no-git",
+                "--ignore-agent-tools",
                 "--validation-mode",
                 "invalid",
             ],
-            catch_exceptions=False,
+            input="n\n",  # Decline backlog-md install
         )
 
         assert result.exit_code == 1
@@ -127,15 +131,16 @@ class TestBatchValidationModeFlag:
                 "--ai",
                 "claude",
                 "--no-git",
+                "--ignore-agent-tools",
                 "--validation-mode",
                 "none",
                 "--validation-plan",
                 "pull-request",
             ],
-            catch_exceptions=False,
+            input="n\n",  # Decline backlog-md install
         )
 
-        assert result.exit_code == 0
+        assert result.exit_code == 0, f"Command failed: {result.output}"
         assert "Generated jpspec_workflow.yml" in result.output
 
         workflow_file = project_dir / "jpspec_workflow.yml"
@@ -148,7 +153,7 @@ class TestBatchValidationModeFlag:
         assert "validation: NONE" in content
 
     def test_no_validation_prompts_takes_precedence(self, tmp_path: Path) -> None:
-        """Test that --no-validation-prompts takes precedence over --validation-mode."""
+        """Test --no-validation-prompts takes precedence over --validation-mode."""
         project_dir = tmp_path / "test-project"
         result = runner.invoke(
             app,
@@ -158,14 +163,15 @@ class TestBatchValidationModeFlag:
                 "--ai",
                 "claude",
                 "--no-git",
+                "--ignore-agent-tools",
                 "--no-validation-prompts",
                 "--validation-mode",
                 "pull-request",
             ],
-            catch_exceptions=False,
+            input="n\n",  # Decline backlog-md install
         )
 
-        assert result.exit_code == 0
+        assert result.exit_code == 0, f"Command failed: {result.output}"
 
         workflow_file = project_dir / "jpspec_workflow.yml"
         assert workflow_file.exists()
@@ -182,11 +188,20 @@ class TestValidationModeInWorkflowFile:
         project_dir = tmp_path / "test-project"
         result = runner.invoke(
             app,
-            ["init", str(project_dir), "--ai", "claude", "--no-git", "--validation-mode", "none"],
-            catch_exceptions=False,
+            [
+                "init",
+                str(project_dir),
+                "--ai",
+                "claude",
+                "--no-git",
+                "--ignore-agent-tools",
+                "--validation-mode",
+                "none",
+            ],
+            input="n\n",  # Decline backlog-md install
         )
 
-        assert result.exit_code == 0
+        assert result.exit_code == 0, f"Command failed: {result.output}"
 
         workflow_file = project_dir / "jpspec_workflow.yml"
         content = workflow_file.read_text()
@@ -197,11 +212,20 @@ class TestValidationModeInWorkflowFile:
         project_dir = tmp_path / "test-project"
         result = runner.invoke(
             app,
-            ["init", str(project_dir), "--ai", "claude", "--no-git", "--validation-mode", "none"],
-            catch_exceptions=False,
+            [
+                "init",
+                str(project_dir),
+                "--ai",
+                "claude",
+                "--no-git",
+                "--ignore-agent-tools",
+                "--validation-mode",
+                "none",
+            ],
+            input="n\n",  # Decline backlog-md install
         )
 
-        assert result.exit_code == 0
+        assert result.exit_code == 0, f"Command failed: {result.output}"
 
         workflow_file = project_dir / "jpspec_workflow.yml"
         content = workflow_file.read_text()
@@ -212,11 +236,20 @@ class TestValidationModeInWorkflowFile:
         project_dir = tmp_path / "test-project"
         result = runner.invoke(
             app,
-            ["init", str(project_dir), "--ai", "claude", "--no-git", "--validation-mode", "none"],
-            catch_exceptions=False,
+            [
+                "init",
+                str(project_dir),
+                "--ai",
+                "claude",
+                "--no-git",
+                "--ignore-agent-tools",
+                "--validation-mode",
+                "none",
+            ],
+            input="n\n",  # Decline backlog-md install
         )
 
-        assert result.exit_code == 0
+        assert result.exit_code == 0, f"Command failed: {result.output}"
 
         workflow_file = project_dir / "jpspec_workflow.yml"
         content = workflow_file.read_text()

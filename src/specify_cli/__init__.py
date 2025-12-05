@@ -3137,9 +3137,7 @@ def init(
                 transition_modes[name] = flag_value
     else:
         # Check if any per-transition flag was explicitly set (non-default)
-        any_explicit = any(
-            v.lower() != "none" for v in per_transition_flags.values()
-        )
+        any_explicit = any(v.lower() != "none" for v in per_transition_flags.values())
 
         if any_explicit:
             # Use per-transition flags as specified
@@ -5114,7 +5112,9 @@ def config_validation(
     workflow_path = Path.cwd() / "jpspec_workflow.yml"
 
     if not workflow_path.exists():
-        console.print("[red]Error:[/red] No jpspec_workflow.yml found in current directory")
+        console.print(
+            "[red]Error:[/red] No jpspec_workflow.yml found in current directory"
+        )
         console.print("[dim]Run 'specify init' first to create a project[/dim]")
         raise typer.Exit(1)
 
@@ -5151,24 +5151,32 @@ def config_validation(
 
             from_state = t.get("from", "?")
             to_state = t.get("to", "?")
-            console.print(f"  [cyan]{name:12}[/cyan] {from_state} → {to_state}: {mode_display}")
+            console.print(
+                f"  [cyan]{name:12}[/cyan] {from_state} → {to_state}: {mode_display}"
+            )
 
         console.print()
         return
 
     # Validate update parameters
     if transition and not mode:
-        console.print("[red]Error:[/red] --mode is required when --transition is specified")
+        console.print(
+            "[red]Error:[/red] --mode is required when --transition is specified"
+        )
         raise typer.Exit(1)
 
     if mode and not transition:
-        console.print("[red]Error:[/red] --transition is required when --mode is specified")
+        console.print(
+            "[red]Error:[/red] --transition is required when --mode is specified"
+        )
         raise typer.Exit(1)
 
     # Validate transition name
     if transition not in valid_transitions:
         console.print(f"[red]Error:[/red] Unknown transition '{transition}'")
-        console.print(f"[dim]Valid transitions: {', '.join(sorted(valid_transitions))}[/dim]")
+        console.print(
+            f"[dim]Valid transitions: {', '.join(sorted(valid_transitions))}[/dim]"
+        )
         raise typer.Exit(1)
 
     # Validate mode
