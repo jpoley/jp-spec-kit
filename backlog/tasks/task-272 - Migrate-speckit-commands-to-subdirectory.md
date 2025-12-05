@@ -1,11 +1,11 @@
 ---
 id: task-272
 title: Migrate speckit commands to subdirectory
-status: To Do
+status: Done
 assignee:
   - '@galway'
 created_date: '2025-12-03 14:01'
-updated_date: '2025-12-04 04:01'
+updated_date: '2025-12-05 01:42'
 labels:
   - architecture
   - migration
@@ -41,4 +41,6 @@ Current state:
 
 The implementation did NOT move speckit to templates/commands/speckit/.
 Need to complete migration to match jpspec subdirectory pattern.
+
+Verified complete - speckit/ subdirectory exists with all symlinks pointing correctly
 <!-- SECTION:NOTES:END -->
