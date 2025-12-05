@@ -154,6 +154,9 @@ class TestSecurityScanTool:
     @pytest.mark.asyncio
     async def test_security_scan_with_multiple_scanners(self, mock_orchestrator):
         """Test scan with multiple scanners."""
+        # Update mock to return both scanners as available
+        mock_orchestrator.list_scanners.return_value = ["semgrep", "trivy"]
+
         result = await mcp_server.security_scan(
             target=".", scanners=["semgrep", "trivy"]
         )
@@ -452,3 +455,145 @@ class TestNoLLMCalls:
 
             # Verify ZERO LLM calls
             mock_llm.assert_not_called()
+
+
+class TestPathValidation:
+    """Tests for path traversal protection."""
+
+    def test_validate_path_accepts_relative_path(self, tmp_path: Path):
+        """Test that relative paths within base are accepted."""
+        # Create a target directory
+        target = tmp_path / "subdir"
+        target.mkdir()
+
+        result = mcp_server._validate_path("subdir", tmp_path)
+        assert result == target.resolve()
+        # Verify path is actually contained within base directory
+        assert result.is_relative_to(tmp_path.resolve())
+
+    def test_validate_path_rejects_absolute_path(self, tmp_path: Path):
+        """Test that absolute paths are rejected."""
+        with pytest.raises(ValueError, match="Absolute paths not allowed"):
+            mcp_server._validate_path("/etc/passwd", tmp_path)
+
+    def test_validate_path_rejects_path_traversal(self, tmp_path: Path):
+        """Test that path traversal attempts are rejected."""
+        with pytest.raises(ValueError, match="Path traversal detected"):
+            mcp_server._validate_path("../../../etc/passwd", tmp_path)
+
+    def test_validate_path_rejects_double_traversal(self, tmp_path: Path):
+        """Test that double dot traversal is rejected."""
+        subdir = tmp_path / "subdir"
+        subdir.mkdir()
+
+        with pytest.raises(ValueError, match="Path traversal detected"):
+            mcp_server._validate_path("subdir/../../etc", tmp_path)
+
+
+class TestInputValidation:
+    """Tests for input validation functions."""
+
+    def test_validate_scanners_accepts_valid(self):
+        """Test valid scanner names are accepted."""
+        result = mcp_server._validate_scanners(
+            ["semgrep", "trivy"], ["semgrep", "trivy", "bandit"]
+        )
+        assert result == ["semgrep", "trivy"]
+
+    def test_validate_scanners_rejects_invalid(self):
+        """Test invalid scanner names are rejected."""
+        with pytest.raises(ValueError, match="Invalid scanner names"):
+            mcp_server._validate_scanners(["semgrep", "evil_scanner"], ["semgrep"])
+
+    def test_validate_scanners_rejects_unavailable(self):
+        """Test unavailable scanner names are rejected."""
+        with pytest.raises(ValueError, match="Scanners not available"):
+            mcp_server._validate_scanners(
+                ["semgrep", "trivy"],
+                ["semgrep"],  # trivy not available
+            )
+
+    def test_validate_scanners_returns_available_on_none(self):
+        """Test None returns all available scanners from orchestrator.
+
+        Note: This tests the _validate_scanners helper directly.
+        Integration with orchestrator.list_scanners() is tested in
+        TestSecurityScanTool.test_security_scan_success.
+        """
+        available = ["semgrep", "trivy"]
+        result = mcp_server._validate_scanners(None, available)
+        assert result == available
+
+    def test_validate_severities_accepts_valid(self):
+        """Test valid severity levels are accepted."""
+        result = mcp_server._validate_severities(["critical", "high"])
+        assert result == ["critical", "high"]
+
+    def test_validate_severities_rejects_invalid(self):
+        """Test invalid severity levels are rejected."""
+        with pytest.raises(ValueError, match="Invalid severities"):
+            mcp_server._validate_severities(["critical", "extreme"])
+
+    def test_validate_severities_returns_default_on_none(self):
+        """Test None returns default severities."""
+        result = mcp_server._validate_severities(None)
+        assert result == ["critical", "high"]
+
+
+class TestSecurityScanValidation:
+    """Tests for security scan input validation."""
+
+    @pytest.fixture
+    def mock_orchestrator_with_path(self, tmp_path: Path):
+        """Mock scanner orchestrator with temp path."""
+        # Set PROJECT_ROOT to tmp_path
+        original_root = mcp_server.PROJECT_ROOT
+        mcp_server.PROJECT_ROOT = tmp_path
+
+        # Create target directory
+        target = tmp_path / "src"
+        target.mkdir()
+
+        with patch.object(mcp_server, "_get_orchestrator") as mock:
+            orchestrator = Mock()
+            orchestrator.list_scanners.return_value = ["semgrep"]
+            orchestrator.scan.return_value = []
+            mock.return_value = orchestrator
+            yield tmp_path
+
+        # Restore original
+        mcp_server.PROJECT_ROOT = original_root
+
+    @pytest.mark.asyncio
+    async def test_scan_rejects_path_traversal(self, mock_orchestrator_with_path):
+        """Test scan rejects path traversal attempts."""
+        result = await mcp_server.security_scan(target="../../../etc")
+
+        assert "error" in result
+        assert "Invalid target path" in result["error"]
+        assert result["findings_count"] == 0
+
+    @pytest.mark.asyncio
+    async def test_scan_rejects_absolute_path(self, mock_orchestrator_with_path):
+        """Test scan rejects absolute paths."""
+        result = await mcp_server.security_scan(target="/etc/passwd")
+
+        assert "error" in result
+        assert "Invalid target path" in result["error"]
+        assert result["findings_count"] == 0
+
+    @pytest.mark.asyncio
+    async def test_scan_rejects_invalid_scanner(self, mock_orchestrator_with_path):
+        """Test scan rejects invalid scanner names."""
+        result = await mcp_server.security_scan(target="src", scanners=["evil_scanner"])
+
+        assert "error" in result
+        assert "Invalid scanners" in result["error"]
+
+    @pytest.mark.asyncio
+    async def test_scan_rejects_nonexistent_target(self, mock_orchestrator_with_path):
+        """Test scan handles nonexistent target."""
+        result = await mcp_server.security_scan(target="nonexistent")
+
+        assert "error" in result
+        assert "does not exist" in result["error"]

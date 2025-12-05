@@ -13,10 +13,16 @@ Architecture:
     - Resources: Queryable data (findings, status, config)
     - NO LLM CALLS: Server returns data and skill invocation instructions
 
+Security:
+    - Path traversal protection: All user paths validated against PROJECT_ROOT
+    - Input validation: Scanner names and severity levels validated against whitelist
+    - Resource limits: Maximum findings count to prevent DoS
+
 Reference: ADR-008 Security Scanner MCP Server Architecture
 """
 
 import json
+import os
 from pathlib import Path
 from typing import Any
 
@@ -32,8 +38,18 @@ from specify_cli.security.orchestrator import ScannerOrchestrator
 from specify_cli.security.adapters.semgrep import SemgrepAdapter
 from specify_cli.security.adapters.discovery import ToolDiscovery
 
-# Global project root (can be overridden for testing)
-PROJECT_ROOT = Path.cwd()
+# Global project root (can be overridden via PROJECT_ROOT env var for testing)
+PROJECT_ROOT = Path(os.environ.get("PROJECT_ROOT", str(Path.cwd())))
+
+# Resource limits
+# Limit findings to 10,000 per scan to prevent DoS attacks and excessive memory usage.
+# This value accommodates typical scan sizes for large projects while preventing abuse.
+# See module docstring ("Resource limits") and ADR-008 for architecture details.
+MAX_FINDINGS = 10000
+
+# Valid values for input validation (whitelist)
+VALID_SCANNERS = frozenset({"semgrep", "codeql", "trivy", "bandit", "safety"})
+VALID_SEVERITIES = frozenset({"critical", "high", "medium", "low", "info"})
 
 # Initialize MCP server
 mcp = FastMCP("jpspec-security") if MCP_AVAILABLE else None
@@ -66,6 +82,95 @@ def _get_findings_dir() -> Path:
     return findings_dir
 
 
+def _validate_path(user_path: str, base_dir: Path) -> Path:
+    """Validate and resolve path within base directory.
+
+    Prevents path traversal attacks by ensuring the resolved path
+    remains within the base directory.
+
+    Args:
+        user_path: User-supplied path (must be relative)
+        base_dir: Base directory to constrain paths to
+
+    Returns:
+        Validated absolute path
+
+    Raises:
+        ValueError: If path is absolute or escapes base_dir
+    """
+    # Reject absolute paths
+    if Path(user_path).is_absolute():
+        raise ValueError(f"Absolute paths not allowed: {user_path}")
+
+    # Resolve to canonical path
+    resolved = (base_dir / user_path).resolve()
+
+    # Verify it's within base_dir (path traversal protection)
+    try:
+        resolved.relative_to(base_dir.resolve())
+    except ValueError:
+        raise ValueError(f"Path traversal detected: {user_path}")
+
+    return resolved
+
+
+def _validate_scanners(scanners: list[str] | None, available: list[str]) -> list[str]:
+    """Validate scanner names against whitelist.
+
+    Args:
+        scanners: User-provided scanner names
+        available: List of available scanners from orchestrator
+
+    Returns:
+        Validated list of scanner names
+
+    Raises:
+        ValueError: If invalid scanner names provided
+    """
+    if scanners is None:
+        return available
+
+    # Check against whitelist (defense-in-depth)
+    invalid = [s for s in scanners if s not in VALID_SCANNERS]
+    if invalid:
+        raise ValueError(
+            f"Invalid scanner names: {invalid}. Valid: {list(VALID_SCANNERS)}"
+        )
+
+    # Also check if available
+    unavailable = [s for s in scanners if s not in available]
+    if unavailable:
+        raise ValueError(
+            f"Scanners not available: {unavailable}. Available: {available}"
+        )
+
+    return scanners
+
+
+def _validate_severities(severities: list[str] | None) -> list[str]:
+    """Validate severity levels against whitelist.
+
+    Args:
+        severities: User-provided severity levels
+
+    Returns:
+        Validated list of severity levels
+
+    Raises:
+        ValueError: If invalid severity levels provided
+    """
+    if severities is None:
+        return ["critical", "high"]
+
+    invalid = [s for s in severities if s not in VALID_SEVERITIES]
+    if invalid:
+        raise ValueError(
+            f"Invalid severities: {invalid}. Valid: {list(VALID_SEVERITIES)}"
+        )
+
+    return severities
+
+
 # ============================================================================
 # TOOLS (Actions that can be invoked)
 # ============================================================================
@@ -85,43 +190,98 @@ if MCP_AVAILABLE:
         NO LLM API CALLS.
 
         Args:
-            target: Directory to scan (default: current directory)
+            target: Directory to scan (default: current directory, relative paths only)
             scanners: List of scanners to run (default: all available)
             fail_on: Severity levels that cause failure (default: ["critical", "high"])
 
         Returns:
             Scan results with findings count and output file location.
         """
-        target_path = PROJECT_ROOT / target
+        # Validate target path (prevents path traversal)
+        try:
+            target_path = _validate_path(target, PROJECT_ROOT)
+        except ValueError as e:
+            return {
+                "error": "Invalid target path",
+                "detail": str(e),
+                "findings_count": 0,
+            }
+
+        # Verify target exists
+        if not target_path.exists():
+            return {
+                "error": "Target path does not exist",
+                "detail": str(target_path),
+                "findings_count": 0,
+            }
+
         orchestrator = _get_orchestrator()
-        scanners = scanners or orchestrator.list_scanners()
-        fail_on = fail_on or ["critical", "high"]
+        available_scanners = orchestrator.list_scanners()
+
+        # Validate scanners (defense-in-depth)
+        try:
+            validated_scanners = _validate_scanners(scanners, available_scanners)
+        except ValueError as e:
+            return {
+                "error": "Invalid scanners",
+                "detail": str(e),
+                "findings_count": 0,
+            }
+
+        # Validate fail_on severities
+        try:
+            validated_fail_on = _validate_severities(fail_on)
+        except ValueError as e:
+            return {
+                "error": "Invalid severity levels",
+                "detail": str(e),
+                "findings_count": 0,
+            }
 
         # Run scan via orchestrator (subprocess execution)
         findings = orchestrator.scan(
             target=target_path,
-            scanners=scanners,
+            scanners=validated_scanners,
             parallel=True,
             deduplicate=True,
         )
 
-        # Save findings to JSON
+        # Apply resource limit
+        truncated = False
+        if len(findings) > MAX_FINDINGS:
+            truncated = True
+            findings = findings[:MAX_FINDINGS]
+
+        # Save findings to JSON with secure permissions from creation
+        # Using os.open with O_CREAT|O_WRONLY|O_TRUNC and mode 0o600 ensures
+        # file is created with restrictive permissions atomically, avoiding
+        # race condition if chmod is called after file creation.
         findings_dir = _get_findings_dir()
         findings_file = findings_dir / "scan-results.json"
         findings_data = [f.to_dict() for f in findings]
 
-        with findings_file.open("w") as f:
-            json.dump(
-                {
-                    "findings": findings_data,
-                    "metadata": {
-                        "scanners_used": scanners,
-                        "total_count": len(findings),
+        fd = os.open(
+            str(findings_file),
+            os.O_CREAT | os.O_WRONLY | os.O_TRUNC,
+            0o600,
+        )
+        try:
+            with os.fdopen(fd, "w") as f:
+                json.dump(
+                    {
+                        "findings": findings_data,
+                        "metadata": {
+                            "scanners_used": validated_scanners,
+                            "total_count": len(findings),
+                            "truncated": truncated,
+                        },
                     },
-                },
-                f,
-                indent=2,
-            )
+                    f,
+                    indent=2,
+                )
+        except Exception:
+            # fd is closed by os.fdopen even on error, but re-raise
+            raise
 
         # Count by severity
         by_severity = {
@@ -133,16 +293,17 @@ if MCP_AVAILABLE:
         }
 
         # Determine if scan should fail based on fail_on severities
-        should_fail = any(by_severity.get(sev, 0) > 0 for sev in fail_on)
+        should_fail = any(by_severity.get(sev, 0) > 0 for sev in validated_fail_on)
 
         return {
             "findings_count": len(findings),
             "by_severity": by_severity,
             "should_fail": should_fail,
-            "fail_on": fail_on,
+            "fail_on": validated_fail_on,
             "findings_file": str(findings_file.relative_to(PROJECT_ROOT)),
+            "truncated": truncated,
             "metadata": {
-                "scanners_used": scanners,
+                "scanners_used": validated_scanners,
                 "target": target,
             },
         }
@@ -157,7 +318,7 @@ if MCP_AVAILABLE:
         the AI tool to invoke the security-triage skill.
 
         Args:
-            findings_file: Path to findings JSON (default: latest scan results)
+            findings_file: Path to findings JSON (default: latest scan results, relative paths only)
 
         Returns:
             Skill invocation instruction for AI tool to execute.
@@ -165,21 +326,29 @@ if MCP_AVAILABLE:
         findings_dir = _get_findings_dir()
 
         if findings_file is None:
-            findings_file = str(findings_dir / "scan-results.json")
+            validated_path = findings_dir / "scan-results.json"
         else:
-            findings_file = str(PROJECT_ROOT / findings_file)
+            # Validate user-provided path (prevents path traversal)
+            try:
+                validated_path = _validate_path(findings_file, PROJECT_ROOT)
+            except ValueError as e:
+                return {
+                    "error": "Invalid findings file path",
+                    "detail": str(e),
+                    "suggestion": "Use a relative path within the project",
+                }
 
         # Verify findings file exists
-        if not Path(findings_file).exists():
+        if not validated_path.exists():
             return {
-                "error": f"Findings file not found: {findings_file}",
+                "error": "Findings file not found",
                 "suggestion": "Run security_scan first to generate findings",
             }
 
         return {
             "action": "invoke_skill",
             "skill": ".claude/skills/security-triage.md",
-            "input_file": findings_file,
+            "input_file": str(validated_path),
             "output_file": str(findings_dir / "triage-results.json"),
             "instruction": (
                 "Invoke the security-triage skill to classify findings. "
