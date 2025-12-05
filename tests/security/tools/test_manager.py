@@ -1078,7 +1078,7 @@ class TestConcurrentInstallation:
         thread1.join()
         thread2.join()
 
-        # Issue #7: Strengthen assertions - exactly one success, one error
+        # Issue #2: Strengthen assertions - exactly one success, one error
         assert len(results) == 2
         success_count = sum(1 for r in results if r == "success")
         error_count = sum(1 for r in results if "error" in str(r))
