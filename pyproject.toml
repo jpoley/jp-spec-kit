@@ -33,6 +33,11 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/specify_cli"]
 
+[project.optional-dependencies]
+dast = [
+    "playwright>=1.40.0",
+]
+
 [dependency-groups]
 dev = [
     "pytest>=9.0.1",
