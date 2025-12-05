@@ -1,0 +1,43 @@
+# Security Scanning Workflow
+#
+# This workflow triggers security scans on PRs and scheduled runs.
+# It uses the reusable security-scan.yml workflow.
+#
+# Triggers:
+# - Pull requests to main branch
+# - Weekly scheduled scan (Sunday 2 AM UTC)
+# - Manual dispatch with configurable options
+
+name: Security Scanning
+
+on:
+  pull_request:
+    branches: [main]
+  schedule:
+    # Run weekly on Sunday at 2 AM UTC
+    - cron: '0 2 * * 0'
+  workflow_dispatch:
+    inputs:
+      fail-on:
+        description: 'Severity level to block on'
+        required: false
+        default: ''
+        type: choice
+        options:
+          - ''  # Use config file default
+          - critical
+          - high
+          - medium
+          - low
+
+jobs:
+  security-scan:
+    name: Security Scan
+    uses: ./.github/workflows/security-scan.yml
+    with:
+      fail-on: ${{ inputs.fail-on || '' }}
+      upload-sarif: true
+    permissions:
+      contents: read
+      security-events: write
+      pull-requests: write

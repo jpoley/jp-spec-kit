@@ -1,0 +1,23 @@
+# JP Spec Kit Security Configuration
+#
+# This file configures security scanning behavior for this repository.
+# Settings here are used by .github/workflows/security-scan.yml
+#
+# Documentation: docs/platform/security-cicd-usage.md
+
+security:
+  # Severity level that will cause the scan to fail
+  # Options: critical, high, medium, low
+  # Default: critical (recommended - only critical vulnerabilities trigger failure)
+  #
+  # Note: Only single severity is currently supported.
+  # Multi-severity (e.g., "critical,high") is planned for future release.
+  fail-on: critical
+
+  # Whether to upload SARIF results to GitHub Security tab
+  # This enables viewing findings in the repository's Security > Code scanning alerts
+  upload-sarif: true
+
+  # Path to scan (relative to repository root)
+  # Use "." for entire repository or specify a subdirectory
+  scan-path: "."
