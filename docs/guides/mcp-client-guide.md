@@ -250,7 +250,7 @@ async def get_all_findings(client: Client) -> list[dict]:
     """Get all security findings."""
 
     findings_response = await client.read_resource("security://findings")
-    findings = json.loads(findings_response.text)
+    findings = json.loads(findings_response.contents[0].text)
 
     print(f"Retrieved {len(findings)} findings")
 
