@@ -3,13 +3,11 @@
 from pathlib import Path
 from unittest.mock import Mock
 
+from tests.conftest import MockConfirmationHandler
 
-from specify_cli.security.models import Finding, Location, Severity
+from specify_cli.security.fixer.applicator import ApplyStatus, PatchApplicator
 from specify_cli.security.fixer.generator import FixGenerator
-from specify_cli.security.fixer.applicator import (
-    PatchApplicator,
-    ApplyStatus,
-)
+from specify_cli.security.models import Finding, Location, Severity
 
 
 def create_test_finding(
@@ -377,8 +375,6 @@ class TestConfirmationWorkflow:
         fix_result = generator.generate_fix(finding)
 
         # Mock confirmation handler that accepts
-        from tests.security.fixer.test_applicator import MockConfirmationHandler
-
         handler = MockConfirmationHandler(always_confirm=True)
         applicator = PatchApplicator(confirmation_handler=handler)
         apply_result = applicator.apply_fix(fix_result, confirm=True)
@@ -413,8 +409,6 @@ class TestConfirmationWorkflow:
         fix_result = generator.generate_fix(finding)
 
         # Mock confirmation handler that rejects
-        from tests.security.fixer.test_applicator import MockConfirmationHandler
-
         handler = MockConfirmationHandler(always_confirm=False)
         applicator = PatchApplicator(confirmation_handler=handler)
         apply_result = applicator.apply_fix(fix_result, confirm=True)

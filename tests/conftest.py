@@ -219,3 +219,48 @@ def circular_dependency_content(mock_circular_dependency_content):
 def empty_tasks_content():
     """Empty tasks.md content."""
     return "# Empty MOCK Tasks\n\nNo tasks here."
+
+
+# Security Fixer Test Fixtures
+
+
+class MockConfirmationHandler:
+    """Mock confirmation handler for testing patch application.
+
+    This is a shared test fixture used across multiple test modules
+    to avoid importing test utilities from other test files.
+    """
+
+    def __init__(self, always_confirm: bool = True):
+        """Initialize with default confirmation behavior.
+
+        Args:
+            always_confirm: If True, always confirm patches. If False, always reject.
+        """
+        self.always_confirm = always_confirm
+        self.calls: list[tuple] = []  # List of (patch, confidence) tuples
+
+    def confirm_patch(self, patch, confidence: float) -> bool:
+        """Record call and return configured response.
+
+        Args:
+            patch: The patch to confirm.
+            confidence: Confidence score (0.0-1.0).
+
+        Returns:
+            The configured confirmation response.
+        """
+        self.calls.append((patch, confidence))
+        return self.always_confirm
+
+
+@pytest.fixture
+def mock_confirmation_handler():
+    """Fixture providing a MockConfirmationHandler that always confirms."""
+    return MockConfirmationHandler(always_confirm=True)
+
+
+@pytest.fixture
+def mock_rejection_handler():
+    """Fixture providing a MockConfirmationHandler that always rejects."""
+    return MockConfirmationHandler(always_confirm=False)

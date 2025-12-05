@@ -2,27 +2,14 @@
 
 from pathlib import Path
 
+from tests.conftest import MockConfirmationHandler
 
-from specify_cli.security.fixer.models import FixResult, FixStatus, Patch
 from specify_cli.security.fixer.applicator import (
-    PatchApplicator,
-    ApplyStatus,
     ApplyResult,
+    ApplyStatus,
+    PatchApplicator,
 )
-
-
-class MockConfirmationHandler:
-    """Mock confirmation handler for testing."""
-
-    def __init__(self, always_confirm: bool = True):
-        """Initialize with default confirmation behavior."""
-        self.always_confirm = always_confirm
-        self.calls: list[tuple[Patch, float]] = []
-
-    def confirm_patch(self, patch: Patch, confidence: float) -> bool:
-        """Record call and return configured response."""
-        self.calls.append((patch, confidence))
-        return self.always_confirm
+from specify_cli.security.fixer.models import FixResult, FixStatus, Patch
 
 
 class TestPatchApplicator:

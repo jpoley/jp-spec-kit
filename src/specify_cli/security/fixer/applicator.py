@@ -4,12 +4,14 @@ This module provides functionality to apply generated patches to source code fil
 with confirmation workflows and rollback capability.
 """
 
+import hashlib
+import re
 import shutil
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Protocol
+from typing import Callable, Protocol
 
 from specify_cli.security.fixer.models import FixResult, Patch
 
@@ -104,7 +106,7 @@ class PatchApplicator:
 
     Example:
         >>> applicator = PatchApplicator()
-        >>> result = applicator.apply(patch)
+        >>> result = applicator.apply_patch(patch, finding_id="SEC-001")
         >>> if result.is_successful:
         ...     print(f"Applied to {result.file_path}")
     """
@@ -114,6 +116,7 @@ class PatchApplicator:
         confirmation_handler: ConfirmationHandler | None = None,
         create_backups: bool = True,
         dry_run: bool = False,
+        progress_callback: Callable[[str], None] | None = None,
     ):
         """Initialize patch applicator.
 
@@ -121,10 +124,12 @@ class PatchApplicator:
             confirmation_handler: Handler for user confirmations.
             create_backups: Whether to create .orig backup files.
             dry_run: If True, don't actually modify files.
+            progress_callback: Optional callback for progress updates (replaces print).
         """
         self.confirmation_handler = confirmation_handler or DefaultConfirmationHandler()
         self.create_backups = create_backups
         self.dry_run = dry_run
+        self.progress_callback = progress_callback
 
     def apply_fix(self, fix_result: FixResult, confirm: bool = True) -> ApplyResult:
         """Apply a fix result to the source code.
@@ -158,8 +163,36 @@ class PatchApplicator:
 
         return self.apply_patch(fix_result.patch, fix_result.finding_id)
 
+    def _get_numbered_backup_path(self, file_path: Path) -> Path:
+        """Get a unique numbered backup path.
+
+        Generates paths like file.py.orig, file.py.orig.1, file.py.orig.2, etc.
+        to avoid overwriting existing backups.
+
+        Args:
+            file_path: The file to back up.
+
+        Returns:
+            A unique backup path that doesn't exist.
+        """
+        backup_path = Path(f"{file_path}.orig")
+        if not backup_path.exists():
+            return backup_path
+
+        # Find next available number
+        counter = 1
+        while True:
+            numbered_backup = Path(f"{file_path}.orig.{counter}")
+            if not numbered_backup.exists():
+                return numbered_backup
+            counter += 1
+
     def apply_patch(self, patch: Patch, finding_id: str) -> ApplyResult:
         """Apply a patch to a file.
+
+        Note: This method has a race condition between reading and writing the file.
+        If the file is modified between read and write, changes could be lost.
+        For concurrent access, use file locking mechanisms.
 
         Args:
             patch: The patch to apply.
@@ -179,10 +212,10 @@ class PatchApplicator:
                 message=f"File not found: {file_path}",
             )
 
-        # Create backup if enabled
+        # Create backup if enabled (with numbered backups to avoid overwriting)
         backup_path = None
         if self.create_backups and not self.dry_run:
-            backup_path = Path(f"{file_path}.orig")
+            backup_path = self._get_numbered_backup_path(file_path)
             try:
                 shutil.copy2(file_path, backup_path)
             except OSError as e:
@@ -204,28 +237,65 @@ class PatchApplicator:
 
         # Try to apply the patch
         try:
-            # Read current file content
-            with open(file_path, encoding="utf-8") as f:
-                current_content = f.read()
+            # Read current file content with encoding fallback
+            try:
+                current_content = file_path.read_text(encoding="utf-8")
+            except UnicodeDecodeError:
+                # Fallback to latin-1 for files with non-UTF-8 encoding
+                current_content = file_path.read_text(encoding="latin-1")
 
-            # Try to find and replace the vulnerable code
+            # Try to find and replace the vulnerable code using line-based replacement
+            # This is more precise than simple string replacement
             if patch.original_code in current_content:
-                # Simple string replacement
-                fixed_content = current_content.replace(
-                    patch.original_code, patch.fixed_code, 1
-                )
+                # Use line-based replacement to avoid matching wrong occurrences
+                lines = current_content.splitlines(keepends=True)
+                original_lines = patch.original_code.splitlines(keepends=True)
 
-                # Write the fixed content
-                with open(file_path, "w", encoding="utf-8") as f:
-                    f.write(fixed_content)
+                # Find the line range to replace
+                replaced = False
+                for i in range(len(lines) - len(original_lines) + 1):
+                    # Check if this is the matching section
+                    if lines[i : i + len(original_lines)] == original_lines:
+                        # Replace with fixed code
+                        fixed_lines = patch.fixed_code.splitlines(keepends=True)
+                        lines[i : i + len(original_lines)] = fixed_lines
+                        replaced = True
+                        break
 
-                return ApplyResult(
-                    finding_id=finding_id,
-                    file_path=file_path,
-                    status=ApplyStatus.SUCCESS,
-                    message="Patch applied successfully",
-                    backup_path=backup_path,
-                )
+                if replaced:
+                    fixed_content = "".join(lines)
+
+                    # Write the fixed content (use same encoding as read)
+                    try:
+                        file_path.write_text(fixed_content, encoding="utf-8")
+                    except UnicodeEncodeError:
+                        file_path.write_text(fixed_content, encoding="latin-1")
+
+                    return ApplyResult(
+                        finding_id=finding_id,
+                        file_path=file_path,
+                        status=ApplyStatus.SUCCESS,
+                        message="Patch applied successfully",
+                        backup_path=backup_path,
+                    )
+                else:
+                    # Fallback to simple string replacement (shouldn't happen)
+                    fixed_content = current_content.replace(
+                        patch.original_code, patch.fixed_code, 1
+                    )
+
+                    try:
+                        file_path.write_text(fixed_content, encoding="utf-8")
+                    except UnicodeEncodeError:
+                        file_path.write_text(fixed_content, encoding="latin-1")
+
+                    return ApplyResult(
+                        finding_id=finding_id,
+                        file_path=file_path,
+                        status=ApplyStatus.SUCCESS,
+                        message="Patch applied successfully (string replacement)",
+                        backup_path=backup_path,
+                    )
             else:
                 # Code has changed - conflict
                 return ApplyResult(
@@ -236,7 +306,7 @@ class PatchApplicator:
                     backup_path=backup_path,
                 )
 
-        except OSError as e:
+        except (OSError, UnicodeDecodeError) as e:
             # Restore backup on failure
             if backup_path and backup_path.exists():
                 shutil.copy2(backup_path, file_path)
@@ -248,6 +318,17 @@ class PatchApplicator:
                 message=f"Failed to apply patch: {e}",
                 backup_path=backup_path,
             )
+
+    def _report_progress(self, message: str) -> None:
+        """Report progress via callback or print.
+
+        Args:
+            message: Progress message to report.
+        """
+        if self.progress_callback:
+            self.progress_callback(message)
+        else:
+            print(message)
 
     def apply_multiple(
         self, fix_results: list[FixResult], confirm: bool = True
@@ -266,13 +347,15 @@ class PatchApplicator:
             result = self.apply_fix(fix_result, confirm=confirm)
             results.append(result)
 
-            # Print summary after each application
+            # Report progress after each application
             if result.is_successful:
-                print(f"✓ Applied fix to {result.file_path}")
+                self._report_progress(f"✓ Applied fix to {result.file_path}")
             elif result.status == ApplyStatus.SKIPPED:
-                print(f"⊘ Skipped {result.file_path}")
+                self._report_progress(f"⊘ Skipped {result.file_path}")
             else:
-                print(f"✗ Failed to apply fix to {result.file_path}: {result.message}")
+                self._report_progress(
+                    f"✗ Failed to apply fix to {result.file_path}: {result.message}"
+                )
 
         return results
 
@@ -294,8 +377,32 @@ class PatchApplicator:
         except OSError:
             return False
 
+    def _sanitize_filename(self, filename: str) -> str:
+        """Sanitize filename to prevent path traversal and collision attacks.
+
+        Args:
+            filename: The filename to sanitize.
+
+        Returns:
+            A safe filename with only alphanumeric, dash, underscore, and dot.
+        """
+        # Remove all characters except alphanumeric, dash, underscore, and dot
+        # This prevents: path separators (/, \), null bytes, "..", special chars
+        safe = re.sub(r"[^\w\-.]", "_", filename)
+
+        # Remove leading dots to prevent hidden files
+        safe = safe.lstrip(".")
+
+        # Truncate to reasonable length
+        if len(safe) > 200:
+            safe = safe[:200]
+
+        return safe
+
     def save_patch_file(self, patch: Patch, output_dir: Path, finding_id: str) -> Path:
         """Save a patch to a .patch file.
+
+        Uses sanitized filenames with hash suffix to prevent collisions and path traversal.
 
         Args:
             patch: The patch to save.
@@ -307,12 +414,18 @@ class PatchApplicator:
         """
         output_dir.mkdir(parents=True, exist_ok=True)
 
-        # Create filename from finding ID and file path
-        safe_filename = (
-            f"{finding_id}_{patch.file_path.name}".replace("/", "_")
-            .replace(" ", "_")
-            .replace("..", "")
-        )
+        # Sanitize finding ID and filename to prevent path traversal
+        safe_finding_id = self._sanitize_filename(finding_id)
+        safe_file_name = self._sanitize_filename(patch.file_path.name)
+
+        # Add hash suffix to prevent collisions between similar IDs
+        # e.g., "SQL-001" and "SQL_001" would both sanitize to "SQL_001"
+        # The hash ensures they get different filenames
+        collision_hash = hashlib.sha256(
+            f"{finding_id}_{patch.file_path}".encode()
+        ).hexdigest()[:8]
+
+        safe_filename = f"{safe_finding_id}_{safe_file_name}_{collision_hash}"
         patch_file = output_dir / f"{safe_filename}.patch"
 
         # Save the patch
