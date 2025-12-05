@@ -9,7 +9,6 @@ from __future__ import annotations
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
 
 from specify_cli.security.models import Finding, Severity
 
@@ -47,14 +46,15 @@ class SecurityWorkflowIntegration:
     Example:
         >>> integration = SecurityWorkflowIntegration()
         >>> result = integration.run_security_gate(
-        ...     target=Path("/path/to/code"),
+        ...     findings=findings,
         ...     fail_on=["critical", "high"]
         ... )
         >>> if not result.passed:
         ...     print(f"Security gate failed: {result.message}")
-        >>> integration.emit_security_event("scan.completed", {
-        ...     "findings_count": result.findings_count
-        ... })
+        >>> integration.emit_security_event(
+        ...     event_type="scan.completed",
+        ...     feature_id="auth-system"
+        ... )
     """
 
     def __init__(
@@ -258,7 +258,6 @@ class SecurityWorkflowIntegration:
     def emit_security_event(
         self,
         event_type: str,
-        data: dict[str, Any],
         feature_id: str | None = None,
         task_id: str | None = None,
     ) -> None:
@@ -267,21 +266,20 @@ class SecurityWorkflowIntegration:
         Integrates with the specify hooks system to emit events that
         can trigger additional workflow actions (notifications, gates, etc.).
 
+        Note:
+            The hooks emit command does not currently support passing arbitrary
+            event data via CLI. Hooks can access finding data from security
+            report files (e.g., .security/reports/*.json).
+
         Args:
             event_type: Event type (e.g., "scan.completed", "triage.completed").
                 Will be prefixed with "security." automatically.
-            data: Event payload data.
             feature_id: Optional feature/spec ID.
             task_id: Optional task ID.
 
         Example:
             >>> integration.emit_security_event(
             ...     event_type="scan.completed",
-            ...     data={
-            ...         "findings_count": 15,
-            ...         "critical_count": 2,
-            ...         "duration_seconds": 45.3
-            ...     },
             ...     feature_id="auth-system"
             ... )
         """
@@ -300,11 +298,6 @@ class SecurityWorkflowIntegration:
         # Add task ID if provided
         if task_id:
             cmd.extend(["--task-id", task_id])
-
-        # Note: The hooks emit command doesn't accept arbitrary JSON data
-        # via CLI args. For complex event data, we'd need to enhance the
-        # hooks CLI or use direct API calls. For now, we emit the event
-        # and the hooks can access finding data from files.
 
         try:
             subprocess.run(
