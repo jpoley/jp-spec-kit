@@ -4918,6 +4918,177 @@ workflow_app = typer.Typer(
 )
 app.add_typer(workflow_app, name="workflow")
 
+
+# Config subcommand for project settings
+config_app = typer.Typer(
+    name="config",
+    help="View and modify project configuration",
+    add_completion=False,
+)
+app.add_typer(config_app, name="config")
+
+
+def display_workflow_config(workflow_file: Path) -> None:
+    """Display current validation configuration from jpspec_workflow.yml.
+
+    Args:
+        workflow_file: Path to the jpspec_workflow.yml file.
+    """
+    content = yaml.safe_load(workflow_file.read_text())
+
+    console.print()
+    console.print("[cyan]Current Validation Configuration[/cyan]")
+    console.print()
+
+    for transition in content.get("transitions", []):
+        name = transition.get("name", "")
+        from_state = transition.get("from", "")
+        to_state = transition.get("to", "")
+        validation = transition.get("validation", "NONE")
+
+        # Color based on mode
+        if validation == "NONE":
+            mode_style = f"[green]{validation}[/green]"
+        elif validation.startswith("KEYWORD"):
+            mode_style = f"[yellow]{validation}[/yellow]"
+        else:
+            mode_style = f"[blue]{validation}[/blue]"
+
+        console.print(f"  {name}: {from_state} → {to_state}")
+        console.print(f"    Validation: {mode_style}")
+        console.print()
+
+
+def update_single_transition(
+    workflow_file: Path,
+    transition_name: str,
+    mode: str,
+    keyword: str | None = None,
+) -> None:
+    """Update a single transition's validation mode.
+
+    Args:
+        workflow_file: Path to the jpspec_workflow.yml file.
+        transition_name: Name of the transition to update.
+        mode: New validation mode (none, keyword, pull-request).
+        keyword: Optional keyword for KEYWORD mode.
+
+    Raises:
+        typer.Exit: If transition or mode is invalid.
+    """
+    valid_transitions = [
+        "assess",
+        "specify",
+        "research",
+        "plan",
+        "implement",
+        "validate",
+        "operate",
+        "complete",
+    ]
+    if transition_name not in valid_transitions:
+        console.print(f"[red]Error:[/red] Unknown transition: {transition_name}")
+        console.print(f"Valid transitions: {', '.join(valid_transitions)}")
+        raise typer.Exit(1)
+
+    mode = mode.lower()
+    if mode not in ("none", "keyword", "pull-request"):
+        console.print(f"[red]Error:[/red] Invalid mode: {mode}")
+        console.print("Valid modes: none, keyword, pull-request")
+        raise typer.Exit(1)
+
+    # Read current config
+    content = yaml.safe_load(workflow_file.read_text())
+
+    # Find and update the transition
+    found = False
+    for transition in content.get("transitions", []):
+        if transition.get("name") == transition_name:
+            if mode == "none":
+                transition["validation"] = "NONE"
+            elif mode == "keyword":
+                kw = keyword or "APPROVED"
+                transition["validation"] = f'KEYWORD["{kw}"]'
+            else:
+                transition["validation"] = "PULL_REQUEST"
+            found = True
+            break
+
+    if not found:
+        console.print(
+            f"[red]Error:[/red] Transition '{transition_name}' not found in config"
+        )
+        raise typer.Exit(1)
+
+    # Rebuild modes dict from updated content and regenerate
+    modes = {}
+    for t in content.get("transitions", []):
+        validation = t.get("validation", "NONE")
+        # Preserve the mode as-is for proper formatting
+        modes[t["name"]] = validation
+    generate_jpspec_workflow_yml(workflow_file.parent, modes)
+
+
+@config_app.command("validation")
+def config_validation(
+    show: bool = typer.Option(
+        False, "--show", help="Display current validation configuration"
+    ),
+    transition: str = typer.Option(
+        None,
+        "--transition",
+        "-t",
+        help="Transition to update (assess, specify, research, plan, implement, validate, operate)",
+    ),
+    mode: str = typer.Option(
+        None, "--mode", "-m", help="Validation mode: none, keyword, or pull-request"
+    ),
+    keyword: str = typer.Option(
+        None, "--keyword", "-k", help="Keyword for KEYWORD mode"
+    ),
+) -> None:
+    """View or modify workflow transition validation modes.
+
+    Examples:
+        specify config validation --show                    # View current config
+        specify config validation -t plan -m pull-request   # Update single transition
+        specify config validation -t specify -m keyword -k "PRD_APPROVED"
+    """
+    project_path = Path.cwd()
+    workflow_file = project_path / "jpspec_workflow.yml"
+
+    if not workflow_file.exists():
+        console.print(
+            "[red]Error:[/red] No jpspec_workflow.yml found in current directory"
+        )
+        console.print("[yellow]Tip:[/yellow] Run 'specify init --here' to initialize")
+        raise typer.Exit(1)
+
+    if show:
+        # Display current configuration
+        display_workflow_config(workflow_file)
+        return
+
+    if transition and mode:
+        # Update single transition
+        update_single_transition(workflow_file, transition, mode, keyword)
+        console.print(
+            f"[green]Updated {transition} transition to {mode.upper()}[/green]"
+        )
+        return
+
+    if transition and not mode:
+        console.print("[red]Error:[/red] --mode is required when using --transition")
+        raise typer.Exit(1)
+
+    if mode and not transition:
+        console.print("[red]Error:[/red] --transition is required when using --mode")
+        raise typer.Exit(1)
+
+    # Default behavior: show config
+    display_workflow_config(workflow_file)
+
+
 # Hooks app (event emission and hook management)
 from specify_cli.hooks.cli import hooks_app  # noqa: E402
 
