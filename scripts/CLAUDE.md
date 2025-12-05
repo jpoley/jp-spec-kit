@@ -10,6 +10,7 @@
 | `flush-backlog.sh` | Archive Done tasks with summary report |
 | `install-act.sh` | Install act for local GitHub Actions testing |
 | `pre-commit-dev-setup.sh` | Validate dev-setup symlink structure |
+| `migrate-commands-to-subdirs.sh` | Migrate flat command structure to subdirectories |
 
 ### powershell/
 PowerShell equivalents of bash scripts for Windows.
@@ -150,6 +151,40 @@ repos:
 ```
 
 **Design rationale:** See `docs/architecture/command-single-source-of-truth.md`
+
+## migrate-commands-to-subdirs.sh
+
+Migrates slash commands from flat structure (e.g., `jpspec.implement.md`) to subdirectory structure (e.g., `jpspec/implement.md`).
+
+```bash
+# Preview what would be moved
+./scripts/bash/migrate-commands-to-subdirs.sh --dry-run
+
+# Migrate commands in .claude/commands/
+./scripts/bash/migrate-commands-to-subdirs.sh --path .claude/commands
+
+# Migrate template commands
+./scripts/bash/migrate-commands-to-subdirs.sh --path templates/commands
+
+# Show help
+./scripts/bash/migrate-commands-to-subdirs.sh --help
+```
+
+**What it does:**
+- Moves `jpspec.*.md` files to `jpspec/` subdirectory (renamed to `*.md`)
+- Moves `speckit.*.md` files to `speckit/` subdirectory (renamed to `*.md`)
+- Creates subdirectories if they don't exist
+- Checks for broken symlinks after migration
+
+**Exit codes:**
+- 0: Success (files migrated or nothing to migrate)
+- 1: Error during migration
+- 2: Invalid arguments or target path not found
+
+**Next steps after migration:**
+1. Review changes: `git status`
+2. If migrating `.claude/commands/`, run: `specify dev-setup --force`
+3. Commit changes: `git add -A && git commit -m 'Migrate commands to subdirectories'`
 
 ## Local CI with act
 
