@@ -199,7 +199,7 @@ security:
 **Example: Setting Different Risk Postures**
 
 ```yaml
-# Permissive (only block on critical vulnerabilities)
+# Standard (only block on critical vulnerabilities)
 security:
   fail-on: critical  # Default - recommended for most projects
 
