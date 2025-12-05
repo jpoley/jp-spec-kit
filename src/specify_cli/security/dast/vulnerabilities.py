@@ -4,7 +4,10 @@ This module implements detection logic for common web vulnerabilities including
 XSS, CSRF, and session management issues.
 """
 
+import logging
 from dataclasses import dataclass
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -115,9 +118,8 @@ class XSSDetector:
                         )
                         break  # Found XSS, no need to try more payloads
 
-        except Exception:
-            # Input testing failed, skip silently
-            pass
+        except Exception as e:
+            logger.warning(f"XSS test failed for input {input_name}: {e}")
 
         return vulnerabilities
 
@@ -134,21 +136,24 @@ class XSSDetector:
         vulnerabilities = []
 
         try:
-            await page.goto(page.url)  # Reload page for clean state
+            # Store original URL before reloading
+            original_url = page.url
+            await page.goto(original_url)  # Reload page for clean state
 
             for input_info in form_data.inputs:
                 # Skip certain input types
                 if input_info["type"] in ["hidden", "submit", "button", "file"]:
                     continue
 
-                selector = f'form {form_data.selector} [name="{input_info["name"]}"]'
+                # Construct selector: form_data.selector already includes "form", don't duplicate
+                selector = f'{form_data.selector} [name="{input_info["name"]}"]'
                 input_data = {"selector": selector, "name": input_info["name"]}
 
                 results = await self.test_input(page, input_data)
                 vulnerabilities.extend(results)
 
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"XSS form test failed for {form_data.selector}: {e}")
 
         return vulnerabilities
 
@@ -201,8 +206,8 @@ class CSRFDetector:
                     )
                 )
 
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"CSRF form test failed for {form_data.selector}: {e}")
 
         return vulnerabilities
 
@@ -313,8 +318,8 @@ class SessionTester:
 
             await page.close()
 
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"Session fixation test failed for {base_url}: {e}")
 
         return vulnerabilities
 
@@ -475,7 +480,7 @@ class SecurityHeadersTester:
                     )
                 )
 
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"Security headers test failed for {page.url}: {e}")
 
         return vulnerabilities

@@ -1,6 +1,6 @@
 # Web Security Testing with DAST
 
-Dynamic Application Security Testing (DAST) performs security testing on running web applications using browser automation. This guide covers using JP Spec Kit's Playwright-based DAST scanner.
+Dynamic Application Security Testing (DAST) performs security testing on running web applications using browser automation. This guide covers using Specify CLI's Playwright-based DAST scanner.
 
 ## Overview
 
@@ -237,6 +237,7 @@ async def complex_auth(page):
     await page.wait_for_selector("#mfa-code", timeout=5000)
 
     # Get MFA code from environment or service
+    # Note: get_mfa_code() is a user-provided function - implement according to your MFA provider
     mfa_code = get_mfa_code()  # Your implementation
     await page.fill("#mfa-code", mfa_code)
     await page.click("#verify")
@@ -287,6 +288,7 @@ for severity in ["critical", "high", "medium", "low", "info"]:
         print(f"{severity.upper()}: {len(by_severity[severity])} findings")
 
 # Export to SARIF
+# TODO: SARIFExporter is a placeholder - implement or use your own SARIF export logic
 from specify_cli.security.exporters import SARIFExporter
 
 exporter = SARIFExporter()
@@ -346,6 +348,8 @@ async def secure_auth(page):
 DAST can produce false positives. Review findings before creating issues:
 
 ```python
+from specify_cli.security.models import Confidence
+
 result = scanner.scan_sync()
 
 # Filter high-confidence findings
@@ -362,6 +366,8 @@ for finding in high_confidence:
 ### 5. Integrate with CI/CD
 
 ```python
+from specify_cli.security.models import Severity
+
 # In CI pipeline
 result = scanner.scan_sync()
 

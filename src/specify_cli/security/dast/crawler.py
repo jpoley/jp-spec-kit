@@ -4,10 +4,13 @@ This module implements an asynchronous web crawler using Playwright to discover
 and analyze web application structure for security testing.
 """
 
+import logging
 import time
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from urllib.parse import urljoin, urlparse
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -194,8 +197,8 @@ class PlaywrightCrawler:
             forms = await self._extract_forms(page)
             self._forms.extend(forms)
 
-            # Extract standalone inputs
-            inputs = await self._extract_inputs(page)
+            # Extract standalone inputs (with source URL)
+            inputs = await self._extract_inputs(page, url)
             self._inputs.extend(inputs)
 
             # Extract links for further crawling
@@ -250,10 +253,11 @@ class PlaywrightCrawler:
                             }
                         )
 
-                # Check for CSRF token
+                # Check for CSRF token (case-insensitive)
                 has_csrf = any(
                     "csrf" in inp["name"].lower() or "token" in inp["name"].lower()
                     for inp in inputs
+                    if inp["name"]
                 )
 
                 forms.append(
@@ -267,15 +271,18 @@ class PlaywrightCrawler:
                 )
 
         except Exception as e:
-            self._errors.append(f"Form extraction failed: {e}")
+            error_msg = f"Form extraction failed: {e}"
+            logger.warning(error_msg)
+            self._errors.append(error_msg)
 
         return forms
 
-    async def _extract_inputs(self, page) -> list[dict[str, str]]:
+    async def _extract_inputs(self, page, source_url: str) -> list[dict[str, str]]:
         """Extract standalone input elements not in forms.
 
         Args:
             page: Playwright page object
+            source_url: URL of the page being crawled
 
         Returns:
             List of input metadata dictionaries
@@ -302,11 +309,14 @@ class PlaywrightCrawler:
                             "selector": f"#{input_id}"
                             if input_id
                             else f'[name="{input_name}"]',
+                            "source_url": source_url,  # Track which page input was found on
                         }
                     )
 
         except Exception as e:
-            self._errors.append(f"Input extraction failed: {e}")
+            error_msg = f"Input extraction failed: {e}"
+            logger.warning(error_msg)
+            self._errors.append(error_msg)
 
         return inputs
 
@@ -340,7 +350,9 @@ class PlaywrightCrawler:
                     links.append(absolute_url)
 
         except Exception as e:
-            self._errors.append(f"Link extraction failed: {e}")
+            error_msg = f"Link extraction failed: {e}"
+            logger.warning(error_msg)
+            self._errors.append(error_msg)
 
         return links
 

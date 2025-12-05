@@ -150,11 +150,13 @@ class DASTScanner:
                 page = await context.new_page()
                 try:
                     # Navigate to form's page
+                    # Resolve relative URLs against base_url
+                    from urllib.parse import urljoin
+
                     form_url = form_data.action or self.base_url
                     if not form_url.startswith("http"):
-                        # Relative URL - need to determine source page
-                        # For now, use base_url as fallback
-                        form_url = self.base_url
+                        # Relative URL - resolve against base_url
+                        form_url = urljoin(self.base_url, form_url)
 
                     await page.goto(form_url, timeout=30000)
 
@@ -172,10 +174,14 @@ class DASTScanner:
                     await page.close()
 
             # Test standalone inputs for XSS
+            # TODO: Track source page URL in input_data to test on correct page
+            # Currently tests all inputs on base_url which may miss context-specific inputs
             for input_data in crawl_result.inputs_found:
                 page = await context.new_page()
                 try:
-                    await page.goto(self.base_url, timeout=30000)
+                    # Use source page URL if available, otherwise fall back to base_url
+                    source_url = input_data.get("source_url", self.base_url)
+                    await page.goto(source_url, timeout=30000)
                     xss_results = await xss_detector.test_input(page, input_data)
                     vulnerabilities.extend(xss_results)
                 except Exception as e:
