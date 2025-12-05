@@ -38,8 +38,8 @@ class TestSecurityScanReusableWorkflow:
             pytest.skip(f"Workflow file not found: {workflow_path}")
         with open(workflow_path) as f:
             # GitHub Actions YAML uses 'on' which is interpreted as boolean True
-            # Use FullLoader to preserve the 'on' key
-            return yaml.load(f, Loader=yaml.FullLoader)
+            # Use SafeLoader for security (prevents arbitrary code execution)
+            return yaml.load(f, Loader=yaml.SafeLoader)
 
     def test_workflow_exists(self, workflow_path):
         """Test that reusable workflow file exists."""
@@ -168,8 +168,8 @@ class TestSecurityWorkflow:
             pytest.skip(f"Workflow file not found: {workflow_path}")
         with open(workflow_path) as f:
             # GitHub Actions YAML uses 'on' which is interpreted as boolean True
-            # Use FullLoader to preserve the 'on' key
-            return yaml.load(f, Loader=yaml.FullLoader)
+            # Use SafeLoader for security (prevents arbitrary code execution)
+            return yaml.load(f, Loader=yaml.SafeLoader)
 
     def test_workflow_exists(self, workflow_path):
         """Test that main security workflow exists."""
@@ -249,8 +249,8 @@ class TestParallelSecurityWorkflow:
             pytest.skip(f"Workflow file not found: {workflow_path}")
         with open(workflow_path) as f:
             # GitHub Actions YAML uses 'on' which is interpreted as boolean True
-            # Use FullLoader to preserve the 'on' key
-            return yaml.load(f, Loader=yaml.FullLoader)
+            # Use SafeLoader for security (prevents arbitrary code execution)
+            return yaml.load(f, Loader=yaml.SafeLoader)
 
     def test_workflow_exists(self, workflow_path):
         """Test that parallel workflow exists."""
@@ -299,7 +299,9 @@ class TestParallelSecurityWorkflow:
         assert sarif_step is not None
         assert "category" in sarif_step["with"]
         # Should use component name in category
-        assert "steps.scan.outputs.component_name" in str(sarif_step["with"]["category"])
+        assert "steps.scan.outputs.component_name" in str(
+            sarif_step["with"]["category"]
+        )
 
     def test_aggregate_results_job(self, workflow_data):
         """Test aggregation job collects all results."""
@@ -343,7 +345,7 @@ class TestWorkflowSyntax:
 
         with open(workflow_path) as f:
             try:
-                yaml.load(f, Loader=yaml.FullLoader)
+                yaml.load(f, Loader=yaml.SafeLoader)
             except yaml.YAMLError as e:
                 pytest.fail(f"Invalid YAML syntax in {workflow_file}: {e}")
 
@@ -363,7 +365,7 @@ class TestWorkflowSyntax:
             pytest.skip(f"Workflow file not found: {workflow_path}")
 
         with open(workflow_path) as f:
-            data = yaml.load(f, Loader=yaml.FullLoader)
+            data = yaml.load(f, Loader=yaml.SafeLoader)
 
         assert "name" in data, f"{workflow_file} missing 'name' field"
         # YAML parsers interpret 'on:' as boolean True
@@ -384,10 +386,10 @@ class TestWorkflowIntegration:
             pytest.skip("Workflow files not found")
 
         with open(security_yml) as f:
-            security_data = yaml.load(f, Loader=yaml.FullLoader)
+            security_data = yaml.load(f, Loader=yaml.SafeLoader)
 
         with open(reusable_yml) as f:
-            reusable_data = yaml.load(f, Loader=yaml.FullLoader)
+            reusable_data = yaml.load(f, Loader=yaml.SafeLoader)
 
         # Get inputs from calling workflow
         calling_inputs = security_data["jobs"]["security-scan"]["with"]
@@ -398,9 +400,9 @@ class TestWorkflowIntegration:
 
         # Check all expected inputs are provided
         for input_name in expected_inputs.keys():
-            assert (
-                input_name in calling_inputs
-            ), f"Missing input: {input_name} in calling workflow"
+            assert input_name in calling_inputs, (
+                f"Missing input: {input_name} in calling workflow"
+            )
 
     def test_cache_keys_consistent(self):
         """Test cache keys are consistent across workflows."""
@@ -417,7 +419,7 @@ class TestWorkflowIntegration:
                 continue
 
             with open(workflow_path) as f:
-                data = yaml.load(f, Loader=yaml.FullLoader)
+                data = yaml.load(f, Loader=yaml.SafeLoader)
 
             # Find cache steps
             for job in data["jobs"].values():
@@ -430,9 +432,9 @@ class TestWorkflowIntegration:
 
         # All Semgrep cache keys should use same pattern
         if cache_keys:
-            assert all(
-                "semgrep-" in key for key in cache_keys
-            ), "Inconsistent Semgrep cache keys"
+            assert all("semgrep-" in key for key in cache_keys), (
+                "Inconsistent Semgrep cache keys"
+            )
 
 
 class TestPerformanceOptimizations:
@@ -446,14 +448,12 @@ class TestPerformanceOptimizations:
             pytest.skip("Workflow file not found")
 
         with open(workflow_path) as f:
-            data = yaml.load(f, Loader=yaml.FullLoader)
+            data = yaml.load(f, Loader=yaml.SafeLoader)
 
         steps = data["jobs"]["scan"]["steps"]
 
         # Find Python setup step
-        python_step = next(
-            (s for s in steps if s.get("name") == "Setup Python"), None
-        )
+        python_step = next((s for s in steps if s.get("name") == "Setup Python"), None)
 
         assert python_step is not None
         assert python_step["with"].get("cache") == "pip"
@@ -466,7 +466,7 @@ class TestPerformanceOptimizations:
             pytest.skip("Workflow file not found")
 
         with open(workflow_path) as f:
-            data = yaml.load(f, Loader=yaml.FullLoader)
+            data = yaml.load(f, Loader=yaml.SafeLoader)
 
         steps = data["jobs"]["scan"]["steps"]
 
@@ -494,7 +494,7 @@ class TestSecurityConfiguration:
             pytest.skip("Workflow file not found")
 
         with open(workflow_path) as f:
-            data = yaml.load(f, Loader=yaml.FullLoader)
+            data = yaml.load(f, Loader=yaml.SafeLoader)
 
         inputs = data["jobs"]["security-scan"]["with"]
 
@@ -510,7 +510,7 @@ class TestSecurityConfiguration:
             pytest.skip("Workflow file not found")
 
         with open(workflow_path) as f:
-            data = yaml.load(f, Loader=yaml.FullLoader)
+            data = yaml.load(f, Loader=yaml.SafeLoader)
 
         inputs = data["jobs"]["security-scan"]["with"]
 
