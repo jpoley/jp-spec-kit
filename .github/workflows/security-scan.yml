@@ -9,7 +9,7 @@
 #     security:
 #       uses: ./.github/workflows/security-scan.yml
 #       with:
-#         fail-on: critical,high
+#         fail-on: critical
 #         upload-sarif: true
 #
 # NOTE: This workflow is optional and will not block PRs on failure.
