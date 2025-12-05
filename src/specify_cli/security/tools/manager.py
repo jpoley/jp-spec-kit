@@ -17,7 +17,7 @@ Security Features:
 - Symlink attack detection
 - Maximum download size enforcement
 - Version format validation with anchored regex
-- Pip installs use --no-deps to prevent dependency confusion
+- Pip installs allow dependencies to ensure tool functionality
 - Command injection prevention via path validation
 """
 
@@ -343,12 +343,13 @@ class ToolManager:
                 self._safe_extract_archive(download_path, dest_dir)
             finally:
                 os.umask(old_umask)
-
-            # Issue #10: Handle unlink errors gracefully
-            try:
-                download_path.unlink()
-            except (OSError, PermissionError) as e:
-                logger.warning(f"Could not remove download file {download_path}: {e}")
+                # Issue #10: Always clean up download file (even on extraction failure)
+                try:
+                    download_path.unlink()
+                except (OSError, PermissionError) as e:
+                    logger.warning(
+                        f"Could not remove download file {download_path}: {e}"
+                    )
 
             tool_path = self._find_in_directory(dest_dir, config.name)
             if not tool_path:
@@ -384,6 +385,14 @@ class ToolManager:
             # Issue #12: Include exception details in error message
             error_details = f"{type(e).__name__}: {str(e)}"
             logger.error(f"Binary install failed: {error_details}")
+
+            # Clean up partially installed directory on failure
+            if dest_dir.exists():
+                try:
+                    shutil.rmtree(dest_dir)
+                except (OSError, PermissionError) as cleanup_error:
+                    logger.warning(f"Could not clean up {dest_dir}: {cleanup_error}")
+
             return InstallResult(
                 success=False,
                 error_message=f"Binary installation failed: {error_details}",
@@ -431,8 +440,17 @@ class ToolManager:
                             )
 
                         f.write(chunk)
-        except URLError as e:
-            raise RuntimeError(f"Download failed: {e}") from e
+        except (URLError, RuntimeError) as e:
+            # Clean up partial download on any failure
+            try:
+                dest.unlink()
+            except (OSError, FileNotFoundError):
+                pass  # File may not exist or already deleted
+
+            if isinstance(e, URLError):
+                raise RuntimeError(f"Download failed: {e}") from e
+            else:
+                raise  # Re-raise RuntimeError (size exceeded)
         # Issue #18: Removed dead TimeoutError handler - URLError catches timeouts
 
     def _safe_extract_archive(self, archive_path: Path, dest_dir: Path) -> None:

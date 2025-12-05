@@ -17,7 +17,6 @@ Security Features:
     - Path traversal protection via Path.relative_to()
     - Symlink attack detection
     - Maximum download size enforcement
-    - Pip installs use --no-deps to prevent dependency confusion
 """
 
 from specify_cli.security.tools.manager import ToolManager
