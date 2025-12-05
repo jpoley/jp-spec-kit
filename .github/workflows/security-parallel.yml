@@ -1,0 +1,181 @@
+# Parallel Security Scanning Workflow
+#
+# This workflow demonstrates parallel security scanning for large monorepos
+# using a matrix strategy to scan different components simultaneously.
+#
+# Use this workflow for codebases >500K LOC to achieve 3x speedup.
+
+name: Security Scan (Parallel)
+
+on:
+  workflow_dispatch:
+    inputs:
+      fail-on:
+        description: 'Severity levels to block on'
+        required: false
+        default: 'critical,high'
+        type: string
+  schedule:
+    # Run weekly on Sunday at 3 AM UTC
+    - cron: '0 3 * * 0'
+
+jobs:
+  # Parallel scanning by component
+  security-scan-matrix:
+    name: Scan ${{ matrix.component }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    permissions:
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        component:
+          - src/specify_cli  # Backend Python code
+          - tests            # Test suite
+          - scripts          # Automation scripts
+          # Add more components as needed:
+          # - frontend
+          # - infrastructure
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Cache Semgrep Binary
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/bin/semgrep
+          key: semgrep-${{ runner.os }}-1.50.0
+          restore-keys: |
+            semgrep-${{ runner.os }}-
+
+      - name: Install JP Spec Kit
+        run: |
+          pip install uv
+          uv tool install specify-cli
+
+      - name: Install Semgrep
+        run: pip install semgrep==1.50.0
+
+      - name: Run Security Scan for ${{ matrix.component }}
+        id: scan
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          specify security scan \
+            --path "${{ matrix.component }}" \
+            --format sarif \
+            --output security-results-${{ matrix.component }}.sarif \
+            --fail-on "${{ inputs.fail-on || 'critical,high' }}" \
+            --ci-mode || SCAN_EXIT_CODE=$?
+
+          # Replace slashes in component name for artifact naming
+          COMPONENT_NAME=$(echo "${{ matrix.component }}" | tr '/' '-')
+
+          # Parse results for metrics
+          if [ -f "security-results-${{ matrix.component }}.sarif" ]; then
+            TOTAL=$(jq '.runs[0].results | length' "security-results-${{ matrix.component }}.sarif" || echo "0")
+            CRITICAL=$(jq '[.runs[0].results[] | select(.level == "error" and (.properties.severity == "critical" or .properties.severity == "CRITICAL"))] | length' "security-results-${{ matrix.component }}.sarif" || echo "0")
+
+            echo "total=${TOTAL}" >> $GITHUB_OUTPUT
+            echo "critical=${CRITICAL}" >> $GITHUB_OUTPUT
+            echo "component_name=${COMPONENT_NAME}" >> $GITHUB_OUTPUT
+
+            echo "📊 [${{ matrix.component }}] ${TOTAL} findings (${CRITICAL} critical)"
+          else
+            echo "total=0" >> $GITHUB_OUTPUT
+            echo "critical=0" >> $GITHUB_OUTPUT
+            echo "component_name=${COMPONENT_NAME}" >> $GITHUB_OUTPUT
+          fi
+
+          exit ${SCAN_EXIT_CODE:-0}
+
+      - name: Upload SARIF for ${{ matrix.component }}
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: security-results-${{ matrix.component }}.sarif
+          category: jpspec-security-${{ steps.scan.outputs.component_name }}
+
+      - name: Upload Scan Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-scan-${{ steps.scan.outputs.component_name }}
+          path: |
+            security-results-${{ matrix.component }}.sarif
+          retention-days: 30
+
+  # Aggregate results from all components
+  aggregate-results:
+    name: Aggregate Scan Results
+    runs-on: ubuntu-latest
+    needs: security-scan-matrix
+    if: always()
+
+    steps:
+      - name: Download all scan artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: security-scan-*
+          path: scan-results/
+
+      - name: Aggregate SARIF results
+        run: |
+          # Install jq for JSON processing
+          sudo apt-get update && sudo apt-get install -y jq
+
+          # Combine all SARIF files
+          echo "Aggregating scan results..."
+          TOTAL_FINDINGS=0
+          TOTAL_CRITICAL=0
+
+          for sarif in scan-results/**/*.sarif; do
+            if [ -f "$sarif" ]; then
+              FINDINGS=$(jq '.runs[0].results | length' "$sarif" || echo "0")
+              CRITICAL=$(jq '[.runs[0].results[] | select(.level == "error" and (.properties.severity == "critical" or .properties.severity == "CRITICAL"))] | length' "$sarif" || echo "0")
+
+              TOTAL_FINDINGS=$((TOTAL_FINDINGS + FINDINGS))
+              TOTAL_CRITICAL=$((TOTAL_CRITICAL + CRITICAL))
+
+              echo "  - $(basename $sarif): ${FINDINGS} findings (${CRITICAL} critical)"
+            fi
+          done
+
+          echo ""
+          echo "📊 Total Results:"
+          echo "  - Total Findings: ${TOTAL_FINDINGS}"
+          echo "  - Critical Findings: ${TOTAL_CRITICAL}"
+
+          # Create summary
+          {
+            echo "## Security Scan Results (Parallel)"
+            echo ""
+            echo "**Total Findings:** ${TOTAL_FINDINGS}"
+            echo "**Critical Findings:** ${TOTAL_CRITICAL}"
+            echo ""
+            if [ "$TOTAL_CRITICAL" -gt 0 ]; then
+              echo "⚠️ **Action Required:** ${TOTAL_CRITICAL} critical vulnerabilities found across components."
+            else
+              echo "✅ No critical vulnerabilities found."
+            fi
+          } >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload aggregated results
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-scan-aggregated
+          path: scan-results/
+          retention-days: 90
