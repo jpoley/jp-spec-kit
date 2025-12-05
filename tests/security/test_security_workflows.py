@@ -118,7 +118,7 @@ class TestSecurityScanWorkflow:
         """Test that jq commands have error handling."""
         # Check each line for jq commands and ensure error handling is present
         for line in workflow_content.split("\n"):
-            if "jq " in line and "jq" in line:
+            if "jq " in line:
                 # Skip comments
                 if line.strip().startswith("#"):
                     continue
