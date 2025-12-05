@@ -27,7 +27,8 @@ See [ADR-008: Security MCP Server Architecture](../adr/ADR-008-security-mcp-serv
    - [security://status](#securitystatus)
    - [security://config](#securityconfig)
 5. [Usage Examples](#usage-examples)
-6. [Troubleshooting](#troubleshooting)
+6. [Testing with MCP Inspector](#testing-with-mcp-inspector)
+7. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -555,11 +556,182 @@ Example workflow:
 
 ---
 
+## Testing with MCP Inspector
+
+The MCP Inspector is a testing tool that allows you to verify your MCP server is working correctly.
+
+### Install MCP Inspector
+
+```bash
+npm install -g @modelcontextprotocol/inspector
+```
+
+### Test the Security MCP Server
+
+1. **Launch MCP Inspector with the server:**
+
+```bash
+mcp-inspector python -m specify_cli.security.mcp_server
+```
+
+2. **Verify tools are exposed:**
+
+In the Inspector UI, you should see:
+- `security_scan` tool
+- `security_triage` tool
+- `security_fix` tool
+
+3. **Test security_scan tool:**
+
+Click on `security_scan` and provide parameters:
+```json
+{
+  "target": ".",
+  "scanners": ["semgrep"]
+}
+```
+
+Expected response:
+```json
+{
+  "findings_count": 5,
+  "by_severity": {
+    "critical": 0,
+    "high": 2,
+    "medium": 3,
+    "low": 0,
+    "info": 0
+  },
+  "should_fail": true,
+  "findings_file": "docs/security/scan-results.json"
+}
+```
+
+4. **Verify resources are accessible:**
+
+In the Inspector UI, you should see:
+- `security://findings`
+- `security://status`
+- `security://config`
+
+5. **Test security://status resource:**
+
+Click on `security://status` to query.
+
+Expected response:
+```json
+{
+  "total_findings": 5,
+  "by_severity": {
+    "critical": 0,
+    "high": 2,
+    "medium": 3,
+    "low": 0,
+    "info": 0
+  },
+  "security_posture": "high_risk",
+  "triage_status": "not_run"
+}
+```
+
+### Test the Client Examples
+
+1. **Test Claude Security Agent Example:**
+
+```bash
+# Navigate to project root
+cd /path/to/jp-spec-kit
+
+# Run the example
+python examples/mcp/claude_security_agent.py --target src/
+
+# Expected output:
+# Step 1: Running security scan...
+# Step 2: Getting triage instruction...
+# Step 3: Getting fix generation instruction...
+# Step 4: Querying security status...
+# Step 5: Querying all findings...
+```
+
+2. **Test Security Dashboard Example:**
+
+```bash
+# Test with multiple repos
+python examples/mcp/security_dashboard.py --repos . ../other-project
+
+# Expected output:
+# ================ SECURITY DASHBOARD ================
+# Repository            | Posture      | Total | C | H | M | L
+# jp-spec-kit          | GOOD         | 0     | 0 | 0 | 0 | 0
+# other-project        | HIGH RISK    | 12    | 1 | 5 | 6 | 0
+
+# Show critical findings across repos
+python examples/mcp/security_dashboard.py --repos . ../other-project --show-critical
+```
+
+### Verify Server is Running in Claude Desktop
+
+If using Claude Desktop with MCP:
+
+1. **Add server to Claude Desktop config:**
+
+Location: `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS)
+
+```json
+{
+  "mcpServers": {
+    "jpspec-security": {
+      "command": "python",
+      "args": ["-m", "specify_cli.security.mcp_server"],
+      "env": {}
+    }
+  }
+}
+```
+
+2. **Restart Claude Desktop**
+
+3. **Verify tools are available:**
+
+Ask Claude: "What MCP tools are available?"
+
+Expected: Claude should list `security_scan`, `security_triage`, `security_fix`
+
+4. **Test a scan:**
+
+Ask Claude: "Run a security scan on the current project"
+
+Claude should invoke the `security_scan` tool via MCP.
+
+### Common Testing Issues
+
+**Issue:** "Server not responding"
+
+**Fix:**
+- Verify Python path is correct
+- Ensure `specify_cli` is installed: `python -c "import specify_cli.security.mcp_server"`
+- Check that MCP package is installed: `pip show mcp`
+
+**Issue:** "No scanners available"
+
+**Fix:**
+- Install semgrep: `pip install semgrep`
+- Verify in config: Query `security://config` resource
+
+**Issue:** "Findings file not found"
+
+**Fix:**
+- Run `security_scan` tool first to generate findings
+- Verify `docs/security/scan-results.json` exists
+
+---
+
 ## Related Documentation
 
 - [ADR-008: Security MCP Server Architecture](../adr/ADR-008-security-mcp-server-architecture.md)
 - [Security Commands PRD](../prd/jpspec-security-commands.md)
 - [Model Context Protocol Specification](https://modelcontextprotocol.io/docs/)
+- [MCP Inspector Documentation](https://github.com/modelcontextprotocol/inspector)
 
 ---
 
