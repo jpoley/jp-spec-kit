@@ -220,4 +220,3 @@ jobs:
 ## Related Documentation
 
 - [Security Commands Reference](../reference/jpspec-security-commands.md)
-- [Semgrep Rules](../security/semgrep-rules.md)
