@@ -1,1 +1,1 @@
-../../../templates/commands/clarify.md
+../../../templates/commands/speckit/clarify.md

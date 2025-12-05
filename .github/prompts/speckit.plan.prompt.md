@@ -1,1 +1,1 @@
-../../templates/commands/plan.md
+../../templates/commands/speckit/plan.md

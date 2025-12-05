@@ -1,0 +1,1 @@
+../../templates/commands/jpspec/security_web.md

@@ -70,12 +70,17 @@ class TestDevSetupInitEquivalence:
         self, claude_commands_dir: Path, templates_dir: Path
     ) -> None:
         """Test dev-setup creates speckit symlinks for all speckit templates."""
+        speckit_templates_dir = templates_dir / "speckit"
         speckit_commands_dir = claude_commands_dir / "speckit"
 
+        if not speckit_templates_dir.exists():
+            pytest.skip("No templates/commands/speckit directory")
         if not speckit_commands_dir.exists():
             pytest.skip("No .claude/commands/speckit directory")
 
-        template_files = {f.name for f in templates_dir.glob("*.md") if f.is_file()}
+        template_files = {
+            f.name for f in speckit_templates_dir.glob("*.md") if f.is_file()
+        }
         symlink_files = {
             f.name for f in speckit_commands_dir.glob("*.md") if f.is_symlink()
         }
@@ -113,9 +118,11 @@ class TestDevSetupInitEquivalence:
                 if template.is_file():
                     init_files.add(f"jpspec/{template.name}")
 
-        for template in templates_dir.glob("*.md"):
-            if template.is_file():
-                init_files.add(f"speckit/{template.name}")
+        speckit_templates = templates_dir / "speckit"
+        if speckit_templates.exists():
+            for template in speckit_templates.glob("*.md"):
+                if template.is_file():
+                    init_files.add(f"speckit/{template.name}")
 
         assert dev_setup_files == init_files, (
             f"File set mismatch between dev-setup and init.\n"
@@ -161,13 +168,22 @@ class TestSubdirectoryStructure:
     def test_templates_subdirectory_structure_matches(
         self, templates_dir: Path
     ) -> None:
-        """Test templates directory has matching jpspec subdirectory."""
+        """Test templates directory has matching jpspec and speckit subdirectories."""
         jpspec_templates = templates_dir / "jpspec"
         assert jpspec_templates.exists(), "templates/commands/jpspec does not exist"
         assert jpspec_templates.is_dir(), "templates/commands/jpspec is not a directory"
 
         jpspec_files = list(jpspec_templates.glob("*.md"))
         assert len(jpspec_files) > 0, "No jpspec template files found"
+
+        speckit_templates = templates_dir / "speckit"
+        assert speckit_templates.exists(), "templates/commands/speckit does not exist"
+        assert speckit_templates.is_dir(), (
+            "templates/commands/speckit is not a directory"
+        )
+
+        speckit_files = list(speckit_templates.glob("*.md"))
+        assert len(speckit_files) > 0, "No speckit template files found"
 
     def test_no_direct_files_in_commands_root(self, claude_commands_dir: Path) -> None:
         """Test no direct .md files exist in .claude/commands/ root."""
@@ -258,23 +274,16 @@ class TestDevSetupSymlinkValidation:
                         )
 
         speckit_dir = claude_commands_dir / "speckit"
+        speckit_templates = templates_dir / "speckit"
         if speckit_dir.exists():
             for symlink in speckit_dir.glob("*.md"):
                 if symlink.is_symlink():
                     target = symlink.resolve()
                     try:
-                        target.relative_to(templates_dir)
-                        # Verify it's not in jpspec subdirectory
-                        try:
-                            target.relative_to(jpspec_templates)
-                            invalid_targets.append(
-                                f"speckit/{symlink.name} -> {target} (should not be under jpspec/)"
-                            )
-                        except ValueError:
-                            pass  # Correct: not under jpspec
+                        target.relative_to(speckit_templates)
                     except ValueError:
                         invalid_targets.append(
-                            f"speckit/{symlink.name} -> {target} (expected under {templates_dir})"
+                            f"speckit/{symlink.name} -> {target} (expected under {speckit_templates})"
                         )
 
         assert len(invalid_targets) == 0, (
@@ -364,12 +373,13 @@ class TestTemplateCompleteness:
         self, templates_dir: Path, claude_commands_dir: Path
     ) -> None:
         """Test every speckit template has a corresponding symlink (R4)."""
+        speckit_templates = templates_dir / "speckit"
         speckit_commands = claude_commands_dir / "speckit"
 
-        if not speckit_commands.exists():
-            pytest.skip("speckit commands directory not found")
+        if not speckit_templates.exists() or not speckit_commands.exists():
+            pytest.skip("speckit directories not found")
 
-        template_files = {f.name for f in templates_dir.glob("*.md")}
+        template_files = {f.name for f in speckit_templates.glob("*.md")}
         symlink_files = {f.name for f in speckit_commands.glob("*.md")}
 
         orphan_templates = template_files - symlink_files
@@ -395,9 +405,10 @@ class TestTemplateCompleteness:
             )
 
         # Check speckit
+        speckit_templates = templates_dir / "speckit"
         speckit_commands = claude_commands_dir / "speckit"
-        if speckit_commands.exists():
-            template_files = {f.name for f in templates_dir.glob("*.md")}
+        if speckit_templates.exists() and speckit_commands.exists():
+            template_files = {f.name for f in speckit_templates.glob("*.md")}
             symlink_files = {f.name for f in speckit_commands.glob("*.md")}
             orphan_symlinks.extend(
                 f"speckit/{n}" for n in symlink_files - template_files

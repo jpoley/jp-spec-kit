@@ -37,6 +37,70 @@ backlog task edit 42 -s Done     # Complete task
 /jpspec:operate   # SRE operations (CI/CD, K8s)
 ```
 
+## Engineering Subagents
+
+JP Spec Kit includes specialized engineering subagents for implementation tasks. These agents are invoked during `/jpspec:implement` and provide focused expertise:
+
+### Backend Engineer
+**Location**: `.claude/agents/backend-engineer.md`
+
+**Expertise**:
+- Python 3.11+ (FastAPI, Flask)
+- APIs and REST endpoints
+- Database design (SQLAlchemy, PostgreSQL, SQLite)
+- Server-side business logic
+- pytest and test automation
+
+**Use for**: API development, database work, backend services, data processing
+
+### Frontend Engineer
+**Location**: `.claude/agents/frontend-engineer.md`
+
+**Expertise**:
+- React 18+ and Next.js 14+
+- TypeScript strict mode
+- UI components and styling (Tailwind CSS)
+- Accessibility (WCAG compliance)
+- Vitest, React Testing Library, Playwright
+
+**Use for**: React components, UI/UX, browser interactions, client-side logic
+
+### QA Engineer
+**Location**: `.claude/agents/qa-engineer.md`
+
+**Expertise**:
+- Test pyramid strategy (unit, integration, E2E)
+- pytest, Vitest, Playwright
+- Test coverage and quality metrics
+- Test automation and CI/CD integration
+- Property-based testing (hypothesis)
+
+**Use for**: Test creation, coverage analysis, E2E testing, quality validation
+
+### Security Reviewer
+**Location**: `.claude/agents/security-reviewer.md`
+
+**Expertise**:
+- OWASP Top 10 compliance
+- Vulnerability assessment
+- SLSA compliance (Levels 1-4)
+- Security scanning (bandit, npm audit, trivy)
+- Threat modeling and secure design
+
+**Use for**: Security reviews, vulnerability scanning, compliance checks, threat analysis
+
+**Note**: Security reviewer has **read-only** access to code. It analyzes and reports findings but does not make code changes directly.
+
+### Agent Invocation
+
+Agents are automatically invoked by `/jpspec:implement` based on task labels:
+- Tasks labeled `backend` → backend-engineer
+- Tasks labeled `frontend` → frontend-engineer
+- All tasks → qa-engineer (for test coverage)
+- All tasks → security-reviewer (for security review)
+
+See [Workflow Configuration](#workflow-configuration) for customizing agent assignments.
+
 ## Workflow Configuration
 
 JP Spec Kit uses a configurable workflow system defined in `jpspec_workflow.yml` at the project root.

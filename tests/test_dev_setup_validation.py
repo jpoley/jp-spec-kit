@@ -182,7 +182,12 @@ class TestTemplateCoverage:
         self, claude_commands_dir: Path, templates_commands_dir: Path
     ) -> None:
         """Verify every speckit template has a corresponding symlink (R4)."""
-        speckit_templates = {f.name for f in templates_commands_dir.glob("*.md")}
+        speckit_templates_dir = templates_commands_dir / "speckit"
+        speckit_templates = (
+            {f.name for f in speckit_templates_dir.glob("*.md")}
+            if speckit_templates_dir.exists()
+            else set()
+        )
 
         if not speckit_templates:
             pytest.skip("No speckit templates found")
@@ -238,7 +243,12 @@ class TestTemplateCoverage:
         if not claude_speckit_dir.exists():
             pytest.skip("No .claude/commands/speckit directory")
 
-        template_files = {f.name for f in templates_commands_dir.glob("*.md")}
+        speckit_templates_dir = templates_commands_dir / "speckit"
+        template_files = (
+            {f.name for f in speckit_templates_dir.glob("*.md")}
+            if speckit_templates_dir.exists()
+            else set()
+        )
         symlink_files = {f.name for f in claude_speckit_dir.glob("*.md")}
 
         orphan_symlinks = symlink_files - template_files

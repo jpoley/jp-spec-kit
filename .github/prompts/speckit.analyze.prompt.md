@@ -1,1 +1,1 @@
-../../templates/commands/analyze.md
+../../templates/commands/speckit/analyze.md

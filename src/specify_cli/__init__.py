@@ -3487,6 +3487,7 @@ def dev_setup(
 
     templates_dir = project_path / "templates" / "commands"
     jpspec_templates_dir = templates_dir / "jpspec"
+    speckit_templates_dir = templates_dir / "speckit"
     if not templates_dir.exists():
         console.print(
             f"[red]Error:[/red] Templates directory not found: {templates_dir}"
@@ -3494,7 +3495,11 @@ def dev_setup(
         raise typer.Exit(1)
 
     # Get list of template command files
-    speckit_files = list(templates_dir.glob("*.md"))
+    speckit_files = (
+        list(speckit_templates_dir.glob("*.md"))
+        if speckit_templates_dir.exists()
+        else []
+    )
     jpspec_files = (
         list(jpspec_templates_dir.glob("*.md")) if jpspec_templates_dir.exists() else []
     )
@@ -3528,7 +3533,13 @@ def dev_setup(
     for template_file in speckit_files:
         symlink_path = speckit_commands_dir / template_file.name
         relative_target = (
-            Path("..") / ".." / ".." / "templates" / "commands" / template_file.name
+            Path("..")
+            / ".."
+            / ".."
+            / "templates"
+            / "commands"
+            / "speckit"
+            / template_file.name
         )
 
         try:
@@ -3615,7 +3626,12 @@ def dev_setup(
         prompt_name = f"speckit.{template_file.stem}.prompt.md"
         symlink_path = prompts_dir / prompt_name
         relative_target = (
-            Path("..") / ".." / "templates" / "commands" / template_file.name
+            Path("..")
+            / ".."
+            / "templates"
+            / "commands"
+            / "speckit"
+            / template_file.name
         )
 
         try:
