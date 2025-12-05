@@ -15,6 +15,13 @@ from specify_cli.security.fixer.models import (
 )
 from specify_cli.security.fixer.generator import FixGenerator
 from specify_cli.security.fixer.patterns import FixPatternLibrary
+from specify_cli.security.fixer.applicator import (
+    PatchApplicator,
+    ApplyResult,
+    ApplyStatus,
+    ConfirmationHandler,
+    DefaultConfirmationHandler,
+)
 
 __all__ = [
     "FixResult",
@@ -23,4 +30,9 @@ __all__ = [
     "FixPattern",
     "FixGenerator",
     "FixPatternLibrary",
+    "PatchApplicator",
+    "ApplyResult",
+    "ApplyStatus",
+    "ConfirmationHandler",
+    "DefaultConfirmationHandler",
 ]
