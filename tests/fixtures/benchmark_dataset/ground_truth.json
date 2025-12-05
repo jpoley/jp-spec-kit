@@ -1489,7 +1489,7 @@
       "code_snippet": "redis_client = Redis(host='localhost', password='RedisPass123')",
       "ground_truth": {
         "classification": "TP",
-      "reasoning": "Redis password hardcoded in connection",
+        "reasoning": "Redis password hardcoded in connection",
         "severity": "high"
       }
     },
