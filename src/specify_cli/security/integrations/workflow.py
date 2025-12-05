@@ -204,13 +204,21 @@ class SecurityWorkflowIntegration:
                 ac_list.append("Security code review completed")
 
             # Build backlog CLI command
+            # Sanitize title and description to prevent issues
+            safe_title = title.replace('\n', ' ').replace('\r', ' ').strip()
+            if len(safe_title) > 200:
+                safe_title = safe_title[:197] + "..."
+            safe_description = description.replace('\n', ' ').replace('\r', ' ').strip()
+            if len(safe_description) > 1000:
+                safe_description = safe_description[:997] + "..."
+
             cmd = [
                 self.backlog_cli,
                 "task",
                 "create",
-                title,
+                safe_title,
                 "-d",
-                description,
+                safe_description,
                 "-p",
                 priority_map.get(finding.severity.value, "medium"),
             ]
