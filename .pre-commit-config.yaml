@@ -17,6 +17,16 @@ repos:
         pass_filenames: false
         description: Validate .claude/commands/ symlink structure
 
+      # Dogfood check (alias for dev-setup validation)
+      # Ensures we "eat our own dogfood" by validating our own dev-setup
+      - id: dogfood-check
+        name: Check dogfood symlinks
+        entry: scripts/bash/pre-commit-dogfood.sh
+        language: script
+        always_run: true
+        pass_filenames: false
+        description: Dogfood validation for .claude/commands/ structure
+
   # Standard Python hooks
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.8.2
