@@ -1,11 +1,11 @@
 ---
 id: task-085
 title: Local CI Simulation Script
-status: To Do
+status: Done
 assignee:
   - '@kinsale'
 created_date: '2025-11-27 21:54'
-updated_date: '2025-12-04 17:07'
+updated_date: '2025-12-05 16:30'
 labels:
   - specify-cli
   - ci-cd
@@ -23,14 +23,14 @@ Implement scripts/bash/run-local-ci.sh to execute full CI pipeline locally using
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Create scripts/bash/run-local-ci.sh
-- [ ] #2 Implement act installation check and auto-install
-- [ ] #3 Run lint job via act
-- [ ] #4 Run test job via act
-- [ ] #5 Run build job via act
-- [ ] #6 Run security job via act
-- [ ] #7 Document act installation (scripts/bash/install-act.sh)
-- [ ] #8 Document act limitations (Docker required, OIDC not supported)
+- [x] #1 Create scripts/bash/run-local-ci.sh
+- [x] #2 Implement act installation check and auto-install
+- [x] #3 Run lint job via act
+- [x] #4 Run test job via act
+- [x] #5 Run build job via act
+- [x] #6 Run security job via act
+- [x] #7 Document act installation (scripts/bash/install-act.sh)
+- [x] #8 Document act limitations (Docker required, OIDC not supported)
 - [x] #9 Test on Linux and macOS
 <!-- AC:END -->
 

@@ -1,11 +1,11 @@
 ---
 id: task-086
 title: Spec-Light Mode for Medium Features
-status: To Do
+status: Done
 assignee:
   - '@kinsale'
 created_date: '2025-11-27 21:54'
-updated_date: '2025-12-04 17:07'
+updated_date: '2025-12-05 16:28'
 labels:
   - jpspec
   - feature
@@ -23,12 +23,12 @@ Create simplified SDD workflow for medium-complexity features (after /jpspec:ass
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Create spec-light.md template (combined user stories + AC)
-- [ ] #2 Create plan-light.md template (high-level approach only)
-- [ ] #3 Implement 'specify init --light' flag
-- [ ] #4 Skip research and analyze phases for light mode
-- [ ] #5 Maintain constitutional compliance requirement
-- [ ] #6 Simplified quality gates for light mode
-- [ ] #7 Document when to use light vs full mode
-- [ ] #8 Test workflow with medium-complexity features
+- [x] #1 Create spec-light.md template (combined user stories + AC)
+- [x] #2 Create plan-light.md template (high-level approach only)
+- [x] #3 Implement 'specify init --light' flag
+- [x] #4 Skip research and analyze phases for light mode
+- [x] #5 Maintain constitutional compliance requirement
+- [x] #6 Simplified quality gates for light mode
+- [x] #7 Document when to use light vs full mode
+- [x] #8 Test workflow with medium-complexity features
 <!-- AC:END -->
