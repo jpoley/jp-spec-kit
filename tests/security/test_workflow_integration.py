@@ -303,7 +303,6 @@ class TestSecurityWorkflowIntegration:
         integration = SecurityWorkflowIntegration(project_root=tmp_path)
         integration.emit_security_event(
             event_type="scan.completed",
-            data={"findings_count": 15, "duration_seconds": 45.3},
             feature_id="auth-system",
             task_id="task-216",
         )
@@ -327,9 +326,7 @@ class TestSecurityWorkflowIntegration:
     def test_emit_security_event_without_optional_params(self, mock_run, tmp_path):
         """Test emitting event without optional parameters."""
         integration = SecurityWorkflowIntegration(project_root=tmp_path)
-        integration.emit_security_event(
-            event_type="gate.passed", data={"findings_count": 0}
-        )
+        integration.emit_security_event(event_type="gate.passed")
 
         # Verify subprocess was called with minimal args
         assert mock_run.called
@@ -346,9 +343,7 @@ class TestSecurityWorkflowIntegration:
 
         integration = SecurityWorkflowIntegration(project_root=tmp_path)
         # Should not raise exception
-        integration.emit_security_event(
-            event_type="scan.completed", data={"findings_count": 5}
-        )
+        integration.emit_security_event(event_type="scan.completed")
 
         # Check warning was printed
         captured = capsys.readouterr()
@@ -466,10 +461,6 @@ class TestWorkflowIntegrationEndToEnd:
         # Step 3: Emit security event
         integration.emit_security_event(
             event_type="gate.failed",
-            data={
-                "blocking_count": len(gate_result.blocking_findings),
-                "threshold": "critical",
-            },
             feature_id="auth-system",
         )
 
