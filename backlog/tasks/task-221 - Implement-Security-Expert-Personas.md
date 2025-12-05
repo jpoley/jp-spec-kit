@@ -1,11 +1,11 @@
 ---
 id: task-221
 title: Implement Security Expert Personas
-status: In Progress
+status: Done
 assignee:
   - '@backend-engineer'
 created_date: '2025-12-03 02:15'
-updated_date: '2025-12-05 17:17'
+updated_date: '2025-12-05 22:06'
 labels:
   - security
   - personas
