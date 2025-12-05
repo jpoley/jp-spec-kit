@@ -3546,7 +3546,7 @@ def dev_setup(
             claude_speckit_errors.append(f"speckit/{template_file.name}: {e}")
 
     if claude_speckit_errors:
-        tracker.fail("claude_speckit", f"{len(claude_speckit_errors)} errors")
+        tracker.error("claude_speckit", f"{len(claude_speckit_errors)} errors")
         all_errors.extend(claude_speckit_errors)
     else:
         tracker.complete(
@@ -3591,7 +3591,7 @@ def dev_setup(
             claude_jpspec_errors.append(f"jpspec/{template_file.name}: {e}")
 
     if claude_jpspec_errors:
-        tracker.fail("claude_jpspec", f"{len(claude_jpspec_errors)} errors")
+        tracker.error("claude_jpspec", f"{len(claude_jpspec_errors)} errors")
         all_errors.extend(claude_jpspec_errors)
     else:
         tracker.complete(
@@ -3656,7 +3656,7 @@ def dev_setup(
             copilot_errors.append(f"{prompt_name}: {e}")
 
     if copilot_errors:
-        tracker.fail("copilot", f"{len(copilot_errors)} errors")
+        tracker.error("copilot", f"{len(copilot_errors)} errors")
         all_errors.extend(copilot_errors)
     else:
         tracker.complete(
@@ -3699,7 +3699,7 @@ def dev_setup(
 
         tracker.complete("vscode", "chat.promptFiles enabled")
     except OSError as e:
-        tracker.fail("vscode", str(e))
+        tracker.error("vscode", str(e))
         all_errors.append(f"settings.json: {e}")
 
     # === Verify Symlinks ===
@@ -3733,7 +3733,7 @@ def dev_setup(
                 broken += 1
 
     if broken > 0:
-        tracker.fail("verify", f"{broken} broken symlinks")
+        tracker.error("verify", f"{broken} broken symlinks")
     else:
         tracker.complete("verify", f"{valid} valid symlinks")
 

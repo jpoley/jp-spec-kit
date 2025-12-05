@@ -1,1 +1,1 @@
-../../../templates/commands/speckit/constitution.md
+../../../templates/commands/constitution.md
