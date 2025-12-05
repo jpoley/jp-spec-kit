@@ -729,8 +729,8 @@ class TestSecurityProtections:
 class TestSymlinkProtection:
     """Test symlink attack detection."""
 
-    def test_rejects_symlinks_in_non_zip_archives(self, tmp_path):
-        """Extraction fails with RuntimeError when symlinks detected in non-ZIP archives (Issue #22 fix)."""
+    def test_rejects_symlinks_in_non_zip_non_tar_archives(self, tmp_path):
+        """Extraction fails with RuntimeError when symlinks are detected in non-ZIP/tar archives (Issue #22 fix)."""
         manager = ToolManager(cache_dir=tmp_path)
         extract_dir = tmp_path / "extract"
         extract_dir.mkdir()
@@ -740,9 +740,10 @@ class TestSymlinkProtection:
             (dest / "normal.txt").write_text("content")
             (dest / "link").symlink_to("/etc/passwd")
 
+        # Use .rar extension to bypass zip/tar specific handlers
         with patch("shutil.unpack_archive", side_effect=mock_unpack):
             with pytest.raises(RuntimeError, match="symlink"):
-                manager._safe_extract_archive(tmp_path / "archive.tar.gz", extract_dir)
+                manager._safe_extract_archive(tmp_path / "archive.rar", extract_dir)
 
 
 class TestCommandInjectionPrevention:
@@ -784,10 +785,10 @@ class TestCommandInjectionPrevention:
 
 
 class TestTOCTOUMitigation:
-    """Test TOCTOU mitigation in non-ZIP extraction (Issue #2 fix)."""
+    """Test TOCTOU mitigation in non-ZIP/tar extraction (Issue #2 fix)."""
 
-    def test_non_zip_extraction_validates_before_moving(self, tmp_path):
-        """Non-ZIP archives validated in temp directory before moving to dest."""
+    def test_non_zip_non_tar_extraction_validates_before_moving(self, tmp_path):
+        """Non-ZIP/tar archives validated in temp directory before moving to dest."""
         manager = ToolManager(cache_dir=tmp_path)
         extract_dir = tmp_path / "extract"
         extract_dir.mkdir()
@@ -801,9 +802,10 @@ class TestTOCTOUMitigation:
             (dest / "normal.txt").write_text("content")
             (dest / "link").symlink_to("/etc/passwd")
 
+        # Use .rar extension to bypass zip/tar specific handlers
         with patch("shutil.unpack_archive", side_effect=mock_unpack):
             with pytest.raises(RuntimeError, match="symlink"):
-                manager._safe_extract_archive(tmp_path / "archive.tar.gz", extract_dir)
+                manager._safe_extract_archive(tmp_path / "archive.rar", extract_dir)
 
         # Verify destination directory is empty (temp dir cleaned up)
         assert not list(extract_dir.iterdir())
@@ -817,8 +819,9 @@ class TestTOCTOUMitigation:
         def mock_unpack(archive, dest):
             (dest / "safe_file.txt").write_text("safe content")
 
+        # Use .rar extension to bypass zip/tar specific handlers
         with patch("shutil.unpack_archive", side_effect=mock_unpack):
-            manager._safe_extract_archive(tmp_path / "archive.tar.gz", extract_dir)
+            manager._safe_extract_archive(tmp_path / "archive.rar", extract_dir)
 
         # Verify no temp directories left behind
         parent = extract_dir.parent
@@ -827,3 +830,257 @@ class TestTOCTOUMitigation:
 
         # Verify content was moved to destination
         assert (extract_dir / "safe_file.txt").exists()
+
+
+class TestZipPostExtractionValidation:
+    """Test post-extraction symlink validation for ZIP archives."""
+
+    def test_zip_post_extraction_symlink_detected(self, tmp_path):
+        """Symlinks created after zip extraction are detected and rejected."""
+        manager = ToolManager(cache_dir=tmp_path)
+        extract_dir = tmp_path / "extract"
+        extract_dir.mkdir()
+
+        # Create a normal zip file
+        safe_zip = tmp_path / "test.zip"
+        with zipfile.ZipFile(safe_zip, "w") as zf:
+            zf.writestr("tool/file.txt", "content")
+
+        # Mock extractall to create a symlink after extraction
+        original_extractall = zipfile.ZipFile.extractall
+
+        def mock_extractall(self, path):
+            # Call original extraction
+            original_extractall(self, path)
+            # Then create a malicious symlink
+            symlink_path = Path(path) / "tool" / "evil_link"
+            symlink_path.symlink_to("/etc/passwd")
+
+        with patch.object(zipfile.ZipFile, "extractall", mock_extractall):
+            # Should detect symlink during post-extraction check
+            with pytest.raises(RuntimeError, match="symlink"):
+                manager._safe_extract_archive(safe_zip, extract_dir)
+
+    def test_zip_post_extraction_external_symlink_detected(self, tmp_path):
+        """External symlinks created after zip extraction are detected."""
+        manager = ToolManager(cache_dir=tmp_path)
+        extract_dir = tmp_path / "extract"
+        extract_dir.mkdir()
+
+        # Create normal zip
+        safe_zip = tmp_path / "test.zip"
+        with zipfile.ZipFile(safe_zip, "w") as zf:
+            zf.writestr("file.txt", "content")
+
+        # Create external target
+        outside_target = tmp_path / "outside.txt"
+        outside_target.write_text("outside")
+
+        # Mock to create external symlink after extraction
+        original_extractall = zipfile.ZipFile.extractall
+
+        def mock_extractall(self, path):
+            original_extractall(self, path)
+            # Create symlink pointing outside extraction dir
+            symlink_path = Path(path) / "evil_link"
+            symlink_path.symlink_to(outside_target)
+
+        with patch.object(zipfile.ZipFile, "extractall", mock_extractall):
+            # Should detect and reject external symlink
+            with pytest.raises(RuntimeError, match="symlink"):
+                manager._safe_extract_archive(safe_zip, extract_dir)
+
+
+class TestTarSymlinkValidation:
+    """Test tar archive symlink validation."""
+
+    def test_tar_symlink_with_path_traversal_rejected(self, tmp_path):
+        """Tar archives with symlinks containing path traversal are rejected."""
+        import tarfile
+
+        manager = ToolManager(cache_dir=tmp_path)
+        extract_dir = tmp_path / "extract"
+        extract_dir.mkdir()
+
+        # Create malicious tar with symlink containing path traversal
+        malicious_tar = tmp_path / "evil_symlink.tar"
+        with tarfile.open(malicious_tar, "w") as tf:
+            # Create a symlink member pointing to ../../etc/passwd
+            link_info = tarfile.TarInfo(name="evil_link")
+            link_info.type = tarfile.SYMTYPE
+            link_info.linkname = "../../etc/passwd"
+            tf.addfile(link_info)
+
+        # Should reject symlink (all symlinks rejected for consistency with ZIP)
+        with pytest.raises(RuntimeError, match="not allowed"):
+            manager._safe_extract_archive(malicious_tar, extract_dir)
+
+    def test_tar_symlink_to_absolute_path_rejected(self, tmp_path):
+        """Tar archives with symlinks to absolute paths are rejected."""
+        import tarfile
+
+        manager = ToolManager(cache_dir=tmp_path)
+        extract_dir = tmp_path / "extract"
+        extract_dir.mkdir()
+
+        # Create tar with symlink to absolute path
+        malicious_tar = tmp_path / "abs_symlink.tar"
+        with tarfile.open(malicious_tar, "w") as tf:
+            link_info = tarfile.TarInfo(name="abs_link")
+            link_info.type = tarfile.SYMTYPE
+            link_info.linkname = "/etc/passwd"
+            tf.addfile(link_info)
+
+        # Should reject symlink (all symlinks rejected for consistency with ZIP)
+        with pytest.raises(RuntimeError, match="not allowed"):
+            manager._safe_extract_archive(malicious_tar, extract_dir)
+
+    def test_tar_post_extraction_symlink_detected(self, tmp_path):
+        """Issue #6: Symlinks created after tar extraction are detected and rejected."""
+        import tarfile
+
+        manager = ToolManager(cache_dir=tmp_path)
+        extract_dir = tmp_path / "extract"
+        extract_dir.mkdir()
+
+        # Create a normal tar file
+        safe_tar = tmp_path / "test.tar"
+        with tarfile.open(safe_tar, "w") as tf:
+            # Add normal file
+            info = tarfile.TarInfo(name="tool/file.txt")
+            info.size = 7
+            from io import BytesIO
+
+            tf.addfile(info, BytesIO(b"content"))
+
+        # Mock extractall to create a symlink after extraction
+        original_extractall = tarfile.TarFile.extractall
+
+        def mock_extractall(self, path, *args, **kwargs):
+            # Call original extraction
+            original_extractall(self, path, *args, **kwargs)
+            # Then create a malicious symlink
+            symlink_path = Path(path) / "tool" / "evil_link"
+            symlink_path.symlink_to("/etc/passwd")
+
+        with patch.object(tarfile.TarFile, "extractall", mock_extractall):
+            # Should detect symlink during post-extraction check
+            with pytest.raises(RuntimeError, match="symlink"):
+                manager._safe_extract_archive(safe_tar, extract_dir)
+
+
+class TestURLValidation:
+    """Test URL template validation."""
+
+    def test_valid_url_template(self, tmp_path):
+        """Valid URL templates are accepted."""
+        manager = ToolManager(cache_dir=tmp_path)
+
+        valid, error = manager._validate_url_template(
+            "https://example.com/tool/{version}/tool.zip", "1.0.0"
+        )
+        assert valid is True
+        assert error == ""
+
+    def test_url_template_with_invalid_placeholder(self, tmp_path):
+        """URL templates with invalid placeholders are rejected."""
+        manager = ToolManager(cache_dir=tmp_path)
+
+        valid, error = manager._validate_url_template(
+            "https://example.com/{invalid}/tool.zip", "1.0.0"
+        )
+        assert valid is False
+        assert "Invalid URL template placeholder" in error
+
+    def test_url_template_empty_version(self, tmp_path):
+        """URL templates requiring version with empty version are rejected."""
+        manager = ToolManager(cache_dir=tmp_path)
+
+        valid, error = manager._validate_url_template(
+            "https://example.com/{version}/tool.zip", ""
+        )
+        assert valid is False
+        assert "version is empty" in error
+
+    def test_url_template_empty_version_with_double_slash(self, tmp_path):
+        """Issue #2: URL template with empty version and double slash is rejected."""
+        manager = ToolManager(cache_dir=tmp_path)
+
+        # Empty version with template requiring version
+        valid, error = manager._validate_url_template(
+            "https://example.com//{version}tool.zip",
+            "",  # Empty version
+        )
+        assert valid is False
+        assert "version is empty" in error.lower()
+
+    def test_url_template_malformed_url_after_substitution(self, tmp_path):
+        """Issue #2: Malformed URLs with double slashes after substitution are rejected."""
+        manager = ToolManager(cache_dir=tmp_path)
+
+        # This creates https://example.com//tool.zip (double slash in path)
+        valid, error = manager._validate_url_template(
+            "https://example.com//tool.zip",
+            "1.0.0",  # Version provided but not used
+        )
+        # Should reject due to double slash in path
+        assert valid is False
+        assert "malformed" in error.lower() or "//" in error
+
+    def test_get_filename_from_url(self, tmp_path):
+        """Filename extraction from URL works correctly."""
+        manager = ToolManager(cache_dir=tmp_path)
+
+        # Test various URL formats
+        assert (
+            manager._get_filename_from_url("https://example.com/tool.zip") == "tool.zip"
+        )
+        assert (
+            manager._get_filename_from_url("https://example.com/path/to/tool.tar.gz")
+            == "tool.tar.gz"
+        )
+        assert manager._get_filename_from_url("https://example.com/") == "download.bin"
+        assert (
+            manager._get_filename_from_url("https://example.com/no-extension")
+            == "download.bin"
+        )
+
+
+class TestConcurrentInstallation:
+    """Test concurrent installation locking."""
+
+    def test_concurrent_install_lock(self, tmp_path):
+        """File-based locking prevents concurrent installations."""
+        import threading
+        import time
+
+        manager = ToolManager(cache_dir=tmp_path)
+        results = []
+
+        def install_with_lock():
+            try:
+                with manager._acquire_install_lock("test-tool", "1.0.0", timeout=1):
+                    # Simulate work - hold lock longer than timeout
+                    time.sleep(1.5)
+                    results.append("success")
+            except Exception as e:
+                # filelock raises Timeout, fcntl-based raises RuntimeError
+                results.append(f"error: {e}")
+
+        # Start two threads trying to install simultaneously
+        thread1 = threading.Thread(target=install_with_lock)
+        thread2 = threading.Thread(target=install_with_lock)
+
+        thread1.start()
+        time.sleep(0.1)  # Ensure thread1 acquires lock first
+        thread2.start()
+
+        thread1.join()
+        thread2.join()
+
+        # Issue #2: Strengthen assertions - exactly one success, one error
+        assert len(results) == 2
+        success_count = sum(1 for r in results if r == "success")
+        error_count = sum(1 for r in results if "error" in str(r))
+        assert success_count == 1
+        assert error_count == 1
