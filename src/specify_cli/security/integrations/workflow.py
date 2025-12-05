@@ -6,6 +6,7 @@ providing security gates, event emission, and backlog task creation.
 
 from __future__ import annotations
 
+import re
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
@@ -73,6 +74,25 @@ class SecurityWorkflowIntegration:
         self.backlog_cli = backlog_cli
         self.hooks_cli = hooks_cli
         self.project_root = project_root or Path.cwd()
+
+    def _sanitize_for_cli(self, text: str) -> str:
+        """Sanitize text for safe CLI usage.
+
+        Removes newlines, control characters, and truncates to prevent
+        command injection from malicious finding data.
+
+        Args:
+            text: Text to sanitize (e.g., finding title, description).
+
+        Returns:
+            Sanitized text safe for CLI usage.
+        """
+        # Remove newlines and control characters
+        text = re.sub(r"[\n\r\t]", " ", text)
+        # Collapse multiple spaces
+        text = re.sub(r"\s+", " ", text)
+        # Truncate to reasonable length
+        return text[:500].strip()
 
     def run_security_gate(
         self,
@@ -179,12 +199,14 @@ class SecurityWorkflowIntegration:
         task_ids = []
 
         for finding in findings:
-            # Build task title
+            # Build task title (sanitize to prevent command injection)
             cwe_part = f" {finding.cwe_id}" if finding.cwe_id else ""
-            title = f"Fix {finding.severity.value.upper()}{cwe_part}: {finding.title}"
+            title = self._sanitize_for_cli(
+                f"Fix {finding.severity.value.upper()}{cwe_part}: {finding.title}"
+            )
 
-            # Build description with all details
-            description = self._build_task_description(finding)
+            # Build description with all details (sanitize for CLI safety)
+            description = self._sanitize_for_cli(self._build_task_description(finding))
 
             # Build labels
             labels = ["security", finding.severity.value]
@@ -194,9 +216,11 @@ class SecurityWorkflowIntegration:
             if feature_id:
                 labels.append(feature_id)
 
-            # Build acceptance criteria
+            # Build acceptance criteria (sanitize location data)
             ac_list = [
-                f"Fix vulnerability at {finding.location.file}:{finding.location.line_start}",
+                self._sanitize_for_cli(
+                    f"Fix vulnerability at {finding.location.file}:{finding.location.line_start}"
+                ),
                 "Re-run security scan to verify fix",
                 "Add test to prevent regression",
             ]
