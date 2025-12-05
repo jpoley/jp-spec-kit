@@ -247,15 +247,24 @@ class PatchApplicator:
                 encoding_used = "latin-1"
 
             # Normalize line endings for comparison (handle CRLF vs LF)
-            normalized_content = current_content.replace("\r\n", "\n")
-            normalized_original = patch.original_code.replace("\r\n", "\n")
+            # Apply normalization consistently to BOTH file content AND patch content
+            normalized_content = current_content.replace("\r\n", "\n").replace(
+                "\r", "\n"
+            )
+            normalized_original = patch.original_code.replace("\r\n", "\n").replace(
+                "\r", "\n"
+            )
+            normalized_fixed = patch.fixed_code.replace("\r\n", "\n").replace(
+                "\r", "\n"
+            )
 
             # Try to find and replace the vulnerable code using line-based replacement
             # This is more precise than simple string replacement
             if normalized_original in normalized_content:
                 # Use line-based replacement to avoid matching wrong occurrences
-                lines = current_content.splitlines(keepends=True)
-                original_lines = patch.original_code.splitlines(keepends=True)
+                # Use NORMALIZED versions for line-by-line comparison
+                lines = normalized_content.splitlines(keepends=True)
+                original_lines = normalized_original.splitlines(keepends=True)
 
                 # Find the line range to replace
                 replaced = False
@@ -263,7 +272,7 @@ class PatchApplicator:
                     # Check if this is the matching section
                     if lines[i : i + len(original_lines)] == original_lines:
                         # Replace with fixed code
-                        fixed_lines = patch.fixed_code.splitlines(keepends=True)
+                        fixed_lines = normalized_fixed.splitlines(keepends=True)
                         lines[i : i + len(original_lines)] = fixed_lines
                         replaced = True
                         break
@@ -282,9 +291,9 @@ class PatchApplicator:
                         backup_path=backup_path,
                     )
                 else:
-                    # Fallback to simple string replacement (shouldn't happen)
-                    fixed_content = current_content.replace(
-                        patch.original_code, patch.fixed_code, 1
+                    # Fallback to simple string replacement using normalized versions
+                    fixed_content = normalized_content.replace(
+                        normalized_original, normalized_fixed, 1
                     )
 
                     # Write using same encoding as read

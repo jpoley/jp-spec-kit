@@ -181,6 +181,39 @@ class TestPatchApplicator:
         assert result.backup_path is None
         assert not Path(f"{source_file}.orig").exists()
 
+    def test_apply_patch_with_mixed_line_endings(self, tmp_path):
+        """Test patch application works with CRLF file and LF patch.
+
+        This tests the fix for inconsistent line ending normalization.
+        If file has CRLF but patch has LF, the normalized check should pass
+        AND the line-by-line comparison should also work correctly.
+        """
+        # Create file with CRLF line endings
+        source_file = tmp_path / "crlf_test.py"
+        source_file.write_bytes(b"def vulnerable():\r\n    return eval(input())\r\n")
+
+        # Create patch with LF line endings
+        patch = Patch(
+            file_path=source_file,
+            original_code="def vulnerable():\n    return eval(input())\n",
+            fixed_code="def safe():\n    return ast.literal_eval(input())\n",
+            unified_diff="--- a/crlf_test.py\n+++ b/crlf_test.py\n@@ -1,2 +1,2 @@\n-def vulnerable():\n-    return eval(input())\n+def safe():\n+    return ast.literal_eval(input())\n",
+            line_start=1,
+            line_end=2,
+        )
+
+        applicator = PatchApplicator(create_backups=True)
+        result = applicator.apply_patch(patch, "CRLF-001")
+
+        assert result.status == ApplyStatus.SUCCESS
+        assert result.is_successful
+
+        # Verify file was patched with normalized content
+        content = source_file.read_text(encoding="utf-8")
+        assert "def safe():" in content
+        assert "ast.literal_eval" in content
+        assert "def vulnerable():" not in content
+
 
 class TestApplyFix:
     """Tests for apply_fix method."""
