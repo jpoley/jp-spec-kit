@@ -46,6 +46,7 @@ class FormData:
         method: HTTP method (GET, POST, etc.)
         inputs: List of input field metadata
         has_csrf_token: Whether form includes CSRF protection
+        source_url: URL of the page where form was discovered
     """
 
     selector: str
@@ -53,6 +54,7 @@ class FormData:
     method: str
     inputs: list[dict[str, str]]
     has_csrf_token: bool
+    source_url: str = ""
 
 
 @dataclass
@@ -193,8 +195,8 @@ class PlaywrightCrawler:
             )
             self._visited.add(url)
 
-            # Extract forms
-            forms = await self._extract_forms(page)
+            # Extract forms (with source URL)
+            forms = await self._extract_forms(page, url)
             self._forms.extend(forms)
 
             # Extract standalone inputs (with source URL)
@@ -215,11 +217,12 @@ class PlaywrightCrawler:
         finally:
             await page.close()
 
-    async def _extract_forms(self, page) -> list[FormData]:
+    async def _extract_forms(self, page, source_url: str) -> list[FormData]:
         """Extract form metadata from page.
 
         Args:
             page: Playwright page object
+            source_url: URL of the page being crawled
 
         Returns:
             List of discovered forms
@@ -267,6 +270,7 @@ class PlaywrightCrawler:
                         method=method.upper(),
                         inputs=inputs,
                         has_csrf_token=has_csrf,
+                        source_url=source_url,
                     )
                 )
 

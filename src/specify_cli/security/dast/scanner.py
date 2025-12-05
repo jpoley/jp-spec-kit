@@ -150,13 +150,15 @@ class DASTScanner:
                 page = await context.new_page()
                 try:
                     # Navigate to form's page
-                    # Resolve relative URLs against base_url
+                    # Use source_url if action is empty or relative
                     from urllib.parse import urljoin
 
-                    form_url = form_data.action or self.base_url
+                    form_url = (
+                        form_data.action if form_data.action else form_data.source_url
+                    )
                     if not form_url.startswith("http"):
-                        # Relative URL - resolve against base_url
-                        form_url = urljoin(self.base_url, form_url)
+                        # Relative URL - resolve against source page
+                        form_url = urljoin(form_data.source_url, form_url)
 
                     await page.goto(form_url, timeout=30000)
 

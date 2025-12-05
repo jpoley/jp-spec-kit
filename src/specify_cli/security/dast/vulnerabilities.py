@@ -145,7 +145,7 @@ class XSSDetector:
                 if input_info["type"] in ["hidden", "submit", "button", "file"]:
                     continue
 
-                # Construct selector: form_data.selector already includes "form", don't duplicate
+                # Construct descendant selector: form_data.selector + input name attribute
                 selector = f'{form_data.selector} [name="{input_info["name"]}"]'
                 input_data = {"selector": selector, "name": input_info["name"]}
 
@@ -390,7 +390,7 @@ class SecurityHeadersTester:
         """Test page for security headers.
 
         Args:
-            page: Playwright page object
+            page: Playwright page object (should already be loaded)
 
         Returns:
             List of vulnerability results
@@ -398,8 +398,8 @@ class SecurityHeadersTester:
         vulnerabilities = []
 
         try:
-            # Navigate to page and get response
-            response = await page.goto(page.url)
+            # Reload page to get fresh response headers
+            response = await page.reload()
             if not response:
                 return vulnerabilities
 

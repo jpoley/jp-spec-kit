@@ -236,9 +236,13 @@ async def complex_auth(page):
     # Wait for MFA page
     await page.wait_for_selector("#mfa-code", timeout=5000)
 
-    # Get MFA code from environment or service
-    # Note: get_mfa_code() is a user-provided function - implement according to your MFA provider
-    mfa_code = get_mfa_code()  # Your implementation
+    # Get MFA code from your MFA provider
+    # Example implementation:
+    def get_mfa_code():
+        """Get MFA code - implement based on your setup."""
+        return os.environ.get("MFA_CODE") or input("Enter MFA code: ")
+
+    mfa_code = get_mfa_code()
     await page.fill("#mfa-code", mfa_code)
     await page.click("#verify")
 
@@ -289,9 +293,11 @@ for severity in ["critical", "high", "medium", "low", "info"]:
 
 # Export to JSON (SARIF export coming in future release)
 import json
+from dataclasses import asdict
 
 with open("dast-results.json", "w") as f:
-    json.dump([f.__dict__ for f in result.findings], f, indent=2)
+    findings_data = [asdict(f) for f in result.findings]
+    json.dump(findings_data, f, indent=2, default=str)
 ```
 
 ## Best Practices
@@ -347,6 +353,7 @@ DAST can produce false positives. Review findings before creating issues:
 from specify_cli.security.dast import DASTScanner
 from specify_cli.security.models import Confidence
 
+# Initialize scanner
 scanner = DASTScanner(base_url="https://example.com")
 result = scanner.scan_sync()
 
@@ -367,7 +374,7 @@ for finding in high_confidence:
 from specify_cli.security.dast import DASTScanner
 from specify_cli.security.models import Severity
 
-# In CI pipeline
+# In CI pipeline - initialize scanner
 scanner = DASTScanner(base_url="https://staging.example.com")
 result = scanner.scan_sync()
 
@@ -412,7 +419,7 @@ RuntimeError: Browser launch failed
 playwright install-deps chromium
 
 # Or use Docker
-docker run -it mcr.microsoft.com/playwright:v1.40.0-focal
+docker run -it mcr.microsoft.com/playwright:v1.48.0-focal
 ```
 
 ### Timeout Errors
