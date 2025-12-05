@@ -177,7 +177,7 @@ upload-sarif: true  # Default: enabled
 
 | Cache | Path | Key | Speedup |
 |-------|------|-----|---------|
-| Pip packages | `~/.cache/pip` | `pip-security-${{ hashFiles }}` | ~40% |
+| Pip packages | `~/.cache/pip` | `${{ runner.os }}-pip-security-${{ hashFiles('**/pyproject.toml') }}` | ~40% |
 | Semgrep binary | `~/.local/bin/semgrep` | `semgrep-${{ runner.os }}-1.50.0` | ~60% |
 
 ### Cache Performance

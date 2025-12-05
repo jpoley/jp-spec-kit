@@ -142,7 +142,7 @@ jobs:
           TOTAL_FINDINGS=0
           TOTAL_CRITICAL=0
 
-          for sarif in scan-results/**/*.sarif; do
+          for sarif in $(find scan-results -name "*.sarif"); do
             if [ -f "$sarif" ]; then
               FINDINGS=$(jq '.runs[0].results | length' "$sarif" || echo "0")
               CRITICAL=$(jq '[.runs[0].results[] | select(.level == "error" and (.properties.severity == "critical" or .properties.severity == "CRITICAL"))] | length' "$sarif" || echo "0")
