@@ -25,63 +25,6 @@ JP Spec Kit transforms how you build software with AI. Instead of giving AI loos
 3. **Track** progress in your backlog
 4. **Commit** with proper formatting and validation
 
-## Quick Start
-
-### 1. Install the Tools
-
-```bash
-# Specify CLI (project initialization)
-uv tool install specify-cli --from git+https://github.com/jpoley/jp-spec-kit.git
-
-# Backlog.md (task management)
-pnpm i -g backlog.md
-```
-
-### 2. Initialize Your Project
-
-```bash
-specify init my-project --ai claude
-cd my-project
-backlog init "$(basename "$PWD")"
-```
-
-### 3. Establish Principles (Optional but Recommended)
-
-```bash
-/speckit:constitution Create principles focused on code quality, testing, and user experience.
-```
-
-### 4. Assess Your Feature
-
-```bash
-/jpspec:assess Build a REST API for task management with JWT authentication
-```
-
-### 5. Run the Appropriate Workflow
-
-**For Full SDD (complex features):**
-```bash
-/jpspec:specify Build a REST API for task management with JWT authentication
-/jpspec:plan
-/jpspec:implement
-/jpspec:validate
-/jpspec:operate
-```
-
-**For Light/Medium (medium features):**
-```bash
-/jpspec:specify Build a new user settings page
-/jpspec:implement
-```
-
-**For Simple tasks:**
-```bash
-# Just create a task and implement
-backlog task create "Fix login button alignment" --ac "Button aligns with form fields"
-# Then code directly
-```
-
-
 ## Choose Your Workflow Mode
 
 ```
@@ -202,6 +145,61 @@ Light mode is NOT an excuse to skip artifacts. It's permission to move faster.
 └────────────────────────────────────────────────────────────────────────────────┘
 ```
 
+## Quick Start
+
+### 1. Install the Tools
+
+```bash
+# Specify CLI (project initialization)
+uv tool install specify-cli --from git+https://github.com/jpoley/jp-spec-kit.git
+
+# Backlog.md (task management)
+pnpm i -g backlog.md
+```
+
+### 2. Initialize Your Project
+
+```bash
+specify init my-project --ai claude
+cd my-project
+backlog init "$(basename "$PWD")"
+```
+
+### 3. Establish Principles (Optional but Recommended)
+
+```bash
+/speckit:constitution Create principles focused on code quality, testing, and user experience.
+```
+
+### 4. Assess Your Feature
+
+```bash
+/jpspec:assess Build a REST API for task management with JWT authentication
+```
+
+### 5. Run the Appropriate Workflow
+
+**For Full SDD (complex features):**
+```bash
+/jpspec:specify Build a REST API for task management with JWT authentication
+/jpspec:plan
+/jpspec:implement
+/jpspec:validate
+/jpspec:operate
+```
+
+**For Light/Medium (medium features):**
+```bash
+/jpspec:specify Build a new user settings page
+/jpspec:implement
+```
+
+**For Simple tasks:**
+```bash
+# Just create a task and implement
+backlog task create "Fix login button alignment" --ac "Button aligns with form fields"
+# Then code directly
+```
 
 ## Command Reference
 
