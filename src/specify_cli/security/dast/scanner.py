@@ -8,6 +8,7 @@ import asyncio
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
+from urllib.parse import urljoin
 
 from specify_cli.security.dast.crawler import CrawlConfig, PlaywrightCrawler
 from specify_cli.security.dast.vulnerabilities import (
@@ -151,8 +152,6 @@ class DASTScanner:
                 try:
                     # Navigate to form's page
                     # Use source_url if action is empty or relative
-                    from urllib.parse import urljoin
-
                     form_url = (
                         form_data.action if form_data.action else form_data.source_url
                     )
