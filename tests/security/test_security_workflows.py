@@ -118,7 +118,7 @@ class TestSecurityScanReusableWorkflow:
         assert sarif_step["uses"] == "github/codeql-action/upload-sarif@v3"
         assert sarif_step["with"]["sarif_file"] == "security-results.sarif"
         assert sarif_step["with"]["category"] == "jpspec-security"
-        # SARIF upload uses config file or workflow input, fallback to config
+        # SARIF upload uses workflow input, falls back to config file value
         assert "always()" in sarif_step["if"]
         assert "upload-sarif" in sarif_step["if"]
 
