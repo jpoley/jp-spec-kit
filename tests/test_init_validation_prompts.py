@@ -33,7 +33,9 @@ def mock_github_releases(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
     to create a minimal project structure without hitting the network.
     """
 
-    def mock_download_two_stage(project_path, ai_assistants, script_type, is_current_dir=False, **kwargs):
+    def mock_download_two_stage(
+        project_path, ai_assistants, script_type, is_current_dir=False, **kwargs
+    ):
         """Mock two-stage download - create minimal project structure."""
         tracker = kwargs.get("tracker")
 
@@ -76,7 +78,9 @@ def mock_github_releases(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
     def mock_download_single(project_path, ai_assistants, script_type, **kwargs):
         """Mock single-stage download - same as two-stage."""
         tracker = kwargs.get("tracker")
-        result = mock_download_two_stage(project_path, ai_assistants, script_type, **kwargs)
+        result = mock_download_two_stage(
+            project_path, ai_assistants, script_type, **kwargs
+        )
         if tracker:
             tracker.complete("fetch", "mocked")
             tracker.complete("download", "mocked")
