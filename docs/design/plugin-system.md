@@ -33,7 +33,7 @@ This document describes a plugin architecture for JP Spec Kit that enables plugg
 
 ### Non-Goals
 
-1. **Full Workflow Engine/BPM**: This is not Apache Airflow or Temporal. Plugins augment the SDD workflow, not replace it with arbitrary DAGs.
+1. **Full Workflow Engine/BPM**: This is not Apache Airflow or Temporal. Plugins augment the Spec-Driven Development (SDD) workflow, not replace it with arbitrary DAGs.
 
 2. **Multi-Language Plugin Runtime**: v1 focuses on Python plugins only. Other languages may be considered in future versions.
 
@@ -279,10 +279,8 @@ config:
       severity_threshold:
         type: string
         enum: [low, medium, high, critical]
-        default: medium
       scan_dependencies:
         type: boolean
-        default: true
   defaults:
     severity_threshold: medium
     scan_dependencies: true
@@ -867,8 +865,12 @@ plugin_policy:
 
 **Enhanced Sandbox (v2+)**:
 - seccomp filtering (Linux)
+- App Sandbox/sandbox-exec (macOS)
+- Job Objects/AppContainers (Windows)
 - File system namespaces
 - Network restrictions
+
+*Note: Platform-specific sandboxing uses native OS mechanisms where available, with graceful fallback to process-level restrictions on unsupported platforms.*
 
 ```python
 # Sandbox configuration
@@ -1275,7 +1277,7 @@ Before a plugin can be published to the registry:
 |------|-------------|
 | **Manifest Valid** | `plugin.yaml` passes schema validation |
 | **Tests Pass** | All tests pass with `specify plugin test` |
-| **Coverage** | Minimum 80% code coverage |
+| **Coverage** | Minimum 85% code coverage |
 | **No Vulnerabilities** | No known CVEs in dependencies |
 | **Signed** | Package signed with valid key |
 | **Documentation** | README.md exists with usage examples |
