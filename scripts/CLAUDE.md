@@ -11,6 +11,7 @@
 | `install-act.sh` | Install act for local GitHub Actions testing |
 | `pre-commit-dev-setup.sh` | Validate dev-setup symlink structure |
 | `migrate-commands-to-subdirs.sh` | Migrate flat command structure to subdirectories |
+| `prune-releases.sh` | Delete old GitHub releases below a version threshold |
 
 ### powershell/
 PowerShell equivalents of bash scripts for Windows.
@@ -104,6 +105,36 @@ Archives completed tasks and generates summary reports.
 - 1: Validation error
 - 2: No Done tasks to archive
 - 3: Partial failure
+
+## prune-releases.sh
+
+Delete old GitHub releases and tags below a specified version threshold.
+
+```bash
+# Dry-run: show what would be deleted
+./scripts/bash/prune-releases.sh 0.0.100
+
+# Actually delete releases below v0.0.100
+./scripts/bash/prune-releases.sh 0.0.100 --execute
+
+# Delete all 0.0.x releases
+./scripts/bash/prune-releases.sh 0.1.0 --execute
+```
+
+**How it works:**
+1. Fetches all releases via `gh release list --json`
+2. Parses version numbers and compares to threshold
+3. In dry-run mode, shows what would be deleted
+4. With `--execute`, requires typing "DELETE" to confirm
+5. Deletes both GitHub releases and git tags
+
+**Exit codes:**
+- 0: Success (or no releases to delete)
+- 1: Invalid arguments or version format
+
+**Requirements:**
+- GitHub CLI (`gh`) authenticated
+- Git remote access for tag deletion
 
 ## pre-commit-dev-setup.sh
 
