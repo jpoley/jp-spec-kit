@@ -26,6 +26,11 @@ fi
 THRESHOLD="$1"
 EXECUTE="${2:-}"
 
+# Validate threshold version format (must be X.Y.Z)
+if [[ $(echo "$THRESHOLD" | grep -o '\.' | wc -l) -ne 2 ]]; then
+  echo "ERROR: Invalid version format '$THRESHOLD'. Expected exactly X.Y.Z format (e.g., 0.0.100)" >&2
+  exit 1
+fi
 # Parse threshold version
 IFS='.' read -r THRESH_MAJOR THRESH_MINOR THRESH_PATCH <<< "$THRESHOLD"
 
