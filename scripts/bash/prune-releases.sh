@@ -116,19 +116,12 @@ for VERSION in "${TO_DELETE[@]}"; do
   TAG="v$VERSION"
   echo -n "  Deleting $TAG... "
 
-  # Delete GitHub release
-  if gh release delete "$TAG" --yes 2>/dev/null; then
-    echo -n "release ✓ "
-  else
-    echo -n "release ✗ "
-  fi
-
-  # Delete git tag (remote)
-  if git push origin --delete "$TAG" 2>/dev/null; then
-    echo "tag ✓"
+  # Delete GitHub release and git tag (remote) together
+  if gh release delete "$TAG" --yes 2>/dev/null && git push origin --delete "$TAG" 2>/dev/null; then
+    echo "release ✓ tag ✓"
     ((DELETED++))
   else
-    echo "tag ✗"
+    echo "release/tag ✗"
     ((FAILED++))
   fi
 done
