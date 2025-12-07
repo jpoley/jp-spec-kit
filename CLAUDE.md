@@ -28,6 +28,7 @@ backlog task edit 42 -s Done     # Complete task
 ## Slash Commands
 
 ```bash
+# Workflow Commands
 /jpspec:assess    # Evaluate SDD workflow suitability
 /jpspec:specify   # Create/update feature specs
 /jpspec:research  # Research and validation
@@ -35,6 +36,10 @@ backlog task edit 42 -s Done     # Complete task
 /jpspec:implement # Implementation with code review
 /jpspec:validate  # QA, security, docs validation
 /jpspec:operate   # SRE operations (CI/CD, K8s)
+
+# Setup & Configuration Commands
+/jpspec:init      # Initialize constitution (greenfield/brownfield)
+/jpspec:reset     # Re-run workflow configuration prompts
 ```
 
 ## Engineering Subagents
