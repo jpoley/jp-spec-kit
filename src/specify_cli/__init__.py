@@ -595,7 +595,7 @@ BANNER = """
 """
 
 # Version - keep in sync with pyproject.toml
-__version__ = "0.2.321"
+__version__ = "0.2.322"
 
 # Constitution template version
 CONSTITUTION_VERSION = "1.0.0"
@@ -1865,12 +1865,17 @@ def download_template_from_github(
             headers=_github_headers(effective_token),
         )
 
-        # If we got 401 with a token, the token might be invalid/expired
+        # If we got 401/403 with a token, the token might be invalid/expired
         # For public repos, retry without authentication
-        if response.status_code == 401 and effective_token and retry_without_auth:
+        # 401 = Invalid credentials, 403 = Rate limited or forbidden (can happen with bad tokens)
+        if (
+            response.status_code in (401, 403)
+            and effective_token
+            and retry_without_auth
+        ):
             if debug:
                 console.print(
-                    "[yellow]Got 401 with token - retrying without authentication for public repo[/yellow]"
+                    f"[yellow]Got {response.status_code} with token - retrying without authentication for public repo[/yellow]"
                 )
             response = client.get(
                 url,
@@ -1942,29 +1947,56 @@ def download_template_from_github(
             # Add authentication hints for common error codes
             if last_status_code in (401, 403):
                 if effective_token:
-                    error_msg += (
-                        "\n\n[yellow]Authentication Error:[/yellow]\n"
-                        "The provided GitHub token appears to be invalid or expired.\n"
-                        "The request was automatically retried without authentication, but still failed.\n\n"
-                        "This could mean:\n"
-                        "  1. The repository is private and requires a valid token\n"
-                        "  2. The token has expired or been revoked\n"
-                        "  3. The token lacks required permissions\n\n"
-                        "To fix this:\n"
-                        "  1. Check your token is still valid at https://github.com/settings/tokens\n"
-                        "  2. Ensure it has 'repo' or 'public_repo' scope\n"
-                        "  3. Remove invalid tokens from GITHUB_JPSPEC environment variable\n"
-                        f"  4. If {repo_owner}/{repo_name} is private, generate a new token"
-                    )
+                    if last_status_code == 403:
+                        error_msg += (
+                            "\n\n[yellow]Rate Limit or Auth Error (403):[/yellow]\n"
+                            "The request was retried without your token, but still failed.\n"
+                            "This is likely due to GitHub API rate limiting (60 requests/hour per IP).\n\n"
+                            "To fix this:\n"
+                            "  1. Wait ~30-60 minutes for the rate limit to reset, OR\n"
+                            "  2. Use a DIFFERENT GitHub token (your current token may be rate-limited)\n"
+                            "  3. Check your token at https://github.com/settings/tokens\n"
+                            f"  4. If {repo_owner}/{repo_name} is private, ensure token has 'repo' scope"
+                        )
+                    else:
+                        error_msg += (
+                            "\n\n[yellow]Authentication Error:[/yellow]\n"
+                            "The provided GitHub token appears to be invalid or expired.\n"
+                            "The request was automatically retried without authentication, but still failed.\n\n"
+                            "This could mean:\n"
+                            "  1. The repository is private and requires a valid token\n"
+                            "  2. The token has expired or been revoked\n"
+                            "  3. The token lacks required permissions\n\n"
+                            "To fix this:\n"
+                            "  1. Check your token is still valid at https://github.com/settings/tokens\n"
+                            "  2. Ensure it has 'repo' or 'public_repo' scope\n"
+                            "  3. Remove invalid tokens from GITHUB_JPSPEC environment variable\n"
+                            f"  4. If {repo_owner}/{repo_name} is private, generate a new token"
+                        )
                 else:
-                    error_msg += (
-                        "\n\n[yellow]Authentication Error:[/yellow]\n"
-                        "This may be due to insufficient permissions or missing authentication.\n"
-                        "Try providing a GitHub token with the following options:\n"
-                        "  1. Use --github-token <token> flag\n"
-                        "  2. Set GITHUB_JPSPEC environment variable\n"
-                        f"  3. Ensure your token has 'repo' or 'public_repo' scope for {repo_owner}/{repo_name}"
-                    )
+                    # 403 without a token is almost always rate limiting
+                    if last_status_code == 403:
+                        error_msg += (
+                            "\n\n[yellow]Rate Limit Exceeded (403):[/yellow]\n"
+                            "GitHub limits unauthenticated API requests to 60/hour per IP.\n"
+                            "Your IP has likely exceeded this limit.\n\n"
+                            "To fix this:\n"
+                            "  1. Wait ~30-60 minutes for the rate limit to reset, OR\n"
+                            "  2. Provide a GitHub token for 5000 requests/hour:\n"
+                            "     - Use --github-token <token> flag\n"
+                            "     - Or set GITHUB_JPSPEC environment variable\n"
+                            "     - Create a token at https://github.com/settings/tokens\n"
+                            "       (only 'public_repo' scope needed for public repos)"
+                        )
+                    else:
+                        error_msg += (
+                            "\n\n[yellow]Authentication Error:[/yellow]\n"
+                            "This may be due to insufficient permissions or missing authentication.\n"
+                            "Try providing a GitHub token with the following options:\n"
+                            "  1. Use --github-token <token> flag\n"
+                            "  2. Set GITHUB_JPSPEC environment variable\n"
+                            f"  3. Ensure your token has 'repo' or 'public_repo' scope for {repo_owner}/{repo_name}"
+                        )
             elif last_status_code == 404:
                 if not effective_token:
                     error_msg += (

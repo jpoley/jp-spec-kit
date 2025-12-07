@@ -284,8 +284,8 @@ class TestGitHubAuthRetry:
         # Should exit with code 1 (failure)
         assert exc_info.value.exit_code == 1
 
-    def test_403_rate_limit_not_retried_differently(self, temp_dir):
-        """403 (rate limit) should not trigger retry-without-auth logic."""
+    def test_403_triggers_retry_without_auth(self, temp_dir):
+        """403 should trigger retry-without-auth for public repos (bad token can cause 403)."""
         from click.exceptions import Exit as ClickExit
 
         from specify_cli import download_template_from_github
@@ -308,10 +308,14 @@ class TestGitHubAuthRetry:
                     verbose=False,
                 )
 
-        # All calls should still have Authorization (403 doesn't trigger retry without auth)
-        for call in mock_client.get.call_args_list:
-            headers = call[1]["headers"]
-            assert "Authorization" in headers
+        # Should have retried without auth after 403 (first call with token, second without)
+        # Check that at least one call was made without Authorization header
+        calls_without_auth = [
+            call
+            for call in mock_client.get.call_args_list
+            if "Authorization" not in call[1]["headers"]
+        ]
+        assert len(calls_without_auth) > 0, "403 should trigger retry without auth"
 
     def test_success_with_valid_token(self, temp_dir):
         """Valid token should work on first try without retry."""
