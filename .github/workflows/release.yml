@@ -91,7 +91,7 @@ jobs:
             echo "⚠️ Direct push failed (branch protection). Creating PR instead..."
 
             # Create a branch and PR for the version bump
-            BRANCH_NAME="chore/version-bump-$NEW_VERSION"
+            BRANCH_NAME="chore/version-bump-${NEW_VERSION//[^0-9.]/-}"
             git checkout -b "$BRANCH_NAME"
             git push origin "$BRANCH_NAME"
 
