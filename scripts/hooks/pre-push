@@ -1,0 +1,39 @@
+#!/bin/bash
+# Pre-push hook: Run security scan before pushing to remote
+# Install: ./scripts/hooks/install-hooks.sh
+
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+
+echo "Running pre-push security scan..."
+
+# Check if specify is available
+if ! command -v specify &> /dev/null; then
+    echo "Warning: 'specify' command not found - skipping security scan"
+    echo "Install with: uv tool install specify-cli --from git+https://github.com/jpoley/jp-spec-kit.git"
+    exit 0
+fi
+
+# Check if semgrep is available
+if ! command -v semgrep &> /dev/null; then
+    echo "Warning: 'semgrep' command not found - skipping security scan"
+    echo "Install with: pip install semgrep"
+    exit 0
+fi
+
+# Run security scan on src/ directory (Python code)
+echo "Scanning src/ for security issues..."
+if ! specify security scan src/ --fail-on high 2>/dev/null; then
+    echo ""
+    echo "Security scan failed! Please fix the issues before pushing."
+    echo ""
+    echo "To bypass this check (not recommended):"
+    echo "  git push --no-verify"
+    echo ""
+    exit 1
+fi
+
+echo "Security scan passed!"
+exit 0

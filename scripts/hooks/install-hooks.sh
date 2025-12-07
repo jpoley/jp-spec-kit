@@ -18,6 +18,18 @@ else
     exit 1
 fi
 
+# Install pre-push hook
+if [ -f "$SCRIPT_DIR/pre-push" ]; then
+    cp "$SCRIPT_DIR/pre-push" "$HOOKS_DIR/pre-push"
+    chmod +x "$HOOKS_DIR/pre-push"
+    echo "  ✓ pre-push hook installed (security scan)"
+else
+    echo "  ⚠ pre-push hook not found (optional)"
+fi
+
 echo ""
 echo "Git hooks installed successfully!"
-echo "The pre-commit hook will validate that task files have acceptance criteria."
+echo ""
+echo "Hooks installed:"
+echo "  - pre-commit: Validates task files have acceptance criteria"
+echo "  - pre-push: Runs security scan before pushing (requires semgrep)"
