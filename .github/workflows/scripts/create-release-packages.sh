@@ -91,13 +91,20 @@ generate_commands() {
     # Apply other substitutions
     body=$(printf '%s\n' "$body" | sed "s/{ARGS}/$arg_format/g" | sed "s/__AGENT__/$agent/g" | rewrite_paths)
     
+    # For md-based agents (Claude, Cursor, etc.), use subdirectory structure for colon-namespacing
+    # e.g., .claude/commands/speckit/specify.md -> /speckit:specify
+    # For toml-based agents (Gemini, Qwen), use dot notation in filename
+    # e.g., .gemini/commands/speckit.specify.toml -> /speckit.specify
     case $ext in
       toml)
         body=$(printf '%s\n' "$body" | sed 's/\\/\\\\/g')
         { echo "description = \"$description\""; echo; echo "prompt = \"\"\""; echo "$body"; echo "\"\"\""; } > "$output_dir/speckit.$name.$ext" ;;
       md)
-        echo "$body" > "$output_dir/speckit.$name.$ext" ;;
+        # Create speckit subdirectory for colon-namespaced commands
+        mkdir -p "$output_dir/speckit"
+        echo "$body" > "$output_dir/speckit/$name.$ext" ;;
       prompt.md)
+        # GitHub Copilot uses dot notation in filenames
         echo "$body" > "$output_dir/speckit.$name.$ext" ;;
     esac
   done
@@ -154,13 +161,20 @@ generate_commands() {
       # Apply other substitutions
       body=$(printf '%s\n' "$body" | sed "s/{ARGS}/$arg_format/g" | sed "s/__AGENT__/$agent/g" | rewrite_paths)
       
+      # For md-based agents (Claude, Cursor, etc.), use subdirectory structure for colon-namespacing
+      # e.g., .claude/commands/jpspec/init.md -> /jpspec:init
+      # For toml-based agents (Gemini, Qwen), use dot notation in filename
+      # e.g., .gemini/commands/jpspec.init.toml -> /jpspec.init
       case $ext in
         toml)
           body=$(printf '%s\n' "$body" | sed 's/\\/\\\\/g')
           { echo "description = \"$description\""; echo; echo "prompt = \"\"\""; echo "$body"; echo "\"\"\""; } > "$output_dir/jpspec.$name.$ext" ;;
         md)
-          echo "$body" > "$output_dir/jpspec.$name.$ext" ;;
+          # Create jpspec subdirectory for colon-namespaced commands
+          mkdir -p "$output_dir/jpspec"
+          echo "$body" > "$output_dir/jpspec/$name.$ext" ;;
         prompt.md)
+          # GitHub Copilot uses dot notation in filenames
           echo "$body" > "$output_dir/jpspec.$name.$ext" ;;
       esac
     done
