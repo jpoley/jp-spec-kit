@@ -711,6 +711,77 @@ def compare_semver(version1: str, version2: str) -> int:
         return 0
 
 
+def get_spec_kit_version() -> Optional[str]:
+    """Fetch the latest spec-kit version from GitHub API.
+
+    Returns:
+        Version string (e.g., "0.0.20") or None if unable to fetch
+    """
+    try:
+        url = (
+            f"https://api.github.com/repos/{BASE_REPO_OWNER}/"
+            f"{BASE_REPO_NAME}/releases/latest"
+        )
+        response = client.get(
+            url, headers=_github_headers(skip_auth=True), timeout=5.0
+        )
+        if response.status_code == 200:
+            data = response.json()
+            tag_name = data.get("tag_name", "")
+            # Strip 'v' prefix if present
+            return tag_name.lstrip("v") if tag_name else None
+    except Exception:
+        pass
+    return None
+
+
+def get_version_info() -> dict[str, Optional[str]]:
+    """Get version information for all components.
+
+    Returns:
+        Dict with keys: jp_spec_kit, spec_kit, backlog_md
+    """
+    return {
+        "jp_spec_kit": __version__,
+        "spec_kit": get_spec_kit_version(),
+        "backlog_md": check_backlog_installed_version(),
+    }
+
+
+def show_version_info(detailed: bool = False, centered: bool = False) -> None:
+    """Display version information.
+
+    Args:
+        detailed: If True, show detailed version info with labels
+        centered: If True, center the output (for banner display)
+    """
+    versions = get_version_info()
+
+    if detailed:
+        table = Table(show_header=False, box=None, padding=(0, 2))
+        table.add_column("Component", style="cyan")
+        table.add_column("Version", style="green")
+
+        table.add_row("jp-spec-kit", versions["jp_spec_kit"] or "unknown")
+        table.add_row("spec-kit (upstream)", versions["spec_kit"] or "not detected")
+        table.add_row("backlog.md", versions["backlog_md"] or "not installed")
+
+        if centered:
+            console.print(Align.center(table))
+        else:
+            console.print(table)
+    else:
+        # Simple one-line version output
+        console.print(f"jp-spec-kit {versions['jp_spec_kit']}")
+
+
+def version_callback(value: bool) -> None:
+    """Callback for --version flag."""
+    if value:
+        show_version_info(detailed=False)
+        raise typer.Exit()
+
+
 def write_repo_facts(project_path: Path) -> None:
     """Write repository facts to memory/repo-facts.md with YAML frontmatter.
 
@@ -1409,7 +1480,17 @@ def show_banner():
 
 
 @app.callback()
-def callback(ctx: typer.Context):
+def callback(
+    ctx: typer.Context,
+    version: bool = typer.Option(
+        False,
+        "--version",
+        "-v",
+        help="Show version information and exit",
+        callback=version_callback,
+        is_eager=True,
+    ),
+):
     """Show banner when no subcommand is provided."""
     if (
         ctx.invoked_subcommand is None
@@ -1417,10 +1498,19 @@ def callback(ctx: typer.Context):
         and "-h" not in sys.argv
     ):
         show_banner()
+        # Show version info for all components
+        show_version_info(detailed=True, centered=True)
+        console.print()
         console.print(
             Align.center("[dim]Run 'specify --help' for usage information[/dim]")
         )
         console.print()
+
+
+@app.command()
+def version():
+    """Show detailed version information for all components."""
+    show_version_info(detailed=True)
 
 
 def run_command(
