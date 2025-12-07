@@ -1,5 +1,7 @@
 """Tests for existing project detection and constitution setup (task-243)."""
 
+import sys
+
 import pytest
 from specify_cli import is_existing_project, has_constitution, PROJECT_MARKERS
 
@@ -93,6 +95,10 @@ class TestHasConstitution:
 
         assert has_constitution(tmp_path) is False
 
+    @pytest.mark.skipif(
+        sys.platform == "darwin",
+        reason="macOS has case-insensitive filesystem by default",
+    )
     def test_constitution_wrong_name(self, tmp_path):
         """Test that file must be named constitution.md exactly."""
         memory_dir = tmp_path / "memory"

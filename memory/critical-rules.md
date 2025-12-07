@@ -1,5 +1,46 @@
 # Critical Rules
 
+## NEVER DELETE TESTS (ABSOLUTE - NO EXCEPTIONS)
+
+**An AI agent MUST NEVER delete test files or test methods without EXPLICIT human instruction.**
+
+This is NON-NEGOTIABLE. No exceptions. No rationalizations.
+
+### What is NOT a valid reason to delete tests:
+- "The code is deprecated" - NO
+- "New tests replace them" - NO
+- "It's a refactor" - NO
+- "The tests are outdated" - NO
+- "The tests are failing" - NO (fix them instead)
+- "The commit message explains it" - NO
+
+### The ONLY valid reason:
+**Human explicitly says: "Delete these specific tests: [list]"**
+
+### If you think tests should be deleted:
+1. STOP
+2. ASK the human: "I believe tests X, Y, Z may need removal because [reason]. Do you approve?"
+3. WAIT for explicit "yes, delete them"
+4. Only then proceed
+
+### PR Requirements for ANY test deletion:
+If human approves test deletion, the PR MUST:
+1. Have **⚠️ TEST DELETION** in the PR title
+2. List every deleted test file and method
+3. Show before/after test counts
+4. Explain why each deletion was human-approved
+
+### Violation of this rule (from PR #545/bd8642d):
+An AI deleted 1,560 lines of tests without explicit human approval:
+- test_applicator.py: 584 lines
+- test_integration.py: 479 lines
+- test_workflow_integration.py: 497 lines
+
+This was rationalized as "deprecated" but that is NOT acceptable.
+Tests are the safety net. An AI should GUARD tests, not delete them.
+
+---
+
 ## Pre-PR Validation (MANDATORY - NO EXCEPTIONS)
 
 **BEFORE creating any PR, you MUST run and pass ALL THREE:**

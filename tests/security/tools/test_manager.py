@@ -546,7 +546,12 @@ class TestInstallBinary:
             name="test",
             version="invalid-version-format",
             install_method=InstallMethod.BINARY,
-            binary_urls={"linux": "https://example.com/{version}/test.zip"},
+            # Include all platforms so version validation is tested (not platform check)
+            binary_urls={
+                "linux": "https://example.com/{version}/test.zip",
+                "darwin": "https://example.com/{version}/test.zip",
+                "windows": "https://example.com/{version}/test.zip",
+            },
         )
         manager = ToolManager(cache_dir=tmp_path)
         result = manager._install_binary(config)
@@ -572,7 +577,12 @@ class TestInstallBinary:
             name="test",
             version=None,  # No version
             install_method=InstallMethod.BINARY,
-            binary_urls={"linux": "https://example.com/{version}/test.zip"},
+            # Include all platforms so version validation is tested (not platform check)
+            binary_urls={
+                "linux": "https://example.com/{version}/test.zip",
+                "darwin": "https://example.com/{version}/test.zip",
+                "windows": "https://example.com/{version}/test.zip",
+            },
         )
         manager = ToolManager(cache_dir=tmp_path)
         result = manager._install_binary(config)
