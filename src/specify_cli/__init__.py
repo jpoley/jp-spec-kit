@@ -3191,6 +3191,26 @@ def init(
                 # Non-fatal error - continue with project initialization
                 tracker.error("hooks", f"scaffolding failed: {hook_error}")
 
+            # Scaffold push rules and state directory
+            tracker.start("push-rules")
+            try:
+                from .push_rules.scaffold import (
+                    get_scaffold_summary,
+                    scaffold_push_rules,
+                )
+
+                push_result = scaffold_push_rules(project_path)
+                summary = get_scaffold_summary(push_result)
+                if push_result["created"]:
+                    tracker.complete("push-rules", summary)
+                elif push_result["skipped"]:
+                    tracker.complete("push-rules", "already configured")
+                else:
+                    tracker.complete("push-rules", "ready")
+            except Exception as push_error:
+                # Non-fatal error - continue with project initialization
+                tracker.error("push-rules", f"scaffolding failed: {push_error}")
+
             # Set up constitution template
             tracker.start("constitution")
             try:

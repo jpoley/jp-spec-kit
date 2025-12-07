@@ -43,6 +43,19 @@ from .events import (
 )
 from .runner import HookResult, HookRunner
 from .schema import EventMatcher, HookDefinition, HooksConfig
+from .rebase_checker import (
+    BranchNotFoundError,
+    GitCommandError,
+    MergeCommit,
+    NotAGitRepositoryError,
+    RebaseCheckResult,
+    RebaseCheckerError,
+    check_rebase_status,
+    find_merge_commits,
+    format_rebase_error,
+    get_current_branch,
+    is_branch_rebased,
+)
 from .security import AuditLogger, SecurityConfig, SecurityValidator
 
 __all__ = [
@@ -77,4 +90,16 @@ __all__ = [
     "SecurityConfig",
     "SecurityValidator",
     "AuditLogger",
+    # Rebase Checker
+    "MergeCommit",
+    "RebaseCheckResult",
+    "RebaseCheckerError",
+    "GitCommandError",
+    "BranchNotFoundError",
+    "NotAGitRepositoryError",
+    "find_merge_commits",
+    "is_branch_rebased",
+    "check_rebase_status",
+    "format_rebase_error",
+    "get_current_branch",
 ]
