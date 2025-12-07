@@ -246,7 +246,8 @@ class TestUpgradeCommand:
 
     def test_help_shows_options(self):
         """Help text shows --tools, --repo, and --all options."""
-        result = runner.invoke(app, ["upgrade", "--help"])
+        # Use color=False to avoid ANSI escape codes breaking string matching
+        result = runner.invoke(app, ["upgrade", "--help"], color=False)
         assert result.exit_code == 0
         assert "--tools" in result.output
         assert "--repo" in result.output
