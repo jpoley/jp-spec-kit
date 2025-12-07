@@ -9,6 +9,7 @@ Tests cover:
 - Version info display (show_version_info)
 """
 
+import json
 from unittest.mock import MagicMock, patch
 
 from typer.testing import CliRunner
@@ -96,6 +97,16 @@ class TestGetGithubLatestRelease:
             result = get_github_latest_release("owner", "repo")
             assert result is None
 
+    def test_returns_none_on_invalid_json(self):
+        """Returns None when response contains invalid JSON."""
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.side_effect = json.JSONDecodeError("Invalid", "", 0)
+
+        with patch("specify_cli.client.get", return_value=mock_response):
+            result = get_github_latest_release("owner", "repo")
+            assert result is None
+
 
 class TestGetNpmLatestVersion:
     """Tests for npm registry version fetching."""
@@ -135,6 +146,16 @@ class TestGetNpmLatestVersion:
 
         with patch("specify_cli.client.get", return_value=mock_response):
             result = get_npm_latest_version("package")
+            assert result is None
+
+    def test_returns_none_on_invalid_json(self):
+        """Returns None when response contains invalid JSON."""
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.side_effect = json.JSONDecodeError("Invalid", "", 0)
+
+        with patch("specify_cli.client.get", return_value=mock_response):
+            result = get_npm_latest_version("backlog.md")
             assert result is None
 
 
