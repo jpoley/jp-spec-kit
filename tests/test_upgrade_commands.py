@@ -8,6 +8,7 @@ Tests cover:
 - Component upgrade helper functions
 """
 
+import re
 from unittest.mock import MagicMock, patch
 
 from typer.testing import CliRunner
@@ -18,6 +19,13 @@ from specify_cli import (
     _upgrade_jp_spec_kit,
     app,
 )
+
+
+def strip_ansi(text: str) -> str:
+    """Remove ANSI escape codes from text."""
+    ansi_escape = re.compile(r"\x1b\[[0-9;]*m")
+    return ansi_escape.sub("", text)
+
 
 runner = CliRunner()
 
@@ -246,12 +254,13 @@ class TestUpgradeCommand:
 
     def test_help_shows_options(self):
         """Help text shows --tools, --repo, and --all options."""
-        # Use color=False to avoid ANSI escape codes breaking string matching
-        result = runner.invoke(app, ["upgrade", "--help"], color=False)
+        result = runner.invoke(app, ["upgrade", "--help"])
         assert result.exit_code == 0
-        assert "--tools" in result.output
-        assert "--repo" in result.output
-        assert "--all" in result.output
+        # Strip ANSI codes because Rich/Typer adds color codes that split option names
+        output = strip_ansi(result.output)
+        assert "--tools" in output
+        assert "--repo" in output
+        assert "--all" in output
 
     def test_tools_flag_delegates(self):
         """--tools flag delegates to upgrade-tools."""
