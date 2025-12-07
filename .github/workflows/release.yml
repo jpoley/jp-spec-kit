@@ -68,6 +68,7 @@ jobs:
           .github/workflows/scripts/update-version.sh "$NEW_VERSION"
       - name: Commit and push version bump
         if: steps.check_release.outputs.exists == 'false'
+        continue-on-error: true
         env:
           NEW_VERSION: ${{ steps.get_tag.outputs.new_version }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -87,20 +88,28 @@ jobs:
           # Try direct push first
           if git push origin main; then
             echo "✅ Version files updated directly on main"
-          else
-            echo "⚠️ Direct push failed (branch protection). Creating PR instead..."
+            exit 0
+          fi
 
-            # Create a branch and PR for the version bump
-            BRANCH_NAME="chore/version-bump-${NEW_VERSION//[^0-9.]/-}"
-            git checkout -b "$BRANCH_NAME"
-            git push origin "$BRANCH_NAME"
+          echo "⚠️ Direct push failed (branch protection). Creating PR instead..."
 
-            gh pr create \
-              --title "chore: bump version to $NEW_VERSION" \
-              --body "Automated version bump to $NEW_VERSION after release. This PR was created because main branch is protected and requires PRs." \
-              --base main \
-              --head "$BRANCH_NAME"
+          # Create a branch and PR for the version bump
+          BRANCH_NAME="chore/version-bump-${NEW_VERSION//[^0-9.]/-}"
+          git checkout -b "$BRANCH_NAME"
+          git push origin "$BRANCH_NAME"
 
+          # Try to create PR - may fail if Actions can't create PRs
+          if gh pr create \
+            --title "chore: bump version to $NEW_VERSION" \
+            --body "Automated version bump to $NEW_VERSION after release. This PR was created because main branch is protected and requires PRs." \
+            --base main \
+            --head "$BRANCH_NAME"; then
             echo "✅ Created PR for version bump"
+          else
+            echo "⚠️ Could not create PR automatically."
+            echo "📌 Manual action needed: Sync pyproject.toml and __init__.py to version ${NEW_VERSION#v}"
+            echo "   Branch 'chore/version-bump-${NEW_VERSION//[^0-9.]/-}' has been pushed with the changes."
+            echo ""
+            echo "   The release was created successfully - this is just a version sync issue."
           fi
 
