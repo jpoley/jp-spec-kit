@@ -1,5 +1,12 @@
 ## [Unreleased]
 
+### Changed
+
+- **File-friendly timestamp in specify-backup path**: Backup directories now include timestamp (`YYYYMMDD-HHMMSS`) format
+  - Previous backups are preserved instead of being overwritten
+  - Example: `.specify-backup-20251207-143052/` instead of `.specify-backup/`
+  - Enables rollback to any previous backup version
+
 ## [0.2.316] - 2025-12-07
 
 ### Fixed

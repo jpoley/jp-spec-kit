@@ -35,6 +35,7 @@ import subprocess
 import sys
 import tempfile
 import zipfile
+from datetime import datetime
 from pathlib import Path
 from typing import Optional, Tuple
 
@@ -3670,11 +3671,10 @@ def upgrade_repo(
             local_ssl_context = ssl_context if verify else False
             local_client = httpx.Client(verify=local_ssl_context)
 
-            # Create backup of existing templates
+            # Create backup of existing templates with timestamp
             tracker.start("backup")
-            backup_dir = project_path / ".specify-backup"
-            if backup_dir.exists():
-                shutil.rmtree(backup_dir)
+            timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+            backup_dir = project_path / f".specify-backup-{timestamp}"
             backup_dir.mkdir(parents=True)
 
             # Backup key directories
@@ -5410,11 +5410,12 @@ def quality(
 
     Returns a 0-100 score with detailed recommendations.
     """
-    from pathlib import Path
     import json as json_lib
+    from pathlib import Path
+
     from rich.table import Table
 
-    from specify_cli.quality import QualityScorer, QualityConfig
+    from specify_cli.quality import QualityConfig, QualityScorer
 
     # Determine spec path
     if spec_path is None:
@@ -5586,7 +5587,8 @@ def gate(
         specify gate --force            # Bypass failed gate (not recommended)
     """
     from pathlib import Path
-    from specify_cli.quality import QualityScorer, QualityConfig
+
+    from specify_cli.quality import QualityConfig, QualityScorer
 
     project_root = Path.cwd()
     spec_path = project_root / ".specify" / "spec.md"
@@ -6013,12 +6015,13 @@ def security_scan(
         specify security scan --format json -o out.json # JSON output to file
     """
     import json
-    from specify_cli.security.orchestrator import ScannerOrchestrator
+
     from specify_cli.security.adapters.semgrep import SemgrepAdapter
-    from specify_cli.security.exporters.sarif import SARIFExporter
     from specify_cli.security.exporters.json import JSONExporter
     from specify_cli.security.exporters.markdown import MarkdownExporter
+    from specify_cli.security.exporters.sarif import SARIFExporter
     from specify_cli.security.models import Severity
+    from specify_cli.security.orchestrator import ScannerOrchestrator
 
     # Validate fail-on severity
     try:
