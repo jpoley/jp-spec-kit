@@ -1,7 +1,7 @@
 [project]
 name = "specify-cli"
 
-version = "0.2.315"
+version = "0.2.316"
 
 
 
@@ -32,6 +32,10 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/specify_cli"]
+
+# Include data files in the package
+[tool.hatch.build.targets.wheel.force-include]
+".spec-kit-compatibility.yml" = "specify_cli/.spec-kit-compatibility.yml"
 
 [project.optional-dependencies]
 dast = [

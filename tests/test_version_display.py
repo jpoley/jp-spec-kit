@@ -183,7 +183,8 @@ jp-spec-kit:
         # Mock load_compatibility_matrix to return empty
         with patch("specify_cli.load_compatibility_matrix", return_value={}):
             result = get_spec_kit_installed_version()
-            assert result == "0.0.20"
+            # Default fallback version (updated from 0.0.20 to 0.0.90)
+            assert result == "0.0.90"
 
     def test_returns_string_not_none(self, tmp_path, monkeypatch):
         """Always returns a string, never None."""

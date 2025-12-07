@@ -24,6 +24,7 @@ Or install globally:
     specify init --here
 """
 
+import importlib.resources
 import logging
 import os
 import shlex
@@ -592,7 +593,7 @@ BANNER = """
 """
 
 # Version - keep in sync with pyproject.toml
-__version__ = "0.2.315"
+__version__ = "0.2.316"
 
 # Constitution template version
 CONSTITUTION_VERSION = "1.0.0"
@@ -614,24 +615,39 @@ EXTENSION_REPO_DEFAULT_VERSION = "latest"
 # When present, specify init/upgrade will skip to avoid clobbering source files
 SOURCE_REPO_MARKER = ".jp-spec-kit-source"
 
-# Path to compatibility matrix YAML
-COMPATIBILITY_MATRIX_PATH = (
-    Path(__file__).parent.parent.parent / ".spec-kit-compatibility.yml"
-)
+# Compatibility matrix filename (bundled with package)
+COMPATIBILITY_MATRIX_FILENAME = ".spec-kit-compatibility.yml"
 
 
 def load_compatibility_matrix() -> dict:
     """Load and parse the compatibility matrix YAML file.
 
+    Uses importlib.resources to load from the installed package,
+    ensuring the file is found regardless of installation method.
+
     Returns:
         Parsed YAML as a dict, or empty dict if file not found/invalid
     """
     try:
-        if COMPATIBILITY_MATRIX_PATH.exists():
-            with open(COMPATIBILITY_MATRIX_PATH, "r") as f:
+        # Python 3.11+ approach using importlib.resources
+        files = importlib.resources.files("specify_cli")
+        matrix_file = files.joinpath(COMPATIBILITY_MATRIX_FILENAME)
+        if matrix_file.is_file():
+            content = matrix_file.read_text(encoding="utf-8")
+            return yaml.safe_load(content) or {}
+    except Exception as e:
+        logger.debug(f"Error loading bundled compatibility matrix: {e}")
+
+    # Fallback: try loading from source repo root (for development)
+    try:
+        repo_root = Path(__file__).parent.parent.parent
+        source_path = repo_root / COMPATIBILITY_MATRIX_FILENAME
+        if source_path.exists():
+            with open(source_path, "r") as f:
                 return yaml.safe_load(f) or {}
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug(f"Error loading source compatibility matrix: {e}")
+
     return {}
 
 
@@ -780,14 +796,14 @@ def get_spec_kit_installed_version() -> str:
 
     Checks multiple sources in priority order:
     1. Current working directory's .spec-kit-compatibility.yml
-    2. Package's bundled compatibility matrix
-    3. Falls back to default known version "0.0.20"
+    2. Package's bundled compatibility matrix (via importlib.resources)
+    3. Falls back to default known version "0.0.90"
 
     Note:
-        This function reads from the file system.
+        This function reads from the file system and package resources.
 
     Returns:
-        Version string (e.g., "0.0.20"), guaranteed to return a value
+        Version string (e.g., "0.0.90"), guaranteed to return a value
     """
     # Try current directory first (user's project)
     cwd_matrix = Path.cwd() / ".spec-kit-compatibility.yml"
@@ -803,7 +819,7 @@ def get_spec_kit_installed_version() -> str:
         except Exception as e:
             logger.debug(f"Error reading CWD compatibility matrix: {e}")
 
-    # Try package's compatibility matrix
+    # Try package's compatibility matrix (bundled with the installed package)
     matrix = load_compatibility_matrix()
     if matrix:
         jp_config = matrix.get("jp-spec-kit", {})
@@ -812,8 +828,9 @@ def get_spec_kit_installed_version() -> str:
         if spec_kit.get("tested"):
             return spec_kit.get("tested")
 
-    # Default fallback (update when upstream changes)
-    return "0.0.20"
+    # Default fallback - should match latest bundled version
+    # This is a safety net if both file sources fail
+    return "0.0.90"
 
 
 def get_all_component_versions() -> dict:
@@ -3931,9 +3948,9 @@ def _upgrade_backlog_md(dry_run: bool = False) -> tuple[bool, str]:
 def _upgrade_spec_kit(dry_run: bool = False) -> tuple[bool, str]:
     """Upgrade spec-kit templates (bundled with jp-spec-kit).
 
-    spec-kit is the upstream base template repository. Templates are bundled
-    in jp-spec-kit. Upgrading spec-kit triggers a jp-spec-kit reinstall from
-    git to get the latest bundled templates.
+    spec-kit is the upstream base template repository (github/spec-kit).
+    Templates are bundled with jp-spec-kit. Upgrading reinstalls jp-spec-kit
+    from git to get the latest bundled templates.
 
     Args:
         dry_run: If True, only show what would be done
@@ -3970,17 +3987,20 @@ def _upgrade_spec_kit(dry_run: bool = False) -> tuple[bool, str]:
             text=True,
             check=True,
         )
-        # After reinstall, check if spec-kit version updated
+
+        # Clear importlib caches to pick up new package resources
+        importlib.invalidate_caches()
+
+        # Re-read the version from the freshly installed package
         new_version = get_spec_kit_installed_version()
+
         if new_version and compare_semver(new_version, current_version) > 0:
             return True, f"Upgraded from {current_version} to {new_version}"
+        elif new_version == available_version:
+            return True, f"Upgraded to {new_version}"
         elif new_version == current_version:
-            # jp-spec-kit may not have bundled the latest spec-kit yet
-            return (
-                True,
-                f"Reinstalled jp-spec-kit (spec-kit {current_version} - "
-                f"latest {available_version} not yet bundled)",
-            )
+            # Version didn't change - bundled version is same as before
+            return True, f"Reinstalled (already at bundled version {new_version})"
         return True, f"Reinstalled (spec-kit version: {new_version or current_version})"
     except subprocess.CalledProcessError as e:
         return False, f"Upgrade failed: {e.stderr}"

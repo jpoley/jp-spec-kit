@@ -1,0 +1,86 @@
+# JP Spec Kit - Spec Kit Compatibility Matrix
+# This file declares which versions of jp-spec-kit are compatible with upstream spec-kit
+
+jp-spec-kit:
+  version: "0.0.90"
+  type: "layered-extension"
+  description: "Multi-language, multi-agent extension for spec-kit with jpspec commands"
+
+  # Base spec-kit compatibility
+  compatible_with:
+    spec-kit:
+      min: "0.0.18"
+      max: "0.0.99"
+      tested: "0.0.90"
+      recommended: "0.0.90"
+      repository: "github/spec-kit"
+  
+  # What jp-spec-kit provides as extension layer
+  provides:
+    commands:
+      - name: "jpspec:specify"
+        description: "Product Requirements Manager with SVPG methodology"
+      - name: "jpspec:plan"
+        description: "Multi-agent architecture planning (Architect + Platform Engineer)"
+      - name: "jpspec:research"
+        description: "Market research and TAM/SAM/SOM analysis"
+      - name: "jpspec:implement"
+        description: "Multi-agent implementation (Frontend/Backend/AI/ML + Reviews)"
+      - name: "jpspec:validate"
+        description: "QA, Security, Documentation, and Release validation"
+      - name: "jpspec:operate"
+        description: "SRE operations (CI/CD, K8s, DevSecOps)"
+    
+    languages:
+      - python
+      - go
+      - rust
+      - java
+      - kotlin
+      - c
+      - cpp
+      - csharp
+      - typescript
+      - javascript
+      - web
+      - mobile
+      - systems
+    
+    features:
+      - "Expert knowledge bases per language"
+      - "Agent personas for specialized roles"
+      - "Multi-agent orchestration workflows"
+      - "Language-specific best practices and resources"
+  
+  # Installation methods
+  installation:
+    uv:
+      method: "uv tool install specify-cli --from git+https://github.com/jpoley/jp-spec-kit.git"
+      supports_upgrade: true
+    
+    git:
+      method: "git clone https://github.com/jpoley/jp-spec-kit.git"
+      supports_upgrade: true
+  
+  # Upgrade strategy
+  upgrade:
+    strategy: "two-stage"
+    description: "Downloads base spec-kit templates, then overlays jp-spec-kit extensions"
+    precedence: "jp-spec-kit overrides spec-kit where conflicts exist"
+
+# Backlog.md compatibility
+backlog-md:
+  description: "Project management CLI for task tracking and backlog management"
+  compatible_with:
+    min: "1.20.0"
+    max: "2.0.0"
+    tested: "1.21.0"
+    recommended: "1.21.0"
+  repository: "jpoley/backlog-md"
+  installation:
+    pnpm:
+      method: "pnpm add -g backlog-md@<version>"
+      check: "backlog --version"
+    npm:
+      method: "npm install -g backlog-md@<version>"
+      check: "backlog --version"

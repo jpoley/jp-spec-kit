@@ -1,5 +1,24 @@
 ## [Unreleased]
 
+## [0.2.316] - 2025-12-07
+
+### Fixed
+
+- **Critical: spec-kit version display showing 0.0.20 instead of 0.0.90**
+  - Root cause: `.spec-kit-compatibility.yml` was not being included in the installed package
+  - The file was only accessible when running from the source repo, not when installed via `uv tool install`
+  - Fix: Use `importlib.resources` to properly load bundled package data files
+  - Add `force-include` in `pyproject.toml` to ensure the compatibility matrix is bundled in the wheel
+  - Updated default fallback version from 0.0.20 to 0.0.90
+  - Call `importlib.invalidate_caches()` after reinstalling to pick up new package resources
+
+### Changed
+
+- Improved `load_compatibility_matrix()` to use `importlib.resources.files()` for reliable package resource access
+- Updated test expectations for the new default fallback version
+
+## [0.2.315] - 2025-12-06
+
 ### Added
 
 - **Spec-Light Mode for Medium-Complexity Features**: Streamlined SDD workflow with `--light` flag
