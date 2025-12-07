@@ -3281,7 +3281,7 @@ def init(
                     )
                     try:
                         if pkg_manager == "pnpm":
-                            cmd = ["pnpm", "add", "-g", f"backlog-md@{target_version}"]
+                            cmd = ["pnpm", "add", "-g", f"backlog.md@{target_version}"]
                         else:
                             cmd = [
                                 "npm",
@@ -3773,7 +3773,37 @@ def upgrade_repo(
 
 
 # Valid component names for upgrade-tools
-UPGRADE_TOOLS_COMPONENTS = ["jp-spec-kit", "backlog"]
+UPGRADE_TOOLS_COMPONENTS = ["jp-spec-kit", "spec-kit", "backlog"]
+
+
+def _get_installed_jp_spec_kit_version() -> Optional[str]:
+    """Get the actual installed jp-spec-kit version by running the binary.
+
+    This queries the installed binary rather than using the in-memory __version__,
+    which is necessary after upgrades since the Python process still has the old value.
+
+    Returns:
+        Version string (e.g., "0.2.317") or None if not installed/error
+    """
+    try:
+        result = subprocess.run(
+            ["specify", "version"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if result.returncode == 0:
+            # Parse "jp-spec-kit X.Y.Z" from output
+            for line in result.stdout.strip().split("\n"):
+                if "jp-spec-kit" in line.lower():
+                    # Extract version number (digits and dots)
+                    parts = line.split()
+                    for part in parts:
+                        if part and all(c.isdigit() or c == "." for c in part):
+                            return part
+    except FileNotFoundError:
+        pass
+    return None
 
 
 def _upgrade_jp_spec_kit(dry_run: bool = False) -> tuple[bool, str]:
@@ -3811,12 +3841,15 @@ def _upgrade_jp_spec_kit(dry_run: bool = False) -> tuple[bool, str]:
             check=False,
         )
         if result.returncode == 0:
-            # After upgrade, the version in memory won't change but the tool is updated
-            return True, f"Upgraded from {current_version} to {available_version}"
+            # Verify the upgrade actually worked by checking installed version
+            new_version = _get_installed_jp_spec_kit_version()
+            if new_version and compare_semver(new_version, current_version) > 0:
+                return True, f"Upgraded from {current_version} to {new_version}"
+            # uv returned 0 but version didn't change - fall through to git reinstall
     except FileNotFoundError:
         pass
 
-    # Fallback: reinstall from git
+    # Fallback: reinstall from git (always try if uv upgrade didn't work)
     try:
         subprocess.run(
             [
@@ -3832,7 +3865,11 @@ def _upgrade_jp_spec_kit(dry_run: bool = False) -> tuple[bool, str]:
             text=True,
             check=True,
         )
-        return True, f"Reinstalled (version: {available_version})"
+        # Verify the reinstall worked
+        new_version = _get_installed_jp_spec_kit_version()
+        if new_version:
+            return True, f"Upgraded from {current_version} to {new_version}"
+        return True, f"Reinstalled (expected: {available_version})"
     except subprocess.CalledProcessError as e:
         return False, f"Upgrade failed: {e.stderr}"
     except FileNotFoundError:
@@ -3869,9 +3906,9 @@ def _upgrade_backlog_md(dry_run: bool = False) -> tuple[bool, str]:
 
     try:
         if pkg_manager == "pnpm":
-            cmd = ["pnpm", "add", "-g", f"backlog-md@{available_version}"]
+            cmd = ["pnpm", "add", "-g", f"backlog.md@{available_version}"]
         else:
-            cmd = ["npm", "install", "-g", f"backlog-md@{available_version}"]
+            cmd = ["npm", "install", "-g", f"backlog.md@{available_version}"]
 
         subprocess.run(cmd, check=True, capture_output=True, text=True)
 
@@ -3885,31 +3922,93 @@ def _upgrade_backlog_md(dry_run: bool = False) -> tuple[bool, str]:
         return False, f"Upgrade failed: {e.stderr}"
 
 
+def _upgrade_spec_kit(dry_run: bool = False) -> tuple[bool, str]:
+    """Upgrade spec-kit templates (bundled with jp-spec-kit).
+
+    spec-kit is the upstream base template repository. Templates are bundled
+    in jp-spec-kit. Upgrading spec-kit triggers a jp-spec-kit reinstall from
+    git to get the latest bundled templates.
+
+    Args:
+        dry_run: If True, only show what would be done
+
+    Returns:
+        Tuple of (success, message)
+    """
+    current_version = get_spec_kit_installed_version()
+    available_version = get_github_latest_release(BASE_REPO_OWNER, BASE_REPO_NAME)
+
+    if not available_version:
+        return False, "Could not determine latest spec-kit version"
+
+    if compare_semver(current_version, available_version) >= 0:
+        return True, f"Already at latest version ({current_version})"
+
+    if dry_run:
+        return True, f"Would upgrade from {current_version} to {available_version}"
+
+    # spec-kit templates are bundled in jp-spec-kit
+    # Reinstall jp-spec-kit from git to get latest bundled spec-kit
+    try:
+        subprocess.run(
+            [
+                "uv",
+                "tool",
+                "install",
+                "--force",
+                "specify-cli",
+                "--from",
+                "git+https://github.com/jpoley/jp-spec-kit.git",
+            ],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        # After reinstall, check if spec-kit version updated
+        new_version = get_spec_kit_installed_version()
+        if new_version and compare_semver(new_version, current_version) > 0:
+            return True, f"Upgraded from {current_version} to {new_version}"
+        elif new_version == current_version:
+            # jp-spec-kit may not have bundled the latest spec-kit yet
+            return (
+                True,
+                f"Reinstalled jp-spec-kit (spec-kit {current_version} - "
+                f"latest {available_version} not yet bundled)",
+            )
+        return True, f"Reinstalled (spec-kit version: {new_version or current_version})"
+    except subprocess.CalledProcessError as e:
+        return False, f"Upgrade failed: {e.stderr}"
+    except FileNotFoundError:
+        return False, "uv not found - install uv first"
+
+
 @app.command(name="upgrade-tools")
 def upgrade_tools(
     component: str = typer.Option(
         None,
         "--component",
         "-c",
-        help="Specific component to upgrade (jp-spec-kit, backlog). Upgrades all if not specified.",
+        help="Specific component to upgrade (jp-spec-kit, spec-kit, backlog). Upgrades all if not specified.",
     ),
     dry_run: bool = typer.Option(
         False, "--dry-run", help="Show what would be upgraded without making changes"
     ),
 ):
     """
-    Upgrade globally installed CLI tools (jp-spec-kit, backlog-md).
+    Upgrade globally installed CLI tools (jp-spec-kit, spec-kit, backlog-md).
 
     This upgrades the CLI tools themselves at their global installation locations.
     It does NOT upgrade repository templates (use 'specify upgrade-repo' for that).
 
     Tools upgraded:
     - jp-spec-kit (specify-cli): via uv tool upgrade
+    - spec-kit: base templates bundled in jp-spec-kit (triggers jp-spec-kit reinstall)
     - backlog-md: via npm/pnpm global install
 
     Examples:
         specify upgrade-tools                    # Upgrade all tools
         specify upgrade-tools -c jp-spec-kit    # Upgrade only jp-spec-kit
+        specify upgrade-tools -c spec-kit       # Upgrade only spec-kit templates
         specify upgrade-tools -c backlog        # Upgrade only backlog-md
         specify upgrade-tools --dry-run         # Preview what would be upgraded
 
@@ -3960,6 +4059,17 @@ def _run_upgrade_tools(dry_run: bool = False, component: str | None = None) -> N
         results.append(("jp-spec-kit", success, message))
 
         table.add_row("jp-spec-kit", jp_current, jp_available, f"{status} {message}")
+
+    # spec-kit (bundled templates)
+    if not component or component == "spec-kit":
+        sk_current = versions["spec_kit"].get("installed", "-")
+        sk_available = versions["spec_kit"].get("available", "-")
+
+        success, message = _upgrade_spec_kit(dry_run=dry_run)
+        status = "[green]✓[/green]" if success else "[red]✗[/red]"
+        results.append(("spec-kit", success, message))
+
+        table.add_row("spec-kit", sk_current, sk_available, f"{status} {message}")
 
     # backlog-md
     if not component or component == "backlog":
@@ -5103,9 +5213,9 @@ def backlog_install(
 
     try:
         if pkg_manager == "pnpm":
-            cmd = ["pnpm", "add", "-g", f"backlog-md@{target_version}"]
+            cmd = ["pnpm", "add", "-g", f"backlog.md@{target_version}"]
         else:  # npm
-            cmd = ["npm", "install", "-g", f"backlog-md@{target_version}"]
+            cmd = ["npm", "install", "-g", f"backlog.md@{target_version}"]
 
         subprocess.run(cmd, check=True, capture_output=True, text=True)
         tracker.complete("install", "installed successfully")
@@ -5211,9 +5321,9 @@ def backlog_upgrade(
 
     try:
         if pkg_manager == "pnpm":
-            cmd = ["pnpm", "add", "-g", f"backlog-md@{target_version}"]
+            cmd = ["pnpm", "add", "-g", f"backlog.md@{target_version}"]
         else:  # npm
-            cmd = ["npm", "install", "-g", f"backlog-md@{target_version}"]
+            cmd = ["npm", "install", "-g", f"backlog.md@{target_version}"]
 
         subprocess.run(cmd, check=True, capture_output=True, text=True)
         tracker.complete("upgrade", "upgraded successfully")

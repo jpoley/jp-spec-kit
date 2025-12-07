@@ -17,6 +17,7 @@ from specify_cli import (
     UPGRADE_TOOLS_COMPONENTS,
     _upgrade_backlog_md,
     _upgrade_jp_spec_kit,
+    _upgrade_spec_kit,
     app,
 )
 
@@ -36,6 +37,10 @@ class TestUpgradeToolsComponents:
     def test_contains_jp_spec_kit(self):
         """jp-spec-kit is a valid component."""
         assert "jp-spec-kit" in UPGRADE_TOOLS_COMPONENTS
+
+    def test_contains_spec_kit(self):
+        """spec-kit is a valid component."""
+        assert "spec-kit" in UPGRADE_TOOLS_COMPONENTS
 
     def test_contains_backlog(self):
         """backlog is a valid component."""
@@ -78,9 +83,16 @@ class TestUpgradeJpSpecKit:
                 mock_result = MagicMock()
                 mock_result.returncode = 0
                 with patch("subprocess.run", return_value=mock_result):
-                    success, message = _upgrade_jp_spec_kit(dry_run=False)
-                    assert success is True
-                    assert "Upgraded" in message
+                    # Mock version verification to return the new version
+                    with patch(
+                        "specify_cli._get_installed_jp_spec_kit_version",
+                        return_value="2.0.0",
+                    ):
+                        success, message = _upgrade_jp_spec_kit(dry_run=False)
+                        assert success is True
+                        assert "Upgraded" in message
+                        assert "1.0.0" in message
+                        assert "2.0.0" in message
 
     def test_uv_not_found_fallback(self):
         """Falls back to reinstall when uv upgrade fails."""
@@ -96,9 +108,14 @@ class TestUpgradeJpSpecKit:
                     return result
 
                 with patch("subprocess.run", side_effect=mock_subprocess_run):
-                    success, message = _upgrade_jp_spec_kit(dry_run=False)
-                    assert success is True
-                    assert "Reinstalled" in message
+                    # Mock version verification to return the new version
+                    with patch(
+                        "specify_cli._get_installed_jp_spec_kit_version",
+                        return_value="2.0.0",
+                    ):
+                        success, message = _upgrade_jp_spec_kit(dry_run=False)
+                        assert success is True
+                        assert "Upgraded" in message or "2.0.0" in message
 
 
 class TestUpgradeBacklogMd:
@@ -154,6 +171,49 @@ class TestUpgradeBacklogMd:
                         assert success is False
                         assert "not found" in message.lower()
                         assert "npm" in message
+
+
+class TestUpgradeSpecKit:
+    """Tests for _upgrade_spec_kit helper function."""
+
+    def test_already_at_latest_version(self):
+        """Returns success when already at latest version."""
+        with patch("specify_cli.get_spec_kit_installed_version", return_value="1.0.0"):
+            with patch("specify_cli.get_github_latest_release", return_value="1.0.0"):
+                success, message = _upgrade_spec_kit(dry_run=False)
+                assert success is True
+                assert "Already at latest version" in message
+
+    def test_dry_run_shows_would_upgrade(self):
+        """Dry run shows what would be upgraded."""
+        with patch("specify_cli.get_spec_kit_installed_version", return_value="1.0.0"):
+            with patch("specify_cli.get_github_latest_release", return_value="2.0.0"):
+                success, message = _upgrade_spec_kit(dry_run=True)
+                assert success is True
+                assert "Would upgrade" in message
+                assert "1.0.0" in message
+                assert "2.0.0" in message
+
+    def test_handles_no_available_version(self):
+        """Returns failure when available version cannot be determined."""
+        with patch("specify_cli.get_spec_kit_installed_version", return_value="1.0.0"):
+            with patch("specify_cli.get_github_latest_release", return_value=None):
+                success, message = _upgrade_spec_kit(dry_run=False)
+                assert success is False
+                assert "Could not determine latest" in message
+
+    def test_upgrade_success(self):
+        """Successful spec-kit upgrade via jp-spec-kit reinstall."""
+        with patch("specify_cli.get_spec_kit_installed_version") as mock_version:
+            # First call returns old version, second call returns new version
+            mock_version.side_effect = ["1.0.0", "2.0.0"]
+            with patch("specify_cli.get_github_latest_release", return_value="2.0.0"):
+                mock_result = MagicMock()
+                mock_result.returncode = 0
+                with patch("subprocess.run", return_value=mock_result):
+                    success, message = _upgrade_spec_kit(dry_run=False)
+                    assert success is True
+                    assert "Upgraded" in message or "2.0.0" in message
 
 
 class TestUpgradeToolsCommand:
