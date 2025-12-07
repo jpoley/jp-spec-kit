@@ -46,7 +46,7 @@ fi
 perl -i -pe "s/__version__ = \".*\"/__version__ = \"$PYTHON_VERSION\"/" "$INIT_FILE"
 
 # Verify the change was applied
-if ! grep -q "__version__ = \"$PYTHON_VERSION\"" "$INIT_FILE"; then
+if ! grep -qF "__version__ = \"$PYTHON_VERSION\"" "$INIT_FILE"; then
   echo "ERROR: Failed to update version in $INIT_FILE" >&2
   exit 1
 fi
