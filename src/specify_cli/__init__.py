@@ -24,32 +24,34 @@ Or install globally:
     specify init --here
 """
 
+import logging
 import os
+import shlex
+import shutil
+import ssl
 import subprocess
 import sys
-import zipfile
 import tempfile
-import shutil
-import shlex
+import zipfile
 from pathlib import Path
 from typing import Optional, Tuple
 
-import typer
 import httpx
-from rich.console import Console
-from rich.panel import Panel
-from rich.text import Text
-from rich.live import Live
+import readchar
+import truststore
+import typer
+import yaml
 from rich.align import Align
+from rich.console import Console
+from rich.live import Live
+from rich.panel import Panel
 from rich.table import Table
+from rich.text import Text
 from rich.tree import Tree
 from typer.core import TyperGroup
 
-# For cross-platform keyboard input
-import readchar
-import ssl
-import truststore
-import yaml
+# Module-level logger
+logger = logging.getLogger(__name__)
 
 ssl_context = truststore.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
 client = httpx.Client(verify=ssl_context)
@@ -709,6 +711,234 @@ def compare_semver(version1: str, version2: str) -> int:
         return 1
     else:
         return 0
+
+
+# =============================================================================
+# Version Detection and Display
+# =============================================================================
+
+
+def get_github_latest_release(owner: str, repo: str) -> Optional[str]:
+    """Fetch the latest release version from GitHub API.
+
+    Args:
+        owner: Repository owner (e.g., "jpoley")
+        repo: Repository name (e.g., "jp-spec-kit")
+
+    Returns:
+        Version string (e.g., "0.0.311") or None if fetch fails
+    """
+    try:
+        url = f"https://api.github.com/repos/{owner}/{repo}/releases/latest"
+        response = client.get(url, headers=_github_headers(skip_auth=True), timeout=5.0)
+        if response.status_code == 200:
+            data = response.json()
+            tag_name = data.get("tag_name", "")
+            return tag_name.lstrip("v") if tag_name else None
+        # Non-200 response - likely no releases or repo not found
+        logger.debug(f"GitHub API returned {response.status_code} for {owner}/{repo}")
+    except httpx.TimeoutException:
+        logger.debug(f"Timeout fetching GitHub release for {owner}/{repo}")
+    except httpx.HTTPError as e:
+        logger.debug(f"HTTP error fetching GitHub release for {owner}/{repo}: {e}")
+    except Exception as e:
+        logger.debug(f"Unexpected error fetching GitHub release: {e}")
+    return None
+
+
+def get_npm_latest_version(package: str) -> Optional[str]:
+    """Fetch the latest version of an npm package from the registry.
+
+    Args:
+        package: npm package name (e.g., "backlog.md")
+
+    Returns:
+        Version string (e.g., "1.26.4") or None if fetch fails
+    """
+    try:
+        url = f"https://registry.npmjs.org/{package}/latest"
+        response = client.get(url, timeout=5.0)
+        if response.status_code == 200:
+            data = response.json()
+            version = data.get("version")
+            if version:
+                return version
+            logger.debug(f"npm response missing 'version' field for {package}")
+        else:
+            logger.debug(f"npm registry returned {response.status_code} for {package}")
+    except httpx.TimeoutException:
+        logger.debug(f"Timeout fetching npm version for {package}")
+    except httpx.HTTPError as e:
+        logger.debug(f"HTTP error fetching npm version for {package}: {e}")
+    except Exception as e:
+        logger.debug(f"Unexpected error fetching npm version: {e}")
+    return None
+
+
+def get_spec_kit_installed_version() -> str:
+    """Get the installed spec-kit version from the compatibility matrix.
+
+    Checks multiple sources in priority order:
+    1. Current working directory's .spec-kit-compatibility.yml
+    2. Package's bundled compatibility matrix
+    3. Falls back to default known version "0.0.20"
+
+    Note:
+        This function reads from the file system.
+
+    Returns:
+        Version string (e.g., "0.0.20"), guaranteed to return a value
+    """
+    # Try current directory first (user's project)
+    cwd_matrix = Path.cwd() / ".spec-kit-compatibility.yml"
+    if cwd_matrix.exists():
+        try:
+            with open(cwd_matrix, "r") as f:
+                matrix = yaml.safe_load(f) or {}
+                jp_config = matrix.get("jp-spec-kit", {})
+                compat = jp_config.get("compatible_with", {})
+                spec_kit = compat.get("spec-kit", {})
+                if spec_kit.get("tested"):
+                    return spec_kit.get("tested")
+        except Exception as e:
+            logger.debug(f"Error reading CWD compatibility matrix: {e}")
+
+    # Try package's compatibility matrix
+    matrix = load_compatibility_matrix()
+    if matrix:
+        jp_config = matrix.get("jp-spec-kit", {})
+        compat = jp_config.get("compatible_with", {})
+        spec_kit = compat.get("spec-kit", {})
+        if spec_kit.get("tested"):
+            return spec_kit.get("tested")
+
+    # Default fallback (update when upstream changes)
+    return "0.0.20"
+
+
+def get_all_component_versions() -> dict:
+    """Get installed and available versions for all components.
+
+    Returns:
+        Dictionary with the following structure:
+        {
+            "jp_spec_kit": {"installed": str, "available": str | None},
+            "spec_kit": {"installed": str, "available": str | None},
+            "backlog_md": {"installed": str | None, "available": str | None}
+        }
+    """
+    return {
+        "jp_spec_kit": {
+            "installed": __version__,
+            "available": get_github_latest_release(
+                EXTENSION_REPO_OWNER, EXTENSION_REPO_NAME
+            ),
+        },
+        "spec_kit": {
+            "installed": get_spec_kit_installed_version(),
+            "available": get_github_latest_release(BASE_REPO_OWNER, BASE_REPO_NAME),
+        },
+        "backlog_md": {
+            "installed": check_backlog_installed_version(),
+            "available": get_npm_latest_version("backlog.md"),
+        },
+    }
+
+
+def _has_upgrade(versions: dict) -> bool:
+    """Check if a component has an available upgrade.
+
+    Args:
+        versions: Dictionary with "installed" and "available" keys
+
+    Returns:
+        True if available version is newer than installed
+    """
+    return bool(
+        versions.get("available")
+        and versions.get("installed")
+        and compare_semver(versions["installed"], versions["available"]) < 0
+    )
+
+
+def _add_version_row(
+    table: Table,
+    name: str,
+    versions: dict,
+    not_installed_msg: str = "-",
+) -> bool:
+    """Add a component row to the version table.
+
+    Args:
+        table: Rich Table to add the row to
+        name: Component display name
+        versions: Dictionary with "installed" and "available" keys
+        not_installed_msg: Message to show when not installed
+
+    Returns:
+        True if an upgrade is available
+    """
+    has_upgrade = _has_upgrade(versions)
+    status = " [yellow]↑[/yellow]" if has_upgrade else ""
+    installed = versions.get("installed") or not_installed_msg
+    available = versions.get("available") or "-"
+
+    table.add_row(f"{name}{status}", installed, available)
+    return has_upgrade
+
+
+def show_version_info(detailed: bool = False, centered: bool = False) -> None:
+    """Display version information for all components.
+
+    Args:
+        detailed: If True, show table with installed and available versions
+        centered: If True, center the output (for banner display)
+    """
+    versions = get_all_component_versions()
+
+    if detailed:
+        table = Table(show_header=True, box=None, padding=(0, 2))
+        table.add_column("Component", style="cyan")
+        table.add_column("Installed", style="green")
+        table.add_column("Available", style="dim")
+
+        # Track if any upgrades are available
+        upgrades_available = []
+
+        # Add all component rows
+        upgrades_available.append(
+            _add_version_row(table, "jp-spec-kit", versions["jp_spec_kit"])
+        )
+        upgrades_available.append(
+            _add_version_row(table, "spec-kit", versions["spec_kit"])
+        )
+        upgrades_available.append(
+            _add_version_row(
+                table, "backlog.md", versions["backlog_md"], "[dim]not installed[/dim]"
+            )
+        )
+
+        if centered:
+            console.print(Align.center(table))
+        else:
+            console.print(table)
+
+        # Show upgrade hint if any upgrades available
+        if any(upgrades_available):
+            hint = "[dim]Run 'specify upgrade' to update components[/dim]"
+            if centered:
+                console.print(Align.center(hint))
+            else:
+                console.print(hint)
+    else:
+        console.print(f"jp-spec-kit {versions['jp_spec_kit']['installed']}")
+
+
+def version_callback(value: bool) -> None:
+    """Callback for --version flag."""
+    if value:
+        show_version_info(detailed=False)
+        raise typer.Exit()
 
 
 def write_repo_facts(project_path: Path) -> None:
@@ -1409,7 +1639,17 @@ def show_banner():
 
 
 @app.callback()
-def callback(ctx: typer.Context):
+def callback(
+    ctx: typer.Context,
+    version: bool = typer.Option(
+        False,
+        "--version",
+        "-v",
+        help="Show version information and exit",
+        callback=version_callback,
+        is_eager=True,
+    ),
+):
     """Show banner when no subcommand is provided."""
     if (
         ctx.invoked_subcommand is None
@@ -1417,10 +1657,18 @@ def callback(ctx: typer.Context):
         and "-h" not in sys.argv
     ):
         show_banner()
+        show_version_info(detailed=True, centered=True)
+        console.print()
         console.print(
             Align.center("[dim]Run 'specify --help' for usage information[/dim]")
         )
         console.print()
+
+
+@app.command()
+def version():
+    """Show detailed version information for all components."""
+    show_version_info(detailed=True)
 
 
 def run_command(
