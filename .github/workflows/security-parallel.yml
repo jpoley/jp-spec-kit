@@ -8,6 +8,9 @@
 name: Security Scan (Parallel)
 
 on:
+  # Manual trigger only - this workflow is for large monorepos (>500K LOC)
+  # Do NOT add schedule trigger - use security.yml for scheduled scans
+  # to ensure consistent SARIF categories between main and PRs
   workflow_dispatch:
     inputs:
       fail-on:
@@ -21,9 +24,6 @@ on:
           - high
           - medium
           - low
-  schedule:
-    # Run weekly on Sunday at 3 AM UTC
-    - cron: '0 3 * * 0'
 
 jobs:
   # Parallel scanning by component
@@ -151,6 +151,9 @@ jobs:
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: security-results-${{ steps.scan.outputs.component_name }}.sarif
+          # Use component-specific category for parallel scans
+          # Note: This workflow should only be triggered manually for large repos
+          # Do not use for scheduled scans - use security.yml instead
           category: jpspec-security-${{ steps.scan.outputs.component_name }}
 
       - name: Upload Scan Artifacts

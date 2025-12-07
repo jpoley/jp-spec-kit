@@ -837,9 +837,17 @@ class TestCICompatibility:
             e2e_temp_backlog: Temporary backlog directory fixture
         """
         assert e2e_temp_backlog.exists(), "Backlog directory should exist"
-        backlog_path_str = str(e2e_temp_backlog)
-        assert "tmp" in backlog_path_str.lower() or "/tmp" in backlog_path_str, (
-            "Should use temporary directory for CI compatibility"
+        backlog_path_str = str(e2e_temp_backlog).lower()
+        # Check for various temp directory patterns across platforms:
+        # - Linux/standard: /tmp or contains 'tmp'
+        # - macOS: /var/folders/.../T/ or /private/var/folders/
+        is_temp_dir = (
+            "tmp" in backlog_path_str
+            or "/var/folders/" in backlog_path_str  # macOS temp dir pattern
+            or "pytest" in backlog_path_str  # pytest always uses temp dirs
+        )
+        assert is_temp_dir, (
+            f"Should use temporary directory for CI compatibility, got: {backlog_path_str}"
         )
 
     def test_no_persistent_state(self, e2e_temp_backlog: Path) -> None:

@@ -1,5 +1,92 @@
 # Code Standards
 
+## API-Calling Functions (from PRs #579-583 learnings)
+
+When writing code that calls external APIs (HTTP requests, etc.):
+
+### 1. Exception Handling - Never Silently Swallow
+
+```python
+# ❌ BAD - Silent swallowing hides debugging information
+except Exception:
+    pass
+
+# ✅ GOOD - Log all exceptions with context
+except httpx.TimeoutException:
+    logger.debug(f"Timeout fetching {url}")
+except httpx.HTTPError as e:
+    logger.debug(f"HTTP error fetching {url}: {e}")
+except Exception as e:
+    logger.debug(f"Unexpected error fetching {url}: {e}")
+return None
+```
+
+### 2. Test Coverage - All Failure Modes
+
+Every API function needs tests for:
+- [ ] Success case
+- [ ] Timeout case
+- [ ] Network error case
+- [ ] Invalid HTTP status code (4xx, 5xx)
+- [ ] Missing expected fields in response
+- [ ] Malformed response (JSON decode error)
+
+Example JSON decode error test:
+```python
+def test_returns_none_on_invalid_json(self):
+    """Returns None when response contains invalid JSON."""
+    import json
+    mock_response = MagicMock()
+    mock_response.status_code = 200
+    mock_response.json.side_effect = json.JSONDecodeError("Invalid", "", 0)
+
+    with patch("module.client.get", return_value=mock_response):
+        result = function_under_test()
+        assert result is None
+```
+
+### 3. Code Duplication - Extract Early
+
+Before committing, check for repeated patterns. Extract into helpers:
+```python
+# ❌ BAD - Same pattern repeated 3 times in show_version_info()
+if versions["available"] and versions["installed"] and compare_semver(...) < 0:
+    status = "↑"
+
+# ✅ GOOD - Extracted helper
+def _has_upgrade(versions: dict) -> bool:
+    return bool(
+        versions.get("available")
+        and versions.get("installed")
+        and compare_semver(versions["installed"], versions["available"]) < 0
+    )
+```
+
+### 4. Docstrings - Document Return Guarantees
+
+```python
+# ❌ INCOMPLETE - No return guarantee documented
+"""Get version from API.
+Returns:
+    Version string or None
+"""
+
+# ✅ COMPLETE - Clear guarantees
+"""Get version from compatibility matrix.
+
+Checks multiple sources in priority order:
+1. Current working directory's .spec-kit-compatibility.yml
+2. Package's bundled compatibility matrix
+3. Falls back to default known version "0.0.20"
+
+Note:
+    This function reads from the file system.
+
+Returns:
+    Version string (e.g., "0.0.20"), guaranteed to return a value
+"""
+```
+
 ## Python
 
 - **Linter/Formatter**: Ruff (replaces Black, Flake8, isort)

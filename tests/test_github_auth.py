@@ -69,8 +69,9 @@ class TestGitHubToken:
 class TestGitHubHeaders:
     """Tests for _github_headers function."""
 
-    def test_headers_without_token(self):
+    def test_headers_without_token(self, monkeypatch):
         """Should return headers without Authorization when no token."""
+        monkeypatch.delenv("GITHUB_JPSPEC", raising=False)
         headers = _github_headers(None)
         assert "Authorization" not in headers
         assert headers["Accept"] == "application/vnd.github+json"
@@ -83,13 +84,15 @@ class TestGitHubHeaders:
         assert headers["Authorization"] == "Bearer ghp_1234"
         assert headers["Accept"] == "application/vnd.github+json"
 
-    def test_headers_with_empty_token(self):
+    def test_headers_with_empty_token(self, monkeypatch):
         """Should not include Authorization header for empty token."""
+        monkeypatch.delenv("GITHUB_JPSPEC", raising=False)
         headers = _github_headers("")
         assert "Authorization" not in headers
 
-    def test_headers_with_none_token(self):
+    def test_headers_with_none_token(self, monkeypatch):
         """Should not include Authorization header for None token."""
+        monkeypatch.delenv("GITHUB_JPSPEC", raising=False)
         headers = _github_headers(None)
         assert "Authorization" not in headers
 
