@@ -3920,9 +3920,7 @@ def upgrade_tools(
     _run_upgrade_tools(dry_run=dry_run, component=component)
 
 
-def _run_upgrade_tools(
-    dry_run: bool = False, component: str | None = None
-) -> None:
+def _run_upgrade_tools(dry_run: bool = False, component: str | None = None) -> None:
     """Internal helper to run upgrade-tools logic.
 
     Args:

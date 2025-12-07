@@ -200,9 +200,7 @@ class TestUpgradeToolsCommand:
                     "specify_cli._upgrade_jp_spec_kit",
                     return_value=(True, "Already at latest"),
                 ) as mock_jp:
-                    with patch(
-                        "specify_cli._upgrade_backlog_md"
-                    ) as mock_bl:
+                    with patch("specify_cli._upgrade_backlog_md") as mock_bl:
                         result = runner.invoke(
                             app, ["upgrade-tools", "-c", "jp-spec-kit"]
                         )
