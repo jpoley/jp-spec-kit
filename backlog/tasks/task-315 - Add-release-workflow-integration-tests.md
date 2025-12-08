@@ -1,11 +1,11 @@
 ---
 id: task-315
 title: Add release workflow integration tests
-status: To Do
+status: Done
 assignee:
-  - '@galway'
+  - '@backend-engineer'
 created_date: '2025-12-08 02:06'
-updated_date: '2025-12-08 02:31'
+updated_date: '2025-12-08 15:11'
 labels:
   - testing
   - ci
@@ -42,8 +42,34 @@ Create integration tests for the release workflow to prevent regression.
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Test validates version file/tag consistency
-- [ ] #2 Test runs in CI on workflow changes
-- [ ] #3 Test can run locally with act
-- [ ] #4 Documents test scenarios in test file comments
+- [x] #1 Test validates version file/tag consistency
+- [x] #2 Test runs in CI on workflow changes
+- [x] #3 Test can run locally with act
+- [x] #4 Documents test scenarios in test file comments
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+## Implementation Complete (v2)
+
+**PR**: https://github.com/jpoley/jp-spec-kit/pull/637
+**Branch**: 315-workflow-tests
+**Commit**: 9c9ed91
+
+### Review Fixes (v2)
+1. Clarified fetch-depth comment
+2. Added validation for pyproject.toml extraction
+3. Added validation for __init__.py extraction
+4. Handle gracefully when no tags exist
+5. Summary only runs on success()
+
+### Created
+`.github/workflows/version-check.yml`
+
+### Checks
+- pyproject.toml == __init__.py version
+- Version format validation (MAJOR.MINOR.PATCH)
+- Extraction success validation
+- Graceful no-tags handling
+<!-- SECTION:NOTES:END -->

@@ -1,11 +1,11 @@
 ---
 id: task-314
 title: Sync current pyproject.toml version to match latest tag
-status: To Do
+status: Done
 assignee:
-  - '@galway'
+  - '@backend-engineer'
 created_date: '2025-12-08 02:06'
-updated_date: '2025-12-08 02:31'
+updated_date: '2025-12-08 15:10'
 labels:
   - implement
   - version-management
@@ -38,7 +38,23 @@ This is a one-time fix while we implement the proper workflow fix in task-313.
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 pyproject.toml version matches latest git tag
-- [ ] #2 __init__.py __version__ matches latest git tag
-- [ ] #3 Changes committed to main
+- [x] #1 pyproject.toml version matches latest git tag
+- [x] #2 __init__.py __version__ matches latest git tag
+- [x] #3 Changes committed to main
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+## Implementation Complete
+
+**PR**: https://github.com/jpoley/jp-spec-kit/pull/635
+**Branch**: 314-sync-version
+**Commit**: 197df31
+
+### Changes
+- pyproject.toml: 0.2.328 → 0.2.343
+- __init__.py: 0.2.328 → 0.2.343
+
+One-time sync after task-313 workflow fix.
+<!-- SECTION:NOTES:END -->
