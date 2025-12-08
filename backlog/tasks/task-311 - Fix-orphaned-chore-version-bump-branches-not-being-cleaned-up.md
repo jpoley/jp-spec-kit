@@ -2,14 +2,17 @@
 id: task-311
 title: Fix orphaned chore/version-bump branches not being cleaned up
 status: To Do
-assignee: []
+assignee:
+  - '@galway'
 created_date: '2025-12-08 01:43'
+updated_date: '2025-12-08 02:32'
 labels:
   - bug
   - ci
   - github-actions
   - cleanup
-dependencies: []
+dependencies:
+  - task-313
 priority: medium
 ---
 
