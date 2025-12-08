@@ -73,6 +73,15 @@ jobs:
           name: dist
           path: dist/
 
+  copilot-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check Copilot agents are in sync
+        run: ./scripts/bash/sync-copilot-agents.sh --check
+
   security:
     runs-on: ubuntu-latest
     steps:

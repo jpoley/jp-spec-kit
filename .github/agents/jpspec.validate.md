@@ -1,6 +1,5 @@
 ---
 description: Execute validation and quality assurance using QA, security, documentation, and release management agents.
-mode: jpspec:validate
 ---
 
 # /jpspec:validate - Enhanced Phased Validation Workflow

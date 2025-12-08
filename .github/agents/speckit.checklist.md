@@ -289,4 +289,3 @@ Sample items:
 - Correct: Validation of requirement quality
 - Wrong: "Does it do X?" 
 - Correct: "Is X clearly specified?"
-
