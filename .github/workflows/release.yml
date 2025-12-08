@@ -85,7 +85,7 @@ jobs:
             fi
           fi
       - name: Create git tag on version commit
-        if: steps.check_release.outputs.exists == 'false' && steps.commit_version.outputs.version_committed == 'true'
+        if: steps.check_release.outputs.exists == 'false' && steps.commit_version.outputs.version_committed != 'false'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
