@@ -1024,7 +1024,7 @@ c5eda35 chore: bump version to v0.2.336 [skip ci]
 2. **Mark AC #3 complete**: Propose solution architecture (done in Section 5)
 3. **Mark AC #4 complete**: Validate solution works with branch protection (done in Section 3, 5)
 4. **Add findings to task-312 notes**: Summary for PM and engineers
-5. **Leave task in "In Progress"**: Waiting for business validation phase
+5. **Mark task as "Done"**: Research complete; awaiting business validation phase
 
 ---
 
