@@ -712,7 +712,7 @@ I've been using external
 browsers to show the app like
 this here, but I do want to let
 you know that you are able to
-use it within VSCode if you so
+use it within VS Code if you so
 choose.
 So the next time you're running
 an app, if we go to the command
