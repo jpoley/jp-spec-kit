@@ -116,8 +116,8 @@ enabled: false  # Disable all push rules
 
 ### Use different lint command
 ```yaml
-# For npm projects:
-# Command: npm run lint
+lint:
+  command: "npm run lint"
 ```
 
 ### Strict coverage enforcement
