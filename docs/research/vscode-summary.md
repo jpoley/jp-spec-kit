@@ -139,7 +139,7 @@ there's several others we could
 choose from.
 And there's also a microphone
 that you'll see displayed if you
-have the VSCode speech extension
+have the VS Code speech extension
 installed.
 And then there's the send button
 within here.
