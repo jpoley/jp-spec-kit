@@ -29,36 +29,6 @@ jobs:
           .github/workflows/scripts/check-release-exists.sh ${{ steps.get_tag.outputs.new_version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Create git tag if needed
-        if: steps.check_release.outputs.exists == 'false'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          if ! git rev-parse ${{ steps.get_tag.outputs.new_version }} >/dev/null 2>&1; then
-            git tag ${{ steps.get_tag.outputs.new_version }}
-            git push origin ${{ steps.get_tag.outputs.new_version }}
-            echo "Created tag ${{ steps.get_tag.outputs.new_version }}"
-          else
-            echo "Tag ${{ steps.get_tag.outputs.new_version }} already exists"
-          fi
-      - name: Create release package variants
-        if: steps.check_release.outputs.exists == 'false'
-        run: |
-          chmod +x .github/workflows/scripts/create-release-packages.sh
-          .github/workflows/scripts/create-release-packages.sh ${{ steps.get_tag.outputs.new_version }}
-      - name: Generate release notes
-        if: steps.check_release.outputs.exists == 'false'
-        id: release_notes
-        run: |
-          chmod +x .github/workflows/scripts/generate-release-notes.sh
-          .github/workflows/scripts/generate-release-notes.sh ${{ steps.get_tag.outputs.new_version }} ${{ steps.get_tag.outputs.latest_tag }}
-      - name: Create GitHub Release
-        if: steps.check_release.outputs.exists == 'false'
-        run: |
-          chmod +x .github/workflows/scripts/create-github-release.sh
-          .github/workflows/scripts/create-github-release.sh ${{ steps.get_tag.outputs.new_version }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Update version in source files
         if: steps.check_release.outputs.exists == 'false'
         env:
@@ -68,7 +38,7 @@ jobs:
           .github/workflows/scripts/update-version.sh "$NEW_VERSION"
       - name: Commit and push version bump
         if: steps.check_release.outputs.exists == 'false'
-        continue-on-error: true
+        id: commit_version
         env:
           NEW_VERSION: ${{ steps.get_tag.outputs.new_version }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -77,9 +47,10 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add pyproject.toml src/specify_cli/__init__.py
 
-          # Check if there are changes to commit
+          # Check if there are changes to commit (only version files)
           if git diff --cached --quiet pyproject.toml src/specify_cli/__init__.py; then
             echo "No version changes needed"
+            echo "version_committed=true" >> $GITHUB_OUTPUT
             exit 0
           fi
 
@@ -88,29 +59,67 @@ jobs:
           # Try direct push first
           if git push origin main; then
             echo "✅ Version files updated directly on main"
-            exit 0
-          fi
-
-          echo "⚠️ Direct push failed (branch protection). Creating PR instead..."
-
-          # Create a branch and PR for the version bump
-          VERSION_NUM="${NEW_VERSION#v}"
-          BRANCH_NAME="chore/version-bump-${VERSION_NUM}"
-          git checkout -b "$BRANCH_NAME"
-          git push origin "$BRANCH_NAME"
-
-          # Try to create PR - may fail if Actions can't create PRs
-          if gh pr create \
-            --title "chore: bump version to $NEW_VERSION" \
-            --body "Automated version bump to $NEW_VERSION after release. This PR was created because main branch is protected and requires PRs." \
-            --base main \
-            --head "$BRANCH_NAME"; then
-            echo "✅ Created PR for version bump"
+            echo "version_committed=true" >> $GITHUB_OUTPUT
           else
-            echo "⚠️ Could not create PR automatically."
-            echo "📌 Manual action needed: Sync pyproject.toml and __init__.py to version ${NEW_VERSION#v}"
-            echo "   Branch '$BRANCH_NAME' has been pushed with the changes."
-            echo ""
-            echo "   The release was created successfully - this is just a version sync issue."
+            echo "⚠️ Direct push failed (branch protection). Creating PR instead..."
+
+            # Create a branch and PR for the version bump
+            VERSION_NUM="${NEW_VERSION#v}"
+            BRANCH_NAME="chore/version-bump-${VERSION_NUM}"
+            git checkout -b "$BRANCH_NAME"
+            git push origin "$BRANCH_NAME"
+
+            # Try to create PR - may fail if Actions can't create PRs
+            if gh pr create \
+              --title "chore: bump version to $NEW_VERSION" \
+              --body "Automated version bump to $NEW_VERSION for upcoming release. This PR was created because main branch is protected and requires PRs." \
+              --base main \
+              --head "$BRANCH_NAME"; then
+              echo "✅ Created PR for version bump - release will complete after PR merge"
+              echo "version_committed=false" >> $GITHUB_OUTPUT
+            else
+              echo "❌ Could not create PR. Cleaning up branch..."
+              git push origin --delete "$BRANCH_NAME" || true
+              echo "version_committed=false" >> $GITHUB_OUTPUT
+              exit 1  # Fail workflow - don't create tag without version sync
+            fi
           fi
+      - name: Create git tag on version commit
+        if: steps.check_release.outputs.exists == 'false' && steps.commit_version.outputs.version_committed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Fetch latest state from remote (version commit was just pushed)
+          git fetch origin main
+          git fetch --tags
+          git checkout main
+          git reset --hard origin/main
+
+          # Tag the current commit (which has the version update)
+          if ! git rev-parse ${{ steps.get_tag.outputs.new_version }} >/dev/null 2>&1; then
+            git tag ${{ steps.get_tag.outputs.new_version }}
+            git push origin ${{ steps.get_tag.outputs.new_version }}
+            echo "Created tag ${{ steps.get_tag.outputs.new_version }}"
+          else
+            echo "Tag ${{ steps.get_tag.outputs.new_version }} already exists"
+          fi
+      - name: Create release package variants
+        if: steps.check_release.outputs.exists == 'false' && steps.commit_version.outputs.version_committed == 'true'
+        run: |
+          chmod +x .github/workflows/scripts/create-release-packages.sh
+          .github/workflows/scripts/create-release-packages.sh ${{ steps.get_tag.outputs.new_version }}
+      - name: Generate release notes
+        if: steps.check_release.outputs.exists == 'false' && steps.commit_version.outputs.version_committed == 'true'
+        id: release_notes
+        run: |
+          chmod +x .github/workflows/scripts/generate-release-notes.sh
+          .github/workflows/scripts/generate-release-notes.sh ${{ steps.get_tag.outputs.new_version }} ${{ steps.get_tag.outputs.latest_tag }}
+      - name: Create GitHub Release
+        if: steps.check_release.outputs.exists == 'false' && steps.commit_version.outputs.version_committed == 'true'
+        run: |
+          chmod +x .github/workflows/scripts/create-github-release.sh
+          .github/workflows/scripts/create-github-release.sh ${{ steps.get_tag.outputs.new_version }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
