@@ -764,6 +764,65 @@ def get_github_latest_release(owner: str, repo: str) -> Optional[str]:
     return None
 
 
+def get_github_releases(owner: str, repo: str, limit: int = 10) -> list[dict[str, str]]:
+    """Fetch available releases from GitHub API.
+
+    Args:
+        owner: Repository owner (e.g., "jpoley")
+        repo: Repository name (e.g., "jp-spec-kit")
+        limit: Maximum number of releases to return
+
+    Returns:
+        List of dicts with 'version', 'published_at', 'prerelease' keys
+    """
+    try:
+        url = f"https://api.github.com/repos/{owner}/{repo}/releases"
+        response = client.get(
+            url,
+            headers=_github_headers(skip_auth=True),
+            timeout=5.0,
+            params={"per_page": limit},
+        )
+        if response.status_code == 200:
+            releases = []
+            for release in response.json():
+                tag = release.get("tag_name", "")
+                version = tag.lstrip("v") if tag else ""
+                if version:
+                    releases.append(
+                        {
+                            "version": version,
+                            "published_at": release.get("published_at", "")[:10],
+                            "prerelease": release.get("prerelease", False),
+                        }
+                    )
+            return releases
+        logger.debug(f"GitHub API returned {response.status_code} for {owner}/{repo}")
+    except httpx.TimeoutException:
+        logger.debug(f"Timeout fetching GitHub releases for {owner}/{repo}")
+    except httpx.HTTPError as e:
+        logger.debug(f"HTTP error fetching GitHub releases for {owner}/{repo}: {e}")
+    except Exception as e:
+        logger.debug(f"Unexpected error fetching GitHub releases: {e}")
+    return []
+
+
+def version_exists_in_releases(owner: str, repo: str, version: str) -> bool:
+    """Check if a version exists in GitHub releases.
+
+    Args:
+        owner: Repository owner
+        repo: Repository name
+        version: Version to check (with or without 'v' prefix)
+
+    Returns:
+        True if version exists, False otherwise
+    """
+    version = version.lstrip("v")
+    releases = get_github_releases(owner, repo, limit=100)
+    return any(r["version"] == version for r in releases)
+
+
 def get_npm_latest_version(package: str) -> Optional[str]:
     """Fetch the latest version of an npm package from the registry.
 
@@ -3862,56 +3921,73 @@ def _get_installed_jp_spec_kit_version() -> Optional[str]:
     return None
 
 
-def _upgrade_jp_spec_kit(dry_run: bool = False) -> tuple[bool, str]:
+def _upgrade_jp_spec_kit(
+    dry_run: bool = False, target_version: str | None = None
+) -> tuple[bool, str]:
     """Upgrade jp-spec-kit (specify-cli) via uv tool.
 
     Args:
         dry_run: If True, only show what would be done
+        target_version: Specific version to install (e.g., "0.2.325"). If None, uses latest.
 
     Returns:
         Tuple of (success, message)
     """
     current_version = __version__
-    available_version = get_github_latest_release(
-        EXTENSION_REPO_OWNER, EXTENSION_REPO_NAME
-    )
+
+    # Determine target version
+    if target_version:
+        # Validate that the requested version exists
+        target_version = target_version.lstrip("v")
+        if not version_exists_in_releases(
+            EXTENSION_REPO_OWNER, EXTENSION_REPO_NAME, target_version
+        ):
+            return False, f"Version {target_version} not found in releases"
+        install_version = target_version
+    else:
+        install_version = get_github_latest_release(
+            EXTENSION_REPO_OWNER, EXTENSION_REPO_NAME
+        )
+        if not install_version:
+            return False, "Could not determine latest version"
 
     if not current_version:
         return False, "jp-spec-kit not installed via uv tool"
 
-    if not available_version:
-        return False, "Could not determine latest version"
+    # Check if already at target version
+    if current_version == install_version:
+        return True, f"Already at version {current_version}"
 
-    if compare_semver(current_version, available_version) >= 0:
+    # For latest upgrades only, skip if current is newer
+    if not target_version and compare_semver(current_version, install_version) >= 0:
         return True, f"Already at latest version ({current_version})"
 
     if dry_run:
-        return True, f"Would upgrade from {current_version} to {available_version}"
-
-    # Try uv tool upgrade first
-    try:
-        result = subprocess.run(
-            ["uv", "tool", "upgrade", "specify-cli"],
-            capture_output=True,
-            text=True,
-            check=False,
+        return (
+            True,
+            f"Would install version {install_version} (current: {current_version})",
         )
-        if result.returncode == 0:
-            # Verify the upgrade actually worked by checking installed version
-            new_version = _get_installed_jp_spec_kit_version()
-            if new_version and compare_semver(new_version, current_version) > 0:
-                return True, f"Upgraded from {current_version} to {new_version}"
-            # uv returned 0 but version didn't change - fall through to git reinstall
-    except FileNotFoundError:
-        pass
 
-    # Fallback: reinstall from git at the specific release tag
-    # IMPORTANT: Install from release tag, not main branch, to ensure version consistency
-    # Main branch pyproject.toml may lag behind the latest release tag
+    # For specific versions, always use direct git install (skip uv upgrade)
+    # For latest, try uv upgrade first
+    if not target_version:
+        try:
+            result = subprocess.run(
+                ["uv", "tool", "upgrade", "specify-cli"],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            if result.returncode == 0:
+                new_version = _get_installed_jp_spec_kit_version()
+                if new_version and compare_semver(new_version, current_version) > 0:
+                    return True, f"Upgraded from {current_version} to {new_version}"
+        except FileNotFoundError:
+            pass
+
+    # Install from git at the specific release tag
     git_url = f"git+https://github.com/{EXTENSION_REPO_OWNER}/{EXTENSION_REPO_NAME}.git"
-    if available_version:
-        # Install from specific release tag (e.g., @v0.2.327)
-        git_url = f"{git_url}@v{available_version}"
+    git_url = f"{git_url}@v{install_version}"
 
     try:
         subprocess.run(
@@ -3928,13 +4004,12 @@ def _upgrade_jp_spec_kit(dry_run: bool = False) -> tuple[bool, str]:
             text=True,
             check=True,
         )
-        # Verify the reinstall worked
         new_version = _get_installed_jp_spec_kit_version()
         if new_version:
-            return True, f"Upgraded from {current_version} to {new_version}"
-        return True, f"Reinstalled (expected: {available_version})"
+            return True, f"Installed version {new_version} (was: {current_version})"
+        return True, f"Installed version {install_version}"
     except subprocess.CalledProcessError as e:
-        return False, f"Upgrade failed: {e.stderr}"
+        return False, f"Install failed: {e.stderr}"
     except FileNotFoundError:
         return False, "uv not found - install uv first"
 
@@ -4046,6 +4121,44 @@ def _upgrade_spec_kit(dry_run: bool = False) -> tuple[bool, str]:
         return False, "uv not found - install uv first"
 
 
+def _list_jp_spec_kit_versions() -> None:
+    """List available jp-spec-kit versions from GitHub releases."""
+    console.print("[cyan]Fetching available jp-spec-kit versions...[/cyan]\n")
+
+    releases = get_github_releases(EXTENSION_REPO_OWNER, EXTENSION_REPO_NAME, limit=20)
+
+    if not releases:
+        console.print("[red]Could not fetch releases from GitHub[/red]")
+        raise typer.Exit(1)
+
+    current_version = __version__
+
+    table = Table(show_header=True, box=None, padding=(0, 2))
+    table.add_column("Version", style="cyan")
+    table.add_column("Released", style="dim")
+    table.add_column("Status", style="green")
+
+    for release in releases:
+        version = release["version"]
+        published = release["published_at"]
+        prerelease = release.get("prerelease", False)
+
+        status = ""
+        if version == current_version:
+            status = "← installed"
+        elif prerelease:
+            status = "(prerelease)"
+
+        table.add_row(version, published, status)
+
+    console.print(table)
+    console.print()
+    console.print(f"[dim]Current installed version: {current_version}[/dim]")
+    console.print(
+        "[dim]Use 'specify upgrade-tools --version X.X.X' to install a specific version[/dim]"
+    )
+
+
 @app.command(name="upgrade-tools")
 def upgrade_tools(
     component: str = typer.Option(
@@ -4056,6 +4169,18 @@ def upgrade_tools(
     ),
     dry_run: bool = typer.Option(
         False, "--dry-run", help="Show what would be upgraded without making changes"
+    ),
+    version: str = typer.Option(
+        None,
+        "--version",
+        "-v",
+        help="Install specific jp-spec-kit version (e.g., 0.2.325). Only applies to jp-spec-kit component.",
+    ),
+    list_versions: bool = typer.Option(
+        False,
+        "--list-versions",
+        "-l",
+        help="List available jp-spec-kit versions and exit.",
     ),
 ):
     """
@@ -4075,23 +4200,50 @@ def upgrade_tools(
         specify upgrade-tools -c spec-kit       # Upgrade only spec-kit templates
         specify upgrade-tools -c backlog        # Upgrade only backlog-md
         specify upgrade-tools --dry-run         # Preview what would be upgraded
+        specify upgrade-tools --version 0.2.325 # Install specific version
+        specify upgrade-tools --list-versions   # Show available versions
 
     See also:
         specify upgrade-repo    # Upgrade repository templates
     """
     show_banner()
-    _run_upgrade_tools(dry_run=dry_run, component=component)
+
+    # Handle --list-versions
+    if list_versions:
+        _list_jp_spec_kit_versions()
+        return
+
+    # Version flag only applies to jp-spec-kit
+    if version and component and component != "jp-spec-kit":
+        console.print(
+            "[red]Error:[/red] --version only applies to jp-spec-kit component"
+        )
+        raise typer.Exit(1)
+
+    # If version specified without component, assume jp-spec-kit only
+    if version and not component:
+        component = "jp-spec-kit"
+
+    _run_upgrade_tools(dry_run=dry_run, component=component, target_version=version)
 
 
-def _run_upgrade_tools(dry_run: bool = False, component: str | None = None) -> None:
+def _run_upgrade_tools(
+    dry_run: bool = False,
+    component: str | None = None,
+    target_version: str | None = None,
+) -> None:
     """Internal helper to run upgrade-tools logic.
 
     Args:
         dry_run: If True, only show what would be done
         component: Optional specific component to upgrade
+        target_version: Optional specific version for jp-spec-kit
     """
     if dry_run:
         console.print("[yellow]DRY RUN MODE - No changes will be made[/yellow]\n")
+
+    if target_version:
+        console.print(f"[cyan]Target version: {target_version}[/cyan]\n")
 
     # Validate component if specified
     if component and component not in UPGRADE_TOOLS_COMPONENTS:
@@ -4116,9 +4268,11 @@ def _run_upgrade_tools(dry_run: bool = False, component: str | None = None) -> N
     # jp-spec-kit
     if not component or component == "jp-spec-kit":
         jp_current = versions["jp_spec_kit"].get("installed", "-")
-        jp_available = versions["jp_spec_kit"].get("available", "-")
+        jp_available = target_version or versions["jp_spec_kit"].get("available", "-")
 
-        success, message = _upgrade_jp_spec_kit(dry_run=dry_run)
+        success, message = _upgrade_jp_spec_kit(
+            dry_run=dry_run, target_version=target_version
+        )
         status = "[green]✓[/green]" if success else "[red]✗[/red]"
         results.append(("jp-spec-kit", success, message))
 
