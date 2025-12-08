@@ -94,7 +94,7 @@ jobs:
           git fetch origin main
           git fetch --tags
           git checkout main
-          git pull origin main
+          git reset --hard origin/main
 
           # Tag the current commit (which has the version update)
           if ! git rev-parse ${{ steps.get_tag.outputs.new_version }} >/dev/null 2>&1; then
