@@ -11,7 +11,7 @@
 
 ### Key Findings
 
-The version management workflow has a **fundamental architectural flaw**: git tags are created **before** source files are updated, causing persistent version desync between git tags and `pyproject.toml`. This creates a 9-version gap (tags at v0.2.337, files at 0.2.328).
+The version management workflow has a **fundamental architectural flaw**: git tags are created **before** source files are updated, causing persistent version desync between git tags and `pyproject.toml`. This creates a 12-version gap (tags at v0.2.340, files at 0.2.328).
 
 **Root Cause**: Workflow step ordering violates the principle that source-of-truth should be updated before creating immutable references (tags).
 
