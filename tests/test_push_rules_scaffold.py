@@ -10,10 +10,8 @@ Tests cover:
 import json
 from pathlib import Path
 
-import pytest
 
 from specify_cli.push_rules.scaffold import (
-    DEFAULT_PUSH_RULES_CONTENT,
     get_scaffold_summary,
     get_template_content,
     scaffold_push_rules,
@@ -93,7 +91,7 @@ class TestScaffoldPushRules:
 
     def test_creates_gitignore_if_missing(self, tmp_path: Path) -> None:
         """Test that .gitignore is created if it doesn't exist."""
-        result = scaffold_push_rules(tmp_path)
+        scaffold_push_rules(tmp_path)
 
         gitignore = tmp_path / ".gitignore"
         assert gitignore.exists()
