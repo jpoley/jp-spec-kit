@@ -1,7 +1,18 @@
 ---
-description: Generate and apply security patches for vulnerability findings from triage results.
+name: "jpspec-security_fix"
+description: "Generate and apply security patches for vulnerability findings from triage results."
+target: "chat"
+tools:
+  - "Read"
+  - "Write"
+  - "Edit"
+  - "Grep"
+  - "Glob"
+  - "Bash"
+  - "mcp__backlog__*"
+  - "mcp__serena__*"
+  - "Skill"
 ---
-
 # /jpspec:security fix - Automated Security Fix Generation
 
 Generate secure code patches for vulnerability findings, validate syntax, and optionally apply patches.

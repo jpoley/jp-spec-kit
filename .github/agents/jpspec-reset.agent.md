@@ -1,7 +1,18 @@
 ---
-description: Reset workflow configuration by re-asking startup questions and regenerating jpspec_workflow.yml
+name: "jpspec-reset"
+description: "Reset workflow configuration by re-asking startup questions and regenerating jpspec_workflow.yml"
+target: "chat"
+tools:
+  - "Read"
+  - "Write"
+  - "Edit"
+  - "Grep"
+  - "Glob"
+  - "Bash"
+  - "mcp__backlog__*"
+  - "mcp__serena__*"
+  - "Skill"
 ---
-
 ## User Input
 
 ```text

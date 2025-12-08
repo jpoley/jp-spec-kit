@@ -1,7 +1,18 @@
 ---
-description: Integrate security scanning and remediation into the SDD workflow with automatic backlog task creation.
+name: "jpspec-security_workflow"
+description: "Integrate security scanning and remediation into the SDD workflow with automatic backlog task creation."
+target: "chat"
+tools:
+  - "Read"
+  - "Write"
+  - "Edit"
+  - "Grep"
+  - "Glob"
+  - "Bash"
+  - "mcp__backlog__*"
+  - "mcp__serena__*"
+  - "Skill"
 ---
-
 # /jpspec:security - Security Workflow Integration
 
 Integrate comprehensive security scanning, vulnerability triage, and automated remediation task creation into your Spec-Driven Development workflow.

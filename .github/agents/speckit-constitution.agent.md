@@ -1,8 +1,14 @@
 ---
-mode: speckit:constitution
-description: Analyze repository and create customized constitution.md based on detected tech stack
+name: "speckit-constitution"
+description: "Analyze repository and create customized constitution.md based on detected tech stack"
+target: "chat"
+tools:
+  - "Read"
+  - "Write"
+  - "Grep"
+  - "Glob"
+  - "mcp__backlog__*"
 ---
-
 ## User Input
 
 ```text
