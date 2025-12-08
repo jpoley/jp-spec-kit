@@ -1,0 +1,90 @@
+{
+  "name": "JP Spec Kit Dev Environment",
+  "image": "mcr.microsoft.com/devcontainers/python:3.11-bullseye",
+
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20",
+      "pnpmVersion": "latest"
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {
+      "version": "latest"
+    }
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "charliermarsh.ruff",
+        "tamasfe.even-better-toml",
+        "redhat.vscode-yaml",
+        "yzhang.markdown-all-in-one",
+        "ms-azuretools.vscode-docker",
+        "eamodio.gitlens",
+        "usernamehw.errorlens",
+        "streetsidesoftware.code-spell-checker"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.terminal.activateEnvironment": false,
+        "python.testing.pytestEnabled": true,
+        "python.testing.unittestEnabled": false,
+        "python.testing.pytestArgs": ["tests"],
+        "python.linting.enabled": false,
+        "python.formatting.provider": "none",
+        "[python]": {
+          "editor.formatOnSave": true,
+          "editor.defaultFormatter": "charliermarsh.ruff",
+          "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit",
+            "source.fixAll": "explicit"
+          }
+        },
+        "ruff.enable": true,
+        "ruff.organizeImports": true,
+        "ruff.fixAll": true,
+        "editor.formatOnSave": true,
+        "editor.rulers": [88],
+        "files.trimTrailingWhitespace": true,
+        "files.insertFinalNewline": true,
+        "terminal.integrated.defaultProfile.linux": "zsh",
+        "git.autofetch": true,
+        "git.confirmSync": false
+      }
+    }
+  },
+
+  "mounts": [
+    "source=${localWorkspaceFolder}/backlog,target=/workspaces/jp-spec-kit/backlog,type=bind,consistency=cached",
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.gitconfig,target=/home/vscode/.gitconfig,type=bind,readonly",
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/vscode/.ssh,type=bind,readonly",
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.claude,target=/home/vscode/.claude,type=bind,consistency=cached",
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.config/github-copilot,target=/home/vscode/.config/github-copilot,type=bind,consistency=cached",
+    "source=jp-spec-kit-vscode-extensions,target=/home/vscode/.vscode-server/extensions,type=volume"
+  ],
+
+  "remoteEnv": {
+    "GITHUB_JPSPEC": "${localEnv:GITHUB_JPSPEC}",
+    "OPENAI_API_KEY": "${localEnv:OPENAI_API_KEY}",
+    "GOOGLE_API_KEY": "${localEnv:GOOGLE_API_KEY}",
+    "PYTHONUNBUFFERED": "1",
+    "UV_SYSTEM_PYTHON": "1",
+    "PATH": "${containerEnv:PATH}:/home/vscode/.cargo/bin:/home/vscode/.local/bin"
+  },
+
+  "onCreateCommand": "curl -LsSf https://astral.sh/uv/install.sh | sh",
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "postStartCommand": "git config --global --add safe.directory ${containerWorkspaceFolder}",
+  "postAttachCommand": "echo '--- JP Spec Kit Dev Environment Ready ---' && uv --version && python --version",
+
+  "forwardPorts": [],
+
+  "containerEnv": {
+    "TERM": "xterm-256color"
+  },
+
+  "remoteUser": "vscode",
+  "workspaceFolder": "/workspaces/jp-spec-kit"
+}
