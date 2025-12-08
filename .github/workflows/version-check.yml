@@ -1,0 +1,78 @@
+name: Version Consistency Check
+
+on:
+  pull_request:
+    paths:
+      - 'pyproject.toml'
+      - 'src/specify_cli/__init__.py'
+      - '.github/workflows/release.yml'
+      - '.github/workflows/version-check.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'pyproject.toml'
+      - 'src/specify_cli/__init__.py'
+  workflow_dispatch:
+
+jobs:
+  version-check:
+    name: Validate Version Consistency
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Need full history for tags
+
+      - name: Get versions
+        id: versions
+        run: |
+          # Get version from pyproject.toml
+          PYPROJECT_VERSION=$(grep '^version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/')
+          echo "pyproject_version=$PYPROJECT_VERSION" >> $GITHUB_OUTPUT
+
+          # Get version from __init__.py
+          INIT_VERSION=$(grep '__version__ = ' src/specify_cli/__init__.py | sed 's/__version__ = "\(.*\)"/\1/')
+          echo "init_version=$INIT_VERSION" >> $GITHUB_OUTPUT
+
+          # Get latest tag (without v prefix)
+          LATEST_TAG=$(git tag --sort=-v:refname | head -1)
+          LATEST_VERSION="${LATEST_TAG#v}"
+          echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
+          echo "latest_version=$LATEST_VERSION" >> $GITHUB_OUTPUT
+
+          echo "📦 pyproject.toml version: $PYPROJECT_VERSION"
+          echo "🐍 __init__.py version: $INIT_VERSION"
+          echo "🏷️ Latest tag: $LATEST_TAG ($LATEST_VERSION)"
+
+      - name: Validate pyproject.toml matches __init__.py
+        run: |
+          if [ "${{ steps.versions.outputs.pyproject_version }}" != "${{ steps.versions.outputs.init_version }}" ]; then
+            echo "❌ Version mismatch between pyproject.toml and __init__.py!"
+            echo "   pyproject.toml: ${{ steps.versions.outputs.pyproject_version }}"
+            echo "   __init__.py: ${{ steps.versions.outputs.init_version }}"
+            exit 1
+          fi
+          echo "✅ pyproject.toml and __init__.py versions match"
+
+      - name: Check version format
+        run: |
+          VERSION="${{ steps.versions.outputs.pyproject_version }}"
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "❌ Invalid version format: $VERSION"
+            echo "   Expected: MAJOR.MINOR.PATCH (e.g., 0.2.343)"
+            exit 1
+          fi
+          echo "✅ Version format is valid: $VERSION"
+
+      - name: Summary
+        run: |
+          echo "## Version Check Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Source | Version |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|---------|" >> $GITHUB_STEP_SUMMARY
+          echo "| pyproject.toml | ${{ steps.versions.outputs.pyproject_version }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| __init__.py | ${{ steps.versions.outputs.init_version }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Latest Tag | ${{ steps.versions.outputs.latest_tag }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ All version checks passed" >> $GITHUB_STEP_SUMMARY
