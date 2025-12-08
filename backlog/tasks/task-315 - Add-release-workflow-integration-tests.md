@@ -3,9 +3,9 @@ id: task-315
 title: Add release workflow integration tests
 status: To Do
 assignee:
-  - '@pm-planner'
+  - '@galway'
 created_date: '2025-12-08 02:06'
-updated_date: '2025-12-08 02:08'
+updated_date: '2025-12-08 02:31'
 labels:
   - testing
   - ci

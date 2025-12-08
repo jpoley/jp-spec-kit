@@ -3,8 +3,9 @@ id: task-313
 title: 'Fix release workflow: Update version files before creating tag'
 status: To Do
 assignee:
-  - '@pm-planner'
+  - '@galway'
 created_date: '2025-12-08 02:05'
+updated_date: '2025-12-08 02:31'
 labels:
   - implement
   - ci

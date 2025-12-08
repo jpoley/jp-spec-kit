@@ -3,8 +3,9 @@ id: task-314
 title: Sync current pyproject.toml version to match latest tag
 status: To Do
 assignee:
-  - '@pm-planner'
+  - '@galway'
 created_date: '2025-12-08 02:06'
+updated_date: '2025-12-08 02:31'
 labels:
   - implement
   - version-management
