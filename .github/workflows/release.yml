@@ -48,7 +48,7 @@ jobs:
           git add pyproject.toml src/specify_cli/__init__.py
 
           # Check if there are changes to commit
-          if git diff --cached --quiet; then
+          if git diff --cached --quiet pyproject.toml src/specify_cli/__init__.py; then
             echo "No version changes needed"
             echo "version_committed=true" >> $GITHUB_OUTPUT
             exit 0
