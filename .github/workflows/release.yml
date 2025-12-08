@@ -94,7 +94,8 @@ jobs:
           echo "⚠️ Direct push failed (branch protection). Creating PR instead..."
 
           # Create a branch and PR for the version bump
-          BRANCH_NAME="chore/version-bump-${NEW_VERSION//[^0-9.]/-}"
+          VERSION_NUM="${NEW_VERSION#v}"
+          BRANCH_NAME="chore/version-bump-${VERSION_NUM}"
           git checkout -b "$BRANCH_NAME"
           git push origin "$BRANCH_NAME"
 
@@ -108,7 +109,7 @@ jobs:
           else
             echo "⚠️ Could not create PR automatically."
             echo "📌 Manual action needed: Sync pyproject.toml and __init__.py to version ${NEW_VERSION#v}"
-            echo "   Branch 'chore/version-bump-${NEW_VERSION//[^0-9.]/-}' has been pushed with the changes."
+            echo "   Branch '$BRANCH_NAME' has been pushed with the changes."
             echo ""
             echo "   The release was created successfully - this is just a version sync issue."
           fi
