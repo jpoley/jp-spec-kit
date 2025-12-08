@@ -1,11 +1,11 @@
 ---
 id: task-308
 title: Add --version flag to specify upgrade-tools command
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2025-12-07 23:51'
-updated_date: '2025-12-08 00:50'
+updated_date: '2025-12-08 00:54'
 labels:
   - enhancement
   - cli
@@ -41,9 +41,9 @@ specify install --version 0.2.322
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Users can install specific versions with --version flag
-- [ ] #2 Version is validated against available releases
-- [ ] #3 Clear error message if version doesn't exist
+- [x] #1 Users can install specific versions with --version flag
+- [x] #2 Version is validated against available releases
+- [x] #3 Clear error message if version doesn't exist
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -73,3 +73,19 @@ specify install --version 0.2.322
 ### Files to modify:
 - `src/specify_cli/__init__.py`: Add arguments and logic
 <!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Implemented in PR #612.
+
+New commands:
+- `specify upgrade-tools --list-versions` - Shows available releases
+- `specify upgrade-tools --version 0.2.325` - Installs specific version
+
+Implementation:
+- Added `get_github_releases()` and `version_exists_in_releases()` helper functions
+- Modified `_upgrade_jp_spec_kit()` to accept `target_version` parameter
+- Added `_list_jp_spec_kit_versions()` for displaying releases in table format
+- Version validation happens before install attempt
+<!-- SECTION:NOTES:END -->

@@ -1,0 +1,48 @@
+---
+id: task-300
+title: Add file-friendly timestamp to specify-backup directory path
+status: In Progress
+assignee:
+  - '@pm-planner'
+created_date: '2025-12-07 22:28'
+updated_date: '2025-12-07 22:34'
+labels:
+  - backend
+  - implement
+  - size-s
+dependencies: []
+priority: medium
+---
+
+## Description
+
+<!-- SECTION:DESCRIPTION:BEGIN -->
+The `.specify-backup/` directory created during `specify upgrade-tools` command overwrites previous backups without preserving history. Add a file-friendly timestamp to the backup directory name to preserve multiple backup versions.
+
+Current behavior:
+- Backup created at `.specify-backup/`
+- Each upgrade overwrites previous backup
+
+Desired behavior:
+- Backup created at `.specify-backup-YYYYMMDD-HHMMSS/`
+- Multiple backups preserved for rollback options
+
+Files to modify:
+- `src/specify_cli/__init__.py` (line ~3675)
+<!-- SECTION:DESCRIPTION:END -->
+
+## Acceptance Criteria
+<!-- AC:BEGIN -->
+- [ ] #1 Backup directory includes ISO 8601-like timestamp (YYYYMMDD-HHMMSS format)
+- [ ] #2 Timestamp is file-system safe (no colons or special characters)
+- [ ] #3 Multiple consecutive upgrades create separate backup directories
+- [ ] #4 Backup directory name displayed correctly in console output
+- [ ] #5 Existing tests pass and new tests cover timestamp format
+- [ ] #6 Documentation updated to reflect new backup naming
+<!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+PR created: https://github.com/jpoley/jp-spec-kit/pull/600
+<!-- SECTION:NOTES:END -->
