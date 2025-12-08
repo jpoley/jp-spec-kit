@@ -1,3 +1,18 @@
+---
+name: "jpspec-security_triage"
+description: "jpspec security_triage workflow command"
+target: "chat"
+tools:
+  - "Read"
+  - "Write"
+  - "Edit"
+  - "Grep"
+  - "Glob"
+  - "Bash"
+  - "mcp__backlog__*"
+  - "mcp__serena__*"
+  - "Skill"
+---
 # /jpspec:security_triage
 
 Triage security scan findings using AI-powered analysis with persona-specific output.

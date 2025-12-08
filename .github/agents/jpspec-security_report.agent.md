@@ -1,7 +1,18 @@
 ---
-description: Generate comprehensive security audit report from scan and triage results using security-reporter skill.
+name: "jpspec-security_report"
+description: "Generate comprehensive security audit report from scan and triage results using security-reporter skill."
+target: "chat"
+tools:
+  - "Read"
+  - "Write"
+  - "Edit"
+  - "Grep"
+  - "Glob"
+  - "Bash"
+  - "mcp__backlog__*"
+  - "mcp__serena__*"
+  - "Skill"
 ---
-
 # /jpspec:security report - Security Audit Report Generator
 
 Generate a comprehensive security audit report by aggregating scan results, triage findings, and patch recommendations into a stakeholder-ready document.

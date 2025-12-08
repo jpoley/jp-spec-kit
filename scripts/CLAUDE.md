@@ -12,6 +12,7 @@
 | `pre-commit-dev-setup.sh` | Validate dev-setup symlink structure |
 | `migrate-commands-to-subdirs.sh` | Migrate flat command structure to subdirectories |
 | `prune-releases.sh` | Delete old GitHub releases below a version threshold |
+| `sync-copilot-agents.sh` | Sync Claude commands to VS Code Copilot agents |
 
 ### powershell/
 PowerShell equivalents of bash scripts for Windows.
@@ -135,6 +136,68 @@ Delete old GitHub releases and tags below a specified version threshold.
 **Requirements:**
 - GitHub CLI (`gh`) authenticated
 - Git remote access for tag deletion
+
+## sync-copilot-agents.sh
+
+Syncs Claude Code slash commands (`.claude/commands/`) to VS Code Copilot agents (`.github/agents/`).
+
+```bash
+# Sync all commands (default mode)
+./scripts/bash/sync-copilot-agents.sh
+
+# Preview changes without writing
+./scripts/bash/sync-copilot-agents.sh --dry-run
+
+# Validate sync (CI mode) - exit 2 if drift detected
+./scripts/bash/sync-copilot-agents.sh --validate
+
+# Force overwrite without prompts
+./scripts/bash/sync-copilot-agents.sh --force
+
+# Show detailed processing information
+./scripts/bash/sync-copilot-agents.sh --verbose
+
+# Show help
+./scripts/bash/sync-copilot-agents.sh --help
+```
+
+**What it does:**
+1. Scans `.claude/commands/{jpspec,speckit}/` for command files
+2. Skips partial files (prefixed with `_`)
+3. Resolves `{{INCLUDE:path}}` directives (recursive, max depth 3)
+4. Preserves includes inside code blocks (they're examples)
+5. Transforms frontmatter for VS Code Copilot format
+6. Adds SDD workflow handoffs for jpspec agents
+7. Writes to `.github/agents/{namespace}-{command}.agent.md`
+8. Removes stale old-format files
+
+**Exit codes:**
+- 0: Success
+- 1: Error during processing
+- 2: Drift detected (validate mode only)
+
+**Performance:**
+- Processes 23 commands in under 2 seconds
+
+**Generated frontmatter:**
+```yaml
+---
+name: "jpspec-specify"
+description: "Create feature specifications..."
+target: "chat"
+tools:
+  - "Read"
+  - "Write"
+  - "mcp__backlog__*"
+handoffs:
+  - label: "Create Technical Design"
+    agent: "jpspec-plan"
+    prompt: "The specification is complete..."
+    send: false
+---
+```
+
+**Design rationale:** See `docs/platform/vscode-copilot-agents-plan.md`
 
 ## pre-commit-dev-setup.sh
 

@@ -1,7 +1,18 @@
 ---
-description: Initialize or setup constitution for a project, handling both greenfield (new) and brownfield (existing) projects
+name: "jpspec-init"
+description: "Initialize or setup constitution for a project, handling both greenfield (new) and brownfield (existing) projects"
+target: "chat"
+tools:
+  - "Read"
+  - "Write"
+  - "Edit"
+  - "Grep"
+  - "Glob"
+  - "Bash"
+  - "mcp__backlog__*"
+  - "mcp__serena__*"
+  - "Skill"
 ---
-
 ## User Input
 
 ```text

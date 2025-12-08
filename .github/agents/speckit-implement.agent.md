@@ -1,11 +1,14 @@
 ---
-mode: speckit:implement
-description: Execute the implementation plan by processing and executing all tasks defined in tasks.md
-scripts:
-  sh: scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
-  ps: scripts/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks
+name: "speckit-implement"
+description: "Execute the implementation plan by processing and executing all tasks defined in tasks.md"
+target: "chat"
+tools:
+  - "Read"
+  - "Write"
+  - "Grep"
+  - "Glob"
+  - "mcp__backlog__*"
 ---
-
 ## User Input
 
 ```text
@@ -130,4 +133,3 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Report final status with summary of completed work
 
 Note: This command assumes a complete task breakdown exists in tasks.md. If tasks are incomplete or missing, suggest running `/tasks` first to regenerate the task list.
-

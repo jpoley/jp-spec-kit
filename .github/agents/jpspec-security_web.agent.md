@@ -1,3 +1,18 @@
+---
+name: "jpspec-security_web"
+description: "jpspec security_web workflow command"
+target: "chat"
+tools:
+  - "Read"
+  - "Write"
+  - "Edit"
+  - "Grep"
+  - "Glob"
+  - "Bash"
+  - "mcp__backlog__*"
+  - "mcp__serena__*"
+  - "Skill"
+---
 # /jpspec:security_web
 
 Test web applications for security vulnerabilities using dynamic analysis with Playwright.
