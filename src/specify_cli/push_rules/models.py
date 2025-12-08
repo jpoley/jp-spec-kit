@@ -114,10 +114,16 @@ class ValidationCommand(BaseModel):
         # This does NOT guarantee safety; it only blocks some common dangerous patterns.
         # For production use, consider a dedicated sandbox or allowlist approach.
         dangerous_regexes = [
-            re.compile(r"\brm\s+-rf\s+/(\s|$)", re.IGNORECASE),  # rm -rf / with flexible whitespace
-            re.compile(r"\brm\s+-rf\s+/\*(\s|$)", re.IGNORECASE),  # rm -rf /* with flexible whitespace
+            re.compile(
+                r"\brm\s+-rf\s+/(\s|$)", re.IGNORECASE
+            ),  # rm -rf / with flexible whitespace
+            re.compile(
+                r"\brm\s+-rf\s+/\*(\s|$)", re.IGNORECASE
+            ),  # rm -rf /* with flexible whitespace
             re.compile(r">\s*/dev/sda", re.IGNORECASE),  # overwrite disk device
-            re.compile(r":\s*\(\s*\)\s*{\s*:.*\|.*:.*&\s*};\s*:", re.IGNORECASE),  # fork bomb
+            re.compile(
+                r":\s*\(\s*\)\s*{\s*:.*\|.*:.*&\s*};\s*:", re.IGNORECASE
+            ),  # fork bomb
         ]
         for regex in dangerous_regexes:
             if regex.search(stripped):
