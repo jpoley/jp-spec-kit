@@ -368,8 +368,8 @@ tools:
 
 ## 12. Next Steps
 
-1. **Implement task-316**: Create directory structure
-2. **Implement task-319**: Build sync script (core automation)
+1. **Implement task-329**: Create directory structure
+2. **Implement task-332**: Build sync script (core automation)
 3. **Test in VS Code**: Verify commands appear and execute
 4. **Add CI validation**: Prevent drift in production
 
