@@ -1,7 +1,18 @@
 ---
-description: Prune local branches that have been merged and deleted on remote.
+name: "jpspec-prune-branch"
+description: "Prune local branches that have been merged and deleted on remote."
+target: "chat"
+tools:
+  - "Read"
+  - "Write"
+  - "Edit"
+  - "Grep"
+  - "Glob"
+  - "Bash"
+  - "mcp__backlog__*"
+  - "mcp__serena__*"
+  - "Skill"
 ---
-
 ## User Input
 
 ```text

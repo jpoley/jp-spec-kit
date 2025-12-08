@@ -1,11 +1,14 @@
 ---
-mode: speckit:analyze
-description: Perform a non-destructive cross-artifact consistency and quality analysis across spec.md, plan.md, and tasks.md after task generation.
-scripts:
-  sh: scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
-  ps: scripts/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks
+name: "speckit-analyze"
+description: "Perform a non-destructive cross-artifact consistency and quality analysis across spec.md, plan.md, and tasks.md after task generation."
+target: "chat"
+tools:
+  - "Read"
+  - "Write"
+  - "Grep"
+  - "Glob"
+  - "mcp__backlog__*"
 ---
-
 ## User Input
 
 ```text
@@ -186,4 +189,3 @@ Ask the user: "Would you like me to suggest concrete remediation edits for the t
 ## Context
 
 {ARGS}
-

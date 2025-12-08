@@ -1,11 +1,14 @@
 ---
-mode: speckit:clarify
-description: Identify underspecified areas in the current feature spec by asking up to 5 highly targeted clarification questions and encoding answers back into the spec.
-scripts:
-   sh: scripts/bash/check-prerequisites.sh --json --paths-only
-   ps: scripts/powershell/check-prerequisites.ps1 -Json -PathsOnly
+name: "speckit-clarify"
+description: "Identify underspecified areas in the current feature spec by asking up to 5 highly targeted clarification questions and encoding answers back into the spec."
+target: "chat"
+tools:
+  - "Read"
+  - "Write"
+  - "Grep"
+  - "Glob"
+  - "mcp__backlog__*"
 ---
-
 ## User Input
 
 ```text
@@ -178,4 +181,3 @@ Behavior rules:
  - If quota reached with unresolved high-impact categories remaining, explicitly flag them under Deferred with rationale.
 
 Context for prioritization: {ARGS}
-

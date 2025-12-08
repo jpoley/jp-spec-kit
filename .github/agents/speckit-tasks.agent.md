@@ -1,11 +1,14 @@
 ---
-mode: speckit:tasks
-description: Generate an actionable, dependency-ordered task backlog for the feature based on available design artifacts.
-scripts:
-  sh: scripts/bash/check-prerequisites.sh --json
-  ps: scripts/powershell/check-prerequisites.ps1 -Json
+name: "speckit-tasks"
+description: "Generate an actionable, dependency-ordered task backlog for the feature based on available design artifacts."
+target: "chat"
+tools:
+  - "Read"
+  - "Write"
+  - "Grep"
+  - "Glob"
+  - "mcp__backlog__*"
 ---
-
 ## User Input
 
 ```text
@@ -140,5 +143,3 @@ Every task MUST strictly follow this format:
   - Within each story: Tests (if requested) → Models → Services → Endpoints → Integration
   - Each phase should be a complete, independently testable increment
 - **Final Phase**: Polish & Cross-Cutting Concerns
-
-

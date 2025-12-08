@@ -1,7 +1,23 @@
 ---
-description: Execute implementation using specialized frontend and backend engineer agents with code review.
+name: "jpspec-implement"
+description: "Execute implementation using specialized frontend and backend engineer agents with code review."
+target: "chat"
+tools:
+  - "Read"
+  - "Write"
+  - "Edit"
+  - "Grep"
+  - "Glob"
+  - "Bash"
+  - "mcp__backlog__*"
+  - "mcp__serena__*"
+  - "Skill"
+handoffs:
+  - label: "Run Validation"
+    agent: "jpspec-validate"
+    prompt: "Implementation is complete. Run QA validation, security review, and documentation checks."
+    send: false
 ---
-
 ## User Input
 
 ```text
@@ -14,9 +30,329 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 This command implements features using specialized engineering agents with integrated code review. **Engineers work exclusively from backlog tasks.**
 
+# Constitution Pre-flight Check
+
+**CRITICAL**: This command requires constitution validation before execution (unless `--skip-validation` is provided).
+
+## Step 0.5: Check Constitution Status
+
+Before executing this workflow command, validate the project's constitution:
+
+### 1. Check Constitution Exists
+
+```bash
+# Look for constitution file
+if [ -f "memory/constitution.md" ]; then
+  echo "✓ Constitution found"
+else
+  echo "⚠️ No constitution found"
+  echo ""
+  echo "To create one:"
+  echo "  1. Run: specify init --here"
+  echo "  2. Then: Run /speckit:constitution to customize"
+  echo ""
+  echo "Proceeding without constitution..."
+fi
+```
+
+If no constitution exists:
+- Warn the user
+- Suggest creating one with `specify init --here`
+- Continue with command (constitution is recommended but not required)
+
+### 2. If Constitution Exists, Check Validation Status
+
+```bash
+# Detect tier from TIER comment (default: Medium if not found)
+TIER=$(grep -o "TIER: \(Light\|Medium\|Heavy\)" memory/constitution.md | cut -d' ' -f2)
+TIER=${TIER:-Medium}  # Default to Medium if not found
+
+# Count NEEDS_VALIDATION markers
+MARKER_COUNT=$(grep -c "NEEDS_VALIDATION" memory/constitution.md || echo 0)
+
+# Extract section names from NEEDS_VALIDATION markers
+SECTIONS=$(grep "NEEDS_VALIDATION" memory/constitution.md | sed 's/.*NEEDS_VALIDATION: /  - /')
+
+echo "Constitution tier: $TIER"
+echo "Unvalidated sections: $MARKER_COUNT"
+```
+
+### 3. Apply Tier-Based Enforcement
+
+#### Light Tier - Warn Only
+
+If `TIER = Light` and `MARKER_COUNT > 0`:
+
+```text
+⚠️ Constitution has N unvalidated sections:
+$SECTIONS
+
+Consider running /speckit:constitution to customize your constitution.
+
+Proceeding with command...
+```
+
+Then continue with the command.
+
+#### Medium Tier - Warn and Confirm
+
+If `TIER = Medium` and `MARKER_COUNT > 0`:
+
+```text
+⚠️ Constitution Validation Recommended
+
+Your constitution has N unvalidated sections:
+$SECTIONS
+
+Medium tier projects should validate their constitution before workflow commands.
+
+Options:
+  1. Continue anyway (y/N)
+  2. Run /speckit:constitution to customize
+  3. Run specify constitution validate to check status
+
+Continue without validation? [y/N]: _
+```
+
+Wait for user response:
+- If user responds `y` or `yes` → Continue with command
+- If user responds `n`, `no`, or empty/Enter → Stop and show:
+  ```text
+  Command cancelled. Run /speckit:constitution to customize your constitution.
+  ```
+
+#### Heavy Tier - Block Until Validated
+
+If `TIER = Heavy` and `MARKER_COUNT > 0`:
+
+```text
+❌ Constitution Validation Required
+
+Your constitution has N unvalidated sections:
+$SECTIONS
+
+Heavy tier constitutions require full validation before workflow commands.
+
+To resolve:
+  1. Run /speckit:constitution to customize your constitution
+  2. Run specify constitution validate to verify
+  3. Remove all NEEDS_VALIDATION markers
+
+Or use --skip-validation to bypass (not recommended).
+
+Command blocked until constitution is validated.
+```
+
+**DO NOT PROCEED** with the command. Exit and wait for user to resolve.
+
+### 4. Skip Validation Flag
+
+If the command was invoked with `--skip-validation`:
+
+```bash
+# Check for skip flag in arguments
+if [[ "$ARGUMENTS" == *"--skip-validation"* ]]; then
+  echo "⚠️ Skipping constitution validation (--skip-validation)"
+  # Remove the flag from arguments and continue
+  ARGUMENTS="${ARGUMENTS/--skip-validation/}"
+fi
+```
+
+When skip flag is present:
+- Log warning
+- Skip all validation checks
+- Continue with command
+- Note: For emergency use only
+
+### 5. Fully Validated Constitution
+
+If `MARKER_COUNT = 0`:
+
+```text
+✓ Constitution validated
+```
+
+Continue with command normally.
+
+## Summary: When to Block vs Warn
+
+| Tier | Unvalidated Sections | Action |
+|------|---------------------|--------|
+| Light | 0 | ✓ Continue |
+| Light | >0 | ⚠️ Warn, continue |
+| Medium | 0 | ✓ Continue |
+| Medium | >0 | ⚠️ Warn, ask confirmation, respect user choice |
+| Heavy | 0 | ✓ Continue |
+| Heavy | >0 | ❌ Block, require validation |
+| Any | >0 + `--skip-validation` | ⚠️ Warn, continue |
+
+## Integration Example
+
+```markdown
+---
+description: Your command description
+---
+
+## User Input
+
+```text
+$ARGUMENTS
+```
+
+You **MUST** consider the user input before proceeding (if not empty).
+
 {{INCLUDE:.claude/commands/jpspec/_constitution-check.md}}
 
 {{INCLUDE:.claude/commands/jpspec/_workflow-state.md}}
+
+## Execution Instructions
+
+[Rest of your command implementation...]
+```
+
+## Related Commands
+
+| Command | Purpose |
+|---------|---------|
+| `specify init --here` | Initialize constitution if missing |
+| `/speckit:constitution` | Interactive constitution customization |
+| `specify constitution validate` | Check validation status and show report |
+| `specify constitution show` | Display current constitution |
+
+
+# Workflow State Validation
+
+## Step 0: Workflow State Validation (REQUIRED)
+
+**CRITICAL**: This command requires a task to be in the correct workflow state before execution.
+
+### Light Mode Detection
+
+First, check if this project is in light mode:
+
+```bash
+# Check for light mode marker
+if [ -f ".jpspec-light-mode" ]; then
+  echo "Project is in LIGHT MODE (~60% faster workflow)"
+fi
+```
+
+**Light Mode Behavior**:
+- `/jpspec:research` → **SKIPPED** (inform user and suggest `/jpspec:plan` instead)
+- `/jpspec:plan` → Uses `plan-light.md` template (high-level only)
+- `/jpspec:specify` → Uses `spec-light.md` template (combined stories + AC)
+
+If in light mode and the current command is `/jpspec:research`, inform the user:
+```text
+ℹ️ This project is in Light Mode
+
+Light mode skips the research phase for faster iteration.
+Current state: workflow:Specified
+
+Suggestions:
+  - Run /jpspec:plan to proceed directly to planning
+  - To enable research, delete .jpspec-light-mode and use full mode
+  - See docs/guides/when-to-use-light-mode.md for details
+```
+
+### 1. Get Current Task and State
+
+```bash
+# Find the task you're working on
+# Option A: If task ID was provided in arguments, use that
+# Option B: Look for task currently "In Progress"
+backlog task list -s "In Progress" --plain
+
+# Get task details and extract workflow state from labels
+TASK_ID="<task-id>"  # Replace with actual task ID
+backlog task "$TASK_ID" --plain
+```
+
+### 2. Check Workflow State
+
+Extract the `workflow:*` label from the task. The state must match one of the **Required Input States** for this command:
+
+| Command | Required Input States | Output State |
+|---------|----------------------|--------------|
+| /jpspec:assess | workflow:To Do, (no workflow label) | workflow:Assessed |
+| /jpspec:specify | workflow:Assessed | workflow:Specified |
+| /jpspec:research | workflow:Specified | workflow:Researched |
+| /jpspec:plan | workflow:Specified, workflow:Researched | workflow:Planned |
+| /jpspec:implement | workflow:Planned | workflow:In Implementation |
+| /jpspec:validate | workflow:In Implementation | workflow:Validated |
+| /jpspec:operate | workflow:Validated | workflow:Deployed |
+
+### 3. Handle Invalid State
+
+If the task's workflow state doesn't match the required input states:
+
+```text
+⚠️ Cannot run /jpspec:<command>
+
+Current state: "<current-workflow-label>"
+Required states: <list-of-valid-input-states>
+
+Suggestions:
+  - Valid workflows for current state: <list-valid-commands>
+  - Use --skip-state-check to bypass (not recommended)
+```
+
+**DO NOT PROCEED** unless:
+- The task is in a valid input state, OR
+- User explicitly requests to skip the check
+
+### 4. Update State After Completion
+
+After successful workflow completion, update the task's workflow state:
+
+```bash
+# Remove old workflow label and add new one
+# Replace <output-state> with the output state from the table above
+backlog task edit "$TASK_ID" -l "workflow:<output-state>"
+```
+
+## Workflow State Labels Reference
+
+Tasks use labels with the `workflow:` prefix to track their current workflow state:
+
+- `workflow:Assessed` - SDD suitability evaluated (/jpspec:assess complete)
+- `workflow:Specified` - Requirements captured (/jpspec:specify complete)
+- `workflow:Researched` - Technical research completed (/jpspec:research complete)
+- `workflow:Planned` - Architecture planned (/jpspec:plan complete)
+- `workflow:In Implementation` - Code being written (/jpspec:implement in progress)
+- `workflow:Validated` - QA and security validated (/jpspec:validate complete)
+- `workflow:Deployed` - Released to production (/jpspec:operate complete)
+
+## Programmatic State Checking
+
+The state guard module can also be used programmatically:
+
+```python
+from specify_cli.workflow import check_workflow_state, get_valid_workflows
+
+# Check if current state allows command execution
+can_proceed, message = check_workflow_state("implement", current_state)
+
+if not can_proceed:
+    print(message)
+    # Shows error with suggestions
+
+# Get valid commands for a state
+valid_commands = get_valid_workflows("Specified")
+# Returns: ['/jpspec:research', '/jpspec:plan']
+```
+
+## Bypassing State Checks (Power Users Only)
+
+State checks can be bypassed in special circumstances:
+- Emergency hotfixes
+- Iterative refinement of specifications
+- Recovery from failed workflows
+
+Use `--skip-state-check` flag or explicitly acknowledge the bypass.
+
+**Warning**: Bypassing state checks may result in incomplete artifacts or broken workflows.
+
 
 **For /jpspec:implement**: Required input state is `workflow:Planned`. Output state will be `workflow:In Implementation`.
 

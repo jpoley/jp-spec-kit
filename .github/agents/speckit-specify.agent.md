@@ -1,11 +1,14 @@
 ---
-mode: speckit:specify
-description: Create or update the feature specification from a natural language feature description.
-scripts:
-  sh: scripts/bash/create-new-feature.sh --json "{ARGS}"
-  ps: scripts/powershell/create-new-feature.ps1 -Json "{ARGS}"
+name: "speckit-specify"
+description: "Create or update the feature specification from a natural language feature description."
+target: "chat"
+tools:
+  - "Read"
+  - "Write"
+  - "Grep"
+  - "Glob"
+  - "mcp__backlog__*"
 ---
-
 ## User Input
 
 ```text
@@ -231,4 +234,3 @@ Success criteria must be:
 - "Database can handle 1000 TPS" (implementation detail, use user-facing metric)
 - "React components render efficiently" (framework-specific)
 - "Redis cache hit rate above 80%" (technology-specific)
-
