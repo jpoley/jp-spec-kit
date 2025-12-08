@@ -247,6 +247,6 @@ def format_janitor_warning(state: JanitorState) -> Optional[str]:
         )
 
     lines.append("")
-    lines.append("Run `/jpspec:prune-branch` or `github-janitor` to clean up.")
+    lines.append("Run `/jpspec:github-janitor prune` to clean up.")
 
     return "\n".join(lines)

@@ -125,7 +125,7 @@ except (json.JSONDecodeError, FileNotFoundError, KeyError):
 
     if [[ -n "$janitor_warning" ]]; then
         warnings+=("Repository cleanup pending: $janitor_warning")
-        warnings+=("  Run '/jpspec:prune-branch' or github-janitor to clean up")
+        warnings+=("  Run '/jpspec:github-janitor prune' to clean up")
     fi
 fi
 
