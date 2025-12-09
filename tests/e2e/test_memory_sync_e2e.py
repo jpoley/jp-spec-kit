@@ -7,34 +7,42 @@ multiple machines. Tests cover:
 - Append-only merge behavior
 - Branch synchronization
 
-NOTE: These tests are currently skipped because they require a proper git remote
-setup. The tests attempt to git push/pull between local repos but the fixtures
-don't configure a shared bare repository as the remote origin.
-
-To enable these tests:
-1. Create a bare repo fixture for the remote
-2. Configure both machine_a and machine_b to use it as origin
+Uses a bare git repository as the shared remote to simulate multi-machine sync.
 """
 
 import subprocess
-from pathlib import Path
 
 import pytest
-from specify_cli.memory import TaskMemoryStore, LifecycleManager
-
-pytestmark = pytest.mark.skip(
-    reason="Git sync tests require bare repo remote setup - skipped pending refactor"
-)
+from specify_cli.memory import TaskMemoryStore
 
 
 @pytest.fixture
-def git_repo(tmp_path):
-    """Create a git repository with task memory structure."""
+def bare_remote(tmp_path):
+    """Create a bare git repository to act as the remote origin."""
+    remote_path = tmp_path / "remote.git"
+    remote_path.mkdir()
+    subprocess.run(
+        ["git", "init", "--bare"],
+        cwd=remote_path,
+        check=True,
+        capture_output=True,
+    )
+    return remote_path
+
+
+@pytest.fixture
+def git_repo(tmp_path, bare_remote):
+    """Create a git repository with task memory structure connected to remote."""
     repo_path = tmp_path / "repo"
     repo_path.mkdir()
 
-    # Initialize git repo
-    subprocess.run(["git", "init"], cwd=repo_path, check=True, capture_output=True)
+    # Initialize git repo with main as default branch
+    subprocess.run(
+        ["git", "init", "-b", "main"],
+        cwd=repo_path,
+        check=True,
+        capture_output=True,
+    )
     subprocess.run(
         ["git", "config", "user.email", "test@example.com"],
         cwd=repo_path,
@@ -48,16 +56,24 @@ def git_repo(tmp_path):
         capture_output=True,
     )
 
-    # Create project structure
-    backlog_dir = repo_path / "backlog" / "memory"
-    archive_dir = backlog_dir / "archive"
+    # Add remote
+    subprocess.run(
+        ["git", "remote", "add", "origin", str(bare_remote)],
+        cwd=repo_path,
+        check=True,
+        capture_output=True,
+    )
+
+    # Create directory structure
+    memory_dir = repo_path / "backlog" / "memory"
+    archive_dir = memory_dir / "archive"
     template_dir = repo_path / "templates" / "memory"
 
-    backlog_dir.mkdir(parents=True)
+    memory_dir.mkdir(parents=True)
     archive_dir.mkdir(parents=True)
     template_dir.mkdir(parents=True)
 
-    # Create template
+    # Create default template
     template_content = """# Task Memory: {task_id}
 
 **Created**: {created_date}
@@ -66,22 +82,22 @@ def git_repo(tmp_path):
 
 ## Context
 
-<!-- Context goes here -->
-
 ## Key Decisions
 
-<!-- Decisions go here -->
-
 ## Notes
-
-<!-- Notes go here -->
 """
     (template_dir / "default.md").write_text(template_content)
 
-    # Initial commit
+    # Create initial commit
     subprocess.run(["git", "add", "."], cwd=repo_path, check=True, capture_output=True)
     subprocess.run(
         ["git", "commit", "-m", "Initial commit"],
+        cwd=repo_path,
+        check=True,
+        capture_output=True,
+    )
+    subprocess.run(
+        ["git", "push", "-u", "origin", "main"],
         cwd=repo_path,
         check=True,
         capture_output=True,
@@ -90,29 +106,22 @@ def git_repo(tmp_path):
     return repo_path
 
 
-@pytest.fixture
-def machine_a(git_repo, tmp_path):
-    """Simulate machine A (original repo)."""
-    return git_repo
-
-
-@pytest.fixture
-def machine_b(git_repo, tmp_path):
-    """Simulate machine B (clone of repo)."""
-    clone_path = tmp_path / "clone"
+def clone_repo(bare_remote, tmp_path, name):
+    """Clone the bare repository to simulate another machine."""
+    clone_path = tmp_path / name
     subprocess.run(
-        ["git", "clone", str(git_repo), str(clone_path)],
+        ["git", "clone", str(bare_remote), str(clone_path)],
         check=True,
         capture_output=True,
     )
     subprocess.run(
-        ["git", "config", "user.email", "test@example.com"],
+        ["git", "config", "user.email", f"{name}@example.com"],
         cwd=clone_path,
         check=True,
         capture_output=True,
     )
     subprocess.run(
-        ["git", "config", "user.name", "Test User"],
+        ["git", "config", "user.name", f"User {name}"],
         cwd=clone_path,
         check=True,
         capture_output=True,
@@ -120,561 +129,482 @@ def machine_b(git_repo, tmp_path):
     return clone_path
 
 
-def git_commit(repo_path: Path, message: str):
-    """Helper to commit changes."""
+def git_commit_and_push(repo_path, message):
+    """Commit all changes and push to remote."""
     subprocess.run(["git", "add", "."], cwd=repo_path, check=True, capture_output=True)
     subprocess.run(
-        ["git", "commit", "-m", message], cwd=repo_path, check=True, capture_output=True
+        ["git", "commit", "-m", message],
+        cwd=repo_path,
+        check=True,
+        capture_output=True,
+    )
+    subprocess.run(
+        ["git", "push"],
+        cwd=repo_path,
+        check=True,
+        capture_output=True,
     )
 
 
-def git_pull(repo_path: Path):
-    """Helper to pull changes."""
-    result = subprocess.run(
-        ["git", "pull"], cwd=repo_path, capture_output=True, text=True
+def git_pull(repo_path):
+    """Pull latest changes from remote."""
+    subprocess.run(
+        ["git", "pull"],
+        cwd=repo_path,
+        check=True,
+        capture_output=True,
     )
-    return result
 
 
-def git_push(repo_path: Path):
-    """Helper to push changes."""
-    subprocess.run(["git", "push"], cwd=repo_path, check=True, capture_output=True)
+# --- Test: Basic Sync ---
 
 
 class TestBasicSync:
-    """Tests for basic cross-machine synchronization."""
+    """Tests for basic sync scenarios between machines."""
 
-    def test_create_memory_on_machine_a_sync_to_machine_b(self, machine_a, machine_b):
-        """Test creating memory on machine A and syncing to machine B."""
-        # Machine A: Create task memory
-        store_a = TaskMemoryStore(base_path=machine_a)
-        manager_a = LifecycleManager(store=store_a)
+    def test_create_memory_on_machine_a_sync_to_machine_b(
+        self, tmp_path, bare_remote, git_repo
+    ):
+        """Test creating memory on one machine and syncing to another."""
+        # Machine A creates memory
+        store_a = TaskMemoryStore(base_path=git_repo)
+        store_a.create("task-100", task_title="Test Task")
+        store_a.append("task-100", "Started on machine A")
 
-        task_id = "task-100"
-        manager_a.on_state_change(
-            task_id=task_id,
-            old_state="To Do",
-            new_state="In Progress",
-            task_title="Feature X",
-        )
-        store_a.append(task_id, "Started implementation on Machine A")
+        git_commit_and_push(git_repo, "Add task-100 memory")
 
-        # Commit and push
-        git_commit(machine_a, f"Create {task_id} on Machine A")
-        git_push(machine_a)
-
-        # Machine B: Pull changes
-        git_pull(machine_b)
-
-        # Verify memory synced to Machine B
-        store_b = TaskMemoryStore(base_path=machine_b)
-        assert store_b.exists(task_id), "Memory should be synced to Machine B"
-
-        content_b = store_b.read(task_id)
-        assert "Started implementation on Machine A" in content_b
-
-    def test_bidirectional_sync(self, machine_a, machine_b):
-        """Test bidirectional sync between machines."""
-        store_a = TaskMemoryStore(base_path=machine_a)
-        store_b = TaskMemoryStore(base_path=machine_b)
-        manager_a = LifecycleManager(store=store_a)
-
-        task_id = "task-101"
-
-        # Machine A: Create memory
-        manager_a.on_state_change(
-            task_id=task_id,
-            old_state="To Do",
-            new_state="In Progress",
-            task_title="Feature Y",
-        )
-        git_commit(machine_a, f"Create {task_id}")
-        git_push(machine_a)
-
-        # Machine B: Pull and add content
-        git_pull(machine_b)
-        store_b.append(task_id, "Added tests on Machine B")
-        git_commit(machine_b, "Add tests")
-        git_push(machine_b)
-
-        # Machine A: Pull updates
-        git_pull(machine_a)
-
-        # Verify both updates present on Machine A
-        content_a = store_a.read(task_id)
-        assert "Added tests on Machine B" in content_a
-
-    def test_archive_sync(self, machine_a, machine_b):
-        """Test archiving memory and syncing to other machine."""
-        store_a = TaskMemoryStore(base_path=machine_a)
-        manager_a = LifecycleManager(store=store_a)
-
-        task_id = "task-102"
-
-        # Machine A: Create, complete, and archive
-        manager_a.on_state_change(
-            task_id=task_id,
-            old_state="To Do",
-            new_state="In Progress",
-            task_title="Feature Z",
-        )
-        git_commit(machine_a, f"Create {task_id}")
-
-        manager_a.on_state_change(
-            task_id=task_id,
-            old_state="In Progress",
-            new_state="Done",
-            task_title="Feature Z",
-        )
-        git_commit(machine_a, f"Archive {task_id}")
-        git_push(machine_a)
-
-        # Machine B: Pull and verify
-        git_pull(machine_b)
+        # Machine B clones and sees the memory
+        machine_b = clone_repo(bare_remote, tmp_path, "machine_b")
         store_b = TaskMemoryStore(base_path=machine_b)
 
-        # Verify archived on Machine B
-        assert not store_b.exists(task_id), "Should be archived"
-        archive_path = store_b.archive_dir / f"{task_id}.md"
-        assert archive_path.exists(), "Archive should be synced"
+        assert store_b.exists("task-100")
+        content = store_b.read("task-100")
+        assert "Started on machine A" in content
+
+    def test_bidirectional_sync(self, tmp_path, bare_remote, git_repo):
+        """Test changes from both machines sync correctly."""
+        # Machine A creates task-100
+        store_a = TaskMemoryStore(base_path=git_repo)
+        store_a.create("task-100", task_title="Task A")
+        git_commit_and_push(git_repo, "Add task-100")
+
+        # Machine B clones and creates task-101
+        machine_b = clone_repo(bare_remote, tmp_path, "machine_b")
+        store_b = TaskMemoryStore(base_path=machine_b)
+        store_b.create("task-101", task_title="Task B")
+        git_commit_and_push(machine_b, "Add task-101")
+
+        # Machine A pulls and sees both
+        git_pull(git_repo)
+        assert store_a.exists("task-100")
+        assert store_a.exists("task-101")
+
+    def test_archive_sync(self, tmp_path, bare_remote, git_repo):
+        """Test archived memories sync between machines."""
+        # Machine A creates and archives
+        store_a = TaskMemoryStore(base_path=git_repo)
+        store_a.create("task-100", task_title="Done Task")
+        store_a.archive("task-100")
+        git_commit_and_push(git_repo, "Archive task-100")
+
+        # Machine B sees archived memory
+        machine_b = clone_repo(bare_remote, tmp_path, "machine_b")
+        store_b = TaskMemoryStore(base_path=machine_b)
+
+        assert not store_b.exists("task-100")  # Not in active
+        archived = store_b.list_archived()
+        assert "task-100" in archived
+
+
+# --- Test: Conflict Resolution ---
 
 
 class TestConflictResolution:
-    """Tests for conflict resolution during sync."""
+    """Tests for handling merge conflicts."""
 
-    def test_concurrent_append_no_conflict(self, machine_a, machine_b):
-        """Test concurrent appends to same memory (append-only, should merge)."""
-        store_a = TaskMemoryStore(base_path=machine_a)
+    def test_concurrent_append_no_conflict(self, tmp_path, bare_remote, git_repo):
+        """Test appending to different tasks doesn't conflict."""
+        # Setup: Create two tasks
+        store_a = TaskMemoryStore(base_path=git_repo)
+        store_a.create("task-100", task_title="Task 100")
+        store_a.create("task-101", task_title="Task 101")
+        git_commit_and_push(git_repo, "Initial tasks")
+
+        # Machine B clones
+        machine_b = clone_repo(bare_remote, tmp_path, "machine_b")
         store_b = TaskMemoryStore(base_path=machine_b)
-        manager_a = LifecycleManager(store=store_a)
 
-        task_id = "task-200"
+        # Machine A appends to task-100
+        store_a.append("task-100", "Update from A")
+        git_commit_and_push(git_repo, "Update task-100")
 
-        # Setup: Create memory and sync
-        manager_a.on_state_change(
-            task_id=task_id,
-            old_state="To Do",
-            new_state="In Progress",
-            task_title="Concurrent Task",
-        )
-        git_commit(machine_a, f"Create {task_id}")
-        git_push(machine_a)
+        # Machine B appends to task-101
+        store_b.append("task-101", "Update from B")
+
+        # Machine B pulls (should merge cleanly)
         git_pull(machine_b)
 
-        # Machine A: Append content (don't push yet)
-        store_a.append(task_id, "Update from Machine A")
-        git_commit(machine_a, "Update A")
+        # Machine B pushes
+        git_commit_and_push(machine_b, "Update task-101")
 
-        # Machine B: Append different content
-        store_b.append(task_id, "Update from Machine B")
-        git_commit(machine_b, "Update B")
-        git_push(machine_b)
+        # Machine A pulls and sees both updates
+        git_pull(git_repo)
+        content_100 = store_a.read("task-100")
+        content_101 = store_a.read("task-101")
 
-        # Machine A: Pull (should auto-merge append-only content)
-        result = git_pull(machine_a)
+        assert "Update from A" in content_100
+        assert "Update from B" in content_101
 
-        # Check if merge was automatic or requires resolution
-        if "CONFLICT" in result.stdout or "CONFLICT" in result.stderr:
-            # Manual merge needed (expected for some conflict scenarios)
-            # For append-only, we can accept both changes
-            # Verify both updates might be present (depends on git merge)
-            # In conflict scenario, we'd need manual resolution
-            pytest.skip("Conflict resolution test - requires manual merge strategy")
-        else:
-            # Automatic merge succeeded
-            content_a = store_a.read(task_id)
-            # At least one update should be present
-            assert (
-                "Update from Machine A" in content_a
-                or "Update from Machine B" in content_a
-            )
+    def test_concurrent_state_changes(self, tmp_path, bare_remote, git_repo):
+        """Test concurrent state changes to different tasks."""
+        # Setup: Create tasks
+        store_a = TaskMemoryStore(base_path=git_repo)
+        store_a.create("task-100", task_title="Task 100")
+        store_a.create("task-101", task_title="Task 101")
+        git_commit_and_push(git_repo, "Initial tasks")
 
-    def test_concurrent_state_changes(self, machine_a, machine_b):
-        """Test handling of concurrent state changes on different machines."""
-        store_a = TaskMemoryStore(base_path=machine_a)
+        # Machine B clones
+        machine_b = clone_repo(bare_remote, tmp_path, "machine_b")
         store_b = TaskMemoryStore(base_path=machine_b)
-        manager_a = LifecycleManager(store=store_a)
-        # manager_b would be used if we implement concurrent state changes
-        # but for this test we only use machine B for basic operations
 
-        task_id = "task-201"
+        # Machine A archives task-100
+        store_a.archive("task-100")
+        git_commit_and_push(git_repo, "Archive task-100")
 
-        # Setup: Create memory and sync
-        manager_a.on_state_change(
-            task_id=task_id,
-            old_state="To Do",
-            new_state="In Progress",
-            task_title="State Test",
-        )
-        git_commit(machine_a, f"Create {task_id}")
-        git_push(machine_a)
+        # Machine B archives task-101
+        store_b.archive("task-101")
+
+        # Machine B pulls and pushes
         git_pull(machine_b)
+        git_commit_and_push(machine_b, "Archive task-101")
 
-        # Machine A: Complete task
-        manager_a.on_state_change(
-            task_id=task_id,
-            old_state="In Progress",
-            new_state="Done",
-            task_title="State Test",
-        )
-        git_commit(machine_a, f"Complete {task_id}")
+        # Verify both archived on both machines
+        git_pull(git_repo)
 
-        # Machine B: Add content (before knowing A completed)
-        store_b.append(task_id, "Additional work from Machine B")
-        git_commit(machine_b, "Add work")
-        git_push(machine_b)
+        assert "task-100" in store_a.list_archived()
+        assert "task-101" in store_a.list_archived()
 
-        # Machine A: Pull (conflict expected)
-        git_pull(machine_a)
-
-        # This represents a real conflict: file moved vs. modified
-        # In practice, this requires coordination or conflict resolution
-        # The last machine to push wins, or manual merge needed
-
-    def test_archive_then_append_conflict(self, machine_a, machine_b):
-        """Test conflict when one machine archives while another appends."""
-        store_a = TaskMemoryStore(base_path=machine_a)
-        store_b = TaskMemoryStore(base_path=machine_b)
-        manager_a = LifecycleManager(store=store_a)
-
-        task_id = "task-202"
-
+    def test_same_file_conflict_requires_manual_resolution(
+        self, tmp_path, bare_remote, git_repo
+    ):
+        """Test that concurrent edits to same file may require manual resolution."""
         # Setup
-        manager_a.on_state_change(
-            task_id=task_id,
-            old_state="To Do",
-            new_state="In Progress",
-            task_title="Archive Test",
+        store_a = TaskMemoryStore(base_path=git_repo)
+        store_a.create("task-100", task_title="Task 100")
+        git_commit_and_push(git_repo, "Initial task")
+
+        # Machine B clones
+        machine_b = clone_repo(bare_remote, tmp_path, "machine_b")
+        store_b = TaskMemoryStore(base_path=machine_b)
+
+        # Both machines modify same file
+        store_a.append("task-100", "Note from machine A", section="Notes")
+        git_commit_and_push(git_repo, "A's update")
+
+        store_b.append("task-100", "Note from machine B", section="Notes")
+
+        # Machine B's push should fail due to conflict
+        subprocess.run(
+            ["git", "add", "."], cwd=machine_b, check=True, capture_output=True
         )
-        git_commit(machine_a, f"Create {task_id}")
-        git_push(machine_a)
-        git_pull(machine_b)
-
-        # Machine A: Archive
-        manager_a.on_state_change(
-            task_id=task_id,
-            old_state="In Progress",
-            new_state="Done",
-            task_title="Archive Test",
+        subprocess.run(
+            ["git", "commit", "-m", "B's update"],
+            cwd=machine_b,
+            check=True,
+            capture_output=True,
         )
-        git_commit(machine_a, f"Archive {task_id}")
 
-        # Machine B: Append (before knowing about archive)
-        store_b.append(task_id, "Last minute update")
-        git_commit(machine_b, "Update")
-        git_push(machine_b)
+        # Pull will have conflicts or auto-merge depending on content
+        result = subprocess.run(
+            ["git", "pull", "--no-rebase"],
+            cwd=machine_b,
+            capture_output=True,
+            text=True,
+        )
 
-        # Machine A: Pull - conflict on file deletion vs. modification
-        git_pull(machine_a)
+        # Either merged successfully or has conflicts
+        assert result.returncode in [0, 1]  # 0=merged, 1=conflict
 
-        # This is a real conflict scenario that requires resolution
+
+# --- Test: Merge Strategies ---
 
 
 class TestMergeStrategies:
     """Tests for different merge strategies."""
 
-    def test_fast_forward_merge(self, machine_a, machine_b):
-        """Test fast-forward merge (no divergent changes)."""
-        store_a = TaskMemoryStore(base_path=machine_a)
-        manager_a = LifecycleManager(store=store_a)
+    def test_fast_forward_merge(self, tmp_path, bare_remote, git_repo):
+        """Test fast-forward merge when no conflicts."""
+        # Setup
+        store_a = TaskMemoryStore(base_path=git_repo)
+        store_a.create("task-100", task_title="Task 100")
+        git_commit_and_push(git_repo, "Initial task")
 
-        task_id = "task-300"
+        # Machine B clones
+        machine_b = clone_repo(bare_remote, tmp_path, "machine_b")
 
-        # Machine A: Create memory
-        manager_a.on_state_change(
-            task_id=task_id,
-            old_state="To Do",
-            new_state="In Progress",
-            task_title="FF Test",
+        # Machine A makes changes
+        store_a.append("task-100", "Update 1")
+        git_commit_and_push(git_repo, "Update 1")
+
+        store_a.append("task-100", "Update 2")
+        git_commit_and_push(git_repo, "Update 2")
+
+        # Machine B pulls (should fast-forward)
+        result = subprocess.run(
+            ["git", "pull"],
+            cwd=machine_b,
+            capture_output=True,
+            text=True,
         )
-        git_commit(machine_a, f"Create {task_id}")
-        git_push(machine_a)
 
-        # Machine B: Pull (fast-forward)
-        result = git_pull(machine_b)
-
-        # Verify fast-forward merge
-        assert "Fast-forward" in result.stdout or result.returncode == 0
-
+        assert result.returncode == 0
         store_b = TaskMemoryStore(base_path=machine_b)
-        assert store_b.exists(task_id)
+        content = store_b.read("task-100")
+        assert "Update 1" in content
+        assert "Update 2" in content
 
-    def test_three_way_merge(self, machine_a, machine_b):
-        """Test three-way merge with different files."""
-        store_a = TaskMemoryStore(base_path=machine_a)
+    def test_three_way_merge(self, tmp_path, bare_remote, git_repo):
+        """Test three-way merge with non-conflicting changes."""
+        # Setup with two tasks
+        store_a = TaskMemoryStore(base_path=git_repo)
+        store_a.create("task-100", task_title="Task 100")
+        store_a.create("task-101", task_title="Task 101")
+        git_commit_and_push(git_repo, "Initial tasks")
+
+        # Machine B clones
+        machine_b = clone_repo(bare_remote, tmp_path, "machine_b")
         store_b = TaskMemoryStore(base_path=machine_b)
-        manager_a = LifecycleManager(store=store_a)
-        manager_b = LifecycleManager(store=store_b)
 
-        # Machine A: Create task A
-        manager_a.on_state_change(
-            task_id="task-301",
-            old_state="To Do",
-            new_state="In Progress",
-            task_title="Task A",
+        # Machine A updates task-100
+        store_a.append("task-100", "A's note")
+        git_commit_and_push(git_repo, "A's update")
+
+        # Machine B updates task-101 (divergent history)
+        store_b.append("task-101", "B's note")
+        subprocess.run(
+            ["git", "add", "."], cwd=machine_b, check=True, capture_output=True
         )
-        git_commit(machine_a, "Create task-301")
-        git_push(machine_a)
-
-        # Machine B: Pull, then create task B
-        git_pull(machine_b)
-        manager_b.on_state_change(
-            task_id="task-302",
-            old_state="To Do",
-            new_state="In Progress",
-            task_title="Task B",
+        subprocess.run(
+            ["git", "commit", "-m", "B's update"],
+            cwd=machine_b,
+            check=True,
+            capture_output=True,
         )
-        git_commit(machine_b, "Create task-302")
 
-        # Machine A: Create task C
-        manager_a.on_state_change(
-            task_id="task-303",
-            old_state="To Do",
-            new_state="In Progress",
-            task_title="Task C",
+        # Machine B pulls with three-way merge
+        result = subprocess.run(
+            ["git", "pull", "--no-rebase"],
+            cwd=machine_b,
+            capture_output=True,
+            text=True,
         )
-        git_commit(machine_a, "Create task-303")
-        git_push(machine_a)
 
-        # Machine B: Pull (three-way merge)
-        result = git_pull(machine_b)
+        assert result.returncode == 0
 
-        # Should merge successfully (different files)
-        assert result.returncode == 0 or "Merge made" in result.stdout
+        # Both changes present
+        content_100 = store_b.read("task-100")
+        content_101 = store_b.read("task-101")
+        assert "A's note" in content_100
+        assert "B's note" in content_101
 
-        # Verify all tasks present
-        assert store_b.exists("task-301")
-        assert store_b.exists("task-302")
-        assert store_b.exists("task-303")
+
+# --- Test: Branch Sync ---
 
 
 class TestBranchSync:
-    """Tests for synchronization across git branches."""
+    """Tests for memory sync across branches."""
 
-    def test_feature_branch_memory(self, machine_a):
-        """Test task memory in feature branches."""
-        store_a = TaskMemoryStore(base_path=machine_a)
-        manager_a = LifecycleManager(store=store_a)
+    def test_feature_branch_memory(self, tmp_path, bare_remote, git_repo):
+        """Test memory changes on feature branch."""
+        store = TaskMemoryStore(base_path=git_repo)
 
         # Create feature branch
         subprocess.run(
-            ["git", "checkout", "-b", "feature/test"],
-            cwd=machine_a,
+            ["git", "checkout", "-b", "feature-123"],
+            cwd=git_repo,
             check=True,
             capture_output=True,
         )
 
-        # Create memory on feature branch
-        task_id = "task-400"
-        manager_a.on_state_change(
-            task_id=task_id,
-            old_state="To Do",
-            new_state="In Progress",
-            task_title="Feature Branch Task",
-        )
-        git_commit(machine_a, f"Create {task_id} on feature branch")
-
-        # Switch back to main
+        # Create memory on feature branch (just commit, don't push)
+        store.create("task-100", task_title="Feature Task")
         subprocess.run(
-            ["git", "checkout", "main"], cwd=machine_a, check=True, capture_output=True
+            ["git", "add", "."], cwd=git_repo, check=True, capture_output=True
         )
-
-        # Memory should not exist on main
-        assert not store_a.exists(task_id)
-
-        # Switch back to feature
         subprocess.run(
-            ["git", "checkout", "feature/test"],
-            cwd=machine_a,
+            ["git", "commit", "-m", "Add feature task"],
+            cwd=git_repo,
             check=True,
             capture_output=True,
         )
 
-        # Memory should exist on feature
-        assert store_a.exists(task_id)
-
-    def test_merge_feature_branch_memory(self, machine_a):
-        """Test merging feature branch with task memory."""
-        store_a = TaskMemoryStore(base_path=machine_a)
-        manager_a = LifecycleManager(store=store_a)
-
-        # Create and switch to feature branch
+        # Switch back to main - memory shouldn't exist
         subprocess.run(
-            ["git", "checkout", "-b", "feature/merge-test"],
-            cwd=machine_a,
+            ["git", "checkout", "main"],
+            cwd=git_repo,
             check=True,
             capture_output=True,
         )
 
-        # Create memory on feature
-        task_id = "task-401"
-        manager_a.on_state_change(
-            task_id=task_id,
-            old_state="To Do",
-            new_state="In Progress",
-            task_title="Merge Test",
-        )
-        store_a.append(task_id, "Work done on feature branch")
-        git_commit(machine_a, f"Create {task_id}")
+        assert not store.exists("task-100")
 
-        # Switch to main and merge
+        # Switch to feature - memory should exist
         subprocess.run(
-            ["git", "checkout", "main"], cwd=machine_a, check=True, capture_output=True
-        )
-        subprocess.run(
-            ["git", "merge", "feature/merge-test"],
-            cwd=machine_a,
+            ["git", "checkout", "feature-123"],
+            cwd=git_repo,
             check=True,
             capture_output=True,
         )
 
-        # Verify memory merged to main
-        assert store_a.exists(task_id)
-        content = store_a.read(task_id)
-        assert "Work done on feature branch" in content
+        assert store.exists("task-100")
+
+    def test_merge_feature_branch_memory(self, tmp_path, bare_remote, git_repo):
+        """Test memory persists after merging feature branch."""
+        store = TaskMemoryStore(base_path=git_repo)
+
+        # Create feature branch with memory
+        subprocess.run(
+            ["git", "checkout", "-b", "feature-123"],
+            cwd=git_repo,
+            check=True,
+            capture_output=True,
+        )
+        store.create("task-100", task_title="Feature Task")
+        subprocess.run(
+            ["git", "add", "."], cwd=git_repo, check=True, capture_output=True
+        )
+        subprocess.run(
+            ["git", "commit", "-m", "Add feature task"],
+            cwd=git_repo,
+            check=True,
+            capture_output=True,
+        )
+
+        # Merge to main
+        subprocess.run(
+            ["git", "checkout", "main"],
+            cwd=git_repo,
+            check=True,
+            capture_output=True,
+        )
+        subprocess.run(
+            ["git", "merge", "feature-123"],
+            cwd=git_repo,
+            check=True,
+            capture_output=True,
+        )
+
+        # Memory should exist on main after merge
+        assert store.exists("task-100")
+
+
+# --- Test: Sync Performance ---
 
 
 class TestSyncPerformance:
     """Tests for sync performance with many memories."""
 
-    def test_sync_multiple_memories(self, machine_a, machine_b):
-        """Test syncing many task memories efficiently."""
-        store_a = TaskMemoryStore(base_path=machine_a)
-        manager_a = LifecycleManager(store=store_a)
+    def test_sync_multiple_memories(self, tmp_path, bare_remote, git_repo):
+        """Test syncing multiple memory files at once."""
+        store_a = TaskMemoryStore(base_path=git_repo)
 
-        # Create 20 memories on Machine A
-        task_ids = [f"task-{500 + i}" for i in range(20)]
+        # Create multiple memories
+        for i in range(10):
+            store_a.create(f"task-{100 + i}", task_title=f"Task {100 + i}")
 
-        for task_id in task_ids:
-            manager_a.on_state_change(
-                task_id=task_id,
-                old_state="To Do",
-                new_state="In Progress",
-                task_title=f"Task {task_id}",
-            )
-            store_a.append(task_id, f"Content for {task_id}")
+        git_commit_and_push(git_repo, "Add 10 tasks")
 
-        # Commit all at once
-        git_commit(machine_a, "Create 20 task memories")
-        git_push(machine_a)
-
-        # Machine B: Pull all
-        import time
-
-        start = time.time()
-        git_pull(machine_b)
-        duration = time.time() - start
-
-        # Verify all synced
+        # Machine B clones and gets all
+        machine_b = clone_repo(bare_remote, tmp_path, "machine_b")
         store_b = TaskMemoryStore(base_path=machine_b)
-        for task_id in task_ids:
-            assert store_b.exists(task_id), f"{task_id} should be synced"
 
-        # Performance check (should be fast)
-        assert duration < 5.0, "Sync should complete in under 5 seconds"
+        active = store_b.list_active()
+        assert len(active) == 10
 
-    def test_incremental_sync(self, machine_a, machine_b):
-        """Test incremental sync (only changed files)."""
-        store_a = TaskMemoryStore(base_path=machine_a)
-        manager_a = LifecycleManager(store=store_a)
+    def test_incremental_sync(self, tmp_path, bare_remote, git_repo):
+        """Test incremental sync only transfers changes."""
+        store_a = TaskMemoryStore(base_path=git_repo)
 
-        # Initial sync: Create 5 memories
+        # Initial batch
         for i in range(5):
-            task_id = f"task-{600 + i}"
-            manager_a.on_state_change(
-                task_id=task_id,
-                old_state="To Do",
-                new_state="In Progress",
-                task_title=f"Initial {i}",
-            )
+            store_a.create(f"task-{100 + i}", task_title=f"Task {100 + i}")
+        git_commit_and_push(git_repo, "Initial 5 tasks")
 
-        git_commit(machine_a, "Initial 5 memories")
-        git_push(machine_a)
-        git_pull(machine_b)
-
-        # Incremental: Update only one memory
-        store_a.append("task-600", "Incremental update")
-        git_commit(machine_a, "Update one memory")
-        git_push(machine_a)
-
-        # Machine B: Pull (should be fast, only one file changed)
-        result = git_pull(machine_b)
-        assert result.returncode == 0
-
+        # Machine B clones
+        machine_b = clone_repo(bare_remote, tmp_path, "machine_b")
         store_b = TaskMemoryStore(base_path=machine_b)
-        content = store_b.read("task-600")
-        assert "Incremental update" in content
+        assert len(store_b.list_active()) == 5
+
+        # Machine A adds more
+        for i in range(5, 10):
+            store_a.create(f"task-{100 + i}", task_title=f"Task {100 + i}")
+        git_commit_and_push(git_repo, "Add 5 more tasks")
+
+        # Machine B pulls incrementally
+        git_pull(machine_b)
+        assert len(store_b.list_active()) == 10
+
+
+# --- Test: Edge Cases ---
 
 
 class TestSyncEdgeCases:
-    """Tests for edge cases in synchronization."""
+    """Tests for edge cases in sync scenarios."""
 
-    def test_sync_empty_memory_directory(self, machine_a, machine_b):
+    def test_sync_empty_memory_directory(self, tmp_path, bare_remote, git_repo):
         """Test syncing when memory directory is empty."""
-        # Machine B already has structure from fixture
-        # Pull should succeed even with no memories
-        result = git_pull(machine_b)
-        assert result.returncode == 0
+        store_a = TaskMemoryStore(base_path=git_repo)
 
-    def test_sync_after_delete(self, machine_a, machine_b):
-        """Test syncing after deleting memories."""
-        store_a = TaskMemoryStore(base_path=machine_a)
-        manager_a = LifecycleManager(store=store_a)
+        # Ensure directory exists but is empty
+        assert store_a.memory_dir.exists()
+        assert len(store_a.list_active()) == 0
 
-        task_id = "task-700"
-
-        # Create and sync
-        manager_a.on_state_change(
-            task_id=task_id,
-            old_state="To Do",
-            new_state="In Progress",
-            task_title="Delete Test",
-        )
-        git_commit(machine_a, f"Create {task_id}")
-        git_push(machine_a)
-        git_pull(machine_b)
-
-        # Verify on Machine B
+        # Machine B clones empty state
+        machine_b = clone_repo(bare_remote, tmp_path, "machine_b")
         store_b = TaskMemoryStore(base_path=machine_b)
-        assert store_b.exists(task_id)
 
-        # Machine A: Reset (delete memory)
-        manager_a.on_state_change(
-            task_id=task_id,
-            old_state="In Progress",
-            new_state="To Do",
-            task_title="Delete Test",
-        )
-        git_commit(machine_a, f"Delete {task_id}")
-        git_push(machine_a)
+        assert len(store_b.list_active()) == 0
 
-        # Machine B: Pull and verify deletion
-        git_pull(machine_b)
-        assert not store_b.exists(task_id)
+    def test_sync_after_delete(self, tmp_path, bare_remote, git_repo):
+        """Test syncing deletions between machines."""
+        store_a = TaskMemoryStore(base_path=git_repo)
 
-    def test_sync_with_gitignore(self, machine_a, machine_b):
-        """Test that memory files are not ignored by .gitignore."""
-        # Add .gitignore
-        gitignore = machine_a / ".gitignore"
-        gitignore.write_text("*.log\n__pycache__/\n")
-        git_commit(machine_a, "Add .gitignore")
-        git_push(machine_a)
+        # Create then delete
+        store_a.create("task-100", task_title="To Delete")
+        git_commit_and_push(git_repo, "Add task")
 
-        # Create memory (should not be ignored)
-        store_a = TaskMemoryStore(base_path=machine_a)
-        manager_a = LifecycleManager(store=store_a)
-
-        task_id = "task-701"
-        manager_a.on_state_change(
-            task_id=task_id,
-            old_state="To Do",
-            new_state="In Progress",
-            task_title="Gitignore Test",
-        )
-        git_commit(machine_a, f"Create {task_id}")
-        git_push(machine_a)
-
-        # Pull and verify
-        git_pull(machine_b)
+        # Machine B clones
+        machine_b = clone_repo(bare_remote, tmp_path, "machine_b")
         store_b = TaskMemoryStore(base_path=machine_b)
-        assert store_b.exists(task_id), "Memory should not be ignored"
+        assert store_b.exists("task-100")
+
+        # Machine A deletes
+        store_a.delete("task-100")
+        git_commit_and_push(git_repo, "Delete task")
+
+        # Machine B pulls - deletion should sync
+        git_pull(machine_b)
+        assert not store_b.exists("task-100")
+
+    def test_sync_with_gitignore(self, tmp_path, bare_remote, git_repo):
+        """Test that gitignored files don't sync."""
+        store_a = TaskMemoryStore(base_path=git_repo)
+
+        # Add gitignore for specific task
+        gitignore = git_repo / "backlog" / "memory" / ".gitignore"
+        gitignore.write_text("task-ignored.md\n")
+
+        store_a.create("task-100", task_title="Tracked Task")
+
+        # Create ignored file manually
+        ignored_file = store_a.memory_dir / "task-ignored.md"
+        ignored_file.write_text("# Ignored task memory")
+
+        git_commit_and_push(git_repo, "Add tracked task and gitignore")
+
+        # Machine B clones - should only see tracked task
+        machine_b = clone_repo(bare_remote, tmp_path, "machine_b")
+        store_b = TaskMemoryStore(base_path=machine_b)
+
+        assert store_b.exists("task-100")
+        assert not (store_b.memory_dir / "task-ignored.md").exists()

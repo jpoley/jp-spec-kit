@@ -60,7 +60,7 @@ def e2e_project(tmp_path):
 """
     (template_dir / "default.md").write_text(template_content)
 
-    # Create CLAUDE.md
+    # Create CLAUDE.md in .claude directory
     claude_md = claude_dir / "CLAUDE.md"
     claude_md.write_text("""# Project Instructions
 
@@ -69,6 +69,17 @@ This is a test project.
 ## Task Memory
 
 @import backlog/memory/active-tasks.md
+""")
+
+    # Create backlog/CLAUDE.md for ContextInjector
+    backlog_claude_md = backlog_dir / "CLAUDE.md"
+    backlog_claude_md.write_text("""# Backlog Task Management
+
+This is a test project for context injection.
+
+## Task Memory
+
+Task memory files are stored in `backlog/memory/`.
 """)
 
     return tmp_path
@@ -360,9 +371,6 @@ class TestTaskMemoryLifecycleE2E:
             assert entry in restored_content, f"Entry should be restored: {entry}"
 
 
-@pytest.mark.skip(
-    reason="Tests use inject_active_tasks() method that doesn't exist in ContextInjector"
-)
 class TestCLAUDEMDIntegrationE2E:
     """E2E tests for CLAUDE.md @import integration."""
 
@@ -371,9 +379,9 @@ class TestCLAUDEMDIntegrationE2E:
     ):
         """Test that CLAUDE.md @import is updated when tasks change state."""
         task_id = "task-300"
-        claude_md = e2e_project / ".claude" / "CLAUDE.md"
+        backlog_claude_md = e2e_project / "backlog" / "CLAUDE.md"
 
-        # Start task
+        # Start task (this creates memory and updates CLAUDE.md via lifecycle manager)
         lifecycle_manager.on_state_change(
             task_id=task_id,
             old_state="To Do",
@@ -381,32 +389,36 @@ class TestCLAUDEMDIntegrationE2E:
             task_title="Test Import",
         )
 
-        # Inject context
-        context_injector.inject_active_tasks()
-
-        # Verify CLAUDE.md updated
-        content = claude_md.read_text()
-        assert "@import" in content or "Task Memory" in content
+        # Verify CLAUDE.md was updated with @import
+        # LifecycleManager uses format: @import memory/{task_id}.md
+        content = backlog_claude_md.read_text()
+        assert f"@import memory/{task_id}.md" in content
 
     def test_claude_md_preserves_existing_content(
         self, lifecycle_manager, context_injector, e2e_project
     ):
         """Test that CLAUDE.md preserves existing content when updating imports."""
         task_id = "task-301"
-        claude_md = e2e_project / ".claude" / "CLAUDE.md"
+        backlog_claude_md = e2e_project / "backlog" / "CLAUDE.md"
 
-        # Start task and inject
+        # Get original content
+        original_content = backlog_claude_md.read_text()
+        assert "Backlog Task Management" in original_content
+
+        # Start task
         lifecycle_manager.on_state_change(
             task_id=task_id,
             old_state="To Do",
             new_state="In Progress",
             task_title="Test Preservation",
         )
-        context_injector.inject_active_tasks()
 
         # Verify original content preserved
-        updated_content = claude_md.read_text()
-        assert "This is a test project" in updated_content
+        updated_content = backlog_claude_md.read_text()
+        assert "Backlog Task Management" in updated_content
+        assert "test project for context injection" in updated_content
+        # Also verify @import was added
+        assert f"@import memory/{task_id}.md" in updated_content
 
 
 class TestErrorRecoveryE2E:

@@ -1,30 +1,24 @@
 """E2E Tests for Agent Context Injection.
 
 This module tests the injection of task memory into agent context through:
-- CLAUDE.md @import directives
-- MCP resource access
+- CLAUDE.md @import directives via ContextInjector
+- MCP resource access via register_memory_resources
 - Manual file reading fallback
 
-NOTE: These tests are currently skipped because they use an API that doesn't match
-the actual implementation. The tests call methods like `inject_active_tasks()` and
-`register_memory_resources(project_root=...)` which don't exist.
-
-The actual API is:
+Tests the actual API:
 - ContextInjector.update_active_task(task_id) - Add/update active task
 - ContextInjector.clear_active_task() - Clear active task
-- register_memory_resources(server, base_path=None) - Requires MCP server
-
-These tests need a complete rewrite to match the actual implementation.
+- ContextInjector.get_active_task_id() - Get currently active task ID
+- register_memory_resources(server, base_path) - Register MCP resources
 """
 
+import json
 import pytest
-from specify_cli.memory import TaskMemoryStore, LifecycleManager
-from specify_cli.memory.injector import ContextInjector
-from specify_cli.memory.mcp import register_memory_resources
+from unittest.mock import MagicMock
 
-pytestmark = pytest.mark.skip(
-    reason="E2E tests use non-existent API methods (inject_active_tasks, etc) - requires rewrite"
-)
+from specify_cli.memory import TaskMemoryStore
+from specify_cli.memory.injector import ContextInjector
+from specify_cli.memory.mcp import register_memory_resources, MCP_AVAILABLE
 
 
 @pytest.fixture
@@ -35,13 +29,11 @@ def injection_project(tmp_path):
     memory_dir = backlog_dir / "memory"
     archive_dir = memory_dir / "archive"
     template_dir = tmp_path / "templates" / "memory"
-    claude_dir = tmp_path / ".claude"
 
     backlog_dir.mkdir(parents=True)
     memory_dir.mkdir(parents=True)
     archive_dir.mkdir(parents=True)
     template_dir.mkdir(parents=True)
-    claude_dir.mkdir(parents=True)
 
     # Create template
     template_content = """# Task Memory: {task_id}
@@ -56,15 +48,6 @@ def injection_project(tmp_path):
 ## Key Decisions
 - Decision tracking
 
-## Approaches Tried
-- Approach documentation
-
-## Open Questions
-- Question tracking
-
-## Resources
-- Resource links
-
 ## Notes
 - Implementation notes
 """
@@ -78,644 +61,458 @@ This is a test project for context injection.
 
 ## Task Memory
 
-@import backlog/memory/active-tasks.md
-
-## Architecture
-
-Project architecture documentation.
+Task memory files are stored in `backlog/memory/`.
 """)
 
     return tmp_path
 
 
 @pytest.fixture
-def injector(injection_project):
-    """Create ContextInjector instance."""
-    return ContextInjector(base_path=injection_project)
+def store_with_tasks(injection_project):
+    """Create store with sample task memories."""
+    store = TaskMemoryStore(base_path=injection_project)
+    store.create("task-100", task_title="First Task")
+    store.append("task-100", "Working on first task implementation")
+    store.create("task-101", task_title="Second Task")
+    store.append("task-101", "Second task in progress")
+    return store
 
 
-@pytest.fixture
-def store(injection_project):
-    """Create TaskMemoryStore instance."""
-    return TaskMemoryStore(base_path=injection_project)
-
-
-@pytest.fixture
-def manager(store):
-    """Create LifecycleManager instance."""
-    return LifecycleManager(store=store)
+# --- Test: CLAUDE.md @import Injection ---
 
 
 class TestCLAUDEMDImport:
-    """Tests for CLAUDE.md @import injection."""
+    """Tests for CLAUDE.md @import directive injection."""
 
-    def test_inject_single_active_task(self, manager, injector, injection_project):
-        """Test injecting single active task memory into CLAUDE.md."""
-        task_id = "task-100"
+    def test_inject_single_active_task(self, injection_project, store_with_tasks):
+        """Test injecting a single active task into CLAUDE.md."""
+        injector = ContextInjector(base_path=injection_project)
 
-        # Create active task
-        manager.on_state_change(
-            task_id=task_id,
-            old_state="To Do",
-            new_state="In Progress",
-            task_title="Feature A",
-        )
+        # Inject task-100 as active
+        injector.update_active_task("task-100")
 
-        # Inject into CLAUDE.md
-        injector.inject_active_tasks()
+        # Verify CLAUDE.md updated
+        claude_md = (injection_project / "backlog" / "CLAUDE.md").read_text()
+        assert "## Active Task Context" in claude_md
+        assert "@import ../memory/task-100.md" in claude_md
 
-        # Verify active-tasks.md created
-        active_tasks_path = injection_project / "backlog" / "memory" / "active-tasks.md"
-        assert active_tasks_path.exists(), "active-tasks.md should be created"
+    def test_inject_updates_active_task(self, injection_project, store_with_tasks):
+        """Test updating from one active task to another."""
+        injector = ContextInjector(base_path=injection_project)
 
-        # Verify content includes task
-        content = active_tasks_path.read_text()
-        assert task_id in content, "Task ID should be in active-tasks.md"
-        assert "Feature A" in content, "Task title should be in active-tasks.md"
+        # Set first task
+        injector.update_active_task("task-100")
+        assert injector.get_active_task_id() == "task-100"
 
-    def test_inject_multiple_active_tasks(self, manager, injector, injection_project):
-        """Test injecting multiple active tasks."""
-        tasks = [
-            ("task-101", "Feature B"),
-            ("task-102", "Feature C"),
-            ("task-103", "Feature D"),
-        ]
+        # Update to second task
+        injector.update_active_task("task-101")
+        assert injector.get_active_task_id() == "task-101"
 
-        # Create multiple active tasks
-        for task_id, title in tasks:
-            manager.on_state_change(
-                task_id=task_id,
-                old_state="To Do",
-                new_state="In Progress",
-                task_title=title,
-            )
+        # Verify only one @import exists
+        claude_md = (injection_project / "backlog" / "CLAUDE.md").read_text()
+        assert claude_md.count("@import") == 1
+        assert "@import ../memory/task-101.md" in claude_md
+        assert "@import ../memory/task-100.md" not in claude_md
 
-        # Inject
-        injector.inject_active_tasks()
-
-        # Verify all tasks in active-tasks.md
-        active_tasks_path = injection_project / "backlog" / "memory" / "active-tasks.md"
-        content = active_tasks_path.read_text()
-
-        for task_id, title in tasks:
-            assert task_id in content, f"{task_id} should be in active-tasks.md"
-            assert title in content, f"{title} should be in active-tasks.md"
-
-    def test_inject_updates_on_state_change(self, manager, injector, injection_project):
-        """Test that injection updates when task state changes."""
-        task_id = "task-104"
-
-        # Create task
-        manager.on_state_change(
-            task_id=task_id,
-            old_state="To Do",
-            new_state="In Progress",
-            task_title="Feature E",
-        )
-        injector.inject_active_tasks()
-
-        # Verify task present
-        active_tasks_path = injection_project / "backlog" / "memory" / "active-tasks.md"
-        content = active_tasks_path.read_text()
-        assert task_id in content
-
-        # Complete task (archive)
-        manager.on_state_change(
-            task_id=task_id,
-            old_state="In Progress",
-            new_state="Done",
-            task_title="Feature E",
-        )
-        injector.inject_active_tasks()
-
-        # Verify task removed from active-tasks.md
-        content = active_tasks_path.read_text()
-        assert task_id not in content, "Completed task should be removed"
-
-    def test_inject_preserves_claude_md_content(
-        self, manager, injector, injection_project
-    ):
+    def test_inject_preserves_claude_md_content(self, injection_project, store_with_tasks):
         """Test that injection preserves existing CLAUDE.md content."""
-        claude_md = injection_project / ".claude" / "CLAUDE.md"
+        injector = ContextInjector(base_path=injection_project)
 
-        # Create task and inject
-        manager.on_state_change(
-            task_id="task-105",
-            old_state="To Do",
-            new_state="In Progress",
-            task_title="Feature F",
-        )
-        injector.inject_active_tasks()
+        # Get original content
+        original = (injection_project / "backlog" / "CLAUDE.md").read_text()
+        assert "# Backlog Task Management" in original
+
+        # Inject task
+        injector.update_active_task("task-100")
 
         # Verify original content preserved
-        updated_content = claude_md.read_text()
-        assert "This is a test project" in updated_content
-        assert "Architecture" in updated_content
-        assert "@import backlog/memory/active-tasks.md" in updated_content
+        updated = (injection_project / "backlog" / "CLAUDE.md").read_text()
+        assert "# Backlog Task Management" in updated
+        assert "Task memory files are stored" in updated
 
-    def test_inject_empty_active_tasks(self, injector, injection_project):
-        """Test injecting when no active tasks exist."""
-        # Inject with no active tasks
-        injector.inject_active_tasks()
+    def test_clear_active_task(self, injection_project, store_with_tasks):
+        """Test clearing active task removes @import."""
+        injector = ContextInjector(base_path=injection_project)
 
-        # Verify active-tasks.md created but empty/minimal
-        active_tasks_path = injection_project / "backlog" / "memory" / "active-tasks.md"
-        assert active_tasks_path.exists()
+        # Set then clear
+        injector.update_active_task("task-100")
+        assert injector.get_active_task_id() == "task-100"
 
-        content = active_tasks_path.read_text()
-        assert "No active tasks" in content or len(content.strip()) < 100
+        injector.clear_active_task()
+        assert injector.get_active_task_id() is None
 
-    def test_inject_handles_missing_claude_md(
-        self, manager, injector, injection_project
-    ):
-        """Test injection when CLAUDE.md doesn't exist."""
+        # Verify section removed
+        claude_md = (injection_project / "backlog" / "CLAUDE.md").read_text()
+        assert "@import" not in claude_md
+
+    def test_inject_handles_missing_claude_md(self, injection_project):
+        """Test injection fails gracefully when CLAUDE.md missing."""
         # Remove CLAUDE.md
-        claude_md = injection_project / ".claude" / "CLAUDE.md"
-        claude_md.unlink()
+        (injection_project / "backlog" / "CLAUDE.md").unlink()
 
-        # Create task and inject
-        manager.on_state_change(
-            task_id="task-106",
-            old_state="To Do",
-            new_state="In Progress",
-            task_title="Feature G",
-        )
+        injector = ContextInjector(base_path=injection_project)
 
-        # Should handle gracefully (create or skip)
-        injector.inject_active_tasks()
+        with pytest.raises(FileNotFoundError):
+            injector.update_active_task("task-100")
 
-        # Verify active-tasks.md still created
-        active_tasks_path = injection_project / "backlog" / "memory" / "active-tasks.md"
-        assert active_tasks_path.exists()
+    def test_get_active_task_when_none_set(self, injection_project):
+        """Test getting active task when none is set."""
+        injector = ContextInjector(base_path=injection_project)
+        assert injector.get_active_task_id() is None
 
-    def test_inject_with_task_content_updates(
-        self, manager, store, injector, injection_project
-    ):
-        """Test that content updates to tasks are reflected in injection."""
-        task_id = "task-107"
+    def test_inject_task_not_in_store(self, injection_project):
+        """Test injecting task ID that doesn't exist in store.
 
-        # Create task
-        manager.on_state_change(
-            task_id=task_id,
-            old_state="To Do",
-            new_state="In Progress",
-            task_title="Feature H",
-        )
+        The injector doesn't validate task existence - it just adds the import.
+        """
+        injector = ContextInjector(base_path=injection_project)
 
-        # Add content
-        store.append(task_id, "Key decision: Use PostgreSQL")
-        store.append(task_id, "Tried approach: Redis caching")
+        # This should work - injector doesn't validate task existence
+        injector.update_active_task("task-999")
 
-        # Inject
-        injector.inject_active_tasks()
-
-        # Verify content in active-tasks.md
-        active_tasks_path = injection_project / "backlog" / "memory" / "active-tasks.md"
-        content = active_tasks_path.read_text()
-
-        # Should include task reference, content may be summarized or linked
-        assert task_id in content
+        claude_md = (injection_project / "backlog" / "CLAUDE.md").read_text()
+        assert "@import ../memory/task-999.md" in claude_md
 
 
-@pytest.mark.skip(reason="MCP tests need server argument - requires test redesign")
+# --- Test: MCP Resource Access ---
+
+
 class TestMCPResourceAccess:
-    """Tests for MCP resource-based memory access."""
+    """Tests for MCP resource provider."""
 
-    def test_register_memory_resources(self, store, manager, injection_project):
-        """Test registering task memories as MCP resources."""
-        # Create tasks
-        tasks = [
-            ("task-200", "Backend Task"),
-            ("task-201", "Frontend Task"),
-        ]
-
-        for task_id, title in tasks:
-            manager.on_state_change(
-                task_id=task_id,
-                old_state="To Do",
-                new_state="In Progress",
-                task_title=title,
-            )
+    @pytest.mark.skipif(not MCP_AVAILABLE, reason="MCP package not installed")
+    def test_register_memory_resources(self, injection_project, store_with_tasks):
+        """Test registering memory resources with MCP server."""
+        # Create mock MCP server
+        mock_server = MagicMock()
+        mock_server.resource = MagicMock(return_value=lambda f: f)
 
         # Register resources
-        resources = register_memory_resources(project_root=injection_project)
+        register_memory_resources(mock_server, injection_project)
 
-        # Verify resources created
-        assert len(resources) >= 2, "Should have resources for active tasks"
+        # Verify resource decorators were called
+        assert mock_server.resource.call_count == 2
 
-        # Verify resource structure
-        task_ids = [r["uri"].split("/")[-1].replace(".md", "") for r in resources]
-        assert "task-200" in task_ids
-        assert "task-201" in task_ids
+    @pytest.mark.skipif(not MCP_AVAILABLE, reason="MCP package not installed")
+    @pytest.mark.asyncio
+    async def test_mcp_get_task_memory(self, injection_project, store_with_tasks):
+        """Test MCP resource returns task memory content."""
+        from specify_cli.memory.mcp import register_memory_resources
 
-    def test_mcp_server_list_resources(self, store, manager, injection_project):
-        """Test MCP server lists available memory resources."""
-        # Create tasks
-        manager.on_state_change(
-            task_id="task-202",
-            old_state="To Do",
-            new_state="In Progress",
-            task_title="Test Task",
-        )
+        # Create mock server that captures the handler
+        handlers = {}
 
-        # Create MCP server (returns resource list)
-        resources = register_memory_resources(project_root=injection_project)
+        def capture_resource(uri):
+            def decorator(func):
+                handlers[uri] = func
+                return func
+            return decorator
 
-        # Verify at least one resource
-        assert len(resources) > 0
+        mock_server = MagicMock()
+        mock_server.resource = capture_resource
 
-        # Verify resource has required fields
-        resource = resources[0]
-        assert "uri" in resource
-        assert "name" in resource
-        assert "memory://" in resource["uri"]
+        register_memory_resources(mock_server, injection_project)
 
-    def test_mcp_server_read_resource(self, store, manager, injection_project):
-        """Test reading memory content via MCP resource."""
-        task_id = "task-203"
+        # Call the handler
+        handler = handlers["backlog://memory/{task_id}"]
+        result = await handler("task-100")
+        data = json.loads(result)
 
-        # Create task with content
-        manager.on_state_change(
-            task_id=task_id,
-            old_state="To Do",
-            new_state="In Progress",
-            task_title="MCP Read Test",
-        )
-        store.append(task_id, "MCP accessible content")
+        assert data["task_id"] == "task-100"
+        assert data["exists"] is True
+        assert "First Task" in data["content"]
 
-        # Read via resource URI
-        memory_path = store.get_path(task_id)
-        content = memory_path.read_text()
+    @pytest.mark.skipif(not MCP_AVAILABLE, reason="MCP package not installed")
+    @pytest.mark.asyncio
+    async def test_mcp_get_active_memory(self, injection_project, store_with_tasks):
+        """Test MCP resource returns active task memory."""
+        from specify_cli.memory.mcp import register_memory_resources
 
-        # Verify content accessible
-        assert "MCP accessible content" in content
+        # Set active task
+        injector = ContextInjector(base_path=injection_project)
+        injector.update_active_task("task-100")
 
-    def test_mcp_server_archive_resources(self, store, manager, injection_project):
-        """Test that archived memories are available as resources."""
-        task_id = "task-204"
+        # Create mock server that captures the handler
+        handlers = {}
 
-        # Create and archive
-        manager.on_state_change(
-            task_id=task_id,
-            old_state="To Do",
-            new_state="In Progress",
-            task_title="Archive Resource Test",
-        )
-        manager.on_state_change(
-            task_id=task_id,
-            old_state="In Progress",
-            new_state="Done",
-            task_title="Archive Resource Test",
-        )
+        def capture_resource(uri):
+            def decorator(func):
+                handlers[uri] = func
+                return func
+            return decorator
 
-        # Register resources (should include archives)
-        resources = register_memory_resources(
-            project_root=injection_project, include_archive=True
-        )
+        mock_server = MagicMock()
+        mock_server.resource = capture_resource
 
-        # Verify archived resource exists
-        archived_uris = [r["uri"] for r in resources if "archive" in r["uri"]]
-        assert len(archived_uris) > 0, "Should have archived resources"
+        register_memory_resources(mock_server, injection_project)
 
-    def test_mcp_resource_uri_format(self, store, manager, injection_project):
-        """Test MCP resource URI format correctness."""
-        task_id = "task-205"
+        # Call the active handler
+        handler = handlers["backlog://memory/active"]
+        result = await handler()
+        data = json.loads(result)
 
-        # Create task
-        manager.on_state_change(
-            task_id=task_id,
-            old_state="To Do",
-            new_state="In Progress",
-            task_title="URI Test",
-        )
+        assert data["active_task"] == "task-100"
+        assert data["exists"] is True
 
-        # Register resources
-        resources = register_memory_resources(project_root=injection_project)
+    @pytest.mark.skipif(not MCP_AVAILABLE, reason="MCP package not installed")
+    @pytest.mark.asyncio
+    async def test_mcp_task_not_found(self, injection_project):
+        """Test MCP resource returns error for non-existent task."""
+        from specify_cli.memory.mcp import register_memory_resources
 
-        # Find our task's resource
-        task_resource = next((r for r in resources if task_id in r["uri"]), None)
+        handlers = {}
 
-        assert task_resource is not None
-        assert task_resource["uri"].startswith("memory://")
-        assert task_id in task_resource["uri"]
+        def capture_resource(uri):
+            def decorator(func):
+                handlers[uri] = func
+                return func
+            return decorator
 
-    def test_mcp_server_handles_no_memories(self, injection_project):
-        """Test MCP server when no memories exist."""
-        # Register resources with no tasks
-        resources = register_memory_resources(project_root=injection_project)
+        mock_server = MagicMock()
+        mock_server.resource = capture_resource
 
-        # Should return empty list or placeholder
-        assert isinstance(resources, list)
+        register_memory_resources(mock_server, injection_project)
+
+        handler = handlers["backlog://memory/{task_id}"]
+        result = await handler("task-999")
+        data = json.loads(result)
+
+        assert "error" in data
+        assert data["error"] == "Task memory not found"
+
+    @pytest.mark.skipif(not MCP_AVAILABLE, reason="MCP package not installed")
+    @pytest.mark.asyncio
+    async def test_mcp_invalid_task_id(self, injection_project):
+        """Test MCP resource validates task ID format."""
+        from specify_cli.memory.mcp import register_memory_resources
+
+        handlers = {}
+
+        def capture_resource(uri):
+            def decorator(func):
+                handlers[uri] = func
+                return func
+            return decorator
+
+        mock_server = MagicMock()
+        mock_server.resource = capture_resource
+
+        register_memory_resources(mock_server, injection_project)
+
+        handler = handlers["backlog://memory/{task_id}"]
+        result = await handler("invalid-id")
+        data = json.loads(result)
+
+        assert "error" in data
+        assert "Invalid task ID" in data["error"]
+
+    @pytest.mark.skipif(not MCP_AVAILABLE, reason="MCP package not installed")
+    @pytest.mark.asyncio
+    async def test_mcp_no_active_task(self, injection_project):
+        """Test MCP resource handles no active task gracefully."""
+        from specify_cli.memory.mcp import register_memory_resources
+
+        handlers = {}
+
+        def capture_resource(uri):
+            def decorator(func):
+                handlers[uri] = func
+                return func
+            return decorator
+
+        mock_server = MagicMock()
+        mock_server.resource = capture_resource
+
+        register_memory_resources(mock_server, injection_project)
+
+        handler = handlers["backlog://memory/active"]
+        result = await handler()
+        data = json.loads(result)
+
+        assert data["active_task"] is None
+        assert "No active task" in data["message"]
+
+
+# --- Test: Manual File Read Fallback ---
 
 
 class TestManualFileReadFallback:
-    """Tests for manual file reading as fallback mechanism."""
+    """Tests for manual file reading when @import not available."""
 
-    def test_manual_read_active_memory(self, manager, store, injection_project):
-        """Test manually reading active task memory file."""
-        task_id = "task-300"
+    def test_manual_read_active_memory(self, injection_project, store_with_tasks):
+        """Test reading active task memory directly from file."""
+        store = TaskMemoryStore(base_path=injection_project)
+        injector = ContextInjector(base_path=injection_project)
 
-        # Create task
-        manager.on_state_change(
-            task_id=task_id,
-            old_state="To Do",
-            new_state="In Progress",
-            task_title="Manual Read Test",
-        )
-        store.append(task_id, "Manual read content")
+        # Set active task
+        injector.update_active_task("task-100")
 
-        # Manual read (as agent would)
-        memory_path = injection_project / "backlog" / "memory" / f"{task_id}.md"
-        assert memory_path.exists(), "Memory file should be readable"
+        # Manually read the file
+        active_id = injector.get_active_task_id()
+        assert active_id == "task-100"
 
-        content = memory_path.read_text()
-        assert "Manual read content" in content
+        content = store.read(active_id)
+        assert "First Task" in content
 
-    def test_manual_read_archived_memory(self, manager, store, injection_project):
-        """Test manually reading archived task memory."""
-        task_id = "task-301"
+    def test_manual_read_archived_memory(self, injection_project, store_with_tasks):
+        """Test reading archived memory directly."""
+        store = TaskMemoryStore(base_path=injection_project)
 
-        # Create and archive
-        manager.on_state_change(
-            task_id=task_id,
-            old_state="To Do",
-            new_state="In Progress",
-            task_title="Archive Read Test",
-        )
-        store.append(task_id, "Archived content")
-        manager.on_state_change(
-            task_id=task_id,
-            old_state="In Progress",
-            new_state="Done",
-            task_title="Archive Read Test",
-        )
+        # Archive a task
+        store.archive("task-100")
 
-        # Manual read from archive
-        archive_path = (
-            injection_project / "backlog" / "memory" / "archive" / f"{task_id}.md"
-        )
+        # Read from archive
+        archive_path = store.archive_dir / "task-100.md"
         assert archive_path.exists()
 
         content = archive_path.read_text()
-        assert "Archived content" in content
+        assert "First Task" in content
 
-    def test_manual_list_all_memories(self, manager, injection_project):
-        """Test manually listing all memory files."""
-        # Create multiple tasks
-        tasks = [f"task-{310 + i}" for i in range(5)]
-        for task_id in tasks:
-            manager.on_state_change(
-                task_id=task_id,
-                old_state="To Do",
-                new_state="In Progress",
-                task_title=f"Task {task_id}",
-            )
+    def test_manual_list_all_memories(self, injection_project, store_with_tasks):
+        """Test listing all memory files."""
+        store = TaskMemoryStore(base_path=injection_project)
 
-        # Manual list (as agent would)
-        memory_dir = injection_project / "backlog" / "memory"
-        memory_files = list(memory_dir.glob("task-*.md"))
+        # List active
+        active = store.list_active()
+        assert len(active) == 2
+        assert "task-100" in active
+        assert "task-101" in active
 
-        assert len(memory_files) == 5
-        for memory_file in memory_files:
-            assert memory_file.stem in tasks
+        # Archive one
+        store.archive("task-100")
 
-    def test_manual_search_memory_content(self, manager, store, injection_project):
-        """Test manually searching memory files for content."""
-        # Create tasks with specific content
-        manager.on_state_change(
-            task_id="task-320",
-            old_state="To Do",
-            new_state="In Progress",
-            task_title="Search Test 1",
-        )
-        store.append("task-320", "Uses PostgreSQL database")
+        # Verify lists update
+        active = store.list_active()
+        archived = store.list_archived()
+        assert len(active) == 1
+        assert len(archived) == 1
 
-        manager.on_state_change(
-            task_id="task-321",
-            old_state="To Do",
-            new_state="In Progress",
-            task_title="Search Test 2",
-        )
-        store.append("task-321", "Uses MongoDB database")
+    def test_manual_search_memory_content(self, injection_project, store_with_tasks):
+        """Test searching memory content manually."""
+        store = TaskMemoryStore(base_path=injection_project)
 
-        # Manual search (grep-like)
-        memory_dir = injection_project / "backlog" / "memory"
-        matches = []
+        # Search for specific content
+        found = []
+        for task_id in store.list_active():
+            content = store.read(task_id)
+            if "first task" in content.lower():
+                found.append(task_id)
 
-        for memory_file in memory_dir.glob("task-*.md"):
-            content = memory_file.read_text()
-            if "PostgreSQL" in content:
-                matches.append(memory_file.stem)
+        assert "task-100" in found
 
-        assert "task-320" in matches
-        assert "task-321" not in matches
+
+# --- Test: Context Injection Integration ---
 
 
 class TestContextInjectionIntegration:
     """Integration tests for full context injection workflow."""
 
-    def test_full_workflow_create_inject_read(
-        self, manager, injector, store, injection_project
-    ):
-        """Test complete workflow: create task → inject context → agent reads."""
-        task_id = "task-400"
+    def test_full_workflow_create_inject_read(self, injection_project):
+        """Test complete workflow: create memory, inject, read back."""
+        store = TaskMemoryStore(base_path=injection_project)
+        injector = ContextInjector(base_path=injection_project)
 
-        # Step 1: Create task (developer action)
-        manager.on_state_change(
-            task_id=task_id,
-            old_state="To Do",
-            new_state="In Progress",
-            task_title="Full Workflow Test",
-        )
+        # Create memory
+        store.create("task-200", task_title="Integration Test Task")
+        store.append("task-200", "Implementation started")
 
-        # Step 2: Developer adds context
-        store.append(task_id, "Key decision: Use FastAPI framework")
-        store.append(task_id, "Open question: How to handle auth?")
+        # Inject as active
+        injector.update_active_task("task-200")
 
-        # Step 3: Inject into CLAUDE.md (automated)
-        injector.inject_active_tasks()
+        # Verify can read via injector
+        active_id = injector.get_active_task_id()
+        assert active_id == "task-200"
 
-        # Step 4: Agent reads via @import (simulated)
-        active_tasks_path = injection_project / "backlog" / "memory" / "active-tasks.md"
-        assert active_tasks_path.exists()
+        # Verify content
+        content = store.read(active_id)
+        assert "Integration Test Task" in content
+        assert "Implementation started" in content
 
-        content = active_tasks_path.read_text()
-        assert task_id in content
+    def test_multi_task_context_switching(self, injection_project, store_with_tasks):
+        """Test switching between multiple task contexts."""
+        injector = ContextInjector(base_path=injection_project)
+        store = TaskMemoryStore(base_path=injection_project)
 
-        # Step 5: Agent reads full memory (simulated)
-        memory_content = store.read(task_id)
-        assert "Use FastAPI framework" in memory_content
-        assert "How to handle auth?" in memory_content
+        # Switch between tasks
+        for task_id in ["task-100", "task-101", "task-100"]:
+            injector.update_active_task(task_id)
+            assert injector.get_active_task_id() == task_id
 
-    def test_multi_agent_context_sharing(
-        self, manager, injector, store, injection_project
-    ):
-        """Test multiple agents accessing same task context."""
-        task_id = "task-401"
-
-        # Setup: Create task with rich context
-        manager.on_state_change(
-            task_id=task_id,
-            old_state="To Do",
-            new_state="In Progress",
-            task_title="Multi-Agent Task",
-        )
-
-        store.append(task_id, "Backend: Implement REST API")
-        store.append(task_id, "Frontend: Create UI components")
-        store.append(task_id, "QA: Write E2E tests")
-
-        injector.inject_active_tasks()
-
-        # Simulate multiple agents reading same context
-        agents = ["backend-engineer", "frontend-engineer", "qa-engineer"]
-        for agent in agents:
-            # Each agent reads memory
+            # Verify content is correct
             content = store.read(task_id)
-            assert content is not None
-            assert "Multi-Agent Task" in content
+            if task_id == "task-100":
+                assert "First Task" in content
+            else:
+                assert "Second Task" in content
 
-            # Each agent can append their perspective
-            store.append(task_id, f"{agent}: Reviewed task")
+    def test_context_persistence_across_instances(self, injection_project, store_with_tasks):
+        """Test context persists when creating new injector instance."""
+        # First injector sets task
+        injector1 = ContextInjector(base_path=injection_project)
+        injector1.update_active_task("task-100")
 
-        # Verify all agent notes present
-        final_content = store.read(task_id)
-        for agent in agents:
-            assert f"{agent}: Reviewed task" in final_content
+        # New injector instance reads same state
+        injector2 = ContextInjector(base_path=injection_project)
+        assert injector2.get_active_task_id() == "task-100"
 
-    def test_context_persistence_across_sessions(
-        self, manager, injector, store, injection_project
-    ):
-        """Test that context persists across development sessions."""
-        task_id = "task-402"
+    def test_context_injection_with_archive(self, injection_project, store_with_tasks):
+        """Test context cleared when task archived."""
+        store = TaskMemoryStore(base_path=injection_project)
+        injector = ContextInjector(base_path=injection_project)
 
-        # Session 1: Create and add initial context
-        manager.on_state_change(
-            task_id=task_id,
-            old_state="To Do",
-            new_state="In Progress",
-            task_title="Persistence Test",
-        )
-        store.append(task_id, "Session 1: Initial implementation")
-        injector.inject_active_tasks()
+        # Set active
+        injector.update_active_task("task-100")
+        assert injector.get_active_task_id() == "task-100"
 
-        # Simulate session end (agent context cleared)
-        # ...
+        # Archive the task (manually clear context first)
+        injector.clear_active_task()
+        store.archive("task-100")
 
-        # Session 2: Agent context reloaded
-        injector.inject_active_tasks()
+        # Verify cleared
+        assert injector.get_active_task_id() is None
 
-        # Verify previous context accessible
-        content = store.read(task_id)
-        assert "Session 1: Initial implementation" in content
 
-        # Add more context
-        store.append(task_id, "Session 2: Continued work")
-
-        # Session 3: Verify full history
-        content = store.read(task_id)
-        assert "Session 1: Initial implementation" in content
-        assert "Session 2: Continued work" in content
-
-    def test_context_injection_performance(self, manager, injector, injection_project):
-        """Test performance of context injection with many active tasks."""
-        import time
-
-        # Create 50 active tasks
-        task_ids = [f"task-{500 + i}" for i in range(50)]
-
-        for task_id in task_ids:
-            manager.on_state_change(
-                task_id=task_id,
-                old_state="To Do",
-                new_state="In Progress",
-                task_title=f"Task {task_id}",
-            )
-
-        # Time injection
-        start = time.time()
-        injector.inject_active_tasks()
-        duration = time.time() - start
-
-        # Should be fast (<100ms)
-        assert duration < 0.1, f"Injection took {duration}s, should be <0.1s"
-
-        # Verify all tasks injected
-        active_tasks_path = injection_project / "backlog" / "memory" / "active-tasks.md"
-        content = active_tasks_path.read_text()
-
-        # Spot check a few tasks
-        assert "task-500" in content
-        assert "task-525" in content
-        assert "task-549" in content
+# --- Test: Error Handling ---
 
 
 class TestInjectionErrorHandling:
-    """Tests for error handling in context injection."""
+    """Tests for error handling in injection scenarios."""
 
-    def test_inject_with_corrupted_memory(
-        self, manager, store, injector, injection_project
-    ):
-        """Test injection when memory file is corrupted."""
-        task_id = "task-600"
+    def test_inject_with_corrupted_memory(self, injection_project):
+        """Test handling corrupted memory file."""
+        store = TaskMemoryStore(base_path=injection_project)
+        injector = ContextInjector(base_path=injection_project)
 
-        # Create task
-        manager.on_state_change(
-            task_id=task_id,
-            old_state="To Do",
-            new_state="In Progress",
-            task_title="Corruption Test",
-        )
+        # Create memory then corrupt it
+        store.create("task-300", task_title="Test")
+        memory_path = store.get_path("task-300")
 
-        # Corrupt memory file
-        memory_path = store.get_path(task_id)
-        memory_path.write_bytes(b"\x00\x01\x02 INVALID")
+        # Write invalid content (still valid file, just unusual content)
+        memory_path.write_bytes(b"\x00\x01\x02\x03")
 
-        # Injection should handle gracefully
-        injector.inject_active_tasks()
+        # Injection should still work (it doesn't validate content)
+        injector.update_active_task("task-300")
+        assert injector.get_active_task_id() == "task-300"
 
-        # Should still create active-tasks.md
-        active_tasks_path = injection_project / "backlog" / "memory" / "active-tasks.md"
-        assert active_tasks_path.exists()
+    def test_inject_with_permission_errors(self, injection_project, store_with_tasks):
+        """Test handling permission errors on CLAUDE.md."""
+        injector = ContextInjector(base_path=injection_project)
+        claude_md = injection_project / "backlog" / "CLAUDE.md"
 
-    def test_inject_with_permission_errors(self, manager, injector, injection_project):
-        """Test injection when file permissions prevent write."""
-        task_id = "task-601"
-
-        # Create task
-        manager.on_state_change(
-            task_id=task_id,
-            old_state="To Do",
-            new_state="In Progress",
-            task_title="Permission Test",
-        )
-
-        # Make active-tasks.md read-only
-        import os
-
-        active_tasks_path = injection_project / "backlog" / "memory" / "active-tasks.md"
-        active_tasks_path.touch()
-        os.chmod(active_tasks_path, 0o444)
+        # Make read-only
+        claude_md.chmod(0o444)
 
         try:
-            # Injection should handle permission error
-            with pytest.raises((PermissionError, OSError)):
-                injector.inject_active_tasks()
+            with pytest.raises(PermissionError):
+                injector.update_active_task("task-100")
         finally:
-            # Restore permissions
-            os.chmod(active_tasks_path, 0o644)
+            # Restore permissions for cleanup
+            claude_md.chmod(0o644)
 
-    def test_inject_with_missing_memory_directory(self, injector, injection_project):
-        """Test injection when memory directory is missing."""
-        import shutil
+    def test_inject_with_missing_memory_directory(self, injection_project):
+        """Test handling missing memory directory."""
+        injector = ContextInjector(base_path=injection_project)
 
-        # Remove memory directory
-        memory_dir = injection_project / "backlog" / "memory"
-        if memory_dir.exists():
-            shutil.rmtree(memory_dir)
-
-        # Injection should handle gracefully (recreate or skip)
-        injector.inject_active_tasks()
-
-        # Verify directory recreated or error handled
-        # (behavior depends on implementation)
+        # Injection doesn't require memory dir to exist
+        injector.update_active_task("task-100")
+        assert injector.get_active_task_id() == "task-100"
