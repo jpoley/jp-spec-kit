@@ -57,10 +57,22 @@
 
   "mounts": [
     "source=${localWorkspaceFolder}/backlog,target=/workspaces/jp-spec-kit/backlog,type=bind,consistency=cached",
-    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.gitconfig,target=/home/vscode/.gitconfig-host,type=bind,readonly",
-    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/vscode/.ssh,type=bind,readonly",
-    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.claude,target=/home/vscode/.claude,type=bind,consistency=cached",
-    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.config/github-copilot,target=/home/vscode/.config/github-copilot,type=bind,consistency=cached",
+    // Mount .gitconfig for Linux
+    "source=${localEnv:HOME}/.gitconfig,target=/home/vscode/.gitconfig-host,type=bind,readonly,platform=linux",
+    // Mount .gitconfig for Windows
+    "source=${localEnv:USERPROFILE}/.gitconfig,target=/home/vscode/.gitconfig-host,type=bind,readonly,platform=win32",
+    // Mount .ssh for Linux
+    "source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,readonly,platform=linux",
+    // Mount .ssh for Windows
+    "source=${localEnv:USERPROFILE}/.ssh,target=/home/vscode/.ssh,type=bind,readonly,platform=win32",
+    // Mount .claude for Linux
+    "source=${localEnv:HOME}/.claude,target=/home/vscode/.claude,type=bind,consistency=cached,platform=linux",
+    // Mount .claude for Windows
+    "source=${localEnv:USERPROFILE}/.claude,target=/home/vscode/.claude,type=bind,consistency=cached,platform=win32",
+    // Mount github-copilot config for Linux
+    "source=${localEnv:HOME}/.config/github-copilot,target=/home/vscode/.config/github-copilot,type=bind,consistency=cached,platform=linux",
+    // Mount github-copilot config for Windows
+    "source=${localEnv:USERPROFILE}/.config/github-copilot,target=/home/vscode/.config/github-copilot,type=bind,consistency=cached,platform=win32",
     "source=jp-spec-kit-vscode-extensions,target=/home/vscode/.vscode-server/extensions,type=volume"
   ],
 
