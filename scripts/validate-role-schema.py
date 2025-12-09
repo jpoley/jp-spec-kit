@@ -270,9 +270,6 @@ def main() -> int:
     print()
 
     # Check file exists
-    if not workflow_path.exists():
-        print(f"❌ Error: Workflow file not found: {workflow_path}")
-        return 2
 
     # Load and validate
     config = load_yaml(workflow_path)
