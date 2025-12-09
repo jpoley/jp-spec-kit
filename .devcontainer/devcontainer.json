@@ -27,7 +27,7 @@
         "streetsidesoftware.code-spell-checker"
       ],
       "settings": {
-        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.defaultInterpreterPath": "/workspaces/jp-spec-kit/.venv/bin/python",
         "python.terminal.activateEnvironment": false,
         "python.testing.pytestEnabled": true,
         "python.testing.unittestEnabled": false,
