@@ -6147,6 +6147,118 @@ from specify_cli.hooks.cli import hooks_app  # noqa: E402
 app.add_typer(hooks_app, name="hooks")
 
 
+# VS Code integration sub-app
+vscode_app = typer.Typer(
+    name="vscode",
+    help="VS Code integration commands",
+    add_completion=False,
+)
+app.add_typer(vscode_app, name="vscode")
+
+
+@vscode_app.command("generate")
+def vscode_generate(
+    role: Optional[str] = typer.Option(
+        None,
+        "--role",
+        "-r",
+        help="Role to generate settings for (overrides workflow config)",
+    ),
+    output: Optional[Path] = typer.Option(
+        None,
+        "--output",
+        "-o",
+        help="Output path for settings.json (default: .vscode/settings.json)",
+    ),
+    force: bool = typer.Option(
+        False,
+        "--force",
+        "-f",
+        help="Force overwrite existing settings without merging",
+    ),
+    no_merge: bool = typer.Option(
+        False,
+        "--no-merge",
+        help="Don't merge with existing settings",
+    ),
+) -> None:
+    """Generate VS Code settings for role-based agent pinning.
+
+    This command generates .vscode/settings.json with role-appropriate
+    GitHub Copilot agent configuration. Agents for your selected role
+    will be pinned to the top of suggestions.
+
+    Examples:
+        specify vscode generate                    # Use primary role from config
+        specify vscode generate --role dev         # Generate for dev role
+        specify vscode generate --force            # Overwrite without merging
+        specify vscode generate -o custom.json     # Custom output path
+    """
+    from specify_cli.vscode.settings_generator import VSCodeSettingsGenerator
+    from specify_cli.workflow.config import WorkflowConfig
+    from specify_cli.workflow.exceptions import WorkflowConfigError
+
+    # Load workflow config
+    try:
+        config = WorkflowConfig.load()
+    except WorkflowConfigError as e:
+        console.print(f"[red]Error loading workflow config:[/red] {e}")
+        console.print("[dim]Run 'specify init' to create workflow configuration[/dim]")
+        raise typer.Exit(1)
+
+    # Determine output path
+    if output is None:
+        output = VSCodeSettingsGenerator.get_default_settings_path()
+
+    # Create generator
+    generator = VSCodeSettingsGenerator(workflow_config=config, primary_role=role)
+
+    # Determine role for display
+    try:
+        display_role = generator.primary_role
+    except WorkflowConfigError as e:
+        console.print(f"[red]Error:[/red] {e}")
+        raise typer.Exit(1)
+
+    # Generate settings
+    console.print()
+    console.print(f"[cyan]Generating VS Code settings for role:[/cyan] {display_role}")
+    console.print(f"[cyan]Output path:[/cyan] {output}")
+    console.print()
+
+    try:
+        merge_existing = not no_merge
+        result_path = generator.write_settings(
+            output,
+            role=role,
+            force=force,
+            merge_existing=merge_existing,
+        )
+
+        # Show success message
+        console.print(f"[green]✓[/green] Settings generated: {result_path}")
+        console.print()
+
+        # Show pinned agents
+        settings = generator.generate(role=role, merge_existing=False)
+        pinned_agents = settings["github.copilot.chat.agents"]["pinnedAgents"]
+
+        console.print("[cyan]Pinned agents (top priority):[/cyan]")
+        for agent in pinned_agents:
+            console.print(f"  • {agent}")
+
+        console.print()
+        console.print("[dim]These agents will appear first in VS Code Copilot suggestions.[/dim]")
+
+    except FileExistsError as e:
+        console.print(f"[red]Error:[/red] {e}")
+        console.print("[dim]Use --force to overwrite or --no-merge to replace entirely[/dim]")
+        raise typer.Exit(1)
+    except Exception as e:
+        console.print(f"[red]Error generating settings:[/red] {e}")
+        raise typer.Exit(1)
+
+
 # Security scanning sub-app
 security_app = typer.Typer(
     name="security",

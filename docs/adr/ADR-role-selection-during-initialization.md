@@ -540,11 +540,13 @@ def get_available_roles(workflow_config: dict) -> list[str]:
 - [x] Store selected role in config
 - [x] Add environment variable override (SPECFLOW_PRIMARY_ROLE)
 
-### Phase 2: IDE Integration (Week 2)
-- [ ] Update VS Code agent metadata with role fields
-- [ ] Implement handoff priority based on role
-- [ ] Filter autocomplete by role
-- [ ] Test in VS Code and VS Code Insiders
+### Phase 2: IDE Integration (Week 2) ✅
+- [x] Update VS Code agent metadata with role fields
+- [x] Implement handoff priority based on role
+- [x] Implement agent pinning based on role
+- [x] Test in VS Code and VS Code Insiders
+- [x] Create `specify vscode generate` command
+- [x] Generate .vscode/settings.json with role config
 
 ### Phase 3: CLI Integration (Week 3)
 - [ ] Filter command suggestions by role in Claude Code
@@ -580,7 +582,122 @@ def get_available_roles(workflow_config: dict) -> list[str]:
 
 ---
 
+## Implementation Details (Phase 2)
+
+### VS Code Settings Generation
+
+**Module**: `src/specify_cli/vscode/settings_generator.py`
+
+The `VSCodeSettingsGenerator` class provides:
+- Role-based agent ordering (primary role agents first)
+- Automatic merging with existing settings
+- GitHub Copilot agent pinning configuration
+- Prompt file enablement
+- Extension recommendations
+
+**Key Features**:
+1. **Agent Prioritization**: Top 6 agents pinned for role
+2. **Settings Merge**: Preserves existing VS Code settings
+3. **Idempotent**: Safe to run multiple times
+4. **Role Override**: Can generate for any role, not just primary
+
+### CLI Command
+
+**Command**: `specify vscode generate`
+
+**Options**:
+- `--role <role>`: Override primary role from config
+- `--output <path>`: Custom output path (default: `.vscode/settings.json`)
+- `--force`: Overwrite without merging
+- `--no-merge`: Don't merge with existing settings
+
+**Example Usage**:
+```bash
+# Generate for primary role
+specify vscode generate
+
+# Generate for specific role
+specify vscode generate --role qa
+
+# Force overwrite
+specify vscode generate --force
+```
+
+### Generated Settings Structure
+
+```json
+{
+  "github.copilot.chat.agents": {
+    "enabled": true,
+    "pinnedAgents": ["@agent1", "@agent2", ...]
+  },
+  "github.copilot.chat.promptFiles": {
+    "enabled": true
+  },
+  "specflow": {
+    "primaryRole": "dev",
+    "displayName": "Developer",
+    "icon": "💻",
+    "commands": ["build", "debug", "refactor"],
+    "agentOrder": ["@agent1", "@agent2", ...],
+    "version": "2.0"
+  },
+  "extensions": {
+    "recommendations": ["github.copilot", "github.copilot-chat"]
+  }
+}
+```
+
+### Agent Filtering Strategy
+
+**Design Decision**: **De-prioritize, not hide**
+
+We chose to re-order agents rather than hide them:
+- All agents remain accessible in VS Code Copilot
+- Role-appropriate agents appear first (top 6 pinned)
+- Cross-role agents remain discoverable
+- No gatekeeping or artificial restrictions
+
+**Rationale**:
+- Developers often wear multiple hats
+- Security reviews needed by all roles
+- Encourages collaboration across teams
+- Reduces friction in workflow
+
+### Cross-Role Handoff Support
+
+While agents are prioritized by role, users can:
+1. Type `@<any-agent>` to invoke any agent
+2. See all agents in autocomplete (just re-ordered)
+3. Switch roles easily via `--role` flag
+
+Example cross-role handoff:
+- Developer types `@secure-by-design-engineer` for security review
+- PM types `@software-architect` for architecture questions
+- QA types `@backend-engineer` to understand implementation
+
+### Testing
+
+**Test Coverage**: 16 tests in `tests/test_vscode_settings_generator.py`
+
+Key test scenarios:
+- Role-based agent ordering
+- Settings merging with existing files
+- Agent pinning limits (6 agents max)
+- Different roles generate different settings
+- File creation and overwriting
+- JSON validity
+- Extension recommendations merging
+
+### Documentation
+
+- **User Guide**: `docs/guides/vscode-role-integration.md`
+- **Template**: `templates/vscode/settings.json.template`
+- **API Docs**: Docstrings in `VSCodeSettingsGenerator` class
+
+---
+
 **Reviewers**: @product-requirements-manager, @software-architect
-**Status**: Phase 1 Complete (Role selection implemented in init/configure commands)
+**Status**: Phase 2 Complete (VS Code integration implemented)
 **Last Updated**: 2025-12-09
 **Next Review Date**: 2025-12-16
