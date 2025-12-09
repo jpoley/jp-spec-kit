@@ -321,4 +321,4 @@ Each role uses their specific commands, avoiding conflicts and confusion.
 - [Role-Based Command Namespaces ADR](../adr/ADR-role-based-command-namespaces.md)
 - [Workflow Configuration Guide](./workflow-customization.md)
 - [Agent Loop Classification](../reference/agent-loop-classification.md)
-- [CI/CD Role Validation](./.github/workflows/role-validation.yml)
+- [CI/CD Role Validation](../../.github/workflows/role-validation.yml)
