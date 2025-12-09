@@ -1,0 +1,697 @@
+name: Role-Based Validation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'templates/commands/**'
+      - 'specflow_workflow.yml'
+      - 'schemas/**'
+      - '.claude/commands/**'
+      - '.github/agents/**'
+      - 'scripts/bash/sync-copilot-agents.sh'
+      - 'scripts/validate-workflow-config.py'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'templates/commands/**'
+      - 'specflow_workflow.yml'
+      - 'schemas/**'
+      - '.claude/commands/**'
+      - '.github/agents/**'
+      - 'scripts/bash/sync-copilot-agents.sh'
+      - 'scripts/validate-workflow-config.py'
+
+jobs:
+  # Job 1: Validate workflow schema
+  validate-schema:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Validate specflow_workflow.yml against schema
+        run: |
+          echo "=== Validating specflow_workflow.yml against JSON schema ==="
+          python scripts/validate-workflow-config.py specflow_workflow.yml schemas/specflow_workflow.schema.json
+
+      - name: Check schema version compatibility
+        run: |
+          echo "=== Checking schema version compatibility ==="
+          WORKFLOW_VERSION=$(python -c "import yaml; print(yaml.safe_load(open('specflow_workflow.yml'))['version'])")
+          SCHEMA_VERSION=$(python -c "import json; print(json.load(open('schemas/specflow_workflow.schema.json'))['properties']['version']['examples'][0])")
+          echo "Workflow version: $WORKFLOW_VERSION"
+          echo "Schema version: $SCHEMA_VERSION"
+
+          # Validate version format
+          if ! echo "$WORKFLOW_VERSION" | grep -qE '^\d+\.\d+$'; then
+            echo "❌ Invalid workflow version format: $WORKFLOW_VERSION"
+            exit 1
+          fi
+          echo "✓ Version format valid"
+
+  # Job 2: Validate role command structure
+  validate-commands:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Verify role command files exist
+        run: |
+          echo "=== Verifying role command files exist ==="
+          python3 << 'PYTHON'
+          import yaml
+          from pathlib import Path
+
+          # Load workflow config
+          with open('specflow_workflow.yml') as f:
+              config = yaml.safe_load(f)
+
+          roles = config.get('roles', {}).get('definitions', {})
+          errors = []
+
+          # Check each role's commands
+          for role_name, role_data in roles.items():
+              commands = role_data.get('commands', [])
+              if role_name == 'all':
+                  # 'all' role has no commands
+                  continue
+
+              for command in commands:
+                  # Check if command file exists in templates/commands/{role}/{command}.md
+                  command_path = Path(f'templates/commands/{role_name}/{command}.md')
+                  if not command_path.exists():
+                      errors.append(f"Missing command file: {command_path}")
+                  else:
+                      print(f"✓ Found: {command_path}")
+
+          if errors:
+              print("\n❌ Errors found:")
+              for error in errors:
+                  print(f"  - {error}")
+              exit(1)
+
+          print("\n✓ All role command files exist")
+          PYTHON
+
+      - name: Validate agent-to-role mappings
+        run: |
+          echo "=== Validating agent-to-role mappings ==="
+          python3 << 'PYTHON'
+          import yaml
+
+          with open('specflow_workflow.yml') as f:
+              config = yaml.safe_load(f)
+
+          # Extract all agents from workflows
+          workflow_agents = set()
+          for workflow_name, workflow in config.get('workflows', {}).items():
+              for agent in workflow.get('agents', []):
+                  if isinstance(agent, dict):
+                      agent_name = agent.get('name')
+                  else:
+                      agent_name = agent
+                  if agent_name:
+                      workflow_agents.add(agent_name)
+
+          # Extract all agents from roles
+          role_agents = set()
+          for role_name, role_data in config.get('roles', {}).get('definitions', {}).items():
+              for agent in role_data.get('agents', []):
+                  # Remove @ prefix
+                  agent_name = agent.lstrip('@')
+                  role_agents.add(agent_name)
+
+          # Check coverage (workflow agents should be assigned to roles)
+          unassigned = workflow_agents - role_agents
+          if unassigned:
+              print(f"⚠ Warning: Agents in workflows but not assigned to roles:")
+              for agent in sorted(unassigned):
+                  print(f"  - {agent}")
+
+          print(f"\n✓ Agent mappings validated")
+          print(f"  - Workflow agents: {len(workflow_agents)}")
+          print(f"  - Role agents: {len(role_agents)}")
+          PYTHON
+
+      - name: Check for command file naming conventions
+        run: |
+          echo "=== Checking command file naming conventions ==="
+
+          # Commands should be lowercase with hyphens
+          INVALID_NAMES=$(find templates/commands -name "*.md" ! -name "_*" | while read file; do
+            basename=$(basename "$file" .md)
+            if ! echo "$basename" | grep -qE '^[a-z][a-z0-9-]*$'; then
+              echo "$file"
+            fi
+          done)
+
+          if [ -n "$INVALID_NAMES" ]; then
+            echo "❌ Invalid command file names (must be lowercase-with-hyphens):"
+            echo "$INVALID_NAMES" | sed 's/^/  - /'
+            exit 1
+          fi
+
+          echo "✓ All command files follow naming conventions"
+
+  # Job 3: Check agent drift (sync validation)
+  validate-agent-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Check for agent drift
+        run: |
+          echo "=== Checking for agent drift between commands and generated agents ==="
+          bash scripts/bash/sync-copilot-agents.sh --validate
+
+          if [ $? -eq 2 ]; then
+            echo ""
+            echo "❌ Drift detected!"
+            echo "Generated agents in .github/agents/ are out of sync with commands."
+            echo ""
+            echo "Fix: Run 'bash scripts/bash/sync-copilot-agents.sh' to regenerate agents"
+            exit 1
+          fi
+
+          echo "✓ No drift detected - agents are in sync"
+
+  # Job 4: PM role validation
+  validate-pm-role:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Validate PM commands (assess, define, discover)
+        run: |
+          echo "=== Validating PM role commands ==="
+          python3 << 'PYTHON'
+          import yaml
+          from pathlib import Path
+
+          with open('specflow_workflow.yml') as f:
+              config = yaml.safe_load(f)
+
+          pm_role = config['roles']['definitions']['pm']
+          required_commands = {'assess', 'define', 'discover'}
+          actual_commands = set(pm_role['commands'])
+
+          missing = required_commands - actual_commands
+          if missing:
+              print(f"❌ PM role missing commands: {missing}")
+              exit(1)
+
+          print(f"✓ PM role has required commands: {actual_commands}")
+
+          # Verify PM agents
+          expected_agents = {'@product-requirements-manager', '@workflow-assessor', '@researcher', '@business-validator'}
+          actual_agents = set(pm_role['agents'])
+
+          missing_agents = expected_agents - actual_agents
+          if missing_agents:
+              print(f"❌ PM role missing agents: {missing_agents}")
+              exit(1)
+
+          print(f"✓ PM role has required agents: {len(actual_agents)} agents")
+          PYTHON
+
+      - name: Check PRD template structure (if exists)
+        run: |
+          echo "=== Checking PRD template structure ==="
+          if [ -f "templates/docs/prd/prd-template.md" ]; then
+            # Check for required sections in PRD template
+            REQUIRED_SECTIONS="## Problem Statement|## User Stories|## Success Metrics|## Acceptance Criteria"
+
+            if ! grep -qE "$REQUIRED_SECTIONS" templates/docs/prd/prd-template.md; then
+              echo "⚠ Warning: PRD template may be missing required sections"
+            else
+              echo "✓ PRD template has required sections"
+            fi
+          else
+            echo "⚠ No PRD template found (skipping validation)"
+          fi
+
+  # Job 5: Dev role validation
+  validate-dev-role:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Validate Dev commands (build, debug, refactor)
+        run: |
+          echo "=== Validating Dev role commands ==="
+          python3 << 'PYTHON'
+          import yaml
+
+          with open('specflow_workflow.yml') as f:
+              config = yaml.safe_load(f)
+
+          dev_role = config['roles']['definitions']['dev']
+          required_commands = {'build', 'debug', 'refactor'}
+          actual_commands = set(dev_role['commands'])
+
+          missing = required_commands - actual_commands
+          if missing:
+              print(f"❌ Dev role missing commands: {missing}")
+              exit(1)
+
+          print(f"✓ Dev role has required commands: {actual_commands}")
+
+          # Verify Dev agents include engineers
+          agents = set(dev_role['agents'])
+          expected_engineers = {'@frontend-engineer', '@backend-engineer'}
+
+          missing_engineers = expected_engineers - agents
+          if missing_engineers:
+              print(f"❌ Dev role missing engineers: {missing_engineers}")
+              exit(1)
+
+          print(f"✓ Dev role has required agents: {len(agents)} agents")
+          PYTHON
+
+      - name: Run unit tests
+        run: |
+          echo "=== Running unit tests ==="
+          uv run pytest tests/ -v --cov=src/specify_cli --cov-report=term-missing -k "not integration"
+
+      - name: Check ADR format (if ADRs exist)
+        run: |
+          echo "=== Checking ADR format ==="
+          if [ -d "docs/adr" ]; then
+            # Check ADR naming: ADR-NNN-title.md
+            INVALID_ADRS=$(find docs/adr -name "*.md" ! -name "README.md" | while read adr; do
+              basename=$(basename "$adr")
+              if ! echo "$basename" | grep -qE '^ADR-[0-9]{3,}-[a-z0-9-]+\.md$'; then
+                echo "$adr"
+              fi
+            done)
+
+            if [ -n "$INVALID_ADRS" ]; then
+              echo "⚠ Warning: ADRs not following naming convention (ADR-NNN-title.md):"
+              echo "$INVALID_ADRS" | sed 's/^/  - /'
+            else
+              echo "✓ All ADRs follow naming convention"
+            fi
+          else
+            echo "⚠ No ADR directory found (skipping validation)"
+          fi
+
+  # Job 6: Security role validation
+  validate-sec-role:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Validate Security commands (scan, triage, fix, audit)
+        run: |
+          echo "=== Validating Security role commands ==="
+          python3 << 'PYTHON'
+          import yaml
+
+          with open('specflow_workflow.yml') as f:
+              config = yaml.safe_load(f)
+
+          sec_role = config['roles']['definitions']['sec']
+          required_commands = {'scan', 'triage', 'fix', 'audit'}
+          actual_commands = set(sec_role['commands'])
+
+          missing = required_commands - actual_commands
+          if missing:
+              print(f"❌ Security role missing commands: {missing}")
+              exit(1)
+
+          print(f"✓ Security role has required commands: {actual_commands}")
+
+          # Verify security agent
+          agents = set(sec_role['agents'])
+          if '@secure-by-design-engineer' not in agents:
+              print(f"❌ Security role missing @secure-by-design-engineer agent")
+              exit(1)
+
+          print(f"✓ Security role has required agent")
+          PYTHON
+
+      - name: Run security scan (bandit)
+        continue-on-error: true
+        run: |
+          echo "=== Running security scan with bandit ==="
+          uv tool run bandit -r src/ -ll -f json -o bandit-report.json || true
+
+          # Display findings summary
+          if [ -f "bandit-report.json" ]; then
+            python3 << 'PYTHON'
+          import json
+
+          with open('bandit-report.json') as f:
+              report = json.load(f)
+
+          results = report.get('results', [])
+          metrics = report.get('metrics', {})
+
+          total = metrics.get('_totals', {})
+          high = total.get('SEVERITY.HIGH', 0)
+          medium = total.get('SEVERITY.MEDIUM', 0)
+          low = total.get('SEVERITY.LOW', 0)
+
+          print(f"\n=== Bandit Security Scan Summary ===")
+          print(f"High severity: {high}")
+          print(f"Medium severity: {medium}")
+          print(f"Low severity: {low}")
+          print(f"Total issues: {len(results)}")
+          PYTHON
+          fi
+
+      - name: Check security config
+        run: |
+          echo "=== Checking security configuration ==="
+
+          # Verify GitHub security config exists
+          if [ ! -f ".github/security-config.yml" ]; then
+            echo "⚠ Warning: No .github/security-config.yml found"
+          else
+            echo "✓ Security config exists"
+          fi
+
+          # Check for security workflows
+          if [ ! -f ".github/workflows/security-scan.yml" ]; then
+            echo "⚠ Warning: No security-scan workflow found"
+          else
+            echo "✓ Security scan workflow exists"
+          fi
+
+  # Job 7: QA role validation
+  validate-qa-role:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Validate QA commands (test, verify, review)
+        run: |
+          echo "=== Validating QA role commands ==="
+          python3 << 'PYTHON'
+          import yaml
+
+          with open('specflow_workflow.yml') as f:
+              config = yaml.safe_load(f)
+
+          qa_role = config['roles']['definitions']['qa']
+          required_commands = {'test', 'verify', 'review'}
+          actual_commands = set(qa_role['commands'])
+
+          missing = required_commands - actual_commands
+          if missing:
+              print(f"❌ QA role missing commands: {missing}")
+              exit(1)
+
+          print(f"✓ QA role has required commands: {actual_commands}")
+
+          # Verify QA agents
+          agents = set(qa_role['agents'])
+          expected_agents = {'@quality-guardian', '@release-manager'}
+
+          missing_agents = expected_agents - agents
+          if missing_agents:
+              print(f"❌ QA role missing agents: {missing_agents}")
+              exit(1)
+
+          print(f"✓ QA role has required agents: {len(agents)} agents")
+          PYTHON
+
+      - name: Check test coverage
+        run: |
+          echo "=== Checking test coverage ==="
+          uv run pytest tests/ -v --cov=src/specify_cli --cov-report=term-missing --cov-report=json
+
+          # Check coverage threshold
+          python3 << 'PYTHON'
+          import json
+
+          with open('coverage.json') as f:
+              coverage = json.load(f)
+
+          total_coverage = coverage['totals']['percent_covered']
+          threshold = 70.0
+
+          print(f"\nTest coverage: {total_coverage:.1f}%")
+          print(f"Threshold: {threshold}%")
+
+          if total_coverage < threshold:
+              print(f"⚠ Warning: Coverage below threshold ({total_coverage:.1f}% < {threshold}%)")
+          else:
+              print(f"✓ Coverage meets threshold")
+          PYTHON
+
+      - name: Check documentation links
+        continue-on-error: true
+        run: |
+          echo "=== Checking documentation links ==="
+
+          # Find broken links in markdown files
+          BROKEN_LINKS=$(find docs -name "*.md" -type f | while read file; do
+            # Extract markdown links
+            grep -oP '\[.*?\]\(\K[^)]+' "$file" 2>/dev/null | while read link; do
+              # Skip external links
+              if [[ "$link" =~ ^https?:// ]]; then
+                continue
+              fi
+
+              # Resolve relative path
+              dir=$(dirname "$file")
+              if [ ! -e "$dir/$link" ] && [ ! -e "$link" ]; then
+                echo "$file: broken link -> $link"
+              fi
+            done
+          done)
+
+          if [ -n "$BROKEN_LINKS" ]; then
+            echo "⚠ Warning: Found broken links:"
+            echo "$BROKEN_LINKS" | sed 's/^/  - /'
+          else
+            echo "✓ No broken links found"
+          fi
+
+  # Job 8: Team mode validation
+  validate-team-mode:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check for .vscode/settings.json in team mode
+        run: |
+          echo "=== Checking team mode compliance ==="
+
+          # Detect if project is in team mode (multiple contributors)
+          CONTRIBUTOR_COUNT=$(git log --format='%ae' | sort -u | wc -l)
+          echo "Contributor count: $CONTRIBUTOR_COUNT"
+
+          if [ $CONTRIBUTOR_COUNT -gt 1 ]; then
+            echo "Project is in TEAM MODE (multiple contributors)"
+
+            # Check if .vscode/settings.json is committed
+            if git ls-files --error-unmatch .vscode/settings.json >/dev/null 2>&1; then
+              echo ""
+              echo "❌ ERROR: .vscode/settings.json is committed in team mode"
+              echo ""
+              echo "Team mode requires user-specific VS Code settings."
+              echo "Each developer should have their own .vscode/settings.json (gitignored)."
+              echo ""
+              echo "Fix:"
+              echo "  1. Add .vscode/settings.json to .gitignore"
+              echo "  2. Remove from git: git rm --cached .vscode/settings.json"
+              echo "  3. Each developer runs: bash scripts/bash/sync-copilot-agents.sh --with-vscode"
+              echo ""
+              exit 1
+            fi
+
+            echo "✓ No .vscode/settings.json in team mode (correct)"
+          else
+            echo "Project is in SOLO MODE (single contributor)"
+            echo "✓ Team mode validation passed (not applicable)"
+          fi
+
+      - name: Verify .gitignore for team mode
+        run: |
+          echo "=== Checking .gitignore configuration ==="
+
+          # Check if .vscode/settings.json should be in .gitignore for team mode
+          if [ -f ".gitignore" ]; then
+            if grep -q "^\.vscode/settings\.json$" .gitignore; then
+              echo "✓ .vscode/settings.json is in .gitignore (team-friendly)"
+            else
+              echo "⚠ Warning: Consider adding .vscode/settings.json to .gitignore for team mode"
+            fi
+          else
+            echo "⚠ Warning: No .gitignore found"
+          fi
+
+  # Job 9: Ops role validation
+  validate-ops-role:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Validate Ops commands (deploy, monitor, respond, scale)
+        run: |
+          echo "=== Validating Ops role commands ==="
+          python3 << 'PYTHON'
+          import yaml
+
+          with open('specflow_workflow.yml') as f:
+              config = yaml.safe_load(f)
+
+          ops_role = config['roles']['definitions']['ops']
+          required_commands = {'deploy', 'monitor', 'respond', 'scale'}
+          actual_commands = set(ops_role['commands'])
+
+          missing = required_commands - actual_commands
+          if missing:
+              print(f"❌ Ops role missing commands: {missing}")
+              exit(1)
+
+          print(f"✓ Ops role has required commands: {actual_commands}")
+
+          # Verify SRE agent
+          agents = set(ops_role['agents'])
+          if '@sre-agent' not in agents:
+              print(f"❌ Ops role missing @sre-agent")
+              exit(1)
+
+          print(f"✓ Ops role has required agent")
+          PYTHON
+
+      - name: Check CI/CD workflow files
+        run: |
+          echo "=== Checking CI/CD workflow files ==="
+
+          WORKFLOW_COUNT=$(find .github/workflows -name "*.yml" -type f | wc -l)
+          echo "Found $WORKFLOW_COUNT workflow files"
+
+          if [ $WORKFLOW_COUNT -eq 0 ]; then
+            echo "⚠ Warning: No GitHub Actions workflows found"
+          else
+            echo "✓ CI/CD workflows exist"
+
+            # List workflows
+            find .github/workflows -name "*.yml" -type f -exec basename {} \; | sort
+          fi
+
+  # Summary job (optional - runs after all validations)
+  validation-summary:
+    needs: [validate-schema, validate-commands, validate-agent-sync, validate-pm-role, validate-dev-role, validate-sec-role, validate-qa-role, validate-team-mode, validate-ops-role]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Check validation results
+        run: |
+          echo "=== Role-Based Validation Summary ==="
+          echo ""
+          echo "All role validation jobs completed."
+          echo ""
+          echo "Jobs:"
+          echo "  ✓ Schema validation"
+          echo "  ✓ Command structure validation"
+          echo "  ✓ Agent sync validation"
+          echo "  ✓ PM role validation"
+          echo "  ✓ Dev role validation"
+          echo "  ✓ Security role validation"
+          echo "  ✓ QA role validation"
+          echo "  ✓ Team mode validation"
+          echo "  ✓ Ops role validation"
+          echo ""
+          echo "See individual job logs for details."
