@@ -44,13 +44,13 @@ jobs:
       - name: Validate specflow_workflow.yml against schema
         run: |
           echo "=== Validating specflow_workflow.yml against JSON schema ==="
-          python scripts/validate-workflow-config.py specflow_workflow.yml schemas/specflow_workflow.schema.json
+          uv run python scripts/validate-workflow-config.py specflow_workflow.yml schemas/specflow_workflow.schema.json
 
       - name: Check schema version compatibility
         run: |
           echo "=== Checking schema version compatibility ==="
-          WORKFLOW_VERSION=$(python -c "import yaml; print(yaml.safe_load(open('specflow_workflow.yml'))['version'])")
-          SCHEMA_VERSION=$(python -c "import json; print(json.load(open('schemas/specflow_workflow.schema.json'))['properties']['version']['examples'][0])")
+          WORKFLOW_VERSION=$(uv run python -c "import yaml; print(yaml.safe_load(open('specflow_workflow.yml'))['version'])")
+          SCHEMA_VERSION=$(uv run python -c "import json; print(json.load(open('schemas/specflow_workflow.schema.json'))['properties']['version']['examples'][0])")
           echo "Workflow version: $WORKFLOW_VERSION"
           echo "Schema version: $SCHEMA_VERSION"
 
@@ -82,7 +82,7 @@ jobs:
       - name: Verify role command files exist
         run: |
           echo "=== Verifying role command files exist ==="
-          python3 << 'PYTHON'
+          uv run python << 'PYTHON'
           import yaml
           from pathlib import Path
 
@@ -120,7 +120,7 @@ jobs:
       - name: Validate agent-to-role mappings
         run: |
           echo "=== Validating agent-to-role mappings ==="
-          python3 << 'PYTHON'
+          uv run python << 'PYTHON'
           import yaml
 
           with open('specflow_workflow.yml') as f:
@@ -232,7 +232,7 @@ jobs:
       - name: Validate PM commands (assess, define, discover)
         run: |
           echo "=== Validating PM role commands ==="
-          python3 << 'PYTHON'
+          uv run python << 'PYTHON'
           import yaml
           from pathlib import Path
 
@@ -299,7 +299,7 @@ jobs:
       - name: Validate Dev commands (build, debug, refactor)
         run: |
           echo "=== Validating Dev role commands ==="
-          python3 << 'PYTHON'
+          uv run python << 'PYTHON'
           import yaml
 
           with open('specflow_workflow.yml') as f:
@@ -376,7 +376,7 @@ jobs:
       - name: Validate Security commands (scan, triage, fix, audit)
         run: |
           echo "=== Validating Security role commands ==="
-          python3 << 'PYTHON'
+          uv run python << 'PYTHON'
           import yaml
 
           with open('specflow_workflow.yml') as f:
@@ -410,7 +410,7 @@ jobs:
 
           # Display findings summary
           if [ -f "bandit-report.json" ]; then
-            python3 << 'PYTHON'
+            uv run python << 'PYTHON'
           import json
 
           with open('bandit-report.json') as f:
@@ -471,7 +471,7 @@ jobs:
       - name: Validate QA commands (test, verify, review)
         run: |
           echo "=== Validating QA role commands ==="
-          python3 << 'PYTHON'
+          uv run python << 'PYTHON'
           import yaml
 
           with open('specflow_workflow.yml') as f:
@@ -506,7 +506,7 @@ jobs:
           uv run pytest tests/ -v --cov=src/specify_cli --cov-report=term-missing --cov-report=json
 
           # Check coverage threshold
-          python3 << 'PYTHON'
+          uv run python << 'PYTHON'
           import json
 
           with open('coverage.json') as f:
@@ -629,7 +629,7 @@ jobs:
       - name: Validate Ops commands (deploy, monitor, respond, scale)
         run: |
           echo "=== Validating Ops role commands ==="
-          python3 << 'PYTHON'
+          uv run python << 'PYTHON'
           import yaml
 
           with open('specflow_workflow.yml') as f:

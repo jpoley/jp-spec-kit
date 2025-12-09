@@ -30,6 +30,16 @@ TEMPLATES_COMMANDS_DIR="$PROJECT_ROOT/templates/commands"
 AGENTS_DIR="$PROJECT_ROOT/.github/agents"
 WORKFLOW_CONFIG="$PROJECT_ROOT/specflow_workflow.yml"
 
+# Determine Python command - prefer uv venv if available (for CI compatibility)
+# This handles CI environments where yaml is only in the uv-managed venv
+if [[ -f "$PROJECT_ROOT/.venv/bin/python" ]]; then
+    PYTHON_CMD="$PROJECT_ROOT/.venv/bin/python"
+elif command -v uv &> /dev/null && [[ -f "$PROJECT_ROOT/pyproject.toml" ]]; then
+    PYTHON_CMD="uv run python"
+else
+    PYTHON_CMD="python3"
+fi
+
 # Flags
 DRY_RUN=false
 VALIDATE=false
@@ -177,7 +187,7 @@ get_role_metadata() {
                 log_verbose "Agent '$key' -> role '$value'"
                 ;;
         esac
-    done < <(WORKFLOW_CONFIG="$WORKFLOW_CONFIG" python3 << 'PYTHON_METADATA'
+    done < <(WORKFLOW_CONFIG="$WORKFLOW_CONFIG" $PYTHON_CMD << 'PYTHON_METADATA'
 import yaml
 import sys
 import os
@@ -259,7 +269,7 @@ should_process_command() {
 resolve_includes() {
     local input_file="$1"
 
-    PROJECT_ROOT="$PROJECT_ROOT" INPUT_FILE="$input_file" python3 << 'PYTHON_SCRIPT'
+    PROJECT_ROOT="$PROJECT_ROOT" INPUT_FILE="$input_file" $PYTHON_CMD << 'PYTHON_SCRIPT'
 import re
 import sys
 from pathlib import Path
@@ -361,7 +371,7 @@ PYTHON_SCRIPT
 extract_description() {
     local content="$1"
 
-    python3 -c '
+    $PYTHON_CMD -c '
 import re
 import sys
 
@@ -745,7 +755,7 @@ process_command() {
 
     # Remove original frontmatter and get body
     local body
-    body=$(echo "$resolved_content" | python3 -c "
+    body=$(echo "$resolved_content" | $PYTHON_CMD -c "
 import sys
 import re
 content = sys.stdin.read()
@@ -972,7 +982,7 @@ main() {
     parse_args "$@"
 
     local start_time
-    start_time=$(python3 -c "import time; print(int(time.time() * 1000))")
+    start_time=$($PYTHON_CMD -c "import time; print(int(time.time() * 1000))")
 
     log_info "Syncing Claude Code commands to VS Code Copilot agents"
     log_info "Sources:"
@@ -1027,7 +1037,7 @@ main() {
 
     # Calculate duration
     local end_time duration_ms
-    end_time=$(python3 -c "import time; print(int(time.time() * 1000))")
+    end_time=$($PYTHON_CMD -c "import time; print(int(time.time() * 1000))")
     duration_ms=$((end_time - start_time))
 
     # Summary
