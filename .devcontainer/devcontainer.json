@@ -71,7 +71,8 @@
     "GOOGLE_API_KEY": "${localEnv:GOOGLE_API_KEY}",
     "PYTHONUNBUFFERED": "1",
     "UV_SYSTEM_PYTHON": "1",
-    "PATH": "/home/vscode/.local/share/pnpm:/home/vscode/.cargo/bin:/home/vscode/.local/bin:${containerEnv:PATH}"
+    "VIRTUAL_ENV": "/workspaces/jp-spec-kit/.venv",
+    "PATH": "/workspaces/jp-spec-kit/.venv/bin:/home/vscode/.local/share/pnpm:/home/vscode/.cargo/bin:/home/vscode/.local/bin:${containerEnv:PATH}"
   },
 
   "initializeCommand": "mkdir -p ${localEnv:HOME}/.claude ${localEnv:HOME}/.config/github-copilot",

@@ -11,22 +11,38 @@ echo ""
 # -----------------------------------------------------------------------------
 # 0. Setup PATH for this script and future shells
 # -----------------------------------------------------------------------------
-export PATH="/home/vscode/.cargo/bin:/home/vscode/.local/bin:$PATH"
 
-# Get pnpm global bin directory and add to PATH
+# pnpm global packages install to PNPM_HOME, but the binaries/shims are created
+# in PNPM_HOME itself when global-bin-dir is set to PNPM_HOME (done below)
 PNPM_HOME="/home/vscode/.local/share/pnpm"
 export PNPM_HOME
-export PATH="$PNPM_HOME:$PATH"
 
-# Add to .zshrc for future shells
+# Build the complete PATH we need
+export PATH="$PNPM_HOME:/home/vscode/.cargo/bin:/home/vscode/.local/bin:$PATH"
+
+# Create .zshenv for PATH (runs for ALL shells, including non-interactive)
+# This ensures PATH is set even for VS Code integrated terminal
+cat > /home/vscode/.zshenv << 'ZSHENV'
+# JP Spec Kit devcontainer PATH setup
+# This file runs for ALL zsh shells (login, interactive, scripts)
+
+export PNPM_HOME="/home/vscode/.local/share/pnpm"
+export PATH="$PNPM_HOME:/home/vscode/.cargo/bin:/home/vscode/.local/bin:$PATH"
+
+# Add Python venv to PATH (activation not needed, just PATH)
+if [ -d "/workspaces/jp-spec-kit/.venv/bin" ]; then
+    export PATH="/workspaces/jp-spec-kit/.venv/bin:$PATH"
+    export VIRTUAL_ENV="/workspaces/jp-spec-kit/.venv"
+fi
+ZSHENV
+
+# Also add to .zshrc for interactive features
 cat >> /home/vscode/.zshrc << 'ZSHRC'
 
-# Added by devcontainer setup
-export PATH="/home/vscode/.cargo/bin:/home/vscode/.local/bin:$PATH"
-export PNPM_HOME="/home/vscode/.local/share/pnpm"
-export PATH="$PNPM_HOME:$PATH"
+# Added by devcontainer setup (interactive shell additions)
+# PATH is already set by .zshenv
 
-# Activate Python virtual environment
+# Activate Python virtual environment for prompt indicator
 if [ -f "/workspaces/jp-spec-kit/.venv/bin/activate" ]; then
     source /workspaces/jp-spec-kit/.venv/bin/activate
 fi
