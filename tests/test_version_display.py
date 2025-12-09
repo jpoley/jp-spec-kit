@@ -282,7 +282,7 @@ class TestVersionCliCommand:
             result = runner.invoke(app, ["version"])
 
             assert result.exit_code == 0
-            assert "jp-spec-kit" in result.stdout
+            assert "SpecFlow" in result.stdout
             assert "spec-kit" in result.stdout
             assert "backlog.md" in result.stdout
 
@@ -291,14 +291,14 @@ class TestVersionCliCommand:
         result = runner.invoke(app, ["--version"])
 
         assert result.exit_code == 0
-        assert "jp-spec-kit" in result.stdout
+        assert "SpecFlow" in result.stdout
 
     def test_version_flag_short_form(self):
         """'specify -v' shows simple version string."""
         result = runner.invoke(app, ["-v"])
 
         assert result.exit_code == 0
-        assert "jp-spec-kit" in result.stdout
+        assert "SpecFlow" in result.stdout
 
 
 class TestVersionUpgradeIndicators:

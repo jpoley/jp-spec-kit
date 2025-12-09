@@ -217,7 +217,7 @@ check_symlinks() {
     if [[ $broken_count -gt 0 ]]; then
         echo ""
         log_warning "$broken_count broken symlinks found"
-        log_info "If this is .claude/commands/, run 'specify dev-setup --force' to recreate symlinks"
+        log_info "If this is .claude/commands/, run 'specflow dev-setup --force' to recreate symlinks"
     fi
 }
 
@@ -269,7 +269,7 @@ main() {
         echo ""
         log_info "Next steps:"
         echo "  1. Review the changes: git status"
-        echo "  2. If migrating .claude/commands/, run: specify dev-setup --force"
+        echo "  2. If migrating .claude/commands/, run: specflow dev-setup --force"
         echo "  3. Commit the changes: git add -A && git commit -m 'Migrate commands to subdirectories'"
     fi
 }

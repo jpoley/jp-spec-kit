@@ -44,7 +44,7 @@ TEMPLATES_COMMANDS_DIR="templates/commands"
 echo -e "${BLUE}1. Checking .claude/commands/ directory exists...${NC}"
 if [ ! -d "$CLAUDE_COMMANDS_DIR" ]; then
     echo -e "${RED}✗ Directory not found: $CLAUDE_COMMANDS_DIR${NC}"
-    echo -e "${RED}  Run: uv run specify dev-setup${NC}"
+    echo -e "${RED}  Run: uv run specflow dev-setup${NC}"
     STATUS=1
 else
     echo -e "${GREEN}✓ Directory exists${NC}"
@@ -67,7 +67,7 @@ if [ ${#MISSING_DIRS[@]} -gt 0 ]; then
     for dir in "${MISSING_DIRS[@]}"; do
         echo -e "${RED}  - $CLAUDE_COMMANDS_DIR/$dir/${NC}"
     done
-    echo -e "${RED}  Run: uv run specify dev-setup --force${NC}"
+    echo -e "${RED}  Run: uv run specflow dev-setup --force${NC}"
     STATUS=1
 else
     echo -e "${GREEN}✓ All expected subdirectories exist (jpspec/, speckit/)${NC}"
@@ -77,7 +77,7 @@ echo ""
 # Exit early if basic structure is missing
 if [ $STATUS -ne 0 ]; then
     echo -e "${RED}✗ Dev-setup structure is incomplete${NC}"
-    echo -e "${RED}  Please run: uv run specify dev-setup --force${NC}"
+    echo -e "${RED}  Please run: uv run specflow dev-setup --force${NC}"
     echo ""
     exit 1
 fi
@@ -102,7 +102,7 @@ if [ ${#NON_SYMLINKS[@]} -gt 0 ]; then
     done
     echo -e "${RED}"
     echo -e "${RED}  All .md files must be symlinks to templates/commands/${NC}"
-    echo -e "${RED}  Run: uv run specify dev-setup --force${NC}"
+    echo -e "${RED}  Run: uv run specflow dev-setup --force${NC}"
     STATUS=1
 else
     echo -e "${GREEN}✓ All .md files are symlinks${NC}"
@@ -133,7 +133,7 @@ if [ ${#BROKEN_SYMLINKS[@]} -gt 0 ]; then
         echo -e "${RED}  - $symlink${NC}"
     done
     echo -e "${RED}"
-    echo -e "${RED}  Run: uv run specify dev-setup --force${NC}"
+    echo -e "${RED}  Run: uv run specflow dev-setup --force${NC}"
     STATUS=1
 else
     echo -e "${GREEN}✓ All symlinks resolve to existing files${NC}"
@@ -171,7 +171,7 @@ if [ ${#MISPOINTED_SYMLINKS[@]} -gt 0 ]; then
     done
     echo -e "${RED}"
     echo -e "${RED}  All symlinks must point to $TEMPLATES_COMMANDS_DIR${NC}"
-    echo -e "${RED}  Run: uv run specify dev-setup --force${NC}"
+    echo -e "${RED}  Run: uv run specflow dev-setup --force${NC}"
     STATUS=1
 else
     echo -e "${GREEN}✓ All symlinks point to templates/commands/${NC}"
@@ -187,7 +187,7 @@ else
     echo -e "${RED}  Please fix the issues before committing${NC}"
     echo ""
     echo -e "${YELLOW}To fix all issues:${NC}"
-    echo -e "${YELLOW}  uv run specify dev-setup --force${NC}"
+    echo -e "${YELLOW}  uv run specflow dev-setup --force${NC}"
     echo ""
     exit 1
 fi

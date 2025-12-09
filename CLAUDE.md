@@ -3,7 +3,7 @@
 ## Project Overview
 
 **JP Spec Kit** is a toolkit for Spec-Driven Development (SDD):
-- **Specify CLI**: Command-line tool to bootstrap projects (`specify-cli` package)
+- **SpecFlow CLI**: Command-line tool to bootstrap projects (`specflow-cli` package)
 - **Templates**: SDD templates for multiple AI agents
 - **Documentation**: Comprehensive guides in `docs/`
 
@@ -145,16 +145,16 @@ workflows:
 
 ```bash
 # Validate default jpspec_workflow.yml
-specify workflow validate
+specflow workflow validate
 
 # Validate custom workflow file
-specify workflow validate --file custom_workflow.yml
+specflow workflow validate --file custom_workflow.yml
 
 # Show detailed output with warnings
-specify workflow validate --verbose
+specflow workflow validate --verbose
 
 # JSON output for CI/automation
-specify workflow validate --json
+specflow workflow validate --json
 
 # Example output:
 # ✓ Schema validation passed

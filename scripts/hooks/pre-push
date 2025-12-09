@@ -10,9 +10,9 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 echo "Running pre-push security scan..."
 
 # Check if specify is available
-if ! command -v specify &> /dev/null; then
-    echo "Warning: 'specify' command not found - skipping security scan"
-    echo "Install with: uv tool install specify-cli --from git+https://github.com/jpoley/jp-spec-kit.git"
+if ! command -v specflow &> /dev/null; then
+    echo "Warning: 'specflow' command not found - skipping security scan"
+    echo "Install with: uv tool install specflow-cli --from git+https://github.com/jpoley/jp-spec-kit.git"
     exit 0
 fi
 
@@ -25,7 +25,7 @@ fi
 
 # Run security scan on src/ directory (Python code)
 echo "Scanning src/ for security issues..."
-if ! specify security scan src/ --fail-on high 2>/dev/null; then
+if ! specflow security scan src/ --fail-on high 2>/dev/null; then
     echo ""
     echo "Security scan failed! Please fix the issues before pushing."
     echo ""

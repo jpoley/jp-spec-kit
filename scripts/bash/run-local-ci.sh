@@ -352,7 +352,7 @@ run_direct() {
     if uv tool install . --force; then
         print_success "CLI installed successfully"
 
-        if specify --help &> /dev/null; then
+        if specflow --help &> /dev/null; then
             print_success "CLI is functional"
         else
             print_error "CLI installation succeeded but command failed"

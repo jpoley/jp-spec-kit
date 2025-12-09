@@ -30,8 +30,8 @@ JP Spec Kit transforms how you build software with AI. Instead of giving AI loos
 ### 1. Install the Tools
 
 ```bash
-# Specify CLI (project initialization)
-uv tool install specify-cli --from git+https://github.com/jpoley/jp-spec-kit.git
+# SpecFlow CLI (project initialization)
+uv tool install specflow-cli --from git+https://github.com/jpoley/jp-spec-kit.git
 
 # Backlog.md (task management)
 pnpm i -g backlog.md
@@ -40,7 +40,7 @@ pnpm i -g backlog.md
 ### 2. Initialize Your Project
 
 ```bash
-specify init my-project --ai claude
+specflow init my-project --ai claude
 cd my-project
 backlog init "$(basename "$PWD")"
 ```
@@ -316,7 +316,7 @@ Implementation is NOT complete until all three are delivered.
 
 ```bash
 # Initialize with multiple agents
-specify init my-project --ai claude,copilot,cursor-agent
+specflow init my-project --ai claude,copilot,cursor-agent
 ```
 
 ## File Structure

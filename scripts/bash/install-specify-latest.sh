@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Install specify-cli from the latest tag of a PRIVATE GitHub repo
+# Install specflow-cli from the latest tag of a PRIVATE GitHub repo
 # Resolves the latest tag using the most secure method available and installs via uv.
 #
 # Usage:
@@ -96,18 +96,18 @@ if [[ -z "$TAG" ]]; then
   exit 1
 fi
 
-echo "Installing specify-cli @ ${TAG} from ${OWNER}/${REPO} via ${METHOD}"
+echo "Installing specflow-cli @ ${TAG} from ${OWNER}/${REPO} via ${METHOD}"
 
 if [[ "$METHOD" == "ssh" ]]; then
   UV_FROM="git+ssh://git@github.com/${OWNER}/${REPO}.git@${TAG}"
-  uv tool install specify-cli --from "$UV_FROM"
+  uv tool install specflow-cli --from "$UV_FROM"
 else
   if [[ -z "${GITHUB_TOKEN:-}" ]]; then
     echo "GITHUB_TOKEN not set for private HTTPS access. Export it and retry, or use --ssh." >&2
     exit 1
   fi
   UV_FROM="git+https://x-access-token:${GITHUB_TOKEN}@github.com/${OWNER}/${REPO}.git@${TAG}"
-  uv tool install specify-cli --from "$UV_FROM"
+  uv tool install specflow-cli --from "$UV_FROM"
 fi
 
-echo "Done. Run: specify --help"
+echo "Done. Run: specflow --help"

@@ -150,7 +150,7 @@ try {
     uv tool install . --force
     Print-Success "CLI installed successfully"
 
-    specify --help | Out-Null
+    specflow --help | Out-Null
     Print-Success "CLI is functional"
 } catch {
     Print-Error "CLI installation or execution failed"

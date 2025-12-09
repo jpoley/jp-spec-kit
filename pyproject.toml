@@ -1,11 +1,11 @@
 [project]
-name = "specify-cli"
+name = "specflow-cli"
 
-version = "0.2.343"
+version = "1.0.0"
 
 
 
-description = "JP Spec Kit - A layered extension of GitHub Spec Kit with multi-language support and advanced agent orchestration for Spec-Driven Development (SDD)."
+description = "SpecFlow - Spec-Driven Development toolkit with multi-language support and advanced agent orchestration."
 requires-python = ">=3.11"
 dependencies = [
     "typer",
@@ -21,7 +21,8 @@ dependencies = [
 ]
 
 [project.scripts]
-specify = "specify_cli:main"
+specflow = "specify_cli:main"
+specify = "specify_cli:main_deprecated"
 
 [project.entry-points.pytest11]
 specify_ac = "specify_cli.pytest_plugin"

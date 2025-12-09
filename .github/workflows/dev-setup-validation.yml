@@ -36,7 +36,7 @@ jobs:
             echo "❌ FAILED: Found non-symlink .md files:"
             echo "$NON_SYMLINKS" | sed 's/^/  - /'
             echo ""
-            echo "Fix: Run 'uv run specify dev-setup --force'"
+            echo "Fix: Run 'uv run specflow dev-setup --force'"
             exit 1
           fi
           echo "✓ Passed: All .md files are symlinks"
@@ -49,7 +49,7 @@ jobs:
             echo "❌ FAILED: Found broken symlinks:"
             echo "$BROKEN_SYMLINKS" | sed 's/^/  - /'
             echo ""
-            echo "Fix: Run 'uv run specify dev-setup --force'"
+            echo "Fix: Run 'uv run specflow dev-setup --force'"
             exit 1
           fi
           echo "✓ Passed: All symlinks resolve"
@@ -67,7 +67,7 @@ jobs:
           done
           if [ $MISPOINTED -eq 1 ]; then
             echo ""
-            echo "Fix: Run 'uv run specify dev-setup --force'"
+            echo "Fix: Run 'uv run specflow dev-setup --force'"
             exit 1
           fi
           echo "✓ Passed: All symlinks point to templates/commands/"
@@ -77,12 +77,12 @@ jobs:
           echo "Checking R7: Subdirectory structure..."
           if [ ! -d ".claude/commands/jpspec" ]; then
             echo "❌ FAILED: Missing .claude/commands/jpspec directory"
-            echo "Fix: Run 'uv run specify dev-setup --force'"
+            echo "Fix: Run 'uv run specflow dev-setup --force'"
             exit 1
           fi
           if [ ! -d ".claude/commands/speckit" ]; then
             echo "❌ FAILED: Missing .claude/commands/speckit directory"
-            echo "Fix: Run 'uv run specify dev-setup --force'"
+            echo "Fix: Run 'uv run specflow dev-setup --force'"
             exit 1
           fi
 
@@ -93,7 +93,7 @@ jobs:
             echo "$UNEXPECTED_DIRS" | sed 's/^/  - /'
             echo ""
             echo "Expected structure: jpspec/, speckit/ only"
-            echo "Fix: Run 'uv run specify dev-setup --force'"
+            echo "Fix: Run 'uv run specflow dev-setup --force'"
             exit 1
           fi
 
@@ -104,7 +104,7 @@ jobs:
             echo "$ROOT_MD" | sed 's/^/  - /'
             echo ""
             echo "All .md files must be in jpspec/ or speckit/ subdirectories"
-            echo "Fix: Run 'uv run specify dev-setup --force'"
+            echo "Fix: Run 'uv run specflow dev-setup --force'"
             exit 1
           fi
           echo "✓ Passed: Directory structure is correct"
@@ -114,8 +114,8 @@ jobs:
         run: |
           echo "=== Testing dev-setup command ==="
           echo ""
-          echo "Running: uv run specify dev-setup --force"
-          uv run specify dev-setup --force
+          echo "Running: uv run specflow dev-setup --force"
+          uv run specflow dev-setup --force
           echo ""
           echo "✓ dev-setup command executed successfully"
           echo ""
