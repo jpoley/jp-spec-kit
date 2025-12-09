@@ -269,7 +269,6 @@ def main() -> int:
     print(f"Workflow config: {workflow_path}")
     print()
 
-
     # Load and validate
     config = load_yaml(workflow_path)
     validator = RoleValidator(config)

@@ -1,0 +1,227 @@
+name: Task Memory Validation
+
+on:
+  pull_request:
+    paths:
+      - 'backlog/memory/**'
+      - '.github/workflows/task-memory-validation.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'backlog/memory/**'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  validate-memory-files:
+    runs-on: ubuntu-latest
+    name: Validate Task Memory Files
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for diff analysis
+
+      - name: Check memory file sizes
+        id: size_check
+        run: |
+          echo "Checking memory file sizes..."
+          MAX_SIZE=102400  # 100KB in bytes
+          WARN_SIZE=25600  # 25KB in bytes
+          ERRORS=0
+          WARNINGS=0
+
+          # Check active memory files
+          if [ -d "backlog/memory" ]; then
+            for file in backlog/memory/*.md; do
+              if [ -f "$file" ]; then
+                size=$(stat -c%s "$file" 2>/dev/null || stat -f%z "$file")
+                filename=$(basename "$file")
+
+                if [ $size -gt $MAX_SIZE ]; then
+                  echo "::error file=$file::Memory file exceeds 100KB: $size bytes"
+                  ERRORS=$((ERRORS + 1))
+                elif [ $size -gt $WARN_SIZE ]; then
+                  echo "::warning file=$file::Memory file exceeds 25KB: $size bytes (consider compacting)"
+                  WARNINGS=$((WARNINGS + 1))
+                fi
+              fi
+            done
+          fi
+
+          # Report results
+          if [ $ERRORS -gt 0 ]; then
+            echo "::error::Found $ERRORS memory file(s) exceeding 100KB size limit"
+            exit 1
+          fi
+
+          if [ $WARNINGS -gt 0 ]; then
+            echo "::notice::Found $WARNINGS memory file(s) exceeding 25KB (warnings only)"
+          fi
+
+          echo "✓ All memory files within size limits"
+
+      - name: Install gitleaks
+        run: |
+          wget -q https://github.com/gitleaks/gitleaks/releases/download/v8.18.0/gitleaks_8.18.0_linux_x64.tar.gz
+          tar -xzf gitleaks_8.18.0_linux_x64.tar.gz
+          sudo mv gitleaks /usr/local/bin/
+          gitleaks version
+
+      - name: Scan memory files for secrets
+        run: |
+          echo "Scanning task memory files for secrets..."
+
+          if [ -d "backlog/memory" ]; then
+            # Create temporary gitleaks config for memory files only
+            cat > /tmp/gitleaks-memory.toml << 'EOF'
+          [extend]
+          useDefault = true
+
+          [[rules]]
+          description = "Generic API Key"
+          regex = '''(?i)(api[_-]?key|apikey|api[_-]?token)['\"]?\s*[:=]\s*['"]?[a-zA-Z0-9]{16,}'''
+
+          [[rules]]
+          description = "Generic Secret"
+          regex = '''(?i)(secret|password|passwd|pwd)['\"]?\s*[:=]\s*['"]?[^'"\s]{8,}'''
+          EOF
+
+            # Scan only memory files
+            if gitleaks detect --config=/tmp/gitleaks-memory.toml --source=backlog/memory --no-git --verbose; then
+              echo "✓ No secrets detected in memory files"
+            else
+              echo "::error::Secrets detected in task memory files!"
+              exit 1
+            fi
+          else
+            echo "No memory directory found, skipping secret scan"
+          fi
+
+      - name: Validate memory file format
+        run: |
+          echo "Validating memory file format..."
+          ERRORS=0
+
+          if [ -d "backlog/memory" ]; then
+            for file in backlog/memory/*.md; do
+              if [ -f "$file" ]; then
+                filename=$(basename "$file")
+
+                # Check filename format: task-NNN.md
+                if ! echo "$filename" | grep -qE '^task-[0-9]+\.md$'; then
+                  echo "::error file=$file::Invalid filename format. Expected: task-NNN.md"
+                  ERRORS=$((ERRORS + 1))
+                  continue
+                fi
+
+                # Check for required sections
+                if ! grep -q "^# Task Memory:" "$file"; then
+                  echo "::warning file=$file::Missing '# Task Memory:' header"
+                fi
+
+                if ! grep -q "^## Context" "$file"; then
+                  echo "::warning file=$file::Missing '## Context' section"
+                fi
+              fi
+            done
+          fi
+
+          if [ $ERRORS -gt 0 ]; then
+            echo "::error::Found $ERRORS memory file(s) with format errors"
+            exit 1
+          fi
+
+          echo "✓ All memory files have valid format"
+
+      - name: Generate memory change summary
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "## Task Memory Changes" > /tmp/memory-summary.md
+          echo "" >> /tmp/memory-summary.md
+
+          # Get list of changed memory files
+          CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep '^backlog/memory/' || true)
+
+          if [ -z "$CHANGED_FILES" ]; then
+            echo "No memory files changed in this PR" >> /tmp/memory-summary.md
+          else
+            echo "### Changed Files" >> /tmp/memory-summary.md
+            echo "" >> /tmp/memory-summary.md
+
+            for file in $CHANGED_FILES; do
+              if [ -f "$file" ]; then
+                size=$(stat -c%s "$file" 2>/dev/null || stat -f%z "$file")
+                size_kb=$((size / 1024))
+                echo "- \`$file\` (${size_kb}KB)" >> /tmp/memory-summary.md
+              else
+                echo "- \`$file\` (deleted)" >> /tmp/memory-summary.md
+              fi
+            done
+
+            echo "" >> /tmp/memory-summary.md
+            echo "### Statistics" >> /tmp/memory-summary.md
+            echo "" >> /tmp/memory-summary.md
+            echo "- Files changed: $(echo "$CHANGED_FILES" | wc -l)" >> /tmp/memory-summary.md
+
+            if [ -d "backlog/memory" ]; then
+              total_count=$(find backlog/memory -name "*.md" -type f | wc -l)
+              total_size=$(find backlog/memory -name "*.md" -type f -exec stat -c%s {} \; 2>/dev/null | awk '{sum+=$1} END {print sum/1024}')
+              echo "- Total active memories: $total_count" >> /tmp/memory-summary.md
+              echo "- Total size: ${total_size}KB" >> /tmp/memory-summary.md
+            fi
+          fi
+
+          cat /tmp/memory-summary.md
+
+      - name: Comment PR with memory summary
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const summary = fs.readFileSync('/tmp/memory-summary.md', 'utf8');
+
+            // Find existing comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('Task Memory Changes')
+            );
+
+            const commentBody = `${summary}\n\n---\n*Automated by Task Memory CI validation*`;
+
+            if (botComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: commentBody
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: commentBody
+              });
+            }
+
+      - name: Summary
+        run: |
+          echo "## Task Memory Validation Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✓ Size validation passed" >> $GITHUB_STEP_SUMMARY
+          echo "✓ Secret detection passed" >> $GITHUB_STEP_SUMMARY
+          echo "✓ Format validation passed" >> $GITHUB_STEP_SUMMARY
