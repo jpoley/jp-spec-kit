@@ -58,7 +58,7 @@
 
   "mounts": [
     "source=${localWorkspaceFolder}/backlog,target=/workspaces/jp-spec-kit/backlog,type=bind,consistency=cached",
-    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.gitconfig,target=/home/vscode/.gitconfig,type=bind,readonly",
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.gitconfig,target=/home/vscode/.gitconfig-host,type=bind,readonly",
     "source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/vscode/.ssh,type=bind,readonly",
     "source=${localEnv:HOME}${localEnv:USERPROFILE}/.claude,target=/home/vscode/.claude,type=bind,consistency=cached",
     "source=${localEnv:HOME}${localEnv:USERPROFILE}/.config/github-copilot,target=/home/vscode/.config/github-copilot,type=bind,consistency=cached",
@@ -77,7 +77,7 @@
   "initializeCommand": "mkdir -p ${localEnv:HOME}/.claude ${localEnv:HOME}/.config/github-copilot",
   "onCreateCommand": "curl -LsSf https://astral.sh/uv/install.sh | sh",
   "postCreateCommand": "bash .devcontainer/post-create.sh",
-  "postStartCommand": "git config --global --add safe.directory ${containerWorkspaceFolder}",
+  "postStartCommand": "cp /home/vscode/.gitconfig-host /home/vscode/.gitconfig 2>/dev/null || true; git config --global --add safe.directory ${containerWorkspaceFolder}",
   "postAttachCommand": "echo '--- JP Spec Kit Dev Environment Ready ---' && uv --version && python --version",
 
   "forwardPorts": [],
