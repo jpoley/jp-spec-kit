@@ -1,5 +1,5 @@
 ---
-name: "jpspec-validate"
+name: "qa-verify"
 description: "Execute validation and quality assurance using QA, security, documentation, and release management agents."
 target: "chat"
 tools:
@@ -13,11 +13,20 @@ tools:
   - "mcp__serena__*"
   - "Skill"
 
+# Role-Based Metadata
+role: "qa"
+priority_for_roles:
+  - "qa"
+visible_to_roles:
+  - "qa"
+  - "all"
+
 handoffs:
-  - label: "Deploy to Production"
-    agent: "jpspec-operate"
-    prompt: "Validation is complete. Deploy the feature to production and configure operations."
+  - label: "Deploy"
+    agent: "ops-deploy"
+    prompt: "Verification complete. Hand off to ops for deployment."
     send: false
+    priority_for_roles: ["ops"]
 ---
 # /jpspec:validate - Enhanced Phased Validation Workflow
 

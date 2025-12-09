@@ -1,5 +1,5 @@
 ---
-name: "jpspec-research"
+name: "pm-discover"
 description: "Execute research and business validation workflow using specialized agents."
 target: "chat"
 tools:
@@ -13,11 +13,22 @@ tools:
   - "mcp__serena__*"
   - "Skill"
 
+# Role-Based Metadata
+role: "pm"
+priority_for_roles:
+  - "pm"
+visible_to_roles:
+  - "pm"
+  - "all"
+auto_load_for_roles:
+  - "pm"
+
 handoffs:
   - label: "Create Technical Design"
-    agent: "jpspec-plan"
-    prompt: "Research is complete. Create the technical architecture and platform design based on findings."
+    agent: "arch-design"
+    prompt: "Discovery complete. Hand off to architect for technical design."
     send: false
+    priority_for_roles: ["arch"]
 ---
 ## User Input
 

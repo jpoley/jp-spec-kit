@@ -1,5 +1,5 @@
 ---
-name: "jpspec-plan"
+name: "arch-design"
 description: "Execute planning workflow using project architect and platform engineer agents (builds out /speckit.constitution)."
 target: "chat"
 tools:
@@ -13,11 +13,22 @@ tools:
   - "mcp__serena__*"
   - "Skill"
 
+# Role-Based Metadata
+role: "arch"
+priority_for_roles:
+  - "arch"
+visible_to_roles:
+  - "arch"
+  - "all"
+auto_load_for_roles:
+  - "arch"
+
 handoffs:
   - label: "Begin Implementation"
-    agent: "jpspec-implement"
-    prompt: "Planning is complete. Begin implementing the feature according to the technical design."
+    agent: "dev-build"
+    prompt: "Design complete. Hand off to developers for implementation."
     send: false
+    priority_for_roles: ["dev"]
 ---
 ## User Input
 

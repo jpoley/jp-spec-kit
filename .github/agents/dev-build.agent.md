@@ -1,5 +1,5 @@
 ---
-name: "jpspec-implement"
+name: "dev-build"
 description: "Execute implementation using specialized frontend and backend engineer agents with code review."
 target: "chat"
 tools:
@@ -13,11 +13,22 @@ tools:
   - "mcp__serena__*"
   - "Skill"
 
+# Role-Based Metadata
+role: "dev"
+priority_for_roles:
+  - "dev"
+visible_to_roles:
+  - "dev"
+  - "all"
+auto_load_for_roles:
+  - "dev"
+
 handoffs:
-  - label: "Run Validation"
-    agent: "jpspec-validate"
-    prompt: "Implementation is complete. Run QA validation, security review, and documentation checks."
+  - label: "Run Tests"
+    agent: "qa-test"
+    prompt: "Implementation complete. Hand off to QA for testing."
     send: false
+    priority_for_roles: ["qa"]
 ---
 ## User Input
 

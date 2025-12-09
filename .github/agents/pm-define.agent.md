@@ -1,5 +1,5 @@
 ---
-name: "jpspec-specify"
+name: "pm-define"
 description: "Create or update feature specifications using PM planner agent (manages /speckit.tasks)."
 target: "chat"
 tools:
@@ -13,15 +13,27 @@ tools:
   - "mcp__serena__*"
   - "Skill"
 
+# Role-Based Metadata
+role: "pm"
+priority_for_roles:
+  - "pm"
+visible_to_roles:
+  - "pm"
+  - "all"
+auto_load_for_roles:
+  - "pm"
+
 handoffs:
-  - label: "Conduct Research"
-    agent: "jpspec-research"
-    prompt: "The specification is complete. Conduct research to validate technical feasibility and market fit."
+  - label: "Research and Discover"
+    agent: "pm-discover"
+    prompt: "Requirements defined. Conduct research and discovery."
     send: false
+    priority_for_roles: ["pm"]
   - label: "Create Technical Design"
-    agent: "jpspec-plan"
-    prompt: "The specification is complete. Create the technical architecture and platform design."
+    agent: "arch-design"
+    prompt: "Requirements ready. Hand off to architect for technical design."
     send: false
+    priority_for_roles: ["arch"]
 ---
 ## User Input
 
@@ -390,11 +402,11 @@ Use `--skip-state-check` flag or explicitly acknowledge the bypass.
 **Warning**: Bypassing state checks may result in incomplete artifacts or broken workflows.
 
 
-**For /jpspec:specify**: Required input state is `workflow:Assessed`. Output state will be `workflow:Specified`.
+**For /pm:define**: Required input state is `workflow:Assessed`. Output state will be `workflow:Specified`.
 
 If no task is in progress or the task doesn't have the required workflow state, inform the user:
-- If task needs assessment first: suggest running `/jpspec:assess`
-- If this is a new feature: suggest creating a task with `/jpspec:assess` first
+- If task needs assessment first: suggest running `/pm:assess`
+- If this is a new feature: suggest creating a task with `/pm:assess` first
 
 ### Step 1: Discover Existing Tasks
 
@@ -616,7 +628,7 @@ The agent will produce:
 2. **Actual backlog tasks** created via CLI (task IDs listed in section 6)
 3. PRD references task IDs for full traceability
 
-### ⚠️ MANDATORY: Design→Implement Workflow
+### MANDATORY: Design→Implement Workflow
 
 **This is a DESIGN command. The agent creates implementation tasks as part of section 6.**
 
