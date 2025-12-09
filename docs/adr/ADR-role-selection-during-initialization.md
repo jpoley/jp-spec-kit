@@ -534,11 +534,11 @@ def get_available_roles(workflow_config: dict) -> list[str]:
 
 ## Implementation Tasks
 
-### Phase 1: Core Functionality (Week 1)
-- [ ] Add `role_config` schema to specflow_workflow.yml
-- [ ] Implement role selection prompt in init/reset
-- [ ] Store selected role in config
-- [ ] Add environment variable override
+### Phase 1: Core Functionality (Week 1) ✅
+- [x] Add `role_config` schema to specflow_workflow.yml
+- [x] Implement role selection prompt in init/configure commands
+- [x] Store selected role in config
+- [x] Add environment variable override (SPECFLOW_PRIMARY_ROLE)
 
 ### Phase 2: IDE Integration (Week 2)
 - [ ] Update VS Code agent metadata with role fields
@@ -581,5 +581,6 @@ def get_available_roles(workflow_config: dict) -> list[str]:
 ---
 
 **Reviewers**: @product-requirements-manager, @software-architect
-**Status**: Awaiting approval
+**Status**: Phase 1 Complete (Role selection implemented in init/configure commands)
+**Last Updated**: 2025-12-09
 **Next Review Date**: 2025-12-16

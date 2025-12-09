@@ -1,0 +1,1 @@
+../../../templates/commands/speckit/configure.md
