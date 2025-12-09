@@ -1,9 +1,11 @@
 ---
 id: task-391
 title: Implement Memory CLI - Search Command
-status: To Do
-assignee: []
+status: Done
+assignee:
+  - '@backend-engineer'
 created_date: '2025-12-09 15:58'
+updated_date: '2025-12-09 17:00'
 labels:
   - backend
   - task-memory
@@ -22,12 +24,27 @@ Create `backlog memory search` command to find memories containing specific text
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Implement search subcommand with query argument
-- [ ] #2 Support regex pattern matching
-- [ ] #3 Search across active and archived memories
-- [ ] #4 Display results with context (surrounding lines)
-- [ ] #5 Support --limit option to cap results
-- [ ] #6 Add performance optimization for large memory corpus
-- [ ] #7 Test with 1000+ memory files
-- [ ] #8 Add CLI tests for search command
+- [x] #1 Implement search subcommand with query argument
+- [x] #2 Support regex pattern matching
+- [x] #3 Search across active and archived memories
+- [x] #4 Display results with context (surrounding lines)
+- [x] #5 Support --limit option to cap results
+- [x] #6 Add performance optimization for large memory corpus
+- [x] #7 Test with 1000+ memory files
+- [x] #8 Add CLI tests for search command
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Implemented search command with:
+- Regex pattern matching support
+- Search across active and archived memories
+- Context lines around matches (configurable)
+- Result limiting (--limit option)
+- Performance optimization for large corpus
+- Rich output with highlighted matches
+- Comprehensive test coverage
+
+All acceptance criteria met.
+<!-- SECTION:NOTES:END -->
