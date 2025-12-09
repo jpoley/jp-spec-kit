@@ -114,7 +114,9 @@ class TestCLAUDEMDImport:
         assert "@import ../memory/task-101.md" in claude_md
         assert "@import ../memory/task-100.md" not in claude_md
 
-    def test_inject_preserves_claude_md_content(self, injection_project, store_with_tasks):
+    def test_inject_preserves_claude_md_content(
+        self, injection_project, store_with_tasks
+    ):
         """Test that injection preserves existing CLAUDE.md content."""
         injector = ContextInjector(base_path=injection_project)
 
@@ -206,6 +208,7 @@ class TestMCPResourceAccess:
             def decorator(func):
                 handlers[uri] = func
                 return func
+
             return decorator
 
         mock_server = MagicMock()
@@ -239,6 +242,7 @@ class TestMCPResourceAccess:
             def decorator(func):
                 handlers[uri] = func
                 return func
+
             return decorator
 
         mock_server = MagicMock()
@@ -266,6 +270,7 @@ class TestMCPResourceAccess:
             def decorator(func):
                 handlers[uri] = func
                 return func
+
             return decorator
 
         mock_server = MagicMock()
@@ -292,6 +297,7 @@ class TestMCPResourceAccess:
             def decorator(func):
                 handlers[uri] = func
                 return func
+
             return decorator
 
         mock_server = MagicMock()
@@ -318,6 +324,7 @@ class TestMCPResourceAccess:
             def decorator(func):
                 handlers[uri] = func
                 return func
+
             return decorator
 
         mock_server = MagicMock()
@@ -445,7 +452,9 @@ class TestContextInjectionIntegration:
             else:
                 assert "Second Task" in content
 
-    def test_context_persistence_across_instances(self, injection_project, store_with_tasks):
+    def test_context_persistence_across_instances(
+        self, injection_project, store_with_tasks
+    ):
         """Test context persists when creating new injector instance."""
         # First injector sets task
         injector1 = ContextInjector(base_path=injection_project)

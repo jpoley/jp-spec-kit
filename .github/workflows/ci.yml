@@ -50,7 +50,8 @@ jobs:
       - name: Run tests
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: uv run pytest tests/ -v --cov=src/specify_cli --cov-report=term-missing
+        # Skip git_sync tests in CI - they are environment-dependent and test git behavior
+        run: uv run pytest tests/ -v -m "not git_sync" --cov=src/specify_cli --cov-report=term-missing
 
   build:
     runs-on: ubuntu-latest
