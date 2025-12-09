@@ -91,7 +91,7 @@ The image includes commented-out aliases for bypassing AI agent safety features.
 
 ```bash
 alias claude-yolo='claude --dangerously-skip-permissions'
-alias codex-yolo='codex --full-auto'
+alias codex-yolo='codex --dangerously-bypass-approvals-and-sandbox'
 alias gemini-yolo='gemini --yolo'
 ```
 
