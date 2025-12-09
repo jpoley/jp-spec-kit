@@ -179,9 +179,7 @@ class VSCodeSettingsGenerator:
         }
 
         # Configure prompt files
-        settings["github.copilot.chat.promptFiles"] = {
-            "enabled": True
-        }
+        settings["github.copilot.chat.promptFiles"] = {"enabled": True}
 
         # Configure Specflow-specific settings
         settings["specflow"] = {
@@ -246,7 +244,9 @@ class VSCodeSettingsGenerator:
         else:
             existing = self._read_existing_settings(output_path)
 
-        settings = self.generate(role=role, merge_existing=merge_existing, existing_settings=existing)
+        settings = self.generate(
+            role=role, merge_existing=merge_existing, existing_settings=existing
+        )
 
         # Write to file with nice formatting
         with open(output_path, "w", encoding="utf-8") as f:
