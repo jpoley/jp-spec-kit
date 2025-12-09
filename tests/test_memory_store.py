@@ -480,11 +480,29 @@ class TestTaskMemoryStoreEdgeCases:
         assert "Note 2" in content
         assert "Note 3" in content
 
-    def test_handle_invalid_task_id(self, store):
-        """Test handling of invalid task IDs."""
-        # Should not crash with unusual task IDs
-        path = store.get_path("task-with-dashes")
-        assert path.name == "task-with-dashes.md"
+    def test_handle_invalid_task_id_raises_error(self, store):
+        """Test that invalid task IDs raise ValueError for path traversal protection."""
+        # Invalid formats should raise ValueError
+        with pytest.raises(ValueError, match="Invalid task_id format"):
+            store.get_path("task-with-dashes")
+
+        with pytest.raises(ValueError, match="Invalid task_id format"):
+            store.get_path("../../../etc/passwd")
+
+        with pytest.raises(ValueError, match="Invalid task_id format"):
+            store.get_path("task-abc")
+
+    def test_handle_valid_task_id_formats(self, store):
+        """Test that valid task IDs work correctly."""
+        # Valid formats should work
+        path = store.get_path("task-375")
+        assert path.name == "task-375.md"
+
+        path = store.get_path("task-1")
+        assert path.name == "task-1.md"
+
+        path = store.get_path("task-99999")
+        assert path.name == "task-99999.md"
 
     def test_handle_unicode_content(self, store):
         """Test handling of unicode content."""

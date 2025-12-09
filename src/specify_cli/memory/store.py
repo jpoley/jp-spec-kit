@@ -5,9 +5,13 @@ in the backlog/memory/ directory. Task memory files track implementation context
 decisions, approaches, and notes for individual tasks.
 """
 
+import re
 from datetime import datetime
 from pathlib import Path
 from typing import List, Optional
+
+# Regex pattern for valid task IDs (task-NNN format)
+VALID_TASK_ID_PATTERN = re.compile(r"^task-\d+$")
 
 
 class TaskMemoryStore:
@@ -294,9 +298,19 @@ class TaskMemoryStore:
         """Get path to task memory file.
 
         Args:
-            task_id: Task identifier
+            task_id: Task identifier (must match task-NNN format)
 
         Returns:
             Path to the task memory file (may not exist)
+
+        Raises:
+            ValueError: If task_id contains invalid characters or path traversal
         """
+        # Validate task_id format to prevent path traversal attacks (CWE-22)
+        if not VALID_TASK_ID_PATTERN.match(task_id):
+            raise ValueError(
+                f"Invalid task_id format: {task_id}. "
+                "Must match pattern 'task-NNN' where NNN is numeric."
+            )
+
         return self.memory_dir / f"{task_id}.md"
