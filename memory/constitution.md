@@ -951,6 +951,226 @@ In light or medium mode, **artifacts are still produced** - only the review dept
 
 **Light mode is NOT an excuse to skip artifacts.** It's permission to move faster through them.
 
+### Principle 13: Task Memory - Persistent Context Management
+
+**Statement**: Every task in "In Progress" state SHALL maintain a persistent, human-readable memory that travels with the task across sessions, machines, and tools.
+
+**Rationale**: Context loss is one of the most expensive inefficiencies in software development. When developers switch machines, resume work after interruptions, or hand off tasks, they spend 15-30 minutes rebuilding mental context. Task Memory eliminates this overhead by creating a persistent, task-scoped knowledge store that captures decisions, approaches tried, open questions, and relevant resources.
+
+**Requirements**:
+
+#### 1. Automatic Lifecycle Management
+
+Task memory MUST be created, maintained, and cleaned up automatically without manual intervention:
+
+- **Creation**: When task transitions from "To Do" to "In Progress", create `backlog/memory/task-{id}.md`
+- **Archival**: When task moves to "Done", move memory to `backlog/memory/archive/task-{id}.md`
+- **Deletion**: When task is archived permanently, delete memory file
+- **Restoration**: When task reopens (Done → In Progress), restore from archive if exists
+- **Persistence**: Memory survives across sessions, machines, git sync
+
+**Violation Example**:
+```bash
+# ❌ WRONG: Manual memory creation required
+echo "Notes..." > backlog/memory/task-42.md
+
+# ✅ CORRECT: Automatic on state transition
+backlog task edit task-42 -s "In Progress"  # Creates memory automatically
+```
+
+#### 2. Human Readability and Editability
+
+Memory files MUST be human-readable markdown, directly editable, and searchable:
+
+- **Format**: Markdown with structured sections (Context, Decisions, Approaches, Questions, Resources)
+- **Editability**: Any text editor can open and modify
+- **Searchability**: Standard Unix tools (`grep`, `rg`, `fzf`) work
+- **Version Control**: Git tracks all changes with full diff/merge support
+- **Size Limit**: Files archived when exceeding 1MB to maintain performance
+
+**Compliance Example**:
+```markdown
+# Task Memory: task-368
+
+**Created**: 2025-12-09T10:30:00Z
+**Last Updated**: 2025-12-09T14:22:00Z
+
+## Context
+Task Memory - Persistent Context Management System
+
+## Key Decisions
+- 2025-12-09 10:35 - Chose file-based storage over database
+- 2025-12-09 11:20 - Use CLAUDE.md @import for context injection
+
+## Approaches Tried
+### Approach: Embedded storage in task files
+**Result**: ❌ Rejected
+**Reason**: Complex parsing, format rigidity
+
+## Open Questions
+- How to handle memory >1MB? (Add compression/truncation?)
+
+## Resources
+- ADR-001: Storage Mechanism Decision
+- docs/architecture/task-memory-system.md
+```
+
+#### 3. Git-Native Synchronization
+
+Memory MUST sync across machines using standard git operations:
+
+- **No External Services**: No databases, APIs, or cloud sync required
+- **Standard Git Sync**: `git push`/`git pull` synchronizes memory
+- **Conflict Resolution**: Standard git merge with manual resolution
+- **Offline Support**: Works completely offline, syncs when online
+- **Transparency**: All sync operations visible in git history
+
+**Conflict Resolution Strategy**:
+```bash
+# Git merge creates conflict markers
+<<<<<<< HEAD (Machine A)
+- Tried approach X, failed because of Z
+=======
+- Decided to use library Y after research
+>>>>>>> branch (Machine B)
+
+# Human resolution: Keep both (append-only nature reduces conflicts)
+- Tried approach X, failed because of Z
+- Decided to use library Y after research
+```
+
+#### 4. Agent-Agnostic Context Injection
+
+Memory MUST be accessible to any AI agent without agent-specific configuration:
+
+**Primary: CLAUDE.md @import (Claude Code)**:
+```markdown
+# backlog/CLAUDE.md
+
+## Active Task Context
+
+@import ../memory/task-368.md
+```
+
+**Secondary: MCP Resource (Copilot, others)**:
+```python
+@server.resource("backlog://memory/{task_id}")
+def get_task_memory(task_id: str) -> str:
+    return memory_store.read(task_id)
+```
+
+**Fallback: Direct File Access (Generic agents)**:
+```bash
+# Agent instruction: "Read task memory from backlog/memory/task-368.md"
+cat backlog/memory/task-368.md
+```
+
+#### 5. Memory Content Guidelines
+
+Task memory SHALL record context that accelerates work resumption and prevents repeated mistakes:
+
+**MUST Include**:
+- **Key Decisions**: What was decided and why (rationale, trade-offs)
+- **Approaches Tried**: What was attempted and the outcome (success/failure reasons)
+- **Open Questions**: Blockers, unknowns, areas needing research
+- **External Resources**: Links to docs, ADRs, specs, research papers
+- **Implementation Notes**: Non-obvious choices, gotchas, warnings
+
+**MUST NOT Include**:
+- **Secrets**: Passwords, API keys, tokens, credentials
+- **Personally Identifiable Information (PII)**: Email addresses, phone numbers, personal data
+- **Large Artifacts**: Full code dumps, logs, data exports (link to external files instead)
+- **Redundant Information**: Content already in task description or linked specs
+
+**Violation Example**:
+```markdown
+# ❌ WRONG: Secrets in memory
+## Resources
+- Database: postgresql://admin:SuperSecret123@db.example.com:5432
+- API Key: sk_live_51AbCdEfGh...
+
+# ✅ CORRECT: Reference without secrets
+## Resources
+- Database: See AWS Secrets Manager: `prod/taskflow/db-credentials`
+- API Key: Stored in 1Password vault "Engineering Team" as "TaskFlow Production API"
+```
+
+#### 6. Performance Constraints
+
+Memory operations MUST complete quickly to avoid interrupting workflows:
+
+- **Read/Write Operations**: Complete in <50ms (p95)
+- **File Size Limit**: Archive when exceeding 1MB
+- **Cleanup**: Runs asynchronously, does not block task transitions
+- **Search Performance**: Search across 10,000 memories in <1s
+
+**Performance Monitoring**:
+```bash
+backlog memory stats
+
+# Output:
+# Task Memory Analytics
+# Active memories: 23
+# Archived memories: 156
+# Average memory size: 187 KB
+# Largest memory: 943 KB (task-245)
+# Search queries (30d): 234
+# Average read time: 12ms
+```
+
+#### 7. Privacy and Security
+
+Memory files MUST be protected with repository-level access controls:
+
+- **No Secrets**: Automated linting prevents accidental credential commits
+- **Repository Permissions**: Memory readable only by repository collaborators
+- **Audit Trail**: Git history provides complete audit log of changes
+- **Retention**: Archived memories retained indefinitely (manual deletion only)
+
+**Security Checks**:
+```bash
+# Pre-commit hook checks for secrets
+rg -i "password|secret|api_key|token" backlog/memory/*.md
+
+# Result: Exit 1 if secrets found, blocks commit
+```
+
+#### 8. Violations and Compliance
+
+**Common Violations**:
+
+| Violation | Detection | Remediation |
+|-----------|-----------|-------------|
+| Secrets in memory | Pre-commit hook, automated scanning | Remove secrets, reference secret manager |
+| Manual memory creation | Workflow review | Delete manual file, use lifecycle hooks |
+| Memory >1MB not archived | Automated monitoring | Archive large memories, link to external docs |
+| Conflicted memory not resolved | Git status check | Manually resolve conflicts, prefer append-only |
+| Memory not synced | Git status on machine switch | Commit and push before switching machines |
+
+**Compliance Verification**:
+```bash
+# Check for manual memories (should be empty)
+ls backlog/memory/*.md | grep -v "task-[0-9]*.md"
+
+# Check for oversized memories
+find backlog/memory -name "*.md" -size +1M
+
+# Check for secrets
+rg -i "password|secret|api_key|token" backlog/memory/
+
+# Check for unsynced changes
+git status backlog/memory/
+```
+
+**Benefits**:
+- **Reduce context rebuild time**: From 15-30 minutes to <2 minutes
+- **Enable seamless handoffs**: Team members can pick up mid-task with full context
+- **Prevent repeated mistakes**: Document what didn't work and why
+- **Build institutional knowledge**: Archived memories become searchable knowledge base
+- **Foundation for intelligence**: Structured data enables future ML-driven insights
+
+---
+
 ## [SECTION_2_NAME]
 <!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
 
