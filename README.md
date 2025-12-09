@@ -10,6 +10,7 @@
 
 <p align="center">
     <a href="https://github.com/jpoley/jp-spec-kit/actions/workflows/release.yml"><img src="https://github.com/jpoley/jp-spec-kit/actions/workflows/release.yml/badge.svg" alt="Release"/></a>
+    <a href="https://hub.docker.com/r/jpoley/specflow-agents"><img src="https://img.shields.io/docker/pulls/jpoley/specflow-agents" alt="Docker Pulls"/></a>
     <a href="https://github.com/jpoley/jp-spec-kit/stargazers"><img src="https://img.shields.io/github/stars/jpoley/jp-spec-kit?style=social" alt="GitHub stars"/></a>
     <a href="https://github.com/jpoley/jp-spec-kit/blob/main/LICENSE"><img src="https://img.shields.io/github/license/jpoley/jp-spec-kit" alt="License"/></a>
 </p>
@@ -27,7 +28,22 @@ JP Spec Kit transforms how you build software with AI. Instead of giving AI loos
 
 ## Quick Start
 
-### 1. Install the Tools
+### Option A: Devcontainer (Recommended)
+
+Use the pre-built [`jpoley/specflow-agents`](https://hub.docker.com/r/jpoley/specflow-agents) Docker image with all AI coding assistants pre-installed:
+
+```bash
+# Copy devcontainer template to your project
+mkdir -p .devcontainer
+curl -o .devcontainer/devcontainer.json \
+  https://raw.githubusercontent.com/jpoley/jp-spec-kit/main/templates/devcontainer/devcontainer.json
+```
+
+Open in VS Code → "Reopen in Container". The image includes:
+- **Claude Code**, **Codex**, **Gemini CLI**, **GitHub Copilot CLI**
+- Python 3.11, Node.js 20, pnpm, uv, backlog.md
+
+### Option B: Local Installation
 
 ```bash
 # Specify CLI (project initialization)
@@ -37,7 +53,7 @@ uv tool install specify-cli --from git+https://github.com/jpoley/jp-spec-kit.git
 pnpm i -g backlog.md
 ```
 
-### 2. Initialize Your Project
+### Initialize Your Project
 
 ```bash
 specify init my-project --ai claude
@@ -45,19 +61,19 @@ cd my-project
 backlog init "$(basename "$PWD")"
 ```
 
-### 3. Establish Principles (Optional but Recommended)
+### Establish Principles (Optional but Recommended)
 
 ```bash
 /speckit:constitution Create principles focused on code quality, testing, and user experience.
 ```
 
-### 4. Assess Your Feature
+### Assess Your Feature
 
 ```bash
 /jpspec:assess Build a REST API for task management with JWT authentication
 ```
 
-### 5. Run the Appropriate Workflow
+### Run the Appropriate Workflow
 
 **For Full SDD (complex features):**
 ```bash
@@ -303,14 +319,18 @@ Implementation is NOT complete until all three are delivered.
 
 ## Supported AI Agents
 
-| Agent | Support |
-|-------|---------|
-| [Claude Code](https://www.anthropic.com/claude-code) | Fully supported (primary) |
-| [GitHub Copilot](https://code.visualstudio.com/) | Fully supported |
-| [Cursor](https://cursor.sh/) | Fully supported |
-| [Gemini CLI](https://github.com/google-gemini/gemini-cli) | Fully supported |
-| [Codex CLI](https://github.com/openai/codex) | Fully supported |
-| [Windsurf](https://windsurf.com/) | Fully supported |
+| Agent | Support | Included in Devcontainer |
+|-------|---------|--------------------------|
+| [Claude Code](https://www.anthropic.com/claude-code) | Fully supported (primary) | ✅ |
+| [GitHub Copilot CLI](https://githubnext.com/projects/copilot-cli/) | Fully supported | ✅ |
+| [Codex CLI](https://github.com/openai/codex) | Fully supported | ✅ |
+| [Gemini CLI](https://github.com/google-gemini/gemini-cli) | Fully supported | ✅ |
+| [Cursor](https://cursor.sh/) | Fully supported | - |
+| [Windsurf](https://windsurf.com/) | Fully supported | - |
+
+### Devcontainer: All AI Agents Pre-Installed
+
+The [`jpoley/specflow-agents`](https://hub.docker.com/r/jpoley/specflow-agents) Docker image provides a ready-to-use development environment with Claude Code, Codex, Gemini CLI, and GitHub Copilot CLI pre-installed. See [Quick Start](#quick-start) for setup instructions.
 
 ### Multi-Agent Setup
 
@@ -323,6 +343,8 @@ specify init my-project --ai claude,copilot,cursor-agent
 
 ```
 project/
+├── .devcontainer/              # Devcontainer configuration
+│   └── devcontainer.json       # Uses jpoley/specflow-agents image
 ├── docs/
 │   ├── prd/                    # PRDs from /jpspec:specify
 │   ├── specs/                  # Functional & Technical specs
@@ -343,6 +365,7 @@ project/
 ### Getting Started
 - **[Backlog Quick Start](docs/guides/backlog-quickstart.md)** - 5-minute intro
 - **[Problem Sizing Assessment](docs/guides/problem-sizing-assessment.md)** - When to use SDD
+- **[Devcontainer Template](templates/devcontainer/README.md)** - Devcontainer setup guide
 
 ### Workflow Details
 - **[JP Spec Workflow Diagram](docs/diagrams/jpspec-workflow.md)** - Full visual workflow
@@ -353,6 +376,7 @@ project/
 - **[Backlog User Guide](docs/guides/backlog-user-guide.md)** - Complete task management
 - **[Inner Loop Reference](docs/reference/inner-loop.md)** - Development cycle
 - **[Outer Loop Reference](docs/reference/outer-loop.md)** - CI/CD and deployment
+- **[Docker Hub Architecture](docs/platform/dockerhub-devcontainer-architecture.md)** - specflow-agents image details
 
 ## Legacy /speckit Commands
 
@@ -373,5 +397,5 @@ MIT License - see [LICENSE](LICENSE) for details.
 ---
 
 <div align="center">
-    <p><em>Built on <a href="https://github.com/github/spec-kit">GitHub's spec-kit</a> | Powered by <a href="https://github.com/MrLesk/Backlog.md">Backlog.md</a></em></p>
+    <p><em>Built on <a href="https://github.com/github/spec-kit">GitHub's spec-kit</a> | Powered by <a href="https://github.com/MrLesk/Backlog.md">Backlog.md</a> | Docker: <a href="https://hub.docker.com/r/jpoley/specflow-agents">jpoley/specflow-agents</a></em></p>
 </div>
