@@ -299,6 +299,15 @@ def search(
         console.print("[yellow]No task memories to search[/yellow]")
         raise typer.Exit(0)
 
+    # Validate regex pattern length to prevent ReDoS (CWE-1333)
+    MAX_REGEX_LENGTH = 200
+    if len(query) > MAX_REGEX_LENGTH:
+        console.print(
+            f"[red]Regex pattern too long:[/red] {len(query)} chars "
+            f"(max {MAX_REGEX_LENGTH})"
+        )
+        raise typer.Exit(1)
+
     # Compile regex pattern
     try:
         pattern = re.compile(query, re.IGNORECASE)

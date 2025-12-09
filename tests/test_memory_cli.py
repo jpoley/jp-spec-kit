@@ -565,8 +565,8 @@ def test_cleanup_archive_old_memories(temp_workspace):
     store = TaskMemoryStore(base_path=temp_workspace)
 
     # Create old memory (modify mtime)
-    store.create("task-old", task_title="Old Task")
-    old_path = store.get_path("task-old")
+    store.create("task-100", task_title="Old Task")
+    old_path = store.get_path("task-100")
     old_time = time.time() - (31 * 24 * 60 * 60)  # 31 days ago
     old_path.touch()
     import os
@@ -574,7 +574,7 @@ def test_cleanup_archive_old_memories(temp_workspace):
     os.utime(old_path, (old_time, old_time))
 
     # Create new memory
-    store.create("task-new", task_title="New Task")
+    store.create("task-101", task_title="New Task")
 
     result = runner.invoke(
         memory_app,
@@ -592,11 +592,11 @@ def test_cleanup_archive_old_memories(temp_workspace):
     assert result.exit_code == 0
 
     # Verify old memory was archived
-    assert not store.exists("task-old")
-    assert store.exists("task-old", check_archive=True)
+    assert not store.exists("task-100")
+    assert store.exists("task-100", check_archive=True)
 
     # Verify new memory is still active
-    assert store.exists("task-new")
+    assert store.exists("task-101")
 
 
 def test_cleanup_delete_old_archived(temp_workspace):
@@ -604,11 +604,11 @@ def test_cleanup_delete_old_archived(temp_workspace):
     store = TaskMemoryStore(base_path=temp_workspace)
 
     # Create and archive old memory
-    store.create("task-archived", task_title="Archived Task")
-    store.archive("task-archived")
+    store.create("task-200", task_title="Archived Task")
+    store.archive("task-200")
 
     # Make it old
-    archived_path = store.archive_dir / "task-archived.md"
+    archived_path = store.archive_dir / "task-200.md"
     old_time = time.time() - (91 * 24 * 60 * 60)  # 91 days ago
     import os
 
@@ -630,7 +630,7 @@ def test_cleanup_delete_old_archived(temp_workspace):
     assert result.exit_code == 0
 
     # Verify memory was deleted
-    assert not store.exists("task-archived", check_archive=True)
+    assert not store.exists("task-200", check_archive=True)
 
 
 def test_cleanup_combined_operations(temp_workspace):
@@ -638,17 +638,17 @@ def test_cleanup_combined_operations(temp_workspace):
     store = TaskMemoryStore(base_path=temp_workspace)
 
     # Create old active memory
-    store.create("task-active-old", task_title="Old Active")
-    active_path = store.get_path("task-active-old")
+    store.create("task-300", task_title="Old Active")
+    active_path = store.get_path("task-300")
     old_time = time.time() - (31 * 24 * 60 * 60)
     import os
 
     os.utime(active_path, (old_time, old_time))
 
     # Create old archived memory
-    store.create("task-archived-old", task_title="Old Archived")
-    store.archive("task-archived-old")
-    archived_path = store.archive_dir / "task-archived-old.md"
+    store.create("task-301", task_title="Old Archived")
+    store.archive("task-301")
+    archived_path = store.archive_dir / "task-301.md"
     os.utime(archived_path, (old_time, old_time))
 
     result = runner.invoke(
@@ -757,11 +757,11 @@ def test_stats_age_calculations(temp_workspace):
     store = TaskMemoryStore(base_path=temp_workspace)
 
     # Create memory with known age
-    store.create("task-recent", task_title="Recent")
+    store.create("task-400", task_title="Recent")
 
     # Create old memory
-    store.create("task-old", task_title="Old")
-    old_path = store.get_path("task-old")
+    store.create("task-401", task_title="Old")
+    old_path = store.get_path("task-401")
     old_time = time.time() - (10 * 24 * 60 * 60)  # 10 days ago
     import os
 
@@ -810,11 +810,11 @@ def test_concurrent_append_operations(temp_workspace, sample_memories):
 def test_large_memory_file(temp_workspace):
     """Test operations on large memory file."""
     store = TaskMemoryStore(base_path=temp_workspace)
-    store.create("task-large", task_title="Large File")
+    store.create("task-500", task_title="Large File")
 
     # Append large content
     large_content = "\n".join([f"Line {i}" for i in range(1000)])
-    store.append("task-large", large_content)
+    store.append("task-500", large_content)
 
     # Test list (should handle large file)
     result = runner.invoke(
@@ -876,3 +876,54 @@ def test_unicode_content(temp_workspace, sample_memories):
     store = TaskMemoryStore(base_path=temp_workspace)
     content = store.read("task-389")
     assert unicode_content in content
+
+
+# --- Security Tests ---
+
+
+def test_search_regex_too_long(temp_workspace, sample_memories):
+    """Test that overly long regex patterns are rejected (ReDoS protection)."""
+    # Create a regex pattern longer than MAX_REGEX_LENGTH (200)
+    long_pattern = "a" * 250
+
+    result = runner.invoke(
+        memory_app,
+        ["search", long_pattern, "--project-root", str(temp_workspace)],
+    )
+
+    assert result.exit_code == 1
+    assert "too long" in result.stdout
+
+
+def test_path_traversal_blocked_show(temp_workspace, sample_memories):
+    """Test that path traversal attempts are blocked in show command."""
+    malicious_ids = [
+        "../../../etc/passwd",
+        "task-123/../../../evil",
+        "/etc/passwd",
+    ]
+
+    for malicious_id in malicious_ids:
+        result = runner.invoke(
+            memory_app,
+            ["show", malicious_id, "--project-root", str(temp_workspace)],
+        )
+        # Should fail with error, not succeed or crash
+        assert result.exit_code == 1
+
+
+def test_path_traversal_blocked_append(temp_workspace, sample_memories):
+    """Test that path traversal attempts are blocked in append command."""
+    result = runner.invoke(
+        memory_app,
+        [
+            "append",
+            "../../../tmp/evil",
+            "malicious content",
+            "--project-root",
+            str(temp_workspace),
+        ],
+    )
+
+    # Should fail with error
+    assert result.exit_code == 1
