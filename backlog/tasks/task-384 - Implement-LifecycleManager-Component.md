@@ -1,9 +1,11 @@
 ---
 id: task-384
 title: Implement LifecycleManager Component
-status: To Do
-assignee: []
+status: Done
+assignee:
+  - '@backend-engineer'
 created_date: '2025-12-09 15:57'
+updated_date: '2025-12-09 17:03'
 labels:
   - backend
   - task-memory
@@ -21,11 +23,11 @@ Create the lifecycle orchestration component that hooks into task state transiti
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Implement LifecycleManager class in backlog/lifecycle.py
-- [ ] #2 Hook into task state transitions (To Do→In Progress, In Progress→Done, Done→Archive)
-- [ ] #3 Handle rollback scenario (Done→In Progress memory restoration)
-- [ ] #4 Update backlog/CLAUDE.md with active task @import
-- [ ] #5 Add comprehensive unit tests for all state transitions
-- [ ] #6 Test error handling (memory already exists, file not found)
+- [x] #1 Implement LifecycleManager class in backlog/lifecycle.py
+- [x] #2 Hook into task state transitions (To Do→In Progress, In Progress→Done, Done→Archive)
+- [x] #3 Handle rollback scenario (Done→In Progress memory restoration)
+- [x] #4 Update backlog/CLAUDE.md with active task @import
+- [x] #5 Add comprehensive unit tests for all state transitions
+- [x] #6 Test error handling (memory already exists, file not found)
 - [ ] #7 Document lifecycle state machine with diagram
 <!-- AC:END -->

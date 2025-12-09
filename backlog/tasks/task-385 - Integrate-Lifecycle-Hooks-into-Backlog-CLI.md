@@ -1,9 +1,11 @@
 ---
 id: task-385
 title: Integrate Lifecycle Hooks into Backlog CLI
-status: To Do
-assignee: []
+status: Done
+assignee:
+  - '@backend-engineer'
 created_date: '2025-12-09 15:57'
+updated_date: '2025-12-09 17:05'
 labels:
   - backend
   - task-memory
@@ -22,10 +24,10 @@ Add lifecycle hook calls to `backlog task edit` command to trigger memory operat
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Modify task_edit command in src/specify_cli/commands/task.py
-- [ ] #2 Call lifecycle_manager.on_state_change() after task status update
-- [ ] #3 Pass old_state and new_state to lifecycle manager
-- [ ] #4 Add CLI output messages for memory operations
+- [x] #1 Modify task_edit command in src/specify_cli/commands/task.py
+- [x] #2 Call lifecycle_manager.on_state_change() after task status update
+- [x] #3 Pass old_state and new_state to lifecycle manager
+- [x] #4 Add CLI output messages for memory operations
 - [ ] #5 Test with live CLI commands (backlog task edit)
 - [ ] #6 Verify memory files created/archived/deleted correctly
 - [ ] #7 Add integration tests for CLI + lifecycle

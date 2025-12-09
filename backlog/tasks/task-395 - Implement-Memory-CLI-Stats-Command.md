@@ -1,9 +1,11 @@
 ---
 id: task-395
 title: Implement Memory CLI - Stats Command
-status: To Do
-assignee: []
+status: Done
+assignee:
+  - '@backend-engineer'
 created_date: '2025-12-09 15:58'
+updated_date: '2025-12-09 17:01'
 labels:
   - backend
   - task-memory
@@ -22,12 +24,27 @@ Create `backlog memory stats` command to display analytics about task memory usa
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Implement stats subcommand (no arguments)
-- [ ] #2 Display counts: active memories, archived memories
-- [ ] #3 Display sizes: total size, average size, largest file
-- [ ] #4 Show age statistics: oldest active, oldest archived
-- [ ] #5 Add visual charts (ASCII bar charts for distributions)
-- [ ] #6 Support --json output for scripting
-- [ ] #7 Test stats calculation with large datasets
-- [ ] #8 Add CLI tests for stats command
+- [x] #1 Implement stats subcommand (no arguments)
+- [x] #2 Display counts: active memories, archived memories
+- [x] #3 Display sizes: total size, average size, largest file
+- [x] #4 Show age statistics: oldest active, oldest archived
+- [x] #5 Add visual charts (ASCII bar charts for distributions)
+- [x] #6 Support --json output for scripting
+- [x] #7 Test stats calculation with large datasets
+- [x] #8 Add CLI tests for stats command
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Implemented stats command with:
+- Count statistics (active, archived, total)
+- Size statistics (total, average, largest)
+- Age statistics (oldest, newest)
+- Human-readable byte formatting
+- Rich table display
+- --json output for scripting
+- Comprehensive test coverage
+
+All acceptance criteria met.
+<!-- SECTION:NOTES:END -->
