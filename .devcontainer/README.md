@@ -166,7 +166,7 @@ Ready for Development!
 | Host Path | Container Path | Purpose | Mode |
 |-----------|---------------|---------|------|
 | `./backlog/` | `/workspaces/jp-spec-kit/backlog/` | Task persistence | Read-Write |
-| `~/.gitconfig` | `/home/vscode/.gitconfig` | Git configuration | Read-Only |
+| `~/.gitconfig` | `/home/vscode/.gitconfig-host` | Git configuration (copied to `/home/vscode/.gitconfig` on start) | Read-Only |
 | `~/.ssh/` | `/home/vscode/.ssh/` | SSH keys | Read-Only |
 | `~/.claude/` | `/home/vscode/.claude/` | Claude config | Read-Write |
 
