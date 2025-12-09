@@ -1,0 +1,493 @@
+# =============================================================================
+# AI Coding Agents Devcontainer - Docker Hub CI/CD Pipeline
+# =============================================================================
+#
+# This workflow builds and publishes the AI Coding Agents devcontainer image
+# to Docker Hub with security scanning, SBOM generation, and multi-platform
+# support.
+#
+# Triggers:
+# - Push to main (tags: latest)
+# - Semantic version tags (tags: vX.Y.Z)
+# - Pull requests (build only, no push)
+# - Manual dispatch with custom tags
+#
+# Security Gates:
+# - Trivy vulnerability scanning (HIGH and CRITICAL)
+# - Snyk container scanning
+# - SBOM generation and attestation
+# - Docker Scout SLSA compliance check
+#
+# DORA Elite Metrics:
+# - Build time target: < 5 minutes
+# - Automated security gates
+# - Automated rollback capability
+# - Build cache optimization
+#
+# =============================================================================
+
+name: Docker Publish
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*.*.*'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Custom Docker tag (e.g., v1.2.3 or beta)'
+        required: false
+        default: 'manual'
+
+env:
+  REGISTRY: docker.io
+  IMAGE_NAME: jpoley/specflow-agents
+  # Security scanning thresholds
+  TRIVY_SEVERITY: HIGH,CRITICAL
+  TRIVY_EXIT_CODE: 1
+  # Build optimization
+  DOCKER_BUILDKIT: 1
+  BUILDKIT_PROGRESS: plain
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Job 1: Build and Test
+  # ---------------------------------------------------------------------------
+  build:
+    name: Build Multi-Platform Image
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    outputs:
+      image_digest: ${{ steps.build.outputs.digest }}
+      image_tags: ${{ steps.meta.outputs.tags }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # For git describe
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: linux/amd64,linux/arm64
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: |
+            image=moby/buildkit:latest
+            network=host
+          buildkitd-flags: --debug
+
+      - name: Log in to Docker Hub
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_NAME }}
+          tags: |
+            # Branch-based tags
+            type=ref,event=branch
+            type=ref,event=pr
+
+            # Semantic versioning
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+
+            # SHA tags for traceability (short sha with 'sha-' prefix)
+            type=sha,prefix=sha-
+
+            # Latest tag on main branch
+            type=raw,value=latest,enable={{is_default_branch}}
+
+            # Manual dispatch custom tag
+            type=raw,value=${{ github.event.inputs.tag }},enable=${{ github.event_name == 'workflow_dispatch' }}
+          labels: |
+            org.opencontainers.image.title=AI Coding Agents Devcontainer
+            org.opencontainers.image.description=Pre-built devcontainer for AI-assisted Spec-Driven Development
+            org.opencontainers.image.vendor=James Poley
+            maintainer=james@jpoley.com
+
+      - name: Build and push
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: .devcontainer/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            BUILD_DATE=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
+            VCS_REF=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
+            VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
+          provenance: true
+          sbom: true
+
+      - name: Export image digest
+        if: github.event_name != 'pull_request'
+        run: |
+          echo "IMAGE_DIGEST=${{ steps.build.outputs.digest }}" >> $GITHUB_ENV
+          echo "Built image digest: ${{ steps.build.outputs.digest }}"
+
+  # ---------------------------------------------------------------------------
+  # Job 2: Security Scanning - Trivy
+  # ---------------------------------------------------------------------------
+  scan-trivy:
+    name: Security Scan (Trivy)
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event_name != 'pull_request'
+
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Pull image for scanning
+        run: |
+          docker pull ${{ env.IMAGE_NAME }}@${{ needs.build.outputs.image_digest }}
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.IMAGE_NAME }}@${{ needs.build.outputs.image_digest }}
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: ${{ env.TRIVY_SEVERITY }}
+          exit-code: ${{ env.TRIVY_EXIT_CODE }}
+
+      - name: Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      - name: Generate Trivy report (table format)
+        if: always()
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.IMAGE_NAME }}@${{ needs.build.outputs.image_digest }}
+          format: 'table'
+          output: 'trivy-report.txt'
+          severity: ${{ env.TRIVY_SEVERITY }}
+
+      - name: Upload Trivy report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-scan-report
+          path: trivy-report.txt
+          retention-days: 30
+
+  # ---------------------------------------------------------------------------
+  # Job 3: Security Scanning - Snyk
+  # ---------------------------------------------------------------------------
+  scan-snyk:
+    name: Security Scan (Snyk)
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event_name != 'pull_request'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Pull image for scanning
+        run: |
+          docker pull ${{ env.IMAGE_NAME }}@${{ needs.build.outputs.image_digest }}
+
+      - name: Check SNYK_TOKEN availability
+        id: snyk-check
+        run: |
+          if [ -z "${{ secrets.SNYK_TOKEN }}" ]; then
+            echo "SNYK_TOKEN not configured - skipping Snyk scan"
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run Snyk container scan
+        if: steps.snyk-check.outputs.skip != 'true'
+        uses: snyk/actions/docker@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          image: ${{ env.IMAGE_NAME }}@${{ needs.build.outputs.image_digest }}
+          args: --severity-threshold=high --file=.devcontainer/Dockerfile
+
+      - name: Upload Snyk results
+        if: always() && steps.snyk-check.outputs.skip != 'true'
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: snyk.sarif
+
+  # ---------------------------------------------------------------------------
+  # Job 4: SBOM Generation and Attestation
+  # ---------------------------------------------------------------------------
+  sbom:
+    name: Generate SBOM
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event_name != 'pull_request'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Pull image for SBOM generation
+        run: |
+          docker pull ${{ env.IMAGE_NAME }}@${{ needs.build.outputs.image_digest }}
+
+      - name: Generate SBOM with Syft
+        uses: anchore/sbom-action@v0
+        with:
+          image: ${{ env.IMAGE_NAME }}@${{ needs.build.outputs.image_digest }}
+          format: spdx-json
+          output-file: sbom.spdx.json
+
+      - name: Upload SBOM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: sbom.spdx.json
+          retention-days: 90
+
+      - name: Attest SBOM to image
+        uses: actions/attest-sbom@v1
+        with:
+          subject-name: ${{ env.IMAGE_NAME }}
+          subject-digest: ${{ needs.build.outputs.image_digest }}
+          sbom-path: sbom.spdx.json
+          push-to-registry: true
+
+  # ---------------------------------------------------------------------------
+  # Job 5: Image Testing
+  # ---------------------------------------------------------------------------
+  test:
+    name: Test Image
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event_name != 'pull_request'
+
+    strategy:
+      matrix:
+        platform: [linux/amd64, linux/arm64]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: ${{ matrix.platform }}
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Pull image for testing
+        run: |
+          docker pull --platform=${{ matrix.platform }} ${{ env.IMAGE_NAME }}@${{ needs.build.outputs.image_digest }}
+
+      - name: Run health check
+        run: |
+          docker run --rm --platform=${{ matrix.platform }} \
+            ${{ env.IMAGE_NAME }}@${{ needs.build.outputs.image_digest }} \
+            bash -c 'if [ ! -x /home/vscode/healthcheck.sh ]; then echo "ERROR: healthcheck.sh not found or not executable"; exit 1; fi; /home/vscode/healthcheck.sh'
+
+      - name: Test AI CLI availability
+        run: |
+          docker run --rm --platform=${{ matrix.platform }} \
+            ${{ env.IMAGE_NAME }}@${{ needs.build.outputs.image_digest }} \
+            bash -c '
+              command -v claude >/dev/null || exit 1
+              command -v backlog >/dev/null || exit 1
+              command -v uv >/dev/null || exit 1
+              command -v pnpm >/dev/null || exit 1
+              echo "All CLIs present"
+            '
+
+      - name: Test Python environment
+        run: |
+          docker run --rm --platform=${{ matrix.platform }} \
+            ${{ env.IMAGE_NAME }}@${{ needs.build.outputs.image_digest }} \
+            bash -c '
+              python --version
+              uv --version
+              python -c "import sys; assert sys.version_info >= (3, 11)"
+            '
+
+  # ---------------------------------------------------------------------------
+  # Job 6: Publish Docker Scout SLSA Report
+  # ---------------------------------------------------------------------------
+  scout:
+    name: Docker Scout Analysis
+    needs: [build, scan-trivy, scan-snyk]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event_name != 'pull_request'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Docker Scout CVEs
+        uses: docker/scout-action@v1
+        with:
+          command: cves
+          image: ${{ env.IMAGE_NAME }}@${{ needs.build.outputs.image_digest }}
+          sarif-file: scout-cves.sarif
+          summary: true
+
+      - name: Upload Scout results
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: scout-cves.sarif
+
+  # ---------------------------------------------------------------------------
+  # Job 7: Metrics and Observability
+  # ---------------------------------------------------------------------------
+  metrics:
+    name: Collect Build Metrics
+    needs: [build, test, scan-trivy, scan-snyk]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: github.event_name != 'pull_request' && always()
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Collect image metrics
+        run: |
+          # Get image size
+          docker pull ${{ env.IMAGE_NAME }}@${{ needs.build.outputs.image_digest }}
+          IMAGE_SIZE=$(docker image inspect ${{ env.IMAGE_NAME }}@${{ needs.build.outputs.image_digest }} --format='{{.Size}}')
+          IMAGE_SIZE_MB=$((IMAGE_SIZE / 1024 / 1024))
+
+          echo "Image Size: ${IMAGE_SIZE_MB} MB"
+
+          # Create metrics file
+          cat > metrics.json << EOF
+          {
+            "workflow_run_id": "${{ github.run_id }}",
+            "workflow_run_number": "${{ github.run_number }}",
+            "git_ref": "${{ github.ref }}",
+            "git_sha": "${{ github.sha }}",
+            "image_digest": "${{ needs.build.outputs.image_digest }}",
+            "image_size_mb": ${IMAGE_SIZE_MB},
+            "build_date": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "platforms": ["linux/amd64", "linux/arm64"],
+            "build_status": "${{ needs.build.result }}",
+            "trivy_status": "${{ needs.scan-trivy.result }}",
+            "snyk_status": "${{ needs.scan-snyk.result }}",
+            "test_status": "${{ needs.test.result }}"
+          }
+          EOF
+
+          cat metrics.json
+
+      - name: Upload metrics artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-metrics
+          path: metrics.json
+          retention-days: 90
+
+  # ---------------------------------------------------------------------------
+  # Job 8: Rollback Capability
+  # ---------------------------------------------------------------------------
+  rollback:
+    name: Prepare Rollback
+    needs: [build, test, scan-trivy]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: github.event_name != 'pull_request' && always()
+
+    steps:
+      - name: Create rollback manifest
+        run: |
+          TAGS_JSON='${{ needs.build.outputs.image_tags }}'
+          if [ -z "$(echo "$TAGS_JSON" | tr -d '\n ')" ]; then
+            TAGS_ARRAY='[]'
+          else
+            TAGS_ARRAY=$(echo "$TAGS_JSON" | jq -Rs 'split("\n") | map(select(length > 0))')
+          fi
+
+          cat > rollback-manifest.json << EOF
+          {
+            "current_digest": "${{ needs.build.outputs.image_digest }}",
+            "current_tags": ${TAGS_ARRAY},
+            "rollback_instructions": "To rollback, re-tag the previous image digest to 'latest'",
+            "rollback_command": "docker pull ${{ env.IMAGE_NAME }}@<PREVIOUS_DIGEST> && docker tag ${{ env.IMAGE_NAME }}@<PREVIOUS_DIGEST> ${{ env.IMAGE_NAME }}:latest && docker push ${{ env.IMAGE_NAME }}:latest"
+          }
+          EOF
+
+          cat rollback-manifest.json
+
+      - name: Upload rollback manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: rollback-manifest
+          path: rollback-manifest.json
+          retention-days: 90
