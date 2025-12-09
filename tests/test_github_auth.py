@@ -45,10 +45,24 @@ class TestGitHubToken:
         with patch.dict("os.environ", {"GITHUB_JPSPEC": "env_token"}):
             assert _github_token("cli_token") == "cli_token"
 
-    def test_uses_env_var_when_no_cli_token(self):
+    def test_uses_github_jpspec_env_var_when_no_cli_token(self):
         """Should use GITHUB_JPSPEC env var when no CLI token."""
         with patch.dict("os.environ", {"GITHUB_JPSPEC": "env_token"}, clear=True):
             assert _github_token(None) == "env_token"
+
+    def test_uses_github_token_env_var_when_no_cli_token(self):
+        """Should use GITHUB_TOKEN env var when no CLI token."""
+        with patch.dict("os.environ", {"GITHUB_TOKEN": "gh_token"}, clear=True):
+            assert _github_token(None) == "gh_token"
+
+    def test_github_token_takes_precedence_over_github_jpspec(self):
+        """GITHUB_TOKEN should take precedence over GITHUB_JPSPEC."""
+        with patch.dict(
+            "os.environ",
+            {"GITHUB_TOKEN": "gh_token", "GITHUB_JPSPEC": "jpspec_token"},
+            clear=True,
+        ):
+            assert _github_token(None) == "gh_token"
 
     def test_env_var_stripped(self):
         """Should strip whitespace from env var."""
@@ -71,6 +85,7 @@ class TestGitHubHeaders:
 
     def test_headers_without_token(self, monkeypatch):
         """Should return headers without Authorization when no token."""
+        monkeypatch.delenv("GITHUB_TOKEN", raising=False)
         monkeypatch.delenv("GITHUB_JPSPEC", raising=False)
         headers = _github_headers(None)
         assert "Authorization" not in headers
@@ -86,12 +101,14 @@ class TestGitHubHeaders:
 
     def test_headers_with_empty_token(self, monkeypatch):
         """Should not include Authorization header for empty token."""
+        monkeypatch.delenv("GITHUB_TOKEN", raising=False)
         monkeypatch.delenv("GITHUB_JPSPEC", raising=False)
         headers = _github_headers("")
         assert "Authorization" not in headers
 
     def test_headers_with_none_token(self, monkeypatch):
         """Should not include Authorization header for None token."""
+        monkeypatch.delenv("GITHUB_TOKEN", raising=False)
         monkeypatch.delenv("GITHUB_JPSPEC", raising=False)
         headers = _github_headers(None)
         assert "Authorization" not in headers

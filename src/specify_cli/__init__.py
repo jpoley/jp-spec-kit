@@ -61,8 +61,12 @@ client = httpx.Client(verify=ssl_context)
 
 
 def _github_token(cli_token: str | None = None) -> str | None:
-    """Return sanitized GitHub token (cli arg takes precedence) or None."""
-    return ((cli_token or os.getenv("GITHUB_JPSPEC") or "").strip()) or None
+    """Return sanitized GitHub token (cli arg takes precedence) or None.
+
+    Checks in order: cli_token, GITHUB_TOKEN env var, GITHUB_JPSPEC env var.
+    """
+    token = cli_token or os.getenv("GITHUB_TOKEN") or os.getenv("GITHUB_JPSPEC") or ""
+    return token.strip() or None
 
 
 def _github_headers(cli_token: str | None = None, *, skip_auth: bool = False) -> dict:

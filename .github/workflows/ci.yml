@@ -48,6 +48,8 @@ jobs:
         run: uv sync
 
       - name: Run tests
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: uv run pytest tests/ -v --cov=src/specify_cli --cov-report=term-missing
 
   build:
