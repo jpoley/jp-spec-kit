@@ -154,7 +154,11 @@ class TestTemplateCoverage:
     def test_jpspec_templates_have_symlinks(
         self, claude_commands_dir: Path, templates_commands_dir: Path
     ) -> None:
-        """Verify every jpspec template has a corresponding symlink (R4)."""
+        """Verify every jpspec template has a corresponding symlink (R4).
+
+        Note: Deprecated templates (prefixed with _DEPRECATED_) are excluded
+        as they are kept for reference but not symlinked.
+        """
         jpspec_templates_dir = templates_commands_dir / "jpspec"
         if not jpspec_templates_dir.exists():
             pytest.skip("No templates/commands/jpspec directory")
@@ -165,7 +169,12 @@ class TestTemplateCoverage:
                 "No .claude/commands/jpspec directory - dev-setup not initialized"
             )
 
-        template_files = {f.name for f in jpspec_templates_dir.glob("*.md")}
+        # Exclude deprecated templates from the check
+        template_files = {
+            f.name
+            for f in jpspec_templates_dir.glob("*.md")
+            if not f.name.startswith("_DEPRECATED_")
+        }
         symlink_files = {f.name for f in claude_jpspec_dir.glob("*.md")}
 
         missing_symlinks = template_files - symlink_files
@@ -292,7 +301,8 @@ class TestSubdirectoryStructure:
         if not claude_commands_dir.exists():
             pytest.skip("No .claude/commands directory - dev-setup not initialized")
 
-        expected_dirs = {"jpspec", "speckit"}
+        # Core command namespaces and role-based command directories
+        expected_dirs = {"jpspec", "speckit", "pm", "dev", "sec", "qa", "ops", "arch"}
         actual_dirs = {d.name for d in claude_commands_dir.iterdir() if d.is_dir()}
 
         unexpected_dirs = actual_dirs - expected_dirs
@@ -300,7 +310,7 @@ class TestSubdirectoryStructure:
         assert not unexpected_dirs, (
             "Found unexpected subdirectories in .claude/commands/:\n"
             + "\n".join(f"  - {d}/" for d in sorted(unexpected_dirs))
-            + "\n\nExpected structure: jpspec/, speckit/ only\n"
+            + "\n\nExpected structure: jpspec/, speckit/, and role dirs (pm, dev, sec, qa, ops, arch)\n"
             "\nTo fix:\n"
             "  uv run specify dev-setup --force\n"
         )

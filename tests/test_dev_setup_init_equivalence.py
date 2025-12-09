@@ -44,7 +44,11 @@ class TestDevSetupInitEquivalence:
     def test_jpspec_symlinks_match_templates(
         self, claude_commands_dir: Path, templates_dir: Path
     ) -> None:
-        """Test dev-setup creates jpspec symlinks for all jpspec templates."""
+        """Test dev-setup creates jpspec symlinks for all jpspec templates.
+
+        Note: Deprecated templates (prefixed with _DEPRECATED_) are excluded
+        as they are kept for reference but not symlinked.
+        """
         jpspec_templates_dir = templates_dir / "jpspec"
         jpspec_commands_dir = claude_commands_dir / "jpspec"
 
@@ -53,8 +57,11 @@ class TestDevSetupInitEquivalence:
         if not jpspec_commands_dir.exists():
             pytest.skip("No .claude/commands/jpspec directory")
 
+        # Exclude deprecated templates from the check
         template_files = {
-            f.name for f in jpspec_templates_dir.glob("*.md") if f.is_file()
+            f.name
+            for f in jpspec_templates_dir.glob("*.md")
+            if f.is_file() and not f.name.startswith("_DEPRECATED_")
         }
         symlink_files = {
             f.name for f in jpspec_commands_dir.glob("*.md") if f.is_symlink()
@@ -111,17 +118,17 @@ class TestDevSetupInitEquivalence:
                 if symlink.is_symlink():
                     dev_setup_files.add(f"speckit/{symlink.name}")
 
-        # Collect init templates
+        # Collect init templates (excluding deprecated ones)
         jpspec_templates = templates_dir / "jpspec"
         if jpspec_templates.exists():
             for template in jpspec_templates.glob("*.md"):
-                if template.is_file():
+                if template.is_file() and not template.name.startswith("_DEPRECATED_"):
                     init_files.add(f"jpspec/{template.name}")
 
         speckit_templates = templates_dir / "speckit"
         if speckit_templates.exists():
             for template in speckit_templates.glob("*.md"):
-                if template.is_file():
+                if template.is_file() and not template.name.startswith("_DEPRECATED_"):
                     init_files.add(f"speckit/{template.name}")
 
         assert dev_setup_files == init_files, (
@@ -150,19 +157,21 @@ class TestSubdirectoryStructure:
         assert speckit_dir.is_dir(), "speckit is not a directory"
 
     def test_no_extra_subdirectories(self, claude_commands_dir: Path) -> None:
-        """Test only jpspec and speckit subdirectories exist."""
+        """Test only expected subdirectories exist (jpspec, speckit, and role-based)."""
         if not claude_commands_dir.exists():
             pytest.skip("No .claude/commands directory")
 
         subdirs = {d.name for d in claude_commands_dir.iterdir() if d.is_dir()}
-        expected_subdirs = {"jpspec", "speckit"}
+        # Core command namespaces and role-based command directories
+        expected_subdirs = {"jpspec", "speckit", "pm", "dev", "sec", "qa", "ops", "arch"}
 
-        assert subdirs == expected_subdirs, (
-            f"Unexpected subdirectory structure.\n"
-            f"Expected: {sorted(expected_subdirs)}\n"
+        extra_subdirs = subdirs - expected_subdirs
+
+        assert not extra_subdirs, (
+            f"Found unexpected subdirectories.\n"
+            f"Expected (subset of): {sorted(expected_subdirs)}\n"
             f"Found: {sorted(subdirs)}\n"
-            f"Extra: {sorted(subdirs - expected_subdirs)}\n"
-            f"Missing: {sorted(expected_subdirs - subdirs)}"
+            f"Extra: {sorted(extra_subdirs)}"
         )
 
     def test_templates_subdirectory_structure_matches(
@@ -353,14 +362,23 @@ class TestTemplateCompleteness:
     def test_all_jpspec_templates_have_symlinks(
         self, templates_dir: Path, claude_commands_dir: Path
     ) -> None:
-        """Test every jpspec template has a corresponding symlink (R4)."""
+        """Test every jpspec template has a corresponding symlink (R4).
+
+        Note: Deprecated templates (prefixed with _DEPRECATED_) are excluded
+        as they are kept for reference but not symlinked.
+        """
         jpspec_templates = templates_dir / "jpspec"
         jpspec_commands = claude_commands_dir / "jpspec"
 
         if not jpspec_templates.exists() or not jpspec_commands.exists():
             pytest.skip("jpspec directories not found")
 
-        template_files = {f.name for f in jpspec_templates.glob("*.md")}
+        # Exclude deprecated templates from the check
+        template_files = {
+            f.name
+            for f in jpspec_templates.glob("*.md")
+            if not f.name.startswith("_DEPRECATED_")
+        }
         symlink_files = {f.name for f in jpspec_commands.glob("*.md")}
 
         orphan_templates = template_files - symlink_files

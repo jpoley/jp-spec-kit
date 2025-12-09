@@ -29,7 +29,6 @@ Exit codes:
 
 import sys
 from pathlib import Path
-from typing import Any
 
 import yaml
 
