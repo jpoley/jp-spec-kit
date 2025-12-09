@@ -1,0 +1,94 @@
+{
+  "name": "AI Project Dev Environment",
+  "image": "jpoley/specflow-agents:latest",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "charliermarsh.ruff",
+        "tamasfe.even-better-toml",
+        "redhat.vscode-yaml",
+        "yzhang.markdown-all-in-one",
+        "ms-azuretools.vscode-docker",
+        "eamodio.gitlens",
+        "usernamehw.errorlens",
+        "streetsidesoftware.code-spell-checker"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "${containerWorkspaceFolder}/.venv/bin/python",
+        "python.terminal.activateEnvironment": false,
+        "python.testing.pytestEnabled": true,
+        "python.testing.unittestEnabled": false,
+        "python.testing.pytestArgs": ["tests"],
+        "python.linting.enabled": false,
+        "python.formatting.provider": "none",
+        "[python]": {
+          "editor.formatOnSave": true,
+          "editor.defaultFormatter": "charliermarsh.ruff",
+          "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit",
+            "source.fixAll": "explicit"
+          }
+        },
+        "ruff.enable": true,
+        "ruff.organizeImports": true,
+        "ruff.fixAll": true,
+        "editor.rulers": [88],
+        "files.trimTrailingWhitespace": true,
+        "files.insertFinalNewline": true,
+        "terminal.integrated.defaultProfile.linux": "zsh",
+        "git.autofetch": true,
+        "git.confirmSync": false
+      }
+    }
+  },
+
+  "mounts": [
+    "source=${localWorkspaceFolder}/backlog,target=${containerWorkspaceFolder}/backlog,type=bind,consistency=cached",
+    // Mount .gitconfig for Linux
+    "source=${localEnv:HOME}/.gitconfig,target=/home/vscode/.gitconfig-host,type=bind,readonly,platform=linux",
+    // Mount .gitconfig for Windows
+    "source=${localEnv:USERPROFILE}/.gitconfig,target=/home/vscode/.gitconfig-host,type=bind,readonly,platform=win32",
+    // Mount .ssh for Linux
+    "source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,readonly,platform=linux",
+    // Mount .ssh for Windows
+    "source=${localEnv:USERPROFILE}/.ssh,target=/home/vscode/.ssh,type=bind,readonly,platform=win32",
+    // Mount .claude for Linux
+    "source=${localEnv:HOME}/.claude,target=/home/vscode/.claude,type=bind,consistency=cached,platform=linux",
+    // Mount .claude for Windows
+    "source=${localEnv:USERPROFILE}/.claude,target=/home/vscode/.claude,type=bind,consistency=cached,platform=win32",
+    // Mount github-copilot config for Linux
+    "source=${localEnv:HOME}/.config/github-copilot,target=/home/vscode/.config/github-copilot,type=bind,consistency=cached,platform=linux",
+    // Mount github-copilot config for Windows
+    "source=${localEnv:USERPROFILE}/.config/github-copilot,target=/home/vscode/.config/github-copilot,type=bind,consistency=cached,platform=win32",
+    "source=${localWorkspaceFolderBasename}-vscode-extensions,target=/home/vscode/.vscode-server/extensions,type=volume"
+  ],
+
+  "remoteEnv": {
+    "GITHUB_JPSPEC": "${localEnv:GITHUB_JPSPEC}",
+    "OPENAI_API_KEY": "${localEnv:OPENAI_API_KEY}",
+    "GOOGLE_API_KEY": "${localEnv:GOOGLE_API_KEY}",
+    "PYTHONUNBUFFERED": "1",
+    "UV_SYSTEM_PYTHON": "1",
+    "VIRTUAL_ENV": "${containerWorkspaceFolder}/.venv",
+    "PATH": "${containerWorkspaceFolder}/.venv/bin:/home/vscode/.local/share/pnpm:/home/vscode/.cargo/bin:/home/vscode/.local/bin:${containerEnv:PATH}",
+    "WORKSPACEROOT": "${containerWorkspaceFolder}"
+  },
+
+  "onCreateCommand": "mkdir -p /home/vscode/.claude /home/vscode/.config/github-copilot",
+  "postCreateCommand": "uv sync && git config --global --add safe.directory ${containerWorkspaceFolder}",
+  "postStartCommand": "cp /home/vscode/.gitconfig-host /home/vscode/.gitconfig 2>/dev/null || true",
+  "postAttachCommand": "echo '--- AI Project Dev Environment Ready ---' && uv --version && python --version",
+
+  "forwardPorts": [],
+
+  "containerEnv": {
+    "TERM": "xterm-256color",
+    "PNPM_HOME": "/home/vscode/.local/share/pnpm"
+  },
+
+  "remoteUser": "vscode",
+  "workspaceFolder": "${containerWorkspaceFolder}"
+}
