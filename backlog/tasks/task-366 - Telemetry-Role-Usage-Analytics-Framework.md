@@ -4,10 +4,11 @@ title: 'Telemetry: Role Usage Analytics Framework'
 status: To Do
 assignee: []
 created_date: '2025-12-09 15:14'
+updated_date: '2025-12-09 15:48'
 labels:
   - infrastructure
   - telemetry
-  - analytics
+  - phase-4
 dependencies: []
 priority: low
 ---
@@ -15,7 +16,7 @@ priority: low
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Implement privacy-preserving telemetry for role usage patterns and feedback
+Add optional telemetry for role usage analytics. DEPENDS ON: All previous tasks. LOW priority - can be deferred.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -26,3 +27,16 @@ Implement privacy-preserving telemetry for role usage patterns and feedback
 - [ ] #4 Opt-in telemetry via config (telemetry.enabled)
 - [ ] #5 Feedback prompt UI designed
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+DEPENDS ON: task-361, task-367
+
+OPTIONAL - can defer
+
+1. Add opt-in telemetry for role selection
+2. Track which commands used per role
+3. Privacy-preserving aggregation
+4. Dashboard for role usage insights
+<!-- SECTION:PLAN:END -->

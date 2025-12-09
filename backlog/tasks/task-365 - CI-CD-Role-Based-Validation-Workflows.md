@@ -4,10 +4,11 @@ title: 'CI/CD: Role-Based Validation Workflows'
 status: To Do
 assignee: []
 created_date: '2025-12-09 15:14'
+updated_date: '2025-12-09 15:48'
 labels:
   - infrastructure
-  - ci-cd
-  - github-actions
+  - cicd
+  - phase-4
 dependencies: []
 priority: medium
 ---
@@ -15,7 +16,7 @@ priority: medium
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Add GitHub Actions workflows for role-based artifact validation and team role enforcement
+Add CI validation for role-based command structure. DEPENDS ON: task-367 (command files), task-363 (sync script).
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -27,3 +28,16 @@ Add GitHub Actions workflows for role-based artifact validation and team role en
 - [ ] #5 QA validation job checks test coverage and docs
 - [ ] #6 Team role validation prevents .vscode/settings.json commits in team mode
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+DEPENDS ON: task-367, task-363
+
+1. Add workflow to validate specflow_workflow.yml schema
+2. Validate all role commands exist in correct directories
+3. Check agent-to-role mappings are valid
+4. Verify backwards-compatible aliases work
+5. Run sync-copilot-agents.sh --validate in CI
+6. Check for drift between commands and schema
+<!-- SECTION:PLAN:END -->
