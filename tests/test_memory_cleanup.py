@@ -1,7 +1,6 @@
 """Tests for CleanupManager component."""
 
 import pytest
-import time
 from datetime import datetime, timedelta
 from pathlib import Path
 from specify_cli.memory import TaskMemoryStore
@@ -73,6 +72,7 @@ def set_file_mtime(path: Path, days_ago: int):
     mtime = (datetime.now() - timedelta(days=days_ago)).timestamp()
     path.touch()
     import os
+
     os.utime(path, (mtime, mtime))
 
 
@@ -290,7 +290,7 @@ class TestDeleteArchivedOlderThan:
         """Test that deletion is permanent and irreversible."""
         # Create, archive, and delete
         store.create("task-375", task_title="Test")
-        content = store.read("task-375")
+        store.read("task-375")  # Verify readable before archive
         store.archive("task-375")
         set_file_mtime(store.archive_dir / "task-375.md", 100)
 

@@ -1,7 +1,6 @@
 """Tests for LifecycleManager component."""
 
 import pytest
-from pathlib import Path
 from specify_cli.memory import TaskMemoryStore
 from specify_cli.memory.lifecycle import LifecycleManager
 

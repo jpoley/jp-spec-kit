@@ -76,7 +76,9 @@ def test_update_active_task_none_removes_section(tmp_project: Path) -> None:
 
     # Add task
     injector.update_active_task("task-375")
-    assert "## Active Task Context" in (tmp_project / "backlog" / "CLAUDE.md").read_text()
+    assert (
+        "## Active Task Context" in (tmp_project / "backlog" / "CLAUDE.md").read_text()
+    )
 
     # Clear task
     injector.update_active_task(None)
@@ -157,8 +159,6 @@ def test_no_extra_blank_lines(tmp_project: Path) -> None:
 def test_update_preserves_existing_content(tmp_project: Path) -> None:
     """Test that update_active_task preserves existing CLAUDE.md content."""
     injector = ContextInjector(tmp_project)
-
-    original_content = (tmp_project / "backlog" / "CLAUDE.md").read_text()
 
     # Update task
     injector.update_active_task("task-375")

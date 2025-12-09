@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import json
 import time
-from pathlib import Path
 
 import pytest
 from typer.testing import CliRunner
@@ -72,9 +71,7 @@ def sample_memories(temp_workspace):
     # Create active memories
     store.create("task-389", task_title="Implement Append Command")
     store.append("task-389", "Started implementation")
-    store.append(
-        "task-389", "Decision: Use Typer for CLI", section="Key Decisions"
-    )
+    store.append("task-389", "Decision: Use Typer for CLI", section="Key Decisions")
 
     store.create("task-390", task_title="Implement List Command")
     store.append("task-390", "API implementation complete")

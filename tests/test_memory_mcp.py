@@ -8,7 +8,6 @@ as testing actual MCP resource invocation requires a running MCP server.
 """
 
 import pytest
-import json
 from pathlib import Path
 
 # Check if MCP is available

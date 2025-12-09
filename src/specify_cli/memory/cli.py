@@ -121,9 +121,7 @@ def append(
     # Check if task memory exists
     if not store.exists(task_id):
         console.print(f"[red]Task memory not found:[/red] {task_id}")
-        console.print(
-            f"[dim]Create it first with: backlog task edit {task_id}[/dim]"
-        )
+        console.print(f"[dim]Create it first with: backlog task edit {task_id}[/dim]")
         raise typer.Exit(1)
 
     # Append content
@@ -255,9 +253,7 @@ def search(
     include_archived: bool = typer.Option(
         False, "--archived", help="Include archived memories"
     ),
-    limit: int = typer.Option(
-        50, "--limit", "-n", help="Maximum number of results"
-    ),
+    limit: int = typer.Option(50, "--limit", "-n", help="Maximum number of results"),
     context: int = typer.Option(
         2, "--context", "-C", help="Lines of context around matches"
     ),
@@ -361,13 +357,9 @@ def search(
 
     if plain:
         for result in results:
-            print(
-                f"{result['task_id']}:{result['line_num']}:{result['line']}"
-            )
+            print(f"{result['task_id']}:{result['line_num']}:{result['line']}")
     else:
-        console.print(
-            f"\n[cyan]Found {len(results)} match(es) for:[/cyan] {query}\n"
-        )
+        console.print(f"\n[cyan]Found {len(results)} match(es) for:[/cyan] {query}\n")
         if len(results) >= limit:
             console.print(f"[yellow]Showing first {limit} results[/yellow]\n")
 
@@ -403,9 +395,7 @@ def clear(
     confirm: bool = typer.Option(
         False, "--confirm", "-y", help="Skip confirmation prompt"
     ),
-    no_backup: bool = typer.Option(
-        False, "--no-backup", help="Skip backup creation"
-    ),
+    no_backup: bool = typer.Option(False, "--no-backup", help="Skip backup creation"),
     project_root: Optional[str] = typer.Option(
         None, "--project-root", help="Project root directory"
     ),
@@ -607,9 +597,7 @@ def cleanup(
         else:
             console.print("\n[green]✓ Cleanup completed successfully[/green]")
     else:
-        console.print(
-            "\n[dim]Run with --execute to perform these operations[/dim]"
-        )
+        console.print("\n[dim]Run with --execute to perform these operations[/dim]")
 
 
 @memory_app.command("stats")
