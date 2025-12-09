@@ -30,7 +30,7 @@ JP Spec Kit transforms how you build software with AI. Instead of giving AI loos
 ### 1. Install the Tools
 
 ```bash
-# JPSpecify CLI (project initialization)
+# SpecFlow CLI (project initialization)
 uv tool install specflow-cli --from git+https://github.com/jpoley/jp-spec-kit.git
 
 # Backlog.md (task management)
