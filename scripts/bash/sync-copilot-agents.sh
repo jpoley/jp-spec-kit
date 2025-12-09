@@ -1,20 +1,24 @@
 #!/usr/bin/env bash
 # sync-copilot-agents.sh - Convert Claude Code commands to VS Code Copilot agents
 #
-# This script synchronizes .claude/commands/ to .github/agents/ by:
+# This script synchronizes .claude/commands/ and templates/commands/ to .github/agents/ by:
 # - Resolving {{INCLUDE:path}} directives
 # - Transforming frontmatter to Copilot format (name, description, tools, handoffs)
-# - Renaming files to .agent.md extension
+# - Adding role metadata from specflow_workflow.yml
+# - Supporting role-based filtering (--role dev, --role qa, etc.)
+# - Renaming files to {role}-{command}.agent.md or {namespace}-{command}.agent.md
 #
 # Usage:
 #   sync-copilot-agents.sh [OPTIONS]
 #
 # Options:
-#   --dry-run     Show what would be generated without writing
-#   --validate    Check if .github/agents/ matches expected output (exit 2 if drift)
-#   --force       Overwrite files without confirmation
-#   --verbose     Show detailed processing information
-#   --help        Show usage
+#   --dry-run           Show what would be generated without writing
+#   --validate          Check if .github/agents/ matches expected output (exit 2 if drift)
+#   --force             Overwrite files without confirmation
+#   --verbose           Show detailed processing information
+#   --role ROLE         Generate only agents for specified role (dev, pm, qa, sec, arch, ops, all)
+#   --with-vscode       Generate .vscode/settings.json with agent pinning
+#   --help              Show usage
 
 set -euo pipefail
 
@@ -22,18 +26,28 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 COMMANDS_DIR="$PROJECT_ROOT/.claude/commands"
+TEMPLATES_COMMANDS_DIR="$PROJECT_ROOT/templates/commands"
 AGENTS_DIR="$PROJECT_ROOT/.github/agents"
+WORKFLOW_CONFIG="$PROJECT_ROOT/specflow_workflow.yml"
 
 # Flags
 DRY_RUN=false
 VALIDATE=false
 FORCE=false
 VERBOSE=false
+ROLE_FILTER=""
+WITH_VSCODE=false
 
 # Counters
 TOTAL_FILES=0
 PROCESSED_FILES=0
 ERRORS=0
+
+# Cache for role metadata
+declare -A ROLE_AGENTS
+declare -A AGENT_ROLES
+declare -A COMMAND_ROLES
+ROLE_METADATA_LOADED=false
 
 # Colors (disabled on non-tty)
 if [ -t 1 ]; then
@@ -61,22 +75,30 @@ usage() {
     cat << EOF
 Usage: $(basename "$0") [OPTIONS]
 
-Convert Claude Code commands to VS Code Copilot agents.
+Convert Claude Code commands to VS Code Copilot agents with role-based metadata.
 
 Options:
-  --dry-run     Show what would be generated without writing
-  --validate    Check if .github/agents/ matches expected output (exit 2 if drift)
-  --force       Overwrite files without confirmation
-  --verbose     Show detailed processing information
-  --help        Show this help message
+  --dry-run           Show what would be generated without writing
+  --validate          Check if .github/agents/ matches expected output (exit 2 if drift)
+  --force             Overwrite files without confirmation
+  --verbose           Show detailed processing information
+  --role ROLE         Generate only agents for specified role (dev, pm, qa, sec, arch, ops, all)
+  --with-vscode       Generate .vscode/settings.json with agent pinning
+  --help              Show this help message
 
-Source: .claude/commands/{jpspec,speckit}/*.md
-Target: .github/agents/{namespace}-{command}.agent.md
+Source:
+  - .claude/commands/{jpspec,speckit}/*.md (legacy workflow commands)
+  - templates/commands/{role}/*.md (role-based commands)
+Target: .github/agents/{role}-{command}.agent.md or {namespace}-{command}.agent.md
+
+Role Configuration: specflow_workflow.yml
 
 Examples:
-  $(basename "$0")              # Sync all commands
-  $(basename "$0") --dry-run    # Preview changes
-  $(basename "$0") --validate   # CI mode: check for drift
+  $(basename "$0")                    # Sync all commands
+  $(basename "$0") --dry-run          # Preview changes
+  $(basename "$0") --validate         # CI mode: check for drift
+  $(basename "$0") --role dev         # Generate only dev role agents
+  $(basename "$0") --with-vscode      # Generate with VS Code settings
 EOF
 }
 
@@ -100,6 +122,18 @@ parse_args() {
                 VERBOSE=true
                 shift
                 ;;
+            --role)
+                if [[ -z "${2:-}" ]]; then
+                    log_error "--role requires a role name argument"
+                    exit 1
+                fi
+                ROLE_FILTER="$2"
+                shift 2
+                ;;
+            --with-vscode)
+                WITH_VSCODE=true
+                shift
+                ;;
             --help|-h)
                 usage
                 exit 0
@@ -111,6 +145,111 @@ parse_args() {
                 ;;
         esac
     done
+}
+
+# Load role metadata from specflow_workflow.yml
+get_role_metadata() {
+    if [[ "$ROLE_METADATA_LOADED" == true ]]; then
+        return 0
+    fi
+
+    if [[ ! -f "$WORKFLOW_CONFIG" ]]; then
+        log_warn "Workflow config not found: $WORKFLOW_CONFIG"
+        ROLE_METADATA_LOADED=true
+        return 0
+    fi
+
+    log_verbose "Loading role metadata from $WORKFLOW_CONFIG"
+
+    # Use Python to parse YAML and process metadata
+    while IFS=: read -r type key value; do
+        case "$type" in
+            COMMAND_ROLE)
+                COMMAND_ROLES["$key"]="$value"
+                log_verbose "Command '$key' -> role '$value'"
+                ;;
+            ROLE_AGENT)
+                ROLE_AGENTS["$key"]+="$value "
+                log_verbose "Role '$key' -> agent '$value'"
+                ;;
+            AGENT_ROLE)
+                AGENT_ROLES["$key"]="$value"
+                log_verbose "Agent '$key' -> role '$value'"
+                ;;
+        esac
+    done < <(WORKFLOW_CONFIG="$WORKFLOW_CONFIG" python3 << 'PYTHON_METADATA'
+import yaml
+import sys
+import os
+from pathlib import Path
+
+try:
+    config_path = Path(os.environ.get('WORKFLOW_CONFIG', ''))
+    with open(config_path, 'r') as f:
+        config = yaml.safe_load(f)
+
+    roles = config.get('roles', {}).get('definitions', {})
+
+    # Print role -> commands mapping
+    for role, role_data in roles.items():
+        commands = role_data.get('commands', [])
+        for cmd in commands:
+            print(f"COMMAND_ROLE:{cmd}:{role}")
+
+    # Print role -> agents mapping
+    for role, role_data in roles.items():
+        agents = role_data.get('agents', [])
+        for agent in agents:
+            # Remove @ prefix if present
+            agent_name = agent.lstrip('@')
+            print(f"ROLE_AGENT:{role}:{agent_name}")
+            print(f"AGENT_ROLE:{agent_name}:{role}")
+
+except FileNotFoundError:
+    print(f"ERROR: Config file not found", file=sys.stderr)
+    sys.exit(1)
+except Exception as e:
+    print(f"ERROR: Failed to parse YAML: {e}", file=sys.stderr)
+    sys.exit(1)
+PYTHON_METADATA
+)
+
+    ROLE_METADATA_LOADED=true
+    log_verbose "Role metadata loaded: ${#COMMAND_ROLES[@]} commands, ${#AGENT_ROLES[@]} agents"
+}
+
+# Get role for a command
+get_command_role() {
+    local command="$1"
+    echo "${COMMAND_ROLES[$command]:-}"
+}
+
+# Get role for an agent
+get_agent_role() {
+    local agent="$1"
+    echo "${AGENT_ROLES[$agent]:-}"
+}
+
+# Check if command should be processed based on role filter
+should_process_command() {
+    local role="$1"
+
+    # No filter = process all
+    if [[ -z "$ROLE_FILTER" ]]; then
+        return 0
+    fi
+
+    # "all" filter = process all
+    if [[ "$ROLE_FILTER" == "all" ]]; then
+        return 0
+    fi
+
+    # Check if role matches filter
+    if [[ "$role" == "$ROLE_FILTER" ]]; then
+        return 0
+    fi
+
+    return 1
 }
 
 # Resolve {{INCLUDE:path}} directives recursively using Python for reliability
@@ -244,11 +383,173 @@ print("")
 
 # Get handoff configuration for an agent
 get_handoffs() {
-    local namespace="$1"
+    local role="$1"
     local command="$2"
 
-    # Only jpspec workflow commands have handoffs
-    if [[ "$namespace" != "jpspec" ]]; then
+    # Role-based commands use role-specific handoffs
+    if [[ -n "$role" && "$role" != "jpspec" && "$role" != "speckit" ]]; then
+        # Get next logical command in same role
+        case "$role" in
+            pm)
+                case "$command" in
+                    assess)
+                        cat << 'HANDOFF'
+handoffs:
+  - label: "Define Requirements"
+    agent: "pm-define"
+    prompt: "Assessment complete. Define detailed product requirements."
+    send: false
+    priority_for_roles: ["pm"]
+HANDOFF
+                        ;;
+                    define)
+                        cat << 'HANDOFF'
+handoffs:
+  - label: "Research and Discover"
+    agent: "pm-discover"
+    prompt: "Requirements defined. Conduct research and discovery."
+    send: false
+    priority_for_roles: ["pm"]
+  - label: "Create Technical Design"
+    agent: "arch-design"
+    prompt: "Requirements ready. Hand off to architect for technical design."
+    send: false
+    priority_for_roles: ["arch"]
+HANDOFF
+                        ;;
+                    discover)
+                        cat << 'HANDOFF'
+handoffs:
+  - label: "Create Technical Design"
+    agent: "arch-design"
+    prompt: "Discovery complete. Hand off to architect for technical design."
+    send: false
+    priority_for_roles: ["arch"]
+HANDOFF
+                        ;;
+                esac
+                ;;
+            arch)
+                case "$command" in
+                    design)
+                        cat << 'HANDOFF'
+handoffs:
+  - label: "Begin Implementation"
+    agent: "dev-build"
+    prompt: "Design complete. Hand off to developers for implementation."
+    send: false
+    priority_for_roles: ["dev"]
+HANDOFF
+                        ;;
+                esac
+                ;;
+            dev)
+                case "$command" in
+                    build)
+                        cat << 'HANDOFF'
+handoffs:
+  - label: "Run Tests"
+    agent: "qa-test"
+    prompt: "Implementation complete. Hand off to QA for testing."
+    send: false
+    priority_for_roles: ["qa"]
+HANDOFF
+                        ;;
+                esac
+                ;;
+            qa)
+                case "$command" in
+                    test)
+                        cat << 'HANDOFF'
+handoffs:
+  - label: "Security Scan"
+    agent: "sec-scan"
+    prompt: "Tests passing. Hand off to security for scanning."
+    send: false
+    priority_for_roles: ["sec"]
+  - label: "Deploy"
+    agent: "ops-deploy"
+    prompt: "Tests passing. Hand off to ops for deployment."
+    send: false
+    priority_for_roles: ["ops"]
+HANDOFF
+                        ;;
+                    verify)
+                        cat << 'HANDOFF'
+handoffs:
+  - label: "Deploy"
+    agent: "ops-deploy"
+    prompt: "Verification complete. Hand off to ops for deployment."
+    send: false
+    priority_for_roles: ["ops"]
+HANDOFF
+                        ;;
+                esac
+                ;;
+            sec)
+                case "$command" in
+                    scan)
+                        cat << 'HANDOFF'
+handoffs:
+  - label: "Triage Findings"
+    agent: "sec-triage"
+    prompt: "Scan complete. Triage security findings."
+    send: false
+    priority_for_roles: ["sec"]
+HANDOFF
+                        ;;
+                    triage)
+                        cat << 'HANDOFF'
+handoffs:
+  - label: "Fix Vulnerabilities"
+    agent: "sec-fix"
+    prompt: "Triage complete. Fix critical vulnerabilities."
+    send: false
+    priority_for_roles: ["sec", "dev"]
+HANDOFF
+                        ;;
+                    fix)
+                        cat << 'HANDOFF'
+handoffs:
+  - label: "Re-scan"
+    agent: "sec-scan"
+    prompt: "Fixes applied. Re-scan to verify."
+    send: false
+    priority_for_roles: ["sec"]
+HANDOFF
+                        ;;
+                esac
+                ;;
+            ops)
+                case "$command" in
+                    deploy)
+                        cat << 'HANDOFF'
+handoffs:
+  - label: "Monitor"
+    agent: "ops-monitor"
+    prompt: "Deployment complete. Monitor system health."
+    send: false
+    priority_for_roles: ["ops"]
+HANDOFF
+                        ;;
+                    monitor)
+                        cat << 'HANDOFF'
+handoffs:
+  - label: "Respond to Incident"
+    agent: "ops-respond"
+    prompt: "Issue detected. Respond to incident."
+    send: false
+    priority_for_roles: ["ops"]
+HANDOFF
+                        ;;
+                esac
+                ;;
+        esac
+        return
+    fi
+
+    # Legacy jpspec workflow commands
+    if [[ "$role" != "jpspec" ]]; then
         echo ""
         return
     fi
@@ -324,10 +625,10 @@ HANDOFF
 
 # Get tools configuration for an agent
 get_tools() {
-    local namespace="$1"
+    local role="$1"
 
-    if [[ "$namespace" == "jpspec" ]]; then
-        # Full workflow tools
+    # Full workflow tools for jpspec and role-based commands
+    if [[ "$role" == "jpspec" ]] || [[ "$role" =~ ^(pm|arch|dev|qa|sec|ops)$ ]]; then
         cat << 'TOOLS'
 tools:
   - "Read"
@@ -353,25 +654,47 @@ TOOLS
     fi
 }
 
-# Generate Copilot agent frontmatter
+# Generate Copilot agent frontmatter with role metadata
 generate_frontmatter() {
-    local namespace="$1"
+    local role="$1"
     local command="$2"
     local description="$3"
 
-    local name="${namespace}-${command}"
+    local name="${role}-${command}"
     local handoffs
     local tools
 
-    handoffs=$(get_handoffs "$namespace" "$command")
-    tools=$(get_tools "$namespace")
+    handoffs=$(get_handoffs "$role" "$command")
+    tools=$(get_tools "$role")
 
     echo "---"
     echo "name: \"$name\""
     echo "description: \"$description\""
     echo "target: \"chat\""
     echo "$tools"
+
+    # Add role metadata for role-based commands
+    if [[ "$role" =~ ^(pm|arch|dev|qa|sec|ops)$ ]]; then
+        echo ""
+        echo "# Role-Based Metadata"
+        echo "role: \"$role\""
+        echo "priority_for_roles:"
+        echo "  - \"$role\""
+        echo "visible_to_roles:"
+        echo "  - \"$role\""
+        echo "  - \"all\""
+
+        # Auto-load for primary workflow commands
+        case "$command" in
+            assess|define|discover|design|build|test|scan|deploy)
+                echo "auto_load_for_roles:"
+                echo "  - \"$role\""
+                ;;
+        esac
+    fi
+
     if [[ -n "$handoffs" ]]; then
+        echo ""
         echo "$handoffs"
     fi
     echo "---"
@@ -380,7 +703,7 @@ generate_frontmatter() {
 # Process a single command file
 process_command() {
     local source_file="$1"
-    local namespace="$2"
+    local role="$2"
 
     # Get command name (filename without .md)
     local command
@@ -392,13 +715,19 @@ process_command() {
         return 0
     fi
 
-    log_verbose "Processing: $namespace/$command"
+    # Check role filter
+    if ! should_process_command "$role"; then
+        log_verbose "Skipping $role/$command (filtered by --role $ROLE_FILTER)"
+        return 0
+    fi
+
+    log_verbose "Processing: $role/$command"
 
     # Resolve includes and get content
     local resolved_content
     if ! resolved_content=$(resolve_includes "$source_file" 2>&1); then
-        log_error "Failed to resolve includes for $namespace/$command: $resolved_content"
-        ((ERRORS++))
+        log_error "Failed to resolve includes for $role/$command: $resolved_content"
+        ERRORS=$((ERRORS + 1))
         return 1
     fi
 
@@ -410,8 +739,8 @@ process_command() {
     local description
     description=$(extract_description "$resolved_content")
     if [[ -z "$description" ]]; then
-        description="$namespace $command workflow command"
-        log_warn "No description found for $namespace/$command, using default"
+        description="$role $command workflow command"
+        log_warn "No description found for $role/$command, using default"
     fi
 
     # Remove original frontmatter and get body
@@ -427,17 +756,17 @@ print(body, end='')
 
     # Generate new frontmatter
     local new_frontmatter
-    new_frontmatter=$(generate_frontmatter "$namespace" "$command" "$description")
+    new_frontmatter=$(generate_frontmatter "$role" "$command" "$description")
 
     # Combine frontmatter and body
     local output="${new_frontmatter}
 ${body}"
 
     # Output file path
-    local output_file="$AGENTS_DIR/${namespace}-${command}.agent.md"
+    local output_file="$AGENTS_DIR/${role}-${command}.agent.md"
 
     if [[ "$DRY_RUN" == true ]]; then
-        log_info "[DRY-RUN] Would create: ${namespace}-${command}.agent.md"
+        log_info "[DRY-RUN] Would create: ${role}-${command}.agent.md"
         if [[ "$VERBOSE" == true ]]; then
             echo "--- Frontmatter Preview ---"
             echo "$new_frontmatter"
@@ -449,55 +778,125 @@ ${body}"
             local existing
             existing=$(cat "$output_file")
             if [[ "$existing" != "$output" ]]; then
-                log_error "Drift detected: ${namespace}-${command}.agent.md"
-                ((ERRORS++))
+                log_error "Drift detected: ${role}-${command}.agent.md"
+                ERRORS=$((ERRORS + 1))
                 return 1
             fi
-            log_verbose "Validated: ${namespace}-${command}.agent.md"
+            log_verbose "Validated: ${role}-${command}.agent.md"
         else
-            log_error "Missing: ${namespace}-${command}.agent.md"
-            ((ERRORS++))
+            log_error "Missing: ${role}-${command}.agent.md"
+            ERRORS=$((ERRORS + 1))
             return 1
         fi
     else
         # Write output
         mkdir -p "$(dirname "$output_file")"
         echo "$output" > "$output_file"
-        log_success "Created: ${namespace}-${command}.agent.md"
+        log_success "Created: ${role}-${command}.agent.md"
     fi
 
-    ((PROCESSED_FILES++))
+    PROCESSED_FILES=$((PROCESSED_FILES + 1))
 }
 
-# Process all commands in a namespace
+# Process all commands in a namespace/role directory
 process_namespace() {
-    local namespace="$1"
-    local namespace_dir="$COMMANDS_DIR/$namespace"
+    local role="$1"
+    local namespace_dir="$2"
 
     if [[ ! -d "$namespace_dir" ]]; then
-        log_warn "Namespace directory not found: $namespace"
+        log_verbose "Directory not found: $namespace_dir"
         return 0
     fi
 
-    log_info "Processing namespace: $namespace"
+    log_info "Processing role/namespace: $role (from $(basename "$namespace_dir"))"
 
     # Enable nullglob so empty globs expand to nothing instead of literal pattern
     local old_nullglob
     old_nullglob=$(shopt -p nullglob || true)
     shopt -s nullglob
 
+    log_verbose "Starting file loop for $namespace_dir/*.md"
+
+    # Process both regular files and symlinks
+    local file_count=0
     for file in "$namespace_dir"/*.md; do
+        file_count=$((file_count + 1))
+        log_verbose "File $file_count: $(basename "$file")"
         if [[ -f "$file" || -L "$file" ]]; then
-            ((TOTAL_FILES++))
-            process_command "$file" "$namespace" || true
+            TOTAL_FILES=$((TOTAL_FILES + 1))
+            log_verbose "Processing file: $(basename "$file")"
+            if process_command "$file" "$role"; then
+                log_verbose "Successfully processed $(basename "$file")"
+            else
+                log_warn "Failed to process $(basename "$file")"
+            fi
         fi
     done
+    log_verbose "Completed $file_count files for $role"
 
     # Restore previous nullglob setting
     $old_nullglob 2>/dev/null || true
 }
 
-# Remove stale agent files (old format)
+# Generate VS Code settings.json with agent pinning
+generate_vscode_settings() {
+    if [[ "$DRY_RUN" == true || "$VALIDATE" == true ]]; then
+        return 0
+    fi
+
+    log_info "Generating .vscode/settings.json with agent pinning..."
+
+    local vscode_dir="$PROJECT_ROOT/.vscode"
+    local settings_file="$vscode_dir/settings.json"
+
+    # Create .vscode directory if needed
+    mkdir -p "$vscode_dir"
+
+    # Generate settings with agent visibility based on roles
+    cat > "$settings_file" << 'EOF'
+{
+  "github.copilot.chat.agents": {
+    "enabled": true,
+    "agentVisibility": {
+      "pm-*": {
+        "visibleInRoles": ["pm", "all"],
+        "autoLoadInRoles": ["pm"]
+      },
+      "arch-*": {
+        "visibleInRoles": ["arch", "all"],
+        "autoLoadInRoles": ["arch"]
+      },
+      "dev-*": {
+        "visibleInRoles": ["dev", "all"],
+        "autoLoadInRoles": ["dev"]
+      },
+      "qa-*": {
+        "visibleInRoles": ["qa", "all"],
+        "autoLoadInRoles": ["qa"]
+      },
+      "sec-*": {
+        "visibleInRoles": ["sec", "all"],
+        "autoLoadInRoles": ["sec"]
+      },
+      "ops-*": {
+        "visibleInRoles": ["ops", "all"],
+        "autoLoadInRoles": ["ops"]
+      },
+      "jpspec-*": {
+        "visibleInRoles": ["all"]
+      },
+      "speckit-*": {
+        "visibleInRoles": ["all"]
+      }
+    }
+  }
+}
+EOF
+
+    log_success "Generated: .vscode/settings.json"
+}
+
+# Remove stale agent files
 cleanup_stale() {
     if [[ "$DRY_RUN" == true || "$VALIDATE" == true ]]; then
         return 0
@@ -531,19 +930,30 @@ cleanup_stale() {
         local basename
         basename=$(basename "$agent_file" .agent.md)
 
-        # Parse namespace and command from filename
-        local namespace command
-        if [[ "$basename" =~ ^(jpspec|speckit)-(.+)$ ]]; then
-            namespace="${BASH_REMATCH[1]}"
+        # Parse role and command from filename
+        local role command
+        if [[ "$basename" =~ ^(pm|arch|dev|qa|sec|ops|jpspec|speckit)-(.+)$ ]]; then
+            role="${BASH_REMATCH[1]}"
             command="${BASH_REMATCH[2]}"
         else
             # Unknown format, skip
             continue
         fi
 
-        # Check if source exists
-        local source_file="$COMMANDS_DIR/$namespace/$command.md"
-        if [[ ! -f "$source_file" && ! -L "$source_file" ]]; then
+        # Check if source exists in either location
+        local source_exists=false
+
+        # Check legacy locations
+        if [[ -f "$COMMANDS_DIR/$role/$command.md" || -L "$COMMANDS_DIR/$role/$command.md" ]]; then
+            source_exists=true
+        fi
+
+        # Check templates/commands location
+        if [[ -f "$TEMPLATES_COMMANDS_DIR/$role/$command.md" || -L "$TEMPLATES_COMMANDS_DIR/$role/$command.md" ]]; then
+            source_exists=true
+        fi
+
+        if [[ "$source_exists" == false ]]; then
             if [[ "$FORCE" == true ]]; then
                 rm "$agent_file"
                 log_warn "Removed stale: $basename.agent.md"
@@ -565,8 +975,14 @@ main() {
     start_time=$(python3 -c "import time; print(int(time.time() * 1000))")
 
     log_info "Syncing Claude Code commands to VS Code Copilot agents"
-    log_info "Source: $COMMANDS_DIR"
+    log_info "Sources:"
+    log_info "  - Legacy: $COMMANDS_DIR"
+    log_info "  - Role-based: $TEMPLATES_COMMANDS_DIR"
     log_info "Target: $AGENTS_DIR"
+
+    if [[ -n "$ROLE_FILTER" ]]; then
+        log_info "Role filter: $ROLE_FILTER"
+    fi
 
     if [[ "$DRY_RUN" == true ]]; then
         log_info "Mode: DRY-RUN (no files will be written)"
@@ -576,14 +992,35 @@ main() {
         log_info "Mode: SYNC"
     fi
 
+    # Load role metadata
+    get_role_metadata
+
     # Ensure agents directory exists
     if [[ "$DRY_RUN" != true && "$VALIDATE" != true ]]; then
         mkdir -p "$AGENTS_DIR"
     fi
 
-    # Process namespaces
-    process_namespace "jpspec"
-    process_namespace "speckit"
+    # Process legacy namespaces (if they exist)
+    if [[ -d "$COMMANDS_DIR/jpspec" ]]; then
+        process_namespace "jpspec" "$COMMANDS_DIR/jpspec"
+    fi
+    if [[ -d "$COMMANDS_DIR/speckit" ]]; then
+        process_namespace "speckit" "$COMMANDS_DIR/speckit"
+    fi
+
+    # Process role-based commands from templates/commands/
+    for role_dir in "$TEMPLATES_COMMANDS_DIR"/*; do
+        if [[ -d "$role_dir" ]]; then
+            local role
+            role=$(basename "$role_dir")
+            process_namespace "$role" "$role_dir"
+        fi
+    done
+
+    # Generate VS Code settings if requested
+    if [[ "$WITH_VSCODE" == true ]]; then
+        generate_vscode_settings
+    fi
 
     # Cleanup stale files
     cleanup_stale
