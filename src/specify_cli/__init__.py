@@ -6146,6 +6146,11 @@ from specify_cli.hooks.cli import hooks_app  # noqa: E402
 
 app.add_typer(hooks_app, name="hooks")
 
+# Memory CLI (task memory management)
+from specify_cli.memory.cli import memory_app  # noqa: E402
+
+app.add_typer(memory_app, name="memory")
+
 
 # VS Code integration sub-app
 vscode_app = typer.Typer(

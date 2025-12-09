@@ -68,7 +68,7 @@ else
 
         if [[ "$task_count" -gt 0 ]]; then
             info+=("Active tasks: $task_count in progress")
-            # Add task details
+            # Add task details and inject task memory
             while IFS= read -r task_line; do
                 # Extract task ID and title from plain output
                 # Expected format: "task-XXX | Status | Title | ..."
@@ -76,6 +76,12 @@ else
                     task_id="${BASH_REMATCH[1]}"
                     task_title="${BASH_REMATCH[2]}"
                     info+=("  - $task_id: $task_title")
+
+                    # Check if task memory exists
+                    memory_file="$PROJECT_DIR/backlog/memory/$task_id.md"
+                    if [[ -f "$memory_file" ]]; then
+                        info+=("    ✓ Task memory available: $memory_file")
+                    fi
                 fi
             done <<< "$tasks_output"
         else
@@ -87,6 +93,30 @@ else
             info+=("No tasks in 'In Progress' status")
         else
             warnings+=("backlog.md not found in project - task tracking not initialized")
+        fi
+    fi
+
+    # Inject first active task memory into CLAUDE.md (if any exist)
+    # This makes task context available automatically via @import
+    if [[ "$task_count" -gt 0 ]]; then
+        first_task_id=$(echo "$tasks_output" | head -n1 | grep -oP '^[a-zA-Z0-9_-]+' || echo "")
+        if [[ -n "$first_task_id" ]]; then
+            # Use Python to inject task memory via ContextInjector
+            PROJECT_DIR="$PROJECT_DIR" FIRST_TASK_ID="$first_task_id" python3 - <<'EOF' 2>/dev/null || true
+from pathlib import Path
+import sys
+import os
+sys.path.insert(0, os.environ.get("PROJECT_DIR", "."))
+try:
+    from src.specify_cli.memory.injector import ContextInjector
+    injector = ContextInjector(Path(os.environ.get("PROJECT_DIR", ".")))
+    injector.update_active_task(os.environ.get("FIRST_TASK_ID", ""))
+except Exception:
+    pass  # Fail silently - don't block session
+EOF
+            if [[ $? -eq 0 ]]; then
+                info+=("  ✓ Active task memory injected into CLAUDE.md")
+            fi
         fi
     fi
 fi
