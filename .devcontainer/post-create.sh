@@ -47,8 +47,11 @@ if [ -f "/workspaces/jp-spec-kit/.venv/bin/activate" ]; then
     source /workspaces/jp-spec-kit/.venv/bin/activate
 fi
 
-# Aliases
+# Aliases for AI coding agents (yolo modes)
 alias claude-yolo='claude --dangerously-skip-permissions'
+alias codex-yolo='codex --dangerously-bypass-approvals-and-sandbox'
+alias gemini-yolo='gemini --yolo'
+alias copilot-yolo='copilot --allow-all-tools'
 ZSHRC
 
 # -----------------------------------------------------------------------------
