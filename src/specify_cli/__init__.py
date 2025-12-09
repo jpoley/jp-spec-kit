@@ -6947,7 +6947,7 @@ def workflow_validate(
         None,
         "--file",
         "-f",
-        help="Path to workflow config file (defaults to jpspec_workflow.yml in standard locations)",
+        help="Path to workflow config file (defaults to specflow_workflow.yml or jpspec_workflow.yml in standard locations)",
     ),
     verbose: bool = typer.Option(
         False,
@@ -6963,7 +6963,7 @@ def workflow_validate(
 ):
     """Validate workflow configuration file.
 
-    Validates jpspec_workflow.yml against:
+    Validates specflow_workflow.yml (v2.0+) or jpspec_workflow.yml (v1.x) against:
     1. JSON schema (structural validation)
     2. Semantic validation (circular dependencies, reachability, etc.)
 

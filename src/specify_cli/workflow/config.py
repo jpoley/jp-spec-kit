@@ -29,14 +29,19 @@ from .exceptions import (
 )
 
 # Default locations to search for config file (in order of priority)
+# Version 2.0+ uses specflow_workflow.yml, 1.x uses jpspec_workflow.yml
 DEFAULT_CONFIG_NAMES = [
-    "jpspec_workflow.yml",
+    "specflow_workflow.yml",  # v2.0+ (preferred)
+    "specflow_workflow.yaml",
+    "jpspec_workflow.yml",  # v1.x (legacy, still supported)
     "jpspec_workflow.yaml",
 ]
 
 # Default locations for schema file
 DEFAULT_SCHEMA_PATHS = [
-    "memory/jpspec_workflow.schema.json",
+    "schemas/specflow_workflow.schema.json",  # v2.0+ (preferred)
+    "memory/specflow_workflow.schema.json",
+    "memory/jpspec_workflow.schema.json",  # v1.x (legacy)
     ".specify/jpspec_workflow.schema.json",
 ]
 

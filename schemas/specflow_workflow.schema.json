@@ -1,0 +1,474 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://jp-spec-kit/schemas/specflow_workflow.schema.json",
+  "title": "Specflow Workflow Configuration",
+  "description": "Schema for validating specflow_workflow.yml configuration files that define the spec-driven development workflow state machine, workflows, transitions, agent assignments, and role-based command namespaces for VS Code Copilot.",
+  "type": "object",
+  "required": ["version", "states", "workflows", "transitions"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+$",
+      "description": "Configuration version (e.g., '1.0', '1.1', '2.0')",
+      "examples": ["1.0", "1.1", "2.0"]
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human-readable description of the workflow configuration"
+    },
+    "roles": {
+      "type": "object",
+      "description": "Role-based command namespace configuration for VS Code Copilot agent handoffs and command visibility",
+      "required": ["primary", "show_all_commands", "definitions"],
+      "additionalProperties": false,
+      "properties": {
+        "primary": {
+          "type": "string",
+          "enum": ["pm", "arch", "dev", "sec", "qa", "ops", "all"],
+          "description": "Primary role selection - what role the user identifies with",
+          "default": "dev"
+        },
+        "show_all_commands": {
+          "type": "boolean",
+          "description": "Show all commands regardless of role selection",
+          "default": false
+        },
+        "definitions": {
+          "type": "object",
+          "description": "Role definitions mapping roles to commands and agents",
+          "required": ["pm", "arch", "dev", "sec", "qa", "ops", "all"],
+          "additionalProperties": false,
+          "properties": {
+            "pm": {
+              "$ref": "#/$defs/role"
+            },
+            "arch": {
+              "$ref": "#/$defs/role"
+            },
+            "dev": {
+              "$ref": "#/$defs/role"
+            },
+            "sec": {
+              "$ref": "#/$defs/role"
+            },
+            "qa": {
+              "$ref": "#/$defs/role"
+            },
+            "ops": {
+              "$ref": "#/$defs/role"
+            },
+            "all": {
+              "$ref": "#/$defs/role"
+            }
+          }
+        }
+      }
+    },
+    "states": {
+      "type": "array",
+      "description": "Valid states a task can occupy during the development lifecycle. Can be either simple strings or state objects with descriptions.",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "oneOf": [
+          {
+            "type": "string",
+            "minLength": 1,
+            "description": "State name as a simple string (e.g., 'Specified', 'In Implementation')"
+          },
+          {
+            "$ref": "#/$defs/state"
+          }
+        ]
+      }
+    },
+    "workflows": {
+      "type": "object",
+      "description": "Workflow phases mapped to /jpspec slash commands",
+      "minProperties": 1,
+      "additionalProperties": {
+        "$ref": "#/$defs/workflow"
+      },
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9_-]*$",
+        "description": "Workflow names must be lowercase alphanumeric with underscores or hyphens, starting with a letter"
+      }
+    },
+    "transitions": {
+      "type": "array",
+      "description": "State transitions defining the workflow state machine edges with artifact validation gates",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/transition"
+      }
+    },
+    "agent_loops": {
+      "type": "object",
+      "description": "Classification of agents into inner loop (fast local iteration) and outer loop (governance/reliability)",
+      "additionalProperties": false,
+      "properties": {
+        "inner": {
+          "type": "object",
+          "description": "Inner loop: Fast execution optimized for developer velocity",
+          "additionalProperties": false,
+          "properties": {
+            "description": {
+              "type": "string",
+              "description": "Description of the inner loop purpose"
+            },
+            "agents": {
+              "type": "array",
+              "description": "Agents in the inner development loop (frequent execution)",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "uniqueItems": true
+            }
+          }
+        },
+        "outer": {
+          "type": "object",
+          "description": "Outer loop: Governance-focused optimized for safety and reliability",
+          "additionalProperties": false,
+          "properties": {
+            "description": {
+              "type": "string",
+              "description": "Description of the outer loop purpose"
+            },
+            "agents": {
+              "type": "array",
+              "description": "Agents in the outer loop (governance, security, operations)",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "uniqueItems": true
+            }
+          }
+        },
+        "inner_loop": {
+          "type": "array",
+          "description": "DEPRECATED: Use 'inner.agents' instead. Agents in the inner development loop.",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "outer_loop": {
+          "type": "array",
+          "description": "DEPRECATED: Use 'outer.agents' instead. Agents in the outer loop.",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Optional metadata about the workflow configuration for documentation purposes",
+      "additionalProperties": true,
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "description": "Schema version for tracking compatibility"
+        },
+        "last_updated": {
+          "type": "string",
+          "description": "Date of last update (YYYY-MM-DD format)",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        },
+        "state_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total number of states"
+        },
+        "workflow_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total number of workflows"
+        },
+        "agent_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total number of unique agents"
+        },
+        "inner_loop_agent_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of inner loop agents"
+        },
+        "outer_loop_agent_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of outer loop agents"
+        },
+        "transition_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total number of transitions"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "role": {
+      "type": "object",
+      "description": "A role definition for VS Code Copilot command namespaces",
+      "required": ["display_name", "icon", "commands", "agents"],
+      "additionalProperties": false,
+      "properties": {
+        "display_name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-readable display name for the role (e.g., 'Product Manager', 'Developer')"
+        },
+        "icon": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Emoji icon representing the role (e.g., '📋', '💻', '🔒')"
+        },
+        "commands": {
+          "type": "array",
+          "description": "List of command verbs associated with this role (e.g., ['build', 'debug', 'refactor'])",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "agents": {
+          "type": "array",
+          "description": "List of agent identities assigned to this role (e.g., ['@frontend-engineer', '@backend-engineer'])",
+          "items": {
+            "type": "string",
+            "pattern": "^@[a-z][a-z0-9-]*$"
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "state": {
+      "type": "object",
+      "description": "A workflow state definition with optional description",
+      "required": ["name"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique state name (e.g., 'Specified', 'In Implementation')"
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable description of what this state means"
+        }
+      }
+    },
+    "agent": {
+      "type": "object",
+      "description": "An agent definition with identity, description, and responsibilities",
+      "required": ["name", "identity", "description", "responsibilities"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Agent name (lowercase-with-hyphens)"
+        },
+        "identity": {
+          "type": "string",
+          "pattern": "^@[a-z][a-z0-9-]*$",
+          "description": "Agent identity/handle starting with @ (e.g., '@pm-planner', '@software-architect')"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-readable description of the agent's role"
+        },
+        "responsibilities": {
+          "type": "array",
+          "description": "List of responsibilities this agent handles",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "workflow": {
+      "type": "object",
+      "description": "A workflow phase definition mapping to a /jpspec slash command",
+      "required": ["command", "agents", "input_states", "output_state"],
+      "additionalProperties": false,
+      "properties": {
+        "command": {
+          "type": "string",
+          "pattern": "^/jpspec:[a-z][a-z0-9_-]*$",
+          "description": "The /jpspec slash command that triggers this workflow (e.g., '/jpspec:specify', '/jpspec:implement')"
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable description of what this workflow phase accomplishes"
+        },
+        "execution_mode": {
+          "type": "string",
+          "enum": ["sequential", "parallel"],
+          "description": "Execution mode for multi-agent workflows: sequential (one at a time) or parallel (concurrent)"
+        },
+        "agents": {
+          "type": "array",
+          "description": "List of agent definitions or simple agent names that participate in this workflow phase",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "oneOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "description": "Simple agent name reference"
+              },
+              {
+                "$ref": "#/$defs/agent"
+              }
+            ]
+          }
+        },
+        "input_states": {
+          "type": "array",
+          "description": "Valid task states from which this workflow can be executed",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "output_state": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The state a task transitions to after this workflow completes"
+        },
+        "optional": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether this workflow phase can be skipped in the development lifecycle"
+        },
+        "creates_backlog_tasks": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether this workflow creates backlog tasks (e.g., specify creates implementation tasks)"
+        },
+        "requires_backlog_tasks": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether this workflow requires backlog tasks to exist before execution"
+        },
+        "requires_human_approval": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether this workflow requires explicit human approval before proceeding"
+        },
+        "builds_constitution": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether this workflow builds/updates the project constitution"
+        }
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "description": "An artifact definition for transition input/output validation",
+      "required": ["type", "path"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Artifact type (e.g., 'prd', 'adr', 'source_code', 'tests')"
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Path pattern with variables: {feature}, {NNN}, {slug}"
+        },
+        "required": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether this artifact is required for the transition"
+        },
+        "multiple": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether multiple artifacts matching the pattern are expected"
+        }
+      }
+    },
+    "transition": {
+      "type": "object",
+      "description": "A state transition definition with artifact validation gates",
+      "required": ["from", "to", "via"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique name for this transition (e.g., 'specify', 'plan_from_researched')"
+        },
+        "from": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The source state name"
+        },
+        "to": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The destination state name"
+        },
+        "via": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The workflow name or transition type (e.g., 'specify', 'manual', 'rework', 'rollback')"
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable description of what this transition represents"
+        },
+        "input_artifacts": {
+          "type": "array",
+          "description": "Artifacts required as input for this transition",
+          "items": {
+            "$ref": "#/$defs/artifact"
+          }
+        },
+        "output_artifacts": {
+          "type": "array",
+          "description": "Artifacts produced as output by this transition",
+          "items": {
+            "$ref": "#/$defs/artifact"
+          }
+        },
+        "validation": {
+          "type": "string",
+          "oneOf": [
+            {
+              "enum": ["NONE", "KEYWORD", "PULL_REQUEST"],
+              "description": "Predefined validation modes"
+            },
+            {
+              "pattern": "^KEYWORD\\[[A-Z_]+\\]$",
+              "description": "KEYWORD with custom value in brackets (e.g., 'KEYWORD[SECURITY_APPROVED]')"
+            }
+          ],
+          "description": "Validation mode: NONE (automatic), KEYWORD (user types keyword), KEYWORD[...] (custom keyword), PULL_REQUEST (blocked until PR merged)"
+        }
+      }
+    }
+  }
+}

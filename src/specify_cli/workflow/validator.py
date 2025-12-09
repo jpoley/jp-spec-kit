@@ -175,6 +175,8 @@ class WorkflowValidator:
     # Known valid agents from agent definition files in .agents/
     # These map to the agent names used in /jpspec commands
     KNOWN_AGENTS: set[str] = {
+        # Assessment & Planning
+        "workflow-assessor",
         # Product & Planning
         "PM Planner",
         "product-requirements-manager",
