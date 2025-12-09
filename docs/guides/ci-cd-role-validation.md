@@ -313,13 +313,6 @@ python scripts/validate-role-schema.py
 bash scripts/bash/sync-copilot-agents.sh --validate
 ```
 
-### Full Validation Suite
-
-```bash
-# Run all validations locally
-scripts/run-full-validation.sh
-```
-
 ### Individual Job Testing
 
 ```bash
