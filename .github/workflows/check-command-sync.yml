@@ -1,0 +1,55 @@
+# GitHub Action workflow: Check Command Sync
+#
+# This workflow verifies that .claude/commands/ matches templates/commands/
+# GitHub zipballs convert symlinks to text files, so we use real files
+# that must be kept in sync with templates.
+#
+# To use: copy to .github/workflows/check-command-sync.yml
+
+name: Check Command Sync
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'templates/commands/**'
+      - 'templates/skills/**'
+      - '.claude/commands/**'
+      - '.claude/skills/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'templates/commands/**'
+      - 'templates/skills/**'
+      - '.claude/commands/**'
+      - '.claude/skills/**'
+
+jobs:
+  check-sync:
+    name: Verify commands and skills are in sync
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check command sync
+        run: |
+          ./scripts/bash/sync-commands.sh --check
+
+      - name: Suggest fix on failure
+        if: failure()
+        run: |
+          echo ""
+          echo "====================================="
+          echo "COMMAND SYNC CHECK FAILED"
+          echo "====================================="
+          echo ""
+          echo "The .claude/commands/ or .claude/skills/ directories are out of sync"
+          echo "with templates/commands/ or templates/skills/."
+          echo ""
+          echo "To fix locally:"
+          echo "  ./scripts/bash/sync-commands.sh"
+          echo "  git add .claude/"
+          echo "  git commit --amend"
+          echo ""

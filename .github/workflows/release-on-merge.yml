@@ -95,21 +95,58 @@ jobs:
           fi
           echo "Tag $TAG does not exist, proceeding"
 
+      - name: Read pinned release commit
+        id: release-commit
+        run: |
+          # Read the .release-commit file that was created by release.py
+          # This file contains the commit SHA that should be tagged
+          if [ ! -f ".release-commit" ]; then
+            echo "::warning::No .release-commit file found. Using HEAD for backward compatibility."
+            RELEASE_COMMIT=$(git rev-parse HEAD)
+          else
+            RELEASE_COMMIT=$(cat .release-commit | tr -d '[:space:]')
+          fi
+
+          # Validate the commit hash format (40 hex characters)
+          if ! [[ "$RELEASE_COMMIT" =~ ^[a-f0-9]{40}$ ]]; then
+            echo "::error::Invalid commit hash format in .release-commit: $RELEASE_COMMIT"
+            exit 1
+          fi
+
+          # Verify the commit exists
+          if ! git cat-file -e "$RELEASE_COMMIT^{commit}" 2>/dev/null; then
+            echo "::error::Commit $RELEASE_COMMIT does not exist in repository"
+            exit 1
+          fi
+
+          # Verify the commit is an ancestor of HEAD (i.e., it's part of history)
+          if ! git merge-base --is-ancestor "$RELEASE_COMMIT" HEAD; then
+            echo "::error::Commit $RELEASE_COMMIT is not an ancestor of HEAD"
+            echo "::error::This could indicate a race condition or incorrect commit hash"
+            exit 1
+          fi
+
+          echo "release_commit=$RELEASE_COMMIT" >> "$GITHUB_OUTPUT"
+          echo "Release commit: $RELEASE_COMMIT"
+          echo "Commit is verified as ancestor of HEAD"
+
       - name: Create and push tag
         env:
           TAG: ${{ steps.version.outputs.version }}
+          RELEASE_COMMIT: ${{ steps.release-commit.outputs.release_commit }}
         run: |
           # Configure git
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Create annotated tag
-          git tag -a "$TAG" -m "Release $TAG"
+          # Create annotated tag on the PINNED commit (not HEAD)
+          git tag -a "$TAG" "$RELEASE_COMMIT" -m "Release $TAG"
 
           # Push tag (this will trigger release.yml)
           git push origin "$TAG"
 
           echo "Created and pushed tag: $TAG"
+          echo "Tag points to commit: $RELEASE_COMMIT"
           echo "This will trigger the release workflow to build and publish the release."
 
       - name: Summary
@@ -117,6 +154,7 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           BRANCH: ${{ steps.version.outputs.branch }}
           TAG: ${{ steps.version.outputs.version }}
+          RELEASE_COMMIT: ${{ steps.release-commit.outputs.release_commit }}
         run: |
           {
             echo "## Release Tag Created"
@@ -126,8 +164,11 @@ jobs:
             echo "| PR | #$PR_NUMBER |"
             echo "| Branch | $BRANCH |"
             echo "| Tag | $TAG |"
+            echo "| Tagged Commit | \`${RELEASE_COMMIT:0:8}\` |"
             echo ""
             echo "The release workflow will now build packages and create the GitHub Release."
+            echo ""
+            echo "**Note**: Tag was created on the pinned commit from \`.release-commit\`, not HEAD."
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Delete release branch

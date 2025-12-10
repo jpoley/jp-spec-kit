@@ -50,11 +50,11 @@ This command creates comprehensive feature specifications using the PM Planner a
 
 {{INCLUDE:.claude/commands/specflow/_workflow-state.md}}
 
-**For /specflow:specify**: Required input state is `workflow:Assessed`. Output state will be `workflow:Specified`.
+**For /pm:define**: Required input state is `workflow:Assessed`. Output state will be `workflow:Specified`.
 
 If no task is in progress or the task doesn't have the required workflow state, inform the user:
-- If task needs assessment first: suggest running `/specflow:assess`
-- If this is a new feature: suggest creating a task with `/specflow:assess` first
+- If task needs assessment first: suggest running `/pm:assess`
+- If this is a new feature: suggest creating a task with `/pm:assess` first
 
 ### Step 1: Discover Existing Tasks
 
@@ -276,7 +276,7 @@ The agent will produce:
 2. **Actual backlog tasks** created via CLI (task IDs listed in section 6)
 3. PRD references task IDs for full traceability
 
-### ⚠️ MANDATORY: Design→Implement Workflow
+### MANDATORY: Design→Implement Workflow
 
 **This is a DESIGN command. The agent creates implementation tasks as part of section 6.**
 
