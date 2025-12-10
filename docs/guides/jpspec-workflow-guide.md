@@ -1,4 +1,4 @@
-# JP Spec Kit /jpspec Workflow Guide
+# Specflow /jpspec Workflow Guide
 
 Comprehensive guide to using the /jpspec command orchestration system for specification-driven development with AI-powered agents.
 
@@ -25,7 +25,7 @@ Comprehensive guide to using the /jpspec command orchestration system for specif
 
 ### What is the /jpspec Workflow System?
 
-The /jpspec workflow system is JP Spec Kit's **AI-powered command orchestration layer** that coordinates specialized agents through the complete software development lifecycle. It transforms specification-driven development from a manual process into an automated, traceable workflow.
+The /jpspec workflow system is Specflow's **AI-powered command orchestration layer** that coordinates specialized agents through the complete software development lifecycle. It transforms specification-driven development from a manual process into an automated, traceable workflow.
 
 **Value Proposition**:
 - **Reduce Planning Time**: Automated PRD generation, architecture design, and task breakdown (50-70% time savings)
@@ -2433,4 +2433,4 @@ The following diagram shows the complete /jpspec workflow with agent coordinatio
 
 **Last Updated**: 2025-11-29
 **Version**: 1.0
-**Maintained By**: JP Spec Kit Project
+**Maintained By**: Specflow Project

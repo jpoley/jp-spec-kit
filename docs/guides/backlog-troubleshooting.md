@@ -1,6 +1,6 @@
 # Backlog.md Troubleshooting Guide
 
-Comprehensive troubleshooting for common issues with Backlog.md integration in jp-spec-kit.
+Comprehensive troubleshooting for common issues with Backlog.md integration in Specflow.
 
 ## Table of Contents
 
@@ -836,7 +836,7 @@ Report if you encounter:
 **For Backlog.md tool issues**:
 https://github.com/MrLesk/Backlog.md/issues
 
-**For jp-spec-kit integration issues**:
+**For Specflow integration issues**:
 https://github.com/jpoley/jp-spec-kit/issues
 
 **Include in report**:
@@ -864,9 +864,9 @@ tail -50 ~/.local/state/claude-code/logs/mcp-backlog.log
 
 ### Community Help
 
-- **Discord**: [jp-spec-kit community](https://discord.gg/...)
+- **Discord**: [Specflow community](https://discord.gg/...)
 - **GitHub Discussions**: https://github.com/jpoley/jp-spec-kit/discussions
-- **Stack Overflow**: Tag with `jp-spec-kit` and `backlog-md`
+- **Stack Overflow**: Tag with `specflow` and `backlog-md`
 
 ### Quick Diagnostic
 

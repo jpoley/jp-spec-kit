@@ -1,6 +1,6 @@
 # Migrating from tasks.md to Backlog.md
 
-Complete guide for migrating existing jp-spec-kit projects from tasks.md format to Backlog.md task management.
+Complete guide for migrating existing Specflow projects from tasks.md format to Backlog.md task management.
 
 ## Table of Contents
 
@@ -538,7 +538,7 @@ For hybrid: Use tasks.md as blueprint, Backlog.md for execution (no sync).
 
 ### Q: What about tasks.md in the template?
 
-**A**: jp-spec-kit templates will eventually generate both:
+**A**: Specflow templates will eventually generate both:
 
 - `tasks.md` - Reference blueprint (optional)
 - Backlog.md tasks - Execution tracker (primary)

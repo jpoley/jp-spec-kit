@@ -2,7 +2,7 @@
 
 ## Overview
 
-JP Spec Kit supports both **Solo Mode** (single developer) and **Team Mode** (multiple developers). This guide explains how to configure and work with Team Mode properly to avoid conflicts and ensure smooth collaboration.
+Specflow supports both **Solo Mode** (single developer) and **Team Mode** (multiple developers). This guide explains how to configure and work with Team Mode properly to avoid conflicts and ensure smooth collaboration.
 
 ## Solo vs Team Mode
 

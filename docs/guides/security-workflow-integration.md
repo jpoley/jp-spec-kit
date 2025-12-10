@@ -712,7 +712,7 @@ specify security scan --format sarif --output security-results.sarif
     {
       "tool": {
         "driver": {
-          "name": "JP Spec Kit Security Scanner",
+          "name": "Specflow Security Scanner",
           "version": "1.0.0",
           "informationUri": "https://github.com/jpoley/jp-spec-kit",
           "rules": [

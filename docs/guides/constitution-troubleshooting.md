@@ -472,12 +472,12 @@ Medium tier uses warnings + confirmation prompts but allows proceeding after ack
 ### Problem: Constitution version mismatch after `specify upgrade`
 
 **Symptoms**:
-- Upgraded JP Spec Kit to new version
+- Upgraded Specflow to new version
 - Constitution feels outdated compared to new templates
 - New features reference constitution sections that don't exist
 
 **Cause**:
-JP Spec Kit upgraded but constitution template not updated. Constitutions are never automatically overwritten to preserve customizations.
+Specflow upgraded but constitution template not updated. Constitutions are never automatically overwritten to preserve customizations.
 
 **Resolution**:
 
@@ -563,7 +563,7 @@ specify constitution upgrade --interactive
 ```
 
 **Prevention**:
-- Review release notes when upgrading JP Spec Kit
+- Review release notes when upgrading Specflow
 - Schedule quarterly constitution review
 - Track constitution template versions in your project docs
 
@@ -814,7 +814,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install JP Spec Kit
+      - name: Install Specflow
         run: |
           pip install uv
           uv tool install jp-spec-kit
@@ -960,7 +960,7 @@ Please analyze my project and customize memory/constitution.md:
 - [Constitution Validation Workflow](./constitution-validation.md) - Validation process details
 - [Constitution Distribution PRD](../prd/constitution-distribution-prd.md) - Feature specification
 - [Tiered Constitution Templates](../../templates/constitutions/) - Template source files
-- [JP Spec Kit CLI Reference](../reference/cli-commands.md) - All CLI commands
+- [Specflow CLI Reference](../reference/cli-commands.md) - All CLI commands
 
 ---
 
@@ -982,7 +982,7 @@ specify init --here                             # Add to existing project
 /speckit:constitution                           # Run LLM detection
 
 # Upgrade
-specify upgrade                                 # Upgrade JP Spec Kit
+specify upgrade                                 # Upgrade Specflow
 
 # Search for issues
 grep -i "NEEDS_VALIDATION" memory/constitution.md   # Find markers
@@ -1019,7 +1019,7 @@ templates/constitutions/                # Template source files
 
 2. **Review related guides:**
    - [Constitution Distribution Guide](./constitution-distribution.md)
-   - [JP Spec Kit Troubleshooting](./troubleshooting.md)
+   - [Specflow Troubleshooting](./troubleshooting.md)
    - [Backlog Troubleshooting](./backlog-troubleshooting.md)
 
 3. **Search existing issues:**

@@ -2,7 +2,7 @@
 
 ## Overview
 
-JP Spec Kit integrates with VS Code Copilot to provide role-based agent suggestions and command visibility. By configuring your primary role, VS Code will prioritize agents and commands relevant to your work.
+Specflow integrates with VS Code Copilot to provide role-based agent suggestions and command visibility. By configuring your primary role, VS Code will prioritize agents and commands relevant to your work.
 
 ## Quick Start
 

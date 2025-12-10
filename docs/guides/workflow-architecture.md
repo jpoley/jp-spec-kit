@@ -1,8 +1,8 @@
-# JP Spec Kit Workflow Architecture
+# Specflow Workflow Architecture
 
 ## Overview
 
-The JP Spec Kit workflow synchronizes the `/jpspec` command interface with the backlog.md task management system. This document defines the architecture, design decisions, and implementation approach.
+The Specflow workflow synchronizes the `/jpspec` command interface with the backlog.md task management system. This document defines the architecture, design decisions, and implementation approach.
 
 ## Problem Statement
 
@@ -183,7 +183,7 @@ New command: `specify workflow validate`
 
 ```yaml
 version: "1.0"
-description: "Default JP Spec Kit specification-driven development workflow"
+description: "Default Specflow specification-driven development workflow"
 
 # Custom backlog.md states
 states:
