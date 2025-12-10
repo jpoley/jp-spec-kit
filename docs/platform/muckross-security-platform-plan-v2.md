@@ -143,7 +143,7 @@ This security scanning capability is an **optional, standalone feature** that ca
 
 ## 3. Command Execution Context
 
-**Two types of slash commands exist in JP Spec Kit:**
+**Two types of slash commands exist in Specflow:**
 
 ### 3.1 CLI Commands (Deterministic)
 

@@ -9,7 +9,7 @@
 
 ## Executive Summary
 
-This plan enables JP Spec Kit to work with VS Code GitHub Copilot in addition to Claude Code CLI. The `.claude/commands/` directory remains the single source of truth, with `.github/agents/` generated via automated transformation including workflow handoffs.
+This plan enables Specflow to work with VS Code GitHub Copilot in addition to Claude Code CLI. The `.claude/commands/` directory remains the single source of truth, with `.github/agents/` generated via automated transformation including workflow handoffs.
 
 **Business Impact**:
 - Market expansion to VS Code's 20M+ developers

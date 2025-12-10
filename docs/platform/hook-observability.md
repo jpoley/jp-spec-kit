@@ -2,7 +2,7 @@
 
 ## Overview
 
-The JP Spec Kit hook observability system provides comprehensive visibility into hook execution through structured logging, audit trails, and operational metrics. This document defines the observability architecture, log formats, monitoring tools, and implementation requirements.
+The Specflow hook observability system provides comprehensive visibility into hook execution through structured logging, audit trails, and operational metrics. This document defines the observability architecture, log formats, monitoring tools, and implementation requirements.
 
 ## Design Principles
 

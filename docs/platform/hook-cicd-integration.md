@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document defines how JP Spec Kit hooks integrate with continuous integration and continuous deployment (CI/CD) pipelines, enabling automated testing, deployment triggers, and workflow orchestration across development, staging, and production environments.
+This document defines how Specflow hooks integrate with continuous integration and continuous deployment (CI/CD) pipelines, enabling automated testing, deployment triggers, and workflow orchestration across development, staging, and production environments.
 
 ## Design Principles
 
@@ -294,7 +294,7 @@ gh workflow run integration-tests.yml \
 
 ```yaml
 # .github/workflows/jp-spec-kit-integration.yml
-name: JP Spec Kit Integration
+name: Specflow Integration
 
 on:
   workflow_dispatch:
@@ -647,7 +647,7 @@ $(backlog task list -s Done --plain | head -10)
 - [x] Integration tests pass
 - [x] All acceptance criteria complete
 
-Generated with [JP Spec Kit](https://github.com/jpoley/jp-spec-kit)
+Generated with [Specflow](https://github.com/jpoley/jp-spec-kit)
 EOF
 )" \
   --base "$BASE_BRANCH" \

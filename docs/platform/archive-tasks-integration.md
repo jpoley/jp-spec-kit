@@ -73,7 +73,7 @@ Claude Code hooks provide workflow-triggered automation within agent sessions. T
 
 #### Hook Trigger Points
 
-Based on existing JP Spec Kit hook system:
+Based on existing Specflow hook system:
 
 ```yaml
 # .claude/hooks/hooks.yaml (proposed v2)

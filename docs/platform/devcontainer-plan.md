@@ -9,7 +9,7 @@
 
 ## Executive Summary
 
-This plan defines the devcontainer implementation for jp-spec-kit, enabling consistent, reproducible development environments across all machines (muckross, galway, kinsale, adare). The solution directly addresses CLAUDE.md's repeatability mandate by replacing manual environment setup with container-based automation.
+This plan defines the devcontainer implementation for Specflow, enabling consistent, reproducible development environments across all machines (muckross, galway, kinsale, adare). The solution directly addresses CLAUDE.md's repeatability mandate by replacing manual environment setup with container-based automation.
 
 ### Key Benefits
 
@@ -81,7 +81,7 @@ This plan defines the devcontainer implementation for jp-spec-kit, enabling cons
 
 ```json
 {
-  "name": "JP Spec Kit Dev Environment",
+  "name": "Specflow Dev Environment",
   "image": "mcr.microsoft.com/devcontainers/python:3.11-bullseye",
 
   "features": {
@@ -141,7 +141,7 @@ This plan defines the devcontainer implementation for jp-spec-kit, enabling cons
 set -e
 
 echo "========================================"
-echo "JP Spec Kit Devcontainer Setup"
+echo "Specflow Devcontainer Setup"
 echo "========================================"
 
 export PATH="/root/.cargo/bin:$PATH"

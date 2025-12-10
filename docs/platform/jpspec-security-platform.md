@@ -9,7 +9,7 @@
 
 ## 1. Executive Summary
 
-This document defines the platform engineering strategy for `/jpspec:security` commands, focusing on CI/CD integration, tool dependency management, observability, and DORA Elite performance targets. The design enables secure, scalable security scanning workflows that integrate seamlessly with JP Spec Kit's specification-driven development (SDD) methodology.
+This document defines the platform engineering strategy for `/jpspec:security` commands, focusing on CI/CD integration, tool dependency management, observability, and DORA Elite performance targets. The design enables secure, scalable security scanning workflows that integrate seamlessly with Specflow's specification-driven development (SDD) methodology.
 
 **Key Platform Objectives:**
 1. **DORA Elite Performance**: Security scans don't block developer velocity
@@ -218,7 +218,7 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
 
-      - name: Install JP Spec Kit
+      - name: Install Specflow
         run: |
           pip install uv
           uv tool install specify-cli
@@ -336,7 +336,7 @@ repos:
   - repo: local
     hooks:
       - id: jpspec-security-scan
-        name: JP Spec Kit Security Scan (Fast)
+        name: Specflow Security Scan (Fast)
         entry: specify security scan --fast --changed-only --fail-on critical
         language: system
         stages: [commit]
@@ -897,7 +897,7 @@ Add to your `.github/workflows/pr-checks.yml`:
 \`\`\`yaml
 jobs:
   security:
-    uses: yourusername/jp-spec-kit/.github/workflows/security-scan.yml@main
+    uses: jpoley/jp-spec-kit/.github/workflows/security-scan.yml@main
     with:
       scan-type: incremental
       fail-on: critical,high
@@ -924,14 +924,14 @@ jobs:
 **Template**: `templates/.pre-commit-config.yaml`
 
 ```yaml
-# JP Spec Kit Security Pre-commit Hook
+# Specflow Security Pre-commit Hook
 # Install: pip install pre-commit && pre-commit install
 
 repos:
   - repo: local
     hooks:
       - id: jpspec-security-fast-scan
-        name: JP Spec Kit Security Scan (Fast)
+        name: Specflow Security Scan (Fast)
         description: Run fast security scan on changed files
         entry: specify security scan --fast --changed-only --fail-on critical
         language: system
@@ -950,7 +950,7 @@ repos:
 
 set -e
 
-echo "Setting up JP Spec Kit security pre-commit hooks..."
+echo "Setting up Specflow security pre-commit hooks..."
 
 # Check if pre-commit is installed
 if ! command -v pre-commit &> /dev/null; then
@@ -985,8 +985,8 @@ For air-gapped or highly controlled environments, provide a Docker image:
 ```dockerfile
 FROM python:3.11-slim
 
-LABEL org.opencontainers.image.title="JP Spec Kit Security Scanner"
-LABEL org.opencontainers.image.description="Security scanning tools for JP Spec Kit"
+LABEL org.opencontainers.image.title="Specflow Security Scanner"
+LABEL org.opencontainers.image.description="Security scanning tools for Specflow"
 LABEL org.opencontainers.image.version="1.0.0"
 
 # Install system dependencies
@@ -994,7 +994,7 @@ RUN apt-get update && apt-get install -y \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-# Install JP Spec Kit and security tools
+# Install Specflow and security tools
 RUN pip install --no-cache-dir \
     uv \
     semgrep==1.50.0
@@ -1168,7 +1168,7 @@ graph TD
 ### 9.2 Performance Testing Plan
 
 **Test Projects:**
-1. **Small**: 10K LOC Python project (e.g., JP Spec Kit itself)
+1. **Small**: 10K LOC Python project (e.g., Specflow itself)
 2. **Medium**: 50K LOC TypeScript project (e.g., React app)
 3. **Large**: 100K LOC monorepo (e.g., microservices)
 4. **Extra Large**: 500K LOC monorepo (stress test)
@@ -1203,7 +1203,7 @@ done
 ### 10.1 Phased Rollout Plan
 
 **Phase 1: Alpha (Week 1-2)**
-- Target: 5 beta users (JP Spec Kit contributors)
+- Target: 5 beta users (Specflow contributors)
 - Scope: `/jpspec:security scan` only (Semgrep)
 - Goal: Validate tool orchestration and performance
 
@@ -1213,7 +1213,7 @@ done
 - Goal: Validate AI triage accuracy and usability
 
 **Phase 3: GA (Week 5-6)**
-- Target: All JP Spec Kit users
+- Target: All Specflow users
 - Scope: Full feature set (scan, triage, fix, audit)
 - Goal: Production-ready release
 

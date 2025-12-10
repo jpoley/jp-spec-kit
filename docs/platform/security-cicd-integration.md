@@ -32,7 +32,7 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install JP Spec Kit
+      - name: Install Specflow
         run: |
           pip install uv
           uv tool install specify-cli
@@ -778,7 +778,7 @@ jobs:
 
 ## Example Projects
 
-### 1. JP Spec Kit (Python)
+### 1. Specflow (Python)
 
 **Workflow**: `.github/workflows/security.yml`
 ```yaml

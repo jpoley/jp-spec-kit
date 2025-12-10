@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document defines the comprehensive testing strategy for the JP Spec Kit hook system, covering unit tests, integration tests, end-to-end tests, and security tests. The strategy ensures reliability, security, and maintainability of the hook infrastructure.
+This document defines the comprehensive testing strategy for the Specflow hook system, covering unit tests, integration tests, end-to-end tests, and security tests. The strategy ensures reliability, security, and maintainability of the hook infrastructure.
 
 ## Testing Philosophy
 

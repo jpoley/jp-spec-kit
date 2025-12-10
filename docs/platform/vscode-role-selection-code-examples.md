@@ -128,7 +128,7 @@ generate_vscode_settings() {
         echo "{}" > "$settings_file"
     fi
 
-    # Merge JP Spec Kit role config using Python
+    # Merge Specflow role config using Python
     python3 << PYTHON
 import json
 from pathlib import Path
@@ -136,7 +136,7 @@ from pathlib import Path
 settings_file = Path("$settings_file")
 settings = json.loads(settings_file.read_text())
 
-# Add JP Spec Kit role configuration
+# Add Specflow role configuration
 settings["jpspec.vscode.role"] = {
     "primary": "$primary_role",
     "secondary": "$secondary_roles".split(",") if "$secondary_roles" else [],

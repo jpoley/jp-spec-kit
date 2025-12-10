@@ -8,7 +8,7 @@
 
 ## Overview
 
-This design enables **role-based customization** of VS Code Copilot agents in JP Spec Kit. Users select their primary role (Product Manager, Developer, Security Engineer, QA Engineer, or Full Workflow) during project initialization, and VS Code automatically displays only role-relevant commands and handoffs.
+This design enables **role-based customization** of VS Code Copilot agents in Specflow. Users select their primary role (Product Manager, Developer, Security Engineer, QA Engineer, or Full Workflow) during project initialization, and VS Code automatically displays only role-relevant commands and handoffs.
 
 ## Business Value
 

@@ -16,7 +16,7 @@ This design enables users to select their primary role during `/jpspec:init` or 
 - **Reduced cognitive load**: Users see only role-relevant commands
 - **Faster workflow navigation**: Role-specific handoff chains guide next steps
 - **Team flexibility**: Multiple roles per user, team-wide role configuration
-- **Platform adoption**: Improved VS Code Copilot UX increases JP Spec Kit adoption
+- **Platform adoption**: Improved VS Code Copilot UX increases Specflow adoption
 
 **Design Principles**:
 1. **Progressive disclosure**: Show only what's relevant to the user's role
@@ -30,7 +30,7 @@ This design enables users to select their primary role during `/jpspec:init` or 
 
 ### 1.1 Role Definitions
 
-JP Spec Kit defines five primary roles based on workflow phases:
+Specflow defines five primary roles based on workflow phases:
 
 | Role | Primary Workflows | Agent Focus | Use Case |
 |------|-------------------|-------------|----------|
@@ -256,7 +256,7 @@ vscode_roles:
 {
   "chat.promptFiles": true,
 
-  // JP Spec Kit Role Configuration (overrides specflow_workflow.yml)
+  // Specflow Role Configuration (overrides specflow_workflow.yml)
   "jpspec.vscode.role": {
     "primary": "dev",
     "secondary": ["qa", "sec"],
@@ -659,7 +659,7 @@ generate_vscode_settings() {
         echo "{}" > "$settings_file"
     fi
 
-    # Merge JP Spec Kit role config
+    # Merge Specflow role config
     python3 << PYTHON
 import json
 from pathlib import Path
@@ -667,7 +667,7 @@ from pathlib import Path
 settings_file = Path("$settings_file")
 settings = json.loads(settings_file.read_text())
 
-# Add JP Spec Kit role config
+# Add Specflow role config
 settings["jpspec.vscode.role"] = {
     "primary": "$primary_role",
     "secondary": "$secondary_roles".split(",") if "$secondary_roles" else [],
@@ -1234,7 +1234,7 @@ What could be improved?
    - Role-specific artifact templates
 
 5. **Enterprise SSO Integration**
-   - Map company roles to JP Spec Kit roles
+   - Map company roles to Specflow roles
    - Auto-configure based on LDAP/AD groups
 
 ---

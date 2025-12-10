@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the architecture for publishing the JP Spec Kit devcontainer to Docker Hub as `jpoley/specflow-agents`, enabling reuse across any project.
+This document describes the architecture for publishing the Specflow devcontainer to Docker Hub as `jpoley/specflow-agents`, enabling reuse across any project.
 
 ## Architecture Decision Records
 

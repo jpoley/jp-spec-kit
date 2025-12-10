@@ -1,10 +1,10 @@
 # Security CI/CD Integration Guide
 
-This guide explains how to use JP Spec Kit's security scanning in your CI/CD pipelines.
+This guide explains how to use Specflow's security scanning in your CI/CD pipelines.
 
 ## Overview
 
-JP Spec Kit provides GitHub Actions workflows for automated security scanning:
+Specflow provides GitHub Actions workflows for automated security scanning:
 
 | Workflow | Purpose | Trigger |
 |----------|---------|---------|
