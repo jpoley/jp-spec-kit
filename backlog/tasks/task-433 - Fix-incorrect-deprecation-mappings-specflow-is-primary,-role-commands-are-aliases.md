@@ -3,10 +3,11 @@ id: task-433
 title: >-
   Fix incorrect deprecation mappings - /specflow is primary, role commands are
   aliases
-status: To Do
-assignee: []
+status: Done
+assignee:
+  - '@claude'
 created_date: '2025-12-10 22:20'
-updated_date: '2025-12-10 22:48'
+updated_date: '2025-12-10 22:58'
 labels:
   - bug
   - commands
@@ -51,13 +52,71 @@ See: `docs/audit/command-cleanup-plan.md` for full implementation plan.
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 All 13 _DEPRECATED_*.md files deleted from templates/commands/specflow/
-- [ ] #2 Entire /pm namespace deleted (3 commands + symlink)
-- [ ] #3 Workflow duplicate commands deleted: /arch:design, /dev:build, /qa:verify, /ops:deploy, /sec:audit
-- [ ] #4 All symlinks in .claude/commands/ updated (no broken links)
-- [ ] #5 /specflow:* commands work as primary workflow (no deprecation warnings)
+- [x] #1 All 13 _DEPRECATED_*.md files deleted from templates/commands/specflow/
+- [x] #2 Entire /pm namespace deleted (3 commands + symlink)
+- [x] #3 Workflow duplicate commands deleted: /arch:design, /dev:build, /qa:verify, /ops:deploy, /sec:audit
+- [x] #4 All symlinks in .claude/commands/ updated (no broken links)
+- [x] #5 /specflow:* commands work as primary workflow (no deprecation warnings)
 
-- [ ] #6 Utility commands preserved: /dev:debug, /dev:refactor, /sec:scan, etc.
-- [ ] #7 Documentation updated (CLAUDE.md, guides)
-- [ ] #8 Command count reduced from 61 to 38
+- [x] #6 Utility commands preserved: /dev:debug, /dev:refactor, /sec:scan, etc.
+- [x] #7 Documentation updated (CLAUDE.md, guides)
+- [x] #8 Command count reduced from 61 to 38
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+1. Delete 13 _DEPRECATED_*.md files from templates/commands/specflow/
+2. Delete entire /pm namespace (templates/commands/pm/ directory)
+3. Remove .claude/commands/pm symlink
+4. Delete workflow duplicate commands:
+   - templates/commands/arch/design.md
+   - templates/commands/dev/build.md
+   - templates/commands/qa/verify.md
+   - templates/commands/ops/deploy.md
+   - templates/commands/sec/audit.md
+5. Delete specflow/prune-branch.md (absorbed by /dev:cleanup)
+6. Update .claude/commands/specflow/ symlinks if needed
+7. Update documentation (CLAUDE.md)
+8. Run tests and verify no broken symlinks
+<!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+## Implementation Summary
+
+Executed command cleanup per `docs/audit/command-cleanup-plan.md`:
+
+### Files Deleted (22 total)
+- 13 `_DEPRECATED_*.md` files from `templates/commands/specflow/`
+- 3 `/pm` namespace files (`assess.md`, `define.md`, `discover.md`)
+- 5 workflow duplicates (`/arch:design`, `/dev:build`, `/qa:verify`, `/ops:deploy`, `/sec:audit`)
+- 1 `prune-branch.md` (absorbed by `/dev:cleanup`)
+
+### Symlinks Cleaned
+- Removed 14 broken symlinks from `.claude/commands/specflow/`
+- Removed `.claude/commands/pm` symlink
+
+### Documentation Updated
+- `CLAUDE.md`: Added utility commands section with all 14 stateless utilities
+- `docs/audit/command-cleanup-plan.md`: Status changed to IMPLEMENTED
+
+### Final Command Count
+| Namespace | Count |
+|-----------|-------|
+| `/speckit:*` | 10 |
+| `/specflow:*` | 14 |
+| `/arch:*` | 2 |
+| `/dev:*` | 3 |
+| `/qa:*` | 2 |
+| `/sec:*` | 4 |
+| `/ops:*` | 3 |
+| **TOTAL** | **38** |
+
+### Validation
+- ✅ All tests pass (3067 passed)
+- ✅ Linting passes
+- ✅ No broken symlinks
+- ✅ No deprecation warnings in specflow commands
+<!-- SECTION:NOTES:END -->

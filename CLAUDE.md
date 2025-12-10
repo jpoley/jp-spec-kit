@@ -28,7 +28,7 @@ backlog task edit 42 -s Done     # Complete task
 ## Slash Commands
 
 ```bash
-# Workflow Commands
+# Workflow Commands (stateful, sequential stages)
 /specflow:assess    # Evaluate SDD workflow suitability
 /specflow:specify   # Create/update feature specs
 /specflow:research  # Research and validation
@@ -40,6 +40,26 @@ backlog task edit 42 -s Done     # Complete task
 # Setup & Configuration Commands
 /specflow:init      # Initialize constitution (greenfield/brownfield)
 /specflow:reset     # Re-run workflow configuration prompts
+
+# Utility Commands (stateless, run anytime)
+/dev:debug          # Debugging assistance
+/dev:refactor       # Refactoring guidance
+/dev:cleanup        # Prune merged branches
+
+/sec:scan           # Security scanning
+/sec:triage         # Triage findings
+/sec:fix            # Apply security patches
+/sec:report         # Generate security report
+
+/arch:decide        # Create ADRs
+/arch:model         # Create data models, API contracts
+
+/ops:monitor        # Setup monitoring
+/ops:respond        # Incident response
+/ops:scale          # Scaling guidance
+
+/qa:test            # Execute tests
+/qa:review          # Generate checklist
 ```
 
 ## Engineering Subagents

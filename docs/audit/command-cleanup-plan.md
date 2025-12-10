@@ -1,7 +1,7 @@
 # Command Cleanup Plan
 
 **Date**: 2025-12-10
-**Status**: PROPOSED
+**Status**: IMPLEMENTED
 **Related**: task-433, `docs/audit/command-taxonomy-current-state.md`
 
 ---

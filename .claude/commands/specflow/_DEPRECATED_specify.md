@@ -1,1 +1,0 @@
-../../../templates/commands/specflow/_DEPRECATED_specify.md
