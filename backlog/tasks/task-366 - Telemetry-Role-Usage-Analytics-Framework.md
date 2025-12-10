@@ -1,14 +1,12 @@
 ---
 id: task-366
 title: 'Telemetry: Role Usage Analytics Framework'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2025-12-09 15:14'
-updated_date: '2025-12-09 15:48'
+updated_date: '2025-12-10 00:17'
 labels:
-  - infrastructure
-  - telemetry
-  - phase-4
+  - 'workflow:Specified'
 dependencies: []
 priority: low
 ---
@@ -40,3 +38,64 @@ OPTIONAL - can defer
 3. Privacy-preserving aggregation
 4. Dashboard for role usage insights
 <!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+## Assessment Complete (2025-12-09)
+
+Assessment report: docs/assess/task-366-telemetry-assessment.md
+
+Scoring:
+- Complexity: 4.3/10
+- Risk: 5.0/10
+- Architecture Impact: 3.7/10
+- Total: 13.0/30
+
+Recommendation: Full SDD (per user request)
+Next: /jpspec:specify task-366
+
+## PRD Complete (2025-12-10)
+
+Comprehensive PRD created: docs/prd/task-366-telemetry-spec.md
+
+### Implementation Tasks Created
+
+7 implementation tasks have been created in the backlog:
+
+**High Priority (Foundation)**:
+- task-408: Privacy utilities for PII hashing and anonymization
+- task-409: Comprehensive test suite and privacy verification
+
+**Medium Priority (Core Features)**:
+- task-403: Core telemetry module with event tracking
+- task-404: Configuration system with opt-in consent
+- task-405: Event integration with role system
+- task-406: CLI feedback prompt with privacy notice
+- task-407: CLI viewer for viewing and managing telemetry data
+
+### Key Design Decisions
+
+1. **Privacy-First**: Opt-in only, local storage, PII hashing (SHA-256)
+2. **User Control**: view/export/clear commands for transparency
+3. **Minimal Data**: Only role selection, command usage, agent invocations
+4. **Performance**: < 50ms overhead per event
+5. **Local-Only v1**: No remote transmission (defer to v2)
+
+### Estimated Timeline
+
+- Phase 1 (Foundation): 2 days - task-408, task-403
+- Phase 2 (Config): 1 day - task-404
+- Phase 3 (Integration): 1 day - task-405, task-406
+- Phase 4 (User Control): 1 day - task-407
+- Phase 5 (Validation): 1 day - task-409
+- **Total**: 6 days (with buffer)
+
+### Next Steps
+
+1. Review PRD with stakeholders
+2. Start implementation with task-408 (privacy utilities)
+3. Execute tasks in dependency order (see section 6 of PRD)
+4. Conduct privacy audit after completion (section 7)
+5. Measure opt-in rate and product value (section 10)
+<!-- SECTION:NOTES:END -->
