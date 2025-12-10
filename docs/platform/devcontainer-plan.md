@@ -298,7 +298,7 @@ Devcontainer replaces manual environment scripts:
 
 ## Next Steps
 
-1. **Implement** - Use `/jpspec:implement` to create devcontainer files
+1. **Implement** - Use `/specflow:implement` to create devcontainer files
 2. **Test** - Verify on all machines per CLAUDE.md requirements
 3. **Document** - Create usage documentation
 4. **Integrate** - Update CI/CD to use container

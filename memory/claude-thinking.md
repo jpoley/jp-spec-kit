@@ -40,9 +40,9 @@ Claude Code supports extended thinking mode for complex reasoning tasks. Use thi
 - Complex tradeoff analysis
 - High-stakes technical choices
 
-## Integration with /jpspec Commands
+## Integration with /specflow Commands
 
-### /jpspec:plan
+### /specflow:plan
 Architecture and platform design require deep thinking:
 ```
 Think hard about the architecture decisions. Consider:
@@ -52,7 +52,7 @@ Think hard about the architecture decisions. Consider:
 - Integration complexity
 ```
 
-### /jpspec:validate
+### /specflow:validate
 Security and QA review benefit from extended analysis:
 ```
 Think hard about security implications. Analyze:
@@ -62,7 +62,7 @@ Think hard about security implications. Analyze:
 - Compliance requirements
 ```
 
-### /jpspec:research
+### /specflow:research
 Comprehensive research needs maximum thinking:
 ```
 Megathink on this research. Consider:
@@ -99,15 +99,15 @@ When Claude explains its reasoning, review for:
 
 ```bash
 # Architecture planning with extended thinking
-/jpspec:plan
+/specflow:plan
 # Then in your message: "Think hard about the architecture decisions. Consider scalability, technology tradeoffs, and long-term maintainability."
 
 # Security validation with focused analysis
-/jpspec:validate
+/specflow:validate
 # Then in your message: "Think hard about security implications. Analyze attack vectors, data flow security, and compliance requirements."
 
 # Comprehensive research
-/jpspec:research
+/specflow:research
 # Then in your message: "Megathink on this research. Consider all relevant technologies, long-term implications, and market trends."
 ```
 

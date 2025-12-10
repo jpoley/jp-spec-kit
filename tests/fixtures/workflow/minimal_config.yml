@@ -5,7 +5,7 @@ states:
 
 workflows:
   specify:
-    command: "/jpspec:specify"
+    command: "/specflow:specify"
     agents:
       - "pm-agent"
     input_states:

@@ -6,7 +6,7 @@ This skill enables Claude Code to perform Dynamic Application Security Testing (
 
 ## When to Use This Skill
 
-- When invoked by `/jpspec:security_web` command
+- When invoked by `/specflow:security_web` command
 - When user asks to test web application security
 - When analyzing running web applications for vulnerabilities
 
@@ -21,7 +21,7 @@ This skill enables Claude Code to perform Dynamic Application Security Testing (
 
 Target application specified by:
 1. URL from command line: `--url https://example.com`
-2. Configuration file: `.jpspec/security-config.yml` under `dast.target_url`
+2. Configuration file: `.specflow/security-config.yml` under `dast.target_url`
 3. User prompt when neither is provided
 
 Expected configuration:
@@ -462,10 +462,10 @@ Sort findings by severity (critical first), then by URL.
 
 ```bash
 # User runs web security test
-/jpspec:security_web --url https://example.com --crawl
+/specflow:security_web --url https://example.com --crawl
 
 # You execute:
-1. Load configuration from .jpspec/security-config.yml
+1. Load configuration from .specflow/security-config.yml
 2. Launch Playwright browser (headless mode)
 3. Authenticate if credentials provided
 4. Start crawling from base URL
@@ -497,10 +497,10 @@ After web scan, findings can be triaged:
 
 ```bash
 # Run web scan
-/jpspec:security_web --url https://example.com
+/specflow:security_web --url https://example.com
 
 # Triage findings
-/jpspec:security_triage --input docs/security/web-findings.json
+/specflow:security_triage --input docs/security/web-findings.json
 ```
 
 The triage skill will classify DAST findings as TP/FP/NI and generate remediation guidance.

@@ -67,23 +67,23 @@ This configuration adds enhanced security validation to the standard SDD workflo
 
 ```
 To Do
-  ↓ /jpspec:assess
+  ↓ /specflow:assess
 Assessed
-  ↓ /jpspec:specify
+  ↓ /specflow:specify
 Specified
-  ↓ /jpspec:research (optional)
+  ↓ /specflow:research (optional)
 Researched
-  ↓ /jpspec:plan
+  ↓ /specflow:plan
 Planned
-  ↓ /jpspec:threat-model (NEW - with approval gate)
+  ↓ /specflow:threat-model (NEW - with approval gate)
 Threat Modeled
-  ↓ /jpspec:implement
+  ↓ /specflow:implement
 In Implementation
-  ↓ /jpspec:validate
+  ↓ /specflow:validate
 Validated
-  ↓ /jpspec:security-audit (NEW - with approval gate)
+  ↓ /specflow:security-audit (NEW - with approval gate)
 Security Audited
-  ↓ /jpspec:operate
+  ↓ /specflow:operate
 Deployed
   ↓ manual
 Done
@@ -139,7 +139,7 @@ Pen test complete. All critical vulns resolved."
 
 1. **Copy the configuration**:
    ```bash
-   cp docs/examples/workflows/security-audit-workflow.yml jpspec_workflow.yml
+   cp docs/examples/workflows/security-audit-workflow.yml specflow_workflow.yml
    ```
 
 2. **Create compliance-officer agent definition**:
@@ -169,24 +169,24 @@ Pen test complete. All critical vulns resolved."
 
 4. **Run the workflow**:
    ```bash
-   /jpspec:assess
-   /jpspec:specify
-   /jpspec:plan
+   /specflow:assess
+   /specflow:specify
+   /specflow:plan
 
    # Threat Modeling Phase
-   /jpspec:threat-model
+   /specflow:threat-model
    # Review docs/security/{feature}-threat-model.md
    # Type SECURITY_APPROVED to proceed
 
-   /jpspec:implement
-   /jpspec:validate
+   /specflow:implement
+   /specflow:validate
 
    # Security Audit Phase
-   /jpspec:security-audit
+   /specflow:security-audit
    # Review docs/security/{feature}-audit-report.md
    # Type AUDIT_PASSED to proceed
 
-   /jpspec:operate
+   /specflow:operate
    backlog task edit task-123 -s Done
    ```
 
@@ -327,10 +327,10 @@ backlog task edit task-123 -s "Threat Modeled" \
   --notes "Security design issue: Session management needs rework"
 
 # Re-run threat modeling with updated design
-/jpspec:threat-model
+/specflow:threat-model
 
 # Continue with implementation
-/jpspec:implement
+/specflow:implement
 ```
 
 ### Vulnerabilities Found in Audit
@@ -343,13 +343,13 @@ backlog task edit task-123 -s "In Implementation" \
   --notes "Security audit found SQL injection in search endpoint (H-002)"
 
 # Fix vulnerability
-/jpspec:implement
+/specflow:implement
 
 # Re-validate
-/jpspec:validate
+/specflow:validate
 
 # Re-audit
-/jpspec:security-audit
+/specflow:security-audit
 ```
 
 ## Customization
@@ -367,7 +367,7 @@ states:
 
 workflows:
   security-design:
-    command: "/jpspec:security-design"
+    command: "/specflow:security-design"
     agents:
       - name: "secure-by-design-engineer"
         responsibilities:
@@ -384,7 +384,7 @@ workflows:
 ```yaml
 workflows:
   hipaa-compliance:
-    command: "/jpspec:hipaa-compliance"
+    command: "/specflow:hipaa-compliance"
     agents:
       - name: "compliance-officer"
         responsibilities:
@@ -397,7 +397,7 @@ workflows:
 
 ## Best Practices
 
-1. **Threat Model Early** - Run `/jpspec:threat-model` before writing code
+1. **Threat Model Early** - Run `/specflow:threat-model` before writing code
 2. **Document Mitigations** - Link each threat to a mitigation control
 3. **Track Accepted Risks** - Document why low-priority findings are accepted
 4. **Involve Security Team** - Don't approve gates alone; involve security experts

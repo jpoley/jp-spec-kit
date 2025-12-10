@@ -1,0 +1,1 @@
+../../../templates/commands/specflow/_DEPRECATED_prune-branch.md

@@ -2,7 +2,7 @@
 
 ## Overview
 
-This directory contains comprehensive technology stack definitions for various types of software projects. Each stack includes architecture patterns, coding standards, best practices, and selection criteria to guide implementation decisions during the `/jpspec:plan` and `/jpspec:implement` workflows.
+This directory contains comprehensive technology stack definitions for various types of software projects. Each stack includes architecture patterns, coding standards, best practices, and selection criteria to guide implementation decisions during the `/specflow:plan` and `/specflow:implement` workflows.
 
 ## Available Stacks
 
@@ -103,15 +103,15 @@ Each stack references language-specific coding standards in `.languages/`:
 - **Swift:** `.languages/mobile/` - iOS development patterns
 - **Kotlin:** `.languages/mobile/` - Android development patterns
 
-## Integration with jpspec Workflow
+## Integration with specflow Workflow
 
-These stacks are used during the `/jpspec:plan` workflow:
+These stacks are used during the `/specflow:plan` workflow:
 
-### 1. Specification Phase (`/jpspec:specify`)
+### 1. Specification Phase (`/specflow:specify`)
 - PM defines requirements
 - Identifies general application type
 
-### 2. Planning Phase (`/jpspec:plan`)
+### 2. Planning Phase (`/specflow:plan`)
 - **Project Architect** consults STACK-SELECTION-GUIDE.md
 - Recommends appropriate stack(s) based on:
   - Requirements from `/speckit.tasks`
@@ -122,9 +122,9 @@ These stacks are used during the `/jpspec:plan` workflow:
   - Technical feasibility
   - Infrastructure requirements
   - Deployment strategy
-- Both agents document stack decision in `/jpspec.constitution`
+- Both agents document stack decision in `/specflow.constitution`
 
-### 3. Implementation Phase (`/jpspec:implement`)
+### 3. Implementation Phase (`/specflow:implement`)
 - Engineers follow the chosen stack documentation
 - Apply language-specific coding standards
 - Use architectural patterns from stack definition
@@ -184,7 +184,7 @@ This catalog provides:
 - ✅ **Clear selection criteria** for each
 - ✅ **Architecture patterns** and project structures
 - ✅ **Best practices** and code examples
-- ✅ **Integration** with jpspec workflow
+- ✅ **Integration** with specflow workflow
 - ✅ **References** to language-specific standards
 
 For any questions about stack selection, consult the [STACK-SELECTION-GUIDE.md](./STACK-SELECTION-GUIDE.md) or reach out to your project architect or platform engineer.

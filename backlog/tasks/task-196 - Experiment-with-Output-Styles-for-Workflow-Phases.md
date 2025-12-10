@@ -27,8 +27,8 @@ Cross-reference: See docs/prd/claude-capabilities-review.md Section 2.9 for outp
 <!-- AC:BEGIN -->
 - [ ] #1 Research Output Styles official documentation
 
-- [ ] #2 Prototype PM output style for /jpspec:specify
-- [ ] #3 Prototype Architect output style for /jpspec:plan
+- [ ] #2 Prototype PM output style for /specflow:specify
+- [ ] #3 Prototype Architect output style for /specflow:plan
 - [ ] #4 Document findings and recommendations
 - [ ] #5 Decide whether to adopt or skip based on value assessment
 <!-- AC:END -->

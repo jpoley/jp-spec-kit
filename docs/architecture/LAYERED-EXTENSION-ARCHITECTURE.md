@@ -18,8 +18,8 @@ JP Specflow has been transformed from a fork into a **layered extension** of Git
 ┌─────────────────────────────────────────┐
 │  Your Project                           │
 │  ┌───────────────────────────────────┐  │
-│  │ JP Specflow Extension (Layer 2)  │  │  ← Custom jpspec commands
-│  │ • jpspec:* commands               │  │  ← Multi-language support  
+│  │ JP Specflow Extension (Layer 2)  │  │  ← Custom specflow commands
+│  │ • specflow:* commands               │  │  ← Multi-language support  
 │  │ • .languages/ expertise           │  │  ← Expert personas
 │  │ • Multi-agent workflows           │  │  ← Advanced orchestration
 │  └───────────────────────────────────┘  │
@@ -150,12 +150,12 @@ extends:
 
 provides:
   commands:
-    - jpspec:specify
-    - jpspec:plan
-    - jpspec:research
-    - jpspec:implement
-    - jpspec:validate
-    - jpspec:operate
+    - specflow:specify
+    - specflow:plan
+    - specflow:research
+    - specflow:implement
+    - specflow:validate
+    - specflow:operate
   
   languages:
     - python, go, rust, java, kotlin, c, cpp, csharp, typescript, javascript, web, mobile, systems
@@ -252,7 +252,7 @@ specify init my-project --ai claude
 # Result:
 # - Base spec-kit templates from github/spec-kit
 # - JP spec-kit extension overlay from jpoley/jp-spec-kit
-# - Both /speckit.* and /jpspec:* commands available
+# - Both /speckit.* and /specflow:* commands available
 ```
 
 ### Keeping Up with Upstream
@@ -309,7 +309,7 @@ Plugin manifest declaring what jp-spec-kit provides.
 
 **Purpose**:
 - Declarative extension metadata
-- Command namespace (`jpspec:*`)
+- Command namespace (`specflow:*`)
 - Language support list
 - Merge strategy rules
 
@@ -374,7 +374,7 @@ shutil.copy2(item, dest_path)  # Overwrites base
 
 **Examples**:
 - Base has `.specify/plan-template.md`
-- Extension has `.specify/jpspec-plan-template.md`
+- Extension has `.specify/specflow-plan-template.md`
 - Result: Both files present (extension adds, doesn't replace)
 
 - Base has `.claude/commands/plan.md`
@@ -455,7 +455,7 @@ base: github/spec-kit@0.0.20
 extensions:
   - jpoley/jp-spec-kit@0.0.20
     features:
-      - jpspec-commands
+      - specflow-commands
       - multi-language
       exclude:
         - stacks  # Don't need stack templates
@@ -549,6 +549,6 @@ This architecture enables you to:
 **Next Steps**:
 
 1. Try it: `specify init test-project --ai claude`
-2. Explore jpspec commands: `/jpspec:plan`, `/jpspec:implement`
+2. Explore specflow commands: `/specflow:plan`, `/specflow:implement`
 3. Upgrade regularly: `specify upgrade`
 4. Report issues: https://github.com/jpoley/jp-spec-kit/issues

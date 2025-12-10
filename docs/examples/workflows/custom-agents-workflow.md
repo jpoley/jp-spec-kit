@@ -66,27 +66,27 @@ This configuration demonstrates how to add organization-specific custom agents t
 
 ```
 To Do
-  ↓ /jpspec:assess
+  ↓ /specflow:assess
 Assessed
-  ↓ /jpspec:specify (+ data-scientist)
+  ↓ /specflow:specify (+ data-scientist)
 Specified
-  ↓ /jpspec:legal-review (CUSTOM - legal-counsel, compliance-officer)
+  ↓ /specflow:legal-review (CUSTOM - legal-counsel, compliance-officer)
 Legal Reviewed
-  ↓ /jpspec:research (optional, + data-scientist)
+  ↓ /specflow:research (optional, + data-scientist)
 Researched
-  ↓ /jpspec:plan (+ ml-architect)
+  ↓ /specflow:plan (+ ml-architect)
 Planned
-  ↓ /jpspec:performance-design (CUSTOM - performance-engineer)
+  ↓ /specflow:performance-design (CUSTOM - performance-engineer)
 Performance Designed
-  ↓ /jpspec:implement (+ ml-engineer)
+  ↓ /specflow:implement (+ ml-engineer)
 In Implementation
-  ↓ /jpspec:accessibility-test (CUSTOM - accessibility-specialist)
+  ↓ /specflow:accessibility-test (CUSTOM - accessibility-specialist)
 Accessibility Tested
-  ↓ /jpspec:validate (+ performance-engineer)
+  ↓ /specflow:validate (+ performance-engineer)
 Validated
-  ↓ /jpspec:devrel-review (CUSTOM - developer-advocate)
+  ↓ /specflow:devrel-review (CUSTOM - developer-advocate)
 Documentation Reviewed
-  ↓ /jpspec:operate (+ ml-ops-engineer)
+  ↓ /specflow:operate (+ ml-ops-engineer)
 Deployed
   ↓ manual
 Done
@@ -96,7 +96,7 @@ Done
 
 ### 1. Legal Review Workflow
 
-**Command**: `/jpspec:legal-review`
+**Command**: `/specflow:legal-review`
 
 **When**: After specification, before research/planning
 
@@ -150,7 +150,7 @@ All legal requirements identified and documented. Proceed with implementation.
 
 ### 2. Performance Design Workflow
 
-**Command**: `/jpspec:performance-design`
+**Command**: `/specflow:performance-design`
 
 **When**: After planning, before implementation
 
@@ -194,7 +194,7 @@ All legal requirements identified and documented. Proceed with implementation.
 
 ### 3. Accessibility Testing Workflow
 
-**Command**: `/jpspec:accessibility-test`
+**Command**: `/specflow:accessibility-test`
 
 **When**: After implementation, before validation
 
@@ -249,7 +249,7 @@ WCAG 2.1 AA compliant - Approved for production.
 
 ### 4. DevRel Review Workflow
 
-**Command**: `/jpspec:devrel-review`
+**Command**: `/specflow:devrel-review`
 
 **When**: After validation, before deployment
 
@@ -299,40 +299,40 @@ EOF
 ### 2. Copy Workflow Configuration
 
 ```bash
-cp docs/examples/workflows/custom-agents-workflow.yml jpspec_workflow.yml
+cp docs/examples/workflows/custom-agents-workflow.yml specflow_workflow.yml
 specify workflow validate
 ```
 
 ### 3. Run Custom Workflows
 
 ```bash
-/jpspec:assess
-/jpspec:specify
+/specflow:assess
+/specflow:specify
 # Includes data-scientist agent
 
-/jpspec:legal-review
+/specflow:legal-review
 # Review docs/legal/{feature}-legal-review.md
 # Type LEGAL_APPROVED to proceed
 
-/jpspec:plan
+/specflow:plan
 # Includes ml-architect agent
 
-/jpspec:performance-design
+/specflow:performance-design
 # Creates performance budget
 
-/jpspec:implement
+/specflow:implement
 # Includes ml-engineer agent
 
-/jpspec:accessibility-test
+/specflow:accessibility-test
 # WCAG compliance testing
 
-/jpspec:validate
+/specflow:validate
 # Includes performance-engineer for load testing
 
-/jpspec:devrel-review
+/specflow:devrel-review
 # Developer documentation review
 
-/jpspec:operate
+/specflow:operate
 # Includes ml-ops-engineer
 
 backlog task edit task-123 -s Done
@@ -408,7 +408,7 @@ Create `.agents/{agent-name}.md`:
 
 ### Step 3: Add to Workflow
 
-Edit `jpspec_workflow.yml`:
+Edit `specflow_workflow.yml`:
 
 ```yaml
 workflows:

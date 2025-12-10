@@ -31,7 +31,7 @@ states:
 
 workflows:
   specify:
-    command: "/jpspec:specify"
+    command: "/specflow:specify"
     description: "Create feature specification"
     agents:
       - name: "product-requirements-manager"
@@ -45,7 +45,7 @@ workflows:
     optional: false
 
   implement:
-    command: "/jpspec:implement"
+    command: "/specflow:implement"
     description: "Implement feature with code review"
     agents:
       - name: "frontend-engineer"

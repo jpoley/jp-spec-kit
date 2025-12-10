@@ -204,9 +204,9 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
-{{INCLUDE:.claude/commands/jpspec/_constitution-check.md}}
+{{INCLUDE:.claude/commands/specflow/_constitution-check.md}}
 
-{{INCLUDE:.claude/commands/jpspec/_workflow-state.md}}
+{{INCLUDE:.claude/commands/specflow/_workflow-state.md}}
 
 ## Execution Instructions
 

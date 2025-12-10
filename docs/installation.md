@@ -70,10 +70,10 @@ uvx --from git+https://github.com/jpoley/jp-spec-kit.git specify init <project_n
 ## Verification
 
 After initialization, you should see the following commands available in your AI agent:
-- `/jpspec:specify` - Create specifications
-- `/jpspec:plan` - Generate implementation plans
-- `/jpspec:implement` - Execute implementation with code review
-- `/jpspec:validate` - QA and security validation
+- `/specflow:specify` - Create specifications
+- `/specflow:plan` - Generate implementation plans
+- `/specflow:implement` - Execute implementation with code review
+- `/specflow:validate` - QA and security validation
 
 The `scripts/bash` directory will contain both `.sh` and `.ps1` scripts.
 

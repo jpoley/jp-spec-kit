@@ -6,7 +6,7 @@ Integrate `specify quality` command as a pre-implementation gate that validates 
 ## Requirements
 
 ### 1. Gate Integration Points
-- **Slash command integration**: `/jpspec:implement` should run quality check first
+- **Slash command integration**: `/specflow:implement` should run quality check first
 - **CLI integration**: New `specify gate` command that runs quality + blocks on failure
 - **Threshold configuration**: Use existing `.specify/quality-config.json` thresholds
 
@@ -26,7 +26,7 @@ Integrate `specify quality` command as a pre-implementation gate that validates 
 - Returns exit code 0 (pass) or 1 (fail)
 - Displays pass/fail status with recommendations
 
-#### Option B: Modify `/jpspec:implement` Slash Command
+#### Option B: Modify `/specflow:implement` Slash Command
 - Add quality gate check at start of implementation workflow
 - Uses existing `specify quality` via subprocess
 - Blocks implementation if gate fails
@@ -34,7 +34,7 @@ Integrate `specify quality` command as a pre-implementation gate that validates 
 
 #### Option C: Both (Recommended)
 - Implement standalone `specify gate` command for manual use
-- Integrate gate check into `/jpspec:implement` workflow
+- Integrate gate check into `/specflow:implement` workflow
 - Provides both programmatic (exit codes) and interactive (slash command) interfaces
 - Maximizes reusability and flexibility
 
@@ -149,7 +149,7 @@ def gate(
 ```
 
 #### Slash Command Integration
-Modify `/jpspec:implement` to include quality gate check before Phase 1:
+Modify `/specflow:implement` to include quality gate check before Phase 1:
 
 ```markdown
 ## Phase 0: Pre-Implementation Quality Gate
@@ -184,7 +184,7 @@ specify gate --force
 - [ ] AC #9.4: `--force` flag bypasses gate with warning (exit code 0)
 - [ ] AC #9.5: Clear pass/fail output with dimension scores
 - [ ] AC #9.6: Recommendations displayed on failure (top 5)
-- [ ] AC #9.7: `/jpspec:implement` slash command includes quality gate check
+- [ ] AC #9.7: `/specflow:implement` slash command includes quality gate check
 - [ ] AC #9.8: Documentation updated with gate usage examples
 
 ## Test Plan
@@ -203,7 +203,7 @@ specify gate --force
 - [ ] Test with real spec.md from sample project
 - [ ] Test config file discovery (walks up directory tree)
 - [ ] Test default config when no config file exists
-- [ ] Test `/jpspec:implement` with quality gate enabled
+- [ ] Test `/specflow:implement` with quality gate enabled
 
 ### Edge Cases
 - [ ] Empty spec file
@@ -216,7 +216,7 @@ specify gate --force
 
 ### Files to Modify
 1. **`src/specify_cli/__init__.py`** - Add `gate()` command
-2. **`.claude/commands/jpspec/implement.md`** - Add Phase 0 quality gate
+2. **`.claude/commands/specflow/implement.md`** - Add Phase 0 quality gate
 3. **`tests/test_quality_gate.py`** - New test file for gate command
 4. **`docs/reference/quality-gates.md`** - New documentation
 
@@ -250,7 +250,7 @@ specify gate --force
 
 3. **Should the slash command integration be optional or mandatory?**
    - Current design: Mandatory (always runs)
-   - Alternative: Add `--skip-gate` flag to `/jpspec:implement`
+   - Alternative: Add `--skip-gate` flag to `/specflow:implement`
 
 ## Success Metrics
 

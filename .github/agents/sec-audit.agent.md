@@ -21,32 +21,32 @@ visible_to_roles:
   - "sec"
   - "all"
 ---
-# /jpspec:security - Security Workflow Integration
+# /specflow:security - Security Workflow Integration
 
 Integrate comprehensive security scanning, vulnerability triage, and automated remediation task creation into your Spec-Driven Development workflow.
 
 ## Overview
 
-The `/jpspec:security` command family integrates security assessment into your development workflow by:
+The `/specflow:security` command family integrates security assessment into your development workflow by:
 
 1. **Scanning** - SAST, SCA, secrets detection on codebase
 2. **Triaging** - AI-powered vulnerability assessment and false positive detection
 3. **Reporting** - Comprehensive audit reports with OWASP Top 10 compliance
 4. **Task Creation** - Automatic backlog task creation for findings via `--create-tasks` flag
-5. **Workflow Integration** - Seamless integration with jpspec_workflow.yml states
+5. **Workflow Integration** - Seamless integration with specflow_workflow.yml states
 
 ## Command Family
 
 ```bash
 # Full workflow
-/jpspec:security scan      # Run security scanners
-/jpspec:security triage    # Triage findings with AI
-/jpspec:security report    # Generate audit report
-/jpspec:security fix       # Generate patches for findings
+/specflow:security scan      # Run security scanners
+/specflow:security triage    # Triage findings with AI
+/specflow:security report    # Generate audit report
+/specflow:security fix       # Generate patches for findings
 
 # Workflow integration features
-/jpspec:security scan --create-tasks     # Auto-create backlog tasks for findings
-/jpspec:security report --create-tasks   # Create tasks during reporting
+/specflow:security scan --create-tasks     # Auto-create backlog tasks for findings
+/specflow:security report --create-tasks   # Create tasks during reporting
 ```
 
 ## Workflow Integration Patterns
@@ -56,7 +56,7 @@ The `/jpspec:security` command family integrates security assessment into your d
 Add a dedicated security verification state for security-focused teams:
 
 ```yaml
-# jpspec_workflow.yml additions
+# specflow_workflow.yml additions
 
 states:
   - "To Do"
@@ -72,7 +72,7 @@ states:
 
 workflows:
   security:
-    command: "/jpspec:security"
+    command: "/specflow:security"
     description: "Execute security scans and create remediation tasks"
     agents:
       - name: "secure-by-design-engineer"
@@ -137,11 +137,11 @@ Implementation → Security Review → Validated → Deployed
 Integrate security into existing validate workflow for streamlined processes:
 
 ```yaml
-# jpspec_workflow.yml - extend validate workflow
+# specflow_workflow.yml - extend validate workflow
 
 workflows:
   validate:
-    command: "/jpspec:validate"
+    command: "/specflow:validate"
     description: "Execute validation using QA, security, and documentation agents"
     agents:
       - name: "quality-guardian"
@@ -209,13 +209,13 @@ The `--create-tasks` flag automatically creates backlog tasks for security findi
 
 ```bash
 # Create tasks during scan
-/jpspec:security scan --create-tasks
+/specflow:security scan --create-tasks
 
 # Create tasks during report generation
-/jpspec:security report --create-tasks
+/specflow:security report --create-tasks
 
 # Control which severities create tasks
-/jpspec:security scan --create-tasks --severity critical,high
+/specflow:security scan --create-tasks --severity critical,high
 ```
 
 ### Task Format
@@ -264,7 +264,7 @@ Security: [Vulnerability Type] in [Component]
 
 ---
 
-**Created by:** /jpspec:security --create-tasks
+**Created by:** /specflow:security --create-tasks
 **Audit Report:** docs/security/audit-report.md
 ```
 
@@ -654,9 +654,9 @@ bash scripts/security/pre-commit-scan.sh
 
 ## See Also
 
-- `/jpspec:security scan` - Run security scanners
-- `/jpspec:security triage` - Triage findings
-- `/jpspec:security report` - Generate audit reports
-- `/jpspec:security fix` - Generate fix patches
+- `/specflow:security scan` - Run security scanners
+- `/specflow:security triage` - Triage findings
+- `/specflow:security report` - Generate audit reports
+- `/specflow:security fix` - Generate fix patches
 - [Security Workflow Integration Guide](../../docs/guides/security-workflow-integration.md)
 - [CI/CD Integration Examples](../../docs/platform/security-cicd-examples.md)

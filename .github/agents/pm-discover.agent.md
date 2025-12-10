@@ -44,7 +44,7 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 ```bash
 # Check for light mode marker
-if [ -f ".jpspec-light-mode" ]; then
+if [ -f ".specflow-light-mode" ]; then
   echo "LIGHT MODE DETECTED"
   # Stop here - research is skipped in light mode
 else
@@ -53,17 +53,17 @@ else
 fi
 ```
 
-**If `.jpspec-light-mode` exists**, inform the user and DO NOT proceed:
+**If `.specflow-light-mode` exists**, inform the user and DO NOT proceed:
 
 ```text
-ℹ️ This project is in Light Mode - /jpspec:research is SKIPPED
+ℹ️ This project is in Light Mode - /specflow:research is SKIPPED
 
 Light mode provides a streamlined ~60% faster workflow by skipping the research
 phase. This is appropriate for medium-complexity features (4-6/10).
 
 Your options:
-  1. Run /jpspec:plan to proceed directly to planning
-  2. To enable research, delete .jpspec-light-mode and use full mode
+  1. Run /specflow:plan to proceed directly to planning
+  2. To enable research, delete .specflow-light-mode and use full mode
      (See docs/guides/when-to-use-light-mode.md for upgrade instructions)
 
 Current workflow path: Specified → Planned (skipping Researched)
@@ -246,9 +246,9 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
-{{INCLUDE:.claude/commands/jpspec/_constitution-check.md}}
+{{INCLUDE:.claude/commands/specflow/_constitution-check.md}}
 
-{{INCLUDE:.claude/commands/jpspec/_workflow-state.md}}
+{{INCLUDE:.claude/commands/specflow/_workflow-state.md}}
 
 ## Execution Instructions
 
@@ -277,17 +277,17 @@ First, check if this project is in light mode:
 
 ```bash
 # Check for light mode marker
-if [ -f ".jpspec-light-mode" ]; then
+if [ -f ".specflow-light-mode" ]; then
   echo "Project is in LIGHT MODE (~60% faster workflow)"
 fi
 ```
 
 **Light Mode Behavior**:
-- `/jpspec:research` → **SKIPPED** (inform user and suggest `/jpspec:plan` instead)
-- `/jpspec:plan` → Uses `plan-light.md` template (high-level only)
-- `/jpspec:specify` → Uses `spec-light.md` template (combined stories + AC)
+- `/specflow:research` → **SKIPPED** (inform user and suggest `/specflow:plan` instead)
+- `/specflow:plan` → Uses `plan-light.md` template (high-level only)
+- `/specflow:specify` → Uses `spec-light.md` template (combined stories + AC)
 
-If in light mode and the current command is `/jpspec:research`, inform the user:
+If in light mode and the current command is `/specflow:research`, inform the user:
 ```text
 ℹ️ This project is in Light Mode
 
@@ -295,8 +295,8 @@ Light mode skips the research phase for faster iteration.
 Current state: workflow:Specified
 
 Suggestions:
-  - Run /jpspec:plan to proceed directly to planning
-  - To enable research, delete .jpspec-light-mode and use full mode
+  - Run /specflow:plan to proceed directly to planning
+  - To enable research, delete .specflow-light-mode and use full mode
   - See docs/guides/when-to-use-light-mode.md for details
 ```
 
@@ -319,20 +319,20 @@ Extract the `workflow:*` label from the task. The state must match one of the **
 
 | Command | Required Input States | Output State |
 |---------|----------------------|--------------|
-| /jpspec:assess | workflow:To Do, (no workflow label) | workflow:Assessed |
-| /jpspec:specify | workflow:Assessed | workflow:Specified |
-| /jpspec:research | workflow:Specified | workflow:Researched |
-| /jpspec:plan | workflow:Specified, workflow:Researched | workflow:Planned |
-| /jpspec:implement | workflow:Planned | workflow:In Implementation |
-| /jpspec:validate | workflow:In Implementation | workflow:Validated |
-| /jpspec:operate | workflow:Validated | workflow:Deployed |
+| /specflow:assess | workflow:To Do, (no workflow label) | workflow:Assessed |
+| /specflow:specify | workflow:Assessed | workflow:Specified |
+| /specflow:research | workflow:Specified | workflow:Researched |
+| /specflow:plan | workflow:Specified, workflow:Researched | workflow:Planned |
+| /specflow:implement | workflow:Planned | workflow:In Implementation |
+| /specflow:validate | workflow:In Implementation | workflow:Validated |
+| /specflow:operate | workflow:Validated | workflow:Deployed |
 
 ### 3. Handle Invalid State
 
 If the task's workflow state doesn't match the required input states:
 
 ```text
-⚠️ Cannot run /jpspec:<command>
+⚠️ Cannot run /specflow:<command>
 
 Current state: "<current-workflow-label>"
 Required states: <list-of-valid-input-states>
@@ -360,13 +360,13 @@ backlog task edit "$TASK_ID" -l "workflow:<output-state>"
 
 Tasks use labels with the `workflow:` prefix to track their current workflow state:
 
-- `workflow:Assessed` - SDD suitability evaluated (/jpspec:assess complete)
-- `workflow:Specified` - Requirements captured (/jpspec:specify complete)
-- `workflow:Researched` - Technical research completed (/jpspec:research complete)
-- `workflow:Planned` - Architecture planned (/jpspec:plan complete)
-- `workflow:In Implementation` - Code being written (/jpspec:implement in progress)
-- `workflow:Validated` - QA and security validated (/jpspec:validate complete)
-- `workflow:Deployed` - Released to production (/jpspec:operate complete)
+- `workflow:Assessed` - SDD suitability evaluated (/specflow:assess complete)
+- `workflow:Specified` - Requirements captured (/specflow:specify complete)
+- `workflow:Researched` - Technical research completed (/specflow:research complete)
+- `workflow:Planned` - Architecture planned (/specflow:plan complete)
+- `workflow:In Implementation` - Code being written (/specflow:implement in progress)
+- `workflow:Validated` - QA and security validated (/specflow:validate complete)
+- `workflow:Deployed` - Released to production (/specflow:operate complete)
 
 ## Programmatic State Checking
 
@@ -384,7 +384,7 @@ if not can_proceed:
 
 # Get valid commands for a state
 valid_commands = get_valid_workflows("Specified")
-# Returns: ['/jpspec:research', '/jpspec:plan']
+# Returns: ['/specflow:research', '/specflow:plan']
 ```
 
 ## Bypassing State Checks (Power Users Only)
@@ -399,10 +399,10 @@ Use `--skip-state-check` flag or explicitly acknowledge the bypass.
 **Warning**: Bypassing state checks may result in incomplete artifacts or broken workflows.
 
 
-**For /jpspec:research**: Required input state is `workflow:Specified`. Output state will be `workflow:Researched`.
+**For /specflow:research**: Required input state is `workflow:Specified`. Output state will be `workflow:Researched`.
 
 If the task doesn't have the required workflow state, inform the user:
-- If task needs specification first: suggest running `/jpspec:specify`
+- If task needs specification first: suggest running `/specflow:specify`
 - If research needs to be done before specification: explain that this violates the workflow
 
 ### Extended Thinking Mode
@@ -432,7 +432,7 @@ Use the Task tool to launch a **general-purpose** agent with the following promp
 
 ```
 <!--BACKLOG-INSTRUCTIONS-START-->
-{{INCLUDE:.claude/commands/jpspec/_backlog-instructions.md}}
+{{INCLUDE:.claude/commands/specflow/_backlog-instructions.md}}
 <!--BACKLOG-INSTRUCTIONS-END-->
 
 # AGENT CONTEXT: Senior Research Analyst
@@ -578,7 +578,7 @@ After receiving the research findings, use the Task tool to launch a **general-p
 
 ```
 <!--BACKLOG-INSTRUCTIONS-START-->
-{{INCLUDE:.claude/commands/jpspec/_backlog-instructions.md}}
+{{INCLUDE:.claude/commands/specflow/_backlog-instructions.md}}
 <!--BACKLOG-INSTRUCTIONS-END-->
 
 # AGENT CONTEXT: Senior Business Analyst and Strategic Advisor
@@ -753,7 +753,7 @@ After the research and business validation agents complete their work:
    ```bash
    # Example: Create tasks from research recommendations
    backlog task create "Implement [Recommended Solution]" \
-     -d "Implementation based on research findings from /jpspec:research" \
+     -d "Implementation based on research findings from /specflow:research" \
      --ac "Implement approach recommended in research report" \
      --ac "Address feasibility concerns identified in validation" \
      --ac "Monitor metrics identified in business case" \

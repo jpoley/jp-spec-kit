@@ -85,7 +85,7 @@ specify upgrade --all        # Upgrade both
 ## Next Command
 
 ```
-/jpspec:implement
+/specflow:implement
 ```
 
 Focus on tasks: task-299, task-297, task-296, task-298 (in order)

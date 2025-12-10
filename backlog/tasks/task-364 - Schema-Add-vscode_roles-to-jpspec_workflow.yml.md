@@ -1,6 +1,6 @@
 ---
 id: task-364
-title: 'Schema: Add vscode_roles to jpspec_workflow.yml'
+title: 'Schema: Add vscode_roles to specflow_workflow.yml'
 status: To Do
 assignee: []
 created_date: '2025-12-09 15:14'
@@ -27,7 +27,7 @@ Create specflow_workflow.yml schema with role definitions. This is the foundatio
 - [ ] #4 Schema validation updated to include vscode_roles section
 - [ ] #5 Default role configuration (default_role: all)
 
-- [ ] #6 Rename jpspec_workflow.yml to specflow_workflow.yml
+- [ ] #6 Rename specflow_workflow.yml to specflow_workflow.yml
 - [ ] #7 Add roles section with all 7 roles (pm, arch, dev, sec, qa, ops, all)
 - [ ] #8 Each role has: display_name, icon, commands array, agents array
 - [ ] #9 Add version 2.0 header
@@ -44,5 +44,5 @@ Create specflow_workflow.yml schema with role definitions. This is the foundatio
 4. Map agents to roles per ADR
 5. Create JSON schema for validation
 6. Update CLI to use new filename
-7. Add migration from old jpspec_workflow.yml
+7. Add migration from old specflow_workflow.yml
 <!-- SECTION:PLAN:END -->

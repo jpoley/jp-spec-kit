@@ -29,7 +29,7 @@ jp-spec-kit uses **15 specialized AI agents** defined in `.agents/` directory fo
 .claude/                          # Claude Code integration layer
 ├── load-agent.py                # Agent context loader script
 ├── agents-config.json           # Agent-to-workflow mapping
-└── commands/jpspec/             # Slash commands that use agents
+└── commands/specflow/             # Slash commands that use agents
     ├── specify.md
     ├── plan.md
     ├── research.md
@@ -96,7 +96,7 @@ The script:
 
 ### 4. Slash Command Integration
 
-Claude Code slash commands reference agents using the `Task` tool. Example from `/jpspec:operate`:
+Claude Code slash commands reference agents using the `Task` tool. Example from `/specflow:operate`:
 
 ```markdown
 Use the Task tool to launch a **general-purpose** agent with the following prompt:
@@ -114,12 +114,12 @@ $(python .claude/load-agent.py sre-agent)
 
 | Workflow       | Agents                                                                                                        | Phase        |
 |----------------|---------------------------------------------------------------------------------------------------------------|--------------|
-| `/jpspec:specify`  | `product-requirements-manager-enhanced`                                                                      | Requirements |
-| `/jpspec:plan`     | `software-architect-enhanced`, `platform-engineer-enhanced`                                                  | Architecture |
-| `/jpspec:research` | `researcher`, `business-validator`                                                                          | Research     |
-| `/jpspec:implement` | `frontend-engineer`, `backend-engineer`, `ai-ml-engineer`, `frontend-code-reviewer`, `backend-code-reviewer` | Development  |
-| `/jpspec:validate` | `quality-guardian`, `secure-by-design-engineer`, `tech-writer`, `release-manager`                           | Validation   |
-| `/jpspec:operate`  | `sre-agent`                                                                                                  | Operations   |
+| `/specflow:specify`  | `product-requirements-manager-enhanced`                                                                      | Requirements |
+| `/specflow:plan`     | `software-architect-enhanced`, `platform-engineer-enhanced`                                                  | Architecture |
+| `/specflow:research` | `researcher`, `business-validator`                                                                          | Research     |
+| `/specflow:implement` | `frontend-engineer`, `backend-engineer`, `ai-ml-engineer`, `frontend-code-reviewer`, `backend-code-reviewer` | Development  |
+| `/specflow:validate` | `quality-guardian`, `secure-by-design-engineer`, `tech-writer`, `release-manager`                           | Validation   |
+| `/specflow:operate`  | `sre-agent`                                                                                                  | Operations   |
 
 ## Agent Loop Classification
 
@@ -224,9 +224,9 @@ python .claude/load-agent.py researcher business-validator | grep "##"
 ### Test Slash Commands
 ```bash
 # In Claude Code
-/jpspec:operate Build a production-ready deployment pipeline
-/jpspec:plan Design architecture for e-commerce platform
-/jpspec:research Analyze market for AI coding assistants
+/specflow:operate Build a production-ready deployment pipeline
+/specflow:plan Design architecture for e-commerce platform
+/specflow:research Analyze market for AI coding assistants
 ```
 
 ## Troubleshooting
@@ -284,7 +284,7 @@ Potential improvements to the integration layer:
 For issues or questions:
 - Check `.claude/agents-config.json` for agent-workflow mappings
 - Test agent loading with `.claude/load-agent.py`
-- Review slash command definitions in `.claude/commands/jpspec/`
+- Review slash command definitions in `.claude/commands/specflow/`
 - Open GitHub issue for bugs or enhancement requests
 
 ---

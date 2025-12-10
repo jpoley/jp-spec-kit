@@ -168,24 +168,24 @@ As defined in task-004.md, the outer loop **MUST** include:
 
 ## Agent Usage in Workflows
 
-### /jpspec:specify (Inner Loop)
+### /specflow:specify (Inner Loop)
 Uses: `product-requirements-manager`
 
-### /jpspec:plan (Inner Loop)
+### /specflow:plan (Inner Loop)
 Uses: `software-architect-enhanced`, `platform-engineer-enhanced`
 
-### /jpspec:research (Inner Loop)
+### /specflow:research (Inner Loop)
 Uses: `researcher`, `business-validator`
 
-### /jpspec:implement (Inner Loop)
+### /specflow:implement (Inner Loop)
 Uses: `frontend-engineer`, `backend-engineer`, `ai-ml-engineer`, `frontend-code-reviewer`, `backend-code-reviewer`
 
-### /jpspec:validate (Inner Loop with Outer Loop preparation)
+### /specflow:validate (Inner Loop with Outer Loop preparation)
 Uses: `quality-guardian`, `secure-by-design-engineer`, `tech-writer`, `release-manager`
 
 Note: The validate workflow bridges inner and outer loops by preparing artifacts for outer loop deployment while still part of inner loop quality checks.
 
-### /jpspec:operate (Outer Loop)
+### /specflow:operate (Outer Loop)
 Uses: `sre-agent`
 
 ## Best Practices

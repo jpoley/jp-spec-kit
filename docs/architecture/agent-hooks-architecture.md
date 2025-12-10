@@ -32,7 +32,7 @@ The Agent Hooks system transforms JP Specflow from a **linear, synchronous workf
 ┌─────────────────────────────────────────────────────────────────────┐
 │                         JP Specflow CLI                              │
 │  ┌────────────────┐  ┌────────────────┐  ┌────────────────┐        │
-│  │ /jpspec:specify│  │/jpspec:implement│  │ backlog task   │        │
+│  │ /specflow:specify│  │/specflow:implement│  │ backlog task   │        │
 │  │                │  │                 │  │   operations   │        │
 │  └────────┬───────┘  └────────┬────────┘  └────────┬───────┘        │
 │           │                   │                     │                │
@@ -323,12 +323,12 @@ result = subprocess.run(
 
 **Step 1**: User runs workflow command
 ```bash
-/jpspec:implement authentication
+/specflow:implement authentication
 ```
 
 **Step 2**: Implementation completes, event emitted
 ```python
-# In /jpspec:implement command handler
+# In /specflow:implement command handler
 event_emitter.emit(
     event_type="implement.completed",
     feature="authentication",
@@ -404,13 +404,13 @@ if result.exit_code != 0 and hook.fail_mode == "stop":
 
 ## Integration Patterns
 
-### 1. /jpspec Command Integration
+### 1. /specflow Command Integration
 
 **All workflow commands emit events**:
 ```python
-# src/specify_cli/commands/jpspec.py
+# src/specify_cli/commands/specflow.py
 
-@cli.command("jpspec:implement")
+@cli.command("specflow:implement")
 def implement_command(feature: str):
     """Execute implementation workflow."""
 
@@ -470,7 +470,7 @@ def task_edit(task_id: str, status: str):
 
 **JP Specflow Hooks** (this system):
 - **Scope**: Workflow-level events (spec.created, task.completed)
-- **Trigger**: /jpspec commands, backlog operations
+- **Trigger**: /specflow commands, backlog operations
 - **Use Cases**: Automated testing, documentation updates, CI/CD integration
 
 **Claude Code Hooks** (separate system):
@@ -780,7 +780,7 @@ specify hooks update slack-notifier
 ### Integration Tests
 
 **End-to-End Workflows**:
-- /jpspec:implement → event → hook execution
+- /specflow:implement → event → hook execution
 - Backlog task edit → event → hook execution
 - Multi-hook execution (sequential)
 
@@ -797,7 +797,7 @@ specify hooks update slack-notifier
 ### Performance Tests
 
 **Event Emission Overhead**:
-- Benchmark: /jpspec:implement with/without events
+- Benchmark: /specflow:implement with/without events
 - Target: <50ms delta
 
 **Hook Dispatch Latency**:
@@ -821,7 +821,7 @@ specify hooks update slack-notifier
 - Audit logger
 
 **Phase 2**: Integration
-- Event emission from /jpspec commands
+- Event emission from /specflow commands
 - Event emission from backlog operations
 - Security framework
 
@@ -858,7 +858,7 @@ specify hooks update slack-notifier
 **Related Systems**:
 - Claude Code Hooks: `.claude/hooks/` (complementary)
 - Backlog.md: Task state machine (emits task events)
-- Workflow Engine: /jpspec commands (emits workflow events)
+- Workflow Engine: /specflow commands (emits workflow events)
 
 ---
 

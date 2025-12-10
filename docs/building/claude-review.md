@@ -32,7 +32,7 @@ The two-stage download architecture is elegant:
 
 ```
 Layer 2: JP Spec Kit Extension
-    ├── /jpspec:* commands (6 specialized agents)
+    ├── /specflow:* commands (6 specialized agents)
     ├── .languages/ (12 language expertise bases)
     └── Advanced multi-agent orchestration
            ↓ Overlays on ↓
@@ -68,15 +68,15 @@ The 15 specialized agent personas are well-designed:
 - SRE Agent (CI/CD, Kubernetes, DevSecOps)
 - Release Manager
 
-**Observation:** The agent design follows industry best practices but the boundary between jpspec and speckit agents is unclear to users.
+**Observation:** The agent design follows industry best practices but the boundary between specflow and speckit agents is unclear to users.
 
 ### 1.3 File Organization
 
 ```
 jp-spec-kit/
-├── .claude/commands/jpspec/     # Live jpspec commands (Claude)
+├── .claude/commands/specflow/     # Live specflow commands (Claude)
 ├── templates/commands/          # speckit template commands
-│   └── jpspec/                  # jpspec templates
+│   └── specflow/                  # specflow templates
 ├── .languages/                  # 12 language expertise modules
 ├── .agents/                     # 15 agent persona definitions
 ├── .stacks/                     # 10 pre-built project templates
@@ -102,8 +102,8 @@ The documentation and codebase use **inconsistent command naming conventions**:
 |----------|------------|---------|
 | README.md | Dot notation | `/speckit.specify` |
 | CLAUDE.md | Colon notation | `/speckit:specify` |
-| Folder structure | Colon implied | `commands/jpspec/specify.md` |
-| Plugin manifest | Colon notation | `jpspec:specify` |
+| Folder structure | Colon implied | `commands/specflow/specify.md` |
+| Plugin manifest | Colon notation | `specflow:specify` |
 
 **Impact:** Users will be confused about whether to type `/speckit.specify` or `/speckit:specify`. This is a **critical UX issue**.
 
@@ -113,14 +113,14 @@ The documentation and codebase use **inconsistent command naming conventions**:
 
 Two parallel command suites exist with similar purposes:
 
-| jpspec Command | speckit Equivalent | Difference |
+| specflow Command | speckit Equivalent | Difference |
 |----------------|-------------------|------------|
-| `/jpspec:specify` | `/speckit:specify` | jpspec uses PM agent with SVPG |
-| `/jpspec:plan` | `/speckit:plan` | jpspec adds multi-agent (Architect + Platform) |
-| `/jpspec:implement` | `/speckit:implement` | jpspec adds code review agents |
-| `/jpspec:validate` | (none) | Unique to jpspec |
-| `/jpspec:operate` | (none) | Unique to jpspec |
-| `/jpspec:research` | (none) | Unique to jpspec |
+| `/specflow:specify` | `/speckit:specify` | specflow uses PM agent with SVPG |
+| `/specflow:plan` | `/speckit:plan` | specflow adds multi-agent (Architect + Platform) |
+| `/specflow:implement` | `/speckit:implement` | specflow adds code review agents |
+| `/specflow:validate` | (none) | Unique to specflow |
+| `/specflow:operate` | (none) | Unique to specflow |
+| `/specflow:research` | (none) | Unique to specflow |
 | (none) | `/speckit:clarify` | Unique to speckit |
 | (none) | `/speckit:analyze` | Unique to speckit |
 | (none) | `/speckit:constitution` | Unique to speckit |
@@ -128,7 +128,7 @@ Two parallel command suites exist with similar purposes:
 | (none) | `/speckit:tasks` | Unique to speckit |
 
 **Problems:**
-1. Users don't know when to use jpspec vs speckit commands
+1. Users don't know when to use specflow vs speckit commands
 2. Duplicate commands (`specify`, `plan`, `implement`) with subtle differences
 3. No clear guidance on which workflow to follow
 4. Feature matrix not documented anywhere
@@ -137,32 +137,32 @@ Two parallel command suites exist with similar purposes:
 
 ### 2.3 Individual Command Assessment
 
-#### `/jpspec:specify` - Product Requirements Manager
+#### `/specflow:specify` - Product Requirements Manager
 - **Strengths:** SVPG methodology, DVF+V risk framework, comprehensive PRD output
 - **Weakness:** Very long prompt (168 lines), may overwhelm AI context
 - **Suggestion:** Break into modular components; allow progressive disclosure
 
-#### `/jpspec:plan` - Architecture Planning
+#### `/specflow:plan` - Architecture Planning
 - **Strengths:** Multi-agent (Architect + Platform Engineer), Hohpe patterns
 - **Weakness:** Output format not specified, hard to know what artifacts are created
 - **Suggestion:** Define explicit output artifacts in documentation
 
-#### `/jpspec:research` - Market Validation
+#### `/specflow:research` - Market Validation
 - **Strengths:** TAM/SAM/SOM analysis, business viability focus
 - **Weakness:** Positioned as pre-cursor but workflow shows it after specify
 - **Suggestion:** Clarify positioning in workflow (before or after specify)
 
-#### `/jpspec:implement` - Multi-Agent Implementation
+#### `/specflow:implement` - Multi-Agent Implementation
 - **Strengths:** Frontend + Backend + AI/ML engineers with code reviewers
 - **Weakness:** Parallel vs sequential execution unclear to user
 - **Suggestion:** Add progress indicators and phase notifications
 
-#### `/jpspec:validate` - QA & Security
+#### `/specflow:validate` - QA & Security
 - **Strengths:** Comprehensive (QA, Security, Docs, Release)
 - **Weakness:** Human gate for release mentioned but mechanism unclear
 - **Suggestion:** Document the human approval workflow explicitly
 
-#### `/jpspec:operate` - SRE Operations
+#### `/specflow:operate` - SRE Operations
 - **Strengths:** DORA metrics, SLSA compliance, comprehensive K8s/CI-CD coverage
 - **Weakness:** Outputs infrastructure code but no execution guidance
 - **Suggestion:** Add deployment playbook or integration with actual CI/CD tools
@@ -266,7 +266,7 @@ specify workflow
 # Options:
 # 1. MVP Path (fastest): specify → plan → tasks → implement
 # 2. Business-First: research → specify → plan → validate → implement
-# 3. Enterprise: Full jpspec workflow with all gates
+# 3. Enterprise: Full specflow workflow with all gates
 ```
 
 ### 4.3 Error Messages and Recovery
@@ -324,7 +324,7 @@ specify workflow
 
 | Feature | Original Spec-Kit | JP Spec Kit Extension |
 |---------|-------------------|----------------------|
-| Commands | 5 core | 14 total (8 speckit + 6 jpspec) |
+| Commands | 5 core | 14 total (8 speckit + 6 specflow) |
 | Task management | tasks.md file | Backlog.md integration |
 | Multi-agent | Single agent | 15 specialized agents |
 | Language expertise | Generic | 12 language modules |
@@ -368,15 +368,15 @@ specify workflow
 3. Integrate backlog.md installation into `specify init`
 
 #### 6.1.3 Command Decision Guide
-**Issue:** Users don't know when to use jpspec vs speckit.
+**Issue:** Users don't know when to use specflow vs speckit.
 
 **Action:** Create decision flowchart in README:
 ```
-Need market/business validation? → /jpspec:research
-Creating new feature requirements? → /jpspec:specify (enterprise) or /speckit:specify (quick)
-Planning technical architecture? → /jpspec:plan (multi-agent) or /speckit:plan (simple)
+Need market/business validation? → /specflow:research
+Creating new feature requirements? → /specflow:specify (enterprise) or /speckit:specify (quick)
+Planning technical architecture? → /specflow:plan (multi-agent) or /speckit:plan (simple)
 Generating task backlog? → /speckit:tasks
-Implementing features? → /jpspec:implement (with review) or /speckit:implement (direct)
+Implementing features? → /specflow:implement (with review) or /speckit:implement (direct)
 ```
 
 ### 6.2 Medium Priority (Next Iteration)
@@ -395,8 +395,8 @@ Implementing features? → /jpspec:implement (with review) or /speckit:implement
 **Action:**
 1. Add `--mode simple|standard|enterprise` to init
 2. Simple: speckit commands only
-3. Standard: speckit + basic jpspec
-4. Enterprise: Full jpspec workflow with all gates
+3. Standard: speckit + basic specflow
+4. Enterprise: Full specflow workflow with all gates
 
 #### 6.2.3 Interactive Workflow Assistant
 **Issue:** Users must know correct command sequence.
@@ -578,7 +578,7 @@ docs/
 │   └── choosing-a-workflow.md
 ├── commands/
 │   ├── speckit-commands.md
-│   ├── jpspec-commands.md
+│   ├── specflow-commands.md
 │   └── command-reference.md (table)
 ├── concepts/
 │   ├── layered-architecture.md
@@ -652,12 +652,12 @@ JP Spec Kit represents a thoughtful integration of Spec-Driven Development with 
 
 | Namespace | Command | Location |
 |-----------|---------|----------|
-| jpspec | specify | `.claude/commands/jpspec/specify.md` |
-| jpspec | plan | `.claude/commands/jpspec/plan.md` |
-| jpspec | research | `.claude/commands/jpspec/research.md` |
-| jpspec | implement | `.claude/commands/jpspec/implement.md` |
-| jpspec | validate | `.claude/commands/jpspec/validate.md` |
-| jpspec | operate | `.claude/commands/jpspec/operate.md` |
+| specflow | specify | `.claude/commands/specflow/specify.md` |
+| specflow | plan | `.claude/commands/specflow/plan.md` |
+| specflow | research | `.claude/commands/specflow/research.md` |
+| specflow | implement | `.claude/commands/specflow/implement.md` |
+| specflow | validate | `.claude/commands/specflow/validate.md` |
+| specflow | operate | `.claude/commands/specflow/operate.md` |
 | speckit | specify | `templates/commands/specify.md` |
 | speckit | plan | `templates/commands/plan.md` |
 | speckit | tasks | `templates/commands/tasks.md` |

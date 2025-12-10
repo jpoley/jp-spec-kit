@@ -1,0 +1,1 @@
+../../templates/commands/speckit/init.md

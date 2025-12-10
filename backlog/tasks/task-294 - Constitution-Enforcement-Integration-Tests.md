@@ -14,14 +14,14 @@ priority: high
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Verify /jpspec commands enforce constitution checks correctly by tier
+Verify /specflow commands enforce constitution checks correctly by tier
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Test light tier: /jpspec:specify warns but proceeds
-- [ ] #2 Test medium tier: /jpspec:specify prompts for confirmation
-- [ ] #3 Test heavy tier: /jpspec:specify blocks execution
+- [ ] #1 Test light tier: /specflow:specify warns but proceeds
+- [ ] #2 Test medium tier: /specflow:specify prompts for confirmation
+- [ ] #3 Test heavy tier: /specflow:specify blocks execution
 - [ ] #4 Test --skip-validation flag bypasses checks
 - [ ] #5 Test unvalidated constitution triggers validation warning
 <!-- AC:END -->

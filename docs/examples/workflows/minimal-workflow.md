@@ -31,9 +31,9 @@ This configuration provides the fastest possible SDD workflow with only essentia
 
 ```
 To Do
-  ↓ /jpspec:specify
+  ↓ /specflow:specify
 Specified
-  ↓ /jpspec:implement
+  ↓ /specflow:implement
 In Implementation
   ↓ manual
 Done
@@ -43,7 +43,7 @@ Done
 
 1. **Copy the configuration**:
    ```bash
-   cp docs/examples/workflows/minimal-workflow.yml jpspec_workflow.yml
+   cp docs/examples/workflows/minimal-workflow.yml specflow_workflow.yml
    ```
 
 2. **Validate**:
@@ -58,10 +58,10 @@ Done
 
 4. **Run the workflow**:
    ```bash
-   /jpspec:specify
+   /specflow:specify
    # Creates PRD at docs/prd/{feature}.md
 
-   /jpspec:implement
+   /specflow:implement
    # Engineers implement, reviewers review
 
    backlog task edit task-123 -s Done
@@ -92,7 +92,7 @@ states:
 
 workflows:
   validate:
-    command: "/jpspec:validate"
+    command: "/specflow:validate"
     agents:
       - name: "quality-guardian"
         # ...
@@ -124,7 +124,7 @@ states:
 
 workflows:
   plan:
-    command: "/jpspec:plan"
+    command: "/specflow:plan"
     agents:
       - name: "software-architect"
         # ...
@@ -172,7 +172,7 @@ As projects mature, gradually add phases:
 1. **Still write tests** - Even without formal validation phase
 2. **Document architecture decisions** - Even without ADRs
 3. **Run security scans** - Use pre-commit hooks
-4. **Automate deployment** - Use CI/CD even without /jpspec:operate
+4. **Automate deployment** - Use CI/CD even without /specflow:operate
 5. **Review regularly** - Code review is your quality gate
 
 ## When to Upgrade

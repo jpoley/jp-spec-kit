@@ -37,9 +37,9 @@ vscode_roles:
         - "specify"
         - "research"
       agents:
-        - "jpspec-assess"
-        - "jpspec-specify"
-        - "jpspec-research"
+        - "specflow-assess"
+        - "specflow-specify"
+        - "specflow-research"
         - "speckit-analyze"
         - "speckit-clarify"
 
@@ -51,9 +51,9 @@ vscode_roles:
         - "implement"
         - "operate"
       agents:
-        - "jpspec-plan"
-        - "jpspec-implement"
-        - "jpspec-operate"
+        - "specflow-plan"
+        - "specflow-implement"
+        - "specflow-operate"
         - "speckit-implement"
         - "speckit-tasks"
 
@@ -68,12 +68,12 @@ vscode_roles:
         - "security_web"
         - "validate"
       agents:
-        - "jpspec-security_workflow"
-        - "jpspec-security_triage"
-        - "jpspec-security_fix"
-        - "jpspec-security_report"
-        - "jpspec-security_web"
-        - "jpspec-validate"  # Only security aspects
+        - "specflow-security_workflow"
+        - "specflow-security_triage"
+        - "specflow-security_fix"
+        - "specflow-security_report"
+        - "specflow-security_web"
+        - "specflow-validate"  # Only security aspects
         - "speckit-checklist"
 
     qa:
@@ -82,7 +82,7 @@ vscode_roles:
       workflows:
         - "validate"
       agents:
-        - "jpspec-validate"
+        - "specflow-validate"
         - "speckit-checklist"
         - "speckit-tasks"
 
@@ -113,7 +113,7 @@ metadata:
 ```bash
 #!/usr/bin/env bash
 # generate_vscode_settings.sh
-# Called by /jpspec:init and /jpspec:reset
+# Called by /specflow:init and /specflow:reset
 
 generate_vscode_settings() {
     local primary_role="$1"
@@ -137,7 +137,7 @@ settings_file = Path("$settings_file")
 settings = json.loads(settings_file.read_text())
 
 # Add Specflow role configuration
-settings["jpspec.vscode.role"] = {
+settings["specflow.vscode.role"] = {
     "primary": "$primary_role",
     "secondary": "$secondary_roles".split(",") if "$secondary_roles" else [],
     "visibility": "de-prioritize",  # "hide" | "de-prioritize" | "show-all"
@@ -146,15 +146,15 @@ settings["jpspec.vscode.role"] = {
 
 # Add VS Code Copilot agent pinning based on role
 role_agents = {
-    "pm": ["jpspec-assess", "jpspec-specify", "jpspec-research"],
-    "dev": ["jpspec-plan", "jpspec-implement", "jpspec-operate"],
+    "pm": ["specflow-assess", "specflow-specify", "specflow-research"],
+    "dev": ["specflow-plan", "specflow-implement", "specflow-operate"],
     "sec": [
-        "jpspec-security_workflow",
-        "jpspec-security_triage",
-        "jpspec-security_fix",
-        "jpspec-validate"
+        "specflow-security_workflow",
+        "specflow-security_triage",
+        "specflow-security_fix",
+        "specflow-validate"
     ],
-    "qa": ["jpspec-validate", "speckit-checklist", "speckit-tasks"],
+    "qa": ["specflow-validate", "speckit-checklist", "speckit-tasks"],
     "all": []  # No pinning for all role
 }
 
@@ -178,7 +178,7 @@ generate_vscode_settings "dev" "qa,sec" "user"
 ```json
 {
   "chat.promptFiles": true,
-  "jpspec.vscode.role": {
+  "specflow.vscode.role": {
     "primary": "dev",
     "secondary": [
       "qa",
@@ -188,9 +188,9 @@ generate_vscode_settings "dev" "qa,sec" "user"
     "mode": "user"
   },
   "chat.agent.pinnedAgents": [
-    "jpspec-plan",
-    "jpspec-implement",
-    "jpspec-operate"
+    "specflow-plan",
+    "specflow-implement",
+    "specflow-operate"
   ]
 }
 ```
@@ -199,7 +199,7 @@ generate_vscode_settings "dev" "qa,sec" "user"
 
 ## 3. Role Selection Prompt (init.md)
 
-**File**: `templates/commands/jpspec/init.md`
+**File**: `templates/commands/specflow/init.md`
 
 ```markdown
 ### Step 6.5: VS Code Role Configuration (Optional)
@@ -225,23 +225,23 @@ if [[ "$VSCODE_DETECTED" == true ]] || [[ "$CONFIGURE_VSCODE" == true ]]; then
   echo ""
   echo "  1. Product Manager (PM)"
   echo "     Focus: Requirements, research, business validation"
-  echo "     Commands: /jpspec:assess, /jpspec:specify, /jpspec:research"
+  echo "     Commands: /specflow:assess, /specflow:specify, /specflow:research"
   echo ""
   echo "  2. Developer (Dev)"
   echo "     Focus: Architecture, implementation, deployment"
-  echo "     Commands: /jpspec:plan, /jpspec:implement, /jpspec:operate"
+  echo "     Commands: /specflow:plan, /specflow:implement, /specflow:operate"
   echo ""
   echo "  3. Security Engineer (Sec)"
   echo "     Focus: Security scanning, triage, vulnerability fixes"
-  echo "     Commands: /jpspec:security_*, /jpspec:validate (security only)"
+  echo "     Commands: /specflow:security_*, /specflow:validate (security only)"
   echo ""
   echo "  4. QA Engineer (QA)"
   echo "     Focus: Testing, documentation, quality validation"
-  echo "     Commands: /jpspec:validate"
+  echo "     Commands: /specflow:validate"
   echo ""
   echo "  5. Full Workflow (All) [default]"
   echo "     Focus: Complete SDD workflow (all phases)"
-  echo "     Commands: All /jpspec and /speckit commands"
+  echo "     Commands: All /specflow and /speckit commands"
   echo ""
   echo "  6. Skip - Don't configure role-based UI"
   echo "     (All agents remain equally visible)"
@@ -421,7 +421,7 @@ PYTHON
 }
 
 # Example usage
-get_role_metadata "jpspec" "plan"
+get_role_metadata "specflow" "plan"
 # Output:
 # roles:
 #   - "dev"
@@ -503,11 +503,11 @@ CONFIG_SOURCE="specflow_workflow.yml"  # Team mode by default
 
 ## 5. Agent Frontmatter Example (Generated)
 
-**File**: `.github/agents/jpspec-plan.agent.md`
+**File**: `.github/agents/specflow-plan.agent.md`
 
 ```yaml
 ---
-name: "jpspec-plan"
+name: "specflow-plan"
 description: "Execute planning workflow using architect and platform engineer"
 target: "chat"
 tools:
@@ -526,7 +526,7 @@ roles:
 priority: 5
 handoffs:
   - label: "✓ Planning Complete → Begin Implementation"
-    agent: "jpspec-implement"
+    agent: "specflow-implement"
     prompt: "Planning is complete. Begin implementing the feature according to the technical design."
     send: false
 ---
@@ -696,7 +696,7 @@ def track_role_event(event: RoleEvent, metadata: dict):
     }
 
     # Write to local telemetry file
-    telemetry_file = Path(".jpspec/telemetry.jsonl")
+    telemetry_file = Path(".specflow/telemetry.jsonl")
     telemetry_file.parent.mkdir(exist_ok=True)
 
     with telemetry_file.open("a") as f:
@@ -713,12 +713,12 @@ track_role_event(RoleEvent.ROLE_SELECTED, {
 })
 ```
 
-**Telemetry Output** (`.jpspec/telemetry.jsonl`):
+**Telemetry Output** (`.specflow/telemetry.jsonl`):
 
 ```jsonl
 {"timestamp": "2025-12-09T15:30:00Z", "event": "role.selected", "metadata": {"role_hash": "a1b2c3d4", "agent": null, "workflow": null, "mode": "team"}}
-{"timestamp": "2025-12-09T15:35:00Z", "event": "agent.invoked", "metadata": {"role_hash": "a1b2c3d4", "agent": "jpspec-plan", "workflow": "plan", "mode": null}}
-{"timestamp": "2025-12-09T15:40:00Z", "event": "handoff.clicked", "metadata": {"role_hash": "a1b2c3d4", "agent": "jpspec-implement", "workflow": "implement", "mode": null}}
+{"timestamp": "2025-12-09T15:35:00Z", "event": "agent.invoked", "metadata": {"role_hash": "a1b2c3d4", "agent": "specflow-plan", "workflow": "plan", "mode": null}}
+{"timestamp": "2025-12-09T15:40:00Z", "event": "handoff.clicked", "metadata": {"role_hash": "a1b2c3d4", "agent": "specflow-implement", "workflow": "implement", "mode": null}}
 ```
 
 ---
@@ -734,7 +734,7 @@ from collections import Counter, defaultdict
 def analyze_telemetry():
     """Analyze role usage patterns from telemetry data."""
 
-    telemetry_file = Path(".jpspec/telemetry.jsonl")
+    telemetry_file = Path(".specflow/telemetry.jsonl")
     if not telemetry_file.exists():
         print("No telemetry data found")
         return
@@ -788,11 +788,11 @@ Role Selection Frequency:
   i9j0k1l2: 3 times
 
 Most-Used Agents:
-  jpspec-implement: 42 invocations
-  jpspec-plan: 38 invocations
-  jpspec-validate: 25 invocations
-  jpspec-specify: 18 invocations
-  jpspec-assess: 15 invocations
+  specflow-implement: 42 invocations
+  specflow-plan: 38 invocations
+  specflow-validate: 25 invocations
+  specflow-specify: 18 invocations
+  specflow-assess: 15 invocations
 
 Handoff Click-Through Rate: 87.3%
 ```

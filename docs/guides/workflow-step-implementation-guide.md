@@ -9,7 +9,7 @@
 
 ## Overview
 
-This guide provides implementation details for adding workflow step tracking to backlog.md tasks, enabling integration with the `/jpspec` workflow state machine.
+This guide provides implementation details for adding workflow step tracking to backlog.md tasks, enabling integration with the `/specflow` workflow state machine.
 
 ### Quick Summary
 
@@ -181,7 +181,7 @@ from .exceptions import WorkflowStateError
 
 
 class WorkflowStateSynchronizer:
-    """Synchronizes backlog.md task status with jpspec workflow steps."""
+    """Synchronizes backlog.md task status with specflow workflow steps."""
 
     def __init__(self, backlog_dir: Path | None = None):
         """Initialize synchronizer.
@@ -201,7 +201,7 @@ class WorkflowStateSynchronizer:
         feature: str | None = None,
         auto_status: bool = True,
     ) -> Task:
-        """Update task workflow step after /jpspec command completes.
+        """Update task workflow step after /specflow command completes.
 
         Args:
             task_id: Backlog task ID (e.g., "task-042")
@@ -359,16 +359,16 @@ class WorkflowStateSynchronizer:
         return datetime.now().isoformat()
 ```
 
-#### 2.2 Integration with /jpspec Commands
+#### 2.2 Integration with /specflow Commands
 
-**Pattern for all /jpspec commands:**
+**Pattern for all /specflow commands:**
 
 ```python
-# Example: .claude/commands/jpspec.implement.md
+# Example: .claude/commands/specflow.implement.md
 
 from specify_cli.workflow.sync import WorkflowStateSynchronizer
 
-# After /jpspec:implement completes successfully
+# After /specflow:implement completes successfully
 sync = WorkflowStateSynchronizer()
 
 # Update all tasks related to this feature
@@ -384,27 +384,27 @@ for task_id in implementation_tasks:
 **Specific integrations:**
 
 ```python
-# /jpspec:assess
+# /specflow:assess
 sync.update_task_workflow_step(task_id, "assess", feature)
 # Sets workflow_step = "Assessed"
 
-# /jpspec:specify
+# /specflow:specify
 sync.update_task_workflow_step(task_id, "specify", feature)
 # Sets workflow_step = "Specified"
 
-# /jpspec:plan
+# /specflow:plan
 sync.update_task_workflow_step(task_id, "plan", feature)
 # Sets workflow_step = "Planned"
 
-# /jpspec:implement
+# /specflow:implement
 sync.update_task_workflow_step(task_id, "implement", feature)
 # Sets workflow_step = "In Implementation"
 
-# /jpspec:validate
+# /specflow:validate
 sync.update_task_workflow_step(task_id, "validate", feature)
 # Sets workflow_step = "Validated"
 
-# /jpspec:operate
+# /specflow:operate
 sync.update_task_workflow_step(task_id, "operate", feature)
 # Sets workflow_step = "Deployed"
 ```
@@ -481,7 +481,7 @@ def validate_task_ready_for_workflow(
 def _validate_artifacts(self, workflow: str, feature: str) -> list[str]:
     """Validate required artifacts exist for workflow.
 
-    Uses jpspec_workflow.yml transitions to find required artifacts.
+    Uses specflow_workflow.yml transitions to find required artifacts.
     """
     errors = []
     config = WorkflowConfig.load()
@@ -652,12 +652,12 @@ def test_invalid_workflow_transition():
 ### Integration Tests
 
 ```python
-# tests/test_jpspec_workflow_integration.py
+# tests/test_specflow_workflow_integration.py
 
-def test_jpspec_implement_updates_workflow_step(tmp_path):
-    """Test /jpspec:implement updates task workflow_step."""
+def test_specflow_implement_updates_workflow_step(tmp_path):
+    """Test /specflow:implement updates task workflow_step."""
     # Setup: Create task with workflow_step = "Planned"
-    # Execute: Run /jpspec:implement
+    # Execute: Run /specflow:implement
     # Verify: workflow_step updated to "In Implementation"
     pass
 
@@ -665,7 +665,7 @@ def test_jpspec_implement_updates_workflow_step(tmp_path):
 def test_workflow_validation_blocks_invalid_transitions(tmp_path):
     """Test workflow validation prevents invalid state transitions."""
     # Setup: Create task with workflow_step = "To Do"
-    # Execute: Try to run /jpspec:implement
+    # Execute: Try to run /specflow:implement
     # Verify: Validation error raised
     pass
 ```
@@ -686,7 +686,7 @@ def test_workflow_validation_blocks_invalid_transitions(tmp_path):
 
 ### Simple Kanban Boards
 
-**Use Case:** Projects not using `/jpspec` workflows.
+**Use Case:** Projects not using `/specflow` workflows.
 
 **Support:**
 - Workflow fields remain None
@@ -795,7 +795,7 @@ backlog task task-042 --plain
 # Shows workflow_step: To Do
 
 # Run planning workflow first
-/jpspec:plan
+/specflow:plan
 ```
 
 ### Issue: Workflow Step Not Displaying
@@ -821,6 +821,6 @@ Check TUI version and rendering settings. Ensure using v0.0.150+.
 ## References
 
 - [ADR-002: Workflow Step Tracking Architecture](../adr/ADR-002-workflow-step-tracking-architecture.md)
-- [jpspec_workflow.yml](../../jpspec_workflow.yml)
+- [specflow_workflow.yml](../../specflow_workflow.yml)
 - [Backlog User Guide](./backlog-user-guide.md)
 - [Workflow State Mapping](./workflow-state-mapping.md) (to be created in Phase 4)

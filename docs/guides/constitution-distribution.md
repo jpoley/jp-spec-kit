@@ -8,7 +8,7 @@
 4. [LLM Customization](#llm-customization)
 5. [NEEDS_VALIDATION Markers](#needs_validation-markers)
 6. [Validation Workflow](#validation-workflow)
-7. [Enforcement in /jpspec Commands](#enforcement-in-jpspec-commands)
+7. [Enforcement in /specflow Commands](#enforcement-in-specflow-commands)
 8. [CLI Command Reference](#cli-command-reference)
 9. [Maintenance](#maintenance)
 10. [Troubleshooting](#troubleshooting)
@@ -56,7 +56,7 @@ Choosing the right tier ensures your constitution **helps** rather than **hinder
    └─> Update content and remove markers
 
 4. Work with Confidence
-   └─> /jpspec commands enforce constitution rules
+   └─> /specflow commands enforce constitution rules
    └─> Constitution guides team practices
 ```
 
@@ -98,7 +98,7 @@ Task Quality:
 ```
 
 **Enforcement:**
-- **Warnings only** - /jpspec commands warn but never block
+- **Warnings only** - /specflow commands warn but never block
 - You can proceed even with unvalidated constitution
 - `--skip-validation` flag available but not required
 
@@ -144,7 +144,7 @@ Task Quality:
 ```
 
 **Enforcement:**
-- **Warnings + confirmation prompts** - /jpspec commands warn and ask for confirmation
+- **Warnings + confirmation prompts** - /specflow commands warn and ask for confirmation
 - Can proceed after acknowledging warnings
 - Constitution validation recommended before starting work
 
@@ -200,7 +200,7 @@ Security:
 ```
 
 **Enforcement:**
-- **Hard blocks** - /jpspec commands refuse to proceed with unvalidated constitution
+- **Hard blocks** - /specflow commands refuse to proceed with unvalidated constitution
 - Constitution validation mandatory before implementation
 - `--skip-validation` requires special override (not recommended)
 
@@ -705,11 +705,11 @@ echo "✅ Constitution validated"
 
 ---
 
-## Enforcement in /jpspec Commands
+## Enforcement in /specflow Commands
 
 ### How Enforcement Works
 
-Before executing `/jpspec` commands, Specflow checks:
+Before executing `/specflow` commands, Specflow checks:
 
 1. **Constitution exists** - Is `memory/constitution.md` present?
 2. **Constitution validated** - Are there NEEDS_VALIDATION markers?
@@ -720,12 +720,12 @@ Before executing `/jpspec` commands, Specflow checks:
 #### Light Tier: Warnings Only
 
 ```bash
-$ /jpspec:specify
+$ /specflow:specify
 
 ⚠ Warning: Constitution has 2 unvalidated sections.
   Run 'specify constitution validate' to review.
 
-Proceeding with /jpspec:specify...
+Proceeding with /specflow:specify...
 ```
 
 **Behavior:**
@@ -741,7 +741,7 @@ Proceeding with /jpspec:specify...
 #### Medium Tier: Warnings + Confirmation
 
 ```bash
-$ /jpspec:specify
+$ /specflow:specify
 
 ⚠ Warning: Constitution has 2 unvalidated sections.
   Run 'specify constitution validate' to review.
@@ -762,7 +762,7 @@ Do you want to proceed anyway? [y/N]:
 #### Heavy Tier: Hard Block
 
 ```bash
-$ /jpspec:specify
+$ /specflow:specify
 
 ❌ Error: Constitution validation required.
 
@@ -791,11 +791,11 @@ For emergencies only:
 
 ```bash
 # Use --skip-validation flag
-/jpspec:specify --skip-validation
+/specflow:specify --skip-validation
 
 ⚠ WARNING: Skipping constitution validation. This is NOT recommended for production.
 
-Proceeding with /jpspec:specify...
+Proceeding with /specflow:specify...
 ```
 
 **When to use:**
@@ -807,17 +807,17 @@ Proceeding with /jpspec:specify...
 
 ### Which Commands Enforce?
 
-All `/jpspec` workflow commands:
+All `/specflow` workflow commands:
 
 | Command | Checks Constitution | Tier Enforcement |
 |---------|---------------------|------------------|
-| `/jpspec:assess` | Yes | Light: warn, Medium: confirm, Heavy: block |
-| `/jpspec:specify` | Yes | Light: warn, Medium: confirm, Heavy: block |
-| `/jpspec:research` | Yes | Light: warn, Medium: confirm, Heavy: block |
-| `/jpspec:plan` | Yes | Light: warn, Medium: confirm, Heavy: block |
-| `/jpspec:implement` | Yes | Light: warn, Medium: confirm, Heavy: block |
-| `/jpspec:validate` | Yes | Light: warn, Medium: confirm, Heavy: block |
-| `/jpspec:operate` | Yes | Light: warn, Medium: confirm, Heavy: block |
+| `/specflow:assess` | Yes | Light: warn, Medium: confirm, Heavy: block |
+| `/specflow:specify` | Yes | Light: warn, Medium: confirm, Heavy: block |
+| `/specflow:research` | Yes | Light: warn, Medium: confirm, Heavy: block |
+| `/specflow:plan` | Yes | Light: warn, Medium: confirm, Heavy: block |
+| `/specflow:implement` | Yes | Light: warn, Medium: confirm, Heavy: block |
+| `/specflow:validate` | Yes | Light: warn, Medium: confirm, Heavy: block |
+| `/specflow:operate` | Yes | Light: warn, Medium: confirm, Heavy: block |
 
 **Note:** Utility commands (`backlog`, `specify init`, etc.) do not enforce constitution.
 
@@ -1105,9 +1105,9 @@ Leave marker in place, document why in a note:
 Pending legal review of applicable compliance frameworks.
 ```
 
-### /jpspec Command Blocked by Unvalidated Constitution
+### /specflow Command Blocked by Unvalidated Constitution
 
-**Problem:** Heavy tier blocks /jpspec commands until validation complete.
+**Problem:** Heavy tier blocks /specflow commands until validation complete.
 
 **Error:**
 ```
@@ -1127,7 +1127,7 @@ specify constitution validate  # Verify all clear
 **Solution Option 2** (Emergency only):
 Use skip flag:
 ```bash
-/jpspec:specify --skip-validation
+/specflow:specify --skip-validation
 ```
 
 **Note:** Document why you skipped validation in team chat/issue tracker.
@@ -1215,7 +1215,7 @@ Signed-off-by: Your Name <you@example.com>"
 ### Don't:
 - ❌ Choose Heavy tier "just to be safe" (creates unnecessary friction)
 - ❌ Remove NEEDS_VALIDATION markers without reviewing content
-- ❌ Ignore warnings from /jpspec commands
+- ❌ Ignore warnings from /specflow commands
 - ❌ Skip validation because "it's just a template"
 - ❌ Make constitution changes without team consensus (Medium/Heavy tiers)
 

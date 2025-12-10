@@ -46,12 +46,12 @@ def mock_github_releases(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
         claude_dir = project_path / ".claude"
         claude_dir.mkdir(exist_ok=True)
         (claude_dir / "commands").mkdir(exist_ok=True)
-        (claude_dir / "commands" / "jpspec").mkdir(exist_ok=True)
+        (claude_dir / "commands" / "specflow").mkdir(exist_ok=True)
         (claude_dir / "commands" / "speckit").mkdir(exist_ok=True)
         (claude_dir / "skills").mkdir(exist_ok=True)
 
         # Create minimal placeholder files
-        (claude_dir / "commands" / "jpspec" / "assess.md").write_text("# assess")
+        (claude_dir / "commands" / "specflow" / "assess.md").write_text("# assess")
         (claude_dir / "commands" / "speckit" / "plan.md").write_text("# plan")
         (claude_dir / "skills" / "architect.md").write_text("# architect")
 
@@ -334,7 +334,7 @@ class TestInitInteractivePrompts:
 
         assert result.exit_code == 0, f"Command failed: {result.output}"
         # Should generate workflow file with defaults
-        workflow_file = project_dir / "jpspec_workflow.yml"
+        workflow_file = project_dir / "specflow_workflow.yml"
         assert workflow_file.exists()
         content = workflow_file.read_text()
         # All should be NONE (default)
@@ -362,7 +362,7 @@ class TestInitInteractivePrompts:
         )
 
         assert result.exit_code == 0, f"Command failed: {result.output}"
-        workflow_file = project_dir / "jpspec_workflow.yml"
+        workflow_file = project_dir / "specflow_workflow.yml"
         assert workflow_file.exists()
         content = workflow_file.read_text()
         # All should be NONE

@@ -1,4 +1,4 @@
-# Task-6 Testing Guide: /jpspec:tasks Command Update
+# Task-6 Testing Guide: /specflow:tasks Command Update
 
 ## Quick Start Testing
 
@@ -73,7 +73,7 @@ EOF
 cd /tmp/jp-spec-test-feature
 
 # Run the slash command
-/jpspec:tasks
+/specflow:tasks
 ```
 
 **Expected AI Workflow:**
@@ -233,7 +233,7 @@ Use an actual feature specification from your project:
 cd ~/projects/my-app/.specify/features/my-feature
 
 # Run the slash command
-/jpspec:tasks
+/specflow:tasks
 ```
 
 ### Scenario 2: Complex Dependencies
@@ -261,7 +261,7 @@ Dependencies: User Story 3
 EOF
 
 # Generate tasks
-/jpspec:tasks
+/specflow:tasks
 
 # Verify dependencies in task files
 grep -r "dependencies:" backlog/tasks/
@@ -282,7 +282,7 @@ Independent feature B (no dependency on US1)
 EOF
 
 # Generate and check for [P] markers
-/jpspec:tasks
+/specflow:tasks
 
 # Check tasks.md for parallelizable markers
 grep "\[P\]" tasks.md

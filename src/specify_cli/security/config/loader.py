@@ -34,13 +34,13 @@ class ConfigLoader:
 
     Example:
         >>> loader = ConfigLoader()
-        >>> config = loader.load(Path(".jpspec/security-config.yml"))
+        >>> config = loader.load(Path(".specflow/security-config.yml"))
         >>> print(config.fail_on)
     """
 
     DEFAULT_CONFIG_PATHS = [
-        ".jpspec/security-config.yml",
-        ".jpspec/security-config.yaml",
+        ".specflow/security-config.yml",
+        ".specflow/security-config.yaml",
         ".security/config.yml",
         ".security/config.yaml",
         "security-config.yml",

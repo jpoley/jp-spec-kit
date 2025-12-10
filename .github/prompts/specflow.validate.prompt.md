@@ -1,0 +1,1 @@
+../../templates/commands/specflow/validate.md

@@ -56,18 +56,18 @@ class TestPreCommitConfig:
         assert bandit_hook is not None
         assert "bandit" in bandit_hook["entry"]
 
-    def test_to_yaml_includes_jpspec(self):
-        """Test YAML includes jpspec security hook."""
+    def test_to_yaml_includes_specflow(self):
+        """Test YAML includes specflow security hook."""
         config = PreCommitConfig()
         yaml_str = config.to_yaml()
         data = yaml.safe_load(yaml_str)
 
         hooks = data["repos"][0]["hooks"]
-        jpspec_hook = next((h for h in hooks if h["id"] == "jpspec-security"), None)
+        specflow_hook = next((h for h in hooks if h["id"] == "specflow-security"), None)
 
-        assert jpspec_hook is not None
-        assert "specify security scan" in jpspec_hook["entry"]
-        assert "--fail-on high" in jpspec_hook["entry"]
+        assert specflow_hook is not None
+        assert "specify security scan" in specflow_hook["entry"]
+        assert "--fail-on high" in specflow_hook["entry"]
 
     def test_fail_on_severity_in_config(self):
         """Test fail_on severity is included."""
@@ -120,8 +120,8 @@ class TestGeneratePrecommitConfig:
         config = generate_precommit_config(scanners=["semgrep"])
 
         assert "semgrep" in config
-        # Should still have jpspec-security
-        assert "jpspec-security" in config
+        # Should still have specflow-security
+        assert "specflow-security" in config
 
     def test_custom_fail_on(self):
         """Test custom fail_on threshold."""
