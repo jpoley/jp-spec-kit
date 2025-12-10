@@ -1,12 +1,14 @@
 # Unified Release Workflow
 #
 # This workflow handles the ENTIRE release process in a single execution:
-# 1. Creates git tag from merged release PR
+# 1. Creates git tag on the merge commit (github.sha)
 # 2. Builds packages
 # 3. Creates GitHub Release with all artifacts
 #
-# This design avoids the GITHUB_TOKEN limitation where workflow-pushed tags
-# don't trigger other workflows.
+# IMPORTANT: We use github.sha (the merge commit) as the release commit.
+# This is ALWAYS valid because it's the commit the workflow is running on.
+# We do NOT use .release-commit file because local commit hashes can become
+# invalid after rebases/force-pushes.
 #
 # Triggers:
 # - Automatic: When a release/v* PR is merged to main
@@ -53,6 +55,9 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           PR_BRANCH: ${{ github.event.pull_request.head.ref }}
           INPUT_VERSION: ${{ inputs.version }}
+          # Use github.sha directly - this is ALWAYS valid because it's the
+          # commit we're currently running on. No .release-commit file needed.
+          GITHUB_SHA: ${{ github.sha }}
         run: |
           if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
             # Manual release
@@ -61,9 +66,7 @@ jobs:
               exit 1
             fi
             VERSION="$INPUT_VERSION"
-            # For manual releases, we tag HEAD
-            RELEASE_COMMIT=$(git rev-parse HEAD)
-            echo "Manual release mode: tagging HEAD"
+            echo "Manual release mode"
           else
             # PR-based release
             # Validate branch name format strictly (release/vX.Y.Z only)
@@ -74,42 +77,20 @@ jobs:
             fi
             # Extract version from branch name (release/v0.2.344 -> v0.2.344)
             VERSION="${PR_BRANCH#release/}"
-
-            # Read the pinned release commit from .release-commit file
-            if [ ! -f ".release-commit" ]; then
-              echo "::warning::No .release-commit file found. Using HEAD for backward compatibility."
-              RELEASE_COMMIT=$(git rev-parse HEAD)
-            else
-              RELEASE_COMMIT=$(cat .release-commit | tr -d '[:space:]')
-            fi
-
-            # Validate the commit hash format (40 hex characters)
-            if ! [[ "$RELEASE_COMMIT" =~ ^[a-f0-9]{40}$ ]]; then
-              echo "::error::Invalid commit hash format in .release-commit: $RELEASE_COMMIT"
-              exit 1
-            fi
-
-            # Verify the commit exists
-            if ! git cat-file -e "$RELEASE_COMMIT^{commit}" 2>/dev/null; then
-              echo "::error::Commit $RELEASE_COMMIT does not exist in repository"
-              exit 1
-            fi
-
-            # Verify the commit is an ancestor of HEAD (i.e., it's part of history)
-            if ! git merge-base --is-ancestor "$RELEASE_COMMIT" HEAD; then
-              echo "::error::Commit $RELEASE_COMMIT is not an ancestor of HEAD"
-              echo "::error::This could indicate a race condition or incorrect commit hash"
-              exit 1
-            fi
+            echo "PR-based release from branch: $PR_BRANCH"
           fi
 
           VERSION_NUM="${VERSION#v}"
 
-          # Additional validation: ensure version components are valid
+          # Validate version format
           if ! [[ "$VERSION_NUM" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "::error::Invalid version format: $VERSION_NUM"
             exit 1
           fi
+
+          # Use github.sha as release commit - this is ALWAYS valid
+          # because it's the commit we're currently running on (the merge commit)
+          RELEASE_COMMIT="$GITHUB_SHA"
 
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "version_num=$VERSION_NUM" >> "$GITHUB_OUTPUT"
@@ -117,7 +98,7 @@ jobs:
 
           echo "Version: $VERSION"
           echo "Version number: $VERSION_NUM"
-          echo "Release commit: $RELEASE_COMMIT"
+          echo "Release commit: $RELEASE_COMMIT (github.sha)"
 
       - name: Verify version in source files
         env:

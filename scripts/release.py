@@ -21,9 +21,8 @@ This script:
 
 When the PR is merged:
 - GitHub Actions detects the merge of a release/* branch
-- Creates the git tag automatically
-- Triggers the release workflow (builds packages, creates GitHub Release)
-- Deploys documentation to GitHub Pages
+- Tags the merge commit (github.sha) - no .release-commit file needed
+- Builds packages and creates GitHub Release with all artifacts
 """
 
 import argparse
@@ -225,12 +224,6 @@ Workflow:
         "--create-pr", action="store_true", help="Create PR without confirmation"
     )
     parser.add_argument("--force", action="store_true", help="Skip safety checks")
-    parser.add_argument(
-        "--commit-hash",
-        type=str,
-        help="Pin release to specific commit (defaults to HEAD). "
-        "Use this to prevent race conditions between PR creation and merge.",
-    )
 
     args = parser.parse_args()
 
@@ -264,25 +257,6 @@ Workflow:
     if not args.dry_run and not check_gh_cli():
         sys.exit(1)
     print("  GitHub CLI authenticated")
-
-    # Determine release commit
-    if args.commit_hash:
-        release_commit = args.commit_hash
-        # Validate it's a valid commit
-        result = run(
-            ["git", "rev-parse", "--verify", release_commit],
-            capture=True,
-            check=False,
-        )
-        if result.returncode != 0:
-            print(f"\n Error: Invalid commit hash: {release_commit}")
-            sys.exit(1)
-        release_commit = result.stdout.strip()[:40]  # Full SHA
-        print(f"  Release pinned to commit: {release_commit[:8]}")
-    else:
-        result = run(["git", "rev-parse", "HEAD"], capture=True)
-        release_commit = result.stdout.strip()[:40]
-        print(f"  Release will use HEAD: {release_commit[:8]}")
 
     # Get current version
     print("\n Current state:")
@@ -328,10 +302,9 @@ Workflow:
         print(f"  1. Create branch: {release_branch}")
         print(f'  2. Update pyproject.toml: version = "{new_version}"')
         print(f'  3. Update __init__.py: __version__ = "{new_version}"')
-        print(f"  4. Write .release-commit: {release_commit}")
-        print(f'  5. Commit: "chore: release v{new_version}"')
-        print(f"  6. Push branch: {release_branch}")
-        print(f'  7. Create PR: "Release v{new_version}" to main')
+        print(f'  4. Commit: "chore: release v{new_version}"')
+        print(f"  5. Push branch: {release_branch}")
+        print(f'  6. Create PR: "Release v{new_version}" to main')
         print("\nNo changes made.")
         sys.exit(0)
 
@@ -354,11 +327,6 @@ Workflow:
     print("\n Updating version files:")
     update_version_files(new_version)
 
-    # Write .release-commit file (used by release-on-merge.yml to tag correct commit)
-    release_commit_file = Path(".release-commit")
-    release_commit_file.write_text(f"{release_commit}\n")
-    print(f"  .release-commit: {release_commit}")
-
     # Git operations
     print("\n Creating commit:")
     run(
@@ -367,7 +335,6 @@ Workflow:
             "add",
             "pyproject.toml",
             "src/specify_cli/__init__.py",
-            ".release-commit",
         ]
     )
     run(["git", "commit", "-m", f"chore: release v{new_version}"])
@@ -386,24 +353,14 @@ This PR releases version **{new_version}** of JP Spec Kit.
 ### Changes
 - Version bump: `{current_version}` → `{new_version}`
 
-### Release Commit
-**Pinned commit**: `{release_commit}`
-
-This release will tag commit `{release_commit[:8]}` to prevent race conditions.
-The `.release-commit` file in this branch contains the full SHA.
-
 ### What happens when this PR is merged
 1. GitHub Actions detects the merge of the `release/*` branch
-2. Reads `.release-commit` to get the pinned commit SHA
-3. Creates git tag `{tag_name}` **on the pinned commit** (not HEAD)
-4. Triggers the release workflow:
-   - Builds template packages for all supported AI assistants
-   - Creates GitHub Release with all artifacts
-   - Deploys documentation to GitHub Pages
+2. Tags the **merge commit** as `{tag_name}`
+3. Builds template packages for all supported AI assistants
+4. Creates GitHub Release with all artifacts
 
 ### Checklist
 - [ ] Version bump is correct
-- [ ] Pinned commit is correct (should contain latest changes)
 - [ ] CI checks pass
 - [ ] Ready to release
 
