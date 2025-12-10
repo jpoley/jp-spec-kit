@@ -1,18 +1,41 @@
-name: Create Release
+# Unified Release Workflow
+#
+# This workflow handles the ENTIRE release process in a single execution:
+# 1. Creates git tag from merged release PR
+# 2. Builds packages
+# 3. Creates GitHub Release with all artifacts
+#
+# This design avoids the GITHUB_TOKEN limitation where workflow-pushed tags
+# don't trigger other workflows.
+#
+# Triggers:
+# - Automatic: When a release/v* PR is merged to main
+# - Manual: workflow_dispatch for emergency releases
+#
+# Security: All GitHub context values are passed via env: blocks to prevent
+# script injection attacks. Branch names are validated against strict patterns.
+
+name: Release
 
 on:
-  push:
-    tags:
-      - 'v*'
+  pull_request:
+    types: [closed]
+    branches: [main]
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to release (e.g., v1.0.0). Only use if tag was not pushed.'
+        description: 'Version to release (e.g., v1.0.0). For manual releases when PR-based flow is not used.'
         required: false
         type: string
 
 jobs:
   release:
+    # For PR trigger: Only run if PR was merged AND it's from a release branch
+    # For workflow_dispatch: Always run
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.pull_request.merged == true &&
+       startsWith(github.event.pull_request.head.ref, 'release/v'))
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -25,41 +48,131 @@ jobs:
 
       - name: Determine version
         id: version
+        env:
+          # Pass values via env to prevent script injection
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BRANCH: ${{ github.event.pull_request.head.ref }}
+          INPUT_VERSION: ${{ inputs.version }}
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ inputs.version }}" ]; then
-            VERSION="${{ inputs.version }}"
-          elif [ "${{ github.event_name }}" = "push" ]; then
-            VERSION="${GITHUB_REF#refs/tags/}"
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            # Manual release
+            if [ -z "$INPUT_VERSION" ]; then
+              echo "::error::Version input is required for workflow_dispatch"
+              exit 1
+            fi
+            VERSION="$INPUT_VERSION"
+            # For manual releases, we tag HEAD
+            RELEASE_COMMIT=$(git rev-parse HEAD)
+            echo "Manual release mode: tagging HEAD"
           else
-            echo "::error::No version specified. Push a tag or provide version input."
+            # PR-based release
+            # Validate branch name format strictly (release/vX.Y.Z only)
+            if ! [[ "$PR_BRANCH" =~ ^release/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "::error::Invalid branch name format: $PR_BRANCH"
+              echo "::error::Expected format: release/vX.Y.Z (e.g., release/v0.2.344)"
+              exit 1
+            fi
+            # Extract version from branch name (release/v0.2.344 -> v0.2.344)
+            VERSION="${PR_BRANCH#release/}"
+
+            # Read the pinned release commit from .release-commit file
+            if [ ! -f ".release-commit" ]; then
+              echo "::warning::No .release-commit file found. Using HEAD for backward compatibility."
+              RELEASE_COMMIT=$(git rev-parse HEAD)
+            else
+              RELEASE_COMMIT=$(cat .release-commit | tr -d '[:space:]')
+            fi
+
+            # Validate the commit hash format (40 hex characters)
+            if ! [[ "$RELEASE_COMMIT" =~ ^[a-f0-9]{40}$ ]]; then
+              echo "::error::Invalid commit hash format in .release-commit: $RELEASE_COMMIT"
+              exit 1
+            fi
+
+            # Verify the commit exists
+            if ! git cat-file -e "$RELEASE_COMMIT^{commit}" 2>/dev/null; then
+              echo "::error::Commit $RELEASE_COMMIT does not exist in repository"
+              exit 1
+            fi
+
+            # Verify the commit is an ancestor of HEAD (i.e., it's part of history)
+            if ! git merge-base --is-ancestor "$RELEASE_COMMIT" HEAD; then
+              echo "::error::Commit $RELEASE_COMMIT is not an ancestor of HEAD"
+              echo "::error::This could indicate a race condition or incorrect commit hash"
+              exit 1
+            fi
+          fi
+
+          VERSION_NUM="${VERSION#v}"
+
+          # Additional validation: ensure version components are valid
+          if ! [[ "$VERSION_NUM" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Invalid version format: $VERSION_NUM"
             exit 1
           fi
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "version_num=${VERSION#v}" >> $GITHUB_OUTPUT
-          echo "📦 Releasing version: $VERSION"
 
-      - name: Verify version matches source files
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "version_num=$VERSION_NUM" >> "$GITHUB_OUTPUT"
+          echo "release_commit=$RELEASE_COMMIT" >> "$GITHUB_OUTPUT"
+
+          echo "Version: $VERSION"
+          echo "Version number: $VERSION_NUM"
+          echo "Release commit: $RELEASE_COMMIT"
+
+      - name: Verify version in source files
+        env:
+          TAG_VERSION: ${{ steps.version.outputs.version_num }}
         run: |
-          TAG_VERSION="${{ steps.version.outputs.version_num }}"
+          # Get version from pyproject.toml
           TOML_VERSION=$(grep -Po '(?<=^version = ")[^"]*' pyproject.toml || echo "")
+
+          # Get version from __init__.py
           INIT_VERSION=$(grep -Po '(?<=__version__ = ")[^"]*' src/specify_cli/__init__.py || echo "")
 
-          echo "Tag version: $TAG_VERSION"
+          echo "Expected version: $TAG_VERSION"
           echo "pyproject.toml: $TOML_VERSION"
           echo "__init__.py: $INIT_VERSION"
 
           if [ "$TAG_VERSION" != "$TOML_VERSION" ]; then
-            echo "::error::Version mismatch! Tag: $TAG_VERSION, pyproject.toml: $TOML_VERSION"
+            echo "::error::Version mismatch! Expected: $TAG_VERSION, pyproject.toml: $TOML_VERSION"
             echo "Run: ./scripts/release.py $TAG_VERSION"
             exit 1
           fi
 
           if [ -n "$INIT_VERSION" ] && [ "$TAG_VERSION" != "$INIT_VERSION" ]; then
-            echo "::error::Version mismatch! Tag: $TAG_VERSION, __init__.py: $INIT_VERSION"
+            echo "::error::Version mismatch! Expected: $TAG_VERSION, __init__.py: $INIT_VERSION"
             exit 1
           fi
 
-          echo "✅ Version files are in sync with tag"
+          echo "✅ Version files are in sync"
+
+      - name: Check if tag already exists
+        env:
+          TAG: ${{ steps.version.outputs.version }}
+        run: |
+          if git tag -l "$TAG" | grep -q .; then
+            echo "::error::Tag $TAG already exists!"
+            exit 1
+          fi
+          echo "✅ Tag $TAG does not exist, proceeding"
+
+      - name: Create and push tag
+        env:
+          TAG: ${{ steps.version.outputs.version }}
+          RELEASE_COMMIT: ${{ steps.version.outputs.release_commit }}
+        run: |
+          # Configure git
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Create annotated tag on the pinned commit
+          git tag -a "$TAG" "$RELEASE_COMMIT" -m "Release $TAG"
+
+          # Push tag
+          git push origin "$TAG"
+
+          echo "✅ Created and pushed tag: $TAG"
+          echo "   Tag points to commit: $RELEASE_COMMIT"
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -85,7 +198,6 @@ jobs:
           echo "Previous tag: $PREV_TAG"
 
       - name: Generate release notes
-        id: release_notes
         run: |
           chmod +x .github/workflows/scripts/generate-release-notes.sh
           .github/workflows/scripts/generate-release-notes.sh ${{ steps.version.outputs.version }} "${{ steps.prev_tag.outputs.tag }}"
@@ -102,3 +214,37 @@ jobs:
         with:
           name: dist-${{ steps.version.outputs.version }}
           path: dist/
+
+      - name: Delete release branch
+        if: success() && github.event_name != 'workflow_dispatch'
+        env:
+          BRANCH: ${{ github.event.pull_request.head.ref }}
+        run: |
+          echo "Deleting release branch: $BRANCH"
+          git push origin --delete "$BRANCH" || echo "Branch may have been deleted by PR merge settings"
+
+      - name: Summary
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          TAG: ${{ steps.version.outputs.version }}
+          RELEASE_COMMIT: ${{ steps.version.outputs.release_commit }}
+        run: |
+          {
+            echo "## 🚀 Specflow Release Created"
+            echo ""
+            echo "| Property | Value |"
+            echo "|----------|-------|"
+            if [ "$EVENT_NAME" != "workflow_dispatch" ]; then
+              echo "| PR | #$PR_NUMBER |"
+            fi
+            echo "| Tag | $TAG |"
+            echo "| Tagged Commit | \`${RELEASE_COMMIT:0:8}\` |"
+            echo ""
+            echo "### Release Contents"
+            echo ""
+            echo "- Python package (wheel + sdist)"
+            echo "- 26 template zip files (13 AI assistants × 2 script types)"
+            echo ""
+            echo "View the release: https://github.com/${{ github.repository }}/releases/tag/$TAG"
+          } >> "$GITHUB_STEP_SUMMARY"
