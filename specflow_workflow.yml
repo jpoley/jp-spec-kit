@@ -39,6 +39,12 @@ roles:
   # Role definitions
   # NOTE: Role commands map to templates/commands/{role}/{command}.md files
   # PM commands removed - PM work is done via /specflow workflow commands
+  #
+  # Migration mapping for removed PM commands:
+  #   /pm:assess   → /specflow assess
+  #   /pm:define   → /specflow define
+  #   /pm:discover → /specflow discover
+  # Please use the corresponding /specflow commands in place of the old /pm commands.
   definitions:
     arch:
       display_name: "Architect"
