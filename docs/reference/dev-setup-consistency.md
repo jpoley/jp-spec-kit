@@ -36,7 +36,7 @@ All command development occurs in `templates/commands/`:
 │                                                              │
 │  templates/commands/                                         │
 │  ┌──────────────────────────────────────────────┐          │
-│  │ jpspec/                                       │          │
+│  │ specflow/                                       │          │
 │  │   - implement.md      (20KB enhanced)        │          │
 │  │   - research.md       (15KB enhanced)        │          │
 │  │   - assess.md         (12KB enhanced)        │          │
@@ -54,7 +54,7 @@ All command development occurs in `templates/commands/`:
 │  │ (dev-setup)      │       │ (specify init)   │          │
 │  │                  │       │                  │          │
 │  │ .claude/commands/│       │ .claude/commands/│          │
-│  │   jpspec/        │       │   jpspec/        │          │
+│  │   specflow/        │       │   specflow/        │          │
 │  │   [SYMLINKS]     │       │   [COPIES]       │          │
 │  │   speckit/       │       │   speckit/       │          │
 │  │   [SYMLINKS]     │       │   [COPIES]       │          │
@@ -69,7 +69,7 @@ All command development occurs in `templates/commands/`:
 ```
 jp-spec-kit/
 ├── templates/commands/              ◄─── CANONICAL SOURCE
-│   ├── jpspec/
+│   ├── specflow/
 │   │   ├── implement.md             (20KB enhanced)
 │   │   ├── research.md              (15KB enhanced)
 │   │   ├── validate.md              (16KB enhanced)
@@ -80,8 +80,8 @@ jp-spec-kit/
 │       └── ... (8 files)
 │
 ├── .claude/commands/                ◄─── SYMLINKS ONLY
-│   ├── jpspec/
-│   │   ├── implement.md → ../../../templates/commands/jpspec/implement.md
+│   ├── specflow/
+│   │   ├── implement.md → ../../../templates/commands/specflow/implement.md
 │   │   └── ... (all files as symlinks)
 │   └── speckit/
 │       ├── implement.md → ../../../templates/commands/speckit/implement.md
@@ -94,7 +94,7 @@ jp-spec-kit/
 ```
 my-project/
 └── .claude/commands/                ◄─── COPIED FILES
-    ├── jpspec/
+    ├── specflow/
     │   ├── implement.md             (copied from templates)
     │   └── ...
     └── speckit/
@@ -112,12 +112,12 @@ my-project/
 │  1. DEVELOPMENT PHASE                                       │
 │     ┌─────────────────────────────────────┐               │
 │     │ Developer enhances command          │               │
-│     │ in templates/commands/jpspec/       │               │
+│     │ in templates/commands/specflow/       │               │
 │     └───────────────┬─────────────────────┘               │
 │                     ↓                                       │
 │     ┌─────────────────────────────────────┐               │
 │     │ specify dev-setup creates symlink   │               │
-│     │ .claude/commands/jpspec/implement.md│               │
+│     │ .claude/commands/specflow/implement.md│               │
 │     │    → templates/commands/...         │               │
 │     └───────────────┬─────────────────────┘               │
 │                     ↓                                       │
@@ -161,7 +161,7 @@ my-project/
 
 - **Regular commands**: `{command-name}.md` (e.g., `implement.md`)
 - **Shared partials**: `_{name}.md` (e.g., `_backlog-instructions.md`)
-- **Namespaces**: Subdirectories (`jpspec/`, `speckit/`)
+- **Namespaces**: Subdirectories (`specflow/`, `speckit/`)
 
 The underscore prefix (`_`) signals "partial/shared content" not invoked directly.
 
@@ -185,13 +185,13 @@ The underscore prefix (`_`) signals "partial/shared content" not invoked directl
 
 ```bash
 # ✅ CORRECT: Edit template directly
-vim templates/commands/jpspec/implement.md
+vim templates/commands/specflow/implement.md
 
 # Test changes immediately (symlink updates automatically)
 # Claude Code reads the updated content via symlink
 
 # Commit changes
-git add templates/commands/jpspec/implement.md
+git add templates/commands/specflow/implement.md
 git commit -s -m "feat: enhance implement command with new workflow"
 git push origin feature-branch
 ```
@@ -204,7 +204,7 @@ git push origin feature-branch
 **Common Mistakes**:
 ```bash
 # ❌ WRONG: Editing symlink target
-vim .claude/commands/jpspec/implement.md
+vim .claude/commands/specflow/implement.md
 
 # This actually edits the template (via symlink)
 # But it's confusing and easy to make mistakes
@@ -221,7 +221,7 @@ vim .claude/commands/jpspec/implement.md
 **Step 1: Create Template**
 ```bash
 # Create new command in templates
-vim templates/commands/jpspec/new-command.md
+vim templates/commands/specflow/new-command.md
 
 # Add frontmatter and content
 # ---
@@ -243,19 +243,19 @@ make dev-fix
 **Step 3: Verify**
 ```bash
 # Check symlink was created
-ls -la .claude/commands/jpspec/new-command.md
+ls -la .claude/commands/specflow/new-command.md
 
-# Should show: new-command.md -> ../../../templates/commands/jpspec/new-command.md
+# Should show: new-command.md -> ../../../templates/commands/specflow/new-command.md
 
 # Test command in Claude Code
-# Use: /jpspec:new-command
+# Use: /specflow:new-command
 ```
 
 **Step 4: Commit**
 ```bash
-git add templates/commands/jpspec/new-command.md
-git add .claude/commands/jpspec/new-command.md  # The symlink
-git commit -s -m "feat: add new-command for jpspec"
+git add templates/commands/specflow/new-command.md
+git add .claude/commands/specflow/new-command.md  # The symlink
+git commit -s -m "feat: add new-command for specflow"
 git push origin feature-branch
 ```
 
@@ -273,13 +273,13 @@ git push origin feature-branch
 **Step 1: Remove Template**
 ```bash
 # Delete the template file
-git rm templates/commands/jpspec/old-command.md
+git rm templates/commands/specflow/old-command.md
 ```
 
 **Step 2: Remove Symlink**
 ```bash
 # Delete the symlink
-git rm .claude/commands/jpspec/old-command.md
+git rm .claude/commands/specflow/old-command.md
 ```
 
 **Step 3: Verify**
@@ -310,14 +310,14 @@ git push origin feature-branch
 **Step 1: Move Template**
 ```bash
 # Use git mv to preserve history
-git mv templates/commands/jpspec/old-name.md \
-       templates/commands/jpspec/new-name.md
+git mv templates/commands/specflow/old-name.md \
+       templates/commands/specflow/new-name.md
 ```
 
 **Step 2: Recreate Symlinks**
 ```bash
 # Remove old symlink
-git rm .claude/commands/jpspec/old-name.md
+git rm .claude/commands/specflow/old-name.md
 
 # Recreate all symlinks
 specify dev-setup --force
@@ -326,7 +326,7 @@ specify dev-setup --force
 **Step 3: Verify**
 ```bash
 # Check new symlink
-ls -la .claude/commands/jpspec/new-name.md
+ls -la .claude/commands/specflow/new-name.md
 
 # Validate structure
 make dev-validate
@@ -334,7 +334,7 @@ make dev-validate
 
 **Step 4: Commit**
 ```bash
-git add .claude/commands/jpspec/new-name.md
+git add .claude/commands/specflow/new-name.md
 git commit -s -m "refactor: rename old-name to new-name"
 git push origin feature-branch
 ```
@@ -386,24 +386,24 @@ make dev-status
 **If you have uncommitted changes in `.claude/commands/`**:
 ```bash
 # Back up changes first
-cp .claude/commands/jpspec/implement.md /tmp/implement-backup.md
+cp .claude/commands/specflow/implement.md /tmp/implement-backup.md
 
 # Run fix
 make dev-fix
 
 # Merge changes into template
-diff /tmp/implement-backup.md templates/commands/jpspec/implement.md
-vim templates/commands/jpspec/implement.md
+diff /tmp/implement-backup.md templates/commands/specflow/implement.md
+vim templates/commands/specflow/implement.md
 
 # Commit to template
-git add templates/commands/jpspec/implement.md
+git add templates/commands/specflow/implement.md
 git commit -s -m "fix: merge changes into template"
 ```
 
 **If templates are missing**:
 ```bash
 # Restore from git
-git checkout main -- templates/commands/jpspec/implement.md
+git checkout main -- templates/commands/specflow/implement.md
 
 # Recreate symlinks
 make dev-fix
@@ -446,8 +446,8 @@ uv tool install . --force
 specify dev-setup
 
 # Expected output:
-# ✓ Created symlink: .claude/commands/jpspec/implement.md
-# ✓ Created symlink: .claude/commands/jpspec/research.md
+# ✓ Created symlink: .claude/commands/specflow/implement.md
+# ✓ Created symlink: .claude/commands/specflow/research.md
 # ...
 # ✓ Dev-setup complete
 ```
@@ -470,8 +470,8 @@ make dev-validate
 ```bash
 # Open jp-spec-kit in Claude Code
 # Verify commands appear in slash command menu:
-# - /jpspec:implement
-# - /jpspec:research
+# - /specflow:implement
+# - /specflow:research
 # - /speckit:implement
 # etc.
 ```
@@ -505,7 +505,7 @@ make dev-validate
 ```
 ❌ ERROR: Found non-symlink .md files in .claude/commands/
 Files that should be symlinks:
-  .claude/commands/jpspec/implement.md
+  .claude/commands/specflow/implement.md
 ```
 
 **Root Cause**: Files were edited directly in `.claude/commands/` or created as regular files.
@@ -518,22 +518,22 @@ make dev-fix
 **Careful Fix** (preserve changes):
 ```bash
 # 1. Back up changes
-cp .claude/commands/jpspec/implement.md /tmp/implement-backup.md
+cp .claude/commands/specflow/implement.md /tmp/implement-backup.md
 
 # 2. Compare with template
-diff /tmp/implement-backup.md templates/commands/jpspec/implement.md
+diff /tmp/implement-backup.md templates/commands/specflow/implement.md
 
 # 3. Merge changes into template
-vim templates/commands/jpspec/implement.md
+vim templates/commands/specflow/implement.md
 
 # 4. Recreate symlinks
 make dev-fix
 
 # 5. Verify changes
-cat .claude/commands/jpspec/implement.md
+cat .claude/commands/specflow/implement.md
 
 # 6. Commit template
-git add templates/commands/jpspec/implement.md
+git add templates/commands/specflow/implement.md
 git commit -s -m "fix: merge changes into template"
 ```
 
@@ -550,7 +550,7 @@ git commit -s -m "fix: merge changes into template"
 ```
 ❌ ERROR: Found broken symlinks in .claude/commands/
 Broken symlinks:
-  .claude/commands/jpspec/implement.md -> ../../../templates/commands/jpspec/implement.md
+  .claude/commands/specflow/implement.md -> ../../../templates/commands/specflow/implement.md
 ```
 
 **Root Cause**: Template file was deleted, moved, or renamed without updating symlink.
@@ -560,7 +560,7 @@ Broken symlinks:
 **If template should exist**:
 ```bash
 # Restore from git
-git checkout main -- templates/commands/jpspec/implement.md
+git checkout main -- templates/commands/specflow/implement.md
 
 # Recreate symlinks
 make dev-fix
@@ -569,7 +569,7 @@ make dev-fix
 **If template was intentionally removed**:
 ```bash
 # Remove broken symlink
-git rm .claude/commands/jpspec/old-command.md
+git rm .claude/commands/specflow/old-command.md
 
 # Validate
 make dev-validate
@@ -697,10 +697,10 @@ git commit -s -m "fix: restore .claude/commands structure"
 **Fix**:
 ```bash
 # 1. Verify template exists
-ls -la templates/commands/jpspec/new-command.md
+ls -la templates/commands/specflow/new-command.md
 
 # 2. Verify symlink exists
-ls -la .claude/commands/jpspec/new-command.md
+ls -la .claude/commands/specflow/new-command.md
 
 # 3. If symlink missing, create it
 specify dev-setup --force
@@ -722,10 +722,10 @@ specify dev-setup --force
 **Fix**:
 ```bash
 # 1. Verify symlink is valid
-ls -la .claude/commands/jpspec/implement.md
+ls -la .claude/commands/specflow/implement.md
 
 # 2. Check symlink content
-cat .claude/commands/jpspec/implement.md
+cat .claude/commands/specflow/implement.md
 
 # 3. Restart Claude Code
 # Claude Code may cache command content
@@ -802,13 +802,13 @@ Use this checklist when reviewing PRs that touch command files.
   - [ ] No broken symlinks (target files exist)
 
 - [ ] **Structure Consistency**
-  - [ ] Commands organized in subdirectories (`jpspec/`, `speckit/`)
-  - [ ] No flat files with dots (`jpspec.implement.md` is invalid)
+  - [ ] Commands organized in subdirectories (`specflow/`, `speckit/`)
+  - [ ] No flat files with dots (`specflow.implement.md` is invalid)
   - [ ] Shared partials use underscore prefix (`_backlog-instructions.md`)
 
 - [ ] **Content Quality**
   - [ ] Commands are comprehensive (10-20KB), not minimal stubs (2-3KB)
-  - [ ] jpspec commands integrate backlog management
+  - [ ] specflow commands integrate backlog management
   - [ ] Instructions are clear and actionable
   - [ ] Examples provided where appropriate
 
@@ -848,7 +848,7 @@ Use this checklist when reviewing PRs that touch command files.
 ❌ **Red Flags**:
 - Non-symlink `.md` files in `.claude/commands/`
 - Broken symlinks
-- Flat file structure (`jpspec.implement.md`)
+- Flat file structure (`specflow.implement.md`)
 - Direct edits to `.claude/commands/` files
 - Missing templates for new symlinks
 
@@ -937,11 +937,11 @@ Development Setup Status
 === .claude/commands/ structure ===
 drwxr-xr-x  4 user  staff  128 Dec  3 12:00 .
 drwxr-xr-x  3 user  staff   96 Dec  3 12:00 ..
-drwxr-xr-x 11 user  staff  352 Dec  3 12:00 jpspec
+drwxr-xr-x 11 user  staff  352 Dec  3 12:00 specflow
 drwxr-xr-x 10 user  staff  320 Dec  3 12:00 speckit
 
-=== jpspec commands ===
-lrwxr-xr-x  1 user  staff  51 Dec  3 12:00 implement.md -> ../../../templates/commands/jpspec/implement.md
+=== specflow commands ===
+lrwxr-xr-x  1 user  staff  51 Dec  3 12:00 implement.md -> ../../../templates/commands/specflow/implement.md
 ...
 
 === Symlink verification ===
@@ -982,11 +982,11 @@ Validating development setup...
 
 Checking for non-symlink .md files in .claude/commands/...
 ❌ ERROR: Found non-symlink .md files:
-.claude/commands/jpspec/implement.md
+.claude/commands/specflow/implement.md
 
 Checking for broken symlinks...
 ❌ ERROR: Found broken symlinks:
-.claude/commands/jpspec/old-command.md
+.claude/commands/specflow/old-command.md
 ```
 
 **Exit Codes**:
@@ -1016,15 +1016,15 @@ Automated recovery: recreates all symlinks from templates.
 Fixing development setup...
 
 Step 1: Backing up current state...
-  - Found jpspec directory
+  - Found specflow directory
   - Found speckit directory
 
 Step 2: Removing existing symlinks...
   ✓ Removed
 
 Step 3: Recreating symlinks with dev-setup command...
-✓ Created symlink: .claude/commands/jpspec/implement.md
-✓ Created symlink: .claude/commands/jpspec/research.md
+✓ Created symlink: .claude/commands/specflow/implement.md
+✓ Created symlink: .claude/commands/specflow/research.md
 ...
 ✓ Dev-setup complete
 
@@ -1062,7 +1062,7 @@ Runs dev-setup-specific tests.
 Running development setup tests...
 pytest tests/test_command_*.py -v
 
-tests/test_command_structure.py::test_dev_setup_creates_jpspec_symlinks PASSED
+tests/test_command_structure.py::test_dev_setup_creates_specflow_symlinks PASSED
 tests/test_command_structure.py::test_dev_setup_creates_speckit_symlinks PASSED
 tests/test_command_structure.py::test_all_symlinks_resolve PASSED
 ...
@@ -1145,9 +1145,9 @@ Creating symlinks for speckit commands...
 ✓ Created symlink: .claude/commands/speckit/analyze.md
 ...
 
-Creating symlinks for jpspec commands...
-✓ Created symlink: .claude/commands/jpspec/implement.md
-✓ Created symlink: .claude/commands/jpspec/research.md
+Creating symlinks for specflow commands...
+✓ Created symlink: .claude/commands/specflow/implement.md
+✓ Created symlink: .claude/commands/specflow/research.md
 ...
 
 ✓ Dev-setup complete
@@ -1219,7 +1219,7 @@ The project includes automated validation in CI/CD pipelines:
 - **Single Source of Truth**: Architecture pattern where one canonical location exists for data
 - **Symlink**: Symbolic link that references another file
 - **Template**: Canonical command file in `templates/commands/`
-- **Namespace**: Command grouping (jpspec, speckit)
+- **Namespace**: Command grouping (specflow, speckit)
 - **Partial**: Shared content file prefixed with underscore (`_`)
 
 ---

@@ -35,14 +35,14 @@ Define the complete input/output artifacts for each JPSpec workflow transition t
 | operate → done | Validated release | Deployment confirmation | SRE review |
 
 ## Acceptance Criteria
-- [ ] AC1: Create jpspec_workflow_artifacts.yml schema defining all input/output artifacts
+- [ ] AC1: Create specflow_workflow_artifacts.yml schema defining all input/output artifacts
 - [ ] AC2: Document artifact locations (./docs/prd, ./docs/adr, ./tests)
 - [ ] AC3: Define artifact format specifications (markdown structure)
 - [ ] AC4: Add artifact validation rules to workflow transitions
-- [ ] AC5: Update jpspec_workflow.yml to include artifact requirements
+- [ ] AC5: Update specflow_workflow.yml to include artifact requirements
 
 ## Technical Notes
-- Extends existing jpspec_workflow.yml schema
+- Extends existing specflow_workflow.yml schema
 - Artifacts should be machine-verifiable where possible
 - Human review should be the default validation mode
 <!-- SECTION:NOTES:END -->

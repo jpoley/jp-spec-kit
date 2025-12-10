@@ -1,0 +1,18 @@
+version: "1.0"
+
+states:
+  - name: "Specified"
+
+workflows:
+  specify:
+    command: "/jpspec:specify"
+    agents:
+      - "pm-agent"
+    input_states:
+      - "To Do"
+    output_state: "Specified"
+
+transitions:
+  - from: "To Do"
+    to: "Specified"
+    via: "specify"

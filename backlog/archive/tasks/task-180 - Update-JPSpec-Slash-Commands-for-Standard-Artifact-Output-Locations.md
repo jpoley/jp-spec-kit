@@ -13,12 +13,12 @@ priority: high
 ---
 
 <!-- AC:BEGIN -->
-- [x] AC1: Update /jpspec:assess to output to ./docs/assess/
-- [x] AC2: Update /jpspec:specify to output PRD to ./docs/prd/
-- [x] AC3: Update /jpspec:research to output to ./docs/research/
-- [x] AC4: Update /jpspec:plan to output ADRs to ./docs/adr/
-- [x] AC5: Update /jpspec:implement to generate ./tests/ac-coverage.json
-- [x] AC6: Update /jpspec:validate to output to ./docs/qa/ and ./docs/security/
+- [x] AC1: Update /specflow:assess to output to ./docs/assess/
+- [x] AC2: Update /specflow:specify to output PRD to ./docs/prd/
+- [x] AC3: Update /specflow:research to output to ./docs/research/
+- [x] AC4: Update /specflow:plan to output ADRs to ./docs/adr/
+- [x] AC5: Update /specflow:implement to generate ./tests/ac-coverage.json
+- [x] AC6: Update /specflow:validate to output to ./docs/qa/ and ./docs/security/
 - [x] AC7: Add feature name slug derivation to all commands
 - [x] AC8: Add artifact verification step to all commands
 - [x] AC9: Add transition validation check to all commands
@@ -28,29 +28,29 @@ priority: high
 
 <!-- SECTION:NOTES:BEGIN -->
 ## Summary
-Update all /jpspec:* slash commands to output artifacts at standardized locations and verify artifact creation before completing.
+Update all /specflow:* slash commands to output artifacts at standardized locations and verify artifact creation before completing.
 
 ## Artifact Output Mapping
 
 | Command | Artifact Type | Output Location |
 |---------|---------------|-----------------|
-| /jpspec:assess | assessment_report | ./docs/assess/{feature}-assessment.md |
-| /jpspec:specify | prd | ./docs/prd/{feature}.md |
-| /jpspec:specify | backlog_tasks | ./backlog/tasks/*.md |
-| /jpspec:research | research_report | ./docs/research/{feature}-research.md |
-| /jpspec:research | business_validation | ./docs/research/{feature}-validation.md |
-| /jpspec:plan | adr | ./docs/adr/ADR-{NNN}-{slug}.md |
-| /jpspec:plan | platform_design | ./docs/platform/{feature}-platform.md |
-| /jpspec:implement | source_code | ./src/ (project-specific) |
-| /jpspec:implement | tests | ./tests/ |
-| /jpspec:implement | ac_coverage | ./tests/ac-coverage.json |
-| /jpspec:validate | qa_report | ./docs/qa/{feature}-qa-report.md |
-| /jpspec:validate | security_report | ./docs/security/{feature}-security.md |
-| /jpspec:operate | deployment_manifest | ./deploy/ or ./k8s/ |
+| /specflow:assess | assessment_report | ./docs/assess/{feature}-assessment.md |
+| /specflow:specify | prd | ./docs/prd/{feature}.md |
+| /specflow:specify | backlog_tasks | ./backlog/tasks/*.md |
+| /specflow:research | research_report | ./docs/research/{feature}-research.md |
+| /specflow:research | business_validation | ./docs/research/{feature}-validation.md |
+| /specflow:plan | adr | ./docs/adr/ADR-{NNN}-{slug}.md |
+| /specflow:plan | platform_design | ./docs/platform/{feature}-platform.md |
+| /specflow:implement | source_code | ./src/ (project-specific) |
+| /specflow:implement | tests | ./tests/ |
+| /specflow:implement | ac_coverage | ./tests/ac-coverage.json |
+| /specflow:validate | qa_report | ./docs/qa/{feature}-qa-report.md |
+| /specflow:validate | security_report | ./docs/security/{feature}-security.md |
+| /specflow:operate | deployment_manifest | ./deploy/ or ./k8s/ |
 
 ## Command Template Updates
 
-Each slash command (.claude/commands/jpspec/*.md) must include:
+Each slash command (.claude/commands/specflow/*.md) must include:
 
 ### 1. Output Artifacts Section
 ```markdown

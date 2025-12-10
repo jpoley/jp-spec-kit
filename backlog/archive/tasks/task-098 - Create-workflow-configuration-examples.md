@@ -25,7 +25,7 @@ Create concrete workflow configuration examples showing different customization 
 - [x] #3 Example 2: Extended workflow (with security audit phase)
 - [x] #4 Example 3: Parallel workflows (multiple feature tracks)
 - [x] #5 Example 4: Custom agents workflow (add organization-specific agents)
-- [x] #6 Each example includes jpspec_workflow.yml file
+- [x] #6 Each example includes specflow_workflow.yml file
 - [x] #7 Each example includes explanation document of changes from default
 - [x] #8 Each example is validated and tested to work correctly
 <!-- AC:END -->

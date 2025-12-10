@@ -1,0 +1,56 @@
+# Home page
+- name: Home
+  href: index.md
+
+# Getting started section
+- name: Getting Started
+  items:
+    - name: Installation
+      href: installation.md
+    - name: Quick Start
+      href: quickstart.md
+
+# Development workflows
+- name: Development
+  items:
+    - name: Local Development
+      href: local-development.md
+
+# Workflow configuration
+- name: Workflow Configuration
+  items:
+    - name: Understanding Workflows
+      items:
+        - name: Workflow Architecture
+          href: guides/workflow-architecture.md
+        - name: JP Spec Workflow Guide
+          href: guides/jpspec-workflow-guide.md
+        - name: Workflow State Mapping
+          href: guides/workflow-state-mapping.md
+    - name: Customization
+      items:
+        - name: Workflow Customization Guide
+          href: guides/workflow-customization.md
+        - name: Workflow Troubleshooting
+          href: guides/workflow-troubleshooting.md
+    - name: Examples
+      items:
+        - name: Minimal Workflow
+          href: examples/workflows/minimal-workflow.md
+        - name: Security Audit Workflow
+          href: examples/workflows/security-audit-workflow.md
+        - name: Parallel Workflows
+          href: examples/workflows/parallel-workflows.md
+        - name: Custom Agents Workflow
+          href: examples/workflows/custom-agents-workflow.md
+    - name: Reference
+      items:
+        - name: Workflow Schema
+          href: reference/workflow-schema.md
+        - name: Workflow Schema Validation
+          href: reference/workflow-schema-validation.md
+        - name: Workflow Artifact Flow
+          href: reference/workflow-artifact-flow.md
+        - name: Workflow Step Principles
+          href: reference/workflow-step-principles.md
+

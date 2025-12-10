@@ -28,7 +28,7 @@ semgrep --validate --config .specify/security/rules/
 semgrep --test .specify/security/rules/
 ```
 
-### 3. Integrate with jpspec
+### 3. Integrate with specflow
 
 Add to your security configuration:
 

@@ -20,7 +20,7 @@ priority: high
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Integrate the existing Quality Guardian and Secure-by-Design agents from the current /jpspec:validate into the enhanced workflow. These agents run in parallel and provide comprehensive quality and security validation reports that inform AC verification.
+Integrate the existing Quality Guardian and Secure-by-Design agents from the current /specflow:validate into the enhanced workflow. These agents run in parallel and provide comprehensive quality and security validation reports that inform AC verification.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -81,7 +81,7 @@ Integrate the existing Quality Guardian and Secure-by-Design agents from the cur
    - Test critical issue detection and failure
 
 8. Integration:
-   - Hook into existing /jpspec:validate workflow
+   - Hook into existing /specflow:validate workflow
    - Ensure backward compatibility
    - Document new validation flow
 <!-- SECTION:PLAN:END -->
@@ -131,5 +131,5 @@ Successfully integrated Quality Guardian and Secure-by-Design agents into the en
 - Code coverage: Comprehensive test suite
 
 ## Integration Notes
-The implementation provides the foundation for parallel QA/Security validation. The actual Task tool integration will be added in Phase 3 when connecting to the /jpspec:validate workflow.
+The implementation provides the foundation for parallel QA/Security validation. The actual Task tool integration will be added in Phase 3 when connecting to the /specflow:validate workflow.
 <!-- SECTION:NOTES:END -->

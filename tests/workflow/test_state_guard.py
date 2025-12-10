@@ -34,7 +34,7 @@ from specify_cli.workflow.state_guard import (
 
 @pytest.fixture
 def sample_config():
-    """Sample workflow configuration matching jpspec_workflow.yml structure."""
+    """Sample workflow configuration matching specflow_workflow.yml structure."""
     return {
         "version": "1.0",
         "states": [
@@ -52,37 +52,37 @@ def sample_config():
             "assess": {
                 "input_states": ["To Do"],
                 "output_state": "Assessed",
-                "command": "/jpspec:assess",
+                "command": "/specflow:assess",
             },
             "specify": {
                 "input_states": ["Assessed"],
                 "output_state": "Specified",
-                "command": "/jpspec:specify",
+                "command": "/specflow:specify",
             },
             "research": {
                 "input_states": ["Specified"],
                 "output_state": "Researched",
-                "command": "/jpspec:research",
+                "command": "/specflow:research",
             },
             "plan": {
                 "input_states": ["Specified", "Researched"],
                 "output_state": "Planned",
-                "command": "/jpspec:plan",
+                "command": "/specflow:plan",
             },
             "implement": {
                 "input_states": ["Planned"],
                 "output_state": "In Implementation",
-                "command": "/jpspec:implement",
+                "command": "/specflow:implement",
             },
             "validate": {
                 "input_states": ["In Implementation"],
                 "output_state": "Validated",
-                "command": "/jpspec:validate",
+                "command": "/specflow:validate",
             },
             "operate": {
                 "input_states": ["Validated"],
                 "output_state": "Deployed",
-                "command": "/jpspec:operate",
+                "command": "/specflow:operate",
             },
         },
     }
@@ -91,7 +91,7 @@ def sample_config():
 @pytest.fixture
 def config_file(sample_config, tmp_path):
     """Create temporary config file."""
-    config_path = tmp_path / "jpspec_workflow.yml"
+    config_path = tmp_path / "specflow_workflow.yml"
     config_path.write_text(yaml.dump(sample_config))
     return config_path
 
@@ -99,7 +99,7 @@ def config_file(sample_config, tmp_path):
 @pytest.fixture
 def config_dir(sample_config, tmp_path):
     """Create temp directory with config file for default path testing."""
-    config_path = tmp_path / "jpspec_workflow.yml"
+    config_path = tmp_path / "specflow_workflow.yml"
     config_path.write_text(yaml.dump(sample_config))
     return tmp_path
 
@@ -126,7 +126,7 @@ class MockTaskSystem:
 
 
 class TestConfigLoading:
-    """Tests for AC #1: All /jpspec command implementations load WorkflowConfig."""
+    """Tests for AC #1: All /specflow command implementations load WorkflowConfig."""
 
     def test_load_config_from_explicit_path(self, config_file):
         """Guard loads config from explicit path."""
@@ -164,7 +164,7 @@ class TestConfigLoading:
         """Guard searches multiple default paths."""
         # Check the DEFAULT_CONFIG_PATHS are defined
         assert len(WorkflowStateGuard.DEFAULT_CONFIG_PATHS) >= 1
-        assert Path("jpspec_workflow.yml") in WorkflowStateGuard.DEFAULT_CONFIG_PATHS
+        assert Path("specflow_workflow.yml") in WorkflowStateGuard.DEFAULT_CONFIG_PATHS
 
 
 # =============================================================================
@@ -247,7 +247,7 @@ class TestErrorMessages:
         """Error message includes the command that was blocked."""
         guard = WorkflowStateGuard(config_file)
         response = guard.check_state("implement", "To Do")
-        assert "/jpspec:implement" in response.message
+        assert "/specflow:implement" in response.message
 
     def test_blocked_message_shows_current_state(self, config_file):
         """Error message shows the current task state."""
@@ -330,8 +330,8 @@ class TestWorkflowSuggestions:
         guard = WorkflowStateGuard(config_file)
         workflows = guard.get_valid_workflows_for_state("Specified")
 
-        assert "/jpspec:research" in workflows
-        assert "/jpspec:plan" in workflows
+        assert "/specflow:research" in workflows
+        assert "/specflow:plan" in workflows
 
     def test_blocked_response_includes_suggestions(self, config_file):
         """Blocked response includes workflow suggestions."""
@@ -341,7 +341,7 @@ class TestWorkflowSuggestions:
         assert response.suggested_workflows is not None
         assert len(response.suggested_workflows) > 0
         # For Specified state, research and plan are valid
-        assert "/jpspec:research" in response.suggested_workflows
+        assert "/specflow:research" in response.suggested_workflows
 
     def test_message_includes_suggestions(self, config_file):
         """Error message includes suggestions text."""
@@ -460,8 +460,8 @@ class TestBackwardCompatibility:
     def test_get_valid_workflows_helper(self, config_file):
         """get_valid_workflows helper works correctly."""
         workflows = get_valid_workflows("Specified", config_path=str(config_file))
-        assert "/jpspec:research" in workflows
-        assert "/jpspec:plan" in workflows
+        assert "/specflow:research" in workflows
+        assert "/specflow:plan" in workflows
 
 
 # =============================================================================
@@ -483,7 +483,7 @@ class TestAllCommandsCovered:
     ]
 
     def test_all_commands_defined_in_config(self, sample_config):
-        """All jpspec commands are defined in workflow config."""
+        """All specflow commands are defined in workflow config."""
         workflows = sample_config["workflows"]
         for cmd in self.JPSPEC_COMMANDS:
             assert cmd in workflows, f"Command '{cmd}' not in workflow config"

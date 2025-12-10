@@ -44,7 +44,7 @@ Before proceeding, verify this is a valid jp-spec-kit project:
 
 ```bash
 # Check for project markers
-if [ ! -f "specflow_workflow.yml" ] && [ ! -f "jpspec_workflow.yml" ] && [ ! -d ".claude" ]; then
+if [ ! -f "specflow_workflow.yml" ] && [ ! -f "specflow_workflow.yml" ] && [ ! -d ".claude" ]; then
   echo "Error: This doesn't appear to be a jp-spec-kit project"
   echo "Run '/speckit:init' first to initialize the project"
   exit 1
@@ -78,7 +78,7 @@ To view role-specific commands, see:
 
 📋 WORKFLOW VALIDATION MODES
 
-{List current validation modes if jpspec_workflow.yml exists}
+{List current validation modes if specflow_workflow.yml exists}
 {Or: "Not yet configured" if no workflow file}
 ```
 
@@ -194,7 +194,7 @@ roles:
 - Preserve all other fields in the file
 - Only update `roles.primary`
 - If `specflow_workflow.yml` doesn't exist, create it with default structure
-- If legacy `jpspec_workflow.yml` exists, migrate to `specflow_workflow.yml` v2.0 format
+- If legacy `specflow_workflow.yml` exists, migrate to `specflow_workflow.yml` v2.0 format
 
 ### Step 5: Workflow Validation Mode Configuration (Optional)
 
@@ -212,43 +212,43 @@ For each workflow transition, choose a validation mode:
   - KEYWORD: Require user to type approval keyword
   - PULL_REQUEST: Require PR to be merged
 
-1. To Do → Assessed (after /jpspec:assess)
+1. To Do → Assessed (after /specflow:assess)
    [1] NONE (default)
    [2] KEYWORD
    [3] PULL_REQUEST
    > _
 
-2. Assessed → Specified (after /jpspec:specify, produces PRD)
+2. Assessed → Specified (after /specflow:specify, produces PRD)
    [1] NONE (default)
    [2] KEYWORD
    [3] PULL_REQUEST
    > _
 
-3. Specified → Researched (after /jpspec:research)
+3. Specified → Researched (after /specflow:research)
    [1] NONE (default)
    [2] KEYWORD
    [3] PULL_REQUEST
    > _
 
-4. Researched → Planned (after /jpspec:plan, produces ADRs)
+4. Researched → Planned (after /specflow:plan, produces ADRs)
    [1] NONE (default)
    [2] KEYWORD
    [3] PULL_REQUEST
    > _
 
-5. Planned → In Implementation (after /jpspec:implement)
+5. Planned → In Implementation (after /specflow:implement)
    [1] NONE (default)
    [2] KEYWORD
    [3] PULL_REQUEST
    > _
 
-6. In Implementation → Validated (after /jpspec:validate)
+6. In Implementation → Validated (after /specflow:validate)
    [1] NONE (default)
    [2] KEYWORD
    [3] PULL_REQUEST
    > _
 
-7. Validated → Deployed (after /jpspec:operate)
+7. Validated → Deployed (after /specflow:operate)
    [1] NONE (default)
    [2] KEYWORD
    [3] PULL_REQUEST
@@ -400,12 +400,12 @@ operate                  {MODE}
 - **No specflow_workflow.yml**: Create new one with selected role
 - **Invalid SPECFLOW_PRIMARY_ROLE env var**: Show warning and fall back to prompt
 
-### Migration from jpspec_workflow.yml
+### Migration from specflow_workflow.yml
 
-If project has `jpspec_workflow.yml` but not `specflow_workflow.yml`:
+If project has `specflow_workflow.yml` but not `specflow_workflow.yml`:
 
 ```
-Detected legacy jpspec_workflow.yml (v1.x)
+Detected legacy specflow_workflow.yml (v1.x)
 
 This command will migrate to specflow_workflow.yml v2.0 with roles support.
 
@@ -413,7 +413,7 @@ Migration will:
   ✓ Create specflow_workflow.yml with v2.0 schema
   ✓ Preserve all workflow definitions and states
   ✓ Add roles section with your selected role
-  ✓ Keep jpspec_workflow.yml as backup
+  ✓ Keep specflow_workflow.yml as backup
 
 Continue? [Y/n]: _
 ```
@@ -439,5 +439,5 @@ Before completing:
 4. **Idempotent**: Can be run multiple times safely
 5. **Quick role change**: Use `--role` flag for instant role switching
 6. **Environment override**: `SPECFLOW_PRIMARY_ROLE` env var takes precedence
-7. **Backwards compatible**: Migrates legacy jpspec_workflow.yml to specflow_workflow.yml
+7. **Backwards compatible**: Migrates legacy specflow_workflow.yml to specflow_workflow.yml
 8. **No network requests**: All operations are local and fast

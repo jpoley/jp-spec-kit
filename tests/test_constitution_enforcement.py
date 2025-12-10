@@ -1,4 +1,4 @@
-"""Tests for constitution enforcement in /jpspec commands.
+"""Tests for constitution enforcement in /specflow commands.
 
 Tests cover:
 - Constitution existence detection

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Migrate slash commands from flat structure to subdirectory structure
-# This script moves jpspec.*.md and speckit.*.md files to their respective subdirectories
+# This script moves specflow.*.md and speckit.*.md files to their respective subdirectories
 #
 # Usage: ./scripts/bash/migrate-commands-to-subdirs.sh [--dry-run] [--path <directory>]
 #
@@ -31,7 +31,7 @@ Usage: $(basename "$0") [OPTIONS]
 Migrate slash commands from flat structure to subdirectory structure.
 
 This script moves:
-  - jpspec.*.md files to jpspec/ subdirectory (renamed to *.md)
+  - specflow.*.md files to specflow/ subdirectory (renamed to *.md)
   - speckit.*.md files to speckit/ subdirectory (renamed to *.md)
 
 OPTIONS:
@@ -123,7 +123,7 @@ find_target_dir() {
     for candidate in "${candidates[@]}"; do
         if [[ -d "$candidate" ]]; then
             # Check if it has files to migrate
-            if ls "$candidate"/jpspec.*.md "$candidate"/speckit.*.md 2>/dev/null | head -1 | grep -q .; then
+            if ls "$candidate"/specflow.*.md "$candidate"/speckit.*.md 2>/dev/null | head -1 | grep -q .; then
                 echo "$candidate"
                 return
             fi
@@ -141,7 +141,7 @@ find_target_dir() {
     echo ""
 }
 
-# Migrate files for a specific prefix (jpspec or speckit)
+# Migrate files for a specific prefix (specflow or speckit)
 migrate_prefix() {
     local target_dir="$1"
     local prefix="$2"
@@ -174,7 +174,7 @@ migrate_prefix() {
     # Move each file
     for file in "${files[@]}"; do
         local basename=$(basename "$file")
-        # Transform: jpspec.implement.md -> implement.md
+        # Transform: specflow.implement.md -> implement.md
         local new_name="${basename#${prefix}.}"
         local new_path="$subdir/$new_name"
 
@@ -250,8 +250,8 @@ main() {
 
     echo ""
 
-    # Migrate jpspec files
-    migrate_prefix "$target_dir" "jpspec"
+    # Migrate specflow files
+    migrate_prefix "$target_dir" "specflow"
     echo ""
 
     # Migrate speckit files

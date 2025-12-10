@@ -1,0 +1,133 @@
+# Minimal JP Spec Kit Workflow
+# ==============================================================================
+#
+# A minimal workflow configuration with only essential phases:
+# - Specify (requirements)
+# - Implement (code)
+# - Done
+#
+# Use this for:
+# - Rapid prototyping
+# - Personal projects
+# - Internal tools with low compliance requirements
+#
+# This workflow skips:
+# - Assessment (assumes all features are suitable for SDD)
+# - Research (assumes requirements are clear)
+# - Planning (assumes simple architecture)
+# - Validation (assumes manual testing)
+# - Operations (assumes manual deployment)
+#
+# ==============================================================================
+
+version: "1.1"
+
+# Minimal state progression: To Do → Specified → In Implementation → Done
+states:
+  - "To Do"
+  - "Specified"
+  - "In Implementation"
+  - "Done"
+
+workflows:
+  specify:
+    command: "/jpspec:specify"
+    description: "Create feature specification"
+    agents:
+      - name: "product-requirements-manager"
+        identity: "@pm-planner"
+        description: "Senior Product Strategy Advisor"
+        responsibilities:
+          - "Create lightweight PRD with acceptance criteria"
+          - "Define user stories"
+    input_states: ["To Do"]
+    output_state: "Specified"
+    optional: false
+
+  implement:
+    command: "/jpspec:implement"
+    description: "Implement feature with code review"
+    agents:
+      - name: "frontend-engineer"
+        identity: "@frontend-engineer"
+        description: "Senior Frontend Engineer"
+        responsibilities:
+          - "Component development"
+          - "State management"
+      - name: "backend-engineer"
+        identity: "@backend-engineer"
+        description: "Senior Backend Engineer"
+        responsibilities:
+          - "API development"
+          - "Business logic"
+      - name: "frontend-code-reviewer"
+        identity: "@frontend-code-reviewer"
+        description: "Frontend Code Reviewer"
+        responsibilities:
+          - "Functionality and performance review"
+      - name: "backend-code-reviewer"
+        identity: "@backend-code-reviewer"
+        description: "Backend Code Reviewer"
+        responsibilities:
+          - "Security and API design review"
+    input_states: ["Specified"]
+    output_state: "In Implementation"
+    optional: false
+
+# Minimal transitions: To Do → Specified → In Implementation → Done
+transitions:
+  - name: "specify"
+    from: "To Do"
+    to: "Specified"
+    via: "specify"
+    description: "Requirements captured"
+    output_artifacts:
+      - type: "prd"
+        path: "./docs/prd/{feature}.md"
+        required: true
+    validation: "NONE"
+
+  - name: "implement"
+    from: "Specified"
+    to: "In Implementation"
+    via: "implement"
+    description: "Implementation started"
+    input_artifacts:
+      - type: "prd"
+        path: "./docs/prd/{feature}.md"
+        required: true
+    output_artifacts:
+      - type: "source_code"
+        path: "./src/"
+      - type: "tests"
+        path: "./tests/"
+    validation: "NONE"
+
+  - name: "complete"
+    from: "In Implementation"
+    to: "Done"
+    via: "manual"
+    description: "Work complete"
+    validation: "NONE"
+
+# All agents are in inner loop for fast iteration
+agent_loops:
+  inner:
+    description: "Fast execution - optimized for velocity"
+    agents:
+      - "product-requirements-manager"
+      - "frontend-engineer"
+      - "backend-engineer"
+      - "frontend-code-reviewer"
+      - "backend-code-reviewer"
+
+  outer:
+    description: "No outer loop agents in minimal workflow"
+    agents: []
+
+metadata:
+  schema_version: "1.1"
+  last_updated: "2025-12-01"
+  state_count: 4
+  workflow_count: 2
+  agent_count: 5

@@ -1,6 +1,6 @@
 # Security CI/CD Integration Examples
 
-Complete, production-ready CI/CD configurations for integrating `/jpspec:security` commands into your development workflow.
+Complete, production-ready CI/CD configurations for integrating `/specflow:security` commands into your development workflow.
 
 ## Table of Contents
 
@@ -656,7 +656,7 @@ executors:
     working_directory: ~/project
 
 commands:
-  install-jpspec:
+  install-specflow:
     steps:
       - run:
           name: Install JP Spec Kit
@@ -714,7 +714,7 @@ jobs:
     executor: python-executor
     steps:
       - checkout
-      - install-jpspec
+      - install-specflow
       - restore_cache:
           keys:
             - security-cache-{{ .Branch }}-{{ checksum "pyproject.toml" }}
@@ -752,7 +752,7 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
-      - install-jpspec
+      - install-specflow
       - run:
           name: Create Backlog Tasks
           command: |

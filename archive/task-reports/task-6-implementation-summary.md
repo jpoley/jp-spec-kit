@@ -1,6 +1,6 @@
 # Task-6 Implementation Summary
 
-## Task: Update /jpspec:tasks slash command to use backlog module
+## Task: Update /specflow:tasks slash command to use backlog module
 
 **Status**: ✅ COMPLETE
 
@@ -12,7 +12,7 @@
 
 ## What Was Done
 
-### 1. Updated `/jpspec:tasks` Command Template
+### 1. Updated `/specflow:tasks` Command Template
 
 **File Modified**: `/home/jpoley/ps/jp-spec-kit/templates/commands/tasks.md`
 
@@ -73,7 +73,7 @@ The updated command integrates seamlessly with the backlog module built in tasks
 Created comprehensive documentation:
 
 1. **Implementation Guide**:
-   - `/home/jpoley/ps/jp-spec-kit/docs/jpspec-tasks-command-update.md`
+   - `/home/jpoley/ps/jp-spec-kit/docs/specflow-tasks-command-update.md`
    - Detailed explanation of changes
    - Workflow diagrams
    - Self-critique assessment
@@ -97,7 +97,7 @@ Created comprehensive documentation:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│ User runs: /jpspec:tasks                                        │
+│ User runs: /specflow:tasks                                        │
 └────────────────────────┬────────────────────────────────────────┘
                          │
                          ▼
@@ -150,7 +150,7 @@ Created comprehensive documentation:
 
 ### Output Structure
 
-After running `/jpspec:tasks`, the feature directory contains:
+After running `/specflow:tasks`, the feature directory contains:
 
 ```
 {FEATURE_DIR}/
@@ -285,7 +285,7 @@ cat > plan.md << 'EOF'
 EOF
 
 # 4. Run slash command
-/jpspec:tasks
+/specflow:tasks
 
 # 5. Verify output
 ls -la tasks.md
@@ -405,7 +405,7 @@ None identified during implementation.
 
 ## Conclusion
 
-The `/jpspec:tasks` command has been successfully updated to use the backlog module:
+The `/specflow:tasks` command has been successfully updated to use the backlog module:
 
 ✅ **Achieved**:
 - Seamless integration with backlog module
@@ -418,7 +418,7 @@ The `/jpspec:tasks` command has been successfully updated to use the backlog mod
 
 ✅ **Deliverables**:
 1. Updated command template: `templates/commands/tasks.md`
-2. Implementation guide: `docs/jpspec-tasks-command-update.md`
+2. Implementation guide: `docs/specflow-tasks-command-update.md`
 3. Testing guide: `docs/task-6-testing-guide.md`
 4. Summary document: `docs/task-6-implementation-summary.md` (this file)
 
@@ -446,12 +446,12 @@ The `/jpspec:tasks` command has been successfully updated to use the backlog mod
 templates/commands/tasks.md
 
 # Files created
-docs/jpspec-tasks-command-update.md
+docs/specflow-tasks-command-update.md
 docs/task-6-testing-guide.md
 docs/task-6-implementation-summary.md
 
 # Files staged (not yet committed)
-# Use: git add <files> && git commit -m "feat: update /jpspec:tasks to use backlog module"
+# Use: git add <files> && git commit -m "feat: update /specflow:tasks to use backlog module"
 ```
 
 ---

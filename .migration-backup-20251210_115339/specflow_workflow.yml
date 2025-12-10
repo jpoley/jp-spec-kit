@@ -1,0 +1,530 @@
+# Specflow Workflow Configuration
+# ==============================================================================
+#
+# This file defines the state machine for Specflow command workflows in
+# Spec-Driven Development (SDD). It is the authoritative source for:
+#
+#   - Task states: Valid progression states in the development lifecycle
+#   - Workflows: /specflow slash commands with agent assignments
+#   - Transitions: State changes with artifact validation gates
+#   - Agent loops: Inner/outer loop classification for execution model
+#   - Roles: VS Code Copilot role-based command namespaces
+#
+# Configuration Version: 2.0
+# Compatible with: jp-spec-kit v0.1.0+
+#
+# References:
+#   - docs/reference/artifact-path-patterns.md
+#   - docs/reference/agent-loop-classification.md
+#   - docs/adr/ADR-role-based-command-namespaces.md
+#   - .claude/commands/
+#
+# ==============================================================================
+
+version: "2.0"
+
+# ==============================================================================
+# ROLE-BASED COMMAND NAMESPACES
+# ==============================================================================
+# Role configuration for VS Code Copilot agent handoffs and command visibility.
+# Each role defines a persona with associated commands and agents.
+
+roles:
+  # Primary role selection (what role the user identifies with)
+  primary: "dev"
+
+  # Show all commands regardless of role
+  show_all_commands: false
+
+  # Role definitions
+  definitions:
+    pm:
+      display_name: "Product Manager"
+      icon: "📋"
+      commands: ["assess", "define", "discover"]
+      agents:
+        - "@product-requirements-manager"
+        - "@workflow-assessor"
+        - "@researcher"
+        - "@business-validator"
+
+    arch:
+      display_name: "Architect"
+      icon: "🏗️"
+      commands: ["design", "decide", "model"]
+      agents:
+        - "@software-architect"
+        - "@platform-engineer"
+
+    dev:
+      display_name: "Developer"
+      icon: "💻"
+      commands: ["build", "debug", "refactor"]
+      agents:
+        - "@frontend-engineer"
+        - "@backend-engineer"
+        - "@ai-ml-engineer"
+
+    sec:
+      display_name: "Security Engineer"
+      icon: "🔒"
+      commands: ["scan", "triage", "fix", "audit"]
+      agents:
+        - "@secure-by-design-engineer"
+
+    qa:
+      display_name: "QA Engineer"
+      icon: "✅"
+      commands: ["test", "verify", "review"]
+      agents:
+        - "@quality-guardian"
+        - "@release-manager"
+
+    ops:
+      display_name: "SRE/DevOps"
+      icon: "🚀"
+      commands: ["deploy", "monitor", "respond", "scale"]
+      agents:
+        - "@sre-agent"
+
+    all:
+      display_name: "All Roles"
+      icon: "🌐"
+      commands: []
+      agents: []
+
+# ==============================================================================
+# TASK STATES
+# ==============================================================================
+# Valid states a task can occupy during the development lifecycle.
+# States progress forward via workflows, with manual transitions to "Done".
+
+states:
+  - "To Do"           # Initial state - work has not started
+  - "Assessed"        # SDD workflow suitability evaluated via /jpspec:assess
+  - "Specified"       # Requirements captured via /jpspec:specify
+  - "Researched"      # Technical and business research completed via /jpspec:research
+  - "Planned"         # Architecture and infrastructure planned via /jpspec:plan
+  - "In Implementation"  # Code actively being written via /jpspec:implement
+  - "Validated"       # QA, security, and documentation validated via /jpspec:validate
+  - "Deployed"        # Released to production via /jpspec:operate
+  - "Done"            # Work complete - ready for archive
+
+# ==============================================================================
+# WORKFLOW DEFINITIONS
+# ==============================================================================
+# Each workflow maps to a /jpspec slash command.
+
+workflows:
+  assess:
+    command: "/jpspec:assess"
+    description: "Evaluate SDD workflow suitability and complexity assessment"
+    agents:
+      - name: "workflow-assessor"
+        identity: "@workflow-assessor"
+        description: "SDD Workflow Assessor for complexity and risk evaluation"
+        responsibilities:
+          - "Complexity analysis (effort, components, integrations)"
+          - "Risk assessment (security, compliance, data sensitivity)"
+          - "Architecture impact evaluation"
+          - "Workflow mode recommendation (Full SDD / Spec-Light / Skip)"
+    input_states: ["To Do"]
+    output_state: "Assessed"
+    optional: false
+
+  specify:
+    command: "/jpspec:specify"
+    description: "Create or update feature specifications using PM Planner agent"
+    agents:
+      - name: "product-requirements-manager"
+        identity: "@pm-planner"
+        description: "Senior Product Strategy Advisor using SVPG principles"
+        responsibilities:
+          - "Create comprehensive PRDs with 10 sections"
+          - "Define user stories and acceptance criteria"
+          - "Conduct DVF+V risk assessment"
+          - "Create implementation tasks in backlog"
+    input_states: ["Assessed"]
+    output_state: "Specified"
+    optional: false
+    creates_backlog_tasks: true
+
+  research:
+    command: "/jpspec:research"
+    description: "Execute research and business validation workflow"
+    agents:
+      - name: "researcher"
+        identity: "@researcher"
+        description: "Senior Research Analyst"
+        responsibilities:
+          - "Market analysis (TAM/SAM/SOM, growth trends)"
+          - "Competitive landscape assessment"
+          - "Technical feasibility evaluation"
+      - name: "business-validator"
+        identity: "@business-validator"
+        description: "Senior Business Analyst"
+        responsibilities:
+          - "Financial viability analysis"
+          - "Operational feasibility assessment"
+          - "Go/No-Go recommendations"
+    input_states: ["Specified"]
+    output_state: "Researched"
+    optional: true
+    creates_backlog_tasks: true
+
+  plan:
+    command: "/jpspec:plan"
+    description: "Execute planning workflow using architect and platform engineer"
+    execution_mode: "parallel"
+    agents:
+      - name: "software-architect"
+        identity: "@software-architect"
+        description: "Enterprise Software Architect"
+        responsibilities:
+          - "System architecture and component design"
+          - "Architecture Decision Records (ADRs)"
+          - "Platform Quality Framework assessment"
+      - name: "platform-engineer"
+        identity: "@platform-engineer"
+        description: "Principal Platform Engineer"
+        responsibilities:
+          - "CI/CD pipeline architecture"
+          - "Infrastructure architecture (Kubernetes, cloud)"
+          - "DevSecOps integration (SBOM, SLSA)"
+    input_states: ["Specified", "Researched"]
+    output_state: "Planned"
+    optional: false
+    creates_backlog_tasks: true
+    builds_constitution: true
+
+  implement:
+    command: "/jpspec:implement"
+    description: "Execute implementation with code review"
+    agents:
+      - name: "frontend-engineer"
+        identity: "@frontend-engineer"
+        description: "Senior Frontend Engineer"
+        responsibilities:
+          - "Component development with accessibility"
+          - "State management and performance"
+      - name: "backend-engineer"
+        identity: "@backend-engineer"
+        description: "Senior Backend Engineer"
+        responsibilities:
+          - "API development (REST, GraphQL, gRPC)"
+          - "Business logic and database integration"
+      - name: "ai-ml-engineer"
+        identity: "@ai-ml-engineer"
+        description: "AI/ML Engineer"
+        responsibilities:
+          - "Model development and MLOps"
+      - name: "frontend-code-reviewer"
+        identity: "@frontend-code-reviewer"
+        description: "Principal Frontend Code Reviewer"
+        responsibilities:
+          - "Functionality, performance, accessibility review"
+      - name: "backend-code-reviewer"
+        identity: "@backend-code-reviewer"
+        description: "Principal Backend Code Reviewer"
+        responsibilities:
+          - "Security, performance, API design review"
+    input_states: ["Planned"]
+    output_state: "In Implementation"
+    optional: false
+    requires_backlog_tasks: true
+
+  validate:
+    command: "/jpspec:validate"
+    description: "Execute validation using QA, security, and documentation agents"
+    agents:
+      - name: "quality-guardian"
+        identity: "@quality-guardian"
+        description: "Quality Guardian"
+        responsibilities:
+          - "Functional and integration testing"
+          - "Performance testing"
+      - name: "secure-by-design-engineer"
+        identity: "@secure-by-design-engineer"
+        description: "Secure-by-Design Engineer"
+        responsibilities:
+          - "Security review and vulnerability scanning"
+          - "Threat modeling"
+      - name: "tech-writer"
+        identity: "@tech-writer"
+        description: "Senior Technical Writer"
+        responsibilities:
+          - "API documentation and user guides"
+      - name: "release-manager"
+        identity: "@release-manager"
+        description: "Senior Release Manager"
+        responsibilities:
+          - "Release planning and human approval coordination"
+    input_states: ["In Implementation"]
+    output_state: "Validated"
+    optional: false
+    requires_human_approval: true
+
+  operate:
+    command: "/jpspec:operate"
+    description: "Execute operations workflow using SRE agent"
+    agents:
+      - name: "sre-agent"
+        identity: "@sre-agent"
+        description: "Principal Site Reliability Engineer"
+        responsibilities:
+          - "CI/CD pipeline implementation"
+          - "Kubernetes deployment"
+          - "Observability setup"
+          - "Incident management"
+    input_states: ["Validated"]
+    output_state: "Deployed"
+    optional: false
+    creates_backlog_tasks: true
+
+# ==============================================================================
+# STATE TRANSITIONS
+# ==============================================================================
+# Transitions define the state machine edges with artifact validation gates.
+#
+# Artifact Path Variables:
+#   {feature}  - Feature name slug (e.g., "user-authentication")
+#   {NNN}      - Zero-padded number (e.g., "001")
+#   {slug}     - Title slug
+#
+# Validation Modes:
+#   NONE         - Automatic transition after artifacts created
+#   KEYWORD[...] - User must type exact keyword to proceed
+#   PULL_REQUEST - Blocked until PR containing artifact is merged
+
+transitions:
+  # === Primary Forward Path ===
+
+  - name: "assess"
+    from: "To Do"
+    to: "Assessed"
+    via: "assess"
+    description: "SDD workflow suitability assessed"
+    output_artifacts:
+      - type: "assessment_report"
+        path: "./docs/assess/{feature}-assessment.md"
+    validation: "NONE"
+
+  - name: "specify"
+    from: "Assessed"
+    to: "Specified"
+    via: "specify"
+    description: "Requirements captured and documented"
+    input_artifacts:
+      - type: "assessment_report"
+        path: "./docs/assess/{feature}-assessment.md"
+        required: true
+    output_artifacts:
+      - type: "prd"
+        path: "./docs/prd/{feature}.md"
+        required: true
+      - type: "backlog_tasks"
+        path: "./backlog/tasks/*.md"
+        required: true
+        multiple: true
+    validation: "NONE"
+
+  - name: "research"
+    from: "Specified"
+    to: "Researched"
+    via: "research"
+    description: "Technical and business research completed"
+    input_artifacts:
+      - type: "prd"
+        path: "./docs/prd/{feature}.md"
+        required: true
+    output_artifacts:
+      - type: "research_report"
+        path: "./docs/research/{feature}-research.md"
+      - type: "business_validation"
+        path: "./docs/research/{feature}-validation.md"
+    validation: "NONE"
+
+  - name: "plan_from_specified"
+    from: "Specified"
+    to: "Planned"
+    via: "plan"
+    description: "Architecture planned (skipping optional research)"
+    input_artifacts:
+      - type: "prd"
+        path: "./docs/prd/{feature}.md"
+        required: true
+    output_artifacts:
+      - type: "adr"
+        path: "./docs/adr/ADR-{NNN}-{slug}.md"
+        required: true
+        multiple: true
+    validation: "NONE"
+
+  - name: "plan_from_researched"
+    from: "Researched"
+    to: "Planned"
+    via: "plan"
+    description: "Architecture planned after research"
+    input_artifacts:
+      - type: "prd"
+        path: "./docs/prd/{feature}.md"
+        required: true
+      - type: "research_report"
+        path: "./docs/research/{feature}-research.md"
+        required: true
+      - type: "business_validation"
+        path: "./docs/research/{feature}-validation.md"
+        required: true
+    output_artifacts:
+      - type: "adr"
+        path: "./docs/adr/ADR-{NNN}-{slug}.md"
+        required: true
+        multiple: true
+    validation: "NONE"
+
+  - name: "implement"
+    from: "Planned"
+    to: "In Implementation"
+    via: "implement"
+    description: "Implementation work started"
+    input_artifacts:
+      - type: "adr"
+        path: "./docs/adr/ADR-*.md"
+        required: true
+    output_artifacts:
+      - type: "source_code"
+        path: "./src/"
+      - type: "tests"
+        path: "./tests/"
+        required: true
+      - type: "ac_coverage"
+        path: "./tests/ac-coverage.json"
+        required: true
+    validation: "NONE"
+
+  - name: "validate"
+    from: "In Implementation"
+    to: "Validated"
+    via: "validate"
+    description: "QA, security, and documentation validated"
+    input_artifacts:
+      - type: "tests"
+        path: "./tests/"
+        required: true
+      - type: "ac_coverage"
+        path: "./tests/ac-coverage.json"
+        required: true
+    output_artifacts:
+      - type: "qa_report"
+        path: "./docs/qa/{feature}-qa-report.md"
+      - type: "security_report"
+        path: "./docs/security/{feature}-security.md"
+    validation: "NONE"
+
+  - name: "operate"
+    from: "Validated"
+    to: "Deployed"
+    via: "operate"
+    description: "Deployed to production"
+    input_artifacts:
+      - type: "qa_report"
+        path: "./docs/qa/{feature}-qa-report.md"
+        required: true
+      - type: "security_report"
+        path: "./docs/security/{feature}-security.md"
+        required: true
+    output_artifacts:
+      - type: "deployment_manifest"
+        path: "./deploy/"
+    validation: "NONE"
+
+  # === Terminal Transitions ===
+
+  - name: "complete_from_deployed"
+    from: "Deployed"
+    to: "Done"
+    via: "manual"
+    description: "Production deployment confirmed successful"
+    validation: "NONE"
+
+  - name: "complete_from_validated"
+    from: "Validated"
+    to: "Done"
+    via: "manual"
+    description: "Feature validated but deployment deferred"
+    validation: "NONE"
+
+  - name: "complete_from_implementation"
+    from: "In Implementation"
+    to: "Done"
+    via: "manual"
+    description: "Implementation complete, validation deferred"
+    validation: "NONE"
+
+  # === Backward Transitions ===
+
+  - name: "rework_to_planned"
+    from: "In Implementation"
+    to: "Planned"
+    via: "rework"
+    description: "Rework needed based on implementation findings"
+    validation: "NONE"
+
+  - name: "rework_to_implementation"
+    from: "Validated"
+    to: "In Implementation"
+    via: "rework"
+    description: "Rework needed based on validation findings"
+    validation: "NONE"
+
+  - name: "rollback"
+    from: "Deployed"
+    to: "Validated"
+    via: "rollback"
+    description: "Rollback from production due to issues"
+    validation: "NONE"
+
+# ==============================================================================
+# AGENT LOOP CLASSIFICATION
+# ==============================================================================
+# Inner Loop: Fast, local iteration (edit -> run/tests -> debug -> repeat)
+# Outer Loop: Post-commit CI/CD pipeline (governance, safety, reliability)
+
+agent_loops:
+  inner:
+    description: "Fast execution - optimized for developer velocity"
+    agents:
+      - "frontend-engineer"
+      - "backend-engineer"
+      - "ai-ml-engineer"
+      - "frontend-code-reviewer"
+      - "backend-code-reviewer"
+
+  outer:
+    description: "Governance-focused - optimized for safety and reliability"
+    agents:
+      - "workflow-assessor"
+      - "product-requirements-manager"
+      - "researcher"
+      - "business-validator"
+      - "software-architect"
+      - "platform-engineer"
+      - "quality-guardian"
+      - "secure-by-design-engineer"
+      - "tech-writer"
+      - "release-manager"
+      - "sre-agent"
+
+# ==============================================================================
+# METADATA
+# ==============================================================================
+
+metadata:
+  schema_version: "2.0"
+  last_updated: "2025-12-09"
+  state_count: 9
+  workflow_count: 7
+  agent_count: 16
+  inner_loop_agent_count: 5
+  outer_loop_agent_count: 11
+  transition_count: 14

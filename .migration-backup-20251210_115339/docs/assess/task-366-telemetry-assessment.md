@@ -1,0 +1,120 @@
+# Feature Assessment: Role Usage Analytics Telemetry (task-366)
+
+**Date**: 2025-12-09
+**Assessed By**: Claude AI Agent
+**Status**: Assessed
+**User Request**: Complete PRD required
+
+## Feature Overview
+
+Add an optional, privacy-preserving telemetry system for role usage analytics in the Specflow workflow. This feature will track role selection, agent invocations, and command usage to provide insights into how developers interact with the role-based command architecture. Key requirements include:
+
+- RoleEvent enum with event types (role.selected, agent.invoked, handoff.clicked)
+- track_role_event() function with PII hashing
+- JSONL telemetry file format (.jpspec/telemetry.jsonl)
+- Opt-in telemetry via config (telemetry.enabled)
+- Feedback prompt UI
+
+## Scoring Analysis
+
+### Complexity Score: 4.3/10
+
+| Dimension | Score | Rationale |
+|-----------|-------|-----------|
+| Effort Days | 4/10 | 3-4 days estimated: event model, tracking function, file writer, config integration, CLI feedback prompt |
+| Component Count | 5/10 | New telemetry module + integration with hooks, CLI, config system, and specflow_workflow.yml |
+| Integration Points | 4/10 | Integrates with: hooks system (event emission), CLI (feedback prompt), config (opt-in), workflow commands (tracking points) |
+| **Average** | **4.3/10** | |
+
+### Risk Score: 5.0/10
+
+| Dimension | Score | Rationale |
+|-----------|-------|-----------|
+| Security Implications | 5/10 | PII hashing required, must ensure no sensitive data leakage (project names, paths, usernames). Privacy-by-design is critical. |
+| Compliance Requirements | 4/10 | GDPR/privacy considerations for opt-in consent, data retention, and user control over telemetry data |
+| Data Sensitivity | 6/10 | Usage patterns could reveal project activity, workflow preferences, and potentially confidential project names without proper anonymization |
+| **Average** | **5.0/10** | |
+
+### Architecture Impact Score: 3.7/10
+
+| Dimension | Score | Rationale |
+|-----------|-------|-----------|
+| New Patterns | 5/10 | Introduces telemetry pattern (not currently in codebase), event tracking model, and anonymization utilities |
+| Breaking Changes | 2/10 | No breaking changes - purely additive, opt-in feature |
+| Dependencies Affected | 4/10 | Hooks system may need extension, CLI needs feedback prompt, config system needs telemetry section |
+| **Average** | **3.7/10** | |
+
+## Overall Assessment
+
+**Total Score**: 13.0/30
+**Recommendation**: Full PRD (per user request)
+**Confidence**: High
+
+### Rationale
+
+While the raw score (13.0) would normally suggest **Spec-Light** mode, the user has explicitly requested a complete PRD. This is appropriate because:
+
+1. **Privacy-Critical Feature**: Telemetry handling requires careful design to avoid PII leakage
+2. **New Pattern Introduction**: First telemetry system in the codebase - needs architectural documentation
+3. **User Trust Impact**: Poorly designed telemetry can damage user trust; requires thorough specification
+4. **Risk Score at 5.0**: Moderate risk threshold warrants detailed specification
+
+### Key Factors
+
+- **Complexity**: Moderate - new module with several integration points, but well-scoped functionality
+- **Risk**: Moderate-High - privacy and security considerations require careful design
+- **Impact**: Low-Moderate - additive feature, no breaking changes, but introduces new architectural pattern
+
+## DVF+V Risk Analysis (SVPG Framework)
+
+### Value Risk (Desirability)
+- **Question**: Will users opt-in to telemetry?
+- **Concern**: Users may distrust telemetry, reducing adoption
+- **Mitigation**: Clear privacy policy, visible opt-in, transparent data collection
+
+### Usability Risk (Experience)
+- **Question**: Is the opt-in flow intuitive?
+- **Concern**: Complex consent flow may frustrate users
+- **Mitigation**: Single-prompt opt-in during init, easy toggle in config
+
+### Feasibility Risk (Technical)
+- **Question**: Can we ensure PII is never collected?
+- **Concern**: Accidental data leakage through file paths or project names
+- **Mitigation**: Hash all potentially identifying data, local-only storage initially
+
+### Viability Risk (Business)
+- **Question**: Is telemetry valuable for product decisions?
+- **Concern**: Effort may not yield actionable insights
+- **Mitigation**: Define specific metrics and decisions telemetry will inform
+
+## Next Steps
+
+Since user requested complete PRD:
+
+```bash
+/jpspec:specify task-366
+```
+
+This will create a comprehensive Product Requirements Document with:
+- Detailed functional requirements
+- Privacy and security specifications
+- Data model design
+- Implementation tasks via backlog CLI
+- Test and validation plan
+
+## Override
+
+Assessment completed with **Full PRD** recommendation per user request.
+
+To change approach:
+```bash
+# Force spec-light mode
+/jpspec:assess task-366 --mode light
+
+# Force skip PRD
+/jpspec:assess task-366 --mode skip
+```
+
+---
+
+*Assessment generated by /jpspec:assess workflow*

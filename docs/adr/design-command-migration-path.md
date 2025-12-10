@@ -10,7 +10,7 @@
 
 ## Executive Summary
 
-This document outlines the migration strategy for transitioning from flat command namespaces (`/jpspec:*`, `/speckit:*`) to role-based hierarchical namespaces (`/pm:*`, `/dev:*`, `/sec:*`, `/qa:*`, `/ops:*`) over a **12-month deprecation period**.
+This document outlines the migration strategy for transitioning from flat command namespaces (`/specflow:*`, `/speckit:*`) to role-based hierarchical namespaces (`/pm:*`, `/dev:*`, `/sec:*`, `/qa:*`, `/ops:*`) over a **12-month deprecation period**.
 
 ### Goals
 
@@ -30,14 +30,14 @@ Old commands become **aliases** that redirect to new commands with deprecation w
 
 **Example**:
 ```bash
-User types: /jpspec:assess feature-x
+User types: /specflow:assess feature-x
 
 System executes: /pm:assess feature-x
 
 System displays warning:
-⚠️  /jpspec:assess is deprecated and will be removed in 8 months.
+⚠️  /specflow:assess is deprecated and will be removed in 8 months.
 Please use /pm:assess instead.
-Migration guide: https://jpspec.dev/docs/migration
+Migration guide: https://specflow.dev/docs/migration
 ```
 
 ### Implementation: Command Forwarding
@@ -48,7 +48,7 @@ Create symlinks from old locations to new:
 
 ```bash
 # Old command redirects to new
-.claude/commands/jpspec/assess.md → .claude/commands/pm/assess.md
+.claude/commands/specflow/assess.md → .claude/commands/pm/assess.md
 ```
 
 **Pros**: Simple, filesystem-native
@@ -63,7 +63,7 @@ Create symlinks from old locations to new:
 Old command files include new command with deprecation metadata:
 
 ```markdown
-# .claude/commands/jpspec/assess.md (OLD LOCATION)
+# .claude/commands/specflow/assess.md (OLD LOCATION)
 ---
 description: "[DEPRECATED] Use /pm:assess - Assess SDD workflow suitability"
 deprecated: true
@@ -79,7 +79,7 @@ This command is deprecated and will be removed on **2026-12-09**.
 
 Please use **`/pm:assess`** instead.
 
-Migration guide: https://jpspec.dev/docs/migration
+Migration guide: https://specflow.dev/docs/migration
 
 ---
 
@@ -113,17 +113,17 @@ Migration guide: https://jpspec.dev/docs/migration
 
 **User Experience**:
 ```bash
-$ /jpspec:assess user-auth
+$ /specflow:assess user-auth
 
 ⚠️  Deprecation Warning
 
-Command: /jpspec:assess
+Command: /specflow:assess
 Status: DEPRECATED (soft)
 Replacement: /pm:assess
 Removal Date: 2026-12-09 (8 months)
 
 This command still works but will be removed.
-Update your workflows: https://jpspec.dev/docs/migration
+Update your workflows: https://specflow.dev/docs/migration
 
 ───────────────────────────────────────────────────────────
 
@@ -150,13 +150,13 @@ Update your workflows: https://jpspec.dev/docs/migration
 
 **User Experience**:
 ```bash
-$ /jpspec:assess user-auth
+$ /specflow:assess user-auth
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ⚠️  DEPRECATION WARNING (3 MONTHS UNTIL REMOVAL)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Command: /jpspec:assess
+Command: /specflow:assess
 Status: DEPRECATED (hard)
 Replacement: /pm:assess
 Removal Date: 2026-09-09 (3 months)
@@ -165,7 +165,7 @@ ACTION REQUIRED:
 Run: specify migrate-commands --dry-run
 to update all your workflows automatically.
 
-Migration guide: https://jpspec.dev/docs/migration
+Migration guide: https://specflow.dev/docs/migration
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -181,11 +181,11 @@ specify migrate-commands --dry-run
 Found 12 deprecated commands in your project:
 
 File: .github/workflows/ci.yml
-  Line 45: /jpspec:assess → /pm:assess
-  Line 67: /jpspec:specify → /pm:specify
+  Line 45: /specflow:assess → /pm:assess
+  Line 67: /specflow:specify → /pm:specify
 
 File: docs/guides/quickstart.md
-  Line 23: /jpspec:implement → /dev:implement
+  Line 23: /specflow:implement → /dev:implement
 
 Run without --dry-run to apply changes automatically.
 ```
@@ -210,13 +210,13 @@ Run without --dry-run to apply changes automatically.
 
 **User Experience**:
 ```bash
-$ /jpspec:assess user-auth
+$ /specflow:assess user-auth
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🚨 CRITICAL: COMMAND REMOVAL IN 30 DAYS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Command: /jpspec:assess
+Command: /specflow:assess
 Status: WILL BE REMOVED IN 30 DAYS
 Replacement: /pm:assess
 Removal Date: 2026-12-09
@@ -227,7 +227,7 @@ This command will STOP WORKING in 30 days.
 Auto-migrate now:
   specify migrate-commands
 
-Need help? Contact support: support@jpspec.dev
+Need help? Contact support: support@specflow.dev
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -252,25 +252,25 @@ Need help? Contact support: support@jpspec.dev
 
 **User Experience**:
 ```bash
-$ /jpspec:assess user-auth
+$ /specflow:assess user-auth
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ❌ COMMAND NOT FOUND
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Command: /jpspec:assess
+Command: /specflow:assess
 Status: REMOVED (as of 2026-12-09)
 
 This command has been replaced by /pm:assess
 
 Update your command:
-  OLD: /jpspec:assess user-auth
+  OLD: /specflow:assess user-auth
   NEW: /pm:assess user-auth
 
-Migration guide: https://jpspec.dev/docs/migration
+Migration guide: https://specflow.dev/docs/migration
 Auto-migrate: specify migrate-commands
 
-Need help? support@jpspec.dev
+Need help? support@specflow.dev
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
@@ -282,35 +282,35 @@ Need help? support@jpspec.dev
 ### Product Manager Commands
 | Old Command | New Command | Deprecation Phase |
 |-------------|-------------|-------------------|
-| `/jpspec:assess` | `/pm:assess` | Month 0 |
-| `/jpspec:specify` | `/pm:specify` | Month 0 |
-| `/jpspec:research` | `/pm:research` | Month 0 |
+| `/specflow:assess` | `/pm:assess` | Month 0 |
+| `/specflow:specify` | `/pm:specify` | Month 0 |
+| `/specflow:research` | `/pm:research` | Month 0 |
 
 ### Developer Commands
 | Old Command | New Command | Deprecation Phase |
 |-------------|-------------|-------------------|
-| `/jpspec:plan` | `/dev:plan` | Month 0 |
-| `/jpspec:implement` | `/dev:implement` | Month 0 |
-| `/jpspec:operate` | `/dev:operate` | Month 0 |
-| `/jpspec:init` | `/dev:init` | Month 0 |
-| `/jpspec:reset` | `/dev:reset` | Month 0 |
-| `/jpspec:prune-branch` | `/dev:prune-branch` | Month 0 |
+| `/specflow:plan` | `/dev:plan` | Month 0 |
+| `/specflow:implement` | `/dev:implement` | Month 0 |
+| `/specflow:operate` | `/dev:operate` | Month 0 |
+| `/specflow:init` | `/dev:init` | Month 0 |
+| `/specflow:reset` | `/dev:reset` | Month 0 |
+| `/specflow:prune-branch` | `/dev:prune-branch` | Month 0 |
 | `/speckit:implement` | `/dev:implement-light` | Month 3 |
 | `/speckit:plan` | `/dev:plan-light` | Month 3 |
 
 ### Security Commands
 | Old Command | New Command | Deprecation Phase |
 |-------------|-------------|-------------------|
-| `/jpspec:security_fix` | `/sec:fix` | Month 0 |
-| `/jpspec:security_report` | `/sec:report` | Month 0 |
-| `/jpspec:security_triage` | `/sec:triage` | Month 0 |
-| `/jpspec:security_web` | `/sec:scan-web` | Month 0 |
-| `/jpspec:security_workflow` | `/sec:workflow` | Month 0 |
+| `/specflow:security_fix` | `/sec:fix` | Month 0 |
+| `/specflow:security_report` | `/sec:report` | Month 0 |
+| `/specflow:security_triage` | `/sec:triage` | Month 0 |
+| `/specflow:security_web` | `/sec:scan-web` | Month 0 |
+| `/specflow:security_workflow` | `/sec:workflow` | Month 0 |
 
 ### QA Commands
 | Old Command | New Command | Deprecation Phase |
 |-------------|-------------|-------------------|
-| `/jpspec:validate` | `/qa:validate` | Month 0 |
+| `/specflow:validate` | `/qa:validate` | Month 0 |
 | `/speckit:checklist` | `/qa:checklist` | Month 3 |
 | `/speckit:analyze` | `/qa:analyze` | Month 3 |
 
@@ -353,7 +353,7 @@ git commit -m "chore: migrate to role-based command namespaces"
 
 1. **Find deprecated commands**:
 ```bash
-grep -r "/jpspec:" .github/ docs/ scripts/
+grep -r "/specflow:" .github/ docs/ scripts/
 ```
 
 2. **Replace using mapping table** (see above)
@@ -429,18 +429,18 @@ def migrate_commands(
 
     # Command mapping
     MIGRATIONS = {
-        r'/jpspec:assess\b': '/pm:assess',
-        r'/jpspec:specify\b': '/pm:specify',
-        r'/jpspec:research\b': '/pm:research',
-        r'/jpspec:plan\b': '/dev:plan',
-        r'/jpspec:implement\b': '/dev:implement',
-        r'/jpspec:operate\b': '/dev:operate',
-        r'/jpspec:validate\b': '/qa:validate',
-        r'/jpspec:security_fix\b': '/sec:fix',
-        r'/jpspec:security_report\b': '/sec:report',
-        r'/jpspec:security_triage\b': '/sec:triage',
-        r'/jpspec:security_web\b': '/sec:scan-web',
-        r'/jpspec:security_workflow\b': '/sec:workflow',
+        r'/specflow:assess\b': '/pm:assess',
+        r'/specflow:specify\b': '/pm:specify',
+        r'/specflow:research\b': '/pm:research',
+        r'/specflow:plan\b': '/dev:plan',
+        r'/specflow:implement\b': '/dev:implement',
+        r'/specflow:operate\b': '/dev:operate',
+        r'/specflow:validate\b': '/qa:validate',
+        r'/specflow:security_fix\b': '/sec:fix',
+        r'/specflow:security_report\b': '/sec:report',
+        r'/specflow:security_triage\b': '/sec:triage',
+        r'/specflow:security_web\b': '/sec:scan-web',
+        r'/specflow:security_workflow\b': '/sec:workflow',
         r'/speckit:checklist\b': '/qa:checklist',
         r'/speckit:analyze\b': '/qa:analyze',
         r'/speckit:implement\b': '/dev:implement-light',
@@ -492,7 +492,7 @@ namespaces for improved discoverability and developer experience.
 
 What's Changing:
 • Commands are now organized by role: /pm, /dev, /sec, /qa, /ops
-• Old commands (/jpspec:*, /speckit:*) are deprecated
+• Old commands (/specflow:*, /speckit:*) are deprecated
 • 12-month transition period with full backwards compatibility
 
 Action Required:
@@ -507,8 +507,8 @@ Timeline:
 • Month 9-12: Final warning period
 • Month 12+: Old commands removed
 
-Migration Guide: https://jpspec.dev/docs/migration
-Questions? support@jpspec.dev
+Migration Guide: https://specflow.dev/docs/migration
+Questions? support@specflow.dev
 
 Thanks for using JP Spec Kit!
 The JP Spec Team
@@ -543,7 +543,7 @@ pip install --upgrade specify-cli
 **Solution**:
 ```bash
 # 1. Check script for old commands
-grep -r "/jpspec:" .github/
+grep -r "/specflow:" .github/
 
 # 2. Run migration tool on specific files
 specify migrate-commands --files ".github/workflows/*"
@@ -585,7 +585,7 @@ If critical issues arise during migration:
 ### Post-Removal Rollback (Month 12+)
 
 1. **No rollback available**: Old commands permanently removed
-2. **Support available**: Contact support@jpspec.dev
+2. **Support available**: Contact support@specflow.dev
 3. **Migration tool**: Can regenerate old-style commands if needed
 
 ---

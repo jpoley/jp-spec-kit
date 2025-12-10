@@ -99,7 +99,7 @@ echo ""
 echo "=== 7. jp-spec-kit Integration Points ==="
 test_check "templates/ directory exists" "[ -d templates ]"
 test_check "tasks-template.md exists" "[ -f templates/tasks-template.md ]"
-test_check ".claude/commands/jpspec/ exists" "[ -d .claude/commands/jpspec ]"
+test_check ".claude/commands/specflow/ exists" "[ -d .claude/commands/specflow ]"
 echo ""
 
 echo "=========================================="

@@ -45,7 +45,7 @@ Created .github/workflows/dev-setup-validation.yml with:
 
 2. dev-setup command execution and verification
    - Runs: uv run specify dev-setup --force
-   - Verifies jpspec/ and speckit/ directories created
+   - Verifies specflow/ and speckit/ directories created
    - Counts and verifies symlinks were created
 
 3. Test suite execution

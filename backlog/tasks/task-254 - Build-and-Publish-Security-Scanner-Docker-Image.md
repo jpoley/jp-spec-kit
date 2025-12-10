@@ -22,7 +22,7 @@ Create Docker image with Semgrep and specify-cli for air-gapped and highly contr
 <!-- AC:BEGIN -->
 - [ ] #1 Create Dockerfile with Python 3.11, Semgrep, uv, specify-cli
 - [ ] #2 Optimize image size (<200MB using slim base and multi-stage build)
-- [ ] #3 Publish to GHCR (ghcr.io/yourusername/jpspeckit-security-scanner:version)
+- [ ] #3 Publish to GHCR (ghcr.io/yourusername/specflowkit-security-scanner:version)
 - [ ] #4 Add image usage to CI/CD pipeline as alternative scan method
 - [ ] #5 Document usage for air-gapped environments in docs/platform/
 - [ ] #6 Test image in isolated environment (no network access)
@@ -151,7 +151,7 @@ Create an optimized Docker image containing Semgrep and specify-cli for air-gapp
    set -e
    
    VERSION=${1:-latest}
-   IMAGE_NAME="jpspeckit/security-scanner"
+   IMAGE_NAME="specflowkit/security-scanner"
    
    echo "Building security scanner Docker image v${VERSION}..."
    
@@ -179,17 +179,17 @@ Create an optimized Docker image containing Semgrep and specify-cli for air-gapp
 2. Test image functionality:
    ```bash
    # Test 1: Help command
-   docker run --rm jpspeckit/security-scanner:latest --help
+   docker run --rm specflowkit/security-scanner:latest --help
    
    # Test 2: Scan current directory
-   docker run --rm -v $(pwd):/src jpspeckit/security-scanner:latest
+   docker run --rm -v $(pwd):/src specflowkit/security-scanner:latest
    
    # Test 3: Scan with specific flags
-   docker run --rm -v $(pwd):/src jpspeckit/security-scanner:latest \
+   docker run --rm -v $(pwd):/src specflowkit/security-scanner:latest \
      --format json --output /src/results.json
    
    # Test 4: Check image size
-   docker images jpspeckit/security-scanner:latest --format "{{.Size}}"
+   docker images specflowkit/security-scanner:latest --format "{{.Size}}"
    # Target: <200MB
    ```
 
@@ -305,9 +305,9 @@ Create an optimized Docker image containing Semgrep and specify-cli for air-gapp
    ```bash
    docker run --rm \
      -v /path/to/project:/src \
-     -v /path/to/.jpspec:/src/.jpspec \
+     -v /path/to/.specflow:/src/.specflow \
      ghcr.io/yourusername/jp-spec-kit/security-scanner:latest \
-     --policy .jpspec/security-policy.yml
+     --policy .specflow/security-policy.yml
    ```
    
    ### Save Results

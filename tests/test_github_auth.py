@@ -45,7 +45,7 @@ class TestGitHubToken:
         with patch.dict("os.environ", {"GITHUB_JPSPEC": "env_token"}):
             assert _github_token("cli_token") == "cli_token"
 
-    def test_uses_github_jpspec_env_var_when_no_cli_token(self):
+    def test_uses_github_specflow_env_var_when_no_cli_token(self):
         """Should use GITHUB_JPSPEC env var when no CLI token."""
         with patch.dict("os.environ", {"GITHUB_JPSPEC": "env_token"}, clear=True):
             assert _github_token(None) == "env_token"
@@ -55,11 +55,11 @@ class TestGitHubToken:
         with patch.dict("os.environ", {"GITHUB_TOKEN": "gh_token"}, clear=True):
             assert _github_token(None) == "gh_token"
 
-    def test_github_token_takes_precedence_over_github_jpspec(self):
+    def test_github_token_takes_precedence_over_github_specflow(self):
         """GITHUB_TOKEN should take precedence over GITHUB_JPSPEC."""
         with patch.dict(
             "os.environ",
-            {"GITHUB_TOKEN": "gh_token", "GITHUB_JPSPEC": "jpspec_token"},
+            {"GITHUB_TOKEN": "gh_token", "GITHUB_JPSPEC": "specflow_token"},
             clear=True,
         ):
             assert _github_token(None) == "gh_token"

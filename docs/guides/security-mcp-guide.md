@@ -62,7 +62,7 @@ Add the security scanner server to your `.mcp.json` configuration:
 ```json
 {
   "mcpServers": {
-    "jpspec-security": {
+    "specflow-security": {
       "command": "python",
       "args": ["-m", "specify_cli.security.mcp_server"],
       "env": {},
@@ -140,7 +140,7 @@ Trigger a security scan on the target directory.
 ```python
 from mcp.client import Client
 
-async with Client("jpspec-security") as client:
+async with Client("specflow-security") as client:
     result = await client.call_tool(
         "security_scan",
         arguments={
@@ -180,7 +180,7 @@ Get skill invocation instruction for AI-powered triage.
 **Example:**
 
 ```python
-async with Client("jpspec-security") as client:
+async with Client("specflow-security") as client:
     # Get triage instruction
     instruction = await client.call_tool("security_triage")
 
@@ -222,7 +222,7 @@ Get skill invocation instruction for fix generation.
 **Example:**
 
 ```python
-async with Client("jpspec-security") as client:
+async with Client("specflow-security") as client:
     # Get fix instruction
     instruction = await client.call_tool(
         "security_fix",
@@ -250,7 +250,7 @@ List all security findings with optional filtering.
 **Example:**
 
 ```python
-async with Client("jpspec-security") as client:
+async with Client("specflow-security") as client:
     # Get all findings
     findings = await client.read_resource("security://findings")
     data = json.loads(findings.text)
@@ -274,7 +274,7 @@ Get a specific finding by its ID.
 **Example:**
 
 ```python
-async with Client("jpspec-security") as client:
+async with Client("specflow-security") as client:
     finding = await client.read_resource("security://findings/SEMGREP-CWE-89-001")
     data = json.loads(finding.text)
 
@@ -320,7 +320,7 @@ Get overall security posture and summary statistics.
 **Example:**
 
 ```python
-async with Client("jpspec-security") as client:
+async with Client("specflow-security") as client:
     status = await client.read_resource("security://status")
     data = json.loads(status.text)
 
@@ -349,7 +349,7 @@ Get scanner configuration and available options.
 **Example:**
 
 ```python
-async with Client("jpspec-security") as client:
+async with Client("specflow-security") as client:
     config = await client.read_resource("security://config")
     data = json.loads(config.text)
 
@@ -369,7 +369,7 @@ import json
 async def security_workflow():
     """Complete security workflow: scan → triage → fix."""
 
-    async with Client("jpspec-security") as client:
+    async with Client("specflow-security") as client:
         # 1. Run security scan
         print("Running security scan...")
         scan_result = await client.call_tool(
@@ -414,7 +414,7 @@ async def security_dashboard(projects: list[str]):
 
     for project in projects:
         # Each project has its own MCP server instance
-        async with Client(f"jpspec-security-{project}") as client:
+        async with Client(f"specflow-security-{project}") as client:
             status = await client.read_resource("security://status")
             data = json.loads(status.text)
 
@@ -442,7 +442,7 @@ import json
 async def find_sql_injections():
     """Find all SQL injection vulnerabilities."""
 
-    async with Client("jpspec-security") as client:
+    async with Client("specflow-security") as client:
         # Get all findings
         findings_response = await client.read_resource("security://findings")
         findings = json.loads(findings_response.text)
@@ -558,7 +558,7 @@ Example workflow:
 ## Related Documentation
 
 - [ADR-008: Security MCP Server Architecture](../adr/ADR-008-security-mcp-server-architecture.md)
-- [Security Commands PRD](../prd/jpspec-security-commands.md)
+- [Security Commands PRD](../prd/specflow-security-commands.md)
 - [Model Context Protocol Specification](https://modelcontextprotocol.io/docs/)
 
 ---

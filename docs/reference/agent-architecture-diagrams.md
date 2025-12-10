@@ -10,7 +10,7 @@ This document provides visual representations of the JP Spec Kit agent ecosystem
 | AI Coding Platforms | 13 | Supported IDE/CLI integrations |
 | MCP Servers | 9 | Tool integrations via Model Context Protocol |
 | Workflow States | 9 | Task progression states |
-| Slash Commands | 7 | `/jpspec:*` workflow commands |
+| Slash Commands | 7 | `/specflow:*` workflow commands |
 
 ---
 
@@ -22,14 +22,14 @@ This document provides visual representations of the JP Spec Kit agent ecosystem
 stateDiagram-v2
     [*] --> ToDo: Task Created
 
-    ToDo --> Assessed: /jpspec:assess
-    Assessed --> Specified: /jpspec:specify
-    Specified --> Researched: /jpspec:research
-    Specified --> Planned: /jpspec:plan (skip research)
-    Researched --> Planned: /jpspec:plan
-    Planned --> InImpl: /jpspec:implement
-    InImpl --> Validated: /jpspec:validate
-    Validated --> Deployed: /jpspec:operate
+    ToDo --> Assessed: /specflow:assess
+    Assessed --> Specified: /specflow:specify
+    Specified --> Researched: /specflow:research
+    Specified --> Planned: /specflow:plan (skip research)
+    Researched --> Planned: /specflow:plan
+    Planned --> InImpl: /specflow:implement
+    InImpl --> Validated: /specflow:validate
+    Validated --> Deployed: /specflow:operate
 
     Deployed --> Done: Manual close
     Validated --> Done: Manual close
@@ -77,40 +77,40 @@ stateDiagram-v2
                               ┌─────────────┐
                               │   TO DO     │ ◄── Task Created
                               └──────┬──────┘
-                                     │ /jpspec:assess
+                                     │ /specflow:assess
                                      ▼
                               ┌─────────────┐
                               │  ASSESSED   │ ◄── Complexity evaluated
                               └──────┬──────┘
-                                     │ /jpspec:specify
+                                     │ /specflow:specify
                                      ▼
                               ┌─────────────┐
                               │  SPECIFIED  │ ◄── PRD + Tasks created
                               └──────┬──────┘
                                      │
                     ┌────────────────┼────────────────┐
-                    │ /jpspec:plan   │ /jpspec:research
+                    │ /specflow:plan   │ /specflow:research
                     │ (skip research)│                │
                     ▼                ▼                │
               ┌─────────────┐ ┌─────────────┐        │
               │   PLANNED   │ │ RESEARCHED  │────────┘
               └──────┬──────┘ └──────┬──────┘
-                     │               │ /jpspec:plan
+                     │               │ /specflow:plan
                      │               ▼
                      │        ┌─────────────┐
                      └───────►│   PLANNED   │ ◄── ADRs created
                               └──────┬──────┘
-                                     │ /jpspec:implement
+                                     │ /specflow:implement
                                      ▼
                               ┌──────────────────┐
         ┌──── Rework ◄────────│IN IMPLEMENTATION│ ◄── Code written
         │                     └──────┬──────────┘
-        │                            │ /jpspec:validate
+        │                            │ /specflow:validate
         │                            ▼
         │                     ┌─────────────┐
         │     ┌─ Rework ◄─────│  VALIDATED  │ ◄── QA + Security passed
         │     │               └──────┬──────┘
-        │     │                      │ /jpspec:operate
+        │     │                      │ /specflow:operate
         │     │                      ▼
         │     │               ┌─────────────┐
         │     │  Rollback ◄───│  DEPLOYED   │ ◄── In production
@@ -154,7 +154,7 @@ flowchart TB
         BCR[backend-code-reviewer]
     end
 
-    subgraph WORKFLOWS["/jpspec Commands"]
+    subgraph WORKFLOWS["/specflow Commands"]
         direction LR
         A[assess] --> S[specify] --> R[research] --> P[plan] --> I[implement] --> V[validate] --> O[operate]
     end
@@ -196,7 +196,7 @@ flowchart TB
 ║  └────────┬────────┘   └────────┬────────┘   └────────┬────────┘             ║
 ║           │                     │                     │                       ║
 ║           ▼                     ▼                     ▼                       ║
-║      /jpspec:assess       /jpspec:specify      /jpspec:research              ║
+║      /specflow:assess       /specflow:specify      /specflow:research              ║
 ║                                                       │                       ║
 ║  ┌─────────────────┐                          ┌──────┴────────┐              ║
 ║  │ business-       │                          │ software-     │              ║
@@ -207,7 +207,7 @@ flowchart TB
 ║                                                       │                       ║
 ║  ┌─────────────────┐                          ┌───────┴───────┐              ║
 ║  │ platform-       │                          │               │              ║
-║  │ engineer        │──────────────────────────┤ /jpspec:plan  │              ║
+║  │ engineer        │──────────────────────────┤ /specflow:plan  │              ║
 ║  │ @platform-      │                          │               │              ║
 ║  │ engineer        │                          └───────────────┘              ║
 ║  └─────────────────┘                                                         ║
@@ -221,13 +221,13 @@ flowchart TB
 ║           │                     │                     │                       ║
 ║           └─────────────────────┼─────────────────────┘                       ║
 ║                                 ▼                                             ║
-║  ┌─────────────────┐     /jpspec:validate    ┌─────────────────┐             ║
+║  ┌─────────────────┐     /specflow:validate    ┌─────────────────┐             ║
 ║  │ release-manager │            │            │ sre-agent       │             ║
 ║  │ @release-       │────────────┘            │ @sre-agent      │             ║
 ║  │ manager         │                         └────────┬────────┘             ║
 ║  └─────────────────┘                                  │                       ║
 ║                                                       ▼                       ║
-║                                                /jpspec:operate               ║
+║                                                /specflow:operate               ║
 ╚═══════════════════════════════════════════════════════════════════════════════╝
 
 ╔═══════════════════════════════════════════════════════════════════════════════╗
@@ -243,7 +243,7 @@ flowchart TB
 ║           │                     │                     │                       ║
 ║           └─────────────────────┼─────────────────────┘                       ║
 ║                                 ▼                                             ║
-║                          /jpspec:implement                                    ║
+║                          /specflow:implement                                    ║
 ║                                 ▲                                             ║
 ║           ┌─────────────────────┼─────────────────────┐                       ║
 ║           │                     │                     │                       ║
@@ -275,7 +275,7 @@ flowchart TB
         SH[shadcn-ui<br/>UI Components]
         CD[chrome-devtools<br/>Browser DevTools]
         BL[backlog<br/>Task Management]
-        SEC[jpspec-security<br/>Security Scanner]
+        SEC[specflow-security<br/>Security Scanner]
     end
 
     subgraph AGENTS["WORKFLOW AGENTS"]
@@ -336,7 +336,7 @@ flowchart TB
 │  ├─────────────────────────────────────────────────────────────────────────┤ │
 │  │                                                                         │ │
 │  │  ┌─────────────────┐   ┌─────────────────┐   ┌─────────────────┐       │ │
-│  │  │    semgrep      │   │     trivy       │   │ jpspec-security │       │ │
+│  │  │    semgrep      │   │     trivy       │   │ specflow-security │       │ │
 │  │  ├─────────────────┤   ├─────────────────┤   ├─────────────────┤       │ │
 │  │  │ SAST code       │   │ Container/IaC   │   │ JP Spec Kit     │       │ │
 │  │  │ scanning for    │   │ security scans  │   │ Security:       │       │ │
@@ -491,13 +491,13 @@ flowchart TB
 
     subgraph WORKFLOW["SDD WORKFLOW COMMANDS"]
         direction LR
-        C1["/jpspec:assess"]
-        C2["/jpspec:specify"]
-        C3["/jpspec:research"]
-        C4["/jpspec:plan"]
-        C5["/jpspec:implement"]
-        C6["/jpspec:validate"]
-        C7["/jpspec:operate"]
+        C1["/specflow:assess"]
+        C2["/specflow:specify"]
+        C3["/specflow:research"]
+        C4["/specflow:plan"]
+        C5["/specflow:implement"]
+        C6["/specflow:validate"]
+        C7["/specflow:operate"]
     end
 
     subgraph AGENTS["WORKFLOW AGENTS (16)"]
@@ -534,7 +534,7 @@ flowchart TB
         M6[shadcn-ui]
         M7[chrome-devtools]
         M8[backlog]
-        M9[jpspec-security]
+        M9[specflow-security]
     end
 
     subgraph ARTIFACTS["OUTPUT ARTIFACTS"]
@@ -577,7 +577,7 @@ flowchart TB
                                       │
                                       ▼
 ┌───────────────────────────────────────────────────────────────────────────────┐
-│                      SDD WORKFLOW COMMANDS (/jpspec:*)                        │
+│                      SDD WORKFLOW COMMANDS (/specflow:*)                        │
 │                                                                               │
 │   assess ──► specify ──► research ──► plan ──► implement ──► validate ──► operate │
 │      │          │           │          │           │            │           │
@@ -632,7 +632,7 @@ flowchart TB
 │  │  shadcn-ui    │  │   │  • Security.md      │   │  • Validated        │
 │  │ chrome-devtools│  │   │  • deploy/          │   │  • Deployed         │
 │  │   backlog     │  │   │                     │   │  • Done             │
-│  │ jpspec-security│  │   │                     │   │                     │
+│  │ specflow-security│  │   │                     │   │                     │
 │  └───────────────┘  │   │                     │   │                     │
 └─────────────────────┘   └─────────────────────┘   └─────────────────────┘
 ```
@@ -709,13 +709,13 @@ Legend: ● = Uses this MCP server
 
 | Command | Agents | Input State(s) | Output State | Output Artifacts |
 |---------|--------|----------------|--------------|------------------|
-| `/jpspec:assess` | workflow-assessor | To Do | Assessed | `docs/assess/{feature}-assessment.md` |
-| `/jpspec:specify` | pm-planner | Assessed | Specified | `docs/prd/{feature}.md`, backlog tasks |
-| `/jpspec:research` | researcher, business-validator | Specified | Researched | `docs/research/{feature}-*.md` |
-| `/jpspec:plan` | software-architect, platform-engineer | Specified, Researched | Planned | `docs/adr/ADR-*.md` |
-| `/jpspec:implement` | frontend-eng, backend-eng, ai-ml-eng, reviewers | Planned | In Implementation | `src/`, `tests/` |
-| `/jpspec:validate` | quality-guardian, secure-by-design, tech-writer, release-mgr | In Implementation | Validated | `docs/qa/`, `docs/security/` |
-| `/jpspec:operate` | sre-agent | Validated | Deployed | `deploy/` |
+| `/specflow:assess` | workflow-assessor | To Do | Assessed | `docs/assess/{feature}-assessment.md` |
+| `/specflow:specify` | pm-planner | Assessed | Specified | `docs/prd/{feature}.md`, backlog tasks |
+| `/specflow:research` | researcher, business-validator | Specified | Researched | `docs/research/{feature}-*.md` |
+| `/specflow:plan` | software-architect, platform-engineer | Specified, Researched | Planned | `docs/adr/ADR-*.md` |
+| `/specflow:implement` | frontend-eng, backend-eng, ai-ml-eng, reviewers | Planned | In Implementation | `src/`, `tests/` |
+| `/specflow:validate` | quality-guardian, secure-by-design, tech-writer, release-mgr | In Implementation | Validated | `docs/qa/`, `docs/security/` |
+| `/specflow:operate` | sre-agent | Validated | Deployed | `deploy/` |
 
 ---
 
@@ -737,14 +737,14 @@ Legend: ● = Uses this MCP server
 │                                                                                 │
 │  MCP SERVERS: 9 integrations                                                    │
 │    • Dev: github, serena, shadcn-ui                                             │
-│    • Security: trivy, semgrep, jpspec-security                                  │
+│    • Security: trivy, semgrep, specflow-security                                  │
 │    • Testing: playwright-test, chrome-devtools                                  │
 │    • Workflow: backlog                                                          │
 │                                                                                 │
 │  STATES: To Do → Assessed → Specified → Researched → Planned →                  │
 │          In Implementation → Validated → Deployed → Done                        │
 │                                                                                 │
-│  COMMANDS: /jpspec:assess, specify, research, plan, implement, validate, operate│
+│  COMMANDS: /specflow:assess, specify, research, plan, implement, validate, operate│
 │                                                                                 │
 └─────────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -754,7 +754,7 @@ Legend: ● = Uses this MCP server
 ## Related Documentation
 
 - [Agent Loop Classification](./agent-loop-classification.md)
-- [Workflow Configuration](../../jpspec_workflow.yml)
+- [Workflow Configuration](../../specflow_workflow.yml)
 - [MCP Configuration](../../.mcp.json)
 - [Inner Loop Reference](./inner-loop.md)
 - [Outer Loop Reference](./outer-loop.md)

@@ -22,7 +22,7 @@ Implement Python class to load, parse, and provide query API for workflow config
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [x] #1 WorkflowConfig class created in src/specify_cli/workflow/config.py
-- [x] #2 Class loads jpspec_workflow.yml using YAML parser (PyYAML)
+- [x] #2 Class loads specflow_workflow.yml using YAML parser (PyYAML)
 - [x] #3 Class provides query methods: get_agents(workflow), get_next_state(current_state, workflow), get_transitions()
 - [x] #4 Class validates loaded config against JSON schema using jsonschema library
 - [x] #5 Class raises clear exceptions for validation errors with helpful messages

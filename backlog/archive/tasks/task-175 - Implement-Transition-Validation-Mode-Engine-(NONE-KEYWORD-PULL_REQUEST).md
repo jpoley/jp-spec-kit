@@ -78,7 +78,7 @@ class TransitionValidator:
         """Check if artifacts exist in a merged PR."""
 ```
 
-### Configuration in jpspec_workflow.yml
+### Configuration in specflow_workflow.yml
 ```yaml
 transitions:
   - name: specify_to_research

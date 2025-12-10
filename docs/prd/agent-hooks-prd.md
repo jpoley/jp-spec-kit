@@ -12,7 +12,7 @@
 
 ### Problem Statement
 
-JP Spec Kit currently operates as a **linear, synchronous workflow system** where each /jpspec command executes agents in isolation without the ability to trigger follow-up automation. This creates three critical gaps:
+JP Spec Kit currently operates as a **linear, synchronous workflow system** where each /specflow command executes agents in isolation without the ability to trigger follow-up automation. This creates three critical gaps:
 
 1. **No automated quality gates**: After implementing code, tests must be run manually
 2. **No workflow orchestration**: Documentation updates, code reviews, and CI/CD integration require manual coordination
@@ -45,7 +45,7 @@ Introduce an **event + hook abstraction** that transforms JP Spec Kit from a lin
 ### Success Criteria
 
 **Must Have (v1)**:
-- ✅ Event emission from all /jpspec commands and backlog task operations
+- ✅ Event emission from all /specflow commands and backlog task operations
 - ✅ Hook configuration with event matching and script execution
 - ✅ Security sandboxing with script allowlists, timeouts, and audit logging
 - ✅ Documentation with 10+ example hooks
@@ -75,7 +75,7 @@ Introduce an **event + hook abstraction** that transforms JP Spec Kit from a lin
 - No way to automatically update documentation when specs change
 
 **Goals**:
-- Automated test execution after /jpspec:implement
+- Automated test execution after /specflow:implement
 - Automated PR creation when all ACs are checked
 - Documentation auto-sync when specs are updated
 
@@ -112,7 +112,7 @@ Introduce an **event + hook abstraction** that transforms JP Spec Kit from a lin
 **US-1.1: Run Tests After Implementation**
 ```
 As a backend engineer
-I want tests to run automatically after /jpspec:implement completes
+I want tests to run automatically after /specflow:implement completes
 So that I catch regressions before code review
 ```
 
@@ -181,7 +181,7 @@ So that docs stay in sync with architecture
 **US-3.1: Trigger Deployment Pipeline on Validation**
 ```
 As a platform engineer
-I want deployment pipeline triggered when /jpspec:validate completes
+I want deployment pipeline triggered when /specflow:validate completes
 So that validated features deploy automatically
 ```
 
@@ -208,24 +208,24 @@ So that eng team has backlog items ready
 
 **Scenario**: Sarah implements a new authentication feature using JP Spec Kit with hooks configured.
 
-1. **Specify Phase**: Sarah runs `/jpspec:specify authentication`
+1. **Specify Phase**: Sarah runs `/specflow:specify authentication`
    - Event: `spec.created` emitted
    - Hook: Update CHANGELOG.md with feature entry
    - Hook: Notify team via Slack webhook
 
-2. **Plan Phase**: Sarah runs `/jpspec:plan authentication`
+2. **Plan Phase**: Sarah runs `/specflow:plan authentication`
    - Event: `plan.created` emitted
    - Event: `adr.created` emitted (multiple ADRs)
    - Hook: Generate API docs from ADR-001-auth-endpoints.md
    - Hook: Create backlog tasks in Linear via webhook
 
-3. **Implement Phase**: Sarah runs `/jpspec:implement authentication`
+3. **Implement Phase**: Sarah runs `/specflow:implement authentication`
    - Event: `implement.completed` emitted
    - Hook: Run pytest suite (5 minute timeout)
    - Hook: Run ruff linter
    - Hook: Update test coverage report
 
-4. **Validate Phase**: Sarah runs `/jpspec:validate authentication`
+4. **Validate Phase**: Sarah runs `/specflow:validate authentication`
    - Event: `validate.start` emitted
    - Hook: Check AC coverage is 100%
    - Event: `validate.completed` emitted
@@ -328,19 +328,19 @@ So that eng team has backlog items ready
 #### Event Types (v1)
 
 **Workflow Events**:
-- `workflow.assessed`: /jpspec:assess completed
-- `spec.created`: /jpspec:specify completed
+- `workflow.assessed`: /specflow:assess completed
+- `spec.created`: /specflow:specify completed
 - `spec.updated`: Spec file modified
-- `research.completed`: /jpspec:research completed
-- `plan.created`: /jpspec:plan completed
+- `research.completed`: /specflow:research completed
+- `plan.created`: /specflow:plan completed
 - `plan.updated`: Plan file modified
 - `adr.created`: ADR document created
-- `implement.started`: /jpspec:implement started
-- `implement.completed`: /jpspec:implement completed
-- `validate.started`: /jpspec:validate started
-- `validate.completed`: /jpspec:validate completed
-- `deploy.started`: /jpspec:operate started
-- `deploy.completed`: /jpspec:operate completed
+- `implement.started`: /specflow:implement started
+- `implement.completed`: /specflow:implement completed
+- `validate.started`: /specflow:validate started
+- `validate.completed`: /specflow:validate completed
+- `deploy.started`: /specflow:operate started
+- `deploy.completed`: /specflow:operate completed
 
 **Task Events**:
 - `task.created`: New backlog task created
@@ -353,7 +353,7 @@ So that eng team has backlog items ready
 
 **System Events** (future):
 - `project.initialized`: New project created via specify init
-- `config.updated`: jpspec_workflow.yml modified
+- `config.updated`: specflow_workflow.yml modified
 
 #### Event Payload Schema
 
@@ -627,11 +627,11 @@ Stored at `.specify/hooks/audit.log` (append-only, rotated at 10MB).
 
 ### 3.4 Integration Points
 
-#### /jpspec Command Integration
+#### /specflow Command Integration
 
 **All workflow commands emit events**:
 ```python
-# In /jpspec:implement command handler
+# In /specflow:implement command handler
 def implement_command(feature: str):
     # ... existing implementation ...
 
@@ -699,7 +699,7 @@ This allows JP Spec Kit hooks to manage Claude Code hooks as artifacts.
 
 **Event Emission Overhead**:
 - **Requirement**: Event emission adds <50ms to any workflow command
-- **Measurement**: Benchmark /jpspec:implement with and without events, measure p99 latency
+- **Measurement**: Benchmark /specflow:implement with and without events, measure p99 latency
 - **Mitigation**: Asynchronous emission with background thread (v2)
 
 **Hook Execution**:
@@ -844,7 +844,7 @@ The following tasks have been created in the backlog system:
    - Labels: implement, backend, cli, hooks
    - Priority: high
 
-6. **task-203**: Integrate Event Emission into /jpspec Commands
+6. **task-203**: Integrate Event Emission into /specflow Commands
    - Status: To Do
    - Assignee: @pm-planner
    - Labels: implement, integration, hooks
@@ -905,7 +905,7 @@ task-201 (Event Emitter Module) ← depends on event schema
   ↓
 task-202 (Hook Runner/Dispatcher) ← depends on parser and emitter
   ↓
-task-203 (Integrate /jpspec Commands) ← depends on emitter
+task-203 (Integrate /specflow Commands) ← depends on emitter
 task-204 (Integrate Backlog Commands) ← depends on emitter
 task-205 (Security Framework) ← depends on runner
   ↓
@@ -927,7 +927,7 @@ task-210 (ADR) ← parallel to implementation
 - task-202: Hook runner
 
 **Phase 2: Integration** (1-2 weeks)
-- task-203: /jpspec command integration
+- task-203: /specflow command integration
 - task-204: Backlog integration
 - task-205: Security framework
 
@@ -960,7 +960,7 @@ task-210 (ADR) ← parallel to implementation
 
 **H3: Hook execution adds <50ms overhead to workflows**
 - **Metric**: p99 latency delta with/without event emission
-- **Experiment**: Benchmark /jpspec:implement 100 times with and without hooks
+- **Experiment**: Benchmark /specflow:implement 100 times with and without hooks
 - **Success**: p99 delta <50ms
 
 **H4: Security controls prevent malicious scripts**
@@ -1019,7 +1019,7 @@ task-210 (ADR) ← parallel to implementation
 - [ ] `specify hooks run` command executes matching hooks
 - [ ] Security: Path allowlist, timeout enforcement, environment sanitization
 - [ ] Audit logging to .specify/hooks/audit.log
-- [ ] Event emission from all 7 /jpspec commands
+- [ ] Event emission from all 7 /specflow commands
 - [ ] Event emission from 4 backlog task operations
 - [ ] `specify init` creates .specify/hooks/ with example configurations
 - [ ] Documentation: user guide, API reference, 10+ examples
@@ -1043,7 +1043,7 @@ task-210 (ADR) ← parallel to implementation
 #### Scenario 1: Run Tests After Implementation
 
 **Given**: hooks.yaml configured with implement.completed → run-tests.sh
-**When**: User runs /jpspec:implement authentication
+**When**: User runs /specflow:implement authentication
 **Then**:
 - Event `implement.completed` emitted with feature="authentication"
 - Hook `run-tests.sh` executed with 5-minute timeout
@@ -1053,7 +1053,7 @@ task-210 (ADR) ← parallel to implementation
 #### Scenario 2: Update Changelog on Spec Creation
 
 **Given**: hooks.yaml configured with spec.created → update-changelog.py
-**When**: User runs /jpspec:specify user-profile
+**When**: User runs /specflow:specify user-profile
 **Then**:
 - Event `spec.created` emitted with feature="user-profile"
 - Hook updates CHANGELOG.md with new entry
@@ -1151,7 +1151,7 @@ task-210 (ADR) ← parallel to implementation
 - `src/specify_cli/workflow/`: Event emission integrated into workflow commands
 - `src/specify_cli/backlog/`: Event emission for task operations
 - `src/specify_cli/cli/`: New CLI commands for hook management
-- `jpspec_workflow.yml`: Event types aligned with workflow states
+- `specflow_workflow.yml`: Event types aligned with workflow states
 
 **External Dependencies**:
 - Python 3.11+ (subprocess, asyncio, json, yaml)
@@ -1173,7 +1173,7 @@ task-210 (ADR) ← parallel to implementation
 
 **Compatibility**:
 - Must work on Linux and macOS (Windows best-effort)
-- Backward compatible with existing jpspec_workflow.yml
+- Backward compatible with existing specflow_workflow.yml
 - No breaking changes to backlog CLI
 
 **Operational**:
@@ -1238,7 +1238,7 @@ task-210 (ADR) ← parallel to implementation
 
 **Workflow Automation Rate**: Percentage of workflow commands that trigger at least one hook.
 
-**Target**: 60% of /jpspec commands trigger hooks within 3 months of release.
+**Target**: 60% of /specflow commands trigger hooks within 3 months of release.
 
 **Rationale**: This metric captures adoption (users configuring hooks) and value (hooks actually running). If users configure hooks but they rarely trigger, the feature isn't valuable. If hooks trigger frequently, it means users are automating their workflows.
 
@@ -1276,9 +1276,9 @@ task-210 (ADR) ← parallel to implementation
   - Measurement: Before/after survey of 20 users
 - Time saved per feature development cycle
   - Target: 30 minutes saved per feature
-  - Measurement: Track time from /jpspec:specify to PR merged
+  - Measurement: Track time from /specflow:specify to PR merged
 - Workflow completion rate
-  - Target: 80% of features complete full /jpspec workflow
+  - Target: 80% of features complete full /specflow workflow
   - Measurement: Backlog task state analysis
 
 **Quality Metrics**:
@@ -1332,19 +1332,19 @@ task-210 (ADR) ← parallel to implementation
 
 | Event Type | Domain | When Emitted | Key Payload Fields |
 |------------|--------|--------------|-------------------|
-| workflow.assessed | workflow | /jpspec:assess completes | feature, score, recommendation |
-| spec.created | spec | /jpspec:specify completes | feature, prd_path, task_count |
+| workflow.assessed | workflow | /specflow:assess completes | feature, score, recommendation |
+| spec.created | spec | /specflow:specify completes | feature, prd_path, task_count |
 | spec.updated | spec | PRD file modified | feature, prd_path, diff |
-| research.completed | workflow | /jpspec:research completes | feature, research_path, validation_path |
-| plan.created | plan | /jpspec:plan completes | feature, adr_count |
+| research.completed | workflow | /specflow:research completes | feature, research_path, validation_path |
+| plan.created | plan | /specflow:plan completes | feature, adr_count |
 | plan.updated | plan | Plan file modified | feature, plan_path, diff |
 | adr.created | plan | ADR document created | feature, adr_path, adr_number |
-| implement.started | implement | /jpspec:implement starts | feature, task_id |
-| implement.completed | implement | /jpspec:implement completes | feature, task_id, files_changed, tests_path |
-| validate.started | validate | /jpspec:validate starts | feature, task_id |
-| validate.completed | validate | /jpspec:validate completes | feature, qa_report, security_report |
-| deploy.started | deploy | /jpspec:operate starts | feature, environment |
-| deploy.completed | deploy | /jpspec:operate completes | feature, environment, deployment_manifest |
+| implement.started | implement | /specflow:implement starts | feature, task_id |
+| implement.completed | implement | /specflow:implement completes | feature, task_id, files_changed, tests_path |
+| validate.started | validate | /specflow:validate starts | feature, task_id |
+| validate.completed | validate | /specflow:validate completes | feature, qa_report, security_report |
+| deploy.started | deploy | /specflow:operate starts | feature, environment |
+| deploy.completed | deploy | /specflow:operate completes | feature, environment, deployment_manifest |
 | task.created | task | backlog task create | task_id, title, priority, labels |
 | task.updated | task | Task metadata changed | task_id, field_changed, old_value, new_value |
 | task.status_changed | task | Status transition | task_id, status_from, status_to |

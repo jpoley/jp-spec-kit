@@ -47,9 +47,9 @@ Completed Feature
 ```
 ┌─────────────────────────────────────────┐
 │          jp-spec-kit Layer              │
-│  /jpspec:specify → spec.md              │
-│  /jpspec:plan → plan.md                 │
-│  /jpspec:tasks → Generate Tasks         │
+│  /specflow:specify → spec.md              │
+│  /specflow:plan → plan.md                 │
+│  /specflow:tasks → Generate Tasks         │
 └───────────────┬─────────────────────────┘
                 │
                 ▼
@@ -163,13 +163,13 @@ cat ~/.config/claude-code/.mcp.json
 
 1. **Create Spec and Plan**:
 ```bash
-/jpspec:specify Build a user authentication system with login, signup, password reset
-/jpspec:plan Use Node.js with Express, PostgreSQL, JWT tokens
+/specflow:specify Build a user authentication system with login, signup, password reset
+/specflow:plan Use Node.js with Express, PostgreSQL, JWT tokens
 ```
 
 2. **Generate tasks.md**:
 ```bash
-/jpspec:tasks
+/specflow:tasks
 ```
 
 3. **Manually Create Backlog Tasks** (from tasks.md):
@@ -964,28 +964,28 @@ backlog board --filter US1  # Instead of viewing all tasks
 
 ---
 
-## /jpspec Command Integration
+## /specflow Command Integration
 
-Backlog.md integrates seamlessly with the `/jpspec` workflow commands. Each command creates, discovers, or updates tasks in your backlog.
+Backlog.md integrates seamlessly with the `/specflow` workflow commands. Each command creates, discovers, or updates tasks in your backlog.
 
 ### Quick Reference
 
 | Command | Backlog Action | Task State Change |
 |---------|---------------|-------------------|
-| `/jpspec:assess` | Labels with complexity | To Do → Assessed |
-| `/jpspec:specify` | Creates implementation tasks | Assessed → Specified |
-| `/jpspec:research` | Creates research + follow-up tasks | Specified → Researched |
-| `/jpspec:plan` | Creates architecture/infra tasks | Researched → Planned |
-| `/jpspec:implement` | Assigns and tracks existing tasks | Planned → In Implementation |
-| `/jpspec:validate` | Validates task completion | In Implementation → Validated |
-| `/jpspec:operate` | Creates operational tasks | Validated → Deployed |
+| `/specflow:assess` | Labels with complexity | To Do → Assessed |
+| `/specflow:specify` | Creates implementation tasks | Assessed → Specified |
+| `/specflow:research` | Creates research + follow-up tasks | Specified → Researched |
+| `/specflow:plan` | Creates architecture/infra tasks | Researched → Planned |
+| `/specflow:implement` | Assigns and tracks existing tasks | Planned → In Implementation |
+| `/specflow:validate` | Validates task completion | In Implementation → Validated |
+| `/specflow:operate` | Creates operational tasks | Validated → Deployed |
 
 ### How Commands Use Backlog
 
 **Design commands** (specify, research, plan) create tasks:
 
 ```bash
-# /jpspec:specify creates tasks with acceptance criteria
+# /specflow:specify creates tasks with acceptance criteria
 backlog task create "Implement user login" \
   --ac "POST /auth/login returns JWT" \
   --ac "Invalid credentials return 401" \
@@ -995,7 +995,7 @@ backlog task create "Implement user login" \
 **Implementation commands** (implement, validate, operate) work from tasks:
 
 ```bash
-# /jpspec:implement discovers and assigns tasks
+# /specflow:implement discovers and assigns tasks
 backlog search "authentication" --plain
 backlog task edit task-42 -s "In Progress" -a @backend-engineer
 backlog task edit task-42 --check-ac 1  # Mark AC complete
@@ -1003,7 +1003,7 @@ backlog task edit task-42 --check-ac 1  # Mark AC complete
 
 ### Task Format Requirements
 
-For full `/jpspec` compatibility, tasks should include:
+For full `/specflow` compatibility, tasks should include:
 
 1. **Status field** - Valid workflow state (To Do, Specified, Planned, etc.)
 2. **Acceptance criteria** - Numbered checkboxes for tracking
@@ -1023,7 +1023,7 @@ labels: [backend, US1]
 
 ### Learn More
 
-See **[JP Spec + Backlog.md Integration Guide](jpspec-backlog-workflow.md)** for:
+See **[JP Spec + Backlog.md Integration Guide](specflow-backlog-workflow.md)** for:
 - Complete workflow state transitions
 - Task format specifications
 - Command integration details

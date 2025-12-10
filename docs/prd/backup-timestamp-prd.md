@@ -324,4 +324,4 @@ Update messages at lines ~3686, ~3710, ~3715 to reference `backup_dir.name` (alr
 
 ---
 
-*PRD created by PM Planner agent via /jpspec:specify*
+*PRD created by PM Planner agent via /specflow:specify*

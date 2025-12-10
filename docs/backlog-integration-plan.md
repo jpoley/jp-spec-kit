@@ -290,14 +290,14 @@ echo "# TODO.archived/" >> .gitignore  # Optional
 
 ## Phase 2: Slash Command Integration (P1 - High)
 
-**Goal:** Integrate backlog.md with /jpspec commands
+**Goal:** Integrate backlog.md with /specflow commands
 **Estimated Effort:** 4-6 hours
 
-### TASK-008: Update /jpspec:specify for Task Creation
+### TASK-008: Update /specflow:specify for Task Creation
 
 ```yaml
 id: task-008
-title: Update /jpspec:specify for Task Creation
+title: Update /specflow:specify for Task Creation
 status: To Do
 priority: P1
 phase: 2
@@ -307,10 +307,10 @@ estimated_effort: 45 minutes
 ```
 
 **Description:**
-Modify the `/jpspec:specify` slash command to automatically create Backlog.md tasks from the PRD task breakdown.
+Modify the `/specflow:specify` slash command to automatically create Backlog.md tasks from the PRD task breakdown.
 
 **Acceptance Criteria:**
-- [ ] Read current `.claude/commands/jpspec/specify.md`
+- [ ] Read current `.claude/commands/specflow/specify.md`
 - [ ] Add section for task creation after PRD approval
 - [ ] Include task creation commands with:
   - Title from PRD task breakdown
@@ -320,7 +320,7 @@ Modify the `/jpspec:specify` slash command to automatically create Backlog.md ta
   - Description from PRD
 - [ ] Test with sample specification
 
-**File:** `.claude/commands/jpspec/specify.md`
+**File:** `.claude/commands/specflow/specify.md`
 
 **Implementation Notes:**
 Add to end of specify.md:
@@ -342,11 +342,11 @@ backlog task create "$TASK_TITLE" \
 
 ---
 
-### TASK-009: Update /jpspec:plan for Dependency Setting
+### TASK-009: Update /specflow:plan for Dependency Setting
 
 ```yaml
 id: task-009
-title: Update /jpspec:plan for Dependency Setting
+title: Update /specflow:plan for Dependency Setting
 status: To Do
 priority: P1
 phase: 2
@@ -356,16 +356,16 @@ estimated_effort: 30 minutes
 ```
 
 **Description:**
-Modify the `/jpspec:plan` slash command to update task dependencies based on architectural design.
+Modify the `/specflow:plan` slash command to update task dependencies based on architectural design.
 
 **Acceptance Criteria:**
-- [ ] Read current `.claude/commands/jpspec/plan.md`
+- [ ] Read current `.claude/commands/specflow/plan.md`
 - [ ] Add section for updating task dependencies
 - [ ] Include dependency commands
 - [ ] Include sequence verification
 - [ ] Test with sample architecture plan
 
-**File:** `.claude/commands/jpspec/plan.md`
+**File:** `.claude/commands/specflow/plan.md`
 
 **Implementation Notes:**
 Add to end of plan.md:
@@ -385,11 +385,11 @@ backlog sequence
 
 ---
 
-### TASK-010: Update /jpspec:implement for Progress Tracking
+### TASK-010: Update /specflow:implement for Progress Tracking
 
 ```yaml
 id: task-010
-title: Update /jpspec:implement for Progress Tracking
+title: Update /specflow:implement for Progress Tracking
 status: To Do
 priority: P1
 phase: 2
@@ -399,10 +399,10 @@ estimated_effort: 30 minutes
 ```
 
 **Description:**
-Modify the `/jpspec:implement` slash command to track implementation progress in Backlog.md.
+Modify the `/specflow:implement` slash command to track implementation progress in Backlog.md.
 
 **Acceptance Criteria:**
-- [ ] Read current `.claude/commands/jpspec/implement.md`
+- [ ] Read current `.claude/commands/specflow/implement.md`
 - [ ] Add section for progress tracking
 - [ ] Include status update commands for:
   - Starting work ("In Progress")
@@ -411,7 +411,7 @@ Modify the `/jpspec:implement` slash command to track implementation progress in
   - Completing task
 - [ ] Test with sample implementation
 
-**File:** `.claude/commands/jpspec/implement.md`
+**File:** `.claude/commands/specflow/implement.md`
 
 **Implementation Notes:**
 Add to implement.md:
@@ -437,11 +437,11 @@ backlog task edit $TASK_ID --status "Done" --note "Merged to main"
 
 ---
 
-### TASK-011: Update /jpspec:validate for Completion Tracking
+### TASK-011: Update /specflow:validate for Completion Tracking
 
 ```yaml
 id: task-011
-title: Update /jpspec:validate for Completion Tracking
+title: Update /specflow:validate for Completion Tracking
 status: To Do
 priority: P1
 phase: 2
@@ -451,16 +451,16 @@ estimated_effort: 30 minutes
 ```
 
 **Description:**
-Modify the `/jpspec:validate` slash command to mark tasks complete when validation passes.
+Modify the `/specflow:validate` slash command to mark tasks complete when validation passes.
 
 **Acceptance Criteria:**
-- [ ] Read current `.claude/commands/jpspec/validate.md`
+- [ ] Read current `.claude/commands/specflow/validate.md`
 - [ ] Add section for completion tracking
 - [ ] Include task completion commands
 - [ ] Include overview command for status
 - [ ] Test with sample validation
 
-**File:** `.claude/commands/jpspec/validate.md`
+**File:** `.claude/commands/specflow/validate.md`
 
 **Implementation Notes:**
 Add to validate.md:
@@ -480,11 +480,11 @@ backlog overview
 
 ---
 
-### TASK-012: Test Full jpspec Workflow Integration
+### TASK-012: Test Full specflow Workflow Integration
 
 ```yaml
 id: task-012
-title: Test Full jpspec Workflow Integration
+title: Test Full specflow Workflow Integration
 status: To Do
 priority: P1
 phase: 2
@@ -494,28 +494,28 @@ estimated_effort: 60 minutes
 ```
 
 **Description:**
-End-to-end test of the complete jpspec workflow with Backlog.md integration.
+End-to-end test of the complete specflow workflow with Backlog.md integration.
 
 **Acceptance Criteria:**
-- [ ] Run `/jpspec:specify` and verify tasks created
-- [ ] Run `/jpspec:plan` and verify dependencies set
-- [ ] Run `/jpspec:implement` and verify progress tracked
-- [ ] Run `/jpspec:validate` and verify completion tracked
+- [ ] Run `/specflow:specify` and verify tasks created
+- [ ] Run `/specflow:plan` and verify dependencies set
+- [ ] Run `/specflow:implement` and verify progress tracked
+- [ ] Run `/specflow:validate` and verify completion tracked
 - [ ] Verify Kanban board shows correct status at each stage
 - [ ] Document any issues found
 
 **Test Scenario:**
 ```
-1. /jpspec:specify - Create spec for "test feature"
+1. /specflow:specify - Create spec for "test feature"
    → Verify: Tasks created in backlog/tasks/
 
-2. /jpspec:plan - Plan architecture
+2. /specflow:plan - Plan architecture
    → Verify: Task dependencies updated
 
-3. /jpspec:implement - Implement feature
+3. /specflow:implement - Implement feature
    → Verify: Status changes: To Do → In Progress → Review
 
-4. /jpspec:validate - Validate implementation
+4. /specflow:validate - Validate implementation
    → Verify: Status changes: Review → Done
 
 5. backlog board
@@ -718,7 +718,7 @@ Create comprehensive documentation for task management with Backlog.md in `docs/
 **Acceptance Criteria:**
 - [ ] Create `docs/reference/task-management.md`
 - [ ] Include Quick Start section
-- [ ] Include integration with /jpspec commands
+- [ ] Include integration with /specflow commands
 - [ ] Include MCP integration for AI agents
 - [ ] Include CLI reference
 - [ ] Include troubleshooting guide

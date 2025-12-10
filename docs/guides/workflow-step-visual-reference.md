@@ -67,39 +67,39 @@ Done                    →   Done
     ┌─────────┐
     │  To Do  │  Initial state
     └────┬────┘
-         │ /jpspec:assess
+         │ /specflow:assess
          ▼
     ┌──────────┐
     │ Assessed │  SDD workflow suitability evaluated
     └────┬─────┘
-         │ /jpspec:specify
+         │ /specflow:specify
          ▼
     ┌────────────┐
     │ Specified  │  Requirements captured
     └──┬─────┬───┘
        │     │
-       │     │ /jpspec:research (optional)
+       │     │ /specflow:research (optional)
        │     ▼
        │  ┌────────────┐
        │  │ Researched │  Technical/business research
        │  └──────┬─────┘
        │         │
-       │         │ /jpspec:plan
+       │         │ /specflow:plan
        │         ▼
        │  ┌─────────┐
        └─►│ Planned │  Architecture designed
           └────┬────┘
-               │ /jpspec:implement
+               │ /specflow:implement
                ▼
     ┌────────────────────┐
     │ In Implementation  │  Code being written
     └────────┬───────────┘
-             │ /jpspec:validate
+             │ /specflow:validate
              ▼
     ┌───────────┐
     │ Validated │  QA/security approved
     └─────┬─────┘
-          │ /jpspec:operate
+          │ /specflow:operate
           ▼
     ┌──────────┐
     │ Deployed │  In production
@@ -128,7 +128,7 @@ Done                    →   Done
          │    │ Planned │
          │    └─────────┘
          │
-         │ /jpspec:validate
+         │ /specflow:validate
          ▼
     ┌───────────┐
     │ Validated │
@@ -191,7 +191,7 @@ created: 2025-11-28
 updated: 2025-11-30
 ---
 
-# This task participates in /jpspec workflow
+# This task participates in /specflow workflow
 # Currently planned, ready for implementation
 ```
 
@@ -244,7 +244,7 @@ Day 1: Task Created
 
 Day 2: Assessment
 ┌──────────────────────────────┐
-│ Run: /jpspec:assess          │
+│ Run: /specflow:assess          │
 │ Result:                      │
 │   status: In Progress        │
 │   workflow_step: Assessed    │
@@ -252,7 +252,7 @@ Day 2: Assessment
 
 Day 3: Specification
 ┌──────────────────────────────┐
-│ Run: /jpspec:specify         │
+│ Run: /specflow:specify         │
 │ Result:                      │
 │   status: In Progress        │
 │   workflow_step: Specified   │
@@ -260,7 +260,7 @@ Day 3: Specification
 
 Day 5: Planning (skip research)
 ┌──────────────────────────────┐
-│ Run: /jpspec:plan            │
+│ Run: /specflow:plan            │
 │ Result:                      │
 │   status: In Progress        │
 │   workflow_step: Planned     │
@@ -268,7 +268,7 @@ Day 5: Planning (skip research)
 
 Day 8: Implementation
 ┌─────────────────────────────────────┐
-│ Run: /jpspec:implement              │
+│ Run: /specflow:implement              │
 │ Result:                             │
 │   status: In Progress               │
 │   workflow_step: In Implementation  │
@@ -276,7 +276,7 @@ Day 8: Implementation
 
 Day 10: Validation
 ┌──────────────────────────────┐
-│ Run: /jpspec:validate        │
+│ Run: /specflow:validate        │
 │ Result:                      │
 │   status: In Review          │
 │   workflow_step: Validated   │
@@ -284,7 +284,7 @@ Day 10: Validation
 
 Day 11: Deployment
 ┌──────────────────────────────┐
-│ Run: /jpspec:operate         │
+│ Run: /specflow:operate         │
 │ Result:                      │
 │   status: Done               │
 │   workflow_step: Deployed    │
@@ -323,13 +323,13 @@ Day 6: Discover design issues during coding
 
 Day 7: Update architecture
 ┌──────────────────────────────────┐
-│ Re-run: /jpspec:plan             │
+│ Re-run: /specflow:plan             │
 │ (updates ADRs)                   │
 └──────────────────────────────────┘
 
 Day 8: Resume implementation
 ┌─────────────────────────────────────┐
-│ Re-run: /jpspec:implement           │
+│ Re-run: /specflow:implement           │
 │ Result:                             │
 │   status: In Progress               │
 │   workflow_step: In Implementation  │
@@ -360,7 +360,7 @@ Day 2: Security scan finds vulnerabilities
 
 Day 3: Fix vulnerabilities and re-validate
 ┌──────────────────────────────┐
-│ Re-run: /jpspec:validate     │
+│ Re-run: /specflow:validate     │
 │ Result:                      │
 │   status: In Review          │
 │   workflow_step: Validated   │
@@ -436,13 +436,13 @@ backlog task list --filter "workflow_step:Validated" --plain
 ### Find Tasks Needing Specific Workflow
 
 ```bash
-# Tasks that need /jpspec:implement
+# Tasks that need /specflow:implement
 backlog task list --filter "workflow_step:Planned" --plain
 
-# Tasks that need /jpspec:validate
+# Tasks that need /specflow:validate
 backlog task list --filter "workflow_step:In Implementation" --plain
 
-# Tasks that need /jpspec:operate
+# Tasks that need /specflow:operate
 backlog task list --filter "workflow_step:Validated" --plain
 ```
 
@@ -508,14 +508,14 @@ workflow_step_mappings:
 ### Valid Transitions
 
 ```
-✓ To Do → Assessed           (via /jpspec:assess)
-✓ Assessed → Specified       (via /jpspec:specify)
-✓ Specified → Researched     (via /jpspec:research)
-✓ Specified → Planned        (via /jpspec:plan, skip research)
-✓ Researched → Planned       (via /jpspec:plan)
-✓ Planned → In Implementation (via /jpspec:implement)
-✓ In Implementation → Validated (via /jpspec:validate)
-✓ Validated → Deployed       (via /jpspec:operate)
+✓ To Do → Assessed           (via /specflow:assess)
+✓ Assessed → Specified       (via /specflow:specify)
+✓ Specified → Researched     (via /specflow:research)
+✓ Specified → Planned        (via /specflow:plan, skip research)
+✓ Researched → Planned       (via /specflow:plan)
+✓ Planned → In Implementation (via /specflow:implement)
+✓ In Implementation → Validated (via /specflow:validate)
+✓ Validated → Deployed       (via /specflow:operate)
 ✓ Deployed → Done            (manual)
 
 ✓ In Implementation → Planned (rework)
@@ -563,8 +563,8 @@ backlog task create "Implement user authentication" \
 # Manual workflow step update (use with caution)
 backlog task edit task-042 --set-field workflow_step="Planned"
 
-# Better: Let /jpspec commands update automatically
-/jpspec:plan
+# Better: Let /specflow commands update automatically
+/specflow:plan
 ```
 
 ### Viewing Workflow Status
@@ -626,13 +626,13 @@ Task task-042
 
 **Scenario:**
 ```bash
-$ /jpspec:implement
+$ /specflow:implement
 
 Error: Cannot execute implement on task-042
 Current state: Specified
 Valid input states: Planned
 
-Hint: Run /jpspec:plan first
+Hint: Run /specflow:plan first
 ```
 
 **Solution Flow:**
@@ -641,13 +641,13 @@ Hint: Run /jpspec:plan first
 │ Specified  │  Current state
 └──────┬─────┘
        │
-       │ Need: /jpspec:plan
+       │ Need: /specflow:plan
        ▼
 ┌─────────┐
 │ Planned │  Required state
 └────┬────┘
      │
-     │ Now can: /jpspec:implement
+     │ Now can: /specflow:implement
      ▼
 ┌────────────────────┐
 │ In Implementation  │  Target state
@@ -663,7 +663,7 @@ Hint: Run /jpspec:plan first
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    /JPSPEC COMMAND                          │
-│                   (e.g., /jpspec:implement)                 │
+│                   (e.g., /specflow:implement)                 │
 └───────────────────────┬─────────────────────────────────────┘
                         │
                         │ 1. Validate current state
@@ -697,7 +697,7 @@ Hint: Run /jpspec:plan first
 
 1. **Two-Level Model** - Board status for organization, workflow step for lifecycle tracking
 2. **Optional Feature** - Simple tasks don't need workflow_step
-3. **Automatic Updates** - `/jpspec` commands handle workflow_step changes
+3. **Automatic Updates** - `/specflow` commands handle workflow_step changes
 4. **Validation** - System prevents invalid state transitions
 5. **Backward Compatible** - Existing workflows unaffected
 
@@ -724,13 +724,13 @@ Hint: Run /jpspec:plan first
 │   backlog workflow-validate task-042 implement           │
 │                                                          │
 │ Automatic Updates:                                       │
-│   /jpspec:assess    → Assessed                           │
-│   /jpspec:specify   → Specified                          │
-│   /jpspec:research  → Researched                         │
-│   /jpspec:plan      → Planned                            │
-│   /jpspec:implement → In Implementation                  │
-│   /jpspec:validate  → Validated                          │
-│   /jpspec:operate   → Deployed                           │
+│   /specflow:assess    → Assessed                           │
+│   /specflow:specify   → Specified                          │
+│   /specflow:research  → Researched                         │
+│   /specflow:plan      → Planned                            │
+│   /specflow:implement → In Implementation                  │
+│   /specflow:validate  → Validated                          │
+│   /specflow:operate   → Deployed                           │
 │                                                          │
 └──────────────────────────────────────────────────────────┘
 ```
@@ -741,5 +741,5 @@ Hint: Run /jpspec:plan first
 
 - [ADR-002: Workflow Step Tracking Architecture](../adr/ADR-002-workflow-step-tracking-architecture.md)
 - [Workflow Step Implementation Guide](./workflow-step-implementation-guide.md)
-- [jpspec_workflow.yml](../../jpspec_workflow.yml)
+- [specflow_workflow.yml](../../specflow_workflow.yml)
 - [Backlog User Guide](./backlog-user-guide.md)

@@ -17,7 +17,7 @@ priority: high
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Build AI-powered code patch generator for common vulnerability patterns. Enables /jpspec:security fix command.
+Build AI-powered code patch generator for common vulnerability patterns. Enables /specflow:security fix command.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria

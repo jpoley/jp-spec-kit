@@ -17,7 +17,7 @@ priority: high
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Implement the foundational task context loading capability for the enhanced /jpspec:validate command. This phase is responsible for loading a backlog task by ID, parsing its acceptance criteria into a structured format, and determining the validation approach (automated vs manual) for each AC based on naming conventions and task metadata.
+Implement the foundational task context loading capability for the enhanced /specflow:validate command. This phase is responsible for loading a backlog task by ID, parsing its acceptance criteria into a structured format, and determining the validation approach (automated vs manual) for each AC based on naming conventions and task metadata.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria

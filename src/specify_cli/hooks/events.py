@@ -1,7 +1,7 @@
 """Event model schema for jp-spec-kit hooks.
 
 This module defines the canonical event types and payload structure for the
-hook system. Events are emitted by /jpspec commands and backlog operations,
+hook system. Events are emitted by /specflow commands and backlog operations,
 and hooks respond to these events with automation.
 
 Example:
@@ -33,19 +33,19 @@ class EventType(str, Enum):
     - Action: past tense verb (created, updated, completed, etc.)
 
     Workflow Events:
-        WORKFLOW_ASSESSED: /jpspec:assess completed
-        SPEC_CREATED: /jpspec:specify completed (new spec)
+        WORKFLOW_ASSESSED: /specflow:assess completed
+        SPEC_CREATED: /specflow:specify completed (new spec)
         SPEC_UPDATED: Spec file modified
-        RESEARCH_COMPLETED: /jpspec:research completed
-        PLAN_CREATED: /jpspec:plan completed (new plan)
+        RESEARCH_COMPLETED: /specflow:research completed
+        PLAN_CREATED: /specflow:plan completed (new plan)
         PLAN_UPDATED: Plan file modified
         ADR_CREATED: Architecture Decision Record created
-        IMPLEMENT_STARTED: /jpspec:implement started
-        IMPLEMENT_COMPLETED: /jpspec:implement completed
-        VALIDATE_STARTED: /jpspec:validate started
-        VALIDATE_COMPLETED: /jpspec:validate completed
-        DEPLOY_STARTED: /jpspec:operate started
-        DEPLOY_COMPLETED: /jpspec:operate completed
+        IMPLEMENT_STARTED: /specflow:implement started
+        IMPLEMENT_COMPLETED: /specflow:implement completed
+        VALIDATE_STARTED: /specflow:validate started
+        VALIDATE_COMPLETED: /specflow:validate completed
+        DEPLOY_STARTED: /specflow:operate started
+        DEPLOY_COMPLETED: /specflow:operate completed
 
     Task Events:
         TASK_CREATED: New backlog task created

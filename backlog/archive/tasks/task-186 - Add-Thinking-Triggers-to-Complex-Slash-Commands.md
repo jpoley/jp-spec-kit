@@ -23,21 +23,21 @@ Cross-reference: See docs/prd/claude-capabilities-review.md Section 2.11 for thi
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [x] #1 /jpspec:plan includes 'think hard' guidance for architecture decisions
+- [x] #1 /specflow:plan includes 'think hard' guidance for architecture decisions
 
-- [x] #2 /jpspec:validate includes 'think hard' guidance for security analysis
-- [x] #3 /jpspec:research includes 'megathink' guidance for comprehensive analysis
+- [x] #2 /specflow:validate includes 'think hard' guidance for security analysis
+- [x] #3 /specflow:research includes 'megathink' guidance for comprehensive analysis
 - [x] #4 CLAUDE.md documents thinking budget levels (think, megathink, ultrathink)
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-Thinking triggers added to all relevant jpspec commands:
+Thinking triggers added to all relevant specflow commands:
 
-- /jpspec:plan: "🧠 Think Hard" section for architecture decisions
-- /jpspec:validate: "🧠 Think Hard" section for security analysis
-- /jpspec:research: "🧠 Megathink" section for comprehensive analysis
+- /specflow:plan: "🧠 Think Hard" section for architecture decisions
+- /specflow:validate: "🧠 Think Hard" section for security analysis
+- /specflow:research: "🧠 Megathink" section for comprehensive analysis
 
 Documented in memory/claude-thinking.md with thinking budget levels:
 - think (4K tokens)

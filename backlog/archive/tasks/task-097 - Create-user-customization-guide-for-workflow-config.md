@@ -21,7 +21,7 @@ Create comprehensive guide for users who want to customize the workflow configur
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [x] #1 Guide created at docs/guides/workflow-customization.md
-- [x] #2 Guide explains structure of jpspec_workflow.yml in plain language
+- [x] #2 Guide explains structure of specflow_workflow.yml in plain language
 - [x] #3 Guide includes step-by-step examples for common customizations (add phase, remove phase, reorder)
 - [x] #4 Guide explains how to add custom agents to workflows
 - [x] #5 Guide explains how to create new states

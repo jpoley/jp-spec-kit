@@ -16,8 +16,8 @@ The jp-spec-kit project uses a "dev-setup" (formerly "dogfood") pattern where th
 3. **Automatic Propagation**: Template changes immediately reflect in development
 
 **Current State**:
-- `specify dev-setup` command creates symlinks for jpspec and speckit commands
-- `.claude/commands/jpspec/*.md` -> `templates/commands/jpspec/*.md`
+- `specify dev-setup` command creates symlinks for specflow and speckit commands
+- `.claude/commands/specflow/*.md` -> `templates/commands/specflow/*.md`
 - `.claude/commands/speckit/*.md` -> `templates/commands/*.md`
 
 **Problem**: There is no automated validation to prevent:
@@ -83,7 +83,7 @@ Implement a three-tier validation architecture:
 | R4 | Every template has corresponding symlink | WARNING |
 | R5 | No orphan symlinks (target exists in templates) | ERROR |
 | R6 | dev-setup creates same file set as init would copy | ERROR |
-| R7 | Subdirectory structure matches (jpspec/, speckit/) | ERROR |
+| R7 | Subdirectory structure matches (specflow/, speckit/) | ERROR |
 
 ### 2. Component Responsibilities
 

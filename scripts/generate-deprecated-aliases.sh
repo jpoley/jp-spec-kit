@@ -8,19 +8,19 @@ TEMPLATES_DIR="$SCRIPT_DIR/../templates/commands"
 
 # Command mappings: old_command -> new_command
 declare -A COMMAND_MAP=(
-    ["jpspec/assess.md"]="pm/assess.md"
-    ["jpspec/specify.md"]="pm/define.md"
-    ["jpspec/research.md"]="pm/discover.md"
-    ["jpspec/plan.md"]="arch/design.md"
-    ["jpspec/implement.md"]="dev/build.md"
-    ["jpspec/validate.md"]="qa/verify.md"
-    ["jpspec/operate.md"]="ops/deploy.md"
-    ["jpspec/prune-branch.md"]="dev/cleanup.md"
-    ["jpspec/security_web.md"]="sec/scan.md"
-    ["jpspec/security_triage.md"]="sec/triage.md"
-    ["jpspec/security_fix.md"]="sec/fix.md"
-    ["jpspec/security_workflow.md"]="sec/audit.md"
-    ["jpspec/security_report.md"]="sec/report.md"
+    ["specflow/assess.md"]="pm/assess.md"
+    ["specflow/specify.md"]="pm/define.md"
+    ["specflow/research.md"]="pm/discover.md"
+    ["specflow/plan.md"]="arch/design.md"
+    ["specflow/implement.md"]="dev/build.md"
+    ["specflow/validate.md"]="qa/verify.md"
+    ["specflow/operate.md"]="ops/deploy.md"
+    ["specflow/prune-branch.md"]="dev/cleanup.md"
+    ["specflow/security_web.md"]="sec/scan.md"
+    ["specflow/security_triage.md"]="sec/triage.md"
+    ["specflow/security_fix.md"]="sec/fix.md"
+    ["specflow/security_workflow.md"]="sec/audit.md"
+    ["specflow/security_report.md"]="sec/report.md"
 )
 
 echo "Generating deprecated command aliases..."
@@ -59,7 +59,7 @@ Please use the new role-based command instead:
 
 ## Why the Change?
 
-Specflow has migrated to role-based command namespaces to improve discoverability and align commands with team roles. The \`/jpspec\` namespace contained 18+ commands, making it difficult to find relevant commands.
+Specflow has migrated to role-based command namespaces to improve discoverability and align commands with team roles. The \`/specflow\` namespace contained 18+ commands, making it difficult to find relevant commands.
 
 ## Migration
 
@@ -106,7 +106,7 @@ echo "Deprecated aliases created successfully!"
 echo ""
 echo "Summary:"
 echo "  Total aliases: ${#COMMAND_MAP[@]}"
-echo "  Location: $TEMPLATES_DIR/jpspec/_DEPRECATED_*.md"
+echo "  Location: $TEMPLATES_DIR/specflow/_DEPRECATED_*.md"
 echo ""
 echo "Next steps:"
 echo "  1. Review generated files"

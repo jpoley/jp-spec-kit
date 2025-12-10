@@ -37,7 +37,7 @@ Status: Pending CI verification
 
 Changes:
 - conftest.py: All fixture descriptions contain MOCK
-- test_jpspec_backlog_integration.py: Uses MOCK- prefixed IDs
+- test_specflow_backlog_integration.py: Uses MOCK- prefixed IDs
 - constitution.md: Added No Direct Commits to Main rule
 - CLAUDE.md: Added direct commit prohibition
 <!-- SECTION:NOTES:END -->

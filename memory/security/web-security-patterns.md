@@ -414,10 +414,10 @@ r'(mongodb|mysql|postgresql|postgres)://[^\s<>"{}|\\^`\[\]]*'
 **Save authenticated session:**
 ```python
 # After successful login
-await context.storage_state(path=".jpspec/.dast-session.json")
+await context.storage_state(path=".specflow/.dast-session.json")
 
 # Reuse session in new context
-context = await browser.new_context(storage_state=".jpspec/.dast-session.json")
+context = await browser.new_context(storage_state=".specflow/.dast-session.json")
 ```
 
 ---

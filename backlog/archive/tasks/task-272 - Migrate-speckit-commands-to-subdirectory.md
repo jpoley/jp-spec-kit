@@ -40,7 +40,7 @@ Current state:
 - AC#3 requires: "Verify no flat files remain in templates/commands/"
 
 The implementation did NOT move speckit to templates/commands/speckit/.
-Need to complete migration to match jpspec subdirectory pattern.
+Need to complete migration to match specflow subdirectory pattern.
 
 Verified complete - speckit/ subdirectory exists with all symlinks pointing correctly
 <!-- SECTION:NOTES:END -->

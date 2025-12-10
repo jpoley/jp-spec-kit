@@ -101,23 +101,23 @@ roles:
 
 states:
   - "To Do"           # Initial state - work has not started
-  - "Assessed"        # SDD workflow suitability evaluated via /jpspec:assess
-  - "Specified"       # Requirements captured via /jpspec:specify
-  - "Researched"      # Technical and business research completed via /jpspec:research
-  - "Planned"         # Architecture and infrastructure planned via /jpspec:plan
-  - "In Implementation"  # Code actively being written via /jpspec:implement
-  - "Validated"       # QA, security, and documentation validated via /jpspec:validate
-  - "Deployed"        # Released to production via /jpspec:operate
+  - "Assessed"        # SDD workflow suitability evaluated via /specflow:assess
+  - "Specified"       # Requirements captured via /specflow:specify
+  - "Researched"      # Technical and business research completed via /specflow:research
+  - "Planned"         # Architecture and infrastructure planned via /specflow:plan
+  - "In Implementation"  # Code actively being written via /specflow:implement
+  - "Validated"       # QA, security, and documentation validated via /specflow:validate
+  - "Deployed"        # Released to production via /specflow:operate
   - "Done"            # Work complete - ready for archive
 
 # ==============================================================================
 # WORKFLOW DEFINITIONS
 # ==============================================================================
-# Each workflow maps to a /jpspec slash command.
+# Each workflow maps to a /specflow slash command.
 
 workflows:
   assess:
-    command: "/jpspec:assess"
+    command: "/specflow:assess"
     description: "Evaluate SDD workflow suitability and complexity assessment"
     agents:
       - name: "workflow-assessor"
@@ -133,7 +133,7 @@ workflows:
     optional: false
 
   specify:
-    command: "/jpspec:specify"
+    command: "/specflow:specify"
     description: "Create or update feature specifications using PM Planner agent"
     agents:
       - name: "product-requirements-manager"
@@ -150,7 +150,7 @@ workflows:
     creates_backlog_tasks: true
 
   research:
-    command: "/jpspec:research"
+    command: "/specflow:research"
     description: "Execute research and business validation workflow"
     agents:
       - name: "researcher"
@@ -173,7 +173,7 @@ workflows:
     creates_backlog_tasks: true
 
   plan:
-    command: "/jpspec:plan"
+    command: "/specflow:plan"
     description: "Execute planning workflow using architect and platform engineer"
     execution_mode: "parallel"
     agents:
@@ -198,7 +198,7 @@ workflows:
     builds_constitution: true
 
   implement:
-    command: "/jpspec:implement"
+    command: "/specflow:implement"
     description: "Execute implementation with code review"
     agents:
       - name: "frontend-engineer"
@@ -234,7 +234,7 @@ workflows:
     requires_backlog_tasks: true
 
   validate:
-    command: "/jpspec:validate"
+    command: "/specflow:validate"
     description: "Execute validation using QA, security, and documentation agents"
     agents:
       - name: "quality-guardian"
@@ -265,7 +265,7 @@ workflows:
     requires_human_approval: true
 
   operate:
-    command: "/jpspec:operate"
+    command: "/specflow:operate"
     description: "Execute operations workflow using SRE agent"
     agents:
       - name: "sre-agent"

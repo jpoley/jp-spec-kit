@@ -1,0 +1,1973 @@
+{
+  "metadata": {
+    "created": "2025-12-05",
+    "version": "1.0",
+    "expert_reviewers": ["security-expert-1"],
+    "description": "Benchmark dataset for AI triage engine accuracy testing",
+    "total_findings": 115,
+    "distribution": {
+      "sql_injection": 23,
+      "xss": 23,
+      "path_traversal": 23,
+      "hardcoded_secrets": 23,
+      "weak_crypto": 23
+    }
+  },
+  "findings": [
+    {
+      "id": "BENCH-SQL-001",
+      "cwe_id": "CWE-89",
+      "title": "SQL Injection via string concatenation",
+      "scanner": "benchmark",
+      "severity": "critical",
+      "description": "SQL query constructed using string concatenation with user input",
+      "file": "auth.py",
+      "line_start": 42,
+      "line_end": 42,
+      "code_snippet": "query = \"SELECT * FROM users WHERE username = '\" + username + \"'\"",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "Direct string concatenation in SQL query without sanitization",
+        "severity": "critical"
+      }
+    },
+    {
+      "id": "BENCH-SQL-002",
+      "cwe_id": "CWE-89",
+      "title": "SQL Injection via f-string",
+      "scanner": "benchmark",
+      "severity": "critical",
+      "description": "SQL query constructed using f-string with user input",
+      "file": "users.py",
+      "line_start": 78,
+      "line_end": 78,
+      "code_snippet": "query = f\"SELECT * FROM users WHERE id = {user_id}\"",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "F-string interpolation in SQL query allows injection",
+        "severity": "critical"
+      }
+    },
+    {
+      "id": "BENCH-SQL-003",
+      "cwe_id": "CWE-89",
+      "title": "SQL Injection via .format()",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "SQL query constructed using .format() with user input",
+      "file": "reports.py",
+      "line_start": 15,
+      "line_end": 15,
+      "code_snippet": "query = \"SELECT * FROM reports WHERE status = '{}'\".format(status)",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": ".format() method allows SQL injection through user input",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-SQL-004",
+      "cwe_id": "CWE-89",
+      "title": "SQL Injection via % formatting",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "SQL query constructed using % formatting with user input",
+      "file": "products.py",
+      "line_start": 92,
+      "line_end": 92,
+      "code_snippet": "query = \"SELECT * FROM products WHERE category = '%s'\" % category",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "% formatting in SQL query enables injection attacks",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-SQL-005",
+      "cwe_id": "CWE-89",
+      "title": "False positive - parameterized query with placeholders",
+      "scanner": "benchmark",
+      "severity": "medium",
+      "description": "SQL query uses parameterized placeholders",
+      "file": "secure_auth.py",
+      "line_start": 33,
+      "line_end": 33,
+      "code_snippet": "cursor.execute(\"SELECT * FROM users WHERE username = ?\", (username,))",
+      "ground_truth": {
+        "classification": "FP",
+        "reasoning": "Uses parameterized query with ? placeholder - safe from injection",
+        "severity": "info"
+      }
+    },
+    {
+      "id": "BENCH-SQL-006",
+      "cwe_id": "CWE-89",
+      "title": "False positive - prepared statement",
+      "scanner": "benchmark",
+      "severity": "medium",
+      "description": "SQL query uses prepared statement",
+      "file": "db_layer.py",
+      "line_start": 67,
+      "line_end": 68,
+      "code_snippet": "stmt = db.prepare(\"SELECT * FROM users WHERE id = $1\")\nresult = stmt.execute([user_id])",
+      "ground_truth": {
+        "classification": "FP",
+        "reasoning": "Prepared statement with parameterization - protected from injection",
+        "severity": "info"
+      }
+    },
+    {
+      "id": "BENCH-SQL-007",
+      "cwe_id": "CWE-89",
+      "title": "False positive - ORM query",
+      "scanner": "benchmark",
+      "severity": "low",
+      "description": "Query uses ORM that auto-parameterizes",
+      "file": "models.py",
+      "line_start": 101,
+      "line_end": 101,
+      "code_snippet": "users = User.objects.filter(username=username)",
+      "ground_truth": {
+        "classification": "FP",
+        "reasoning": "ORM automatically parameterizes queries - safe from injection",
+        "severity": "info"
+      }
+    },
+    {
+      "id": "BENCH-SQL-008",
+      "cwe_id": "CWE-89",
+      "title": "SQL Injection in ORDER BY clause",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "Dynamic ORDER BY clause constructed with user input",
+      "file": "api.py",
+      "line_start": 145,
+      "line_end": 145,
+      "code_snippet": "query = f\"SELECT * FROM products ORDER BY {sort_column}\"",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "ORDER BY clause vulnerable to injection attacks",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-SQL-009",
+      "cwe_id": "CWE-89",
+      "title": "SQL Injection in LIMIT clause",
+      "scanner": "benchmark",
+      "severity": "medium",
+      "description": "Dynamic LIMIT clause with user input",
+      "file": "pagination.py",
+      "line_start": 28,
+      "line_end": 28,
+      "code_snippet": "query = f\"SELECT * FROM items LIMIT {limit_value}\"",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "LIMIT clause allows injection if not validated",
+        "severity": "medium"
+      }
+    },
+    {
+      "id": "BENCH-SQL-010",
+      "cwe_id": "CWE-89",
+      "title": "Needs investigation - execute with params",
+      "scanner": "benchmark",
+      "severity": "medium",
+      "description": "Uses execute() but unclear if parameterized",
+      "file": "data_access.py",
+      "line_start": 55,
+      "line_end": 55,
+      "code_snippet": "cursor.execute(build_query(filters))",
+      "ground_truth": {
+        "classification": "NI",
+        "reasoning": "Cannot determine if build_query() returns safe parameterized query",
+        "severity": "medium"
+      }
+    },
+    {
+      "id": "BENCH-SQL-011",
+      "cwe_id": "CWE-89",
+      "title": "SQL Injection in dynamic table name",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "Table name dynamically constructed from user input",
+      "file": "analytics.py",
+      "line_start": 89,
+      "line_end": 89,
+      "code_snippet": "query = f\"SELECT COUNT(*) FROM {table_name}\"",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "Dynamic table names cannot be parameterized - requires whitelist validation",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-SQL-012",
+      "cwe_id": "CWE-89",
+      "title": "False positive - named parameters",
+      "scanner": "benchmark",
+      "severity": "medium",
+      "description": "Uses named parameter placeholders",
+      "file": "queries.py",
+      "line_start": 42,
+      "line_end": 42,
+      "code_snippet": "cursor.execute(\"SELECT * FROM users WHERE email = :email\", {'email': email})",
+      "ground_truth": {
+        "classification": "FP",
+        "reasoning": "Named parameters (:param) provide protection from injection",
+        "severity": "info"
+      }
+    },
+    {
+      "id": "BENCH-SQL-013",
+      "cwe_id": "CWE-89",
+      "title": "SQL Injection via multiple concatenations",
+      "scanner": "benchmark",
+      "severity": "critical",
+      "description": "Multiple string concatenations in complex query",
+      "file": "search.py",
+      "line_start": 112,
+      "line_end": 115,
+      "code_snippet": "query = \"SELECT * FROM products WHERE 1=1\"\nif name:\n    query += \" AND name LIKE '\" + name + \"'\"\nif category:\n    query += \" AND category = '\" + category + \"'\"",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "Multiple concatenations build unsafe query",
+        "severity": "critical"
+      }
+    },
+    {
+      "id": "BENCH-SQL-014",
+      "cwe_id": "CWE-89",
+      "title": "SQL Injection in INSERT statement",
+      "scanner": "benchmark",
+      "severity": "critical",
+      "description": "INSERT statement with string concatenation",
+      "file": "create_user.py",
+      "line_start": 34,
+      "line_end": 34,
+      "code_snippet": "query = f\"INSERT INTO users (name, email) VALUES ('{name}', '{email}')\"",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "INSERT with f-string allows SQL injection",
+        "severity": "critical"
+      }
+    },
+    {
+      "id": "BENCH-SQL-015",
+      "cwe_id": "CWE-89",
+      "title": "SQL Injection in UPDATE statement",
+      "scanner": "benchmark",
+      "severity": "critical",
+      "description": "UPDATE statement with concatenation",
+      "file": "update_profile.py",
+      "line_start": 56,
+      "line_end": 56,
+      "code_snippet": "query = \"UPDATE users SET status = '\" + status + \"' WHERE id = \" + str(user_id)",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "UPDATE with string concatenation vulnerable to injection",
+        "severity": "critical"
+      }
+    },
+    {
+      "id": "BENCH-SQL-016",
+      "cwe_id": "CWE-89",
+      "title": "SQL Injection in DELETE statement",
+      "scanner": "benchmark",
+      "severity": "critical",
+      "description": "DELETE statement with user input",
+      "file": "delete_records.py",
+      "line_start": 23,
+      "line_end": 23,
+      "code_snippet": "query = f\"DELETE FROM logs WHERE date < '{cutoff_date}'\"",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "DELETE with f-string allows dangerous injection",
+        "severity": "critical"
+      }
+    },
+    {
+      "id": "BENCH-SQL-017",
+      "cwe_id": "CWE-89",
+      "title": "False positive - multiple placeholders",
+      "scanner": "benchmark",
+      "severity": "medium",
+      "description": "Query with multiple ? placeholders",
+      "file": "safe_queries.py",
+      "line_start": 78,
+      "line_end": 78,
+      "code_snippet": "cursor.execute(\"SELECT * FROM orders WHERE user_id = ? AND status = ?\", (user_id, status))",
+      "ground_truth": {
+        "classification": "FP",
+        "reasoning": "Multiple placeholders with tuple params - safe",
+        "severity": "info"
+      }
+    },
+    {
+      "id": "BENCH-SQL-018",
+      "cwe_id": "CWE-89",
+      "title": "Needs investigation - string with question mark",
+      "scanner": "benchmark",
+      "severity": "medium",
+      "description": "Question mark in string literal",
+      "file": "comments.py",
+      "line_start": 91,
+      "line_end": 91,
+      "code_snippet": "query = \"SELECT * FROM comments WHERE text LIKE '%?%'\"",
+      "ground_truth": {
+        "classification": "NI",
+        "reasoning": "? is in string literal not parameter - needs context to determine safety",
+        "severity": "medium"
+      }
+    },
+    {
+      "id": "BENCH-SQL-019",
+      "cwe_id": "CWE-89",
+      "title": "SQL Injection via JOIN clause",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "Dynamic JOIN clause with user input",
+      "file": "relationships.py",
+      "line_start": 67,
+      "line_end": 67,
+      "code_snippet": "query = f\"SELECT * FROM users u JOIN {join_table} j ON u.id = j.user_id\"",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "Dynamic JOIN table name vulnerable to injection",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-SQL-020",
+      "cwe_id": "CWE-89",
+      "title": "SQL Injection in WHERE IN clause",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "WHERE IN clause with string concatenation",
+      "file": "bulk_select.py",
+      "line_start": 45,
+      "line_end": 45,
+      "code_snippet": "query = f\"SELECT * FROM users WHERE id IN ({','.join(map(str, ids))})\"",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "IN clause with concatenated IDs allows injection",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-SQL-021",
+      "cwe_id": "CWE-89",
+      "title": "False positive - PostgreSQL numbered placeholders",
+      "scanner": "benchmark",
+      "severity": "medium",
+      "description": "PostgreSQL $1, $2 style placeholders",
+      "file": "pg_queries.py",
+      "line_start": 33,
+      "line_end": 33,
+      "code_snippet": "cursor.execute(\"SELECT * FROM users WHERE email = $1 AND active = $2\", [email, True])",
+      "ground_truth": {
+        "classification": "FP",
+        "reasoning": "PostgreSQL numbered placeholders are safe",
+        "severity": "info"
+      }
+    },
+    {
+      "id": "BENCH-SQL-022",
+      "cwe_id": "CWE-89",
+      "title": "SQL Injection in stored procedure call",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "Stored procedure called with concatenated parameters",
+      "file": "procedures.py",
+      "line_start": 88,
+      "line_end": 88,
+      "code_snippet": "query = f\"EXEC GetUserData '{username}'\"",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "Stored procedure with concatenated string parameter",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-SQL-023",
+      "cwe_id": "CWE-89",
+      "title": "Needs investigation - query builder pattern",
+      "scanner": "benchmark",
+      "severity": "medium",
+      "description": "Uses query builder library",
+      "file": "query_builder.py",
+      "line_start": 102,
+      "line_end": 102,
+      "code_snippet": "query = QueryBuilder().select('*').from_table('users').where('id', user_id).build()",
+      "ground_truth": {
+        "classification": "NI",
+        "reasoning": "Query builder safety depends on library implementation",
+        "severity": "medium"
+      }
+    },
+    {
+      "id": "BENCH-XSS-001",
+      "cwe_id": "CWE-79",
+      "title": "XSS via innerHTML with user input",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "User input directly inserted into innerHTML",
+      "file": "template.js",
+      "line_start": 23,
+      "line_end": 23,
+      "code_snippet": "element.innerHTML = userComment;",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "innerHTML with unsanitized user input enables XSS",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-XSS-002",
+      "cwe_id": "CWE-79",
+      "title": "XSS via template string in HTML",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "Template literal used to construct HTML with user data",
+      "file": "render.js",
+      "line_start": 45,
+      "line_end": 45,
+      "code_snippet": "div.innerHTML = `<span>Welcome ${username}</span>`;",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "Template literal in innerHTML without escaping",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-XSS-003",
+      "cwe_id": "CWE-79",
+      "title": "XSS via document.write",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "document.write with user input",
+      "file": "legacy.js",
+      "line_start": 67,
+      "line_end": 67,
+      "code_snippet": "document.write('<div>' + userContent + '</div>');",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "document.write with concatenated user input",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-XSS-004",
+      "cwe_id": "CWE-79",
+      "title": "XSS via eval() with user input",
+      "scanner": "benchmark",
+      "severity": "critical",
+      "description": "eval() called with user-controlled data",
+      "file": "calculator.js",
+      "line_start": 89,
+      "line_end": 89,
+      "code_snippet": "eval(userExpression);",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "eval() with user input is extremely dangerous",
+        "severity": "critical"
+      }
+    },
+    {
+      "id": "BENCH-XSS-005",
+      "cwe_id": "CWE-79",
+      "title": "False positive - textContent assignment",
+      "scanner": "benchmark",
+      "severity": "medium",
+      "description": "Uses textContent instead of innerHTML",
+      "file": "safe_render.js",
+      "line_start": 34,
+      "line_end": 34,
+      "code_snippet": "element.textContent = username;",
+      "ground_truth": {
+        "classification": "FP",
+        "reasoning": "textContent automatically escapes HTML - safe from XSS",
+        "severity": "info"
+      }
+    },
+    {
+      "id": "BENCH-XSS-006",
+      "cwe_id": "CWE-79",
+      "title": "False positive - escaped template literal",
+      "scanner": "benchmark",
+      "severity": "medium",
+      "description": "Template uses escaping library",
+      "file": "escaped.js",
+      "line_start": 56,
+      "line_end": 56,
+      "code_snippet": "div.innerHTML = `<span>${escapeHtml(username)}</span>`;",
+      "ground_truth": {
+        "classification": "FP",
+        "reasoning": "escapeHtml() function sanitizes user input",
+        "severity": "info"
+      }
+    },
+    {
+      "id": "BENCH-XSS-007",
+      "cwe_id": "CWE-79",
+      "title": "False positive - createElement with textContent",
+      "scanner": "benchmark",
+      "severity": "low",
+      "description": "Uses DOM API safely",
+      "file": "dom_builder.js",
+      "line_start": 78,
+      "line_end": 80,
+      "code_snippet": "const span = document.createElement('span');\nspan.textContent = username;\ncontainer.appendChild(span);",
+      "ground_truth": {
+        "classification": "FP",
+        "reasoning": "createElement + textContent is safe - no HTML parsing",
+        "severity": "info"
+      }
+    },
+    {
+      "id": "BENCH-XSS-008",
+      "cwe_id": "CWE-79",
+      "title": "XSS via dangerouslySetInnerHTML in React",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "React component uses dangerouslySetInnerHTML",
+      "file": "Comment.jsx",
+      "line_start": 12,
+      "line_end": 12,
+      "code_snippet": "<div dangerouslySetInnerHTML={{ __html: comment }} />",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "dangerouslySetInnerHTML with user content enables XSS",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-XSS-009",
+      "cwe_id": "CWE-79",
+      "title": "XSS via href javascript: protocol",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "Dynamic href with javascript: protocol",
+      "file": "links.js",
+      "line_start": 45,
+      "line_end": 45,
+      "code_snippet": "link.href = 'javascript:' + userCode;",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "javascript: href allows arbitrary code execution",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-XSS-010",
+      "cwe_id": "CWE-79",
+      "title": "XSS via onerror attribute",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "Setting onerror with user input",
+      "file": "images.js",
+      "line_start": 67,
+      "line_end": 67,
+      "code_snippet": "img.setAttribute('onerror', errorHandler);",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "Event handler attribute with user input enables XSS",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-XSS-011",
+      "cwe_id": "CWE-79",
+      "title": "Needs investigation - React component with user prop",
+      "scanner": "benchmark",
+      "severity": "medium",
+      "description": "React component renders user-provided content",
+      "file": "UserProfile.jsx",
+      "line_start": 23,
+      "line_end": 23,
+      "code_snippet": "<div>{user.bio}</div>",
+      "ground_truth": {
+        "classification": "NI",
+        "reasoning": "React escapes by default but need to verify bio source",
+        "severity": "low"
+      }
+    },
+    {
+      "id": "BENCH-XSS-012",
+      "cwe_id": "CWE-79",
+      "title": "XSS via location.href assignment",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "Setting location.href with user input",
+      "file": "redirect.js",
+      "line_start": 34,
+      "line_end": 34,
+      "code_snippet": "window.location.href = redirectUrl;",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "Unvalidated redirect URL can use javascript: protocol",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-XSS-013",
+      "cwe_id": "CWE-79",
+      "title": "XSS via jQuery html() method",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "jQuery html() with user input",
+      "file": "jquery_app.js",
+      "line_start": 56,
+      "line_end": 56,
+      "code_snippet": "$('#content').html(userHtml);",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "jQuery html() is equivalent to innerHTML - vulnerable",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-XSS-014",
+      "cwe_id": "CWE-79",
+      "title": "False positive - jQuery text() method",
+      "scanner": "benchmark",
+      "severity": "medium",
+      "description": "jQuery text() with user input",
+      "file": "jquery_safe.js",
+      "line_start": 78,
+      "line_end": 78,
+      "code_snippet": "$('#username').text(user.name);",
+      "ground_truth": {
+        "classification": "FP",
+        "reasoning": "jQuery text() escapes HTML - safe from XSS",
+        "severity": "info"
+      }
+    },
+    {
+      "id": "BENCH-XSS-015",
+      "cwe_id": "CWE-79",
+      "title": "XSS via Angular $sce.trustAsHtml",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "Angular bypasses sanitization",
+      "file": "angular_controller.js",
+      "line_start": 45,
+      "line_end": 45,
+      "code_snippet": "$scope.content = $sce.trustAsHtml(userContent);",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "trustAsHtml bypasses Angular's sanitizer",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-XSS-016",
+      "cwe_id": "CWE-79",
+      "title": "XSS via Vue v-html directive",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "Vue v-html with user input",
+      "file": "VueComponent.vue",
+      "line_start": 12,
+      "line_end": 12,
+      "code_snippet": "<div v-html=\"userComment\"></div>",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "v-html renders raw HTML without escaping",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-XSS-017",
+      "cwe_id": "CWE-79",
+      "title": "False positive - Vue normal interpolation",
+      "scanner": "benchmark",
+      "severity": "low",
+      "description": "Vue normal interpolation",
+      "file": "VueSafe.vue",
+      "line_start": 8,
+      "line_end": 8,
+      "code_snippet": "<div>{{ username }}</div>",
+      "ground_truth": {
+        "classification": "FP",
+        "reasoning": "Vue escapes interpolated content by default",
+        "severity": "info"
+      }
+    },
+    {
+      "id": "BENCH-XSS-018",
+      "cwe_id": "CWE-79",
+      "title": "XSS via srcdoc attribute",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "iframe srcdoc with user content",
+      "file": "embed.js",
+      "line_start": 67,
+      "line_end": 67,
+      "code_snippet": "iframe.srcdoc = userHtml;",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "srcdoc renders HTML in iframe context - XSS risk",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-XSS-019",
+      "cwe_id": "CWE-79",
+      "title": "XSS via createContextualFragment",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "Range.createContextualFragment with user input",
+      "file": "fragments.js",
+      "line_start": 89,
+      "line_end": 89,
+      "code_snippet": "const fragment = range.createContextualFragment(userHtml);",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "createContextualFragment parses and executes HTML",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-XSS-020",
+      "cwe_id": "CWE-79",
+      "title": "XSS via DOMParser parseFromString",
+      "scanner": "benchmark",
+      "severity": "medium",
+      "description": "DOMParser with user HTML",
+      "file": "parser.js",
+      "line_start": 102,
+      "line_end": 102,
+      "code_snippet": "const doc = new DOMParser().parseFromString(userHtml, 'text/html');",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "DOMParser can execute scripts if content inserted into document",
+        "severity": "medium"
+      }
+    },
+    {
+      "id": "BENCH-XSS-021",
+      "cwe_id": "CWE-79",
+      "title": "False positive - sanitized with DOMPurify",
+      "scanner": "benchmark",
+      "severity": "medium",
+      "description": "Uses DOMPurify before insertion",
+      "file": "sanitized.js",
+      "line_start": 34,
+      "line_end": 34,
+      "code_snippet": "element.innerHTML = DOMPurify.sanitize(userHtml);",
+      "ground_truth": {
+        "classification": "FP",
+        "reasoning": "DOMPurify removes XSS vectors before insertion",
+        "severity": "info"
+      }
+    },
+    {
+      "id": "BENCH-XSS-022",
+      "cwe_id": "CWE-79",
+      "title": "Needs investigation - Server-side template",
+      "scanner": "benchmark",
+      "severity": "medium",
+      "description": "Server-side template with user data",
+      "file": "template.html",
+      "line_start": 15,
+      "line_end": 15,
+      "code_snippet": "<h1>{{ title }}</h1>",
+      "ground_truth": {
+        "classification": "NI",
+        "reasoning": "Need to verify if template engine escapes by default",
+        "severity": "medium"
+      }
+    },
+    {
+      "id": "BENCH-XSS-023",
+      "cwe_id": "CWE-79",
+      "title": "XSS via postMessage without origin check",
+      "scanner": "benchmark",
+      "severity": "medium",
+      "description": "postMessage data rendered without validation",
+      "file": "messaging.js",
+      "line_start": 78,
+      "line_end": 80,
+      "code_snippet": "window.addEventListener('message', (e) => {\n  document.getElementById('msg').innerHTML = e.data;\n});",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "postMessage data rendered as HTML without origin check",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-PATH-001",
+      "cwe_id": "CWE-22",
+      "title": "Path Traversal via direct concatenation",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "File path constructed by concatenating user input",
+      "file": "files.py",
+      "line_start": 23,
+      "line_end": 23,
+      "code_snippet": "file_path = '/uploads/' + filename",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "Direct path concatenation allows ../ traversal",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-PATH-002",
+      "cwe_id": "CWE-22",
+      "title": "Path Traversal via os.path.join",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "os.path.join with user input",
+      "file": "download.py",
+      "line_start": 45,
+      "line_end": 45,
+      "code_snippet": "path = os.path.join('/data', user_file)",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "os.path.join vulnerable to absolute path override",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-PATH-003",
+      "cwe_id": "CWE-22",
+      "title": "Path Traversal via f-string",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "File path with f-string interpolation",
+      "file": "serve.py",
+      "line_start": 67,
+      "line_end": 67,
+      "code_snippet": "file_path = f'/var/www/static/{requested_file}'",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "F-string path construction allows ../ traversal",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-PATH-004",
+      "cwe_id": "CWE-22",
+      "title": "False positive - Path validation with realpath",
+      "scanner": "benchmark",
+      "severity": "medium",
+      "description": "Uses realpath to prevent traversal",
+      "file": "safe_files.py",
+      "line_start": 89,
+      "line_end": 92,
+      "code_snippet": "base = os.path.realpath('/uploads')\npath = os.path.realpath(os.path.join(base, filename))\nif not path.startswith(base):\n    raise ValueError('Invalid path')",
+      "ground_truth": {
+        "classification": "FP",
+        "reasoning": "realpath + startswith check prevents traversal",
+        "severity": "info"
+      }
+    },
+    {
+      "id": "BENCH-PATH-005",
+      "cwe_id": "CWE-22",
+      "title": "False positive - Whitelist validation",
+      "scanner": "benchmark",
+      "severity": "medium",
+      "description": "Validates filename against whitelist",
+      "file": "validated.py",
+      "line_start": 34,
+      "line_end": 36,
+      "code_snippet": "ALLOWED_FILES = {'report.pdf', 'data.csv'}\nif filename not in ALLOWED_FILES:\n    raise ValueError('File not allowed')",
+      "ground_truth": {
+        "classification": "FP",
+        "reasoning": "Whitelist validation prevents arbitrary file access",
+        "severity": "info"
+      }
+    },
+    {
+      "id": "BENCH-PATH-006",
+      "cwe_id": "CWE-22",
+      "title": "Path Traversal in open() call",
+      "scanner": "benchmark",
+      "severity": "critical",
+      "description": "open() with user-controlled path",
+      "file": "read_file.py",
+      "line_start": 56,
+      "line_end": 56,
+      "code_snippet": "with open(user_path, 'r') as f:\n    content = f.read()",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "Direct open() with user path allows reading any file",
+        "severity": "critical"
+      }
+    },
+    {
+      "id": "BENCH-PATH-007",
+      "cwe_id": "CWE-22",
+      "title": "Path Traversal via Path() constructor",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "pathlib.Path with user input",
+      "file": "pathlib_usage.py",
+      "line_start": 78,
+      "line_end": 78,
+      "code_snippet": "file = Path('/data') / user_filename",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "Path division operator vulnerable to traversal",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-PATH-008",
+      "cwe_id": "CWE-22",
+      "title": "Path Traversal in shutil.copy",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "shutil.copy with user-controlled destination",
+      "file": "file_ops.py",
+      "line_start": 101,
+      "line_end": 101,
+      "code_snippet": "shutil.copy(source, f'/backup/{dest_file}')",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "User-controlled destination allows overwriting files",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-PATH-009",
+      "cwe_id": "CWE-22",
+      "title": "Needs investigation - Filename sanitization",
+      "scanner": "benchmark",
+      "severity": "medium",
+      "description": "Basic sanitization applied",
+      "file": "sanitize.py",
+      "line_start": 45,
+      "line_end": 46,
+      "code_snippet": "clean_name = filename.replace('..', '')\npath = f'/uploads/{clean_name}'",
+      "ground_truth": {
+        "classification": "NI",
+        "reasoning": "replace('..', '') can be bypassed with .../ - partial sanitization",
+        "severity": "medium"
+      }
+    },
+    {
+      "id": "BENCH-PATH-010",
+      "cwe_id": "CWE-22",
+      "title": "Path Traversal via archive extraction",
+      "scanner": "benchmark",
+      "severity": "critical",
+      "description": "Zip extraction without path validation",
+      "file": "extract.py",
+      "line_start": 67,
+      "line_end": 68,
+      "code_snippet": "with zipfile.ZipFile(archive) as zf:\n    zf.extractall('/tmp/extract')",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "Zip slip vulnerability - malicious archives can write anywhere",
+        "severity": "critical"
+      }
+    },
+    {
+      "id": "BENCH-PATH-011",
+      "cwe_id": "CWE-22",
+      "title": "False positive - Safe archive extraction",
+      "scanner": "benchmark",
+      "severity": "medium",
+      "description": "Validates each archive member path",
+      "file": "safe_extract.py",
+      "line_start": 89,
+      "line_end": 93,
+      "code_snippet": "with zipfile.ZipFile(archive) as zf:\n    for member in zf.namelist():\n        if '..' in member or member.startswith('/'):\n            raise ValueError('Invalid path')\n    zf.extractall('/tmp/extract')",
+      "ground_truth": {
+        "classification": "FP",
+        "reasoning": "Validates member paths before extraction",
+        "severity": "info"
+      }
+    },
+    {
+      "id": "BENCH-PATH-012",
+      "cwe_id": "CWE-22",
+      "title": "Path Traversal in sendfile",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "Flask send_file with user path",
+      "file": "flask_app.py",
+      "line_start": 112,
+      "line_end": 112,
+      "code_snippet": "return send_file(f'/static/{filename}')",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "send_file with user filename allows arbitrary file download",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-PATH-013",
+      "cwe_id": "CWE-22",
+      "title": "False positive - send_from_directory",
+      "scanner": "benchmark",
+      "severity": "medium",
+      "description": "Flask send_from_directory with validation",
+      "file": "safe_flask.py",
+      "line_start": 34,
+      "line_end": 34,
+      "code_snippet": "return send_from_directory('/static', filename)",
+      "ground_truth": {
+        "classification": "FP",
+        "reasoning": "send_from_directory validates path stays in directory",
+        "severity": "info"
+      }
+    },
+    {
+      "id": "BENCH-PATH-014",
+      "cwe_id": "CWE-22",
+      "title": "Path Traversal in os.remove",
+      "scanner": "benchmark",
+      "severity": "critical",
+      "description": "os.remove with user path",
+      "file": "delete.py",
+      "line_start": 56,
+      "line_end": 56,
+      "code_snippet": "os.remove(f'/tmp/uploads/{file_to_delete}')",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "User-controlled path in os.remove allows deleting any file",
+        "severity": "critical"
+      }
+    },
+    {
+      "id": "BENCH-PATH-015",
+      "cwe_id": "CWE-22",
+      "title": "Path Traversal via symbolic link",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "Follows symlinks without validation",
+      "file": "symlinks.py",
+      "line_start": 78,
+      "line_end": 78,
+      "code_snippet": "with open(os.path.join('/data', filename)) as f:",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "Following symlinks can escape directory boundaries",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-PATH-016",
+      "cwe_id": "CWE-22",
+      "title": "False positive - Basename extraction",
+      "scanner": "benchmark",
+      "severity": "medium",
+      "description": "Uses os.path.basename to strip path",
+      "file": "basename.py",
+      "line_start": 45,
+      "line_end": 46,
+      "code_snippet": "safe_name = os.path.basename(user_file)\npath = os.path.join('/uploads', safe_name)",
+      "ground_truth": {
+        "classification": "FP",
+        "reasoning": "basename removes directory components preventing traversal",
+        "severity": "info"
+      }
+    },
+    {
+      "id": "BENCH-PATH-017",
+      "cwe_id": "CWE-22",
+      "title": "Path Traversal in template path",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "Template file loaded from user input",
+      "file": "templates.py",
+      "line_start": 67,
+      "line_end": 67,
+      "code_snippet": "template = env.get_template(f'{template_name}.html')",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "User-controlled template path can load arbitrary files",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-PATH-018",
+      "cwe_id": "CWE-22",
+      "title": "Needs investigation - Path with regex validation",
+      "scanner": "benchmark",
+      "severity": "medium",
+      "description": "Regex validation on filename",
+      "file": "regex_valid.py",
+      "line_start": 89,
+      "line_end": 91,
+      "code_snippet": "import re\nif not re.match(r'^[a-zA-Z0-9_-]+\\.txt$', filename):\n    raise ValueError('Invalid filename')",
+      "ground_truth": {
+        "classification": "NI",
+        "reasoning": "Regex looks safe but need to verify it's applied before file access",
+        "severity": "low"
+      }
+    },
+    {
+      "id": "BENCH-PATH-019",
+      "cwe_id": "CWE-22",
+      "title": "Path Traversal via URL parameter",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "File path from URL parameter",
+      "file": "api.py",
+      "line_start": 112,
+      "line_end": 112,
+      "code_snippet": "file_path = request.args.get('file')\nwith open(file_path) as f:",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "Direct URL parameter to file path allows arbitrary file access",
+        "severity": "critical"
+      }
+    },
+    {
+      "id": "BENCH-PATH-020",
+      "cwe_id": "CWE-22",
+      "title": "Path Traversal in config file loading",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "Config file path from user input",
+      "file": "config.py",
+      "line_start": 34,
+      "line_end": 34,
+      "code_snippet": "config = json.load(open(f'/etc/app/{config_name}.json'))",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "User config name allows reading arbitrary JSON files",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-PATH-021",
+      "cwe_id": "CWE-22",
+      "title": "False positive - UUID-based filenames",
+      "scanner": "benchmark",
+      "severity": "low",
+      "description": "Uses UUID for file path",
+      "file": "uuid_files.py",
+      "line_start": 56,
+      "line_end": 58,
+      "code_snippet": "import uuid\nfile_id = str(uuid.uuid4())\npath = f'/uploads/{file_id}'",
+      "ground_truth": {
+        "classification": "FP",
+        "reasoning": "UUID-generated paths not user-controlled",
+        "severity": "info"
+      }
+    },
+    {
+      "id": "BENCH-PATH-022",
+      "cwe_id": "CWE-22",
+      "title": "Path Traversal via image upload",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "Image saved with original filename",
+      "file": "upload.py",
+      "line_start": 78,
+      "line_end": 79,
+      "code_snippet": "filename = secure_filename(file.filename)\nfile.save(os.path.join('/uploads', filename))",
+      "ground_truth": {
+        "classification": "FP",
+        "reasoning": "secure_filename() sanitizes the path",
+        "severity": "info"
+      }
+    },
+    {
+      "id": "BENCH-PATH-023",
+      "cwe_id": "CWE-22",
+      "title": "Needs investigation - Custom path sanitization",
+      "scanner": "benchmark",
+      "severity": "medium",
+      "description": "Custom sanitization function",
+      "file": "custom_sanitize.py",
+      "line_start": 45,
+      "line_end": 47,
+      "code_snippet": "def sanitize(name):\n    return name.replace('/', '_').replace('\\\\', '_')\npath = f'/data/{sanitize(user_file)}'",
+      "ground_truth": {
+        "classification": "NI",
+        "reasoning": "Custom sanitization may miss edge cases like ..\\",
+        "severity": "medium"
+      }
+    },
+    {
+      "id": "BENCH-SECRET-001",
+      "cwe_id": "CWE-798",
+      "title": "Hardcoded AWS access key",
+      "scanner": "benchmark",
+      "severity": "critical",
+      "description": "AWS credentials hardcoded in source",
+      "file": "aws_client.py",
+      "line_start": 12,
+      "line_end": 12,
+      "code_snippet": "AWS_ACCESS_KEY = 'AKIAIOSFODNN7EXAMPLE'",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "Hardcoded AWS access key in source code",
+        "severity": "critical"
+      }
+    },
+    {
+      "id": "BENCH-SECRET-002",
+      "cwe_id": "CWE-798",
+      "title": "Hardcoded database password",
+      "scanner": "benchmark",
+      "severity": "critical",
+      "description": "Database password in connection string",
+      "file": "db_config.py",
+      "line_start": 23,
+      "line_end": 23,
+      "code_snippet": "DB_URL = 'postgresql://admin:SuperSecret123@localhost/mydb'",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "Database password hardcoded in connection string",
+        "severity": "critical"
+      }
+    },
+    {
+      "id": "BENCH-SECRET-003",
+      "cwe_id": "CWE-798",
+      "title": "Hardcoded API key",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "Third-party API key hardcoded",
+      "file": "stripe_client.py",
+      "line_start": 8,
+      "line_end": 8,
+      "code_snippet": "STRIPE_API_KEY = 'sk_test_EXAMPLE_KEY_DO_NOT_USE_1234567890'",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "Stripe API key hardcoded",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-SECRET-004",
+      "cwe_id": "CWE-798",
+      "title": "Hardcoded JWT secret",
+      "scanner": "benchmark",
+      "severity": "critical",
+      "description": "JWT signing secret hardcoded",
+      "file": "auth.py",
+      "line_start": 34,
+      "line_end": 34,
+      "code_snippet": "jwt.encode(payload, 'my-secret-key', algorithm='HS256')",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "JWT secret key hardcoded - compromises all tokens",
+        "severity": "critical"
+      }
+    },
+    {
+      "id": "BENCH-SECRET-005",
+      "cwe_id": "CWE-798",
+      "title": "False positive - Environment variable",
+      "scanner": "benchmark",
+      "severity": "medium",
+      "description": "Uses os.environ for secrets",
+      "file": "safe_config.py",
+      "line_start": 15,
+      "line_end": 15,
+      "code_snippet": "API_KEY = os.environ.get('API_KEY')",
+      "ground_truth": {
+        "classification": "FP",
+        "reasoning": "Reads from environment variable - not hardcoded",
+        "severity": "info"
+      }
+    },
+    {
+      "id": "BENCH-SECRET-006",
+      "cwe_id": "CWE-798",
+      "title": "False positive - Config file reference",
+      "scanner": "benchmark",
+      "severity": "medium",
+      "description": "Loads secret from config file",
+      "file": "config_loader.py",
+      "line_start": 23,
+      "line_end": 24,
+      "code_snippet": "with open('config.json') as f:\n    config = json.load(f)\n    api_key = config['api_key']",
+      "ground_truth": {
+        "classification": "FP",
+        "reasoning": "Loads from external config - not hardcoded in source",
+        "severity": "info"
+      }
+    },
+    {
+      "id": "BENCH-SECRET-007",
+      "cwe_id": "CWE-798",
+      "title": "Hardcoded SSH private key",
+      "scanner": "benchmark",
+      "severity": "critical",
+      "description": "SSH private key embedded in code",
+      "file": "deploy.py",
+      "line_start": 45,
+      "line_end": 48,
+      "code_snippet": "PRIVATE_KEY = '''-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAKCAQEA...\n-----END RSA PRIVATE KEY-----'''",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "SSH private key hardcoded in source",
+        "severity": "critical"
+      }
+    },
+    {
+      "id": "BENCH-SECRET-008",
+      "cwe_id": "CWE-798",
+      "title": "Hardcoded encryption key",
+      "scanner": "benchmark",
+      "severity": "critical",
+      "description": "AES encryption key hardcoded",
+      "file": "crypto.py",
+      "line_start": 12,
+      "line_end": 12,
+      "code_snippet": "AES_KEY = b'\\x00\\x01\\x02\\x03\\x04\\x05\\x06\\x07\\x08\\t\\n\\x0b\\x0c\\r\\x0e\\x0f'",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "Encryption key hardcoded - compromises all encrypted data",
+        "severity": "critical"
+      }
+    },
+    {
+      "id": "BENCH-SECRET-009",
+      "cwe_id": "CWE-798",
+      "title": "Hardcoded OAuth client secret",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "OAuth2 client secret in code",
+      "file": "oauth.py",
+      "line_start": 28,
+      "line_end": 28,
+      "code_snippet": "CLIENT_SECRET = 'x7f9k2m4p8q1w5e6r3t0y9u2i5o7'",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "OAuth client secret hardcoded",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-SECRET-010",
+      "cwe_id": "CWE-798",
+      "title": "Hardcoded admin credentials",
+      "scanner": "benchmark",
+      "severity": "critical",
+      "description": "Default admin username and password",
+      "file": "admin.py",
+      "line_start": 15,
+      "line_end": 16,
+      "code_snippet": "ADMIN_USER = 'admin'\nADMIN_PASS = 'Admin123!'",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "Default admin credentials hardcoded",
+        "severity": "critical"
+      }
+    },
+    {
+      "id": "BENCH-SECRET-011",
+      "cwe_id": "CWE-798",
+      "title": "False positive - Example/placeholder",
+      "scanner": "benchmark",
+      "severity": "low",
+      "description": "Example API key in documentation",
+      "file": "example.py",
+      "line_start": 5,
+      "line_end": 6,
+      "code_snippet": "# Example usage:\n# api_key = 'your-api-key-here'",
+      "ground_truth": {
+        "classification": "FP",
+        "reasoning": "Comment showing example - not actual secret",
+        "severity": "info"
+      }
+    },
+    {
+      "id": "BENCH-SECRET-012",
+      "cwe_id": "CWE-798",
+      "title": "Hardcoded GitHub token",
+      "scanner": "benchmark",
+      "severity": "critical",
+      "description": "GitHub personal access token in code",
+      "file": "github_api.py",
+      "line_start": 18,
+      "line_end": 18,
+      "code_snippet": "GITHUB_TOKEN = 'ghp_1234567890abcdefghijklmnopqrstuv'",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "GitHub personal access token hardcoded",
+        "severity": "critical"
+      }
+    },
+    {
+      "id": "BENCH-SECRET-013",
+      "cwe_id": "CWE-798",
+      "title": "Hardcoded Slack webhook URL",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "Slack webhook URL in source",
+      "file": "notifications.py",
+      "line_start": 23,
+      "line_end": 23,
+      "code_snippet": "SLACK_WEBHOOK = 'https://hooks.slack.com/services/T00/B00/XXXX'",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "Slack webhook URL hardcoded - allows posting to channel",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-SECRET-014",
+      "cwe_id": "CWE-798",
+      "title": "False positive - Public key",
+      "scanner": "benchmark",
+      "severity": "low",
+      "description": "RSA public key in code",
+      "file": "verification.py",
+      "line_start": 34,
+      "line_end": 36,
+      "code_snippet": "PUBLIC_KEY = '''-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkq...\n-----END PUBLIC KEY-----'''",
+      "ground_truth": {
+        "classification": "FP",
+        "reasoning": "Public key is meant to be shared - not a secret",
+        "severity": "info"
+      }
+    },
+    {
+      "id": "BENCH-SECRET-015",
+      "cwe_id": "CWE-798",
+      "title": "Hardcoded SMTP credentials",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "Email server password in code",
+      "file": "mailer.py",
+      "line_start": 45,
+      "line_end": 46,
+      "code_snippet": "SMTP_USER = 'noreply@example.com'\nSMTP_PASS = 'EmailPass123'",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "SMTP password hardcoded",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-SECRET-016",
+      "cwe_id": "CWE-798",
+      "title": "Hardcoded cookie secret",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "Flask session secret key",
+      "file": "app.py",
+      "line_start": 12,
+      "line_end": 12,
+      "code_snippet": "app.secret_key = 'dev-secret-key-change-in-prod'",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "Flask secret key hardcoded - compromises sessions",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-SECRET-017",
+      "cwe_id": "CWE-798",
+      "title": "False positive - Secrets manager client",
+      "scanner": "benchmark",
+      "severity": "low",
+      "description": "Uses AWS Secrets Manager",
+      "file": "secrets.py",
+      "line_start": 23,
+      "line_end": 24,
+      "code_snippet": "client = boto3.client('secretsmanager')\nsecret = client.get_secret_value(SecretId='prod/db/password')",
+      "ground_truth": {
+        "classification": "FP",
+        "reasoning": "Retrieves from secrets manager - not hardcoded",
+        "severity": "info"
+      }
+    },
+    {
+      "id": "BENCH-SECRET-018",
+      "cwe_id": "CWE-798",
+      "title": "Hardcoded Redis password",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "Redis connection with password",
+      "file": "cache.py",
+      "line_start": 15,
+      "line_end": 15,
+      "code_snippet": "redis_client = Redis(host='localhost', password='RedisPass123')",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "Redis password hardcoded in connection",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-SECRET-019",
+      "cwe_id": "CWE-798",
+      "title": "Needs investigation - Constant that might be secret",
+      "scanner": "benchmark",
+      "severity": "medium",
+      "description": "Suspicious constant name",
+      "file": "constants.py",
+      "line_start": 34,
+      "line_end": 34,
+      "code_snippet": "API_TOKEN = 'abc123xyz'",
+      "ground_truth": {
+        "classification": "NI",
+        "reasoning": "Could be test token or actual secret - need context",
+        "severity": "medium"
+      }
+    },
+    {
+      "id": "BENCH-SECRET-020",
+      "cwe_id": "CWE-798",
+      "title": "Hardcoded Twilio credentials",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "Twilio account SID and auth token",
+      "file": "sms.py",
+      "line_start": 18,
+      "line_end": 19,
+      "code_snippet": "ACCOUNT_SID = 'AC1234567890abcdef1234567890abcd'\nAUTH_TOKEN = '1234567890abcdef1234567890abcd'",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "Twilio credentials hardcoded",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-SECRET-021",
+      "cwe_id": "CWE-798",
+      "title": "False positive - Hash of password (not password itself)",
+      "scanner": "benchmark",
+      "severity": "low",
+      "description": "Stores password hash",
+      "file": "users.py",
+      "line_start": 45,
+      "line_end": 45,
+      "code_snippet": "PASSWORD_HASH = '$2b$12$KIXxLx...'  # bcrypt hash",
+      "ground_truth": {
+        "classification": "FP",
+        "reasoning": "Password hash not the actual password - acceptable to store",
+        "severity": "info"
+      }
+    },
+    {
+      "id": "BENCH-SECRET-022",
+      "cwe_id": "CWE-798",
+      "title": "Hardcoded Firebase config",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "Firebase API key in config",
+      "file": "firebase.py",
+      "line_start": 12,
+      "line_end": 16,
+      "code_snippet": "config = {\n    'apiKey': 'AIzaSyD...XXXX',\n    'authDomain': 'app.firebaseapp.com',\n    'projectId': 'my-app'\n}",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "Firebase API key hardcoded",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-SECRET-023",
+      "cwe_id": "CWE-798",
+      "title": "Needs investigation - Base64 encoded string",
+      "scanner": "benchmark",
+      "severity": "medium",
+      "description": "Suspicious base64 string",
+      "file": "encoded.py",
+      "line_start": 23,
+      "line_end": 23,
+      "code_snippet": "TOKEN = 'YWRtaW46cGFzc3dvcmQxMjM='",
+      "ground_truth": {
+        "classification": "NI",
+        "reasoning": "Base64 might encode credentials - needs decoding to verify",
+        "severity": "medium"
+      }
+    },
+    {
+      "id": "BENCH-CRYPTO-001",
+      "cwe_id": "CWE-327",
+      "title": "Weak hash algorithm MD5",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "Uses MD5 for password hashing",
+      "file": "auth.py",
+      "line_start": 34,
+      "line_end": 34,
+      "code_snippet": "password_hash = hashlib.md5(password.encode()).hexdigest()",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "MD5 is cryptographically broken - vulnerable to collisions",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-CRYPTO-002",
+      "cwe_id": "CWE-327",
+      "title": "Weak hash algorithm SHA1",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "Uses SHA1 for password hashing",
+      "file": "users.py",
+      "line_start": 56,
+      "line_end": 56,
+      "code_snippet": "hash = hashlib.sha1(password.encode()).hexdigest()",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "SHA1 is deprecated for password hashing - no salt",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-CRYPTO-003",
+      "cwe_id": "CWE-327",
+      "title": "DES encryption used",
+      "scanner": "benchmark",
+      "severity": "critical",
+      "description": "Uses DES symmetric encryption",
+      "file": "encryption.py",
+      "line_start": 23,
+      "line_end": 23,
+      "code_snippet": "cipher = DES.new(key, DES.MODE_ECB)",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "DES has 56-bit keys - easily brute forced",
+        "severity": "critical"
+      }
+    },
+    {
+      "id": "BENCH-CRYPTO-004",
+      "cwe_id": "CWE-327",
+      "title": "ECB mode used for encryption",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "AES in ECB mode",
+      "file": "crypto.py",
+      "line_start": 45,
+      "line_end": 45,
+      "code_snippet": "cipher = AES.new(key, AES.MODE_ECB)",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "ECB mode doesn't use IV - patterns leak in ciphertext",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-CRYPTO-005",
+      "cwe_id": "CWE-327",
+      "title": "False positive - bcrypt password hashing",
+      "scanner": "benchmark",
+      "severity": "low",
+      "description": "Uses bcrypt for passwords",
+      "file": "secure_auth.py",
+      "line_start": 28,
+      "line_end": 28,
+      "code_snippet": "hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt())",
+      "ground_truth": {
+        "classification": "FP",
+        "reasoning": "bcrypt is secure password hashing algorithm",
+        "severity": "info"
+      }
+    },
+    {
+      "id": "BENCH-CRYPTO-006",
+      "cwe_id": "CWE-327",
+      "title": "False positive - SHA256 for integrity",
+      "scanner": "benchmark",
+      "severity": "low",
+      "description": "SHA256 used for file integrity",
+      "file": "checksum.py",
+      "line_start": 15,
+      "line_end": 15,
+      "code_snippet": "file_hash = hashlib.sha256(data).hexdigest()",
+      "ground_truth": {
+        "classification": "FP",
+        "reasoning": "SHA256 appropriate for file integrity checks",
+        "severity": "info"
+      }
+    },
+    {
+      "id": "BENCH-CRYPTO-007",
+      "cwe_id": "CWE-327",
+      "title": "RC4 stream cipher used",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "Uses RC4 for encryption",
+      "file": "stream_cipher.py",
+      "line_start": 34,
+      "line_end": 34,
+      "code_snippet": "cipher = ARC4.new(key)",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "RC4 has known biases - deprecated",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-CRYPTO-008",
+      "cwe_id": "CWE-327",
+      "title": "Weak RSA key size 1024 bits",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "RSA key generation with 1024 bits",
+      "file": "rsa_gen.py",
+      "line_start": 18,
+      "line_end": 18,
+      "code_snippet": "key = RSA.generate(1024)",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "1024-bit RSA keys can be factored - use 2048+ bits",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-CRYPTO-009",
+      "cwe_id": "CWE-327",
+      "title": "False positive - RSA 4096 bits",
+      "scanner": "benchmark",
+      "severity": "low",
+      "description": "RSA with strong key size",
+      "file": "secure_rsa.py",
+      "line_start": 23,
+      "line_end": 23,
+      "code_snippet": "key = RSA.generate(4096)",
+      "ground_truth": {
+        "classification": "FP",
+        "reasoning": "4096-bit RSA is cryptographically strong",
+        "severity": "info"
+      }
+    },
+    {
+      "id": "BENCH-CRYPTO-010",
+      "cwe_id": "CWE-327",
+      "title": "NULL encryption cipher suite",
+      "scanner": "benchmark",
+      "severity": "critical",
+      "description": "SSL/TLS with NULL cipher",
+      "file": "ssl_config.py",
+      "line_start": 45,
+      "line_end": 45,
+      "code_snippet": "context.set_ciphers('NULL-SHA')",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "NULL cipher provides no encryption",
+        "severity": "critical"
+      }
+    },
+    {
+      "id": "BENCH-CRYPTO-011",
+      "cwe_id": "CWE-327",
+      "title": "Insecure random number generator",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "Uses random module for crypto",
+      "file": "token_gen.py",
+      "line_start": 28,
+      "line_end": 28,
+      "code_snippet": "token = ''.join(random.choice(string.ascii_letters) for _ in range(32))",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "random module not cryptographically secure - use secrets",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-CRYPTO-012",
+      "cwe_id": "CWE-327",
+      "title": "False positive - secrets module for tokens",
+      "scanner": "benchmark",
+      "severity": "low",
+      "description": "Uses secrets module",
+      "file": "secure_token.py",
+      "line_start": 15,
+      "line_end": 15,
+      "code_snippet": "token = secrets.token_urlsafe(32)",
+      "ground_truth": {
+        "classification": "FP",
+        "reasoning": "secrets module is cryptographically secure",
+        "severity": "info"
+      }
+    },
+    {
+      "id": "BENCH-CRYPTO-013",
+      "cwe_id": "CWE-327",
+      "title": "Blowfish with short key",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "Blowfish cipher with 64-bit key",
+      "file": "blowfish.py",
+      "line_start": 34,
+      "line_end": 34,
+      "code_snippet": "cipher = Blowfish.new(b'12345678', Blowfish.MODE_CBC, iv)",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "Blowfish 64-bit block size vulnerable to birthday attacks",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-CRYPTO-014",
+      "cwe_id": "CWE-327",
+      "title": "False positive - AES-256-GCM",
+      "scanner": "benchmark",
+      "severity": "low",
+      "description": "AES-256 in GCM mode",
+      "file": "modern_crypto.py",
+      "line_start": 23,
+      "line_end": 23,
+      "code_snippet": "cipher = AES.new(key, AES.MODE_GCM)",
+      "ground_truth": {
+        "classification": "FP",
+        "reasoning": "AES-GCM is modern authenticated encryption",
+        "severity": "info"
+      }
+    },
+    {
+      "id": "BENCH-CRYPTO-015",
+      "cwe_id": "CWE-327",
+      "title": "No salt in password hash",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "Password hashing without salt",
+      "file": "simple_hash.py",
+      "line_start": 45,
+      "line_end": 45,
+      "code_snippet": "hash = hashlib.sha256(password.encode()).hexdigest()",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "SHA256 without salt vulnerable to rainbow tables",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-CRYPTO-016",
+      "cwe_id": "CWE-327",
+      "title": "Static IV in encryption",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "Reuses same IV for encryption",
+      "file": "aes_encrypt.py",
+      "line_start": 28,
+      "line_end": 29,
+      "code_snippet": "IV = b'0000000000000000'\ncipher = AES.new(key, AES.MODE_CBC, IV)",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "Static IV defeats purpose of CBC mode",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-CRYPTO-017",
+      "cwe_id": "CWE-327",
+      "title": "False positive - Random IV generation",
+      "scanner": "benchmark",
+      "severity": "low",
+      "description": "Generates random IV",
+      "file": "proper_aes.py",
+      "line_start": 34,
+      "line_end": 35,
+      "code_snippet": "iv = os.urandom(16)\ncipher = AES.new(key, AES.MODE_CBC, iv)",
+      "ground_truth": {
+        "classification": "FP",
+        "reasoning": "Random IV properly generated",
+        "severity": "info"
+      }
+    },
+    {
+      "id": "BENCH-CRYPTO-018",
+      "cwe_id": "CWE-327",
+      "title": "Custom crypto implementation",
+      "scanner": "benchmark",
+      "severity": "critical",
+      "description": "Implements custom encryption algorithm",
+      "file": "my_crypto.py",
+      "line_start": 56,
+      "line_end": 58,
+      "code_snippet": "def my_encrypt(data, key):\n    # Custom XOR-based encryption\n    return bytes(a ^ b for a, b in zip(data, itertools.cycle(key)))",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "Custom crypto almost always weak - use standard libraries",
+        "severity": "critical"
+      }
+    },
+    {
+      "id": "BENCH-CRYPTO-019",
+      "cwe_id": "CWE-327",
+      "title": "Needs investigation - Third-party crypto library",
+      "scanner": "benchmark",
+      "severity": "medium",
+      "description": "Uses unknown crypto library",
+      "file": "third_party.py",
+      "line_start": 23,
+      "line_end": 23,
+      "code_snippet": "from obscure_crypto import encrypt\nencrypted = encrypt(data, key)",
+      "ground_truth": {
+        "classification": "NI",
+        "reasoning": "Unknown library - need to verify it uses standard algorithms",
+        "severity": "medium"
+      }
+    },
+    {
+      "id": "BENCH-CRYPTO-020",
+      "cwe_id": "CWE-327",
+      "title": "SSL/TLS version too old",
+      "scanner": "benchmark",
+      "severity": "high",
+      "description": "Forces TLS 1.0",
+      "file": "legacy_tls.py",
+      "line_start": 34,
+      "line_end": 34,
+      "code_snippet": "context.options |= ssl.PROTOCOL_TLSv1",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "TLS 1.0 has known vulnerabilities - use TLS 1.2+",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "BENCH-CRYPTO-021",
+      "cwe_id": "CWE-327",
+      "title": "False positive - TLS 1.3",
+      "scanner": "benchmark",
+      "severity": "low",
+      "description": "Uses modern TLS",
+      "file": "modern_tls.py",
+      "line_start": 18,
+      "line_end": 18,
+      "code_snippet": "context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)",
+      "ground_truth": {
+        "classification": "FP",
+        "reasoning": "PROTOCOL_TLS_SERVER uses latest secure TLS version",
+        "severity": "info"
+      }
+    },
+    {
+      "id": "BENCH-CRYPTO-022",
+      "cwe_id": "CWE-327",
+      "title": "Disabled certificate validation",
+      "scanner": "benchmark",
+      "severity": "critical",
+      "description": "SSL verification disabled",
+      "file": "http_client.py",
+      "line_start": 45,
+      "line_end": 45,
+      "code_snippet": "response = requests.get(url, verify=False)",
+      "ground_truth": {
+        "classification": "TP",
+        "reasoning": "Disabling SSL verification enables MITM attacks",
+        "severity": "critical"
+      }
+    },
+    {
+      "id": "BENCH-CRYPTO-023",
+      "cwe_id": "CWE-327",
+      "title": "Needs investigation - Argon2 with custom params",
+      "scanner": "benchmark",
+      "severity": "low",
+      "description": "Argon2 with non-default parameters",
+      "file": "argon_hash.py",
+      "line_start": 28,
+      "line_end": 28,
+      "code_snippet": "hash = argon2.hash_password(password, time_cost=1, memory_cost=8)",
+      "ground_truth": {
+        "classification": "NI",
+        "reasoning": "Argon2 is strong but params look weak - need expert review",
+        "severity": "low"
+      }
+    }
+  ]
+}

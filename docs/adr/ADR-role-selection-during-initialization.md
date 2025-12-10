@@ -53,7 +53,7 @@ By capturing role information upfront, we can:
 
 ## Considered Options
 
-### Option 1: Global User Config (~/.jpspec/config.yml)
+### Option 1: Global User Config (~/.specflow/config.yml)
 Store role preference in user's home directory.
 
 **Pros**:
@@ -90,7 +90,7 @@ Extend existing workflow config with role section.
 
 ---
 
-### Option 3: Separate Role Config File (.jpspec-role.yml)
+### Option 3: Separate Role Config File (.specflow-role.yml)
 Create dedicated file for role configuration.
 
 **Pros**:
@@ -138,7 +138,7 @@ Store role configuration in project's `specflow_workflow.yml` with user-specific
 
 ### Interactive Prompt During Init/Reset
 
-When user runs `/jpspec:init` or `/jpspec:reset`:
+When user runs `/specflow:init` or `/specflow:reset`:
 
 ```bash
 specify init
@@ -372,7 +372,7 @@ Each `.github/agents/*.agent.md` file includes role metadata:
 ```yaml
 name: "dev-plan"
 description: "Execute planning workflow using architect and platform engineer"
-target: "jpspec"
+target: "specflow"
 tools: [Read, Write, Edit, Bash, Grep, Glob, Skill, mcp__backlog__*]
 
 # === NEW: Role-Based Metadata ===
@@ -505,7 +505,7 @@ def get_available_roles(workflow_config: dict) -> list[str]:
 - No breaking changes
 
 **Phase 2: Prompted Adoption (Month 4-6)**
-- When user runs any `/jpspec` command, check if role is set
+- When user runs any `/specflow` command, check if role is set
 - If not set, show one-time prompt:
   ```
   🎯 Quick Setup: Select your role to see relevant commands

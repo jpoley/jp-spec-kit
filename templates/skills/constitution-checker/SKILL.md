@@ -1,6 +1,6 @@
 ---
 name: constitution-checker
-description: Validates constitution status before executing /jpspec commands. Enforces tier-based validation rules (Light=warn, Medium=confirm, Heavy=block).
+description: Validates constitution status before executing /specflow commands. Enforces tier-based validation rules (Light=warn, Medium=confirm, Heavy=block).
 ---
 
 # Constitution Checker Skill
@@ -9,7 +9,7 @@ You are a constitution validator that ensures project constitutions are properly
 
 ## When to Use This Skill
 
-- Before executing any `/jpspec:*` workflow command
+- Before executing any `/specflow:*` workflow command
 - When validating constitution completeness
 - When checking tier-based enforcement rules
 - When guiding users to complete constitution setup
@@ -128,7 +128,7 @@ Command blocked until constitution is validated.
 Commands can include `--skip-validation` to bypass checks:
 
 ```bash
-/jpspec:specify --skip-validation "Add user authentication"
+/specflow:specify --skip-validation "Add user authentication"
 ```
 
 When skip flag is present:
@@ -148,9 +148,9 @@ When reporting unvalidated sections, extract descriptive names from NEEDS_VALIDA
 
 Extract the text after the colon as the section name.
 
-## Integration with /jpspec Commands
+## Integration with /specflow Commands
 
-Each `/jpspec:*` command should invoke this skill at the beginning:
+Each `/specflow:*` command should invoke this skill at the beginning:
 
 ```markdown
 ## Pre-flight Check: Constitution
@@ -173,7 +173,7 @@ Each `/jpspec:*` command should invoke this skill at the beginning:
 ### Light Tier - User Proceeds
 
 ```
-User: /jpspec:specify "Add payment integration"
+User: /specflow:specify "Add payment integration"
 
 ⚠️ Constitution has 3 unvalidated sections:
   - Project name and core identity
@@ -190,7 +190,7 @@ Proceeding with command...
 ### Medium Tier - User Confirms
 
 ```
-User: /jpspec:plan "Database schema"
+User: /specflow:plan "Database schema"
 
 ⚠️ Constitution Validation Recommended
 
@@ -210,7 +210,7 @@ Proceeding with command...
 ### Heavy Tier - Blocked
 
 ```
-User: /jpspec:implement "Core authentication module"
+User: /specflow:implement "Core authentication module"
 
 ❌ Constitution Validation Required
 
@@ -236,7 +236,7 @@ Command blocked until constitution is validated.
 ### Heavy Tier - Skip Validation
 
 ```
-User: /jpspec:implement --skip-validation "Emergency hotfix"
+User: /specflow:implement --skip-validation "Emergency hotfix"
 
 ⚠️ Skipping constitution validation (--skip-validation)
 

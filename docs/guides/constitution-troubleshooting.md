@@ -161,7 +161,7 @@ LLM-based detection analyzes file patterns and package.json/requirements.txt but
 **Symptoms**:
 - Constitution validation fails
 - Section exists but content is genuinely unknown (e.g., compliance requirements)
-- Cannot start `/jpspec` work (Heavy tier)
+- Cannot start `/specflow` work (Heavy tier)
 
 **Example:**
 ```markdown
@@ -225,7 +225,7 @@ If Heavy tier blocks work and validation cannot be completed:
 
 ```bash
 # Document reason in team chat/issue tracker
-/jpspec:specify --skip-validation
+/specflow:specify --skip-validation
 
 # Create task to resolve
 backlog task create "Validate compliance section in constitution" \
@@ -312,20 +312,20 @@ cp memory/constitution.md memory/constitution.md.backup
 
 ## Command Enforcement Issues
 
-### Problem: /jpspec command blocked by unvalidated constitution (Heavy tier)
+### Problem: /specflow command blocked by unvalidated constitution (Heavy tier)
 
 **Symptoms**:
 ```bash
-$ /jpspec:specify
+$ /specflow:specify
 ❌ Error: Constitution validation required.
 Constitution has 1 unvalidated section:
   - Compliance frameworks (line 142)
 
-Cannot proceed with /jpspec commands until validation complete.
+Cannot proceed with /specflow commands until validation complete.
 ```
 
 **Cause**:
-Heavy tier enforces hard blocks on /jpspec commands when constitution has unvalidated sections.
+Heavy tier enforces hard blocks on /specflow commands when constitution has unvalidated sections.
 
 **Resolution**:
 
@@ -350,15 +350,15 @@ nvim memory/constitution.md
 specify constitution validate
 # ✓ Constitution fully validated
 
-# 5. Now run /jpspec command
-/jpspec:specify
+# 5. Now run /specflow command
+/specflow:specify
 ```
 
 **Option 2: Emergency skip (Document justification):**
 
 ```bash
 # Document in team chat, issue tracker, or commit message WHY you're skipping
-/jpspec:specify --skip-validation
+/specflow:specify --skip-validation
 
 # Create follow-up task
 backlog task create "Complete constitution validation" \
@@ -397,11 +397,11 @@ Ref: task-123"
 
 ---
 
-### Problem: /jpspec command warns but doesn't block (Medium tier) - unclear if safe to proceed
+### Problem: /specflow command warns but doesn't block (Medium tier) - unclear if safe to proceed
 
 **Symptoms**:
 ```bash
-$ /jpspec:implement
+$ /specflow:implement
 ⚠️  Warning: Constitution has 1 unvalidated section:
   - Security scanning tools (line 203)
 
@@ -435,7 +435,7 @@ Medium tier uses warnings + confirmation prompts but allows proceeding after ack
    specify constitution validate
 
    # Now proceed
-   /jpspec:implement
+   /specflow:implement
    ```
 
 2. **Is this a one-time occurrence or recurring?**
@@ -793,7 +793,7 @@ This monorepo contains multiple services with different tech stacks:
 **Symptoms**:
 - Constitution exists but CI doesn't check it
 - PRs merged without constitution compliance
-- `/jpspec` commands enforce locally but not in CI
+- `/specflow` commands enforce locally but not in CI
 
 **Cause**:
 CI/CD pipeline not configured to validate constitution or check compliance.
@@ -949,7 +949,7 @@ Please analyze my project and customize memory/constitution.md:
 - ❌ Use `--skip-validation` without documenting justification
 - ❌ Choose Heavy tier "just to be safe" (creates unnecessary friction)
 - ❌ Overwrite constitution without backing up custom amendments
-- ❌ Ignore warnings from `/jpspec` commands (treat as technical debt)
+- ❌ Ignore warnings from `/specflow` commands (treat as technical debt)
 - ❌ Leave unvalidated sections indefinitely (schedule resolution)
 
 ---

@@ -8,7 +8,7 @@ assignee:
 created_date: '2025-11-28 16:55'
 updated_date: '2025-11-29'
 labels:
-  - jpspec
+  - specflow
   - backlog-integration
   - P0
   - template
@@ -19,12 +19,12 @@ dependencies:
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Create a reusable _backlog-instructions.md template that can be injected into all jpspec agent prompts, ensuring consistent backlog.md CLI usage patterns.
+Create a reusable _backlog-instructions.md template that can be injected into all specflow agent prompts, ensuring consistent backlog.md CLI usage patterns.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [x] #1 Template file created at .claude/commands/jpspec/_backlog-instructions.md
+- [x] #1 Template file created at .claude/commands/specflow/_backlog-instructions.md
 - [x] #2 Template includes task discovery instructions (backlog search, backlog task list)
 - [x] #3 Template includes task assignment workflow (backlog task edit -a)
 - [x] #4 Template includes AC tracking instructions (--check-ac pattern)
@@ -34,10 +34,10 @@ Create a reusable _backlog-instructions.md template that can be injected into al
 
 ## Implementation Notes
 <!-- NOTES:BEGIN -->
-Implemented shared backlog.md instructions template for all jpspec agents.
+Implemented shared backlog.md instructions template for all specflow agents.
 
 Deliverables:
-- Created .claude/commands/jpspec/_backlog-instructions.md with comprehensive instructions
+- Created .claude/commands/specflow/_backlog-instructions.md with comprehensive instructions
 - Template includes task discovery (search, list commands)
 - Template includes task assignment workflow with -a flag
 - Template includes AC tracking with --check-ac pattern
@@ -45,5 +45,5 @@ Deliverables:
 - Template includes full Definition of Done checklist
 - Also created templates/partials/backlog-instructions.md (alternate location)
 
-The template is now used by all jpspec agent prompts for consistent backlog.md CLI usage.
+The template is now used by all specflow agent prompts for consistent backlog.md CLI usage.
 <!-- NOTES:END -->

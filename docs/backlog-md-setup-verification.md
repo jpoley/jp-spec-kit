@@ -322,26 +322,26 @@ Task description and notes go here.
 ### Current State
 
 **Existing jp-spec-kit Commands** (Unchanged):
-- `/jpspec:specify` - Create feature specifications
-- `/jpspec:plan` - Create implementation plans
-- `/jpspec:research` - Execute research workflow
-- `/jpspec:implement` - Execute implementation workflow
-- `/jpspec:validate` - Execute validation workflow
-- `/jpspec:operate` - Execute operations workflow
+- `/specflow:specify` - Create feature specifications
+- `/specflow:plan` - Create implementation plans
+- `/specflow:research` - Execute research workflow
+- `/specflow:implement` - Execute implementation workflow
+- `/specflow:validate` - Execute validation workflow
+- `/specflow:operate` - Execute operations workflow
 
 **NEW Integration Point**:
-- `/jpspec:tasks` (to be enhanced) - Will generate Backlog.md tasks
+- `/specflow:tasks` (to be enhanced) - Will generate Backlog.md tasks
 
 ### Planned Workflow
 
 ```
-1. Developer runs: /jpspec:specify
+1. Developer runs: /specflow:specify
    → Creates spec.md with user stories
 
-2. Developer runs: /jpspec:plan
+2. Developer runs: /specflow:plan
    → Creates plan.md with architecture
 
-3. Developer runs: /jpspec:tasks --format backlog-md (NEW)
+3. Developer runs: /specflow:tasks --format backlog-md (NEW)
    → Generates backlog/tasks/task-*.md files
    → Preserves user story labels (US1, US2, US3)
    → Sets dependencies based on phases
@@ -366,17 +366,17 @@ Task description and notes go here.
 
 1. **Create Spec**:
    ```
-   /jpspec:specify Create user authentication feature
+   /specflow:specify Create user authentication feature
    ```
 
 2. **Create Plan**:
    ```
-   /jpspec:plan
+   /specflow:plan
    ```
 
 3. **Generate Tasks** (future):
    ```
-   /jpspec:tasks --format backlog-md
+   /specflow:tasks --format backlog-md
    ```
 
 4. **View Tasks**:
@@ -474,7 +474,7 @@ backlog search "." # Triggers re-index
 ### Short Term (Implementation)
 - [ ] Implement task parser for jp-spec-kit format
 - [ ] Implement Backlog.md task generator
-- [ ] Enhance `/jpspec:tasks` command
+- [ ] Enhance `/specflow:tasks` command
 - [ ] Test end-to-end workflow
 
 ### Medium Term (Full Integration)

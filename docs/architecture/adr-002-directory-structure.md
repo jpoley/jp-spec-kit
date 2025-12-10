@@ -10,15 +10,15 @@
 
 We have two different naming conventions in use:
 
-1. **Subdirectory structure**: `.claude/commands/jpspec/implement.md` (current dev-setup output)
-2. **Flat structure with dots**: `.claude/commands/jpspec.implement.md` (current init output)
+1. **Subdirectory structure**: `.claude/commands/specflow/implement.md` (current dev-setup output)
+2. **Flat structure with dots**: `.claude/commands/specflow.implement.md` (current init output)
 
 Both work with Claude Code, but they create inconsistent experiences:
 
 ```
 # Subdirectory structure (dev-setup)
 .claude/commands/
-├── jpspec/
+├── specflow/
 │   ├── implement.md
 │   ├── research.md
 │   └── _backlog-instructions.md   ← Can have partials
@@ -28,8 +28,8 @@ Both work with Claude Code, but they create inconsistent experiences:
 
 # Flat structure (init)
 .claude/commands/
-├── jpspec.implement.md
-├── jpspec.research.md              ← No way to include partials
+├── specflow.implement.md
+├── specflow.research.md              ← No way to include partials
 ├── speckit.implement.md
 └── speckit.analyze.md
 ```
@@ -59,7 +59,7 @@ Both work with Claude Code, but they create inconsistent experiences:
 **Structure**:
 ```
 .claude/commands/
-├── jpspec/
+├── specflow/
 │   ├── implement.md
 │   ├── research.md
 │   ├── validate.md
@@ -82,8 +82,8 @@ Both work with Claude Code, but they create inconsistent experiences:
 
 **Invocation**:
 ```
-/jpspec:implement
-/jpspec:research
+/specflow:implement
+/specflow:research
 /speckit:implement
 ```
 
@@ -110,14 +110,14 @@ Both work with Claude Code, but they create inconsistent experiences:
 **Structure**:
 ```
 .claude/commands/
-├── jpspec.implement.md
-├── jpspec.research.md
-├── jpspec.validate.md
-├── jpspec.plan.md
-├── jpspec.specify.md
-├── jpspec.operate.md
-├── jpspec.assess.md
-├── jpspec.prune-branch.md
+├── specflow.implement.md
+├── specflow.research.md
+├── specflow.validate.md
+├── specflow.plan.md
+├── specflow.specify.md
+├── specflow.operate.md
+├── specflow.assess.md
+├── specflow.prune-branch.md
 ├── speckit.implement.md
 ├── speckit.analyze.md
 ├── speckit.checklist.md
@@ -130,8 +130,8 @@ Both work with Claude Code, but they create inconsistent experiences:
 
 **Invocation**:
 ```
-/jpspec.implement
-/jpspec.research
+/specflow.implement
+/specflow.research
 /speckit.implement
 ```
 
@@ -177,7 +177,7 @@ Both work with Claude Code, but they create inconsistent experiences:
 **Structure**:
 ```
 .claude/commands/
-├── jpspec/
+├── specflow/
 │   └── (flat files, no further nesting)
 └── speckit/
     └── (flat files, no further nesting)
@@ -204,7 +204,7 @@ Both work with Claude Code, but they create inconsistent experiences:
 
 1. **Scalability**: With 17 commands today and growing, subdirectories provide better organization
 2. **Shared Content**: Partials like `_backlog-instructions.md` eliminate 54KB of duplication
-3. **Clarity**: Related commands grouped together (`jpspec/`, `speckit/`)
+3. **Clarity**: Related commands grouped together (`specflow/`, `speckit/`)
 4. **Maintainability**: Easier to navigate for developers and users
 5. **Future-Proof**: Structure scales to 50+ commands without cluttering
 
@@ -212,7 +212,7 @@ Both work with Claude Code, but they create inconsistent experiences:
 
 ```
 templates/commands/
-├── jpspec/
+├── specflow/
 │   ├── implement.md
 │   ├── research.md
 │   ├── validate.md
@@ -233,7 +233,7 @@ templates/commands/
     └── tasks.md
 ```
 
-**Command Invocation**: Unchanged (`/jpspec:implement`, `/speckit:implement`)
+**Command Invocation**: Unchanged (`/specflow:implement`, `/speckit:implement`)
 
 ---
 
@@ -257,7 +257,7 @@ templates/commands/
 
 ### Neutral
 
-- ℹ️ **Command invocation unchanged**: `/jpspec:implement` works for both structures
+- ℹ️ **Command invocation unchanged**: `/specflow:implement` works for both structures
 - ℹ️ **Minor learning curve**: Users must remember subdirectory structure
 
 ---
@@ -276,13 +276,13 @@ COMMANDS_DIR=".claude/commands"
 
 echo "Migrating command structure to subdirectories..."
 
-# Migrate jpspec commands
-for file in "$COMMANDS_DIR"/jpspec.*.md; do
+# Migrate specflow commands
+for file in "$COMMANDS_DIR"/specflow.*.md; do
     [ -e "$file" ] || continue
-    name="${file##*/jpspec.}"
-    mkdir -p "$COMMANDS_DIR/jpspec"
-    mv "$file" "$COMMANDS_DIR/jpspec/$name"
-    echo "  Moved: jpspec.$name → jpspec/$name"
+    name="${file##*/specflow.}"
+    mkdir -p "$COMMANDS_DIR/specflow"
+    mv "$file" "$COMMANDS_DIR/specflow/$name"
+    echo "  Moved: specflow.$name → specflow/$name"
 done
 
 # Migrate speckit commands
@@ -295,7 +295,7 @@ for file in "$COMMANDS_DIR"/speckit.*.md; do
 done
 
 echo "Migration complete! Commands now in subdirectories."
-echo "Command invocation unchanged: /jpspec:implement still works."
+echo "Command invocation unchanged: /specflow:implement still works."
 ```
 
 **Usage**:
@@ -329,7 +329,7 @@ bash scripts/bash/migrate-commands-to-subdirs.sh
    - Partials (`_backlog-instructions.md`) copied/symlinked correctly
 
 2. **User Experience**:
-   - Command invocation works: `/jpspec:implement`
+   - Command invocation works: `/specflow:implement`
    - Commands discoverable via file browser
    - Partial file accessible and readable
 

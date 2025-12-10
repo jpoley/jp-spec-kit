@@ -24,7 +24,7 @@
         - name: Workflow Architecture
           href: guides/workflow-architecture.md
         - name: JP Spec Workflow Guide
-          href: guides/jpspec-workflow-guide.md
+          href: guides/specflow-workflow-guide.md
         - name: Workflow State Mapping
           href: guides/workflow-state-mapping.md
     - name: Customization

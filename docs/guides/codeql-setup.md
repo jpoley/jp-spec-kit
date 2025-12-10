@@ -300,7 +300,7 @@ specify security scan --scanner codeql --language python
 
 ### Configuration File
 
-Configure CodeQL in `.jpspec/security-config.yml`:
+Configure CodeQL in `.specflow/security-config.yml`:
 
 ```yaml
 scanners:
@@ -322,7 +322,7 @@ scanners:
 After verifying licensing compliance:
 
 ```yaml
-# .jpspec/security-config.yml
+# .specflow/security-config.yml
 scanners:
   codeql:
     enabled: true  # Enable after licensing review

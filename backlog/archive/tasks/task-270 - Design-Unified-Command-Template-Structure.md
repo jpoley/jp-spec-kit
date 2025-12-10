@@ -16,12 +16,12 @@ priority: high
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Design the new templates/commands/ directory structure with subdirectories for jpspec and speckit
+Design the new templates/commands/ directory structure with subdirectories for specflow and speckit
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [x] #1 Define directory layout: templates/commands/jpspec/ and templates/commands/speckit/
+- [x] #1 Define directory layout: templates/commands/specflow/ and templates/commands/speckit/
 - [x] #2 Define shared content strategy for _backlog-instructions.md partial
 - [x] #3 Define naming conventions (underscore prefix = partial)
 - [x] #4 Document file organization and discovery patterns
@@ -31,5 +31,5 @@ Design the new templates/commands/ directory structure with subdirectories for j
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-Designed unified structure with jpspec/ and speckit/ subdirectories
+Designed unified structure with specflow/ and speckit/ subdirectories
 <!-- SECTION:NOTES:END -->

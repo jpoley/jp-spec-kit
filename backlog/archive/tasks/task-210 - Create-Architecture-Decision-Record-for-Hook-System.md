@@ -60,7 +60,7 @@ Document key architectural decisions: event model design, security approach, Cla
 4. Create System Architecture Document
    - Draw component architecture diagram
    - Document data flow (end-to-end example)
-   - Specify integration patterns (/jpspec, backlog, Claude Code)
+   - Specify integration patterns (/specflow, backlog, Claude Code)
    - Define performance characteristics and security model
    - Document observability (audit logging, debugging tools)
    - Plan extensibility (v2 webhooks, parallel execution)
@@ -77,7 +77,7 @@ Document key architectural decisions: event model design, security approach, Cla
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-Verified all ADR documents created during /jpspec:plan phase:
+Verified all ADR documents created during /specflow:plan phase:
 
 ADR-005: Event Model Architecture
 - Location: docs/adr/ADR-005-event-model-architecture.md

@@ -64,7 +64,7 @@ As a **solo developer**, I want **a light-weight SDD workflow** so that **I can 
 As a **product manager**, I want **automated quality gates before implementation** so that **engineering doesn't start coding with incomplete specs**.
 
 **Acceptance Criteria:**
-- [ ] `/jpspec:implement` automatically runs 5 quality gates before proceeding
+- [ ] `/specflow:implement` automatically runs 5 quality gates before proceeding
 - [ ] Gate 1 verifies spec completeness (no NEEDS CLARIFICATION markers)
 - [ ] Gate 2 validates required files exist (spec.md, plan.md, tasks.md)
 - [ ] Gate 3 checks constitutional compliance (test-first, task quality)
@@ -77,7 +77,7 @@ As a **product manager**, I want **automated quality gates before implementation
 As an **end user**, I want **JP Spec Kit available as a Claude plugin** so that **I can easily discover, install, and update it through the marketplace**.
 
 **Acceptance Criteria:**
-- [ ] Plugin contains all slash commands (/jpspec:*, /speckit:*)
+- [ ] Plugin contains all slash commands (/specflow:*, /speckit:*)
 - [ ] Plugin includes agent configurations in agents/ directory
 - [ ] Plugin updates don't affect user project files
 - [ ] Documentation provides decision tree: when to use plugin vs UV CLI

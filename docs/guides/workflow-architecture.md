@@ -2,13 +2,13 @@
 
 ## Overview
 
-The JP Spec Kit workflow synchronizes the `/jpspec` command interface with the backlog.md task management system. This document defines the architecture, design decisions, and implementation approach.
+The JP Spec Kit workflow synchronizes the `/specflow` command interface with the backlog.md task management system. This document defines the architecture, design decisions, and implementation approach.
 
 ## Problem Statement
 
 Two distinct workflows need synchronization:
 
-1. **Agent Loop Workflow** (`/jpspec` commands)
+1. **Agent Loop Workflow** (`/specflow` commands)
    - Defines which agents execute at each phase
    - Orchestrates inner/outer loop execution
    - Task-agnostic (works with any task system)
@@ -19,7 +19,7 @@ Two distinct workflows need synchronization:
    - Provides task management UI/CLI
 
 **Challenge**: Keep these synchronized so that:
-- `/jpspec` commands respect task states
+- `/specflow` commands respect task states
 - Task state changes trigger appropriate workflows
 - Users can customize both independently
 - The system remains maintainable and understandable
@@ -42,9 +42,9 @@ Two distinct workflows need synchronization:
 
 ### 2. Single Source of Truth
 
-**Decision**: `jpspec_workflow.yml` in project root as the authoritative workflow definition.
+**Decision**: `specflow_workflow.yml` in project root as the authoritative workflow definition.
 
-**File Location**: `{project-root}/jpspec_workflow.yml`
+**File Location**: `{project-root}/specflow_workflow.yml`
 
 **Rationale**:
 - Central location for users to find and modify
@@ -54,7 +54,7 @@ Two distinct workflows need synchronization:
 
 ### 3. State-Based Transitions
 
-**Decision**: Task state determines which `/jpspec` commands are valid.
+**Decision**: Task state determines which `/specflow` commands are valid.
 
 **State Model**:
 ```
@@ -80,7 +80,7 @@ To Do → Specified → Researched → Planned → In Implementation → Validat
 
 ### 5. Extensibility Through Configuration
 
-**Decision**: Users can customize workflow by editing `jpspec_workflow.yml`.
+**Decision**: Users can customize workflow by editing `specflow_workflow.yml`.
 
 **Customizable Elements**:
 - Add/remove phases
@@ -107,17 +107,17 @@ To Do → Specified → Researched → Planned → In Implementation → Validat
 
 ## Architecture Components
 
-### 1. Configuration File (`jpspec_workflow.yml`)
+### 1. Configuration File (`specflow_workflow.yml`)
 
 Defines:
 - Custom task states
-- Workflow phases (maps to `/jpspec` commands)
+- Workflow phases (maps to `/specflow` commands)
 - Agent assignments
 - State transitions
 - Optional vs mandatory phases
 - Agent loop classification
 
-**Schema**: `jpspec_workflow.schema.json`
+**Schema**: `specflow_workflow.schema.json`
 
 ### 2. Python Classes
 
@@ -136,7 +136,7 @@ Defines:
 ### 3. Task State Management
 
 Backlog.md integrations:
-- Create custom states from `jpspec_workflow.yml`
+- Create custom states from `specflow_workflow.yml`
 - Enforce state transitions
 - Validate state changes against workflow
 
@@ -155,12 +155,12 @@ New command: `specify workflow validate`
 - Document architecture decisions
 
 ### Phase 2: Configuration & Core
-- Create default `jpspec_workflow.yml`
+- Create default `specflow_workflow.yml`
 - Implement WorkflowConfig class
 - Implement WorkflowValidator
 
 ### Phase 3: Integration
-- Update `/jpspec` commands to use workflow config
+- Update `/specflow` commands to use workflow config
 - Document backlog.md state mappings
 - Implement state transition validation
 
@@ -195,17 +195,17 @@ states:
 
   # ... more states
 
-# Workflow phases (maps to /jpspec commands)
+# Workflow phases (maps to /specflow commands)
 workflows:
   specify:
-    command: "/jpspec:specify"
+    command: "/specflow:specify"
     agents: ["product-requirements-manager"]
     input_states: ["To Do"]
     output_state: "Specified"
     description: "Create feature specification from requirements"
 
   research:
-    command: "/jpspec:research"
+    command: "/specflow:research"
     agents: ["researcher", "business-validator"]
     input_states: ["Specified"]
     output_state: "Researched"
@@ -230,17 +230,17 @@ agent_loops:
 
 **Valid Sequence**:
 1. Task created in "To Do" state
-2. User runs `/jpspec:specify` → task moves to "Specified"
-3. User runs `/jpspec:research` → task moves to "Researched"
-4. User runs `/jpspec:plan` → task moves to "Planned"
-5. User runs `/jpspec:implement` → task moves to "In Implementation"
-6. User runs `/jpspec:validate` → task moves to "Validated"
-7. User runs `/jpspec:operate` → task moves to "Deployed"
+2. User runs `/specflow:specify` → task moves to "Specified"
+3. User runs `/specflow:research` → task moves to "Researched"
+4. User runs `/specflow:plan` → task moves to "Planned"
+5. User runs `/specflow:implement` → task moves to "In Implementation"
+6. User runs `/specflow:validate` → task moves to "Validated"
+7. User runs `/specflow:operate` → task moves to "Deployed"
 8. User marks task as "Done" in backlog.md
 
 **Invalid Sequence Examples**:
-- Running `/jpspec:implement` on a "To Do" task → Error
-- Running `/jpspec:research` on a "Planned" task → Error
+- Running `/specflow:implement` on a "To Do" task → Error
+- Running `/specflow:research` on a "Planned" task → Error
 - Manually changing state without workflow → Warning/error
 
 ## User Customization Examples
@@ -271,7 +271,7 @@ states:
 workflows:
   # ... existing workflows
   security-audit:
-    command: "/jpspec:audit"  # Hypothetical new command
+    command: "/specflow:audit"  # Hypothetical new command
     agents: ["secure-by-design-engineer"]
     input_states: ["Validated"]
     output_state: "Security Audited"
@@ -312,7 +312,7 @@ All errors include helpful messages to guide user fixes.
 - Validation error messages
 
 ### Integration Tests
-- `/jpspec` commands enforce state constraints
+- `/specflow` commands enforce state constraints
 - Backlog.md state changes work correctly
 - Custom workflows work as expected
 - Configuration changes apply immediately
@@ -326,9 +326,9 @@ All errors include helpful messages to guide user fixes.
 ## Backward Compatibility
 
 **Initial Release**:
-- Default workflow matches current `/jpspec` implementation
+- Default workflow matches current `/specflow` implementation
 - Existing tasks work without modification
-- No breaking changes to `/jpspec` commands
+- No breaking changes to `/specflow` commands
 
 **Future Extensions**:
 - Add new workflow phases
@@ -338,7 +338,7 @@ All errors include helpful messages to guide user fixes.
 ## Extensibility
 
 Users can extend the workflow by:
-1. Editing `jpspec_workflow.yml`
+1. Editing `specflow_workflow.yml`
 2. Adding custom states
 3. Reordering phases
 4. Changing agent assignments
@@ -352,7 +352,7 @@ All validated against schema and semantic rules.
 1. **Clarity**: Users understand workflow definition in YAML
 2. **Customizability**: Users can modify workflow without code changes
 3. **Validation**: System prevents invalid state transitions
-4. **Synchronization**: Backlog.md states match `/jpspec` phases
+4. **Synchronization**: Backlog.md states match `/specflow` phases
 5. **Documentation**: Clear guides for customization
 6. **Testing**: >80% test coverage for workflow logic
 7. **Performance**: No noticeable latency from config loading

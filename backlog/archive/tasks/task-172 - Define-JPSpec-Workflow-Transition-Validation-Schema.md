@@ -17,7 +17,7 @@ priority: high
 - [x] AC2: Document all 7 workflow transitions with complete artifact specifications
 - [x] AC3: Create validation mode enum: NONE | KEYWORD["<string>"] | PULL_REQUEST
 - [x] AC4: Set all transitions to validation: NONE as default
-- [x] AC5: Add transition schema to jpspec_workflow.yml
+- [x] AC5: Add transition schema to specflow_workflow.yml
 - [x] AC6: Create validation for transition definitions (all 3 fields required)
 - [x] AC7: Document artifact path patterns ({feature}, {NNN}, {slug} variables)
 <!-- AC:END -->

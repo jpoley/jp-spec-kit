@@ -86,7 +86,7 @@
     },
     "workflows": {
       "type": "object",
-      "description": "Workflow phases mapped to /jpspec slash commands",
+      "description": "Workflow phases mapped to /specflow slash commands",
       "minProperties": 1,
       "additionalProperties": {
         "$ref": "#/$defs/workflow"
@@ -304,14 +304,14 @@
     },
     "workflow": {
       "type": "object",
-      "description": "A workflow phase definition mapping to a /jpspec slash command",
+      "description": "A workflow phase definition mapping to a /specflow slash command",
       "required": ["command", "agents", "input_states", "output_state"],
       "additionalProperties": false,
       "properties": {
         "command": {
           "type": "string",
-          "pattern": "^/jpspec:[a-z][a-z0-9_-]*$",
-          "description": "The /jpspec slash command that triggers this workflow (e.g., '/jpspec:specify', '/jpspec:implement')"
+          "pattern": "^/specflow:[a-z][a-z0-9_-]*$",
+          "description": "The /specflow slash command that triggers this workflow (e.g., '/specflow:specify', '/specflow:implement')"
         },
         "description": {
           "type": "string",

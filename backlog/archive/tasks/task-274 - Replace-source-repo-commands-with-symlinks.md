@@ -22,8 +22,8 @@ Delete direct files in .claude/commands/ and replace with symlinks created by do
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [x] #1 Backup current .claude/commands/jpspec/ files (git commit before deletion)
-- [x] #2 Delete all .claude/commands/jpspec/*.md files
+- [x] #1 Backup current .claude/commands/specflow/ files (git commit before deletion)
+- [x] #2 Delete all .claude/commands/specflow/*.md files
 - [x] #3 Run specify dogfood --force to create symlinks
 - [x] #4 Verify all .claude/commands/**/*.md are symlinks (none are regular files)
 - [x] #5 Test Claude Code reads commands via symlinks successfully
@@ -33,5 +33,5 @@ Delete direct files in .claude/commands/ and replace with symlinks created by do
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-Replaced all command files with symlinks to templates subdirectories. jpspec: 8 commands, speckit: 8 commands
+Replaced all command files with symlinks to templates subdirectories. specflow: 8 commands, speckit: 8 commands
 <!-- SECTION:NOTES:END -->

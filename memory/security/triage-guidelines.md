@@ -81,7 +81,7 @@ Audit Note: Mark as non-compliant until remediated and verified
 
 ## Configuration
 
-The persona is configured in your security configuration file (`.jpspec/security-config.yml`):
+The persona is configured in your security configuration file (`.specflow/security-config.yml`):
 
 ```yaml
 triage:
@@ -154,11 +154,11 @@ Persona skills are implemented as Claude Code skills in:
 Security triage commands should read the persona configuration and invoke the appropriate skill:
 
 ```markdown
-# In .claude/commands/jpspec/security-triage.md
+# In .claude/commands/specflow/security-triage.md
 
 ## Select Persona
 
-Based on configuration in `.jpspec/security-config.yml`:
+Based on configuration in `.specflow/security-config.yml`:
 
 - If `persona: beginner` → Invoke `security-triage-beginner` skill
 - If `persona: expert` → Invoke `security-triage-expert` skill

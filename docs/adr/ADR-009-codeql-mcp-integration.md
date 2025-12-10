@@ -188,7 +188,7 @@ ADAPTERS = [
 
 #### Task 4.1: Add CodeQL to security scan command
 
-Update `/jpspec:security scan` to include CodeQL:
+Update `/specflow:security scan` to include CodeQL:
 
 ```python
 @app.command()

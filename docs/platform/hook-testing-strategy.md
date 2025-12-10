@@ -297,7 +297,7 @@ tests/
 │   ├── test_hook_execution.py      # Hook runner → subprocess → audit log
 │   ├── test_security_boundaries.py # Security controls in realistic scenarios
 │   ├── test_backlog_integration.py # Backlog CLI → event emission
-│   └── test_workflow_integration.py # /jpspec commands → event emission
+│   └── test_workflow_integration.py # /specflow commands → event emission
 ```
 
 ### Key Test Modules
@@ -498,8 +498,8 @@ E2E tests validate full workflow scenarios with real hooks, scripts, and CLI com
 ```
 tests/
 ├── e2e/
-│   ├── test_implement_workflow.py   # /jpspec:implement → run tests
-│   ├── test_spec_workflow.py        # /jpspec:specify → update docs
+│   ├── test_implement_workflow.py   # /specflow:implement → run tests
+│   ├── test_spec_workflow.py        # /specflow:specify → update docs
 │   ├── test_task_workflow.py        # backlog task → notifications
 │   ├── test_security_enforcement.py # Security controls in real scenarios
 │   └── fixtures/
@@ -528,7 +528,7 @@ class TestImplementWorkflow:
     def test_implement_triggers_test_hook(self, project_root, monkeypatch):
         """
         GIVEN: hooks.yaml configured to run tests on implement.completed
-        WHEN: /jpspec:implement is executed
+        WHEN: /specflow:implement is executed
         THEN: Test suite runs and results are logged
         """
         # Setup hooks.yaml
@@ -565,8 +565,8 @@ def test_example():
         # Change to project root
         monkeypatch.chdir(project_root)
 
-        # Run /jpspec:implement
-        result = main(["jpspec:implement", "test-feature"])
+        # Run /specflow:implement
+        result = main(["specflow:implement", "test-feature"])
 
         # Verify hook was triggered
         audit_log = project_root / ".specify" / "hooks" / "audit.log"

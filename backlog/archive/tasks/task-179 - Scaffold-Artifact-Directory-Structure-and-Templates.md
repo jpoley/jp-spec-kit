@@ -18,7 +18,7 @@ priority: high
 
 <!-- SECTION:NOTES:BEGIN -->
 ## Summary
-Create the standard directory structure and templates for workflow artifacts (PRD, ADR, Assessment) that jpspec commands will populate.
+Create the standard directory structure and templates for workflow artifacts (PRD, ADR, Assessment) that specflow commands will populate.
 
 ## Directory Structure
 

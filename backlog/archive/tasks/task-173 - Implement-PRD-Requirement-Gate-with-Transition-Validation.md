@@ -14,20 +14,20 @@ priority: high
 
 <!-- AC:BEGIN -->
 - [x] AC1: Create PRD template at templates/prd-template.md
-- [x] AC2: Update /jpspec:specify to output PRD to ./docs/prd/{feature}.md
+- [x] AC2: Update /specflow:specify to output PRD to ./docs/prd/{feature}.md
 - [x] AC3: Add PRD existence check before transition to "Specified" state
 - [x] AC4: Implement PRD structural validation (required sections present)
 - [x] AC5: Support validation: NONE (default)
 - [x] AC6: Support validation: KEYWORD["<string>"] mode
 - [x] AC7: Support validation: PULL_REQUEST mode
-- [x] AC8: Update jpspec_workflow.yml with prd output artifact definition
+- [x] AC8: Update specflow_workflow.yml with prd output artifact definition
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 ## Summary
-Implement PRD (Product Requirements Document) as a required output artifact from /jpspec:specify with configurable transition validation.
+Implement PRD (Product Requirements Document) as a required output artifact from /specflow:specify with configurable transition validation.
 
 ## PRD Artifact Specification
 

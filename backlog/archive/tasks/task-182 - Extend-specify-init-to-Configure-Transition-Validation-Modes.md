@@ -19,7 +19,7 @@ priority: high
 - [x] AC2: Support NONE selection (default, press Enter)
 - [x] AC3: Support KEYWORD selection with custom keyword input
 - [x] AC4: Support PULL_REQUEST selection
-- [x] AC5: Generate jpspec_workflow.yml with configured validation modes
+- [x] AC5: Generate specflow_workflow.yml with configured validation modes
 - [x] AC6: Add --validation-mode {none|keyword|pull-request} flag for batch config
 - [x] AC7: Add --no-validation-prompts flag to skip questions (use NONE)
 - [x] AC8: Display summary of configured validation modes at end
@@ -30,7 +30,7 @@ priority: high
 
 <!-- SECTION:NOTES:BEGIN -->
 ## Summary
-Extend the `specify init` command to ask users about their preferred validation mode for each workflow transition, storing the configuration in jpspec_workflow.yml.
+Extend the `specify init` command to ask users about their preferred validation mode for each workflow transition, storing the configuration in specflow_workflow.yml.
 
 ## Interactive Init Flow
 
@@ -48,38 +48,38 @@ For each workflow transition, choose a validation mode:
 - KEYWORD: Require user to type approval keyword
 - PULL_REQUEST: Require PR to be merged
 
-1. Assess → Specified (after /jpspec:assess)
+1. Assess → Specified (after /specflow:assess)
    [1] NONE (default)
    [2] KEYWORD
    [3] PULL_REQUEST
    > 1
 
-2. Specified → Researched (after /jpspec:specify, produces PRD)
+2. Specified → Researched (after /specflow:specify, produces PRD)
    [1] NONE (default)
    [2] KEYWORD - Enter keyword: PRD_APPROVED
    [3] PULL_REQUEST
    > 2
    Enter approval keyword: PRD_APPROVED
 
-3. Researched → Planned (after /jpspec:research)
+3. Researched → Planned (after /specflow:research)
    [1] NONE (default)
    [2] KEYWORD
    [3] PULL_REQUEST
    > 1
 
-4. Planned → In Implementation (after /jpspec:plan, produces ADRs)
+4. Planned → In Implementation (after /specflow:plan, produces ADRs)
    [1] NONE (default)
    [2] KEYWORD
    [3] PULL_REQUEST
    > 3
 
-5. In Implementation → Validated (after /jpspec:implement)
+5. In Implementation → Validated (after /specflow:implement)
    [1] NONE (default)
    [2] KEYWORD
    [3] PULL_REQUEST
    > 1
 
-6. Validated → Deployed (after /jpspec:validate)
+6. Validated → Deployed (after /specflow:validate)
    [1] NONE (default)
    [2] KEYWORD
    [3] PULL_REQUEST
@@ -91,13 +91,13 @@ For each workflow transition, choose a validation mode:
    [2] KEYWORD
    > 1
 
-Configuration saved to jpspec_workflow.yml
+Configuration saved to specflow_workflow.yml
 ```
 
 ## Generated Configuration
 
 ```yaml
-# jpspec_workflow.yml
+# specflow_workflow.yml
 version: "1.0"
 
 transitions:
@@ -165,7 +165,7 @@ specify init my-project --no-validation-prompts
 - [ ] AC2: Support NONE selection (default, press Enter)
 - [ ] AC3: Support KEYWORD selection with custom keyword input
 - [ ] AC4: Support PULL_REQUEST selection
-- [ ] AC5: Generate jpspec_workflow.yml with configured validation modes
+- [ ] AC5: Generate specflow_workflow.yml with configured validation modes
 - [ ] AC6: Add --validation-mode {none|keyword|pull-request} flag for batch config
 - [ ] AC7: Add --no-validation-prompts flag to skip questions (use NONE)
 - [ ] AC8: Display summary of configured validation modes at end

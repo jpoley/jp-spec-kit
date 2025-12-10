@@ -1,21 +1,21 @@
 # Workflow Schema Reference
 
-This document describes the JSON Schema used to validate `jpspec_workflow.yml` configuration files.
+This document describes the JSON Schema used to validate `specflow_workflow.yml` configuration files.
 
 ## Overview
 
-The workflow schema (`memory/jpspec_workflow.schema.json`) validates the structure and content of workflow configuration files. It ensures that:
+The workflow schema (`memory/specflow_workflow.schema.json`) validates the structure and content of workflow configuration files. It ensures that:
 
 - All required fields are present
 - Field types are correct
-- Command names follow the `/jpspec:` pattern
+- Command names follow the `/specflow:` pattern
 - Arrays have required minimum items
 - No typos via `additionalProperties: false`
 
 ## Schema Location
 
 ```
-memory/jpspec_workflow.schema.json
+memory/specflow_workflow.schema.json
 ```
 
 ## Top-Level Structure
@@ -95,7 +95,7 @@ Object mapping workflow names to their definitions.
 
 | Field | Type | Required | Default | Description |
 |-------|------|----------|---------|-------------|
-| `command` | string | Yes | - | The `/jpspec:` command (pattern: `^/jpspec:[a-z][a-z0-9_]*$`) |
+| `command` | string | Yes | - | The `/specflow:` command (pattern: `^/specflow:[a-z][a-z0-9_]*$`) |
 | `agents` | array | Yes | - | List of agent names (min 1, unique) |
 | `input_states` | array | Yes | - | Valid source states (min 1, unique) |
 | `output_state` | string | Yes | - | Destination state after completion |
@@ -106,7 +106,7 @@ Object mapping workflow names to their definitions.
 ```yaml
 workflows:
   specify:
-    command: "/jpspec:specify"
+    command: "/specflow:specify"
     agents:
       - "product-requirements-manager"
     input_states:
@@ -116,7 +116,7 @@ workflows:
     optional: false
 
   research:
-    command: "/jpspec:research"
+    command: "/specflow:research"
     agents:
       - "researcher"
       - "business-validator"
@@ -190,17 +190,17 @@ agent_loops:
 
 ### Command Pattern
 
-All workflow commands must match the pattern `/jpspec:[a-z][a-z0-9_]*`:
+All workflow commands must match the pattern `/specflow:[a-z][a-z0-9_]*`:
 
 | Pattern | Valid | Reason |
 |---------|-------|--------|
-| `/jpspec:specify` | Yes | Correct format |
-| `/jpspec:implement` | Yes | Correct format |
-| `/jpspec:security_audit` | Yes | Underscores allowed |
-| `jpspec:specify` | No | Missing leading slash |
+| `/specflow:specify` | Yes | Correct format |
+| `/specflow:implement` | Yes | Correct format |
+| `/specflow:security_audit` | Yes | Underscores allowed |
+| `specflow:specify` | No | Missing leading slash |
 | `/speckit:specify` | No | Wrong prefix |
-| `/jpspec:Specify` | No | Uppercase not allowed |
-| `/jpspec:` | No | Empty action |
+| `/specflow:Specify` | No | Uppercase not allowed |
+| `/specflow:` | No | Empty action |
 
 ### Uniqueness Constraints
 
@@ -220,7 +220,7 @@ All objects use `additionalProperties: false` to catch typos:
 # This will FAIL validation
 workflows:
   specify:
-    comand: "/jpspec:specify"  # Typo: "comand" instead of "command"
+    comand: "/specflow:specify"  # Typo: "comand" instead of "command"
     agents: ["pm"]
     input_states: ["To Do"]
     output_state: "Done"
@@ -248,7 +248,7 @@ states:
 
 workflows:
   specify:
-    command: "/jpspec:specify"
+    command: "/specflow:specify"
     agents:
       - "product-requirements-manager"
     input_states:
@@ -258,7 +258,7 @@ workflows:
     optional: false
 
   research:
-    command: "/jpspec:research"
+    command: "/specflow:research"
     agents:
       - "researcher"
       - "business-validator"
@@ -269,7 +269,7 @@ workflows:
     optional: false
 
   plan:
-    command: "/jpspec:plan"
+    command: "/specflow:plan"
     agents:
       - "software-architect"
       - "platform-engineer"
@@ -280,7 +280,7 @@ workflows:
     optional: false
 
   implement:
-    command: "/jpspec:implement"
+    command: "/specflow:implement"
     agents:
       - "frontend-engineer"
       - "backend-engineer"
@@ -292,7 +292,7 @@ workflows:
     optional: false
 
   validate:
-    command: "/jpspec:validate"
+    command: "/specflow:validate"
     agents:
       - "quality-guardian"
       - "secure-by-design-engineer"
@@ -305,7 +305,7 @@ workflows:
     optional: false
 
   operate:
-    command: "/jpspec:operate"
+    command: "/specflow:operate"
     agents:
       - "sre-agent"
     input_states:
@@ -375,9 +375,9 @@ Fix: Use format "X.Y" (e.g., "1.0")
 ### Invalid Command Pattern
 
 ```
-Error: 'jpspec:specify' does not match '^/jpspec:[a-z][a-z0-9_]*$'
+Error: 'specflow:specify' does not match '^/specflow:[a-z][a-z0-9_]*$'
 Path: workflows/specify/command
-Fix: Add leading slash: "/jpspec:specify"
+Fix: Add leading slash: "/specflow:specify"
 ```
 
 ### Extra Property (Typo)
@@ -406,11 +406,11 @@ import yaml
 from jsonschema import validate, ValidationError, Draft7Validator
 
 # Load schema
-with open("memory/jpspec_workflow.schema.json") as f:
+with open("memory/specflow_workflow.schema.json") as f:
     schema = json.load(f)
 
 # Load config
-with open("jpspec_workflow.yml") as f:
+with open("specflow_workflow.yml") as f:
     config = yaml.safe_load(f)
 
 # Simple validation (raises on first error)

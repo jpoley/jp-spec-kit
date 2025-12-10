@@ -21,13 +21,13 @@ Update project configuration documentation to include workflow configuration inf
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [x] #1 CLAUDE.md updated with new 'Workflow Configuration' section
-- [x] #2 Section explains jpspec_workflow.yml location and purpose
-- [x] #3 Section documents how /jpspec commands use workflow configuration
+- [x] #2 Section explains specflow_workflow.yml location and purpose
+- [x] #3 Section documents how /specflow commands use workflow configuration
 - [x] #4 Section includes link to workflow-architecture.md guide
 - [x] #5 Section includes link to workflow-customization.md guide
 - [x] #6 Section shows example of running 'specify workflow validate'
 - [x] #7 Section explains workflow state mapping to backlog.md states
-- [x] #8 Quick reference table of /jpspec commands and their workflow phases
+- [x] #8 Quick reference table of /specflow commands and their workflow phases
 <!-- AC:END -->
 
 ## Implementation Notes

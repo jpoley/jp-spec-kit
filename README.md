@@ -19,7 +19,7 @@
 
 ## What is JP Spec Kit?
 
-JP Spec Kit transforms how you build software with AI. Instead of giving AI loose instructions, you give it **structured specifications** and **tracked tasks**. Each `/jpspec` command launches specialized AI agents that:
+JP Spec Kit transforms how you build software with AI. Instead of giving AI loose instructions, you give it **structured specifications** and **tracked tasks**. Each `/specflow` command launches specialized AI agents that:
 
 1. **Read** existing specifications and tasks
 2. **Create** the right artifacts for each phase
@@ -70,24 +70,24 @@ backlog init "$(basename "$PWD")"
 ### Assess Your Feature
 
 ```bash
-/jpspec:assess Build a REST API for task management with JWT authentication
+/specflow:assess Build a REST API for task management with JWT authentication
 ```
 
 ### Run the Appropriate Workflow
 
 **For Full SDD (complex features):**
 ```bash
-/jpspec:specify Build a REST API for task management with JWT authentication
-/jpspec:plan
-/jpspec:implement
-/jpspec:validate
-/jpspec:operate
+/specflow:specify Build a REST API for task management with JWT authentication
+/specflow:plan
+/specflow:implement
+/specflow:validate
+/specflow:operate
 ```
 
 **For Light/Medium (medium features):**
 ```bash
-/jpspec:specify Build a new user settings page
-/jpspec:implement
+/specflow:specify Build a new user settings page
+/specflow:implement
 ```
 
 **For Simple tasks:**
@@ -122,10 +122,10 @@ backlog task create "Fix login button alignment" --ac "Button aligns with form f
 └────────────────────────────────────────────────────────────────────────┘
 ```
 
-### Quick Decision: Run `/jpspec:assess` first
+### Quick Decision: Run `/specflow:assess` first
 
 ```bash
-/jpspec:assess Build a REST API with user authentication
+/specflow:assess Build a REST API with user authentication
 ```
 
 This scores your feature across 8 dimensions and recommends: **Skip SDD**, **Light/Medium**, or **Full SDD**.
@@ -180,33 +180,33 @@ Light mode is NOT an excuse to skip artifacts. It's permission to move faster.
 │                    └────┬─────┘                                                 │
 │                         │                                                       │
 │                         ▼                                                       │
-│   /jpspec:specify  ┌──────────┐            • [feature]-prd.md                   │
+│   /specflow:specify  ┌──────────┐            • [feature]-prd.md                   │
 │                    │Specified │            • [feature]-functional.md            │
 │                    └────┬─────┘                                                 │
 │                         │                                                       │
 │                         ▼                                                       │
-│   /jpspec:research ┌──────────┐            • Research reports          OPTIONAL │
+│   /specflow:research ┌──────────┐            • Research reports          OPTIONAL │
 │   (optional)       │Researched│            • Competitive analysis               │
 │                    └────┬─────┘                                                 │
 │                         │                                                       │
 │                         ▼                                                       │
-│   /jpspec:plan     ┌──────────┐            • [feature]-technical.md             │
+│   /specflow:plan     ┌──────────┐            • [feature]-technical.md             │
 │                    │ Planned  │            • adr-XXX-[topic].md                 │
 │                    └────┬─────┘            • Platform design docs               │
 │                         │                                                       │
 │                         ▼                                                       │
-│   /jpspec:implement┌──────────┐            • Source code (src/)                 │
+│   /specflow:implement┌──────────┐            • Source code (src/)                 │
 │                    │   In     │            • Unit & integration tests           │
 │                    │Progress  │            • API documentation                  │
 │                    └────┬─────┘                                                 │
 │                         │                                                       │
 │                         ▼                                                       │
-│   /jpspec:validate ┌──────────┐            • QA reports                         │
+│   /specflow:validate ┌──────────┐            • QA reports                         │
 │                    │Validated │            • Security scan results              │
 │                    └────┬─────┘            • Test coverage reports              │
 │                         │                                                       │
 │                         ▼                                                       │
-│   /jpspec:operate  ┌──────────┐            • [service]-runbook.md               │
+│   /specflow:operate  ┌──────────┐            • [service]-runbook.md               │
 │                    │Deployed  │            • Deployment configs                 │
 │                    └────┬─────┘            • Monitoring dashboards              │
 │                         │                                                       │
@@ -227,13 +227,13 @@ Light mode is NOT an excuse to skip artifacts. It's permission to move faster.
 ├──────────────────┬───────────────┬────────────────┬────────────────────────────┤
 │     COMMAND      │  INPUT STATE  │  OUTPUT STATE  │     PRIMARY AGENTS         │
 ├──────────────────┼───────────────┼────────────────┼────────────────────────────┤
-│ /jpspec:assess   │ (any)         │ (no change)    │ Complexity Scorer          │
-│ /jpspec:specify  │ To Do         │ Specified      │ PM Planner                 │
-│ /jpspec:research │ Specified     │ Researched     │ Researcher, Validator      │
-│ /jpspec:plan     │ Specified*    │ Planned        │ Architect, Platform Eng    │
-│ /jpspec:implement│ Planned       │ In Progress    │ Frontend/Backend Engineers │
-│ /jpspec:validate │ In Progress   │ Validated      │ QA, Security Engineers     │
-│ /jpspec:operate  │ Validated     │ Deployed       │ SRE Agent                  │
+│ /specflow:assess   │ (any)         │ (no change)    │ Complexity Scorer          │
+│ /specflow:specify  │ To Do         │ Specified      │ PM Planner                 │
+│ /specflow:research │ Specified     │ Researched     │ Researcher, Validator      │
+│ /specflow:plan     │ Specified*    │ Planned        │ Architect, Platform Eng    │
+│ /specflow:implement│ Planned       │ In Progress    │ Frontend/Backend Engineers │
+│ /specflow:validate │ In Progress   │ Validated      │ QA, Security Engineers     │
+│ /specflow:operate  │ Validated     │ Deployed       │ SRE Agent                  │
 └──────────────────┴───────────────┴────────────────┴────────────────────────────┘
 * Also accepts "Researched" state
 ```
@@ -296,7 +296,7 @@ backlog task edit 42 -s Done
 
 ## Implementation = Code + Docs + Tests
 
-Every `/jpspec:implement` produces **three mandatory deliverables**:
+Every `/specflow:implement` produces **three mandatory deliverables**:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -346,11 +346,11 @@ project/
 ├── .devcontainer/              # Devcontainer configuration
 │   └── devcontainer.json       # Uses jpoley/specflow-agents image
 ├── docs/
-│   ├── prd/                    # PRDs from /jpspec:specify
+│   ├── prd/                    # PRDs from /specflow:specify
 │   ├── specs/                  # Functional & Technical specs
 │   ├── adr/                    # Architecture Decision Records
 │   ├── platform/               # Platform design docs
-│   ├── qa/                     # QA reports from /jpspec:validate
+│   ├── qa/                     # QA reports from /specflow:validate
 │   ├── security/               # Security scans
 │   └── runbooks/               # Operational runbooks
 ├── src/                        # Implementation code
@@ -368,8 +368,8 @@ project/
 - **[Devcontainer Template](templates/devcontainer/README.md)** - Devcontainer setup guide
 
 ### Workflow Details
-- **[JP Spec Workflow Diagram](docs/diagrams/jpspec-workflow.md)** - Full visual workflow
-- **[JP Spec + Backlog Integration](docs/guides/jpspec-backlog-workflow.md)** - How commands integrate
+- **[JP Spec Workflow Diagram](docs/diagrams/specflow-workflow.md)** - Full visual workflow
+- **[JP Spec + Backlog Integration](docs/guides/specflow-backlog-workflow.md)** - How commands integrate
 - **[Agent Loop Classification](docs/reference/agent-loop-classification.md)** - Which agents for which phases
 
 ### Reference
@@ -380,7 +380,7 @@ project/
 
 ## Legacy /speckit Commands
 
-The original `/speckit.*` commands from [GitHub's spec-kit](https://github.com/github/spec-kit) are available but **do not integrate with backlog.md**. Use `/jpspec` commands for the integrated workflow.
+The original `/speckit.*` commands from [GitHub's spec-kit](https://github.com/github/spec-kit) are available but **do not integrate with backlog.md**. Use `/specflow` commands for the integrated workflow.
 
 ## Contributing
 

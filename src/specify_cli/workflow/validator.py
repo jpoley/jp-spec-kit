@@ -167,13 +167,13 @@ class WorkflowValidator:
         ...         print(error)
 
     Attributes:
-        KNOWN_AGENTS: Set of valid agent names from /jpspec command implementations
+        KNOWN_AGENTS: Set of valid agent names from /specflow command implementations
         INITIAL_STATE: The expected starting state ("To Do")
         TERMINAL_STATES: Valid ending states for workflows
     """
 
     # Known valid agents from agent definition files in .agents/
-    # These map to the agent names used in /jpspec commands
+    # These map to the agent names used in /specflow commands
     KNOWN_AGENTS: set[str] = {
         # Assessment & Planning
         "workflow-assessor",

@@ -17,7 +17,7 @@ priority: high
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Build core module to orchestrate Semgrep security scans with unified result format. This is the foundation for /jpspec:security scan command.
+Build core module to orchestrate Semgrep security scans with unified result format. This is the foundation for /specflow:security scan command.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria

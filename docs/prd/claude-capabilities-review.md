@@ -21,7 +21,7 @@ This document provides a comprehensive analysis of Claude Code's official capabi
 ### Top 3 Well-Utilized Capabilities
 1. **Hooks** (90%) - Comprehensive PreToolUse and PostToolUse hooks for Python formatting, linting, and safety
 2. **CLAUDE.md Context** (90%) - Excellent hierarchical documentation with subfolder context
-3. **Slash Commands** (85%) - Rich set of 16 custom commands for /jpspec and /speckit workflows
+3. **Slash Commands** (85%) - Rich set of 16 custom commands for /specflow and /speckit workflows
 
 ### Top 3 Underutilized Capabilities
 1. **Skills** (0%) - No custom skills implemented despite being ideal for SDD workflows
@@ -612,13 +612,13 @@ This section provides detailed ratings for each capability's utilization in JP S
 
 **Evidence**:
 - 16 custom commands across two namespaces:
-  - **jpspec** (8 commands): `/jpspec:implement`, `/jpspec:research`, `/jpspec:plan`, `/jpspec:specify`, `/jpspec:validate`, `/jpspec:operate`, `/jpspec:assess`, `/jpspec:prune-branch`
+  - **specflow** (8 commands): `/specflow:implement`, `/specflow:research`, `/specflow:plan`, `/specflow:specify`, `/specflow:validate`, `/specflow:operate`, `/specflow:assess`, `/specflow:prune-branch`
   - **speckit** (8 commands): Symlinked to templates for `/speckit:analyze`, `/speckit:checklist`, `/speckit:clarify`, `/speckit:constitution`, `/speckit:implement`, `/speckit:plan`, `/speckit:specify`, `/speckit:tasks`
 - Commands have rich frontmatter: `description` field present
 - Commands use `$ARGUMENTS` placeholder
 - Organized in subdirectories for namespacing
 
-**Sample Command Structure** (`/jpspec:implement`):
+**Sample Command Structure** (`/specflow:implement`):
 ```markdown
 ---
 description: Execute implementation using specialized frontend and backend engineer agents with code review.
@@ -643,8 +643,8 @@ $ARGUMENTS
 
 **Recommendations**:
 1. **Quick Win**: Add `argument-hint` frontmatter to all commands
-2. **Quick Win**: Add `disable-model-invocation: true` to `/jpspec:prune-branch` (manual-only)
-3. **Medium**: Restrict `allowed-tools` for read-only commands like `/jpspec:assess`
+2. **Quick Win**: Add `disable-model-invocation: true` to `/specflow:prune-branch` (manual-only)
+3. **Medium**: Restrict `allowed-tools` for read-only commands like `/specflow:assess`
 4. **Medium**: Use `@` syntax to reference shared instructions (reduce duplication)
 5. **Low Priority**: Specify smaller `model` for simple commands to reduce costs
 
@@ -697,8 +697,8 @@ Skills differ from slash commands in key ways:
 
 **Recommendations**:
 1. **High Priority**: Create PM Planner skill (convert existing subagent)
-2. **High Priority**: Create Architect skill for `/jpspec:plan` workflows
-3. **Medium**: Create QA Validator skill for `/jpspec:validate` workflows
+2. **High Priority**: Create Architect skill for `/specflow:plan` workflows
+3. **Medium**: Create QA Validator skill for `/specflow:validate` workflows
 4. **Medium**: Create Security Reviewer skill
 5. **Long-term**: Create comprehensive SDD Methodology skill
 
@@ -909,7 +909,7 @@ color: blue
 
 **Opportunity**:
 JP Spec Kit contains all components of a comprehensive plugin:
-- ✅ Slash commands (16 commands in `/jpspec` and `/speckit`)
+- ✅ Slash commands (16 commands in `/specflow` and `/speckit`)
 - ✅ Subagent (PM backlog manager)
 - ✅ Hooks (4 quality/safety hooks)
 - ✅ MCP server (backlog.md)
@@ -922,7 +922,7 @@ jp-spec-kit-plugin/
 │   ├── manifest.json
 │   └── marketplace.json
 ├── commands/
-│   ├── jpspec/
+│   ├── specflow/
 │   └── speckit/
 ├── agents/
 │   ├── pm-planner.md
@@ -962,32 +962,32 @@ jp-spec-kit-plugin/
 **Opportunity**:
 Output styles could transform Claude Code for specific SDD phases:
 
-1. **PM Output Style** (`/jpspec:specify` mode)
+1. **PM Output Style** (`/specflow:specify` mode)
    - Personality: Product manager mindset
    - Focus: User value, business outcomes, requirements clarity
    - Response format: PRDs, user stories, acceptance criteria
    - Task prioritization: Feature completeness, UX, business value
 
-2. **Architect Output Style** (`/jpspec:plan` mode)
+2. **Architect Output Style** (`/specflow:plan` mode)
    - Personality: System architect mindset
    - Focus: Technical design, scalability, maintainability
    - Response format: ADRs, architecture diagrams, design docs
    - Task prioritization: System coherence, tech debt, platform evolution
 
-3. **QA Output Style** (`/jpspec:validate` mode)
+3. **QA Output Style** (`/specflow:validate` mode)
    - Personality: Quality engineer mindset
    - Focus: Test coverage, edge cases, quality gates
    - Response format: Test plans, QA reports, bug reports
    - Task prioritization: Risk mitigation, test coverage, compliance
 
-4. **SRE Output Style** (`/jpspec:operate` mode)
+4. **SRE Output Style** (`/specflow:operate` mode)
    - Personality: SRE mindset
    - Focus: Reliability, observability, incident response
    - Response format: Runbooks, dashboards, alerts
    - Task prioritization: Uptime, performance, operational excellence
 
 **Recommendations**:
-1. **Long-term**: Experiment with Output Styles for `/jpspec` phases
+1. **Long-term**: Experiment with Output Styles for `/specflow` phases
 2. **Long-term**: Create custom PM Output Style
 3. **Long-term**: Create custom Architect Output Style
 4. **Low Priority**: Document Output Style usage in workflow guides
@@ -1005,19 +1005,19 @@ Output styles could transform Claude Code for specific SDD phases:
 **Gap Analysis**:
 - ⚠️ Checkpoints available but not documented
 - ❌ No guidance on when to use checkpoints
-- ❌ No integration with `/jpspec` workflow
+- ❌ No integration with `/specflow` workflow
 - ❌ No best practices for checkpoint + Git integration
 
 **Opportunity**:
 Checkpoints could enhance SDD workflow safety:
-- **Before `/jpspec:implement`**: Checkpoint before code changes
+- **Before `/specflow:implement`**: Checkpoint before code changes
 - **During refactoring**: Checkpoint before risky transformations
 - **Experimental features**: Checkpoint before proof-of-concepts
 - **Recovery**: Quick rollback without Git operations
 
 **Recommendations**:
 1. **Quick Win**: Document checkpoint usage in CLAUDE.md
-2. **Quick Win**: Add checkpoint reminders to `/jpspec:implement` command
+2. **Quick Win**: Add checkpoint reminders to `/specflow:implement` command
 3. **Medium**: Integrate checkpoint awareness in hooks (e.g., SessionStart suggests checkpoint)
 4. **Low Priority**: Create checkpoint best practices guide
 
@@ -1034,24 +1034,24 @@ Checkpoints could enhance SDD workflow safety:
 **Gap Analysis**:
 - ⚠️ Extended thinking available but undocumented
 - ❌ No guidance on when to use "think", "think hard", "ultrathink"
-- ❌ No integration with complex `/jpspec` commands
+- ❌ No integration with complex `/specflow` commands
 - ❌ No thinking budget recommendations per workflow phase
 
 **Opportunity**:
 Thinking modes could improve quality for:
-- **Complex architecture** (`/jpspec:plan`): "think hard" for ADRs
-- **Security analysis** (`/jpspec:validate`): "think hard" for threat modeling
-- **Research tasks** (`/jpspec:research`): "megathink" for comprehensive analysis
+- **Complex architecture** (`/specflow:plan`): "think hard" for ADRs
+- **Security analysis** (`/specflow:validate`): "think hard" for threat modeling
+- **Research tasks** (`/specflow:research`): "megathink" for comprehensive analysis
 - **Code review**: "think" for quality assessment
 
 **Thinking Budget Guidance**:
 | Workflow Phase | Recommended Trigger | Token Budget | Use Case |
 |----------------|---------------------|--------------|----------|
-| `/jpspec:assess` | "think" | 4,000 | Feature complexity evaluation |
-| `/jpspec:research` | "megathink" | 10,000 | Comprehensive research |
-| `/jpspec:plan` | "think hard" | 10,000 | Architecture design, ADRs |
-| `/jpspec:implement` | "think" | 4,000 | Code structure planning |
-| `/jpspec:validate` | "think hard" | 10,000 | Security/QA analysis |
+| `/specflow:assess` | "think" | 4,000 | Feature complexity evaluation |
+| `/specflow:research` | "megathink" | 10,000 | Comprehensive research |
+| `/specflow:plan` | "think hard" | 10,000 | Architecture design, ADRs |
+| `/specflow:implement` | "think" | 4,000 | Code structure planning |
+| `/specflow:validate` | "think hard" | 10,000 | Security/QA analysis |
 
 **Recommendations**:
 1. **Quick Win**: Document thinking modes in CLAUDE.md
@@ -1150,7 +1150,7 @@ Background tasks could improve:
 **Recommendations**:
 1. **Quick Win**: Add git credential helper setup to SessionStart hook
 2. **Medium**: Integrate with git pre-commit hooks
-3. **Low Priority**: Add PR template generation to `/jpspec:implement`
+3. **Low Priority**: Add PR template generation to `/specflow:implement`
 
 ---
 
@@ -1193,7 +1193,7 @@ Background tasks could improve:
 - Excellent hook implementation for code quality (formatting, linting)
 - Strong safety hooks for git and sensitive files
 - Comprehensive slash commands covering full SDD lifecycle
-- Clear workflow phases (/jpspec namespace)
+- Clear workflow phases (/specflow namespace)
 
 **Weaknesses**:
 - Missing SessionStart/SessionEnd hooks
@@ -1405,7 +1405,7 @@ This section applies the Desirability-Viability-Feasibility + Value framework to
 
 **Action**:
 - Add checkpoint section to CLAUDE.md
-- Include checkpoint best practices in `/jpspec:implement`
+- Include checkpoint best practices in `/specflow:implement`
 - Example: "Before large refactoring, create checkpoint: Esc Esc or /rewind"
 
 **3. Add Thinking Triggers to Complex Commands**
@@ -1415,13 +1415,13 @@ This section applies the Desirability-Viability-Feasibility + Value framework to
 
 **Action**:
 ```markdown
-## /jpspec:plan
+## /specflow:plan
 Think hard about the architecture design before creating ADRs.
 
-## /jpspec:validate
+## /specflow:validate
 Think hard about security implications and edge cases.
 
-## /jpspec:research
+## /specflow:research
 Use megathink for comprehensive analysis.
 ```
 
@@ -1604,7 +1604,7 @@ done
 - **Impact**: Community sharing, reputation building
 
 **Plugin Components**:
-- Slash commands (jpspec, speckit)
+- Slash commands (specflow, speckit)
 - Subagents (PM, Frontend, Backend, QA, Security)
 - Skills (SDD methodology, PM planner, Architect, QA, Security)
 - Hooks (git safety, Python formatting/linting, quality gates)
@@ -1627,9 +1627,9 @@ done
 - **Impact**: Domain-specific expertise application
 
 **Output Styles to Create**:
-1. **PM Output Style** - Product manager personality for `/jpspec:specify`
-2. **Architect Output Style** - System architect personality for `/jpspec:plan`
-3. **QA Output Style** - Quality engineer personality for `/jpspec:validate`
+1. **PM Output Style** - Product manager personality for `/specflow:specify`
+2. **Architect Output Style** - System architect personality for `/specflow:plan`
+3. **QA Output Style** - Quality engineer personality for `/specflow:validate`
 
 **3. Create Custom Statusline**
 - **Effort**: 8 hours
@@ -1680,21 +1680,21 @@ backlog task list --plain | grep -i "claude\|hook\|skill\|mcp\|agent"
    - **Priority**: HIGH
 
 2. **Document Checkpoint Usage in Workflow**
-   - **Description**: Add checkpoint usage documentation to CLAUDE.md and /jpspec:implement command to enable safer experimentation
+   - **Description**: Add checkpoint usage documentation to CLAUDE.md and /specflow:implement command to enable safer experimentation
    - **AC**:
      - [ ] Checkpoint usage section added to CLAUDE.md
      - [ ] Checkpoint best practices included (when to use, how to rewind)
-     - [ ] /jpspec:implement command includes checkpoint reminder
+     - [ ] /specflow:implement command includes checkpoint reminder
      - [ ] Examples provided for risky operations (refactoring, experimental features)
    - **Labels**: claude-code, documentation, quick-win
    - **Priority**: HIGH
 
 3. **Add Thinking Triggers to Complex Slash Commands**
-   - **Description**: Add extended thinking trigger guidance to /jpspec:plan, /jpspec:validate, /jpspec:research commands to improve output quality
+   - **Description**: Add extended thinking trigger guidance to /specflow:plan, /specflow:validate, /specflow:research commands to improve output quality
    - **AC**:
-     - [ ] /jpspec:plan includes "think hard" trigger for architecture
-     - [ ] /jpspec:validate includes "think hard" trigger for security/QA
-     - [ ] /jpspec:research includes "megathink" trigger for comprehensive analysis
+     - [ ] /specflow:plan includes "think hard" trigger for architecture
+     - [ ] /specflow:validate includes "think hard" trigger for security/QA
+     - [ ] /specflow:research includes "megathink" trigger for comprehensive analysis
      - [ ] CLAUDE.md documents thinking budget levels and use cases
    - **Labels**: claude-code, slash-commands, quick-win
    - **Priority**: HIGH
@@ -1810,9 +1810,9 @@ backlog task list --plain | grep -i "claude\|hook\|skill\|mcp\|agent"
 13. **Experiment with Output Styles for Workflow Phases**
     - **Description**: Create PM, Architect, and QA output styles to enhance domain-specific expertise in SDD workflow
     - **AC**:
-      - [ ] PM output style created for /jpspec:specify phase
-      - [ ] Architect output style created for /jpspec:plan phase
-      - [ ] QA output style created for /jpspec:validate phase
+      - [ ] PM output style created for /specflow:specify phase
+      - [ ] Architect output style created for /specflow:plan phase
+      - [ ] QA output style created for /specflow:validate phase
       - [ ] Output styles tested in workflow scenarios
       - [ ] Documentation created for output style usage
     - **Labels**: claude-code, output-styles, experimentation
@@ -1867,9 +1867,9 @@ Weights:
 - % of expected subagents created (current: 12.5%, target: 100%)
 
 **Workflow Efficiency**:
-- Time to complete /jpspec:specify phase (baseline: TBD, target: -30%)
-- Time to complete /jpspec:plan phase (baseline: TBD, target: -40%)
-- Time to complete /jpspec:implement phase (baseline: TBD, target: -25%)
+- Time to complete /specflow:specify phase (baseline: TBD, target: -30%)
+- Time to complete /specflow:plan phase (baseline: TBD, target: -40%)
+- Time to complete /specflow:implement phase (baseline: TBD, target: -25%)
 
 **Quality Gates**:
 - % of PRs with complete backlog tasks (baseline: TBD, target: 100%)

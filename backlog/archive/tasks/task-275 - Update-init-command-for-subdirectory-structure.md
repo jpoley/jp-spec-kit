@@ -22,7 +22,7 @@ Modify specify init to create subdirectory structure for commands instead of fla
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [x] #1 Update command copying logic to use subdirectories (jpspec/, speckit/)
+- [x] #1 Update command copying logic to use subdirectories (specflow/, speckit/)
 - [x] #2 Ensure subdirectories are created before copying files
 - [x] #3 Copy _backlog-instructions.md partial along with commands
 - [x] #4 Test init creates correct subdirectory structure

@@ -22,7 +22,7 @@ Write migration script to convert existing projects from flat structure to subdi
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [x] #1 Create scripts/bash/migrate-commands-to-subdirs.sh
-- [x] #2 Script moves jpspec.*.md files to jpspec/ subdirectory
+- [x] #2 Script moves specflow.*.md files to specflow/ subdirectory
 - [x] #3 Script moves speckit.*.md files to speckit/ subdirectory
 - [x] #4 Script provides clear output showing file moves
 - [x] #5 Test script on sample flat structure
@@ -37,7 +37,7 @@ PR #502 created with migration script.
 Implementation:
 - Created `scripts/bash/migrate-commands-to-subdirs.sh`
 - Script supports --dry-run and --path options
-- Migrates jpspec.*.md -> jpspec/*.md
+- Migrates specflow.*.md -> specflow/*.md
 - Migrates speckit.*.md -> speckit/*.md
 - Includes broken symlink detection
 - Documentation added to scripts/CLAUDE.md

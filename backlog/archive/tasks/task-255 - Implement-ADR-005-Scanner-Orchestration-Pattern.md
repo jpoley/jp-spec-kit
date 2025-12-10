@@ -61,6 +61,6 @@ Files Created:
 - tests/test_scanner_orchestrator.py (30 comprehensive tests)
 
 Next Steps:
-- task-256: CLI commands for /jpspec:security scan
+- task-256: CLI commands for /specflow:security scan
 - Future: Add CodeQL and Trivy adapters
 <!-- SECTION:NOTES:END -->

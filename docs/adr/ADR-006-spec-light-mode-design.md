@@ -15,7 +15,7 @@ User feedback (Böckeler) noted that full SDD workflow creates "a LOT of markdow
 ## Decision
 Implement Spec-Light Mode with:
 
-1. **`--light` flag on `specify init`**: Creates `.jpspec-light-mode` marker file
+1. **`--light` flag on `specify init`**: Creates `.specflow-light-mode` marker file
 2. **Simplified templates**: `spec-light.md` (combined stories + AC) and `plan-light.md` (high-level only)
 3. **Skipped phases**: Research, analyze, detailed data models, API contracts
 4. **Maintained requirements**: Constitutional compliance, test-first, PR workflow
@@ -56,4 +56,4 @@ Implement Spec-Light Mode with:
 - `templates/spec-light-template.md`: Combined spec template
 - `templates/plan-light-template.md`: High-level plan template
 - `docs/guides/when-to-use-light-mode.md`: User guide
-- `.jpspec-light-mode`: Marker file in project root
+- `.specflow-light-mode`: Marker file in project root

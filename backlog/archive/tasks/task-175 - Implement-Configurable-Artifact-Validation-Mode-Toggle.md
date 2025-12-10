@@ -25,7 +25,7 @@ Implement a configurable validation mode system that allows each workflow transi
 ## Validation Mode Configuration
 
 ### Config Location
-`jpspec_workflow.yml` workflow-level and project-level settings:
+`specflow_workflow.yml` workflow-level and project-level settings:
 
 ```yaml
 version: "1.0"
@@ -85,7 +85,7 @@ Proceed or block transition
 - [ ] AC5: Add project-level defaults.validation_mode config
 - [ ] AC6: Allow per-artifact validation_mode override
 - [ ] AC7: Update CLI to show validation status during workflow execution
-- [ ] AC8: Add --validation-mode flag to jpspec commands for one-time override
+- [ ] AC8: Add --validation-mode flag to specflow commands for one-time override
 
 ## Dependencies
 - task-172 (Workflow Artifacts Specification)

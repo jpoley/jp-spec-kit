@@ -6,13 +6,13 @@ This document provides a comprehensive overview of all agents in JP Spec Kit and
 
 ```mermaid
 flowchart TB
-    subgraph Workflows["Workflows (jpspec commands)"]
-        specify["/jpspec:specify"]
-        plan["/jpspec:plan"]
-        research["/jpspec:research"]
-        implement["/jpspec:implement"]
-        validate["/jpspec:validate"]
-        operate["/jpspec:operate"]
+    subgraph Workflows["Workflows (specflow commands)"]
+        specify["/specflow:specify"]
+        plan["/specflow:plan"]
+        research["/specflow:research"]
+        implement["/specflow:implement"]
+        validate["/specflow:validate"]
+        operate["/specflow:operate"]
     end
 
     subgraph Agents["Agents"]
@@ -67,27 +67,27 @@ flowchart TB
 
 ## Agents by Workflow
 
-### `/jpspec:specify` - Requirements
+### `/specflow:specify` - Requirements
 
 | Agent | Description | MCP Servers |
 |-------|-------------|-------------|
 | **product-requirements-manager** | Product management using SVPG principles, outcomes over outputs | github, serena |
 
-### `/jpspec:plan` - Architecture (Parallel Execution)
+### `/specflow:plan` - Architecture (Parallel Execution)
 
 | Agent | Description | MCP Servers |
 |-------|-------------|-------------|
 | **software-architect** | Enterprise architect using Hohpe's principles, Enterprise Integration Patterns | github, serena |
 | **platform-engineer** | DevOps/CI/CD expert, DORA metrics, NIST/SSDF compliance | github, serena |
 
-### `/jpspec:research` - Research & Validation (Parallel Execution)
+### `/specflow:research` - Research & Validation (Parallel Execution)
 
 | Agent | Description | MCP Servers |
 |-------|-------------|-------------|
 | **researcher** | Market research, competitive intelligence, technical feasibility | github, serena |
 | **business-validator** | Business viability, financial feasibility, TAM/SAM/SOM analysis | github, serena |
 
-### `/jpspec:implement` - Development
+### `/specflow:implement` - Development
 
 | Agent | Description | MCP Servers |
 |-------|-------------|-------------|
@@ -97,7 +97,7 @@ flowchart TB
 | **frontend-code-reviewer** | Frontend code review: quality, performance, accessibility, security | github, serena, trivy, semgrep, shadcn-ui, playwright-test, chrome-devtools |
 | **backend-code-reviewer** | Backend code review: security, performance, scalability | github, serena, trivy, semgrep |
 
-### `/jpspec:validate` - Quality Assurance
+### `/specflow:validate` - Quality Assurance
 
 | Agent | Description | MCP Servers |
 |-------|-------------|-------------|
@@ -106,7 +106,7 @@ flowchart TB
 | **tech-writer** | Documentation, API references, user guides, tutorials | github, serena |
 | **release-manager** | Release coordination, quality validation, deployment management | github, serena, trivy |
 
-### `/jpspec:operate` - Operations
+### `/specflow:operate` - Operations
 
 | Agent | Description | MCP Servers |
 |-------|-------------|-------------|
@@ -172,21 +172,21 @@ These agents handle post-commit automation:
 ### Sequential Workflows
 
 ```
-/jpspec:specify  →  product-requirements-manager
-/jpspec:operate  →  sre-agent
+/specflow:specify  →  product-requirements-manager
+/specflow:operate  →  sre-agent
 ```
 
 ### Parallel Workflows
 
 ```
-/jpspec:plan     →  software-architect ║ platform-engineer
-/jpspec:research →  researcher ║ business-validator
+/specflow:plan     →  software-architect ║ platform-engineer
+/specflow:research →  researcher ║ business-validator
 ```
 
 ### Sequential with Review Gates
 
 ```
-/jpspec:implement →  frontend-engineer  →  frontend-code-reviewer
+/specflow:implement →  frontend-engineer  →  frontend-code-reviewer
                      backend-engineer   →  backend-code-reviewer
                      ai-ml-engineer     (parallel)
 ```
@@ -194,7 +194,7 @@ These agents handle post-commit automation:
 ### Multi-Stage Validation
 
 ```
-/jpspec:validate →  quality-guardian
+/specflow:validate →  quality-guardian
                     secure-by-design-engineer
                     tech-writer
                     release-manager
@@ -257,4 +257,4 @@ color: blue
 
 - [Agent Loop Classification](./agent-loop-classification.md)
 - [MCP Configuration Guide](../MCP-CONFIGURATION.md)
-- [Workflow Commands](../../templates/commands/jpspec/)
+- [Workflow Commands](../../templates/commands/specflow/)

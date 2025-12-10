@@ -22,7 +22,7 @@ Create user documentation, command reference, CI/CD integration guides, and secu
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [x] #1 Security Quickstart Guide (docs/guides/security-quickstart.md)
-- [x] #2 Command Reference (docs/reference/jpspec-security-commands.md)
+- [x] #2 Command Reference (docs/reference/specflow-security-commands.md)
 - [x] #3 CI/CD Integration Examples (GitHub Actions, GitLab, Jenkins)
 - [x] #4 Threat Model and Limitations documentation
 - [x] #5 Privacy Policy for AI data usage
@@ -50,7 +50,7 @@ Sections:
 5. Generating audit report
 
 #### Step 2: Command Reference (3 hours)
-**File**: `docs/reference/jpspec-security-commands.md`
+**File**: `docs/reference/specflow-security-commands.md`
 
 Document all commands:
 - `specify security scan` (all flags, examples)
@@ -76,7 +76,7 @@ Already exists from platform design, enhance with:
 **File**: `docs/security/threat-model.md`
 
 Sections:
-1. What /jpspec:security protects against
+1. What /specflow:security protects against
 2. What it does NOT protect against
 3. Known limitations (SAST only, no runtime analysis)
 4. Complementary tools (DAST, dependency scanning)

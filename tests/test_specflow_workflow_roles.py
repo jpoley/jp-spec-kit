@@ -5,7 +5,7 @@ Tests cover:
 - Validating role definitions (pm, arch, dev, sec, qa, ops, all)
 - Verifying role properties (display_name, icon, commands, agents)
 - Schema validation for roles section
-- Backwards compatibility with jpspec_workflow.yml
+- Backwards compatibility with specflow_workflow.yml
 """
 
 import json
@@ -83,7 +83,7 @@ def specflow_config_path(tmp_path: Path) -> Path:
         "states": ["To Do", "In Progress", "Done"],
         "workflows": {
             "implement": {
-                "command": "/jpspec:implement",
+                "command": "/specflow:implement",
                 "agents": ["backend-engineer"],
                 "input_states": ["In Progress"],
                 "output_state": "Done",
@@ -497,19 +497,19 @@ class TestRolesSchemaValidation:
 
 
 class TestBackwardsCompatibility:
-    """Tests for backwards compatibility with jpspec_workflow.yml v1.x."""
+    """Tests for backwards compatibility with specflow_workflow.yml v1.x."""
 
-    def test_loads_legacy_jpspec_workflow_without_roles(
+    def test_loads_legacy_specflow_workflow_without_roles(
         self, tmp_path: Path, roles_schema_path: Path
     ):
-        """Test that v1.x jpspec_workflow.yml without roles still loads."""
+        """Test that v1.x specflow_workflow.yml without roles still loads."""
         config_data = {
             "version": "1.1",
             # No roles section
             "states": ["To Do", "Done"],
             "workflows": {
                 "test": {
-                    "command": "/jpspec:test",
+                    "command": "/specflow:test",
                     "agents": ["test-agent"],
                     "input_states": ["To Do"],
                     "output_state": "Done",
@@ -518,7 +518,7 @@ class TestBackwardsCompatibility:
             "transitions": [{"from": "To Do", "to": "Done", "via": "test"}],
         }
 
-        config_path = tmp_path / "jpspec_workflow.yml"
+        config_path = tmp_path / "specflow_workflow.yml"
         with open(config_path, "w") as f:
             yaml.dump(config_data, f)
 
@@ -532,9 +532,9 @@ class TestBackwardsCompatibility:
         assert config.version == "1.1"
         assert "roles" not in config._data
 
-    def test_prefers_specflow_over_jpspec(self, tmp_path: Path):
-        """Test that specflow_workflow.yml is preferred over jpspec_workflow.yml."""
-        # Create both files in same directory
+    def test_loads_specflow_workflow_config(self, tmp_path: Path):
+        """Test that specflow_workflow.yml is loaded correctly."""
+        # Create specflow config file
         specflow_config = {
             "version": "2.0",
             "roles": {"primary": "dev", "show_all_commands": False, "definitions": {}},
@@ -550,28 +550,10 @@ class TestBackwardsCompatibility:
             "transitions": [{"from": "To Do", "to": "Done", "via": "test"}],
         }
 
-        jpspec_config = {
-            "version": "1.1",
-            "states": ["To Do", "Done"],
-            "workflows": {
-                "test": {
-                    "command": "/test",
-                    "agents": ["test"],
-                    "input_states": ["To Do"],
-                    "output_state": "Done",
-                }
-            },
-            "transitions": [{"from": "To Do", "to": "Done", "via": "test"}],
-        }
-
         specflow_path = tmp_path / "specflow_workflow.yml"
-        jpspec_path = tmp_path / "jpspec_workflow.yml"
 
         with open(specflow_path, "w") as f:
             yaml.dump(specflow_config, f)
-
-        with open(jpspec_path, "w") as f:
-            yaml.dump(jpspec_config, f)
 
         # Change to tmp directory and load without explicit path
         import os
@@ -581,7 +563,7 @@ class TestBackwardsCompatibility:
             os.chdir(tmp_path)
             config = WorkflowConfig.load(validate=False, cache=False)
 
-            # Should prefer specflow_workflow.yml (v2.0)
+            # Should load specflow_workflow.yml (v2.0)
             assert config.version == "2.0"
             assert "roles" in config._data
         finally:

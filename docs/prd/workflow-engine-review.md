@@ -17,7 +17,7 @@ JP Spec Kit implements a **configuration-driven state machine workflow engine** 
 
 **Key Strengths:**
 - ✅ **Centralized workflow logic** in `src/specify_cli/workflow/` module (9 core files)
-- ✅ **Declarative YAML configuration** (`jpspec_workflow.yml`) with JSON Schema validation
+- ✅ **Declarative YAML configuration** (`specflow_workflow.yml`) with JSON Schema validation
 - ✅ **State machine semantics** with explicit transitions, artifacts, and validation modes
 - ✅ **Comprehensive validation** including cycle detection, reachability analysis, and semantic checks
 - ✅ **Artifact-based gates** with input/output artifact tracking per transition
@@ -82,7 +82,7 @@ Many workflow implementations suffer from "distributed logic syndrome" where sta
 
 **Finding: Explicit DAG with Validation ✅**
 
-The state machine is implemented as a **Directed Acyclic Graph (DAG)** defined in `jpspec_workflow.yml`:
+The state machine is implemented as a **Directed Acyclic Graph (DAG)** defined in `specflow_workflow.yml`:
 
 ```yaml
 states:
@@ -306,7 +306,7 @@ transitions:
 
 | Aspect | Customizable? | How? | Effort |
 |--------|---------------|------|--------|
-| **States** | ✅ Yes | Edit `jpspec_workflow.yml` states list | Low (YAML edit) |
+| **States** | ✅ Yes | Edit `specflow_workflow.yml` states list | Low (YAML edit) |
 | **Transitions** | ✅ Yes | Add transition objects in YAML | Low (YAML edit) |
 | **Workflows** | ✅ Yes | Define new workflow + agent | Medium (YAML + command file) |
 | **Agents** | ✅ Yes | Add agent definition + identity | Medium (YAML + agent file) |
@@ -564,12 +564,12 @@ task = PythonOperator(
 ```
 
 **Recommendation:**
-Add retry configuration to `jpspec_workflow.yml`:
+Add retry configuration to `specflow_workflow.yml`:
 
 ```yaml
 workflows:
   implement:
-    command: "/jpspec:implement"
+    command: "/specflow:implement"
     retry_policy:
       max_attempts: 3
       initial_interval: 10s
@@ -590,7 +590,7 @@ workflows:
 - ✅ **Validation checks** - Safe to re-run
 
 **Non-Idempotent Operations:**
-- ❌ **Backlog task creation** - `/jpspec:specify` creates new tasks each run
+- ❌ **Backlog task creation** - `/specflow:specify` creates new tasks each run
 - ❌ **External notifications** (future) - Would send duplicate alerts
 
 **Idempotency Score: 7/10**
@@ -957,7 +957,7 @@ JP Spec Kit is a **developer productivity tool** for **Spec-Driven Development**
    - **Status**: Likely complete (validator.py exists with 657 lines)
    - **Action**: Review cycle detection and reachability
 
-3. **task-096**: Update /jpspec commands to check workflow constraints
+3. **task-096**: Update /specflow commands to check workflow constraints
    - **Action**: Integrate WorkflowConfig into command handlers
    - **Effort**: 1 week
 
@@ -969,7 +969,7 @@ JP Spec Kit is a **developer productivity tool** for **Spec-Driven Development**
    - **Action**: Ensure >80% coverage for workflow module
    - **Effort**: 1 week
 
-6. **task-101**: Write integration tests for /jpspec workflow constraints
+6. **task-101**: Write integration tests for /specflow workflow constraints
    - **Action**: End-to-end tests for workflow enforcement
    - **Effort**: 1 week
 
@@ -1064,9 +1064,9 @@ JP Spec Kit is a **developer productivity tool** for **Spec-Driven Development**
 |---------|-------|--------|----------------|
 | task-090 | Implement WorkflowConfig | To Do | ✅ Execute (foundation) |
 | task-091 | Implement workflow validation | To Do | ✅ Execute (foundation) |
-| task-094 | Enhanced /jpspec:validate | To Do | ⚠️ Defer to Phase 2 |
+| task-094 | Enhanced /specflow:validate | To Do | ⚠️ Defer to Phase 2 |
 | task-095 | Document backlog.md state mapping | To Do | ✅ Execute (documentation) |
-| task-096 | Update /jpspec commands for constraints | To Do | ✅ Execute (integration) |
+| task-096 | Update /specflow commands for constraints | To Do | ✅ Execute (integration) |
 | task-097 | User customization guide | To Do | ✅ Execute (documentation) |
 | task-098 | Workflow config examples | To Do | ✅ Execute (documentation) |
 | task-099 | Workflow config validation CLI | To Do | ✅ Execute (tooling) |
@@ -1443,7 +1443,7 @@ backlog task create "Create workflow observability dashboard and metrics" \
 ┌─────────────────────────────────────────────────────────────┐
 │                    CLI Layer (specify)                       │
 ├─────────────────────────────────────────────────────────────┤
-│  /jpspec:assess   /jpspec:specify   /jpspec:implement  ...  │
+│  /specflow:assess   /specflow:specify   /specflow:implement  ...  │
 └─────────────────────┬───────────────────────────────────────┘
                       │
                       ▼
@@ -1472,7 +1472,7 @@ backlog task create "Create workflow observability dashboard and metrics" \
 **Data Flow:**
 
 ```
-User runs /jpspec:specify
+User runs /specflow:specify
          ↓
 CLI validates current state (via WorkflowConfig)
          ↓

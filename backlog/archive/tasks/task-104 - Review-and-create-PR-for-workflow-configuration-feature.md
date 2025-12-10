@@ -22,14 +22,14 @@ Final step: consolidate all changes, review quality, and create pull request for
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [x] #1 All 11 previous tasks are completed and tested
-- [x] #2 PR title: 'feat: workflow configuration system for /jpspec commands'
+- [x] #2 PR title: 'feat: workflow configuration system for /specflow commands'
 - [x] #3 PR description includes: motivation, architecture, usage examples, testing
 - [x] #4 PR includes link to workflow-architecture.md design document
 - [x] #5 All code passes linting (ruff check, ruff format)
 - [x] #6 All tests pass (pytest tests/)
 - [x] #7 Test coverage remains >80%
 - [x] #8 Documentation is complete and accurate
-- [x] #9 No breaking changes to existing /jpspec command interfaces
+- [x] #9 No breaking changes to existing /specflow command interfaces
 - [x] #10 PR is reviewed and approved before merging
 <!-- AC:END -->
 

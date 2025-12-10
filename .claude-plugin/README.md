@@ -6,12 +6,12 @@ A comprehensive Spec-Driven Development (SDD) toolkit designed specifically for 
 
 ### Workflow Commands (6)
 Execute complete development workflows with a single command:
-- `/jpspec:specify` - Create comprehensive feature specifications
-- `/jpspec:plan` - Architectural planning and design
-- `/jpspec:research` - Research and business validation
-- `/jpspec:implement` - Frontend + backend implementation with code review
-- `/jpspec:validate` - QA, security, documentation, and release validation
-- `/jpspec:operate` - SRE operations, CI/CD, Kubernetes, and observability
+- `/specflow:specify` - Create comprehensive feature specifications
+- `/specflow:plan` - Architectural planning and design
+- `/specflow:research` - Research and business validation
+- `/specflow:implement` - Frontend + backend implementation with code review
+- `/specflow:validate` - QA, security, documentation, and release validation
+- `/specflow:operate` - SRE operations, CI/CD, Kubernetes, and observability
 
 ### Specialized Agents (15)
 Purpose-built agents for every stage of development:
@@ -79,42 +79,42 @@ You should see `jp-spec-kit` in the list of installed plugins.
 ### 2. Start a New Feature
 Begin with specification:
 ```bash
-/jpspec:specify Add user authentication with OAuth2
+/specflow:specify Add user authentication with OAuth2
 ```
 
 ### 3. Plan the Architecture
 Design the system:
 ```bash
-/jpspec:plan Design authentication system architecture
+/specflow:plan Design authentication system architecture
 ```
 
 ### 4. Research and Validate
 Conduct research if needed:
 ```bash
-/jpspec:research Evaluate OAuth2 providers and security best practices
+/specflow:research Evaluate OAuth2 providers and security best practices
 ```
 
 ### 5. Implement
 Execute implementation:
 ```bash
-/jpspec:implement Build OAuth2 authentication system
+/specflow:implement Build OAuth2 authentication system
 ```
 
 ### 6. Validate
 Run comprehensive validation:
 ```bash
-/jpspec:validate Check authentication implementation for security and quality
+/specflow:validate Check authentication implementation for security and quality
 ```
 
 ### 7. Operate
 Set up operations and monitoring:
 ```bash
-/jpspec:operate Set up CI/CD pipeline and monitoring for auth service
+/specflow:operate Set up CI/CD pipeline and monitoring for auth service
 ```
 
 ## 📖 Command Details
 
-### /jpspec:specify
+### /specflow:specify
 **Purpose**: Create comprehensive Product Requirement Documents (PRDs)
 **Agent**: product-requirements-manager-enhanced
 **Outputs**:
@@ -126,10 +126,10 @@ Set up operations and monitoring:
 
 **Example**:
 ```bash
-/jpspec:specify Build a real-time chat feature with presence indicators
+/specflow:specify Build a real-time chat feature with presence indicators
 ```
 
-### /jpspec:plan
+### /specflow:plan
 **Purpose**: Architectural planning and system design
 **Agents**: software-architect-enhanced, platform-engineer-enhanced
 **Outputs**:
@@ -141,10 +141,10 @@ Set up operations and monitoring:
 
 **Example**:
 ```bash
-/jpspec:plan Design microservices architecture for chat system
+/specflow:plan Design microservices architecture for chat system
 ```
 
-### /jpspec:research
+### /specflow:research
 **Purpose**: Technical research and business validation
 **Agents**: researcher, business-validator
 **Outputs**:
@@ -156,10 +156,10 @@ Set up operations and monitoring:
 
 **Example**:
 ```bash
-/jpspec:research Compare WebSocket vs Server-Sent Events for real-time messaging
+/specflow:research Compare WebSocket vs Server-Sent Events for real-time messaging
 ```
 
-### /jpspec:implement
+### /specflow:implement
 **Purpose**: Full-stack implementation with code review
 **Agents**: frontend-engineer, backend-engineer, frontend-code-reviewer, backend-code-reviewer
 **Outputs**:
@@ -170,10 +170,10 @@ Set up operations and monitoring:
 
 **Example**:
 ```bash
-/jpspec:implement Build chat WebSocket server and React frontend
+/specflow:implement Build chat WebSocket server and React frontend
 ```
 
-### /jpspec:validate
+### /specflow:validate
 **Purpose**: Quality assurance, security, and release readiness
 **Agents**: quality-guardian, secure-by-design-engineer, tech-writer, release-manager
 **Outputs**:
@@ -184,10 +184,10 @@ Set up operations and monitoring:
 
 **Example**:
 ```bash
-/jpspec:validate Check chat feature for security vulnerabilities and test coverage
+/specflow:validate Check chat feature for security vulnerabilities and test coverage
 ```
 
-### /jpspec:operate
+### /specflow:operate
 **Purpose**: Operations, CI/CD, and production readiness
 **Agent**: sre-agent
 **Outputs**:
@@ -199,7 +199,7 @@ Set up operations and monitoring:
 
 **Example**:
 ```bash
-/jpspec:operate Set up CI/CD pipeline with security scanning for chat service
+/specflow:operate Set up CI/CD pipeline with security scanning for chat service
 ```
 
 ## 🔧 Configuration
@@ -304,26 +304,26 @@ specify → plan → research → implement → validate → operate
 ### 2. Provide Context
 When using commands, provide clear context:
 ```bash
-/jpspec:specify [Feature Name]
+/specflow:specify [Feature Name]
 Context: [Background information, user needs, constraints]
 ```
 
 ### 3. Iterate
 Don't hesitate to re-run commands with refinements:
 ```bash
-/jpspec:plan Update architecture to use event-driven design instead of polling
+/specflow:plan Update architecture to use event-driven design instead of polling
 ```
 
 ### 4. Use Research for Decisions
 Before making major technical decisions:
 ```bash
-/jpspec:research Evaluate trade-offs between PostgreSQL and MongoDB for chat persistence
+/specflow:research Evaluate trade-offs between PostgreSQL and MongoDB for chat persistence
 ```
 
 ### 5. Validate Early and Often
 Run validation throughout development, not just at the end:
 ```bash
-/jpspec:validate Check current implementation for security issues
+/specflow:validate Check current implementation for security issues
 ```
 
 ## 🤝 Support

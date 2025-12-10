@@ -8,7 +8,7 @@ This directory contains architectural design documents and decision records for 
 
 Comprehensive architecture document for resolving the command file divergence problem.
 
-**Problem**: Three versions of jpspec commands exist (enhanced dev, minimal template, distributed), creating maintenance burden and inconsistent user experience.
+**Problem**: Three versions of specflow commands exist (enhanced dev, minimal template, distributed), creating maintenance burden and inconsistent user experience.
 
 **Solution**: Establish `templates/commands/` as single source of truth, use symlinks for development (dev-setup), copies for distribution (init).
 
@@ -29,7 +29,7 @@ Comprehensive architecture document for resolving the command file divergence pr
 
 ### [ADR-001: Single Source of Truth for Commands](./adr-001-single-source-of-truth.md)
 
-**Decision**: Move enhanced jpspec commands from `.claude/commands/jpspec/` to `templates/commands/jpspec/` to establish single canonical source.
+**Decision**: Move enhanced specflow commands from `.claude/commands/specflow/` to `templates/commands/specflow/` to establish single canonical source.
 
 **Context**: Three versions of commands exist (20KB enhanced, 3KB minimal template, 3KB distributed), causing maintenance burden and inconsistent UX.
 
@@ -51,7 +51,7 @@ Comprehensive architecture document for resolving the command file divergence pr
 
 ### [ADR-002: Directory Structure Convention](./adr-002-directory-structure.md)
 
-**Decision**: Use subdirectory structure (`jpspec/implement.md`) instead of flat structure with dots (`jpspec.implement.md`).
+**Decision**: Use subdirectory structure (`specflow/implement.md`) instead of flat structure with dots (`specflow.implement.md`).
 
 **Context**: dev-setup uses subdirectories, init uses flat structure, creating inconsistent experience.
 
@@ -107,9 +107,9 @@ The following backlog tasks have been created for implementation:
 | task-268 | ADR: Directory Structure Convention | HIGH | architecture, adr |
 | task-269 | ADR: Shared Content Strategy | HIGH | architecture, adr |
 | task-270 | Design: Unified Command Template Structure | HIGH | architecture, design |
-| task-271 | Migrate jpspec commands to templates | HIGH | architecture, migration |
+| task-271 | Migrate specflow commands to templates | HIGH | architecture, migration |
 | task-272 | Migrate speckit commands to subdirectory | HIGH | architecture, migration |
-| task-273 | Update dev-setup command for jpspec symlinks | HIGH | cli, dev-setup, implementation |
+| task-273 | Update dev-setup command for specflow symlinks | HIGH | cli, dev-setup, implementation |
 | task-274 | Replace source repo commands with symlinks | HIGH | architecture, migration |
 | task-275 | Update init command for subdirectory structure | HIGH | cli, init, implementation |
 | task-276 | Create command migration script for users | HIGH | tooling, migration |
@@ -130,12 +130,12 @@ The following backlog tasks have been created for implementation:
 - ⏳ Pending stakeholder approval
 
 ### Phase 2: Template Migration - 2-3 days
-- Move enhanced jpspec commands to templates
+- Move enhanced specflow commands to templates
 - Reorganize speckit commands to subdirectory
 - Update documentation
 
 ### Phase 3: dev-setup Command Update - 1 day
-- Add jpspec symlink creation
+- Add specflow symlink creation
 - Test and validate
 
 ### Phase 4: Replace Source Commands - 30 minutes
@@ -169,7 +169,7 @@ From the main architecture document, these principles should be added to the pro
 All command development occurs in `templates/commands/`. This is canonical for both development (symlinks) and distribution (copies).
 
 ### 2. Subdirectory Organization for Commands
-Commands organized in subdirectories by namespace (`jpspec/`, `speckit/`), not flat files with dots.
+Commands organized in subdirectories by namespace (`specflow/`, `speckit/`), not flat files with dots.
 
 ### 3. Enhanced Commands Over Minimal Stubs
 Distributed commands should be fully-featured (10-20KB) with comprehensive guidance, not minimal placeholders (2-3KB).

@@ -565,7 +565,7 @@ hooks:
 ```
 
 **Flow**:
-1. Developer runs `/jpspec:implement authentication`
+1. Developer runs `/specflow:implement authentication`
 2. Event `implement.completed` emitted
 3. Hook `run-local-tests` executes: `pytest tests/unit/ -v`
 4. If local tests pass, hook `trigger-integration-tests` triggers GitHub Actions
@@ -596,7 +596,7 @@ hooks:
 ```
 
 **Flow**:
-1. Developer runs `/jpspec:validate authentication`
+1. Developer runs `/specflow:validate authentication`
 2. Event `validate.completed` emitted
 3. Hook `validate-quality-gates` runs: tests, lint, coverage checks
 4. If all gates pass, hook `deploy-to-staging` triggers Jenkins deployment job

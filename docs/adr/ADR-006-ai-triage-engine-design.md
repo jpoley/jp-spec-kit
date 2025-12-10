@@ -3,7 +3,7 @@
 **Status:** Proposed
 **Date:** 2025-12-02
 **Author:** Enterprise Software Architect
-**Context:** /jpspec:security commands - AI-powered vulnerability analysis
+**Context:** /specflow:security commands - AI-powered vulnerability analysis
 **Supersedes:** None
 **Amended by:** None
 
@@ -799,10 +799,10 @@ src/specify_cli/security/
 
 ### Related Documents
 
-- **Architecture:** `docs/architecture/jpspec-security-architecture.md`
+- **Architecture:** `docs/architecture/specflow-security-architecture.md`
 - **ADR-005:** Scanner Orchestration Pattern
 - **ADR-007:** Unified Security Finding Format
-- **PRD:** `docs/prd/jpspec-security-commands.md`
+- **PRD:** `docs/prd/specflow-security-commands.md`
 
 ### External References
 

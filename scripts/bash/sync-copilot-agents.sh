@@ -97,7 +97,7 @@ Options:
   --help              Show this help message
 
 Source:
-  - .claude/commands/{jpspec,speckit}/*.md (legacy workflow commands)
+  - .claude/commands/{specflow,speckit}/*.md (legacy workflow commands)
   - templates/commands/{role}/*.md (role-based commands)
 Target: .github/agents/{role}-{command}.agent.md or {namespace}-{command}.agent.md
 
@@ -397,7 +397,7 @@ get_handoffs() {
     local command="$2"
 
     # Role-based commands use role-specific handoffs
-    if [[ -n "$role" && "$role" != "jpspec" && "$role" != "speckit" ]]; then
+    if [[ -n "$role" && "$role" != "specflow" && "$role" != "speckit" ]]; then
         # Get next logical command in same role
         case "$role" in
             pm)
@@ -558,8 +558,8 @@ HANDOFF
         return
     fi
 
-    # Legacy jpspec workflow commands
-    if [[ "$role" != "jpspec" ]]; then
+    # Legacy specflow workflow commands
+    if [[ "$role" != "specflow" ]]; then
         echo ""
         return
     fi
@@ -569,7 +569,7 @@ HANDOFF
             cat << 'HANDOFF'
 handoffs:
   - label: "Specify Requirements"
-    agent: "jpspec-specify"
+    agent: "specflow-specify"
     prompt: "The assessment is complete. Based on the assessment, create detailed product requirements."
     send: false
 HANDOFF
@@ -578,11 +578,11 @@ HANDOFF
             cat << 'HANDOFF'
 handoffs:
   - label: "Conduct Research"
-    agent: "jpspec-research"
+    agent: "specflow-research"
     prompt: "The specification is complete. Conduct research to validate technical feasibility and market fit."
     send: false
   - label: "Create Technical Design"
-    agent: "jpspec-plan"
+    agent: "specflow-plan"
     prompt: "The specification is complete. Create the technical architecture and platform design."
     send: false
 HANDOFF
@@ -591,7 +591,7 @@ HANDOFF
             cat << 'HANDOFF'
 handoffs:
   - label: "Create Technical Design"
-    agent: "jpspec-plan"
+    agent: "specflow-plan"
     prompt: "Research is complete. Create the technical architecture and platform design based on findings."
     send: false
 HANDOFF
@@ -600,7 +600,7 @@ HANDOFF
             cat << 'HANDOFF'
 handoffs:
   - label: "Begin Implementation"
-    agent: "jpspec-implement"
+    agent: "specflow-implement"
     prompt: "Planning is complete. Begin implementing the feature according to the technical design."
     send: false
 HANDOFF
@@ -609,7 +609,7 @@ HANDOFF
             cat << 'HANDOFF'
 handoffs:
   - label: "Run Validation"
-    agent: "jpspec-validate"
+    agent: "specflow-validate"
     prompt: "Implementation is complete. Run QA validation, security review, and documentation checks."
     send: false
 HANDOFF
@@ -618,7 +618,7 @@ HANDOFF
             cat << 'HANDOFF'
 handoffs:
   - label: "Deploy to Production"
-    agent: "jpspec-operate"
+    agent: "specflow-operate"
     prompt: "Validation is complete. Deploy the feature to production and configure operations."
     send: false
 HANDOFF
@@ -637,8 +637,8 @@ HANDOFF
 get_tools() {
     local role="$1"
 
-    # Full workflow tools for jpspec and role-based commands
-    if [[ "$role" == "jpspec" ]] || [[ "$role" =~ ^(pm|arch|dev|qa|sec|ops)$ ]]; then
+    # Full workflow tools for specflow and role-based commands
+    if [[ "$role" == "specflow" ]] || [[ "$role" =~ ^(pm|arch|dev|qa|sec|ops)$ ]]; then
         cat << 'TOOLS'
 tools:
   - "Read"
@@ -892,7 +892,7 @@ generate_vscode_settings() {
         "visibleInRoles": ["ops", "all"],
         "autoLoadInRoles": ["ops"]
       },
-      "jpspec-*": {
+      "specflow-*": {
         "visibleInRoles": ["all"]
       },
       "speckit-*": {
@@ -919,8 +919,8 @@ cleanup_stale() {
     old_nullglob=$(shopt -p nullglob || true)
     shopt -s nullglob
 
-    # Remove old-format files (jpspec.*.md and speckit.*.md)
-    for old_file in "$AGENTS_DIR"/jpspec.*.md "$AGENTS_DIR"/speckit.*.md; do
+    # Remove old-format files (specflow.*.md and speckit.*.md)
+    for old_file in "$AGENTS_DIR"/specflow.*.md "$AGENTS_DIR"/speckit.*.md; do
         if [[ -f "$old_file" ]]; then
             if [[ "$FORCE" == true ]]; then
                 rm "$old_file"
@@ -942,7 +942,7 @@ cleanup_stale() {
 
         # Parse role and command from filename
         local role command
-        if [[ "$basename" =~ ^(pm|arch|dev|qa|sec|ops|jpspec|speckit)-(.+)$ ]]; then
+        if [[ "$basename" =~ ^(pm|arch|dev|qa|sec|ops|specflow|speckit)-(.+)$ ]]; then
             role="${BASH_REMATCH[1]}"
             command="${BASH_REMATCH[2]}"
         else
@@ -1011,8 +1011,8 @@ main() {
     fi
 
     # Process legacy namespaces (if they exist)
-    if [[ -d "$COMMANDS_DIR/jpspec" ]]; then
-        process_namespace "jpspec" "$COMMANDS_DIR/jpspec"
+    if [[ -d "$COMMANDS_DIR/specflow" ]]; then
+        process_namespace "specflow" "$COMMANDS_DIR/specflow"
     fi
     if [[ -d "$COMMANDS_DIR/speckit" ]]; then
         process_namespace "speckit" "$COMMANDS_DIR/speckit"

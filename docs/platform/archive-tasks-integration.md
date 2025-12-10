@@ -93,7 +93,7 @@ hooks:
 #### Hook Event Flow
 
 ```
-/jpspec:validate completed
+/specflow:validate completed
        ↓
 Event: validate.completed emitted
        ↓
@@ -155,7 +155,7 @@ exit 0
 2. **Fail-open error handling**: Hook exits 0 even if script fails.
    - Rationale: Archiving is maintenance, not a quality gate. Workflow must proceed.
 
-3. **Event-driven trigger**: Hook responds to `validate.completed` event (end of /jpspec:validate).
+3. **Event-driven trigger**: Hook responds to `validate.completed` event (end of /specflow:validate).
    - Rationale: Validation is the final workflow step before PR creation; natural checkpoint for cleanup.
 
 ### Hook Testing

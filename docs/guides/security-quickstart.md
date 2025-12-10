@@ -1,6 +1,6 @@
 # Security Quickstart Guide
 
-This guide helps you get started with security scanning in 5 minutes using `/jpspec:security` commands.
+This guide helps you get started with security scanning in 5 minutes using `/specflow:security` commands.
 
 ## Prerequisites
 
@@ -27,7 +27,7 @@ semgrep --version
 In a Claude Code session:
 
 ```
-/jpspec:security scan
+/specflow:security scan
 ```
 
 This will:
@@ -64,7 +64,7 @@ Findings include:
 Use AI to classify findings and get simple explanations:
 
 ```
-/jpspec:security triage --persona beginner
+/specflow:security triage --persona beginner
 ```
 
 **What this does:**
@@ -96,7 +96,7 @@ An attacker could steal all user data or delete the database.
 Generate and review a security patch:
 
 ```
-/jpspec:security fix
+/specflow:security fix
 ```
 
 **Workflow:**
@@ -116,7 +116,7 @@ Generate and review a security patch:
 Create a comprehensive security report:
 
 ```
-/jpspec:security report
+/specflow:security report
 ```
 
 **Generated Report Includes:**
@@ -130,14 +130,14 @@ Create a comprehensive security report:
 
 | Command | Purpose | When to Use |
 |---------|---------|-------------|
-| `/jpspec:security scan` | Find vulnerabilities | Before every PR, commit, or release |
-| `/jpspec:security triage` | Classify findings | After scanning to prioritize fixes |
-| `/jpspec:security fix` | Apply security patches | When ready to fix vulnerabilities |
-| `/jpspec:security report` | Generate audit report | For compliance, reviews, stakeholders |
+| `/specflow:security scan` | Find vulnerabilities | Before every PR, commit, or release |
+| `/specflow:security triage` | Classify findings | After scanning to prioritize fixes |
+| `/specflow:security fix` | Apply security patches | When ready to fix vulnerabilities |
+| `/specflow:security report` | Generate audit report | For compliance, reviews, stakeholders |
 
 ## Configuration
 
-Create `.jpspec/security-config.yml` in your project root:
+Create `.specflow/security-config.yml` in your project root:
 
 ```yaml
 # Security scanning configuration
@@ -229,7 +229,7 @@ jobs:
 In Claude Code, before committing:
 
 ```
-/jpspec:security scan
+/specflow:security scan
 ```
 
 Reviews critical issues only before commit.
@@ -237,9 +237,9 @@ Reviews critical issues only before commit.
 ### Workflow 2: Pull Request Security Review
 
 ```
-/jpspec:security scan
-/jpspec:security triage --persona expert
-/jpspec:security fix --review
+/specflow:security scan
+/specflow:security triage --persona expert
+/specflow:security fix --review
 ```
 
 Full security check with AI triage and fix generation.
@@ -247,9 +247,9 @@ Full security check with AI triage and fix generation.
 ### Workflow 3: Compliance Audit
 
 ```
-/jpspec:security scan --all-scanners
-/jpspec:security triage --persona compliance
-/jpspec:security report --format pdf --compliance soc2
+/specflow:security scan --all-scanners
+/specflow:security triage --persona compliance
+/specflow:security report --format pdf --compliance soc2
 ```
 
 Comprehensive audit for regulatory requirements.
@@ -283,7 +283,7 @@ Findings are automatically mapped to OWASP Top 10 2021:
 
 ## Personas Explained
 
-The `/jpspec:security triage` command supports three personas:
+The `/specflow:security triage` command supports three personas:
 
 ### Beginner Persona
 **Use when**: Training junior developers, onboarding new team members
@@ -323,7 +323,7 @@ pip install semgrep bandit
 
 **Solution**: Run scan first:
 ```
-/jpspec:security scan
+/specflow:security scan
 ```
 
 ### "AI API error"
@@ -338,13 +338,13 @@ pip install semgrep bandit
 ### High False Positive Rate
 
 **Solution**:
-1. Use AI triage to auto-classify: `/jpspec:security triage`
-2. Add exclusions to `.jpspec/security-config.yml`
+1. Use AI triage to auto-classify: `/specflow:security triage`
+2. Add exclusions to `.specflow/security-config.yml`
 3. Create custom rules to reduce noise (see Custom Rules guide)
 
 ## Next Steps
 
-- [Command Reference](../reference/jpspec-security-commands.md) - Complete command documentation
+- [Command Reference](../reference/specflow-security-commands.md) - Complete command documentation
 - [CI/CD Integration](./security-cicd-integration.md) - Detailed pipeline setup
 - [Custom Rules Guide](./security-custom-rules.md) - Writing custom security rules
 - [Threat Model](../reference/security-threat-model.md) - Security limitations

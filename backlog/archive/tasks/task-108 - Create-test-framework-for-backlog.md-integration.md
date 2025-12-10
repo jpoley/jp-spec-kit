@@ -7,7 +7,7 @@ assignee:
 created_date: '2025-11-28 16:55'
 updated_date: '2025-11-28 18:42'
 labels:
-  - jpspec
+  - specflow
   - backlog-integration
   - P0
   - testing
@@ -19,19 +19,19 @@ priority: high
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Set up pytest-based test framework to verify jpspec commands correctly use backlog.md CLI. Tests should verify task creation, status updates, AC checking, and proper workflow completion.
+Set up pytest-based test framework to verify specflow commands correctly use backlog.md CLI. Tests should verify task creation, status updates, AC checking, and proper workflow completion.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [x] #1 Create tests/test_jpspec_backlog_integration.py test module
+- [x] #1 Create tests/test_specflow_backlog_integration.py test module
 - [x] #2 Implement fixture to create temporary backlog directory with test config
 - [x] #3 Implement fixture to create sample tasks for testing (known IDs, known ACs)
 - [x] #4 Create helper function to verify backlog CLI was called with expected arguments
 - [x] #5 Add test for task discovery (backlog search, backlog task list)
 - [x] #6 Add test for task assignment (backlog task edit -a -s)
 - [x] #7 Add test for AC checking (backlog task edit --check-ac)
-- [x] #8 All tests pass: pytest tests/test_jpspec_backlog_integration.py
+- [x] #8 All tests pass: pytest tests/test_specflow_backlog_integration.py
 <!-- AC:END -->
 
 ## Implementation Notes

@@ -20,7 +20,7 @@ Automated tests to verify dogfood and init produce equivalent command sets with 
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Test dogfood creates jpspec symlinks correctly
+- [ ] #1 Test dogfood creates specflow symlinks correctly
 - [ ] #2 Test dogfood creates speckit symlinks correctly
 - [ ] #3 Test init copies same files dogfood links to
 - [ ] #4 Test all symlinks in source repo resolve correctly

@@ -255,7 +255,7 @@ cat docs/security/findings.json
 **Recommended for Most Teams**:
 
 ```yaml
-# .jpspec/security-config.yml
+# .specflow/security-config.yml
 scanners:
   - name: semgrep
     enabled: true

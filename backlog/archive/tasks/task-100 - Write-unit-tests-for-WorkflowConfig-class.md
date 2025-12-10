@@ -22,7 +22,7 @@ Write comprehensive unit tests for WorkflowConfig class to ensure correct loadin
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [x] #1 Test file created at tests/test_workflow_config.py
-- [x] #2 Tests for loading valid jpspec_workflow.yml
+- [x] #2 Tests for loading valid specflow_workflow.yml
 - [x] #3 Tests for loading invalid YAML (syntax errors)
 - [x] #4 Tests for missing required fields
 - [x] #5 Tests for wrong field types

@@ -21,7 +21,7 @@ Create comprehensive troubleshooting guide for common workflow configuration iss
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [x] #1 Troubleshooting guide created at docs/guides/workflow-troubleshooting.md
-- [x] #2 Section: 'jpspec_workflow.yml not found' with solution
+- [x] #2 Section: 'specflow_workflow.yml not found' with solution
 - [x] #3 Section: 'Configuration validation errors' with examples and fixes
 - [x] #4 Section: 'State transition errors' with examples and solutions
 - [x] #5 Section: 'Circular dependencies detected' explanation and fix

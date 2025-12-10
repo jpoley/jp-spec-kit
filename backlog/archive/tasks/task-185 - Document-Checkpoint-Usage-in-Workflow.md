@@ -26,7 +26,7 @@ Cross-reference: See docs/prd/claude-capabilities-review.md Section 2.10 for che
 - [x] #1 Checkpoint usage section added to CLAUDE.md
 
 - [x] #2 Best practices documented (when to use, Esc Esc shortcut, /rewind command)
-- [x] #3 /jpspec:implement command includes checkpoint reminder for risky changes
+- [x] #3 /specflow:implement command includes checkpoint reminder for risky changes
 - [x] #4 Examples provided for refactoring and experimental features
 <!-- AC:END -->
 
@@ -41,8 +41,8 @@ Documents:
 - Quick reference (Esc Esc, /rewind, restore options)
 - Best practices (mental checkpoints, checkpoint + git)
 - Example workflows (experimental refactoring, proof of concept)
-- Integration with SDD workflow (/jpspec:implement reminder)
+- Integration with SDD workflow (/specflow:implement reminder)
 
 Included via @import in CLAUDE.md
-Checkpoint reminder added to templates/commands/jpspec/implement.md
+Checkpoint reminder added to templates/commands/specflow/implement.md
 <!-- SECTION:NOTES:END -->

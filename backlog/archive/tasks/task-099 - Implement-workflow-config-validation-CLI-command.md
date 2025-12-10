@@ -22,7 +22,7 @@ Implement CLI command to validate workflow configuration files for both syntax a
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [x] #1 New command 'specify workflow validate' implemented
-- [x] #2 Command validates jpspec_workflow.yml against JSON schema
+- [x] #2 Command validates specflow_workflow.yml against JSON schema
 - [x] #3 Command runs semantic validation checks (circular deps, reachability, etc)
 - [x] #4 Command provides clear success message when validation passes
 - [x] #5 Command provides detailed error messages for validation failures

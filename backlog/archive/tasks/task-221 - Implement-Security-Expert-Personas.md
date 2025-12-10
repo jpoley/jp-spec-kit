@@ -198,7 +198,7 @@ Expert personas provide specialized security knowledge on-demand, reducing token
    - Guide input corpus generation
 
 3. Design integration points (future)
-   - Link to /jpspec:security fuzz command (v2.0)
+   - Link to /specflow:security fuzz command (v2.0)
    - Provide fuzzing configuration templates
    - Analyze fuzzing results
 

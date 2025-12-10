@@ -17,7 +17,7 @@ priority: high
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Generate comprehensive security audit reports using security-report-template.md. Implements /jpspec:security audit command.
+Generate comprehensive security audit reports using security-report-template.md. Implements /specflow:security audit command.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria

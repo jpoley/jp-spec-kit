@@ -7,7 +7,7 @@ assignee:
 created_date: '2025-11-27 21:53'
 updated_date: '2025-11-29 05:49'
 labels:
-  - jpspec
+  - specflow
   - feature
   - ux
   - P0
@@ -18,14 +18,14 @@ priority: high
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Add '/jpspec:assess' command to evaluate if SDD workflow is appropriate for a feature. Addresses Böckeler critique: 'What I found missing is an answer to: Which problems are they meant for?' Prevents over-specification frustration. Output: Full SDD workflow (complex), Spec-light mode (medium), Skip SDD (simple).
+Add '/specflow:assess' command to evaluate if SDD workflow is appropriate for a feature. Addresses Böckeler critique: 'What I found missing is an answer to: Which problems are they meant for?' Prevents over-specification frustration. Output: Full SDD workflow (complex), Spec-light mode (medium), Skip SDD (simple).
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [x] #1 Design assessment prompts (LOC estimate, modules affected, integrations, team size)
 - [x] #2 Implement decision logic for workflow recommendation
-- [x] #3 Create /jpspec:assess command in .claude/commands/jpspec/
+- [x] #3 Create /specflow:assess command in .claude/commands/specflow/
 - [x] #4 Output clear recommendations with examples
 - [x] #5 Integrate with specify init workflow
 - [x] #6 Document when to use SDD vs traditional development
@@ -35,7 +35,7 @@ Add '/jpspec:assess' command to evaluate if SDD workflow is appropriate for a fe
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-Implemented comprehensive /jpspec:assess command with:
+Implemented comprehensive /specflow:assess command with:
 - 8-question assessment framework covering scope, integration, team, and risk dimensions
 - 4-point scoring system (A=1 to D=4) per question, total range 8-32
 - Three complexity classifications: Simple (8-12), Medium (13-20), Complex (21-32)

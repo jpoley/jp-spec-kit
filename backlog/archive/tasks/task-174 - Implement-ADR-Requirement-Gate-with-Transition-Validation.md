@@ -14,7 +14,7 @@ priority: high
 
 <!-- AC:BEGIN -->
 - [x] AC1: Create ADR template at templates/adr-template.md following Nygard format
-- [x] AC2: Update /jpspec:plan to output ADRs to ./docs/adr/ADR-{NNN}-{slug}.md
+- [x] AC2: Update /specflow:plan to output ADRs to ./docs/adr/ADR-{NNN}-{slug}.md
 - [x] AC3: Add ADR existence check before transition to "Planned" state
 - [x] AC4: Implement ADR structural validation (required sections present)
 - [x] AC5: Support validation: NONE (default)
@@ -28,7 +28,7 @@ priority: high
 
 <!-- SECTION:NOTES:BEGIN -->
 ## Summary
-Implement Architecture Decision Records (ADRs) as required output artifacts from /jpspec:plan with configurable transition validation.
+Implement Architecture Decision Records (ADRs) as required output artifacts from /specflow:plan with configurable transition validation.
 
 ## ADR Artifact Specification
 

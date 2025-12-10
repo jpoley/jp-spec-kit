@@ -7,7 +7,7 @@ assignee:
 created_date: '2025-11-27 21:54'
 updated_date: '2025-12-05 16:28'
 labels:
-  - jpspec
+  - specflow
   - feature
   - ux
   - 'workflow:Specified'
@@ -18,7 +18,7 @@ priority: medium
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Create simplified SDD workflow for medium-complexity features (after /jpspec:assess recommends it). Addresses Böckeler concern about 'a LOT of markdown files'. Creates spec-light.md (combined stories + AC), plan-light.md (high-level only), tasks.md (standard). Skips: /jpspec:research, /jpspec:analyze, detailed data models, API contracts. Still enforces: constitutional compliance, test-first. 40-50% faster workflow.
+Create simplified SDD workflow for medium-complexity features (after /specflow:assess recommends it). Addresses Böckeler concern about 'a LOT of markdown files'. Creates spec-light.md (combined stories + AC), plan-light.md (high-level only), tasks.md (standard). Skips: /specflow:research, /specflow:analyze, detailed data models, API contracts. Still enforces: constitutional compliance, test-first. 40-50% faster workflow.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
