@@ -1,0 +1,1 @@
+../../../templates/commands/specflow/_DEPRECATED_security_fix.md

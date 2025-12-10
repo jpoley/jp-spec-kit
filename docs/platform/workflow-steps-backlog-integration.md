@@ -25,8 +25,8 @@ This document provides a comprehensive platform engineering design for integrati
 | Aspect | Decision | Rationale |
 |--------|----------|-----------|
 | **Display Model** | Workflow metadata on task cards | Preserves existing Kanban layout, adds contextual information |
-| **Configuration** | Automatic sync from `jpspec_workflow.yml` | Single source of truth, zero manual configuration |
-| **CLI Integration** | Read-only workflow display | Workflow transitions via `/jpspec:*` commands only |
+| **Configuration** | Automatic sync from `specflow_workflow.yml` | Single source of truth, zero manual configuration |
+| **CLI Integration** | Read-only workflow display | Workflow transitions via `/specflow:*` commands only |
 | **State Mapping** | Direct mapping: status = workflow state | Simplifies mental model, enforces workflow constraints |
 | **Board Columns** | Dynamically generated from workflow states | Flexible, project-specific, scales beyond "To Do / In Progress / Done" |
 
@@ -61,8 +61,8 @@ This document provides a comprehensive platform engineering design for integrati
 
 **JPSpec Workflow System:**
 - 9 states: To Do → Assessed → Specified → Researched → Planned → In Implementation → Validated → Deployed → Done
-- 7 workflow commands: `/jpspec:assess`, `/jpspec:specify`, `/jpspec:research`, `/jpspec:plan`, `/jpspec:implement`, `/jpspec:validate`, `/jpspec:operate`
-- Configuration in `jpspec_workflow.yml` (or future location TBD)
+- 7 workflow commands: `/specflow:assess`, `/specflow:specify`, `/specflow:research`, `/specflow:plan`, `/specflow:implement`, `/specflow:validate`, `/specflow:operate`
+- Configuration in `specflow_workflow.yml` (or future location TBD)
 - Artifact-driven transitions with validation modes
 
 **Integration Gap:**
@@ -79,7 +79,7 @@ This document provides a comprehensive platform engineering design for integrati
 └─────────────────────────────────────────────────────────────────────┘
 
 ┌──────────────────────┐
-│ jpspec_workflow.yml  │ ← Single source of truth
+│ specflow_workflow.yml  │ ← Single source of truth
 │                      │
 │ states:              │
 │   - Assessed         │
@@ -92,7 +92,7 @@ This document provides a comprehensive platform engineering design for integrati
            ▼
 ┌──────────────────────────────────────────────────────────────┐
 │              Backlog Configuration Sync                       │
-│  • Reads workflow states from jpspec_workflow.yml            │
+│  • Reads workflow states from specflow_workflow.yml            │
 │  • Updates backlog/config.yml with workflow states           │
 │  • Validates state transitions                               │
 │  • Enforces workflow constraints                             │
@@ -107,7 +107,7 @@ This document provides a comprehensive platform engineering design for integrati
 │             "Planned", "In Implementation", "Validated",      │
 │             "Deployed", "Done"]                               │
 │  workflow_enabled: true                                       │
-│  workflow_source: "memory/jpspec_workflow.yml"               │
+│  workflow_source: "memory/specflow_workflow.yml"               │
 └──────────┬───────────────────────────────────────────────────┘
            │
            │ (consumed by)
@@ -159,7 +159,7 @@ workflow_enabled: true
 
 #### 2. Workflow Transition Enforcement
 
-**Decision**: Task status can ONLY be changed via `/jpspec:*` commands or manual override.
+**Decision**: Task status can ONLY be changed via `/specflow:*` commands or manual override.
 
 **Rationale**:
 - Enforces workflow integrity
@@ -170,7 +170,7 @@ workflow_enabled: true
 **Implementation**:
 ```bash
 # Valid: Workflow command transitions state automatically
-/jpspec:specify user-auth
+/specflow:specify user-auth
 # → Task status: "To Do" → "Specified"
 
 # Valid: Manual override for exceptional cases
@@ -178,7 +178,7 @@ backlog task edit 42 -s "Specified" --override-workflow
 
 # Invalid: Direct status change blocked
 backlog task edit 42 -s "Specified"
-# → Error: Workflow enforcement enabled. Use /jpspec:specify or --override-workflow
+# → Error: Workflow enforcement enabled. Use /specflow:specify or --override-workflow
 ```
 
 **Override Logging**:
@@ -188,12 +188,12 @@ backlog task edit 42 -s "Specified"
   Reason: --override-workflow flag
   Previous state: To Do
   New state: Specified
-  Audit: Manual override bypasses /jpspec:specify workflow
+  Audit: Manual override bypasses /specflow:specify workflow
 ```
 
 #### 3. Board Column Generation
 
-**Decision**: Dynamically generate Kanban columns from `jpspec_workflow.yml` states.
+**Decision**: Dynamically generate Kanban columns from `specflow_workflow.yml` states.
 
 **Rationale**:
 - Project-specific workflows (not all features need Research)
@@ -204,7 +204,7 @@ backlog task edit 42 -s "Specified"
 **Implementation**:
 ```javascript
 // backlog board rendering (pseudocode)
-const workflowConfig = loadWorkflowConfig(); // jpspec_workflow.yml
+const workflowConfig = loadWorkflowConfig(); // specflow_workflow.yml
 const states = workflowConfig ? workflowConfig.states : ["To Do", "In Progress", "Done"];
 const columns = states.map(state => ({
   title: state,
@@ -224,7 +224,7 @@ if (!workflowConfig) {
 
 #### 4. Next Action Hints
 
-**Decision**: Display suggested next `/jpspec:*` command on task cards.
+**Decision**: Display suggested next `/specflow:*` command on task cards.
 
 **Rationale**:
 - Reduces cognitive load: "What do I do next?"
@@ -239,7 +239,7 @@ if (!workflowConfig) {
 │ [HIGH] @jpoley                  │
 │                                 │
 │ Status: To Do                   │
-│ → Next: /jpspec:assess          │
+│ → Next: /specflow:assess          │
 └─────────────────────────────────┘
 
 ┌─────────────────────────────────┐
@@ -247,7 +247,7 @@ if (!workflowConfig) {
 │ [HIGH] @jpoley                  │
 │                                 │
 │ Status: Assessed                │
-│ → Next: /jpspec:specify         │
+│ → Next: /specflow:specify         │
 └─────────────────────────────────┘
 ```
 
@@ -377,7 +377,7 @@ Recent Failures:
 
 Action Items:
 1. Review validation phase completion for recent features
-2. Strengthen integration testing in /jpspec:validate
+2. Strengthen integration testing in /specflow:validate
 3. Consider mandatory load testing for API changes
 ```
 
@@ -456,7 +456,7 @@ FROM (
 # Standard board view (unchanged for backward compatibility)
 backlog board
 
-# Workflow-enhanced view (default if jpspec_workflow.yml exists)
+# Workflow-enhanced view (default if specflow_workflow.yml exists)
 backlog board --workflow
 
 # Compact view (hide workflow hints)
@@ -492,7 +492,7 @@ Doc2Vec        │                │                │                │
 
 ═══════════════════════════════════════════════════════════════════════════════
 Summary: 5 tasks across 5 states
-Next Action: Run /jpspec:assess on #076 or #077
+Next Action: Run /specflow:assess on #076 or #077
 
 Legend: [Priority] @Assignee → Suggested next command
 ```
@@ -506,18 +506,18 @@ backlog task 182 --workflow
 # Output:
 Task #182: Assess Feature Complexity
 Status: Assessed
-Workflow: jpspec-sdd-v1
+Workflow: specflow-sdd-v1
 
 Workflow Progress:
-  ✓ To Do → Assessed (2025-11-28, via /jpspec:assess)
-  → Next: /jpspec:specify
+  ✓ To Do → Assessed (2025-11-28, via /specflow:assess)
+  → Next: /specflow:specify
 
 State History:
   2025-11-28 10:15 - Created (To Do)
-  2025-11-28 14:32 - /jpspec:assess → Assessed
+  2025-11-28 14:32 - /specflow:assess → Assessed
 
 Available Transitions:
-  ✓ /jpspec:specify → Specified
+  ✓ /specflow:specify → Specified
 
 Artifacts:
   ✓ ./docs/assess/feature-complexity-assessment.md
@@ -531,7 +531,7 @@ backlog workflow validate
 
 # Output:
 Validating workflow configuration...
-✓ jpspec_workflow.yml found at memory/jpspec_workflow.yml
+✓ specflow_workflow.yml found at memory/specflow_workflow.yml
 ✓ Schema validation passed
 ✓ 9 states defined
 ✓ 9 transitions defined
@@ -541,7 +541,7 @@ Validating workflow configuration...
 Configuration Summary:
   Version: 1.0
   States: To Do, Assessed, Specified, Researched, Planned, In Implementation, Validated, Deployed, Done
-  Commands: 7 (/jpspec:assess, /jpspec:specify, /jpspec:research, /jpspec:plan, /jpspec:implement, /jpspec:validate, /jpspec:operate)
+  Commands: 7 (/specflow:assess, /specflow:specify, /specflow:research, /specflow:plan, /specflow:implement, /specflow:validate, /specflow:operate)
 
 Backlog Integration:
   ✓ Statuses synced to backlog/config.yml
@@ -556,7 +556,7 @@ Backlog Integration:
 backlog workflow sync
 
 # Output:
-Syncing workflow states from memory/jpspec_workflow.yml...
+Syncing workflow states from memory/specflow_workflow.yml...
 ✓ Read 9 states from workflow config
 ✓ Updated backlog/config.yml statuses
 ✓ Migrated 5 tasks with old statuses:
@@ -606,17 +606,17 @@ To Do (2 tasks)
 ════════════════════════════════════════════════════════════
   #076 - Local RAG system for Claude Code subagents
   Priority: HIGH | Assignee: Unassigned
-  → Next: /jpspec:assess
+  → Next: /specflow:assess
 
   #077 - Doc2Vec implementation with DuckDB
   Priority: HIGH | Assignee: Unassigned
-  → Next: /jpspec:assess
+  → Next: /specflow:assess
 
 Assessed (1 task)
 ════════════════════════════════════════════════════════════
   #182 - Assess Feature Complexity
   Priority: HIGH | Assignee: @jpoley
-  → Next: /jpspec:specify
+  → Next: /specflow:specify
 
   Artifacts:
     ✓ docs/assess/feature-complexity-assessment.md
@@ -625,7 +625,7 @@ Specified (1 task)
 ════════════════════════════════════════════════════════════
   #183 - Specify User Authentication
   Priority: HIGH | Assignee: @jpoley
-  → Next: /jpspec:research or /jpspec:plan
+  → Next: /specflow:research or /specflow:plan
 
   Artifacts:
     ✓ docs/prd/user-authentication.md
@@ -652,7 +652,7 @@ To Do (2)      │ Assessed (1)  │ Specified (1) │ Planned (1)   │ In Impl
 └─────────────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────┐
-│ jpspec_workflow.yml     │  ← Configuration Source
+│ specflow_workflow.yml     │  ← Configuration Source
 │                         │
 │ version: "1.0"          │
 │ states: [...]           │
@@ -664,7 +664,7 @@ To Do (2)      │ Assessed (1)  │ Specified (1) │ Planned (1)   │ In Impl
              ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │              WorkflowConfigLoader (Python)                       │
-│  • Parses jpspec_workflow.yml                                   │
+│  • Parses specflow_workflow.yml                                   │
 │  • Validates schema                                              │
 │  • Builds state transition graph                                │
 │  • Provides API for state queries                               │
@@ -685,7 +685,7 @@ To Do (2)      │ Assessed (1)  │ Specified (1) │ Planned (1)   │ In Impl
       │                │               │                │
       ▼                ▼               ▼                ▼
 ┌──────────┐   ┌──────────────┐  ┌──────────┐  ┌─────────────┐
-│ /jpspec  │   │ backlog CLI  │  │ Backlog  │  │ MCP Server  │
+│ /specflow  │   │ backlog CLI  │  │ Backlog  │  │ MCP Server  │
 │ commands │   │              │  │ Web UI   │  │             │
 │          │   │ - board      │  │          │  │ - task_edit │
 │ - assess │   │ - workflow   │  │ Drag &   │  │ - task_list │
@@ -710,11 +710,11 @@ To Do (2)      │ Assessed (1)  │ Specified (1) │ Planned (1)   │ In Impl
 ### Data Flow: Workflow Transition
 
 ```
-User runs: /jpspec:specify user-auth
+User runs: /specflow:specify user-auth
 
 1. JPSpec Command Execution
    ┌─────────────────────────────────────┐
-   │ /jpspec:specify                     │
+   │ /specflow:specify                     │
    │ • Validates current state: "Assessed"│
    │ • Generates PRD artifact            │
    │ • Transitions state → "Specified"   │
@@ -747,10 +747,10 @@ User runs: /jpspec:specify user-auth
    │ workflow_history:                   │
    │   - state: "Assessed"               │
    │     timestamp: 2025-11-28T10:15:00Z │
-   │     via: "/jpspec:assess"           │
+   │     via: "/specflow:assess"           │
    │   - state: "Specified"              │
    │     timestamp: 2025-11-30T14:32:00Z │
-   │     via: "/jpspec:specify"          │
+   │     via: "/specflow:specify"          │
    │ ---                                 │
    └─────────────────┬───────────────────┘
                      │
@@ -760,7 +760,7 @@ User runs: /jpspec:specify user-auth
    │ backlog board                       │
    │ • Reads updated task status         │
    │ • Displays in "Specified" column    │
-   │ • Shows next action: →/jpspec:plan  │
+   │ • Shows next action: →/specflow:plan  │
    └─────────────────────────────────────┘
 ```
 
@@ -795,7 +795,7 @@ def main():
 
 #### Option 2: Eager Sync (Future Enhancement)
 
-**Trigger**: File watcher on `jpspec_workflow.yml` changes
+**Trigger**: File watcher on `specflow_workflow.yml` changes
 
 **Pros**:
 - Always up-to-date
@@ -812,7 +812,7 @@ def main():
 from watchdog.observers import Observer
 
 def on_workflow_config_change(event):
-    if event.src_path.endswith('jpspec_workflow.yml'):
+    if event.src_path.endswith('specflow_workflow.yml'):
         sync_workflow_states(event.src_path)
 
 observer = Observer()
@@ -905,14 +905,14 @@ backlog task create "User Authentication" \
 # Output:
 ✓ Created task-200 - User Authentication
   Status: To Do
-  → Next: /jpspec:assess
+  → Next: /specflow:assess
 ```
 
 **Step 2: Assess Feature Complexity**
 
 ```bash
 # Run assessment workflow
-/jpspec:assess user-authentication
+/specflow:assess user-authentication
 
 # Output:
 Assessment Complete
@@ -928,7 +928,7 @@ Scoring Summary:
 - Architecture Impact: 5.0/10
 - Total: 20.0/30
 
-Next Command: /jpspec:specify user-authentication
+Next Command: /specflow:specify user-authentication
 
 ✓ Updated task-200 status: To Do → Assessed
 ```
@@ -950,7 +950,7 @@ To Do          │ Assessed       │ Specified      │ ...
 **Step 4: Specify Requirements**
 
 ```bash
-/jpspec:specify user-authentication
+/specflow:specify user-authentication
 
 # Output:
 Specification Complete
@@ -962,8 +962,8 @@ Tasks Generated: 12 tasks
 Workflow Progression:
   ✓ Assessed → Specified
 
-Next Command: /jpspec:research user-authentication
-  (or skip to: /jpspec:plan user-authentication)
+Next Command: /specflow:research user-authentication
+  (or skip to: /specflow:plan user-authentication)
 
 ✓ Updated task-200 status: Assessed → Specified
 ```
@@ -981,14 +981,14 @@ Priority: HIGH
 Assignee: @jpoley
 
 Workflow Progress:
-  ✓ To Do → Assessed (2025-11-30 10:15, via /jpspec:assess)
-  ✓ Assessed → Specified (2025-11-30 14:32, via /jpspec:specify)
-  → Next: /jpspec:research or /jpspec:plan
+  ✓ To Do → Assessed (2025-11-30 10:15, via /specflow:assess)
+  ✓ Assessed → Specified (2025-11-30 14:32, via /specflow:specify)
+  → Next: /specflow:research or /specflow:plan
 
 State History:
   2025-11-30 09:45 - Created (To Do)
-  2025-11-30 10:15 - /jpspec:assess → Assessed
-  2025-11-30 14:32 - /jpspec:specify → Specified
+  2025-11-30 10:15 - /specflow:assess → Assessed
+  2025-11-30 14:32 - /specflow:specify → Specified
 
 Generated Subtasks:
   - task-201: Setup authentication infrastructure
@@ -1001,24 +1001,24 @@ Artifacts:
   ✓ ./docs/prd/user-authentication.md
 
 Available Transitions:
-  /jpspec:research → Researched
-  /jpspec:plan → Planned (skip research)
+  /specflow:research → Researched
+  /specflow:plan → Planned (skip research)
 ```
 
 **Step 6: Continue Through Workflow**
 
 ```bash
 # Skip research, go straight to planning
-/jpspec:plan user-authentication
+/specflow:plan user-authentication
 
 # Implement the feature
-/jpspec:implement user-authentication
+/specflow:implement user-authentication
 
 # Validate (QA + Security)
-/jpspec:validate user-authentication
+/specflow:validate user-authentication
 
 # Deploy to production
-/jpspec:operate user-authentication
+/specflow:operate user-authentication
 
 # Final status
 backlog task 200
@@ -1064,8 +1064,8 @@ RAG System     │ Assess Feature │ User Auth
 **Step 1: Initialize Workflow Configuration**
 
 ```bash
-# Option A: Use jpspec default workflow
-specify workflow init --template jpspec-sdd
+# Option A: Use specflow default workflow
+specify workflow init --template specflow-sdd
 
 # Option B: Create custom workflow
 specify workflow init --custom
@@ -1081,7 +1081,7 @@ specify workflow init --custom
 backlog workflow sync
 
 # Output:
-Syncing workflow states from memory/jpspec_workflow.yml...
+Syncing workflow states from memory/specflow_workflow.yml...
 ✓ Read 9 states from workflow config
 ✓ Updated backlog/config.yml statuses
 
@@ -1183,7 +1183,7 @@ default_status: "To Do"
 
 # Workflow Integration
 workflow_enabled: true
-workflow_source: "memory/jpspec_workflow.yml"  # Path to workflow config
+workflow_source: "memory/specflow_workflow.yml"  # Path to workflow config
 workflow_sync_mode: "lazy"  # lazy | eager
 
 # Statuses (auto-generated from workflow if enabled)
@@ -1200,7 +1200,7 @@ statuses:
 
 # Display Options
 max_column_width: 20
-show_workflow_hints: true  # Show "→ /jpspec:*" suggestions
+show_workflow_hints: true  # Show "→ /specflow:*" suggestions
 show_state_history: false  # Show history in task cards
 compact_mode: false
 
@@ -1228,7 +1228,7 @@ active_branch_days: 30
 1. **CLI Flags**: `--workflow`, `--compact`, `--state`
 2. **Environment Variables**: `BACKLOG_WORKFLOW_ENABLED=true`
 3. **backlog/config.yml**: Project-specific settings
-4. **Workflow Auto-Detection**: Inferred from `jpspec_workflow.yml` existence
+4. **Workflow Auto-Detection**: Inferred from `specflow_workflow.yml` existence
 5. **Defaults**: Standard backlog.md behavior
 
 **Example**:
@@ -1254,7 +1254,7 @@ cat backlog/config.yml
 project_name: "my-project"
 default_status: "To Do"
 workflow_enabled: true
-workflow_source: "memory/jpspec_workflow.yml"
+workflow_source: "memory/specflow_workflow.yml"
 statuses: ["To Do", "Assessed", "Specified", "Researched", "Planned", "In Implementation", "Validated", "Deployed", "Done"]
 ```
 
@@ -1268,7 +1268,7 @@ statuses: ["To Do", "Assessed", "Specified", "Researched", "Planned", "In Implem
 
 **Tasks**:
 - [ ] Implement `WorkflowConfigLoader` class
-  - Load `jpspec_workflow.yml`
+  - Load `specflow_workflow.yml`
   - Validate schema
   - Build state transition graph
 - [ ] Implement `BacklogWorkflowSync` class
@@ -1333,7 +1333,7 @@ statuses: ["To Do", "Assessed", "Specified", "Researched", "Planned", "In Implem
   - Block invalid transitions
   - Allow `--override-workflow` flag
   - Log override events
-- [ ] Update `/jpspec:*` commands
+- [ ] Update `/specflow:*` commands
   - Auto-update task status after workflow execution
   - Record workflow history in task metadata
 - [ ] Add workflow history tracking
@@ -1429,7 +1429,7 @@ All features MUST follow the JPSpec workflow pipeline, with state tracked and en
 **Implementation**:
 ```bash
 # ✓ Valid: Workflow command triggers state change
-/jpspec:specify user-auth  # Updates task status automatically
+/specflow:specify user-auth  # Updates task status automatically
 
 # ✓ Valid: Emergency override with reason
 backlog task edit 42 -s "Planned" --override-workflow
@@ -1454,7 +1454,7 @@ backlog task edit 42 -s "Planned"  # Blocked by enforcement
 Workflow configuration follows single-source-of-truth principles with automatic synchronization.
 
 **Requirements**:
-- **Single Source**: `jpspec_workflow.yml` is the authoritative workflow definition
+- **Single Source**: `specflow_workflow.yml` is the authoritative workflow definition
 - **Auto-Sync**: Backlog config syncs from workflow config automatically
 - **No Manual Editing**: Never manually edit `statuses` in `backlog/config.yml`
 - **Validation**: Always validate workflow config before using
@@ -1462,7 +1462,7 @@ Workflow configuration follows single-source-of-truth principles with automatic 
 **Implementation**:
 ```bash
 # ✓ Valid: Edit workflow source
-vim memory/jpspec_workflow.yml
+vim memory/specflow_workflow.yml
 backlog workflow sync  # Propagates changes
 
 # ✓ Valid: Validate before using
@@ -1489,7 +1489,7 @@ CLI commands related to workflow follow consistent patterns for discoverability 
 **Requirements**:
 - **Namespacing**: Workflow commands use `backlog workflow <subcommand>` namespace
 - **Help Text**: All commands include workflow-specific help text
-- **Hints**: Display suggested next actions (e.g., "→ /jpspec:specify")
+- **Hints**: Display suggested next actions (e.g., "→ /specflow:specify")
 - **Graceful Degradation**: Commands work with or without workflow config
 
 **Implementation**:
@@ -1504,7 +1504,7 @@ backlog board --workflow   # Workflow-enhanced board
 backlog task 42 --workflow # Workflow task details
 
 # Hints in output
-→ Next: /jpspec:specify  # Suggested action
+→ Next: /specflow:specify  # Suggested action
 ```
 
 **Rationale**:
@@ -1523,7 +1523,7 @@ backlog task 42 --workflow # Workflow task details
 
 **Approach**:
 1. **Feature Flag**: `workflow_enabled` in `backlog/config.yml`
-2. **Auto-Detection**: Presence of `jpspec_workflow.yml` enables workflow
+2. **Auto-Detection**: Presence of `specflow_workflow.yml` enables workflow
 3. **Opt-In**: Users can disable with `workflow_enabled: false`
 4. **Graceful Degradation**: All commands work without workflow config
 
@@ -1532,8 +1532,8 @@ backlog task 42 --workflow # Workflow task details
 | Project Type | Config | Behavior |
 |--------------|--------|----------|
 | **Legacy (no workflow)** | `workflow_enabled: false` or omitted | Standard backlog.md (To Do / In Progress / Done) |
-| **New (with workflow)** | `workflow_enabled: true` + `jpspec_workflow.yml` exists | Workflow-enhanced mode |
-| **Migrating** | `workflow_enabled: true` but no `jpspec_workflow.yml` | Error: "Workflow config not found. Run `specify workflow init`" |
+| **New (with workflow)** | `workflow_enabled: true` + `specflow_workflow.yml` exists | Workflow-enhanced mode |
+| **Migrating** | `workflow_enabled: true` but no `specflow_workflow.yml` | Error: "Workflow config not found. Run `specify workflow init`" |
 
 **Example: Legacy Project**
 
@@ -1555,7 +1555,7 @@ backlog board
 # backlog/config.yml (with workflow)
 project_name: "new-feature"
 workflow_enabled: true
-workflow_source: "memory/jpspec_workflow.yml"
+workflow_source: "memory/specflow_workflow.yml"
 statuses: ["To Do", "Assessed", "Specified", "Planned", "In Implementation", "Validated", "Deployed", "Done"]
 ```
 
@@ -1593,14 +1593,14 @@ backlog task 42 --workflow
 | Metric | Definition | Target |
 |--------|------------|--------|
 | **Workflow Enablement Rate** | % of projects with `workflow_enabled: true` | 60% by Q2 2026 |
-| **Workflow Command Usage** | # of `/jpspec:*` commands run per week | 50/week |
+| **Workflow Command Usage** | # of `/specflow:*` commands run per week | 50/week |
 | **Task Workflow Coverage** | % of tasks using workflow states | 80% |
 
 #### 2. Developer Experience Metrics
 
 | Metric | Definition | Target |
 |--------|------------|--------|
-| **Time to First Workflow Use** | Days from project init to first `/jpspec:*` command | < 1 day |
+| **Time to First Workflow Use** | Days from project init to first `/specflow:*` command | < 1 day |
 | **Workflow Errors** | # of blocked transitions per week | < 5/week |
 | **Override Rate** | % of transitions using `--override-workflow` | < 10% |
 
@@ -1628,7 +1628,7 @@ def log_workflow_event(event_type: str, **metadata):
 # Event types:
 # - workflow_sync: Workflow config synced
 # - state_transition: Task state changed
-# - workflow_command: /jpspec:* command executed
+# - workflow_command: /specflow:* command executed
 # - override_used: --override-workflow flag used
 # - validation_error: Invalid transition attempted
 ```
@@ -1636,8 +1636,8 @@ def log_workflow_event(event_type: str, **metadata):
 **Example Events**:
 
 ```jsonl
-{"timestamp": "2025-11-30T14:32:10Z", "event_type": "workflow_command", "command": "/jpspec:specify", "task_id": "task-183", "duration_ms": 4500}
-{"timestamp": "2025-11-30T14:32:15Z", "event_type": "state_transition", "task_id": "task-183", "from_state": "Assessed", "to_state": "Specified", "via": "/jpspec:specify"}
+{"timestamp": "2025-11-30T14:32:10Z", "event_type": "workflow_command", "command": "/specflow:specify", "task_id": "task-183", "duration_ms": 4500}
+{"timestamp": "2025-11-30T14:32:15Z", "event_type": "state_transition", "task_id": "task-183", "from_state": "Assessed", "to_state": "Specified", "via": "/specflow:specify"}
 {"timestamp": "2025-11-30T15:10:22Z", "event_type": "override_used", "task_id": "task-042", "from_state": "In Progress", "to_state": "Validated", "reason": "Emergency hotfix"}
 ```
 
@@ -1657,13 +1657,13 @@ states:
 
 workflows:
   plan:
-    command: "/jpspec:plan"
+    command: "/specflow:plan"
     agents: ["developer"]
     input_states: ["To Do"]
     output_state: "Planned"
 
   implement:
-    command: "/jpspec:implement"
+    command: "/specflow:implement"
     agents: ["developer"]
     input_states: ["Planned"]
     output_state: "In Progress"
@@ -1702,7 +1702,7 @@ from specify_cli.workflow import WorkflowConfig, WorkflowTransitionValidator
 from specify_cli.backlog import BacklogWorkflowSync
 
 # Load workflow configuration
-config = WorkflowConfig.load("memory/jpspec_workflow.yml")
+config = WorkflowConfig.load("memory/specflow_workflow.yml")
 
 # Get workflow states
 states = config.get_states()  # ["To Do", "Assessed", ...]
@@ -1736,13 +1736,13 @@ sync.sync_states()  # Updates backlog/config.yml
 **Error**:
 ```
 Error: workflow_enabled is true but no workflow config found
-Expected location: memory/jpspec_workflow.yml
+Expected location: memory/specflow_workflow.yml
 ```
 
 **Solution**:
 ```bash
 # Initialize workflow config
-specify workflow init --template jpspec-sdd
+specify workflow init --template specflow-sdd
 
 # Or disable workflow
 vim backlog/config.yml
@@ -1760,10 +1760,10 @@ Allowed transitions from "To Do": ["Assessed"]
 **Solution**:
 ```bash
 # Follow the workflow path
-/jpspec:assess feature-name  # To Do → Assessed
-/jpspec:specify feature-name # Assessed → Specified
-/jpspec:plan feature-name    # Specified → Planned
-/jpspec:implement feature-name # Planned → In Implementation
+/specflow:assess feature-name  # To Do → Assessed
+/specflow:specify feature-name # Assessed → Specified
+/specflow:plan feature-name    # Specified → Planned
+/specflow:implement feature-name # Planned → In Implementation
 
 # Or override (emergency only)
 backlog task edit 42 -s "In Implementation" --override-workflow

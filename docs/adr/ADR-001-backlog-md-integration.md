@@ -9,7 +9,7 @@
 
 ## Context and Problem Statement
 
-Specflow's `/jpspec:*` commands orchestrate 15+ specialized AI agents across 6 workflows (specify, plan, research, implement, validate, operate). Currently, all task management is manual and ad-hoc with no standardized lifecycle tracking.
+Specflow's `/specflow:*` commands orchestrate 15+ specialized AI agents across 6 workflows (specify, plan, research, implement, validate, operate). Currently, all task management is manual and ad-hoc with no standardized lifecycle tracking.
 
 **Problems**:
 - No automated task activation when agents start work
@@ -19,7 +19,7 @@ Specflow's `/jpspec:*` commands orchestrate 15+ specialized AI agents across 6 w
 - Manual coordination across parallel/sequential agent execution
 - Missing audit trail of agent work
 
-**Goal**: Design a standardized backlog.md CLI integration pattern that all jpspec commands can adopt uniformly, enabling automated task lifecycle management from discovery through completion.
+**Goal**: Design a standardized backlog.md CLI integration pattern that all specflow commands can adopt uniformly, enabling automated task lifecycle management from discovery through completion.
 
 ---
 
@@ -37,7 +37,7 @@ Specflow's `/jpspec:*` commands orchestrate 15+ specialized AI agents across 6 w
 ## Considered Options
 
 ### Option 1: Command-Level Integration Only
-**Approach**: Add backlog CLI calls only at command entry/exit in `.claude/commands/jpspec/*.md`
+**Approach**: Add backlog CLI calls only at command entry/exit in `.claude/commands/specflow/*.md`
 
 **Pros**:
 - Minimal changes to agent contexts
@@ -111,13 +111,13 @@ The hybrid approach provides the best balance of:
 
 ## Task Lifecycle State Machine
 
-All jpspec-managed tasks follow this lifecycle:
+All specflow-managed tasks follow this lifecycle:
 
 ```
 ┌─────────────┐
 │   To Do     │  Initial state (task created but not started)
 └──────┬──────┘
-       │ Entry Hook: /jpspec:* command invoked
+       │ Entry Hook: /specflow:* command invoked
        │ Actions: assign agent(s), add plan
        ▼
 ┌─────────────┐
@@ -194,15 +194,15 @@ backlog task edit <id> --check-ac 2 --notes "<summary>" -s Done
 
 ## Task Naming Conventions
 
-All jpspec-created tasks follow this format:
+All specflow-created tasks follow this format:
 
 ```
-jpspec-{command}-{feature-slug}-{yyyymmdd}-{descriptor}
+specflow-{command}-{feature-slug}-{yyyymmdd}-{descriptor}
 ```
 
 ### Format Breakdown
 
-- **Prefix**: `jpspec-` (identifies creator)
+- **Prefix**: `specflow-` (identifies creator)
 - **Command**: One of: `specify`, `plan`, `research`, `implement`, `validate`, `operate`
 - **Feature Slug**: Kebab-case feature identifier (e.g., `user-authentication`, `api-redesign`)
 - **Timestamp**: Date in `yyyymmdd` format for uniqueness and ordering
@@ -212,17 +212,17 @@ jpspec-{command}-{feature-slug}-{yyyymmdd}-{descriptor}
 
 **Main Tasks**:
 ```
-jpspec-specify-user-auth-20251128
-jpspec-implement-graphql-resolver-20251128
-jpspec-validate-payment-flow-20251128
-jpspec-operate-k8s-deployment-20251129
+specflow-specify-user-auth-20251128
+specflow-implement-graphql-resolver-20251128
+specflow-validate-payment-flow-20251128
+specflow-operate-k8s-deployment-20251129
 ```
 
 **Subtasks** (with descriptor):
 ```
-jpspec-specify-user-auth-20251128-epic-signup
-jpspec-implement-api-redesign-20251128-backend
-jpspec-operate-k8s-deployment-20251129-observability
+specflow-specify-user-auth-20251128-epic-signup
+specflow-implement-api-redesign-20251128-backend
+specflow-operate-k8s-deployment-20251129-observability
 ```
 
 ### Rationale
@@ -230,7 +230,7 @@ jpspec-operate-k8s-deployment-20251129-observability
 - **Parseable**: Easy to extract command, feature, date programmatically
 - **Unique**: Timestamp prevents collisions
 - **Sortable**: Alphabetical sort = chronological order
-- **Searchable**: `backlog search "jpspec-implement"` finds all implementation tasks
+- **Searchable**: `backlog search "specflow-implement"` finds all implementation tasks
 - **Hierarchical**: Subtasks group under parent via naming
 
 ---
@@ -239,7 +239,7 @@ jpspec-operate-k8s-deployment-20251129-observability
 
 ### Command-Level Injection (All Commands)
 
-**Entry Hook Pattern** (add to `.claude/commands/jpspec/*.md`):
+**Entry Hook Pattern** (add to `.claude/commands/specflow/*.md`):
 
 ```markdown
 ## Pre-Execution: Task Activation
@@ -327,7 +327,7 @@ Key capabilities:
 
 ## Integration Points by Command
 
-### /jpspec:specify (PM Planner)
+### /specflow:specify (PM Planner)
 
 **Entry Hook**:
 ```bash
@@ -352,7 +352,7 @@ backlog task edit <id> --check-ac 1 --check-ac 2 --notes "PRD created: X epics, 
 
 ---
 
-### /jpspec:plan (Architect + Platform Engineer)
+### /specflow:plan (Architect + Platform Engineer)
 
 **Entry Hook**:
 ```bash
@@ -370,7 +370,7 @@ backlog task edit <id> --notes "Architecture: ADR-X, Y. Platform: CI/CD design, 
 
 ---
 
-### /jpspec:research (Researcher → Business Validator)
+### /specflow:research (Researcher → Business Validator)
 
 **Entry Hook**:
 ```bash
@@ -393,7 +393,7 @@ backlog task edit <id> --check-ac 2 --notes "Validation: GO with Z% confidence" 
 
 ---
 
-### /jpspec:implement (Engineers + Reviewers)
+### /specflow:implement (Engineers + Reviewers)
 
 **Entry Hook**:
 ```bash
@@ -422,7 +422,7 @@ backlog task edit <id> --notes "Feature implemented: [summary]" -s Done
 
 ---
 
-### /jpspec:validate (QA → Security → Docs → Release)
+### /specflow:validate (QA → Security → Docs → Release)
 
 **Entry Hook**:
 ```bash
@@ -454,7 +454,7 @@ backlog task edit <id> -s Done
 
 ---
 
-### /jpspec:operate (SRE Agent)
+### /specflow:operate (SRE Agent)
 
 **Entry Hook**:
 ```bash
@@ -487,7 +487,7 @@ backlog task edit <id> --notes "Operations complete: CI/CD, K8s, observability, 
 ```python
 def test_specify_entry_hook():
     """Verify specify command activates task correctly."""
-    task_id = "jpspec-specify-auth-20251128"
+    task_id = "specflow-specify-auth-20251128"
 
     # Simulate command entry hook
     result = subprocess.run([
@@ -508,7 +508,7 @@ def test_specify_entry_hook():
 ```python
 def test_research_phase_transition():
     """Verify research → validation transition updates assignee."""
-    task_id = "jpspec-research-market-20251128"
+    task_id = "specflow-research-market-20251128"
 
     # Phase 1 → Phase 2
     result = subprocess.run([
@@ -527,7 +527,7 @@ def test_research_phase_transition():
 ```python
 def test_implement_exit_hook():
     """Verify implement command completes task correctly."""
-    task_id = "jpspec-implement-api-20251128"
+    task_id = "specflow-implement-api-20251128"
 
     # Simulate exit hook
     result = subprocess.run([
@@ -551,7 +551,7 @@ def test_implement_exit_hook():
 def test_specify_workflow_end_to_end():
     """Verify complete specify workflow from entry to exit."""
     feature = "user-authentication"
-    task_id = f"jpspec-specify-{feature}-20251128"
+    task_id = f"specflow-specify-{feature}-20251128"
 
     # Entry hook
     activate_task(task_id, "@pm-planner")
@@ -573,7 +573,7 @@ def test_specify_workflow_end_to_end():
 ```python
 def test_validate_human_approval_required():
     """Verify validate command blocks until human approval."""
-    task_id = "jpspec-validate-release-20251128"
+    task_id = "specflow-validate-release-20251128"
 
     # Phases 1-3 complete
     complete_validation_phases(task_id)
@@ -599,7 +599,7 @@ def test_validate_human_approval_required():
 
 ### Manual Testing Checklist
 
-- [ ] Run each jpspec command and verify entry hook activates task
+- [ ] Run each specflow command and verify entry hook activates task
 - [ ] Verify multi-phase commands update assignees correctly
 - [ ] Test AC checking during agent execution
 - [ ] Verify exit hooks complete tasks with all ACs checked
@@ -614,7 +614,7 @@ def test_validate_human_approval_required():
 
 ### Positive
 
-- **Standardized Lifecycle**: All jpspec tasks follow consistent lifecycle
+- **Standardized Lifecycle**: All specflow tasks follow consistent lifecycle
 - **Audit Trail**: Complete visibility into agent work and transitions
 - **Reduced Manual Work**: Automated task activation and completion
 - **Better Context**: Agents can query task state before/during work
@@ -656,7 +656,7 @@ def test_validate_human_approval_required():
 ### Migration Path
 
 **Phase 1: Manual Task Creation**
-- Developers manually create tasks before running jpspec commands
+- Developers manually create tasks before running specflow commands
 - Commands handle lifecycle management only
 
 **Phase 2: Semi-Automated Creation**
@@ -671,9 +671,9 @@ def test_validate_human_approval_required():
 
 ## References
 
-- **Audit Document**: `docs/audits/jpspec-command-audit.md`
+- **Audit Document**: `docs/audits/specflow-command-audit.md`
 - **Backlog.md CLI**: https://backlog.md
-- **Command Files**: `.claude/commands/jpspec/*.md`
+- **Command Files**: `.claude/commands/specflow/*.md`
 - **Agent Context Files**: `templates/agent-contexts/`
 - **Task-106**: Backlog task tracking this architecture design
 
@@ -744,14 +744,14 @@ backlog task <id> --plain
 backlog task list -s "In Progress" --plain
 
 # Search tasks
-backlog search "jpspec-implement" --plain
+backlog search "specflow-implement" --plain
 ```
 
 ---
 
 ## Appendix: Template Injection Example
 
-**Before Integration** (`.claude/commands/jpspec/specify.md`):
+**Before Integration** (`.claude/commands/specflow/specify.md`):
 
 ```markdown
 ## Execution Instructions

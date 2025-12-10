@@ -12,19 +12,19 @@ This document provides comprehensive documentation of the JPSpec workflow pipeli
                               ┌───────────┐
                               │   To Do   │
                               └─────┬─────┘
-                                    │ /jpspec:assess
+                                    │ /specflow:assess
                                     ▼
                               ┌───────────┐
                               │ Assessed  │ → Assessment Report
                               └─────┬─────┘
-                                    │ /jpspec:specify
+                                    │ /specflow:specify
                                     ▼
                               ┌───────────┐
                               │ Specified │ → PRD, Backlog Tasks
                               └─────┬─────┘
                                     │
               ┌─────────────────────┼─────────────────────┐
-              │ /jpspec:research    │                     │
+              │ /specflow:research    │                     │
               ▼                     │                     │
         ┌───────────┐               │                     │
         │Researched │ → Research    │                     │
@@ -32,25 +32,25 @@ This document provides comprehensive documentation of the JPSpec workflow pipeli
         └─────┬─────┘               │                     │
               │                     │ (skip research)     │
               └─────────────────────┤                     │
-                                    │ /jpspec:plan        │
+                                    │ /specflow:plan        │
                                     ▼                     │
                               ┌───────────┐               │
                               │  Planned  │ → ADRs ←──────┘
                               └─────┬─────┘
-                                    │ /jpspec:implement
+                                    │ /specflow:implement
                                     ▼
                               ┌───────────┐
                               │   In      │ → Code, Tests,
                               │Implementa-│   AC Coverage
                               │   tion    │
                               └─────┬─────┘
-                                    │ /jpspec:validate
+                                    │ /specflow:validate
                                     ▼
                               ┌───────────┐
                               │ Validated │ → QA Report,
                               │           │   Security Report
                               └─────┬─────┘
-                                    │ /jpspec:operate
+                                    │ /specflow:operate
                                     ▼
                               ┌───────────┐
                               │ Deployed  │ → Deployment
@@ -70,8 +70,8 @@ The JPSpec workflow consists of 9 states:
 | # | State | Description |
 |---|-------|-------------|
 | 1 | **To Do** | Initial state - work has not started |
-| 2 | **Assessed** | SDD suitability evaluated via /jpspec:assess |
-| 3 | **Specified** | Requirements captured via /jpspec:specify |
+| 2 | **Assessed** | SDD suitability evaluated via /specflow:assess |
+| 3 | **Specified** | Requirements captured via /specflow:specify |
 | 4 | **Researched** | Technical and business research completed (optional) |
 | 5 | **Planned** | Architecture and infrastructure planned |
 | 6 | **In Implementation** | Code actively being written |
@@ -85,14 +85,14 @@ The JPSpec workflow consists of 9 states:
 
 | # | From State | To State | Command | Description |
 |---|------------|----------|---------|-------------|
-| 1 | To Do | Assessed | `/jpspec:assess` | Evaluate SDD workflow suitability |
-| 2 | Assessed | Specified | `/jpspec:specify` | Create PRD with user stories |
-| 3 | Specified | Researched | `/jpspec:research` | Technical/business research (optional) |
-| 4 | Specified | Planned | `/jpspec:plan` | Architecture planning (skip research) |
-| 5 | Researched | Planned | `/jpspec:plan` | Architecture planning after research |
-| 6 | Planned | In Implementation | `/jpspec:implement` | Implementation work started |
-| 7 | In Implementation | Validated | `/jpspec:validate` | QA and security validation |
-| 8 | Validated | Deployed | `/jpspec:operate` | Production deployment |
+| 1 | To Do | Assessed | `/specflow:assess` | Evaluate SDD workflow suitability |
+| 2 | Assessed | Specified | `/specflow:specify` | Create PRD with user stories |
+| 3 | Specified | Researched | `/specflow:research` | Technical/business research (optional) |
+| 4 | Specified | Planned | `/specflow:plan` | Architecture planning (skip research) |
+| 5 | Researched | Planned | `/specflow:plan` | Architecture planning after research |
+| 6 | Planned | In Implementation | `/specflow:implement` | Implementation work started |
+| 7 | In Implementation | Validated | `/specflow:validate` | QA and security validation |
+| 8 | Validated | Deployed | `/specflow:operate` | Production deployment |
 | 9 | Deployed | Done | manual | Deployment confirmed successful |
 
 ### Rework/Rollback Transitions
@@ -287,7 +287,7 @@ specify workflow transition --to "Planned" --skip-validation
 
 ## Configuring Validation Modes
 
-Validation modes are configured in `jpspec_workflow.yml`:
+Validation modes are configured in `specflow_workflow.yml`:
 
 ```yaml
 # Example configuration
@@ -334,7 +334,7 @@ Transition blocked.
 **Solution:**
 - Keywords are case-sensitive
 - Type the exact keyword shown in the prompt
-- Check `jpspec_workflow.yml` for the configured keyword
+- Check `specflow_workflow.yml` for the configured keyword
 
 ### PULL_REQUEST Validation Failed
 
@@ -375,7 +375,7 @@ gh auth status  # Verify authentication
 
 For programmatic access to workflow configuration, see:
 
-- **Configuration file:** `jpspec_workflow.yml`
+- **Configuration file:** `specflow_workflow.yml`
 - **Python API:** `specify_cli.workflow.WorkflowConfig`
 - **Transition schema:** `specify_cli.workflow.transition.WORKFLOW_TRANSITIONS`
 - **Validation engine:** `specify_cli.workflow.validation_engine.TransitionValidator`

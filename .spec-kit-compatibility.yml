@@ -4,7 +4,7 @@
 jp-spec-kit:
   version: "0.0.90"
   type: "layered-extension"
-  description: "Multi-language, multi-agent extension for spec-kit with jpspec commands"
+  description: "Multi-language, multi-agent extension for spec-kit with specflow commands"
 
   # Base spec-kit compatibility
   compatible_with:
@@ -18,17 +18,17 @@ jp-spec-kit:
   # What jp-spec-kit provides as extension layer
   provides:
     commands:
-      - name: "jpspec:specify"
+      - name: "specflow:specify"
         description: "Product Requirements Manager with SVPG methodology"
-      - name: "jpspec:plan"
+      - name: "specflow:plan"
         description: "Multi-agent architecture planning (Architect + Platform Engineer)"
-      - name: "jpspec:research"
+      - name: "specflow:research"
         description: "Market research and TAM/SAM/SOM analysis"
-      - name: "jpspec:implement"
+      - name: "specflow:implement"
         description: "Multi-agent implementation (Frontend/Backend/AI/ML + Reviews)"
-      - name: "jpspec:validate"
+      - name: "specflow:validate"
         description: "QA, Security, Documentation, and Release validation"
-      - name: "jpspec:operate"
+      - name: "specflow:operate"
         description: "SRE operations (CI/CD, K8s, DevSecOps)"
     
     languages:

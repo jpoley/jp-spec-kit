@@ -113,9 +113,9 @@ backlog task create "Epic: User Signup" \
 - SRE Agent: Create subtasks for each operational area if beneficial
 - Other agents: Optional, only if breaking down complex work provides value
 
-**Naming Convention**: `jpspec-{command}-{feature-slug}-{yyyymmdd}-{descriptor}`
+**Naming Convention**: `specflow-{command}-{feature-slug}-{yyyymmdd}-{descriptor}`
 
-Example: `jpspec-specify-auth-20251128-epic-signup`
+Example: `specflow-specify-auth-20251128-epic-signup`
 
 ---
 
@@ -317,7 +317,7 @@ If backlog CLI commands fail:
 
 ### Product Requirements Manager (PM Planner)
 - **Create subtasks** from PRD task breakdown (section 6)
-- Use naming: `jpspec-specify-{feature}-{date}-epic-{name}`
+- Use naming: `specflow-specify-{feature}-{date}-epic-{name}`
 - Set priorities and dependencies for subtasks
 - Check ACs as PRD sections complete
 

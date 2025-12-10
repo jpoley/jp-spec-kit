@@ -1,0 +1,1 @@
+../../templates/commands/specflow/specify.md

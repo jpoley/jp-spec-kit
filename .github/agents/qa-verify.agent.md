@@ -28,7 +28,7 @@ handoffs:
     send: false
     priority_for_roles: ["ops"]
 ---
-# /jpspec:validate - Enhanced Phased Validation Workflow
+# /specflow:validate - Enhanced Phased Validation Workflow
 
 Execute comprehensive validation workflow with task orchestration, automated testing, agent validation, AC verification, and PR generation.
 
@@ -211,9 +211,9 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
-{{INCLUDE:.claude/commands/jpspec/_constitution-check.md}}
+{{INCLUDE:.claude/commands/specflow/_constitution-check.md}}
 
-{{INCLUDE:.claude/commands/jpspec/_workflow-state.md}}
+{{INCLUDE:.claude/commands/specflow/_workflow-state.md}}
 
 ## Execution Instructions
 
@@ -242,17 +242,17 @@ First, check if this project is in light mode:
 
 ```bash
 # Check for light mode marker
-if [ -f ".jpspec-light-mode" ]; then
+if [ -f ".specflow-light-mode" ]; then
   echo "Project is in LIGHT MODE (~60% faster workflow)"
 fi
 ```
 
 **Light Mode Behavior**:
-- `/jpspec:research` → **SKIPPED** (inform user and suggest `/jpspec:plan` instead)
-- `/jpspec:plan` → Uses `plan-light.md` template (high-level only)
-- `/jpspec:specify` → Uses `spec-light.md` template (combined stories + AC)
+- `/specflow:research` → **SKIPPED** (inform user and suggest `/specflow:plan` instead)
+- `/specflow:plan` → Uses `plan-light.md` template (high-level only)
+- `/specflow:specify` → Uses `spec-light.md` template (combined stories + AC)
 
-If in light mode and the current command is `/jpspec:research`, inform the user:
+If in light mode and the current command is `/specflow:research`, inform the user:
 ```text
 ℹ️ This project is in Light Mode
 
@@ -260,8 +260,8 @@ Light mode skips the research phase for faster iteration.
 Current state: workflow:Specified
 
 Suggestions:
-  - Run /jpspec:plan to proceed directly to planning
-  - To enable research, delete .jpspec-light-mode and use full mode
+  - Run /specflow:plan to proceed directly to planning
+  - To enable research, delete .specflow-light-mode and use full mode
   - See docs/guides/when-to-use-light-mode.md for details
 ```
 
@@ -284,20 +284,20 @@ Extract the `workflow:*` label from the task. The state must match one of the **
 
 | Command | Required Input States | Output State |
 |---------|----------------------|--------------|
-| /jpspec:assess | workflow:To Do, (no workflow label) | workflow:Assessed |
-| /jpspec:specify | workflow:Assessed | workflow:Specified |
-| /jpspec:research | workflow:Specified | workflow:Researched |
-| /jpspec:plan | workflow:Specified, workflow:Researched | workflow:Planned |
-| /jpspec:implement | workflow:Planned | workflow:In Implementation |
-| /jpspec:validate | workflow:In Implementation | workflow:Validated |
-| /jpspec:operate | workflow:Validated | workflow:Deployed |
+| /specflow:assess | workflow:To Do, (no workflow label) | workflow:Assessed |
+| /specflow:specify | workflow:Assessed | workflow:Specified |
+| /specflow:research | workflow:Specified | workflow:Researched |
+| /specflow:plan | workflow:Specified, workflow:Researched | workflow:Planned |
+| /specflow:implement | workflow:Planned | workflow:In Implementation |
+| /specflow:validate | workflow:In Implementation | workflow:Validated |
+| /specflow:operate | workflow:Validated | workflow:Deployed |
 
 ### 3. Handle Invalid State
 
 If the task's workflow state doesn't match the required input states:
 
 ```text
-⚠️ Cannot run /jpspec:<command>
+⚠️ Cannot run /specflow:<command>
 
 Current state: "<current-workflow-label>"
 Required states: <list-of-valid-input-states>
@@ -325,13 +325,13 @@ backlog task edit "$TASK_ID" -l "workflow:<output-state>"
 
 Tasks use labels with the `workflow:` prefix to track their current workflow state:
 
-- `workflow:Assessed` - SDD suitability evaluated (/jpspec:assess complete)
-- `workflow:Specified` - Requirements captured (/jpspec:specify complete)
-- `workflow:Researched` - Technical research completed (/jpspec:research complete)
-- `workflow:Planned` - Architecture planned (/jpspec:plan complete)
-- `workflow:In Implementation` - Code being written (/jpspec:implement in progress)
-- `workflow:Validated` - QA and security validated (/jpspec:validate complete)
-- `workflow:Deployed` - Released to production (/jpspec:operate complete)
+- `workflow:Assessed` - SDD suitability evaluated (/specflow:assess complete)
+- `workflow:Specified` - Requirements captured (/specflow:specify complete)
+- `workflow:Researched` - Technical research completed (/specflow:research complete)
+- `workflow:Planned` - Architecture planned (/specflow:plan complete)
+- `workflow:In Implementation` - Code being written (/specflow:implement in progress)
+- `workflow:Validated` - QA and security validated (/specflow:validate complete)
+- `workflow:Deployed` - Released to production (/specflow:operate complete)
 
 ## Programmatic State Checking
 
@@ -349,7 +349,7 @@ if not can_proceed:
 
 # Get valid commands for a state
 valid_commands = get_valid_workflows("Specified")
-# Returns: ['/jpspec:research', '/jpspec:plan']
+# Returns: ['/specflow:research', '/specflow:plan']
 ```
 
 ## Bypassing State Checks (Power Users Only)
@@ -364,10 +364,10 @@ Use `--skip-state-check` flag or explicitly acknowledge the bypass.
 **Warning**: Bypassing state checks may result in incomplete artifacts or broken workflows.
 
 
-**For /jpspec:validate**: Required input state is `workflow:In Implementation`. Output state will be `workflow:Validated`.
+**For /specflow:validate**: Required input state is `workflow:In Implementation`. Output state will be `workflow:Validated`.
 
 If the task doesn't have the required workflow state, inform the user:
-- If task needs implementation first: suggest running `/jpspec:implement`
+- If task needs implementation first: suggest running `/specflow:implement`
 - If validation is being re-run on deployed work: use `--skip-state-check` if appropriate
 
 **Proceed to Phase 0 ONLY if workflow validation passes.**
@@ -447,7 +447,7 @@ backlog task <task-id> --plain
 **Phase 0 Success**: Print task summary:
 ```
 ✅ Phase 0 Complete: Loaded task-094
-   Title: Integration - Enhanced /jpspec:validate Command
+   Title: Integration - Enhanced /specflow:validate Command
    Status: In Progress
    ACs: 0/8 complete
 ```
@@ -537,7 +537,7 @@ npm run typecheck  # or tsc --noEmit
 
 #### Backlog Instructions Template
 
-Each validator agent context below includes `{{BACKLOG_INSTRUCTIONS}}` which must be replaced with the content from `.claude/commands/jpspec/_backlog-instructions.md`. This ensures all agents have consistent backlog task management instructions.
+Each validator agent context below includes `{{BACKLOG_INSTRUCTIONS}}` which must be replaced with the content from `.claude/commands/specflow/_backlog-instructions.md`. This ensures all agents have consistent backlog task management instructions.
 
 **When executing this command, include the full content of `_backlog-instructions.md` in place of each `{{BACKLOG_INSTRUCTIONS}}` marker.**
 
@@ -933,7 +933,7 @@ Create comprehensive implementation notes based on:
 ## Implementation Summary (2025-12-01 15:30:00)
 
 ### What Was Implemented
-Enhanced the /jpspec:validate command with phased orchestration workflow.
+Enhanced the /specflow:validate command with phased orchestration workflow.
 Implemented 7 distinct phases with progress reporting and error handling.
 
 ### Testing
@@ -1027,7 +1027,7 @@ uv run ruff check --select F401,F841 .
 Failures:
 - [List failed checks]
 
-Fix all issues and re-run /jpspec:validate
+Fix all issues and re-run /specflow:validate
 ```
 
 **⚠️ DO NOT proceed to Step 1 if ANY validation check fails.**
@@ -1060,8 +1060,8 @@ Halt and wait for user to push branch.
 
 Use conventional commit format derived from task title:
 ```
-# Task title: "Integration - Enhanced /jpspec:validate Command"
-# PR title: "feat: enhanced /jpspec:validate command"
+# Task title: "Integration - Enhanced /specflow:validate Command"
+# PR title: "feat: enhanced /specflow:validate command"
 ```
 
 **PR Type Detection**:
@@ -1088,8 +1088,8 @@ Completes task: task-094
 3. [x] Each phase reports progress to user before execution
 4. [x] Phase failures halt workflow with clear error message
 5. [x] Command can be re-run after fixing issues
-6. [x] Updates .claude/commands/jpspec/validate.md
-7. [x] Updates templates/commands/jpspec/validate.md
+6. [x] Updates .claude/commands/specflow/validate.md
+7. [x] Updates templates/commands/specflow/validate.md
 8. [x] Includes comprehensive help text
 
 ## Test Plan
@@ -1115,7 +1115,7 @@ Display formatted PR preview to user:
 PR PREVIEW
 ================================================================================
 
-Title: feat: enhanced /jpspec:validate command
+Title: feat: enhanced /specflow:validate command
 
 Body:
 --------------------------------------------------------------------------------
@@ -1141,7 +1141,7 @@ Create this pull request? [y/N]:
 Next steps:
 - Review PR preview above
 - Make any needed changes
-- Re-run /jpspec:validate to try again
+- Re-run /specflow:validate to try again
 ```
 
 Exit gracefully without error.
@@ -1182,7 +1182,7 @@ After all phases complete successfully, display final summary:
 VALIDATION WORKFLOW COMPLETE
 ================================================================================
 
-Task: task-094 - Integration - Enhanced /jpspec:validate Command
+Task: task-094 - Integration - Enhanced /specflow:validate Command
 Status: Done ✅
 
 Phase Summary:
@@ -1212,7 +1212,7 @@ If any phase fails, the workflow halts with a clear error message. To recover:
 
 1. **Review the error message** - Identifies which phase failed and why
 2. **Fix the issue** - Address the root cause (failing tests, unchecked ACs, etc.)
-3. **Re-run the command** - Execute `/jpspec:validate <task-id>` again
+3. **Re-run the command** - Execute `/specflow:validate <task-id>` again
 4. **Resume from where it left off** - Workflow is idempotent and handles partial completion
 
 **Example error recovery**:
@@ -1222,7 +1222,7 @@ If any phase fails, the workflow halts with a clear error message. To recover:
 
 # Developer fixes tests
 # Re-run validate command
-/jpspec:validate task-094
+/specflow:validate task-094
 
 # Workflow detects tests now pass and continues from Phase 2
 ```
@@ -1231,7 +1231,7 @@ If any phase fails, the workflow halts with a clear error message. To recover:
 
 ## Help Text
 
-**Command**: `/jpspec:validate [task-id]`
+**Command**: `/specflow:validate [task-id]`
 
 **Purpose**: Execute comprehensive validation workflow with task orchestration, automated testing, agent validation, AC verification, and PR generation.
 
@@ -1252,10 +1252,10 @@ If any phase fails, the workflow halts with a clear error message. To recover:
 
 ```bash
 # Validate specific task
-/jpspec:validate task-094
+/specflow:validate task-094
 
 # Auto-discover in-progress task
-/jpspec:validate
+/specflow:validate
 ```
 
 **Features**:
@@ -1279,8 +1279,8 @@ If any phase fails, the workflow halts with a clear error message. To recover:
 If a phase fails, fix the issue and re-run the command. The workflow will resume from where it left off.
 
 **See Also**:
-- `/jpspec:implement` - Implementation workflow
-- `/jpspec:plan` - Planning workflow
+- `/specflow:implement` - Implementation workflow
+- `/specflow:plan` - Planning workflow
 - `backlog task` - Task management commands
 
 ## Post-Completion: Emit Workflow Event

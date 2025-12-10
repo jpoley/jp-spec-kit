@@ -27,7 +27,7 @@
 
 ## Feature Complexity Assessment
 
-Based on the jpspec assessment framework:
+Based on the specflow assessment framework:
 
 | Dimension | Score | Rationale |
 |-----------|-------|-----------|
@@ -338,7 +338,7 @@ src/specify_cli/
 │   ├── config.py               # Configuration loader
 │   ├── processors/             # Custom frame processors
 │   │   ├── __init__.py
-│   │   └── jpspec_processor.py # JP Specflow integration
+│   │   └── specflow_processor.py # JP Specflow integration
 │   ├── services/               # Service wrappers
 │   │   ├── __init__.py
 │   │   ├── stt.py
@@ -556,7 +556,7 @@ Before implementation, complete these research spikes:
 
 ## Next Steps
 
-1. **Create backlog tasks** from this document using `/jpspec:tasks`
+1. **Create backlog tasks** from this document using `/specflow:tasks`
 2. **Execute research spikes** to validate assumptions
 3. **Begin Phase 1 implementation** after spike completion
 4. **Track progress** via backlog board

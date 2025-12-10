@@ -10,7 +10,7 @@
 - Risk of feature drift (enhancements stay local, never reach users)
 - Confusion about canonical versions
 
-**Proposed Solution**: Architectural redesign where all command development occurs in `templates/commands/` and dev-setup creates symlinks (like it already does for speckit). Enhanced jpspec commands become the distributed version.
+**Proposed Solution**: Architectural redesign where all command development occurs in `templates/commands/` and dev-setup creates symlinks (like it already does for speckit). Enhanced specflow commands become the distributed version.
 
 **Investment Justification**:
 - **Reduced Maintenance**: Eliminate duplicate file management
@@ -35,7 +35,7 @@
 │  Development (jp-spec-kit)         Distribution (end users) │
 │  ┌──────────────────────┐          ┌──────────────────────┐│
 │  │ .claude/commands/    │          │ .claude/commands/    ││
-│  │   jpspec/            │          │   jpspec.*.md        ││
+│  │   specflow/            │          │   specflow.*.md        ││
 │  │   - implement.md     │          │   (flat files)       ││
 │  │     (20KB enhanced)  │          │   - implement.md     ││
 │  │   - research.md      │          │     (3KB minimal)    ││
@@ -48,15 +48,15 @@
 │           ↓                                  ↑              │
 │  templates/commands/                         │              │
 │  ┌──────────────────────┐                   │              │
-│  │ jpspec/              │ ──────────────────┘              │
+│  │ specflow/              │ ──────────────────┘              │
 │  │   (3KB minimal)      │   specify init                   │
 │  │ speckit/             │   copies these                   │
 │  │   (source for ↑)     │                                  │
 │  └──────────────────────┘                                  │
 │                                                              │
 │  PROBLEM: Three versions exist!                             │
-│  1. Enhanced (.claude/commands/jpspec/)                     │
-│  2. Minimal templates (templates/commands/jpspec/)          │
+│  1. Enhanced (.claude/commands/specflow/)                     │
+│  2. Minimal templates (templates/commands/specflow/)          │
 │  3. Distributed to users (same as #2)                       │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -71,7 +71,7 @@
 │                                                              │
 │  templates/commands/  ◄─── SINGLE SOURCE OF TRUTH           │
 │  ┌──────────────────────────────────────────────┐          │
-│  │ jpspec/                                       │          │
+│  │ specflow/                                       │          │
 │  │   - implement.md      (20KB enhanced)        │          │
 │  │   - research.md       (15KB enhanced)        │          │
 │  │   - assess.md         (12KB enhanced)        │          │
@@ -90,7 +90,7 @@
 │  │ (dev-setup)        │       │ (specify init)   │          │
 │  │                  │       │                  │          │
 │  │ .claude/commands/│       │ .claude/commands/│          │
-│  │   jpspec/        │       │   jpspec/        │          │
+│  │   specflow/        │       │   specflow/        │          │
 │  │   [SYMLINKS]─────┼───────┤   [COPIES]       │          │
 │  │   speckit/       │       │   speckit/       │          │
 │  │   [SYMLINKS]     │       │   [COPIES]       │          │
@@ -122,7 +122,7 @@
 ```
 jp-spec-kit/
 ├── templates/commands/              ◄─── SINGLE SOURCE OF TRUTH
-│   ├── jpspec/
+│   ├── specflow/
 │   │   ├── implement.md             (20KB - enhanced with backlog)
 │   │   ├── research.md              (15KB - enhanced)
 │   │   ├── validate.md              (16KB - enhanced)
@@ -144,10 +144,10 @@ jp-spec-kit/
 │       └── tasks.md
 │
 ├── .claude/commands/                ◄─── SYMLINKS ONLY (in source repo)
-│   ├── jpspec/
-│   │   ├── implement.md → ../../../templates/commands/jpspec/implement.md
-│   │   ├── research.md → ../../../templates/commands/jpspec/research.md
-│   │   └── ... (all jpspec files as symlinks)
+│   ├── specflow/
+│   │   ├── implement.md → ../../../templates/commands/specflow/implement.md
+│   │   ├── research.md → ../../../templates/commands/specflow/research.md
+│   │   └── ... (all specflow files as symlinks)
 │   │
 │   └── speckit/
 │       ├── implement.md → ../../../templates/commands/speckit/implement.md
@@ -155,7 +155,7 @@ jp-spec-kit/
 │
 └── [END USER PROJECTS]              ◄─── COPIES (via specify init)
     └── .claude/commands/
-        ├── jpspec/
+        ├── specflow/
         │   ├── implement.md         (copied from templates)
         │   └── ...
         └── speckit/
@@ -173,13 +173,13 @@ jp-spec-kit/
 │  1. DEVELOPMENT PHASE                                       │
 │     ┌─────────────────────────────────────┐               │
 │     │ Developer enhances command          │               │
-│     │ in templates/commands/jpspec/       │               │
+│     │ in templates/commands/specflow/       │               │
 │     └───────────────┬─────────────────────┘               │
 │                     │                                       │
 │                     ↓                                       │
 │     ┌─────────────────────────────────────┐               │
 │     │ specify dev-setup creates symlink     │               │
-│     │ .claude/commands/jpspec/implement.md│               │
+│     │ .claude/commands/specflow/implement.md│               │
 │     │    → templates/commands/...         │               │
 │     └───────────────┬─────────────────────┘               │
 │                     │                                       │
@@ -232,7 +232,7 @@ jp-spec-kit/
 │  ┌───────────────────────────────────────────────────────┐  │
 │  │ Template Repository (templates/commands/)             │  │
 │  │ - Canonical source for all command files             │  │
-│  │ - Enhanced jpspec commands with backlog integration  │  │
+│  │ - Enhanced specflow commands with backlog integration  │  │
 │  │ - Speckit commands                                    │  │
 │  │ - Shared partials (_backlog-instructions.md)         │  │
 │  └───┬───────────────────────────┬───────────────────────┘  │
@@ -244,7 +244,7 @@ jp-spec-kit/
 │  │ (specify dev-setup)   │    │ (specify init)      │        │
 │  │                     │    │                     │        │
 │  │ Creates:            │    │ Creates:            │        │
-│  │ - jpspec symlinks   │    │ - jpspec copies     │        │
+│  │ - specflow symlinks   │    │ - specflow copies     │        │
 │  │ - speckit symlinks  │    │ - speckit copies    │        │
 │  └─────────┬───────────┘    └─────────┬───────────┘        │
 │            │                          │                     │
@@ -283,9 +283,9 @@ jp-spec-kit/
 
 **Context**:
 
-We have three versions of jpspec commands:
-1. Enhanced versions in `.claude/commands/jpspec/` (20KB files with backlog integration)
-2. Minimal versions in `templates/commands/jpspec/` (3KB files, basic stubs)
+We have three versions of specflow commands:
+1. Enhanced versions in `.claude/commands/specflow/` (20KB files with backlog integration)
+2. Minimal versions in `templates/commands/specflow/` (3KB files, basic stubs)
 3. Distributed versions (same as #2, installed by `specify init`)
 
 This creates:
@@ -298,10 +298,10 @@ This creates:
 
 Establish `templates/commands/` as the **single source of truth**:
 
-1. **Move enhanced jpspec commands** from `.claude/commands/jpspec/` to `templates/commands/jpspec/`
-2. **Update dev-setup command** to create jpspec symlinks (currently only does speckit)
+1. **Move enhanced specflow commands** from `.claude/commands/specflow/` to `templates/commands/specflow/`
+2. **Update dev-setup command** to create specflow symlinks (currently only does speckit)
 3. **Keep init command unchanged** - it already copies from templates
-4. **Delete original .claude/commands/jpspec/ files** - replace with symlinks
+4. **Delete original .claude/commands/specflow/ files** - replace with symlinks
 
 **Consequences**:
 
@@ -331,22 +331,22 @@ Establish `templates/commands/` as the **single source of truth**:
 **Context**:
 
 We have two different naming conventions:
-- **Subdirectory structure**: `.claude/commands/jpspec/implement.md` (current dev-setup output)
-- **Flat structure with dots**: `.claude/commands/jpspec.implement.md` (current init output)
+- **Subdirectory structure**: `.claude/commands/specflow/implement.md` (current dev-setup output)
+- **Flat structure with dots**: `.claude/commands/specflow.implement.md` (current init output)
 
 Claude Code supports both, but they invoke differently:
-- Subdirectory: `/jpspec/implement` or `/jpspec:implement`
-- Flat: `/jpspec.implement` or `/jpspec:implement`
+- Subdirectory: `/specflow/implement` or `/specflow:implement`
+- Flat: `/specflow.implement` or `/specflow:implement`
 
 **Options Considered**:
 
-**Option A: Subdirectory structure** (`jpspec/implement.md`)
+**Option A: Subdirectory structure** (`specflow/implement.md`)
 - ✅ Cleaner organization with many commands
 - ✅ Easier to find related commands
 - ✅ Supports shared partials (e.g., `_backlog-instructions.md`)
 - ❌ Different from current init behavior (breaking change)
 
-**Option B: Flat structure with dots** (`jpspec.implement.md`)
+**Option B: Flat structure with dots** (`specflow.implement.md`)
 - ✅ Matches current init behavior (no breaking change)
 - ✅ Simpler file listing
 - ❌ Harder to organize shared content
@@ -391,7 +391,7 @@ Rationale:
 
 **Context**:
 
-The `_backlog-instructions.md` file contains common task management instructions that are referenced by multiple jpspec commands. Currently it exists in `.claude/commands/jpspec/` but not in templates.
+The `_backlog-instructions.md` file contains common task management instructions that are referenced by multiple specflow commands. Currently it exists in `.claude/commands/specflow/` but not in templates.
 
 **Options Considered**:
 
@@ -431,7 +431,7 @@ Rationale:
 - Flexible: Can inline later if needed
 
 Implementation:
-- Place `_backlog-instructions.md` in `templates/commands/jpspec/`
+- Place `_backlog-instructions.md` in `templates/commands/specflow/`
 - Add reference in each command: "See `_backlog-instructions.md` for task management workflow"
 - dev-setup creates symlink for it
 - Init copies it
@@ -463,7 +463,7 @@ Implementation:
 **Structure**:
 ```
 templates/commands/
-├── jpspec/                          # jpspec agent commands
+├── specflow/                          # specflow agent commands
 │   ├── implement.md                 # Enhanced 20KB version
 │   ├── research.md                  # Enhanced 15KB version
 │   ├── validate.md                  # Enhanced 16KB version
@@ -492,7 +492,7 @@ templates/commands/
 
 **Content Requirements**:
 - All files must have frontmatter with `description`
-- jpspec commands must reference backlog task management
+- specflow commands must reference backlog task management
 - Enhanced content preferred over minimal stubs
 - Commands must be self-documenting
 
@@ -525,8 +525,8 @@ def dev-setup(force: bool = False):
     if not (project_path / ".jp-spec-kit-source").exists():
         error("This command is only for jp-spec-kit source repo")
 
-    # 2. Create symlinks for BOTH speckit and jpspec
-    for namespace in ["speckit", "jpspec"]:
+    # 2. Create symlinks for BOTH speckit and specflow
+    for namespace in ["speckit", "specflow"]:
         commands_dir = project_path / ".claude" / "commands" / namespace
         commands_dir.mkdir(parents=True, exist_ok=True)
 
@@ -553,8 +553,8 @@ def dev-setup(force: bool = False):
 ```
 
 **Key Changes**:
-1. Loop over both `speckit` and `jpspec` namespaces
-2. Use subdirectory structure (`jpspec/implement.md`)
+1. Loop over both `speckit` and `specflow` namespaces
+2. Use subdirectory structure (`specflow/implement.md`)
 3. Create symlinks for ALL markdown files (including `_backlog-instructions.md`)
 4. Validate symlink targets exist and resolve correctly
 
@@ -577,11 +577,11 @@ def dev-setup(force: bool = False):
 - Downloads release ZIP from GitHub
 - Extracts to temp directory
 - Copies files to target project
-- Currently uses **flat structure** (`jpspec.implement.md`)
+- Currently uses **flat structure** (`specflow.implement.md`)
 
 **Target State Changes**:
 - Keep core logic unchanged (download + extract + copy)
-- Change output structure to **subdirectory** (`jpspec/implement.md`)
+- Change output structure to **subdirectory** (`specflow/implement.md`)
 - Ensure all files from templates are copied (including partials)
 
 **Key Changes**:
@@ -595,9 +595,9 @@ def copy_commands(source_dir: Path, target_dir: Path):
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(cmd_file, target)
 
-    # Copy jpspec commands (including partials)
-    for cmd_file in (source_dir / "jpspec").glob("*.md"):
-        target = target_dir / "jpspec" / cmd_file.name
+    # Copy specflow commands (including partials)
+    for cmd_file in (source_dir / "specflow").glob("*.md"):
+        target = target_dir / "specflow" / cmd_file.name
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(cmd_file, target)
 ```
@@ -614,12 +614,12 @@ def copy_commands(source_dir: Path, target_dir: Path):
 
 COMMANDS_DIR=".claude/commands"
 
-# Migrate jpspec commands
-for file in "$COMMANDS_DIR"/jpspec.*.md; do
+# Migrate specflow commands
+for file in "$COMMANDS_DIR"/specflow.*.md; do
     [ -e "$file" ] || continue
-    name="${file##*/jpspec.}"
-    mkdir -p "$COMMANDS_DIR/jpspec"
-    mv "$file" "$COMMANDS_DIR/jpspec/$name"
+    name="${file##*/specflow.}"
+    mkdir -p "$COMMANDS_DIR/specflow"
+    mv "$file" "$COMMANDS_DIR/specflow/$name"
 done
 
 # Migrate speckit commands
@@ -642,7 +642,7 @@ echo "Migration complete. Commands now in subdirectories."
 **Validation Checks**:
 
 1. **Template Completeness**
-   - All jpspec commands exist in `templates/commands/jpspec/`
+   - All specflow commands exist in `templates/commands/specflow/`
    - All speckit commands exist in `templates/commands/speckit/`
    - No orphaned files in `.claude/commands/`
 
@@ -665,10 +665,10 @@ echo "Migration complete. Commands now in subdirectories."
 
 ```python
 # tests/test_dev-setup_init_equivalence.py
-def test_dev-setup_creates_jpspec_symlinks():
-    """Verify dev-setup creates symlinks for jpspec commands."""
+def test_dev-setup_creates_specflow_symlinks():
+    """Verify dev-setup creates symlinks for specflow commands."""
     # Run dev-setup in temp dir with test templates
-    # Assert all jpspec/*.md files have symlinks created
+    # Assert all specflow/*.md files have symlinks created
     # Assert symlinks point to correct template files
 
 def test_init_copies_same_files_as_dev-setup_links():
@@ -707,7 +707,7 @@ jobs:
 
       - name: Check dev-setup symlinks
         run: |
-          python -m pytest tests/test_dev-setup_init_equivalence.py::test_dev-setup_creates_jpspec_symlinks
+          python -m pytest tests/test_dev-setup_init_equivalence.py::test_dev-setup_creates_specflow_symlinks
 
       - name: Check init equivalence
         run: |
@@ -747,25 +747,25 @@ jobs:
 
 1. **Create new directory structure in templates** (1 hour)
    ```bash
-   mkdir -p templates/commands/jpspec
+   mkdir -p templates/commands/specflow
    mkdir -p templates/commands/speckit
    ```
 
-2. **Move enhanced jpspec commands to templates** (2 hours)
+2. **Move enhanced specflow commands to templates** (2 hours)
    ```bash
-   # Copy enhanced versions from .claude/commands/jpspec/ to templates/commands/jpspec/
-   cp .claude/commands/jpspec/implement.md templates/commands/jpspec/
-   cp .claude/commands/jpspec/research.md templates/commands/jpspec/
-   cp .claude/commands/jpspec/validate.md templates/commands/jpspec/
-   cp .claude/commands/jpspec/plan.md templates/commands/jpspec/
-   cp .claude/commands/jpspec/specify.md templates/commands/jpspec/
-   cp .claude/commands/jpspec/operate.md templates/commands/jpspec/
-   cp .claude/commands/jpspec/assess.md templates/commands/jpspec/
-   cp .claude/commands/jpspec/prune-branch.md templates/commands/jpspec/
-   cp .claude/commands/jpspec/_backlog-instructions.md templates/commands/jpspec/
+   # Copy enhanced versions from .claude/commands/specflow/ to templates/commands/specflow/
+   cp .claude/commands/specflow/implement.md templates/commands/specflow/
+   cp .claude/commands/specflow/research.md templates/commands/specflow/
+   cp .claude/commands/specflow/validate.md templates/commands/specflow/
+   cp .claude/commands/specflow/plan.md templates/commands/specflow/
+   cp .claude/commands/specflow/specify.md templates/commands/specflow/
+   cp .claude/commands/specflow/operate.md templates/commands/specflow/
+   cp .claude/commands/specflow/assess.md templates/commands/specflow/
+   cp .claude/commands/specflow/prune-branch.md templates/commands/specflow/
+   cp .claude/commands/specflow/_backlog-instructions.md templates/commands/specflow/
 
    # Verify content
-   wc -c templates/commands/jpspec/*.md
+   wc -c templates/commands/specflow/*.md
    ```
 
 3. **Move existing speckit templates to subdirectory** (1 hour)
@@ -789,11 +789,11 @@ jobs:
 
 5. **Commit template migration** (15 min)
    ```bash
-   git add templates/commands/jpspec/
+   git add templates/commands/specflow/
    git add templates/commands/speckit/
    git commit -s -m "refactor: migrate commands to subdirectory structure
 
-   Move enhanced jpspec commands from .claude/commands/ to templates/commands/
+   Move enhanced specflow commands from .claude/commands/ to templates/commands/
    to establish single source of truth. Reorganize speckit commands into
    subdirectory for consistency.
 
@@ -801,7 +801,7 @@ jobs:
    ```
 
 **Success Criteria**:
-- All enhanced jpspec commands in `templates/commands/jpspec/`
+- All enhanced specflow commands in `templates/commands/specflow/`
 - All speckit commands in `templates/commands/speckit/`
 - Original flat structure removed
 - Documentation updated
@@ -820,7 +820,7 @@ jobs:
 
 1. **Update dev-setup implementation** (3 hours)
    - Modify `src/specify_cli/__init__.py` dev-setup function
-   - Add jpspec symlink creation logic
+   - Add specflow symlink creation logic
    - Handle subdirectory structure
    - Update help text
 
@@ -832,17 +832,17 @@ jobs:
    specify dev-setup
 
    # Verify
-   ls -la .claude/commands/jpspec/
+   ls -la .claude/commands/specflow/
    ls -la .claude/commands/speckit/
-   file .claude/commands/jpspec/implement.md  # should show symlink
-   cat .claude/commands/jpspec/implement.md   # should show enhanced content
+   file .claude/commands/specflow/implement.md  # should show symlink
+   cat .claude/commands/specflow/implement.md   # should show enhanced content
    ```
 
 3. **Write unit tests** (2 hours)
    ```python
    # tests/test_dev-setup.py
-   def test_dev-setup_creates_jpspec_symlinks():
-       # Test jpspec symlinks created
+   def test_dev-setup_creates_specflow_symlinks():
+       # Test specflow symlinks created
 
    def test_dev-setup_creates_speckit_symlinks():
        # Test speckit symlinks created
@@ -860,9 +860,9 @@ jobs:
    ```bash
    git add src/specify_cli/__init__.py
    git add tests/test_dev-setup.py
-   git commit -s -m "feat: dev-setup creates symlinks for jpspec commands
+   git commit -s -m "feat: dev-setup creates symlinks for specflow commands
 
-   Extend dev-setup command to create symlinks for both speckit and jpspec
+   Extend dev-setup command to create symlinks for both speckit and specflow
    commands. This ensures developers use the same enhanced commands that
    will be distributed to users.
 
@@ -870,7 +870,7 @@ jobs:
    ```
 
 **Success Criteria**:
-- dev-setup creates jpspec symlinks
+- dev-setup creates specflow symlinks
 - dev-setup creates speckit symlinks
 - All symlinks resolve correctly
 - Tests pass
@@ -888,9 +888,9 @@ jobs:
 
 **Tasks**:
 
-1. **Delete original .claude/commands/jpspec files** (5 min)
+1. **Delete original .claude/commands/specflow files** (5 min)
    ```bash
-   rm -rf .claude/commands/jpspec/*.md
+   rm -rf .claude/commands/specflow/*.md
    ```
 
 2. **Run dev-setup to create symlinks** (5 min)
@@ -900,7 +900,7 @@ jobs:
 
 3. **Verify symlinks** (10 min)
    ```bash
-   ls -la .claude/commands/jpspec/
+   ls -la .claude/commands/specflow/
    ls -la .claude/commands/speckit/
 
    # Check all are symlinks
@@ -908,12 +908,12 @@ jobs:
    find .claude/commands -type l -name "*.md"  # should show all commands
 
    # Verify content
-   cat .claude/commands/jpspec/implement.md
+   cat .claude/commands/specflow/implement.md
    ```
 
 4. **Test Claude Code integration** (10 min)
    - Restart Claude Code
-   - Verify `/jpspec:implement` command works
+   - Verify `/specflow:implement` command works
    - Verify `/speckit:implement` command works
    - Check command descriptions appear
 
@@ -957,12 +957,12 @@ jobs:
    cd /tmp
    specify init test-project --ai claude
    cd test-project
-   ls -la .claude/commands/jpspec/
+   ls -la .claude/commands/specflow/
    ls -la .claude/commands/speckit/
 
    # Verify structure
-   file .claude/commands/jpspec/implement.md  # should be regular file
-   wc -c .claude/commands/jpspec/implement.md  # should be ~20KB
+   file .claude/commands/specflow/implement.md  # should be regular file
+   wc -c .claude/commands/specflow/implement.md  # should be ~20KB
    ```
 
 3. **Write equivalence tests** (2 hours)
@@ -993,7 +993,7 @@ jobs:
    git commit -s -m "feat!: init uses subdirectory structure for commands
 
    BREAKING CHANGE: Command file structure changed from flat
-   (jpspec.implement.md) to subdirectory (jpspec/implement.md).
+   (specflow.implement.md) to subdirectory (specflow/implement.md).
    Command invocation unchanged.
 
    Migration script provided in scripts/bash/migrate-commands-to-subdirs.sh
@@ -1148,7 +1148,7 @@ The following architectural principles should be added to `/speckit.constitution
 **Rationale**: Eliminates content divergence, reduces maintenance burden, ensures consistent user experience.
 
 **Guidelines**:
-- ✅ DO edit files in `templates/commands/jpspec/` and `templates/commands/speckit/`
+- ✅ DO edit files in `templates/commands/specflow/` and `templates/commands/speckit/`
 - ✅ DO run `specify dev-setup` after changing templates (to refresh symlinks)
 - ❌ DON'T edit files in `.claude/commands/` directly (they are symlinks)
 - ❌ DON'T create command files outside `templates/commands/`
@@ -1162,14 +1162,14 @@ The following architectural principles should be added to `/speckit.constitution
 
 ### Principle: Subdirectory Organization for Commands
 
-**Statement**: Commands are organized in subdirectories by namespace (`jpspec/`, `speckit/`), not as flat files with dot notation.
+**Statement**: Commands are organized in subdirectories by namespace (`specflow/`, `speckit/`), not as flat files with dot notation.
 
 **Rationale**: Better organization for growing command library, supports shared partials, clearer structure.
 
 **Guidelines**:
-- ✅ DO use `jpspec/implement.md` structure
+- ✅ DO use `specflow/implement.md` structure
 - ✅ DO prefix shared partials with underscore (`_backlog-instructions.md`)
-- ❌ DON'T use flat structure (`jpspec.implement.md`)
+- ❌ DON'T use flat structure (`specflow.implement.md`)
 - ❌ DON'T create top-level command files
 
 **Migration**: Use `scripts/bash/migrate-commands-to-subdirs.sh` to update existing projects.
@@ -1184,7 +1184,7 @@ The following architectural principles should be added to `/speckit.constitution
 
 **Guidelines**:
 - ✅ DO include comprehensive instructions in commands
-- ✅ DO integrate backlog task management in jpspec commands
+- ✅ DO integrate backlog task management in specflow commands
 - ✅ DO provide examples and context
 - ❌ DON'T create minimal stubs just to "have something"
 - ❌ DON'T defer enhancements "for later" (do it now)

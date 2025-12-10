@@ -23,7 +23,7 @@ This design enables **role-based customization** of VS Code Copilot agents in Sp
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  /jpspec:init or /jpspec:reset                               │
+│  /specflow:init or /specflow:reset                               │
 │  └─> User selects role: PM | Dev | Sec | QA | All           │
 └─────────────────────────────────────────────────────────────┘
                           ↓
@@ -52,27 +52,27 @@ This design enables **role-based customization** of VS Code Copilot agents in Sp
 
 ### Product Manager (PM)
 **Focus**: Requirements, research, business validation
-**Commands**: `/jpspec:assess`, `/jpspec:specify`, `/jpspec:research`
+**Commands**: `/specflow:assess`, `/specflow:specify`, `/specflow:research`
 **Handoffs**: PM → Developer (PRD complete → technical design)
 
 ### Developer (Dev)
 **Focus**: Architecture, implementation, deployment
-**Commands**: `/jpspec:plan`, `/jpspec:implement`, `/jpspec:operate`
+**Commands**: `/specflow:plan`, `/specflow:implement`, `/specflow:operate`
 **Handoffs**: Dev → QA (code complete → validation)
 
 ### Security Engineer (Sec)
 **Focus**: Security scanning, triage, vulnerability fixes
-**Commands**: `/jpspec:security_*`, `/jpspec:validate` (security aspects)
+**Commands**: `/specflow:security_*`, `/specflow:validate` (security aspects)
 **Handoffs**: Sec → Dev (security issues → fixes)
 
 ### QA Engineer (QA)
 **Focus**: Testing, documentation, quality validation
-**Commands**: `/jpspec:validate`, `/speckit:checklist`
+**Commands**: `/specflow:validate`, `/speckit:checklist`
 **Handoffs**: QA → SRE (validation passed → deployment)
 
 ### Full Workflow (All)
 **Focus**: Complete SDD workflow (all phases)
-**Commands**: All `/jpspec` and `/speckit` commands
+**Commands**: All `/specflow` and `/speckit` commands
 **Handoffs**: Linear progression through all phases
 
 ## Configuration Example
@@ -87,12 +87,12 @@ vscode_roles:
     pm:
       name: "Product Manager"
       workflows: ["assess", "specify", "research"]
-      agents: ["jpspec-assess", "jpspec-specify", "jpspec-research"]
+      agents: ["specflow-assess", "specflow-specify", "specflow-research"]
 
     dev:
       name: "Developer"
       workflows: ["plan", "implement", "operate"]
-      agents: ["jpspec-plan", "jpspec-implement", "jpspec-operate"]
+      agents: ["specflow-plan", "specflow-implement", "specflow-operate"]
 
     # ... sec, qa, all roles
 ```
@@ -101,7 +101,7 @@ vscode_roles:
 
 ```json
 {
-  "jpspec.vscode.role": {
+  "specflow.vscode.role": {
     "primary": "dev",
     "secondary": ["qa", "sec"],
     "visibility": "de-prioritize",
@@ -109,9 +109,9 @@ vscode_roles:
   },
 
   "chat.agent.pinnedAgents": [
-    "jpspec-plan",
-    "jpspec-implement",
-    "jpspec-operate"
+    "specflow-plan",
+    "specflow-implement",
+    "specflow-operate"
   ]
 }
 ```
@@ -152,7 +152,7 @@ Mode [1]: 2
 - No workflow guidance
 
 **After** (Developer role):
-- 3 pinned agents at top: `jpspec-plan`, `jpspec-implement`, `jpspec-operate`
+- 3 pinned agents at top: `specflow-plan`, `specflow-implement`, `specflow-operate`
 - Role-specific handoffs: "✓ Planning Complete → Begin Implementation"
 - Other agents de-prioritized but accessible
 
@@ -161,12 +161,12 @@ Mode [1]: 2
 **Scenario**: Developer completes implementation, hands off to QA
 
 ```
-/jpspec:implement
+/specflow:implement
 # → Completes implementation
 
 # VS Code shows handoff button:
 "🔀 Hand off to QA → Run Validation"
-# → Clicking opens jpspec-validate with context
+# → Clicking opens specflow-validate with context
 ```
 
 ## Implementation Phases

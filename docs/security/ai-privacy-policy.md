@@ -1,6 +1,6 @@
 # Security Scanning Privacy Policy
 
-This document describes how `/jpspec:security` handles your code and data, particularly when using AI-powered features.
+This document describes how `/specflow:security` handles your code and data, particularly when using AI-powered features.
 
 ## Data Collection Overview
 
@@ -268,5 +268,5 @@ This privacy policy may be updated. Check for the latest version:
 ## Related Documentation
 
 - [Threat Model](./security-threat-model.md) - Security boundaries
-- [Command Reference](./jpspec-security-commands.md) - CLI options
+- [Command Reference](./specflow-security-commands.md) - CLI options
 - [Configuration](./security-configuration.md) - Privacy settings

@@ -10,15 +10,15 @@
 
 **Problem Analyzed**:
 - Two distinct workflows need synchronization:
-  - Agent Loop Workflow (`/jpspec` commands)
+  - Agent Loop Workflow (`/specflow` commands)
   - Task State Workflow (backlog.md)
 - Users need customizable workflows without code changes
 - State transitions must be validated
 
 **Solution Designed**:
 - Configuration-driven approach using declarative YAML
-- Single source of truth: `jpspec_workflow.yml`
-- State-based validation enforced by /jpspec commands
+- Single source of truth: `specflow_workflow.yml`
+- State-based validation enforced by /specflow commands
 - User-customizable without code modifications
 - Comprehensive validation at schema and semantic levels
 
@@ -53,9 +53,9 @@
   - Validates structure, types, references
   - Provides validation examples
 
-- **task-118**: Default jpspec_workflow.yml configuration
+- **task-118**: Default specflow_workflow.yml configuration
   - 8 detailed acceptance criteria
-  - All 6 /jpspec phases (specify, research, plan, implement, validate, operate)
+  - All 6 /specflow phases (specify, research, plan, implement, validate, operate)
   - Valid state DAG with no cycles
   - Complete agent assignments
 
@@ -81,7 +81,7 @@
   - State creation instructions
   - Transition rules documentation
 
-- **task-122**: Update /jpspec commands
+- **task-122**: Update /specflow commands
   - 8 detailed acceptance criteria
   - State constraint enforcement
   - Error messages with suggestions
@@ -115,7 +115,7 @@
   - Query method tests
   - >90% coverage target
 
-- **task-127**: Integration tests for /jpspec
+- **task-127**: Integration tests for /specflow
   - 10 detailed acceptance criteria
   - All 6 state transitions tested
   - Invalid transition error handling
@@ -126,7 +126,7 @@
 - **task-128**: Update CLAUDE.md
   - 8 detailed acceptance criteria
   - Workflow configuration section
-  - /jpspec workflow reference table
+  - /specflow workflow reference table
   - Links to guides
 
 - **task-129**: Troubleshooting guide
@@ -153,12 +153,12 @@
 - Alternative rejected: Hardcoded Python logic (not customizable)
 
 **Decision 2: Single Source of Truth**
-- ✅ jpspec_workflow.yml in project root
+- ✅ specflow_workflow.yml in project root
 - Why: Visible, easy to find, version controlled
 - Alternative rejected: Multiple config files (harder to maintain)
 
 **Decision 3: State-Based Transitions**
-- ✅ Task state determines valid /jpspec commands
+- ✅ Task state determines valid /specflow commands
 - Why: Prevents out-of-order execution, clear progression
 - Alternative rejected: Time-based or event-based (less predictable)
 
@@ -189,7 +189,7 @@ Each example is complete, validated, and includes explanation.
 
 ```
 ┌─────────────────────────────────────────────────┐
-│         jpspec_workflow.yml (config)            │
+│         specflow_workflow.yml (config)            │
 │                                                 │
 │  - states: [To Do, Specified, Researched, ...]│
 │  - workflows: [specify, research, plan, ...]  │
@@ -216,10 +216,10 @@ Each example is complete, validated, and includes explanation.
 
 ```
 jp-spec-kit/
-├── jpspec_workflow.yml                    ← To be created (task-118)
+├── specflow_workflow.yml                    ← To be created (task-118)
 ├── memory/
 │   ├── WORKFLOW_DESIGN_SPEC.md           ✅ Created
-│   └── jpspec_workflow.schema.json       ← To be created (task-117)
+│   └── specflow_workflow.schema.json       ← To be created (task-117)
 ├── src/specify_cli/
 │   └── workflow/                         ← To be created (tasks 90-91)
 │       ├── __init__.py
@@ -238,7 +238,7 @@ jp-spec-kit/
 │       └── custom-agents-workflow.yml
 └── tests/
     ├── test_workflow_config.py           ← To be created (task-126)
-    └── test_jpspec_workflow_integration.py ← To be created (task-127)
+    └── test_specflow_workflow_integration.py ← To be created (task-127)
 ```
 
 ## Ready for Implementation
@@ -263,7 +263,7 @@ Each phase depends on previous phases but tasks within a phase can be parallel.
 
 ## Key Success Metrics
 
-- ✅ All /jpspec commands enforce state constraints
+- ✅ All /specflow commands enforce state constraints
 - ✅ Workflow states prevent out-of-order execution
 - ✅ Users can customize workflows via config edits
 - ✅ Configuration validated against schema

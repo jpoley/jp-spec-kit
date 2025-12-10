@@ -29,7 +29,7 @@ Create the new command directory structure with role-based namespaces. DEPENDS O
 - [ ] #6 Create QA commands: test.md, verify.md, review.md
 - [ ] #7 Create Ops commands: deploy.md, monitor.md, respond.md, scale.md
 - [ ] #8 Update speckit commands: init.md, configure.md (renamed from reset)
-- [ ] #9 Create backwards-compatible aliases in jpspec/ namespace
+- [ ] #9 Create backwards-compatible aliases in specflow/ namespace
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -38,13 +38,13 @@ Create the new command directory structure with role-based namespaces. DEPENDS O
 DEPENDS ON: task-364, task-361
 
 1. Create namespace directories under .claude/commands/
-2. Create PM commands (assess, define, discover) - migrate from jpspec:assess, jpspec:specify, jpspec:research
-3. Create Arch commands (design, decide, model) - migrate from jpspec:plan
-4. Create Dev commands (build, debug, refactor, cleanup) - migrate from jpspec:implement
-5. Create Sec commands (scan, triage, fix, audit, report) - migrate from jpspec:security_*
-6. Create QA commands (test, verify, review) - migrate from jpspec:validate
-7. Create Ops commands (deploy, monitor, respond, scale) - migrate from jpspec:operate
+2. Create PM commands (assess, define, discover) - migrate from specflow:assess, specflow:specify, specflow:research
+3. Create Arch commands (design, decide, model) - migrate from specflow:plan
+4. Create Dev commands (build, debug, refactor, cleanup) - migrate from specflow:implement
+5. Create Sec commands (scan, triage, fix, audit, report) - migrate from specflow:security_*
+6. Create QA commands (test, verify, review) - migrate from specflow:validate
+7. Create Ops commands (deploy, monitor, respond, scale) - migrate from specflow:operate
 8. Update speckit/ with init.md, configure.md
-9. Create alias files in jpspec/ that redirect to new commands
+9. Create alias files in specflow/ that redirect to new commands
 10. Update templates/commands/ with same structure
 <!-- SECTION:PLAN:END -->

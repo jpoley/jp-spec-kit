@@ -10,7 +10,7 @@
 
 ## Executive Summary
 
-This design enables users to select their primary role during `/jpspec:init` or `/jpspec:reset`, which customizes VS Code Copilot agent visibility, handoffs, and chat interface prominence based on their role in the development team.
+This design enables users to select their primary role during `/specflow:init` or `/specflow:reset`, which customizes VS Code Copilot agent visibility, handoffs, and chat interface prominence based on their role in the development team.
 
 **Business Impact**:
 - **Reduced cognitive load**: Users see only role-relevant commands
@@ -42,7 +42,7 @@ Specflow defines five primary roles based on workflow phases:
 
 ### 1.2 Interactive Role Selection (init.md)
 
-Add to `/jpspec:init` after Step 6 (Generate Constitution):
+Add to `/specflow:init` after Step 6 (Generate Constitution):
 
 ```markdown
 ### Step 6.5: VS Code Role Configuration (Optional)
@@ -58,23 +58,23 @@ Select your primary role to customize VS Code chat handoffs:
 
   1. Product Manager (PM)
      Focus: Requirements, research, business validation
-     Commands: /jpspec:assess, /jpspec:specify, /jpspec:research
+     Commands: /specflow:assess, /specflow:specify, /specflow:research
 
   2. Developer (Dev)
      Focus: Architecture, implementation, deployment
-     Commands: /jpspec:plan, /jpspec:implement, /jpspec:operate
+     Commands: /specflow:plan, /specflow:implement, /specflow:operate
 
   3. Security Engineer (Sec)
      Focus: Security scanning, triage, vulnerability fixes
-     Commands: /jpspec:security_*, /jpspec:validate (security only)
+     Commands: /specflow:security_*, /specflow:validate (security only)
 
   4. QA Engineer (QA)
      Focus: Testing, documentation, quality validation
-     Commands: /jpspec:validate
+     Commands: /specflow:validate
 
   5. Full Workflow (All) [default]
      Focus: Complete SDD workflow (all phases)
-     Commands: All /jpspec and /speckit commands
+     Commands: All /specflow and /speckit commands
 
   6. Skip - Don't configure role-based UI
      (All agents remain equally visible)
@@ -107,7 +107,7 @@ Mode [1]: 2
 
 ### 1.3 Reset Command Integration (reset.md)
 
-Add to `/jpspec:reset` after Step 3 (Prompt for Validation Modes):
+Add to `/specflow:reset` after Step 3 (Prompt for Validation Modes):
 
 ```markdown
 ### Step 3.5: VS Code Role Reconfiguration (Optional)
@@ -197,9 +197,9 @@ vscode_roles:
         - "specify"
         - "research"
       agents:
-        - "jpspec-assess"
-        - "jpspec-specify"
-        - "jpspec-research"
+        - "specflow-assess"
+        - "specflow-specify"
+        - "specflow-research"
 
     dev:
       name: "Developer"
@@ -209,9 +209,9 @@ vscode_roles:
         - "implement"
         - "operate"
       agents:
-        - "jpspec-plan"
-        - "jpspec-implement"
-        - "jpspec-operate"
+        - "specflow-plan"
+        - "specflow-implement"
+        - "specflow-operate"
 
     sec:
       name: "Security Engineer"
@@ -222,11 +222,11 @@ vscode_roles:
         - "security_fix"
         - "validate"  # Only security aspects
       agents:
-        - "jpspec-security_workflow"
-        - "jpspec-security_triage"
-        - "jpspec-security_fix"
-        - "jpspec-security_report"
-        - "jpspec-security_web"
+        - "specflow-security_workflow"
+        - "specflow-security_triage"
+        - "specflow-security_fix"
+        - "specflow-security_report"
+        - "specflow-security_web"
 
     qa:
       name: "QA Engineer"
@@ -234,7 +234,7 @@ vscode_roles:
       workflows:
         - "validate"
       agents:
-        - "jpspec-validate"
+        - "specflow-validate"
         - "speckit-checklist"
 
     all:
@@ -257,7 +257,7 @@ vscode_roles:
   "chat.promptFiles": true,
 
   // Specflow Role Configuration (overrides specflow_workflow.yml)
-  "jpspec.vscode.role": {
+  "specflow.vscode.role": {
     "primary": "dev",
     "secondary": ["qa", "sec"],
     "visibility": "de-prioritize",  // "hide" | "de-prioritize" | "show-all"
@@ -266,16 +266,16 @@ vscode_roles:
 
   // VS Code Copilot Agent Pinning (native VS Code feature)
   "chat.agent.pinnedAgents": [
-    "jpspec-plan",
-    "jpspec-implement",
-    "jpspec-validate"
+    "specflow-plan",
+    "specflow-implement",
+    "specflow-validate"
   ]
 }
 ```
 
 ### 2.3 Configuration Resolution Order
 
-1. Read `.vscode/settings.json` → Extract `jpspec.vscode.role.*`
+1. Read `.vscode/settings.json` → Extract `specflow.vscode.role.*`
 2. Read `specflow_workflow.yml` → Extract `vscode_roles.*`
 3. Merge with precedence: `.vscode/settings.json` > `specflow_workflow.yml` > defaults
 4. Apply to agent generation and handoff configuration
@@ -294,14 +294,14 @@ scripts/bash/sync-copilot-agents.sh
 
 # Output structure:
 .github/agents/
-  jpspec-assess.agent.md       # PM, All
-  jpspec-specify.agent.md      # PM, All
-  jpspec-research.agent.md     # PM, All
-  jpspec-plan.agent.md         # Dev, All
-  jpspec-implement.agent.md    # Dev, All
-  jpspec-validate.agent.md     # QA, Sec, All
-  jpspec-operate.agent.md      # Dev, All
-  jpspec-security_*.agent.md   # Sec, All
+  specflow-assess.agent.md       # PM, All
+  specflow-specify.agent.md      # PM, All
+  specflow-research.agent.md     # PM, All
+  specflow-plan.agent.md         # Dev, All
+  specflow-implement.agent.md    # Dev, All
+  specflow-validate.agent.md     # QA, Sec, All
+  specflow-operate.agent.md      # Dev, All
+  specflow-security_*.agent.md   # Sec, All
   speckit-*.agent.md           # All roles (utilities)
 ```
 
@@ -309,7 +309,7 @@ scripts/bash/sync-copilot-agents.sh
 
 ```yaml
 ---
-name: "jpspec-plan"
+name: "specflow-plan"
 description: "Execute planning workflow using architect and platform engineer"
 target: "chat"
 tools: [...]
@@ -330,29 +330,29 @@ Role-specific handoff chains guide users through their workflow:
 #### PM Role Handoff Chain
 
 ```yaml
-# jpspec-assess.agent.md (PM role)
+# specflow-assess.agent.md (PM role)
 handoffs:
   - label: "✓ Assessment Complete → Specify Requirements"
-    agent: "jpspec-specify"
+    agent: "specflow-specify"
     prompt: "Assessment complete. Create the PRD."
     send: false
   # No other handoffs shown for PM role
 
-# jpspec-specify.agent.md (PM role)
+# specflow-specify.agent.md (PM role)
 handoffs:
   - label: "✓ Specification Complete → Conduct Research"
-    agent: "jpspec-research"
+    agent: "specflow-research"
     prompt: "PRD complete. Conduct market and technical research."
     send: false
   - label: "🔀 Hand off to Developer → Plan Architecture"
-    agent: "jpspec-plan"
+    agent: "specflow-plan"
     prompt: "PRD complete. Ready for technical design. (Developer role)"
     send: false
 
-# jpspec-research.agent.md (PM role)
+# specflow-research.agent.md (PM role)
 handoffs:
   - label: "✓ Research Complete → Hand off to Developer"
-    agent: "jpspec-plan"
+    agent: "specflow-plan"
     prompt: "Research complete. Ready for technical design. (Developer role)"
     send: false
 ```
@@ -360,24 +360,24 @@ handoffs:
 #### Dev Role Handoff Chain
 
 ```yaml
-# jpspec-plan.agent.md (Dev role)
+# specflow-plan.agent.md (Dev role)
 handoffs:
   - label: "✓ Planning Complete → Begin Implementation"
-    agent: "jpspec-implement"
+    agent: "specflow-implement"
     prompt: "Architecture designed. Begin implementation."
     send: false
 
-# jpspec-implement.agent.md (Dev role)
+# specflow-implement.agent.md (Dev role)
 handoffs:
   - label: "✓ Implementation Complete → Run Validation"
-    agent: "jpspec-validate"
+    agent: "specflow-validate"
     prompt: "Code complete. Run QA validation. (QA role)"
     send: false
 
-# jpspec-validate.agent.md (Dev role)
+# specflow-validate.agent.md (Dev role)
 handoffs:
   - label: "✓ Validation Complete → Deploy to Production"
-    agent: "jpspec-operate"
+    agent: "specflow-operate"
     prompt: "Validation passed. Deploy to production."
     send: false
 ```
@@ -390,7 +390,7 @@ handoffs:
 # PM → Dev handoff (requires PR approval in team mode)
 handoffs:
   - label: "🔀 Hand off to Developer → Plan Architecture"
-    agent: "jpspec-plan"
+    agent: "specflow-plan"
     prompt: "PRD complete. Ready for technical design. (Developer role)"
     send: false
     approval_required: true  # NEW: Indicates cross-role gate
@@ -398,7 +398,7 @@ handoffs:
 # Dev → QA handoff (requires review)
 handoffs:
   - label: "🔀 Hand off to QA → Run Validation"
-    agent: "jpspec-validate"
+    agent: "specflow-validate"
     prompt: "Implementation complete. Ready for QA validation. (QA role)"
     send: false
     approval_required: true
@@ -415,15 +415,15 @@ Leverage VS Code's native `chat.agent.pinnedAgents` setting:
 ```json
 {
   "chat.agent.pinnedAgents": [
-    "jpspec-plan",
-    "jpspec-implement",
-    "jpspec-operate"
+    "specflow-plan",
+    "specflow-implement",
+    "specflow-operate"
   ]
 }
 ```
 
 **Implementation**:
-- `/jpspec:init` and `/jpspec:reset` write to `.vscode/settings.json`
+- `/specflow:init` and `/specflow:reset` write to `.vscode/settings.json`
 - Pin agents based on selected role
 - Users can manually customize pinned agents
 
@@ -433,7 +433,7 @@ Add `priority` field to agent frontmatter:
 
 ```yaml
 ---
-name: "jpspec-plan"
+name: "specflow-plan"
 priority: 1  # High priority for Dev role
 roles:
   - "dev"
@@ -668,7 +668,7 @@ settings_file = Path("$settings_file")
 settings = json.loads(settings_file.read_text())
 
 # Add Specflow role config
-settings["jpspec.vscode.role"] = {
+settings["specflow.vscode.role"] = {
     "primary": "$primary_role",
     "secondary": "$secondary_roles".split(",") if "$secondary_roles" else [],
     "visibility": "de-prioritize",
@@ -677,10 +677,10 @@ settings["jpspec.vscode.role"] = {
 
 # Add pinned agents based on role
 role_agents = {
-    "pm": ["jpspec-assess", "jpspec-specify", "jpspec-research"],
-    "dev": ["jpspec-plan", "jpspec-implement", "jpspec-operate"],
-    "sec": ["jpspec-security_workflow", "jpspec-security_triage", "jpspec-validate"],
-    "qa": ["jpspec-validate", "speckit-checklist"],
+    "pm": ["specflow-assess", "specflow-specify", "specflow-research"],
+    "dev": ["specflow-plan", "specflow-implement", "specflow-operate"],
+    "sec": ["specflow-security_workflow", "specflow-security_triage", "specflow-validate"],
+    "qa": ["specflow-validate", "speckit-checklist"],
     "all": []  # No pinning for all role
 }
 
@@ -698,7 +698,7 @@ PYTHON
 **Integration with init/reset**:
 
 ```bash
-# Called from /jpspec:init or /jpspec:reset after role selection
+# Called from /specflow:init or /specflow:reset after role selection
 if [[ "$vscode_role" != "skip" ]]; then
     generate_vscode_settings "$primary_role" "$secondary_roles" "$mode"
 
@@ -718,7 +718,7 @@ fi
 
 ```json
 {
-  "jpspec.vscode.role": {
+  "specflow.vscode.role": {
     "primary": "dev",
     "secondary": ["qa", "sec"]
   }
@@ -781,7 +781,7 @@ specify reset --vscode-role qa --vscode-secondary dev
 **Resolution**:
 ```python
 def resolve_role_config():
-    user_config = read_vscode_settings().get("jpspec.vscode.role", {})
+    user_config = read_vscode_settings().get("specflow.vscode.role", {})
     team_config = read_specflow_workflow().get("vscode_roles", {})
 
     if user_config.get("mode") == "user":
@@ -993,7 +993,7 @@ def track_role_event(event: RoleEvent, metadata: dict):
     }
 
     # Write to local telemetry file
-    telemetry_file = Path(".jpspec/telemetry.jsonl")
+    telemetry_file = Path(".specflow/telemetry.jsonl")
     telemetry_file.parent.mkdir(exist_ok=True)
 
     with telemetry_file.open("a") as f:
@@ -1056,7 +1056,7 @@ GROUP BY from_role_hash, to_role_hash;
 ╚══════════════════════════════════════════════════════════════╝
 
 Role: Developer (Dev)
-Agents used: jpspec-plan, jpspec-implement, jpspec-validate
+Agents used: specflow-plan, specflow-implement, specflow-validate
 
 Rate your experience (1-5): _
 
@@ -1080,7 +1080,7 @@ What could be improved?
     "positive": "Role handoffs guided me perfectly",
     "negative": "Wanted to see security agents too"
   },
-  "agents_used": ["jpspec-plan", "jpspec-implement", "jpspec-validate"],
+  "agents_used": ["specflow-plan", "specflow-implement", "specflow-validate"],
   "workflow_duration_minutes": 120
 }
 ```
@@ -1142,7 +1142,7 @@ What could be improved?
 
 ### Technical Success
 
-- [x] Role selection integrated into `/jpspec:init` and `/jpspec:reset`
+- [x] Role selection integrated into `/specflow:init` and `/specflow:reset`
 - [ ] Configuration stored in both `specflow_workflow.yml` and `.vscode/settings.json`
 - [ ] Agent metadata includes role and priority fields
 - [ ] sync-copilot-agents.sh generates role-aware frontmatter
@@ -1192,7 +1192,7 @@ What could be improved?
 | **A: specflow_workflow.yml only** | Single source of truth, version-controlled | No user overrides, not VS Code native | ❌ Rejected |
 | **B: .vscode/settings.json only** | VS Code native, user-friendly | Not team-sharable, gitignored by default | ❌ Rejected |
 | **C: Dual strategy (both)** | Team defaults + user overrides, best of both | Slightly more complex | ✅ **Selected** |
-| **D: New .jpspec/roles.yml** | Clean separation | Yet another config file to manage | ❌ Rejected |
+| **D: New .specflow/roles.yml** | Clean separation | Yet another config file to manage | ❌ Rejected |
 
 ### Agent Filtering
 

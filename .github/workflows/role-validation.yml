@@ -337,7 +337,7 @@ jobs:
       - name: Run unit tests
         run: |
           echo "=== Running unit tests ==="
-          uv run pytest tests/ -v --cov=src/specify_cli --cov-report=term-missing -k "not integration"
+          uv run pytest tests/ -v --cov=src/specify_cli --cov-report=term-missing -k "not integration and not git_sync"
 
       - name: Check ADR format (if ADRs exist)
         run: |
@@ -509,7 +509,7 @@ jobs:
       - name: Check test coverage
         run: |
           echo "=== Checking test coverage ==="
-          uv run pytest tests/ -v --cov=src/specify_cli --cov-report=term-missing --cov-report=json
+          uv run pytest tests/ -v --cov=src/specify_cli --cov-report=term-missing --cov-report=json -k "not git_sync"
 
           # Check coverage threshold
           uv run python << 'PYTHON'

@@ -47,7 +47,7 @@ When working on spec-kit:
 
 ## Development Setup for jp-spec-kit
 
-jp-spec-kit can use its own `/speckit.*` and `/jpspec:*` commands during development. This ensures developers test the same commands that users receive.
+jp-spec-kit can use its own `/speckit.*` and `/specflow:*` commands during development. This ensures developers test the same commands that users receive.
 
 ### Quick Setup
 
@@ -114,12 +114,12 @@ Once set up, you can use these commands in Claude Code:
 - `/speckit:constitution` - Work with project constitution
 
 **JP Spec-Kit Commands** (already available):
-- `/jpspec:specify` - Product requirements management
-- `/jpspec:plan` - Architecture planning
-- `/jpspec:research` - Market research
-- `/jpspec:implement` - Multi-agent implementation
-- `/jpspec:validate` - QA and validation
-- `/jpspec:operate` - SRE operations
+- `/specflow:specify` - Product requirements management
+- `/specflow:plan` - Architecture planning
+- `/specflow:research` - Market research
+- `/specflow:implement` - Multi-agent implementation
+- `/specflow:validate` - QA and validation
+- `/specflow:operate` - SRE operations
 
 ## AI contributions in Spec Kit
 

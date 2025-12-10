@@ -21,7 +21,7 @@ Modify sync-copilot-agents.sh to generate role-filtered agents in .github/agents
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Role configuration reading from jpspec_workflow.yml implemented
+- [ ] #1 Role configuration reading from specflow_workflow.yml implemented
 - [ ] #2 get_role_metadata() function extracts agent role mappings
 - [ ] #3 generate_frontmatter() enhanced with role and priority fields
 - [ ] #4 Role-specific agent generation (--role flag) supported

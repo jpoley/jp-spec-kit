@@ -109,10 +109,10 @@ generate_commands() {
     esac
   done
   
-  # Process jpspec commands if they exist (jp-spec-kit extension)
-  if [[ -d templates/commands/jpspec ]]; then
-    echo "Processing jpspec commands for $agent..."
-    for template in templates/commands/jpspec/*.md; do
+  # Process specflow commands if they exist (jp-spec-kit extension)
+  if [[ -d templates/commands/specflow ]]; then
+    echo "Processing specflow commands for $agent..."
+    for template in templates/commands/specflow/*.md; do
       [[ -f "$template" ]] || continue
       local name description script_command agent_script_command body
       name=$(basename "$template" .md)
@@ -125,7 +125,7 @@ generate_commands() {
       script_command=$(printf '%s\n' "$file_content" | awk -v sv="$script_variant" '/^[[:space:]]*'"$script_variant"':[[:space:]]*/ {sub(/^[[:space:]]*'"$script_variant"':[[:space:]]*/, ""); print; exit}')
       
       if [[ -z $script_command ]]; then
-        echo "Warning: no script command found for $script_variant in jpspec/$template" >&2
+        echo "Warning: no script command found for $script_variant in specflow/$template" >&2
         script_command="(Missing script command for $script_variant)"
       fi
       
@@ -162,20 +162,20 @@ generate_commands() {
       body=$(printf '%s\n' "$body" | sed "s/{ARGS}/$arg_format/g" | sed "s/__AGENT__/$agent/g" | rewrite_paths)
       
       # For md-based agents (Claude, Cursor, etc.), use subdirectory structure for colon-namespacing
-      # e.g., .claude/commands/jpspec/init.md -> /jpspec:init
+      # e.g., .claude/commands/specflow/init.md -> /specflow:init
       # For toml-based agents (Gemini, Qwen), use dot notation in filename
-      # e.g., .gemini/commands/jpspec.init.toml -> /jpspec.init
+      # e.g., .gemini/commands/specflow.init.toml -> /specflow.init
       case $ext in
         toml)
           body=$(printf '%s\n' "$body" | sed 's/\\/\\\\/g')
-          { echo "description = \"$description\""; echo; echo "prompt = \"\"\""; echo "$body"; echo "\"\"\""; } > "$output_dir/jpspec.$name.$ext" ;;
+          { echo "description = \"$description\""; echo; echo "prompt = \"\"\""; echo "$body"; echo "\"\"\""; } > "$output_dir/specflow.$name.$ext" ;;
         md)
-          # Create jpspec subdirectory for colon-namespaced commands
-          mkdir -p "$output_dir/jpspec"
-          echo "$body" > "$output_dir/jpspec/$name.$ext" ;;
+          # Create specflow subdirectory for colon-namespaced commands
+          mkdir -p "$output_dir/specflow"
+          echo "$body" > "$output_dir/specflow/$name.$ext" ;;
         prompt.md)
           # GitHub Copilot uses dot notation in filenames
-          echo "$body" > "$output_dir/jpspec.$name.$ext" ;;
+          echo "$body" > "$output_dir/specflow.$name.$ext" ;;
       esac
     done
   fi

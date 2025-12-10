@@ -1,25 +1,25 @@
 # Workflow State Mapping Guide
 
-This guide explains how backlog.md task states map to `/jpspec` workflow commands in the Specflow Spec-Driven Development (SDD) workflow.
+This guide explains how backlog.md task states map to `/specflow` workflow commands in the Specflow Spec-Driven Development (SDD) workflow.
 
 ## Overview
 
-Specflow uses a state machine to coordinate task progression through the SDD lifecycle. Each task state corresponds to a workflow phase, and each phase is executed by running a `/jpspec` command.
+Specflow uses a state machine to coordinate task progression through the SDD lifecycle. Each task state corresponds to a workflow phase, and each phase is executed by running a `/specflow` command.
 
-**Key Concept**: Task states represent **where you are** in the development lifecycle, while `/jpspec` commands represent **how to move forward**.
+**Key Concept**: Task states represent **where you are** in the development lifecycle, while `/specflow` commands represent **how to move forward**.
 
 ## State Mapping Table
 
 | Task State | Created By | Next Command | Agents Involved |
 |-----------|-----------|--------------|-----------------|
-| **To Do** | Manual (task creation) | `/jpspec:assess` | workflow-assessor |
-| **Assessed** | `/jpspec:assess` | `/jpspec:specify` | product-requirements-manager |
-| **Specified** | `/jpspec:specify` | `/jpspec:research` or `/jpspec:plan` | researcher, business-validator (research) OR software-architect, platform-engineer (plan) |
-| **Researched** | `/jpspec:research` | `/jpspec:plan` | software-architect, platform-engineer |
-| **Planned** | `/jpspec:plan` | `/jpspec:implement` | frontend-engineer, backend-engineer, ai-ml-engineer, code-reviewers |
-| **In Implementation** | `/jpspec:implement` | `/jpspec:validate` | quality-guardian, secure-by-design-engineer, tech-writer, release-manager |
-| **Validated** | `/jpspec:validate` | `/jpspec:operate` or manual → Done | sre-agent (operate) |
-| **Deployed** | `/jpspec:operate` | Manual → Done | — |
+| **To Do** | Manual (task creation) | `/specflow:assess` | workflow-assessor |
+| **Assessed** | `/specflow:assess` | `/specflow:specify` | product-requirements-manager |
+| **Specified** | `/specflow:specify` | `/specflow:research` or `/specflow:plan` | researcher, business-validator (research) OR software-architect, platform-engineer (plan) |
+| **Researched** | `/specflow:research` | `/specflow:plan` | software-architect, platform-engineer |
+| **Planned** | `/specflow:plan` | `/specflow:implement` | frontend-engineer, backend-engineer, ai-ml-engineer, code-reviewers |
+| **In Implementation** | `/specflow:implement` | `/specflow:validate` | quality-guardian, secure-by-design-engineer, tech-writer, release-manager |
+| **Validated** | `/specflow:validate` | `/specflow:operate` or manual → Done | sre-agent (operate) |
+| **Deployed** | `/specflow:operate` | Manual → Done | — |
 | **Done** | Manual | — | — |
 
 ## State Lifecycle Diagrams
@@ -28,19 +28,19 @@ Specflow uses a state machine to coordinate task progression through the SDD lif
 
 ```
 To Do
-  ↓ /jpspec:assess
+  ↓ /specflow:assess
 Assessed
-  ↓ /jpspec:specify
+  ↓ /specflow:specify
 Specified
-  ↓ /jpspec:research
+  ↓ /specflow:research
 Researched
-  ↓ /jpspec:plan
+  ↓ /specflow:plan
 Planned
-  ↓ /jpspec:implement
+  ↓ /specflow:implement
 In Implementation
-  ↓ /jpspec:validate
+  ↓ /specflow:validate
 Validated
-  ↓ /jpspec:operate
+  ↓ /specflow:operate
 Deployed
   ↓ manual
 Done
@@ -52,17 +52,17 @@ For simpler features that don't require research:
 
 ```
 To Do
-  ↓ /jpspec:assess
+  ↓ /specflow:assess
 Assessed
-  ↓ /jpspec:specify
+  ↓ /specflow:specify
 Specified
-  ↓ /jpspec:plan (skipping research)
+  ↓ /specflow:plan (skipping research)
 Planned
-  ↓ /jpspec:implement
+  ↓ /specflow:implement
 In Implementation
-  ↓ /jpspec:validate
+  ↓ /specflow:validate
 Validated
-  ↓ /jpspec:operate
+  ↓ /specflow:operate
 Deployed
   ↓ manual
 Done
@@ -90,9 +90,9 @@ Deployed → Validated (rollback from production)
 
 ## How States Are Created
 
-### From jpspec_workflow.yml
+### From specflow_workflow.yml
 
-States are defined in the `jpspec_workflow.yml` configuration file at the project root:
+States are defined in the `specflow_workflow.yml` configuration file at the project root:
 
 ```yaml
 states:
@@ -118,7 +118,7 @@ Two states are always present and cannot be removed:
 
 ### Custom States
 
-You can add custom states by editing `jpspec_workflow.yml`:
+You can add custom states by editing `specflow_workflow.yml`:
 
 ```yaml
 states:
@@ -140,18 +140,18 @@ See [Workflow Customization Guide](./workflow-customization.md) for details.
 
 ### Forward Transitions (Automatic)
 
-When you run a `/jpspec` command, the task state automatically transitions to the workflow's output state:
+When you run a `/specflow` command, the task state automatically transitions to the workflow's output state:
 
 ```bash
 # Task is in "Planned" state
-/jpspec:implement
+/specflow:implement
 
 # After completion, task is now in "In Implementation" state
 ```
 
 ### Valid Input States
 
-Each `/jpspec` command can only run from specific states. These are defined in `jpspec_workflow.yml`:
+Each `/specflow` command can only run from specific states. These are defined in `specflow_workflow.yml`:
 
 ```yaml
 workflows:
@@ -164,7 +164,7 @@ If you try to run a command from an invalid state, you'll get an error:
 
 ```bash
 # Task is in "To Do" state
-/jpspec:implement
+/specflow:implement
 
 # Error: Cannot execute 'implement' from state 'To Do'.
 # Valid input states: ['Planned']
@@ -194,7 +194,7 @@ transitions:
     via: "implement"
 ```
 
-If a transition is not defined in `jpspec_workflow.yml`, it will be rejected.
+If a transition is not defined in `specflow_workflow.yml`, it will be rejected.
 
 ## Examples
 
@@ -205,27 +205,27 @@ If a transition is not defined in `jpspec_workflow.yml`, it will be rejected.
 backlog task create "Add user authentication"
 
 # 2. Assess workflow suitability
-/jpspec:assess
+/specflow:assess
 # → State: Assessed
 
 # 3. Create specification
-/jpspec:specify
+/specflow:specify
 # → State: Specified
 
 # 4. Plan architecture (skipping research)
-/jpspec:plan
+/specflow:plan
 # → State: Planned
 
 # 5. Implement feature
-/jpspec:implement
+/specflow:implement
 # → State: In Implementation
 
 # 6. Validate quality, security, docs
-/jpspec:validate
+/specflow:validate
 # → State: Validated
 
 # 7. Deploy to production
-/jpspec:operate
+/specflow:operate
 # → State: Deployed
 
 # 8. Confirm deployment success
@@ -239,11 +239,11 @@ backlog task edit task-123 -s Done
 # 1-3: Same as above (To Do → Assessed → Specified)
 
 # 4. Conduct research
-/jpspec:research
+/specflow:research
 # → State: Researched
 
 # 5. Plan architecture
-/jpspec:plan
+/specflow:plan
 # → State: Planned
 
 # 6-8: Same as above (Planned → ... → Done)
@@ -260,10 +260,10 @@ backlog task edit task-123 -s "In Implementation" \
   --notes "Fixing security issues found in validation"
 
 # Re-implement fixes
-/jpspec:implement
+/specflow:implement
 
 # Re-validate
-/jpspec:validate
+/specflow:validate
 # → State: Validated
 ```
 
@@ -294,7 +294,7 @@ specify workflow validate
 
 ### Valid Workflows for Current State
 
-To see which `/jpspec` commands can run from the current state:
+To see which `/specflow` commands can run from the current state:
 
 ```python
 # This information is available in the workflow config
@@ -313,16 +313,16 @@ workflows = config.get_valid_workflows("Planned")
 
 **Solution**:
 1. Check the current task state: `backlog task view task-123`
-2. Check valid input states for the workflow in `jpspec_workflow.yml`
+2. Check valid input states for the workflow in `specflow_workflow.yml`
 3. Run the correct workflow sequence, or manually change state if appropriate
 
 ### Error: "State 'X' not found in configuration"
 
-**Cause**: A state is referenced that doesn't exist in `jpspec_workflow.yml`.
+**Cause**: A state is referenced that doesn't exist in `specflow_workflow.yml`.
 
 **Solution**:
 1. Check for typos in state name
-2. Verify state is defined in `jpspec_workflow.yml`
+2. Verify state is defined in `specflow_workflow.yml`
 3. Run `specify workflow validate` to check configuration
 
 ### Warning: "State 'X' is not reachable"
@@ -333,13 +333,13 @@ workflows = config.get_valid_workflows("Planned")
 1. Add transitions to connect the state to the workflow graph
 2. See [Workflow Customization Guide](./workflow-customization.md#adding-custom-states)
 
-### States Don't Match jpspec_workflow.yml
+### States Don't Match specflow_workflow.yml
 
 **Cause**: The workflow configuration may have been modified but not reloaded.
 
 **Solution**:
 1. Restart Claude Code or reload the configuration
-2. Verify changes were saved to `jpspec_workflow.yml`
+2. Verify changes were saved to `specflow_workflow.yml`
 3. Run `specify workflow validate` to check for errors
 
 ## Advanced Topics
@@ -401,8 +401,8 @@ See [Agent Loop Classification](../reference/agent-loop-classification.md) for d
 ## Summary
 
 - Task states represent progression through the SDD lifecycle
-- `/jpspec` commands transition tasks between states
-- States are defined in `jpspec_workflow.yml`
+- `/specflow` commands transition tasks between states
+- States are defined in `specflow_workflow.yml`
 - Transitions are validated to prevent invalid state changes
 - Built-in states ("To Do", "Done") are always present
 - Custom states can be added with proper workflow definitions

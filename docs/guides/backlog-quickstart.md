@@ -51,13 +51,13 @@ backlog init
 
 ```bash
 # Create a spec first (if you haven't already)
-/jpspec:specify Build a user authentication system with login, signup, and password reset
+/specflow:specify Build a user authentication system with login, signup, and password reset
 
 # Create a plan
-/jpspec:plan Use Node.js with Express, PostgreSQL database, and JWT for tokens
+/specflow:plan Use Node.js with Express, PostgreSQL database, and JWT for tokens
 
 # Generate tasks (currently creates tasks.md)
-/jpspec:tasks
+/specflow:tasks
 
 # 🚧 COMING SOON: Direct Backlog.md generation
 # specify tasks generate --format backlog-md

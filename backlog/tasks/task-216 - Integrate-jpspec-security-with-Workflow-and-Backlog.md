@@ -1,6 +1,6 @@
 ---
 id: task-216
-title: 'Integrate /jpspec:security with Workflow and Backlog'
+title: 'Integrate /specflow:security with Workflow and Backlog'
 status: To Do
 assignee:
   - '@muckross'
@@ -17,7 +17,7 @@ priority: high
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Wire /jpspec:security commands into jpspec_workflow.yml and add backlog.md task creation for findings.
+Wire /specflow:security commands into specflow_workflow.yml and add backlog.md task creation for findings.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -33,15 +33,15 @@ Wire /jpspec:security commands into jpspec_workflow.yml and add backlog.md task 
 ## Implementation Plan
 
 <!-- SECTION:PLAN:BEGIN -->
-## Implementation Plan: Integrate /jpspec:security with Workflow and Backlog
+## Implementation Plan: Integrate /specflow:security with Workflow and Backlog
 
 ### Overview
-Wire /jpspec:security commands into jpspec_workflow.yml state machine and add automatic backlog.md task creation for security findings.
+Wire /specflow:security commands into specflow_workflow.yml state machine and add automatic backlog.md task creation for security findings.
 
 ### Step-by-Step Implementation
 
 #### Step 1: Add Security State to Workflow Configuration (2 hours)
-**File**: `jpspec_workflow.yml`
+**File**: `specflow_workflow.yml`
 
 1. Add optional security state:
    ```yaml
@@ -53,7 +53,7 @@ Wire /jpspec:security commands into jpspec_workflow.yml state machine and add au
    
    workflows:
      security:
-       command: "/jpspec:security"
+       command: "/specflow:security"
        agents: ["security-scanner"]
        input_states: ["In Implementation", "Validated"]
        output_state: "Security Reviewed"

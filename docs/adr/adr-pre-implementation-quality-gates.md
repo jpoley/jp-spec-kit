@@ -7,7 +7,7 @@
 
 ## Context
 
-The `/jpspec:implement` command initiates implementation work by deploying frontend and backend engineer agents. However, there was no automated mechanism to verify that specifications were complete and high-quality before implementation began. This led to:
+The `/specflow:implement` command initiates implementation work by deploying frontend and backend engineer agents. However, there was no automated mechanism to verify that specifications were complete and high-quality before implementation began. This led to:
 
 1. **Wasted Implementation Effort**: Engineers working from incomplete or ambiguous specs
 2. **Implementation Rework**: Discovering spec issues mid-implementation requiring backtracking
@@ -18,7 +18,7 @@ The core insight: **Zero implementations should start with incomplete specs.** Q
 
 ## Decision
 
-Implement automated quality gates that run before `/jpspec:implement` can proceed, enforced via a `.claude/hooks/pre-implement.sh` script.
+Implement automated quality gates that run before `/specflow:implement` can proceed, enforced via a `.claude/hooks/pre-implement.sh` script.
 
 ### Gates Implemented
 
@@ -84,7 +84,7 @@ Running pre-implementation quality gates...
 Gate 1: Checking required files...
 ✓ spec.md exists
 ✗ Missing required file: docs/adr/plan.md
-  → Create plan using /jpspec:plan
+  → Create plan using /specflow:plan
 ✓ tasks.md exists
 
 Gate 2: Checking spec completeness...
@@ -149,7 +149,7 @@ Run with --skip-quality-gates to bypass (NOT RECOMMENDED).
 
 ### Integration Point
 
-The `/jpspec:implement` command in `.claude/commands/jpspec/implement.md` already includes:
+The `/specflow:implement` command in `.claude/commands/specflow/implement.md` already includes:
 ```bash
 # Phase 0: Quality Gate (MANDATORY)
 specify gate
@@ -203,7 +203,7 @@ Comprehensive test suite (`test-pre-implement.sh`) validates:
 - **Constitutional Principles**: `memory/constitution.md` (Task Quality, DCO Sign-off)
 - **Quality Scorer**: `src/specify_cli/quality/scorer.py`
 - **Quality Assessors**: `src/specify_cli/quality/assessors.py`
-- **Implement Command**: `.claude/commands/jpspec/implement.md`
+- **Implement Command**: `.claude/commands/specflow/implement.md`
 
 ## Versioning
 
@@ -213,7 +213,7 @@ Comprehensive test suite (`test-pre-implement.sh`) validates:
 
 ## Future Enhancements
 
-1. **Configurable Thresholds**: Allow per-project quality thresholds via `jpspec_workflow.yml`
+1. **Configurable Thresholds**: Allow per-project quality thresholds via `specflow_workflow.yml`
 2. **Gate Metrics**: Track gate pass/fail rates to identify common spec quality issues
 3. **LLM Semantic Analysis**: Add semantic quality checks (coherence, completeness, testability)
 4. **Integration with /speckit:clarify**: Auto-suggest running clarify workflow when ambiguity detected

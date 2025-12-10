@@ -244,20 +244,30 @@ class TestRoleSelectionCommandTemplates:
         assert "Role:" in content or "Selected Role:" in content, "Missing role display"
 
     def test_symlinks_exist(self, project_root: Path):
-        """Test that command symlinks exist in .claude/commands/speckit/."""
-        init_symlink = project_root / ".claude" / "commands" / "speckit" / "init.md"
-        configure_symlink = (
-            project_root / ".claude" / "commands" / "speckit" / "configure.md"
-        )
+        """Test that command symlinks exist in .claude/commands/speckit/.
+
+        Supports two symlink strategies:
+        1. Directory-level symlink: .claude/commands/speckit -> templates/commands/speckit
+        2. File-level symlinks: individual files are symlinks to template files
+        """
+        speckit_dir = project_root / ".claude" / "commands" / "speckit"
+        init_symlink = speckit_dir / "init.md"
+        configure_symlink = speckit_dir / "configure.md"
 
         assert init_symlink.exists(), f"Init symlink not found at {init_symlink}"
         assert configure_symlink.exists(), (
             f"Configure symlink not found at {configure_symlink}"
         )
 
-        # Verify they are symlinks
-        assert init_symlink.is_symlink(), "init.md should be a symlink"
-        assert configure_symlink.is_symlink(), "configure.md should be a symlink"
+        # Verify symlinks - either directory or file level
+        if speckit_dir.is_symlink():
+            # Directory-level symlink - files are accessible through symlinked dir
+            assert init_symlink.is_file(), "init.md should be a file"
+            assert configure_symlink.is_file(), "configure.md should be a file"
+        else:
+            # File-level symlinks
+            assert init_symlink.is_symlink(), "init.md should be a symlink"
+            assert configure_symlink.is_symlink(), "configure.md should be a symlink"
 
         # Verify they point to the right targets
         assert init_symlink.resolve().name == "init.md"

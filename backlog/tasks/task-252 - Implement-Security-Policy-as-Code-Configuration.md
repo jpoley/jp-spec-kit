@@ -17,7 +17,7 @@ priority: medium
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Build .jpspec/security-policy.yml parser and enforcement engine. Support severity-based gates, tool configuration, compliance mappings, and finding exemptions with expiration.
+Build .specflow/security-policy.yml parser and enforcement engine. Support severity-based gates, tool configuration, compliance mappings, and finding exemptions with expiration.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -36,7 +36,7 @@ Build .jpspec/security-policy.yml parser and enforcement engine. Support severit
 ## Implementation Plan: Security Policy as Code Configuration
 
 ### Overview
-Build .jpspec/security-policy.yml parser and enforcement engine to support version-controlled security policies with severity gates, tool configuration, and exemptions.
+Build .specflow/security-policy.yml parser and enforcement engine to support version-controlled security policies with severity gates, tool configuration, and exemptions.
 
 ### Step-by-Step Implementation
 
@@ -98,7 +98,7 @@ Build .jpspec/security-policy.yml parser and enforcement engine to support versi
 
 1. Create policy loader:
    ```python
-   def load_security_policy(path: str = ".jpspec/security-policy.yml") -> SecurityPolicy:
+   def load_security_policy(path: str = ".specflow/security-policy.yml") -> SecurityPolicy:
        """Load and validate security policy from YAML file."""
        if not Path(path).exists():
            logger.warning(f"No policy file found at {path}, using defaults")
@@ -142,7 +142,7 @@ Build .jpspec/security-policy.yml parser and enforcement engine to support versi
 
 3. Add policy validator CLI command:
    ```bash
-   specify security policy validate [--file .jpspec/security-policy.yml]
+   specify security policy validate [--file .specflow/security-policy.yml]
    ```
 
 #### Step 3: Implement Policy Enforcement
@@ -289,7 +289,7 @@ Build .jpspec/security-policy.yml parser and enforcement engine to support versi
 1. **Init command**:
    ```bash
    specify security policy init [--minimal]
-   # Creates .jpspec/security-policy.yml from template
+   # Creates .specflow/security-policy.yml from template
    ```
 
 2. **Validate command**:

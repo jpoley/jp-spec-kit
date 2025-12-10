@@ -315,17 +315,17 @@ Git operations are **noise** for domain agents. When a Backend Engineer needs to
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
-### Integration with /jpspec Commands
+### Integration with /specflow Commands
 
-Every `/jpspec` command that produces artifacts should invoke the Committer:
+Every `/specflow` command that produces artifacts should invoke the Committer:
 
 | Command | Domain Work | Committer Invocation |
 |---------|-------------|---------------------|
-| `/jpspec:specify` | Creates PRD, functional spec | Commits docs, creates PR |
-| `/jpspec:plan` | Creates technical spec, ADRs | Commits docs, creates PR |
-| `/jpspec:implement` | Writes code, tests, docs | Lint, format, test, commit, PR |
-| `/jpspec:validate` | Creates QA/security reports | Commits reports, creates PR |
-| `/jpspec:operate` | Creates runbooks, configs | Commits ops docs, creates PR |
+| `/specflow:specify` | Creates PRD, functional spec | Commits docs, creates PR |
+| `/specflow:plan` | Creates technical spec, ADRs | Commits docs, creates PR |
+| `/specflow:implement` | Writes code, tests, docs | Lint, format, test, commit, PR |
+| `/specflow:validate` | Creates QA/security reports | Commits reports, creates PR |
+| `/specflow:operate` | Creates runbooks, configs | Commits ops docs, creates PR |
 
 ### Committer Skill Definition
 
@@ -341,7 +341,7 @@ triggers:
   - "commit these changes"
   - "create a PR"
   - "prepare for merge"
-  - After any /jpspec command completes
+  - After any /specflow command completes
 
 responsibilities:
   - Pre-commit validation (lint, format, test)
@@ -461,7 +461,7 @@ PRD → Functional Spec → Technical Spec → ADR → Implementation → Runboo
 │                           SDD WORKFLOW STATE MACHINE                                     │
 ├─────────────────────────────────────────────────────────────────────────────────────────┤
 │                                                                                          │
-│  ┌──────────┐      /jpspec:specify        ┌──────────────┐                              │
+│  ┌──────────┐      /specflow:specify        ┌──────────────┐                              │
 │  │  To Do   │ ──────────────────────────► │  Specified   │                              │
 │  └──────────┘                              └──────┬───────┘                              │
 │       │                                           │                                      │
@@ -471,7 +471,7 @@ PRD → Functional Spec → Technical Spec → ADR → Implementation → Runboo
 │       │                                           │                                      │
 │       │                                           ▼                                      │
 │       │                               ┌───────────────────────┐                         │
-│       │      /jpspec:research         │     Researched        │  (optional)             │
+│       │      /specflow:research         │     Researched        │  (optional)             │
 │       │      (optional)               │                       │                         │
 │       │                               └───────────┬───────────┘                         │
 │       │                                           │                                      │
@@ -480,7 +480,7 @@ PRD → Functional Spec → Technical Spec → ADR → Implementation → Runboo
 │       │                                           │  • Competitive analysis              │
 │       │                                           │                                      │
 │       │                                           ▼                                      │
-│       │                                    /jpspec:plan                                  │
+│       │                                    /specflow:plan                                  │
 │       │                                           │                                      │
 │       │                                           ▼                                      │
 │       │                               ┌───────────────────────┐                         │
@@ -493,7 +493,7 @@ PRD → Functional Spec → Technical Spec → ADR → Implementation → Runboo
 │       │                                           │  • Platform design docs              │
 │       │                                           │                                      │
 │       │                                           ▼                                      │
-│       │                                   /jpspec:implement                              │
+│       │                                   /specflow:implement                              │
 │       │                                           │                                      │
 │       │                                           ▼                                      │
 │       │                               ┌───────────────────────┐                         │
@@ -507,7 +507,7 @@ PRD → Functional Spec → Technical Spec → ADR → Implementation → Runboo
 │       │                                           │  • API documentation                 │
 │       │                                           │                                      │
 │       │                                           ▼                                      │
-│       │                                   /jpspec:validate                               │
+│       │                                   /specflow:validate                               │
 │       │                                           │                                      │
 │       │                                           ▼                                      │
 │       │                               ┌───────────────────────┐                         │
@@ -520,7 +520,7 @@ PRD → Functional Spec → Technical Spec → ADR → Implementation → Runboo
 │       │                                           │  • Test coverage reports             │
 │       │                                           │                                      │
 │       │                                           ▼                                      │
-│       │                                    /jpspec:operate                               │
+│       │                                    /specflow:operate                               │
 │       │                                           │                                      │
 │       │                                           ▼                                      │
 │       │                               ┌───────────────────────┐                         │
@@ -544,12 +544,12 @@ PRD → Functional Spec → Technical Spec → ADR → Implementation → Runboo
 
 | Command | Input State(s) | Output State | Artifacts Produced |
 |---------|---------------|--------------|-------------------|
-| `/jpspec:specify` | To Do | Specified | `[feature]-prd.md`, `[feature]-functional.md` |
-| `/jpspec:research` | Specified | Researched | Research reports, competitive analysis |
-| `/jpspec:plan` | Specified, Researched | Planned | `[feature]-technical.md`, `adr-XXX-[topic].md`, platform docs |
-| `/jpspec:implement` | Planned | In Implementation | Code, tests, API docs |
-| `/jpspec:validate` | In Implementation | Validated | QA reports, security scans, coverage reports |
-| `/jpspec:operate` | Validated | Deployed | `[service]-runbook.md`, deploy configs, dashboards |
+| `/specflow:specify` | To Do | Specified | `[feature]-prd.md`, `[feature]-functional.md` |
+| `/specflow:research` | Specified | Researched | Research reports, competitive analysis |
+| `/specflow:plan` | Specified, Researched | Planned | `[feature]-technical.md`, `adr-XXX-[topic].md`, platform docs |
+| `/specflow:implement` | Planned | In Implementation | Code, tests, API docs |
+| `/specflow:validate` | In Implementation | Validated | QA reports, security scans, coverage reports |
+| `/specflow:operate` | Validated | Deployed | `[service]-runbook.md`, deploy configs, dashboards |
 
 ### Artifact Flow Diagram
 
@@ -623,26 +623,26 @@ PRD → Functional Spec → Technical Spec → ADR → Implementation → Runboo
 project/
 ├── docs/
 │   ├── prd/
-│   │   └── [feature]-prd.md              # /jpspec:specify
+│   │   └── [feature]-prd.md              # /specflow:specify
 │   ├── specs/
-│   │   ├── [feature]-functional.md       # /jpspec:specify
-│   │   └── [feature]-technical.md        # /jpspec:plan
+│   │   ├── [feature]-functional.md       # /specflow:specify
+│   │   └── [feature]-technical.md        # /specflow:plan
 │   ├── adr/
-│   │   └── adr-XXX-[topic].md            # /jpspec:plan
+│   │   └── adr-XXX-[topic].md            # /specflow:plan
 │   ├── platform/
-│   │   └── [feature]-platform.md         # /jpspec:plan
+│   │   └── [feature]-platform.md         # /specflow:plan
 │   ├── qa/
-│   │   └── [feature]-qa-report.md        # /jpspec:validate
+│   │   └── [feature]-qa-report.md        # /specflow:validate
 │   ├── security/
-│   │   └── [feature]-security-scan.md    # /jpspec:validate
+│   │   └── [feature]-security-scan.md    # /specflow:validate
 │   └── runbooks/
-│       └── [service]-runbook.md          # /jpspec:operate
+│       └── [service]-runbook.md          # /specflow:operate
 ├── src/
-│   └── [feature]/                        # /jpspec:implement
+│   └── [feature]/                        # /specflow:implement
 │       ├── *.py / *.ts / *.go
 │       └── ...
 └── tests/
-    └── [feature]/                        # /jpspec:implement
+    └── [feature]/                        # /specflow:implement
         └── test_*.py / *.test.ts / *_test.go
 ```
 
@@ -682,7 +682,7 @@ PRDs capture the business and user perspective. They answer:
 - How does this fit into the broader product vision?
 
 **Location**: `docs/prd/`
-**Command**: `/jpspec:specify`
+**Command**: `/specflow:specify`
 
 **Format**:
 ```markdown
@@ -717,7 +717,7 @@ Functional specs translate PRD requirements into system behaviors. They answer:
 - What are the business rules and validation logic?
 
 **Location**: `docs/specs/[feature]-functional.md`
-**Command**: `/jpspec:specify` (detailed mode)
+**Command**: `/specflow:specify` (detailed mode)
 
 **Format**:
 ```markdown
@@ -758,7 +758,7 @@ Technical specs define the architecture and implementation approach. They answer
 - What are the performance and scalability requirements?
 
 **Location**: `docs/specs/[feature]-technical.md`
-**Command**: `/jpspec:plan`
+**Command**: `/specflow:plan`
 
 **Format**:
 ```markdown
@@ -799,7 +799,7 @@ ADRs document significant technical decisions made during planning. They answer:
 - What are the trade-offs and risks?
 
 **Location**: `docs/adr/`
-**Command**: `/jpspec:plan`
+**Command**: `/specflow:plan`
 
 **Format**:
 ```markdown
@@ -837,7 +837,7 @@ Runbooks provide SRE/Ops teams with operational documentation. They answer:
 - What are the recovery procedures?
 
 **Location**: `docs/runbooks/`
-**Command**: `/jpspec:operate`
+**Command**: `/specflow:operate`
 
 **Format**:
 ```markdown
@@ -902,14 +902,14 @@ In addition to the core progression, these documents support the workflow:
 
 | Command | Artifacts Produced |
 |---------|-------------------|
-| `/jpspec:specify` | PRD, Functional Spec |
-| `/jpspec:plan` | Technical Spec, ADRs, Platform Design |
-| `/jpspec:implement` | Code, Key Documents, Complete Tests |
-| `/jpspec:operate` | Runbooks, Deployment Docs, Monitoring Config |
+| `/specflow:specify` | PRD, Functional Spec |
+| `/specflow:plan` | Technical Spec, ADRs, Platform Design |
+| `/specflow:implement` | Code, Key Documents, Complete Tests |
+| `/specflow:operate` | Runbooks, Deployment Docs, Monitoring Config |
 
 ### Implementation Deliverables (NON-NEGOTIABLE)
 
-`/jpspec:implement` produces **three mandatory deliverables**:
+`/specflow:implement` produces **three mandatory deliverables**:
 
 | Deliverable | Description | Verification |
 |-------------|-------------|--------------|
@@ -919,7 +919,7 @@ In addition to the core progression, these documents support the workflow:
 
 **Implementation is NOT complete until all three are delivered.**
 
-Before implementing, `/jpspec:implement` MUST discover and read:
+Before implementing, `/specflow:implement` MUST discover and read:
 - All related PRDs in `docs/prd/`
 - All related specs in `docs/specs/`
 - All related ADRs in `docs/adr/`

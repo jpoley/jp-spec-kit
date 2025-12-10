@@ -11,7 +11,7 @@ states:
 
 workflows:
   specify:
-    command: "/jpspec:specify"
+    command: "/specflow:specify"
     agents:
       - "product-requirements-manager"
     input_states:
@@ -21,7 +21,7 @@ workflows:
     optional: false
 
   plan:
-    command: "/jpspec:plan"
+    command: "/specflow:plan"
     agents:
       - "software-architect"
       - "platform-engineer"
@@ -32,7 +32,7 @@ workflows:
     optional: false
 
   implement:
-    command: "/jpspec:implement"
+    command: "/specflow:implement"
     agents:
       - "frontend-engineer"
       - "backend-engineer"

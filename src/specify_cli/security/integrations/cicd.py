@@ -100,7 +100,7 @@ class CICDIntegration:
                     "if": "always()",
                     "with": {
                         "sarif_file": "security-results.sarif",
-                        "category": "jpspec-security",
+                        "category": "specflow-security",
                     },
                 }
             )
@@ -263,7 +263,7 @@ The workflow is configured in `.github/workflows/security.yml`:
 
 ## Customization
 
-Edit `.jpspec/security-config.yml` to customize:
+Edit `.specflow/security-config.yml` to customize:
 - Enabled scanners
 - Severity thresholds
 - Path exclusions
