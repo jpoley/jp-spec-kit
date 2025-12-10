@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-release.py - One-command release script for jp-spec-kit
+release.py - Release workflow via PR for jp-spec-kit
 
 Usage:
     ./scripts/release.py                    # Auto-increment patch (0.2.343 → 0.2.344)
@@ -8,14 +8,21 @@ Usage:
     ./scripts/release.py --minor            # Bump minor (0.2.343 → 0.3.0)
     ./scripts/release.py --major            # Bump major (0.2.343 → 1.0.0)
     ./scripts/release.py --dry-run          # Show what would happen
-    ./scripts/release.py --push             # Auto-push without confirmation
+    ./scripts/release.py --create-pr        # Auto-create PR without confirmation
 
 This script:
 1. Determines the new version (auto-increment or specified)
-2. Updates pyproject.toml and src/specify_cli/__init__.py
-3. Commits the version bump
-4. Creates a git tag
-5. Pushes to origin (with confirmation)
+2. Creates a release branch (release/vX.Y.Z)
+3. Updates pyproject.toml and src/specify_cli/__init__.py
+4. Commits the version bump
+5. Pushes the release branch
+6. Creates a PR to main (with confirmation)
+
+When the PR is merged:
+- GitHub Actions detects the merge of a release/* branch
+- Creates the git tag automatically
+- Triggers the release workflow (builds packages, creates GitHub Release)
+- Deploys documentation to GitHub Pages
 """
 
 import argparse
@@ -124,33 +131,37 @@ def update_version_files(new_version: str, dry_run: bool = False) -> None:
             print(f"  {filepath}: updated to {new_version}")
 
 
-def check_git_status() -> bool:
-    """Check if working directory is clean (except version files)."""
+def check_git_clean() -> bool:
+    """Check if working directory is clean."""
     result = run(["git", "status", "--porcelain"], capture=True)
     if result.returncode != 0:
         return False
 
-    # Allow only version file changes
-    allowed_files = {"pyproject.toml", "src/specify_cli/__init__.py"}
-    for line in result.stdout.strip().split("\n"):
-        if not line:
-            continue
-        # Parse git status output (e.g., " M pyproject.toml")
-        filepath = line[3:].strip()
-        if filepath not in allowed_files:
-            print(f"  Warning: Uncommitted changes in {filepath}")
-            return False
-    return True
-
-
-def check_on_main_branch() -> bool:
-    """Verify we're on main branch."""
-    result = run(["git", "branch", "--show-current"], capture=True)
-    branch = result.stdout.strip()
-    if branch != "main":
-        print(f"  Warning: Not on main branch (currently on: {branch})")
+    if result.stdout.strip():
+        print("  Warning: Working directory has uncommitted changes")
+        for line in result.stdout.strip().split("\n"):
+            print(f"    {line}")
         return False
     return True
+
+
+def get_current_branch() -> str:
+    """Get current git branch name."""
+    result = run(["git", "branch", "--show-current"], capture=True)
+    return result.stdout.strip()
+
+
+def branch_exists(branch: str) -> bool:
+    """Check if a branch already exists (local or remote)."""
+    # Check local
+    result = run(["git", "branch", "--list", branch], capture=True, check=False)
+    if result.stdout.strip():
+        return True
+    # Check remote
+    result = run(
+        ["git", "ls-remote", "--heads", "origin", branch], capture=True, check=False
+    )
+    return bool(result.stdout.strip())
 
 
 def tag_exists(tag: str) -> bool:
@@ -159,9 +170,24 @@ def tag_exists(tag: str) -> bool:
     return bool(result.stdout.strip())
 
 
+def check_gh_cli() -> bool:
+    """Check if GitHub CLI is installed and authenticated."""
+    result = run(["gh", "auth", "status"], capture=True, check=False)
+    if result.returncode != 0:
+        print("  Error: GitHub CLI not authenticated. Run 'gh auth login'")
+        return False
+    return True
+
+
+def get_repo_url() -> str:
+    """Get the GitHub repository URL for PR links."""
+    result = run(["gh", "repo", "view", "--json", "url", "-q", ".url"], capture=True)
+    return result.stdout.strip()
+
+
 def main():
     parser = argparse.ArgumentParser(
-        description="Create a new release with version bump, commit, and tag",
+        description="Create a release PR with version bump",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -170,7 +196,13 @@ Examples:
   %(prog)s --minor            Bump minor version
   %(prog)s --major            Bump major version
   %(prog)s --dry-run          Preview changes without making them
-  %(prog)s --push             Skip confirmation and push immediately
+  %(prog)s --create-pr        Skip confirmation and create PR immediately
+
+Workflow:
+  1. Run this script to create a release PR
+  2. Review the PR and ensure CI passes
+  3. Merge the PR to main
+  4. GitHub Actions automatically creates the tag and release
         """,
     )
     parser.add_argument(
@@ -188,7 +220,9 @@ Examples:
     parser.add_argument(
         "--dry-run", action="store_true", help="Show what would be done"
     )
-    parser.add_argument("--push", action="store_true", help="Push without confirmation")
+    parser.add_argument(
+        "--create-pr", action="store_true", help="Create PR without confirmation"
+    )
     parser.add_argument("--force", action="store_true", help="Skip safety checks")
 
     args = parser.parse_args()
@@ -198,11 +232,34 @@ Examples:
         print("Error: Can only specify one of --major, --minor, --patch")
         sys.exit(1)
 
-    print("\n🚀 JP Spec Kit Release Script\n")
-    print("=" * 50)
+    print("\n JP Spec Kit Release Script (PR Workflow)\n")
+    print("=" * 60)
+
+    # Safety check: Verify we're on main branch
+    print("\n Checking prerequisites:")
+    current_branch = get_current_branch()
+    print(f"  Current branch: {current_branch}")
+
+    if current_branch != "main" and not args.force:
+        print(f"\n Warning: Not on main branch (on: {current_branch})")
+        print("  Releases should typically start from main branch.")
+        response = input("  Continue anyway? [y/N]: ").strip().lower()
+        if response != "y":
+            print("\n Aborted.")
+            sys.exit(1)
+
+    if not args.force and not check_git_clean():
+        print("\n Working directory has uncommitted changes.")
+        print("  Commit or stash them first, or use --force to override.")
+        sys.exit(1)
+    print("  Working directory is clean")
+
+    if not args.dry_run and not check_gh_cli():
+        sys.exit(1)
+    print("  GitHub CLI authenticated")
 
     # Get current version
-    print("\n📋 Current state:")
+    print("\n Current state:")
     current_version = get_current_version()
     print(f"  Version in pyproject.toml: {current_version}")
 
@@ -221,74 +278,147 @@ Examples:
         new_version = bump_version(current_version, "patch")
 
     tag_name = f"v{new_version}"
-    print(f"\n📦 New version: {new_version}")
+    release_branch = f"release/{tag_name}"
+    print(f"\n New version: {new_version}")
     print(f"   Tag name: {tag_name}")
+    print(f"   Release branch: {release_branch}")
 
     # Safety checks
-    print("\n🔍 Safety checks:")
-    if not args.force:
-        if not check_on_main_branch():
-            print("\n❌ Not on main branch. Use --force to override.")
-            sys.exit(1)
+    print("\n Safety checks:")
+    if tag_exists(tag_name):
+        print(f"\n Tag {tag_name} already exists!")
+        sys.exit(1)
+    print(f"  Tag {tag_name} does not exist")
 
-        if tag_exists(tag_name):
-            print(f"\n❌ Tag {tag_name} already exists!")
-            sys.exit(1)
-        print(f"  ✓ Tag {tag_name} does not exist")
-
-        if not check_git_status():
-            print(
-                "\n❌ Working directory has uncommitted changes. Commit or stash first."
-            )
-            sys.exit(1)
-        print("  ✓ Working directory is clean")
-    else:
-        print("  ⚠️  Safety checks skipped (--force)")
+    if branch_exists(release_branch):
+        print(f"\n Branch {release_branch} already exists!")
+        print("  Delete it first: git branch -D {release_branch}")
+        sys.exit(1)
+    print(f"  Branch {release_branch} does not exist")
 
     # Dry run stops here
     if args.dry_run:
-        print("\n🔍 Dry run - would perform these actions:")
-        print(f'  1. Update pyproject.toml: version = "{new_version}"')
-        print(f'  2. Update __init__.py: __version__ = "{new_version}"')
-        print(f'  3. Commit: "chore: release v{new_version}"')
-        print(f"  4. Create tag: {tag_name}")
-        print("  5. Push: git push origin main --tags")
+        print("\n Dry run - would perform these actions:")
+        print(f"  1. Create branch: {release_branch}")
+        print(f'  2. Update pyproject.toml: version = "{new_version}"')
+        print(f'  3. Update __init__.py: __version__ = "{new_version}"')
+        print(f'  4. Commit: "chore: release v{new_version}"')
+        print(f"  5. Push branch: {release_branch}")
+        print(f'  6. Create PR: "Release v{new_version}" to main')
         print("\nNo changes made.")
         sys.exit(0)
 
     # Confirm
-    if not args.push:
-        print(f"\n⚠️  This will release v{new_version}")
+    if not args.create_pr:
+        print(f"\n This will create a release PR for v{new_version}")
+        print("   - Creates release branch")
+        print("   - Updates version files")
+        print("   - Pushes and opens PR")
         response = input("   Continue? [y/N]: ").strip().lower()
         if response != "y":
-            print("\n❌ Aborted.")
+            print("\n Aborted.")
             sys.exit(1)
 
+    # Create release branch
+    print(f"\n Creating release branch: {release_branch}")
+    run(["git", "checkout", "-b", release_branch])
+
     # Update files
-    print("\n📝 Updating version files:")
+    print("\n Updating version files:")
     update_version_files(new_version)
 
     # Git operations
-    print("\n📦 Creating commit and tag:")
+    print("\n Creating commit:")
     run(["git", "add", "pyproject.toml", "src/specify_cli/__init__.py"])
     run(["git", "commit", "-m", f"chore: release v{new_version}"])
-    run(["git", "tag", tag_name])
 
-    # Push
-    print("\n🚀 Pushing to origin:")
-    if not args.push:
-        response = input("   Push now? [Y/n]: ").strip().lower()
-        if response == "n":
-            print(f"\n✅ Release v{new_version} created locally.")
-            print("   To push: git push origin main --tags")
-            print(f"   To undo: git reset --hard HEAD~1 && git tag -d {tag_name}")
-            sys.exit(0)
+    # Push branch
+    print(f"\n Pushing branch: {release_branch}")
+    run(["git", "push", "-u", "origin", release_branch])
 
-    run(["git", "push", "origin", "main", "--tags"])
+    # Create PR
+    print("\n Creating pull request:")
+    pr_title = f"Release v{new_version}"
+    pr_body = f"""## Release v{new_version}
 
-    print(f"\n✅ Successfully released v{new_version}!")
-    print("   GitHub Actions will create the release automatically.")
-    print(f"   View at: https://github.com/jpoley/jp-spec-kit/releases/tag/{tag_name}")
+This PR releases version **{new_version}** of JP Spec Kit.
+
+### Changes
+- Version bump: `{current_version}` → `{new_version}`
+
+### What happens when this PR is merged
+1. GitHub Actions detects the merge of the `release/*` branch
+2. Creates git tag `{tag_name}`
+3. Triggers the release workflow:
+   - Builds template packages for all supported AI assistants
+   - Creates GitHub Release with all artifacts
+   - Deploys documentation to GitHub Pages
+
+### Checklist
+- [ ] Version bump is correct
+- [ ] CI checks pass
+- [ ] Ready to release
+
+---
+*Generated by `./scripts/release.py`*
+"""
+
+    result = run(
+        [
+            "gh",
+            "pr",
+            "create",
+            "--title",
+            pr_title,
+            "--body",
+            pr_body,
+            "--base",
+            "main",
+            "--head",
+            release_branch,
+            "--label",
+            "release",
+        ],
+        capture=True,
+        check=False,
+    )
+
+    if result.returncode != 0:
+        # Label might not exist, try without it
+        print("  Note: Creating PR without 'release' label (may not exist)")
+        result = run(
+            [
+                "gh",
+                "pr",
+                "create",
+                "--title",
+                pr_title,
+                "--body",
+                pr_body,
+                "--base",
+                "main",
+                "--head",
+                release_branch,
+            ],
+            capture=True,
+        )
+
+    pr_url = result.stdout.strip()
+
+    print(f"\n Successfully created release PR for v{new_version}!")
+    print("")
+    print("   Next steps:")
+    print(f"   1. Review the PR: {pr_url}")
+    print("   2. Ensure CI checks pass")
+    print("   3. Merge the PR")
+    print("")
+    print("   After merge, GitHub Actions will automatically:")
+    print(f"   - Create tag {tag_name}")
+    print("   - Build and publish the release")
+    print("   - Deploy documentation")
+    print("")
+    print(f"   To cancel: git checkout main && git branch -D {release_branch}")
+    print(f"             git push origin --delete {release_branch}")
 
 
 if __name__ == "__main__":
