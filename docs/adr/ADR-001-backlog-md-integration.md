@@ -9,7 +9,7 @@
 
 ## Context and Problem Statement
 
-JP Spec Kit's `/jpspec:*` commands orchestrate 15+ specialized AI agents across 6 workflows (specify, plan, research, implement, validate, operate). Currently, all task management is manual and ad-hoc with no standardized lifecycle tracking.
+Specflow's `/jpspec:*` commands orchestrate 15+ specialized AI agents across 6 workflows (specify, plan, research, implement, validate, operate). Currently, all task management is manual and ad-hoc with no standardized lifecycle tracking.
 
 **Problems**:
 - No automated task activation when agents start work

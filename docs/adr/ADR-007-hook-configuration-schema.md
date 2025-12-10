@@ -256,7 +256,7 @@ Hook runs if EITHER event matches.
 ```json
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "JP Spec Kit Hooks Configuration",
+  "title": "Specflow Hooks Configuration",
   "type": "object",
   "required": ["version", "hooks"],
   "properties": {

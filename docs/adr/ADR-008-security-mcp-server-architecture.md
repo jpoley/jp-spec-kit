@@ -47,7 +47,7 @@ Security scanning currently operates in **isolation**:
 
 **Option Value:**
 - **Composability Premium:** MCP enables exponential value (N agents × M tools = N×M integrations)
-- **Platform Play:** Security MCP server positions JP Spec Kit as security platform, not just CLI
+- **Platform Play:** Security MCP server positions Specflow as security platform, not just CLI
 - **Competitive Moat:** First SDD toolkit with MCP-based security integration
 
 **Cost:**

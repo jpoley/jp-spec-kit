@@ -9,7 +9,7 @@
 
 ## Context and Problem Statement
 
-JP Spec Kit's workflow configuration (`jpspec_workflow.yml`) is a critical file that defines:
+Specflow's workflow configuration (`jpspec_workflow.yml`) is a critical file that defines:
 - Task lifecycle states (To Do, Specified, Planned, etc.)
 - Workflow commands (`/jpspec:specify`, `/jpspec:implement`, etc.)
 - State transitions and their valid paths

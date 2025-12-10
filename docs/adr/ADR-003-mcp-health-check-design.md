@@ -6,7 +6,7 @@ Accepted
 
 ## Context
 
-JP Spec Kit integrates with 8 Model Context Protocol (MCP) servers that provide critical capabilities including GitHub API access, code understanding, security scanning, and browser automation. When MCP servers fail to start or become unresponsive, development workflows are blocked with unclear error messages.
+Specflow integrates with 8 Model Context Protocol (MCP) servers that provide critical capabilities including GitHub API access, code understanding, security scanning, and browser automation. When MCP servers fail to start or become unresponsive, development workflows are blocked with unclear error messages.
 
 **Problems with current state:**
 - No systematic way to verify MCP server availability

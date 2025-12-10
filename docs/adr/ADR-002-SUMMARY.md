@@ -10,7 +10,7 @@
 
 ## Executive Summary
 
-JP Spec Kit orchestrates software development through `/jpspec` workflow commands (assess, specify, research, plan, implement, validate, operate). Currently, backlog.md tasks use simple statuses ("To Do", "In Progress", "Done") that don't reflect which workflow phase a task is in.
+Specflow orchestrates software development through `/jpspec` workflow commands (assess, specify, research, plan, implement, validate, operate). Currently, backlog.md tasks use simple statuses ("To Do", "In Progress", "Done") that don't reflect which workflow phase a task is in.
 
 **Solution:** Hybrid two-level state model combining board statuses for visual organization with workflow step metadata for precise lifecycle tracking.
 

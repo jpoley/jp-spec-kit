@@ -9,7 +9,7 @@
 
 ## Context
 
-JP Spec Kit operates as a **linear, synchronous workflow system** where each /jpspec command executes agents in isolation. This creates critical automation gaps:
+Specflow operates as a **linear, synchronous workflow system** where each /jpspec command executes agents in isolation. This creates critical automation gaps:
 
 1. **No automated quality gates**: Tests must be run manually after implementation
 2. **No workflow orchestration**: Documentation updates and code reviews require manual coordination
@@ -334,7 +334,7 @@ class EventEmitter:
 ```json
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "JP Spec Kit Base Event",
+  "title": "Specflow Base Event",
   "type": "object",
   "required": ["event_type", "event_id", "schema_version", "timestamp", "project_root"],
   "properties": {

@@ -7,7 +7,7 @@
 
 ## Context
 
-JP Spec Kit currently integrates two SAST tools via MCP servers:
+Specflow currently integrates two SAST tools via MCP servers:
 - **Semgrep** (`@returntocorp/semgrep-mcp`) - Fast pattern-based scanning
 - **Trivy** (`@aquasecurity/trivy-mcp`) - Container/IaC security and SBOM
 
@@ -36,7 +36,7 @@ Integrate CodeQL via MCP server using the existing [codeql-mcp](https://github.c
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                      JP Spec Kit Agents                          │
+│                      Specflow Agents                          │
 ├─────────────────────────────────────────────────────────────────┤
 │  secure-by-design-engineer  │  backend-code-reviewer  │  ...    │
 │         ↓                   │           ↓             │         │

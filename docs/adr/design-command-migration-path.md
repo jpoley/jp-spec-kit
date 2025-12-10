@@ -481,13 +481,13 @@ def migrate_commands(
 
 ### Announcement Template
 
-**Subject**: JP Spec Kit v2.0 - Role-Based Command Namespaces (Action Required)
+**Subject**: Specflow v2.0 - Role-Based Command Namespaces (Action Required)
 
 **Body**:
 ```
-Hi JP Spec Kit users,
+Hi Specflow users,
 
-We're excited to announce JP Spec Kit v2.0 with role-based command
+We're excited to announce Specflow v2.0 with role-based command
 namespaces for improved discoverability and developer experience.
 
 What's Changing:
@@ -510,7 +510,7 @@ Timeline:
 Migration Guide: https://jpspec.dev/docs/migration
 Questions? support@jpspec.dev
 
-Thanks for using JP Spec Kit!
+Thanks for using Specflow!
 The JP Spec Team
 ```
 

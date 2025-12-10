@@ -7,7 +7,7 @@
 
 ## Context and Problem Statement
 
-Claude Code users working on JP Spec Kit projects need immediate context when starting or resuming a session. Without this context:
+Claude Code users working on Specflow projects need immediate context when starting or resuming a session. Without this context:
 
 1. Users don't know if critical dependencies (uv, backlog CLI) are available
 2. Users don't see which backlog tasks are actively in progress
@@ -90,7 +90,7 @@ Claude Code users working on JP Spec Kit projects need immediate context when st
 **Chosen Option**: SessionStart Hook (Option 1)
 
 **Rationale**:
-- Aligns with existing hook patterns in JP Spec Kit
+- Aligns with existing hook patterns in Specflow
 - Automatic execution provides best UX
 - Fail-open design ensures sessions never block
 - Fast performance meets timeout constraints
@@ -199,6 +199,6 @@ Comprehensive test suite at `.claude/hooks/test-session-start.sh`:
 ## References
 
 - [Claude Code Hooks Documentation](https://docs.anthropic.com/claude-code/hooks)
-- [JP Spec Kit CLAUDE.md](../../CLAUDE.md)
+- [Specflow CLAUDE.md](../../CLAUDE.md)
 - [Backlog User Guide](../guides/backlog-user-guide.md)
 - [Hook Test Patterns](.claude/hooks/test-hooks.sh)

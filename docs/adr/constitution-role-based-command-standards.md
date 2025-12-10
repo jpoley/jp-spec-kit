@@ -10,7 +10,7 @@
 
 ## Purpose
 
-This document defines the **constitutional standards** for role-based command namespaces in JP Spec Kit. These principles are intended to be incorporated into `/speckit.constitution` as authoritative rules that govern command creation, organization, and evolution.
+This document defines the **constitutional standards** for role-based command namespaces in Specflow. These principles are intended to be incorporated into `/speckit.constitution` as authoritative rules that govern command creation, organization, and evolution.
 
 ## What is speckit.constitution?
 
@@ -21,7 +21,7 @@ The **speckit.constitution** is the living document that defines:
 - Command and workflow conventions
 - Extensibility guidelines
 
-It serves as the **single source of truth** for how JP Spec Kit should be built and extended.
+It serves as the **single source of truth** for how Specflow should be built and extended.
 
 ---
 

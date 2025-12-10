@@ -9,7 +9,7 @@
 
 ## Context and Problem Statement
 
-JP Spec Kit uses backlog.md to track tasks through workflows with clear acceptance criteria. When creating PRs, developers should ensure tasks are marked "Done" with all acceptance criteria complete. However, it's easy to forget this quality gate in the flow of creating a PR.
+Specflow uses backlog.md to track tasks through workflows with clear acceptance criteria. When creating PRs, developers should ensure tasks are marked "Done" with all acceptance criteria complete. However, it's easy to forget this quality gate in the flow of creating a PR.
 
 **Problems**:
 - PRs created while backlog tasks still marked "In Progress"

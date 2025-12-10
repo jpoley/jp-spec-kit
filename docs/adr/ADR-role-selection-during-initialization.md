@@ -145,7 +145,7 @@ specify init
 
 # Output:
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃ JP Spec Kit - Project Initialization                        ┃
+┃ Specflow - Project Initialization                        ┃
 ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
 Select your primary role for command suggestions:
