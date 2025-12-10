@@ -1,0 +1,114 @@
+# Automatically create release tag when a release PR is merged
+# This workflow detects merged PRs from release/* branches and creates the git tag,
+# which then triggers the main release.yml workflow.
+
+name: Create Release Tag on Merge
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+jobs:
+  create-tag:
+    # Only run if PR was merged (not just closed) AND it's from a release branch
+    if: |
+      github.event.pull_request.merged == true &&
+      startsWith(github.event.pull_request.head.ref, 'release/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract version from branch name
+        id: version
+        run: |
+          BRANCH="${{ github.event.pull_request.head.ref }}"
+          # Extract version from branch name (release/v0.2.344 -> v0.2.344)
+          VERSION="${BRANCH#release/}"
+          VERSION_NUM="${VERSION#v}"
+
+          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "version_num=$VERSION_NUM" >> $GITHUB_OUTPUT
+
+          echo "Branch: $BRANCH"
+          echo "Tag to create: $VERSION"
+          echo "Version number: $VERSION_NUM"
+
+      - name: Verify version in source files
+        run: |
+          TAG_VERSION="${{ steps.version.outputs.version_num }}"
+
+          # Get version from pyproject.toml
+          TOML_VERSION=$(grep -Po '(?<=^version = ")[^"]*' pyproject.toml || echo "")
+
+          # Get version from __init__.py
+          INIT_VERSION=$(grep -Po '(?<=__version__ = ")[^"]*' src/specify_cli/__init__.py || echo "")
+
+          echo "Expected version: $TAG_VERSION"
+          echo "pyproject.toml: $TOML_VERSION"
+          echo "__init__.py: $INIT_VERSION"
+
+          if [ "$TAG_VERSION" != "$TOML_VERSION" ]; then
+            echo "::error::Version mismatch! Expected: $TAG_VERSION, pyproject.toml: $TOML_VERSION"
+            exit 1
+          fi
+
+          if [ -n "$INIT_VERSION" ] && [ "$TAG_VERSION" != "$INIT_VERSION" ]; then
+            echo "::error::Version mismatch! Expected: $TAG_VERSION, __init__.py: $INIT_VERSION"
+            exit 1
+          fi
+
+          echo "Version files are in sync with release branch"
+
+      - name: Check if tag already exists
+        id: check_tag
+        run: |
+          TAG="${{ steps.version.outputs.version }}"
+          if git tag -l "$TAG" | grep -q .; then
+            echo "::error::Tag $TAG already exists!"
+            exit 1
+          fi
+          echo "Tag $TAG does not exist, proceeding"
+
+      - name: Create and push tag
+        run: |
+          TAG="${{ steps.version.outputs.version }}"
+
+          # Configure git
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Create annotated tag
+          git tag -a "$TAG" -m "Release $TAG"
+
+          # Push tag (this will trigger release.yml)
+          git push origin "$TAG"
+
+          echo "Created and pushed tag: $TAG"
+          echo "This will trigger the release workflow to build and publish the release."
+
+      - name: Summary
+        run: |
+          echo "## Release Tag Created" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| PR | #${{ github.event.pull_request.number }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Branch | ${{ steps.version.outputs.branch }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Tag | ${{ steps.version.outputs.version }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The release workflow will now build packages and create the GitHub Release." >> $GITHUB_STEP_SUMMARY
+
+      - name: Delete release branch
+        if: success()
+        run: |
+          BRANCH="${{ github.event.pull_request.head.ref }}"
+          echo "Deleting release branch: $BRANCH"
+          git push origin --delete "$BRANCH" || echo "Branch may have been deleted by PR merge settings"
