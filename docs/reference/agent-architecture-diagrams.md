@@ -1,6 +1,6 @@
 # Agent Architecture Diagrams
 
-This document provides visual representations of the JP Spec Kit agent ecosystem, showing all 16 workflow agents, 13 AI coding platforms, 9 MCP servers, and how they interconnect across the SDD workflow.
+This document provides visual representations of the Specflow agent ecosystem, showing all 16 workflow agents, 13 AI coding platforms, 9 MCP servers, and how they interconnect across the SDD workflow.
 
 ## Quick Reference
 
@@ -723,7 +723,7 @@ Legend: ● = Uses this MCP server
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────┐
-│                         JP SPEC KIT - QUICK REFERENCE                           │
+│                         SPECFLOW - QUICK REFERENCE                              │
 ├─────────────────────────────────────────────────────────────────────────────────┤
 │                                                                                 │
 │  WORKFLOW AGENTS: 16 total                                                      │

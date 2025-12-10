@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide explains the **single-source-of-truth architecture** for command files in JP Spec Kit, ensuring consistency between development and distribution. The dev-setup system eliminates content divergence by establishing `templates/commands/` as the canonical source for all command files.
+This guide explains the **single-source-of-truth architecture** for command files in Specflow, ensuring consistency between development and distribution. The dev-setup system eliminates content divergence by establishing `templates/commands/` as the canonical source for all command files.
 
 **Key Principle**: What developers test is exactly what users receive.
 
@@ -65,7 +65,7 @@ All command development occurs in `templates/commands/`:
 
 ### Directory Structure
 
-**Source Repository** (jp-spec-kit):
+**Source Repository** (Specflow):
 ```
 jp-spec-kit/
 ├── templates/commands/              ◄─── CANONICAL SOURCE
