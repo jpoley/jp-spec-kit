@@ -19,13 +19,13 @@ import pytest
 
 # Role-based command namespace directories (from specflow_workflow.yml)
 # These are the expected subdirectories in .claude/commands/
+# NOTE: PM role removed - PM work is done via /specflow workflow commands
 EXPECTED_COMMAND_NAMESPACES = {
     "specflow",
     "speckit",
     "arch",
     "dev",
     "ops",
-    "pm",
     "qa",
     "sec",
 }
@@ -228,7 +228,7 @@ class TestSubdirectoryStructure:
         """Test only expected command namespace subdirectories exist.
 
         Expected namespaces include specflow, speckit, and role-based directories
-        (arch, dev, ops, pm, qa, sec) as defined in specflow_workflow.yml.
+        (arch, dev, ops, qa, sec) as defined in specflow_workflow.yml.
         """
         if not claude_commands_dir.exists():
             pytest.skip("No .claude/commands directory")

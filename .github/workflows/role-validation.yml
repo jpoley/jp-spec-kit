@@ -217,74 +217,8 @@ jobs:
 
           echo "✓ No drift detected - agents are in sync"
 
-  # Job 4: PM role validation
-  validate-pm-role:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v4
-
-      - name: Install dependencies
-        run: uv sync
-
-      - name: Validate PM commands (assess, define, discover)
-        run: |
-          echo "=== Validating PM role commands ==="
-          uv run python << 'PYTHON'
-          import yaml
-          from pathlib import Path
-
-          with open('specflow_workflow.yml') as f:
-              config = yaml.safe_load(f)
-
-          pm_role = config['roles']['definitions']['pm']
-          required_commands = {'assess', 'define', 'discover'}
-          actual_commands = set(pm_role['commands'])
-
-          missing = required_commands - actual_commands
-          if missing:
-              print(f"❌ PM role missing commands: {missing}")
-              exit(1)
-
-          print(f"✓ PM role has required commands: {actual_commands}")
-
-          # Verify PM agents
-          expected_agents = {'@product-requirements-manager', '@workflow-assessor', '@researcher', '@business-validator'}
-          actual_agents = set(pm_role['agents'])
-
-          missing_agents = expected_agents - actual_agents
-          if missing_agents:
-              print(f"❌ PM role missing agents: {missing_agents}")
-              exit(1)
-
-          print(f"✓ PM role has required agents: {len(actual_agents)} agents")
-          PYTHON
-
-      - name: Check PRD template structure (if exists)
-        run: |
-          echo "=== Checking PRD template structure ==="
-          if [ -f "templates/docs/prd/prd-template.md" ]; then
-            # Check for required sections in PRD template
-            REQUIRED_SECTIONS="## Problem Statement|## User Stories|## Success Metrics|## Acceptance Criteria"
-
-            if ! grep -qE "$REQUIRED_SECTIONS" templates/docs/prd/prd-template.md; then
-              echo "⚠ Warning: PRD template may be missing required sections"
-            else
-              echo "✓ PRD template has required sections"
-            fi
-          else
-            echo "⚠ No PRD template found (skipping validation)"
-          fi
-
-  # Job 5: Dev role validation
+  # Job 4: Dev role validation
+  # NOTE: PM role removed - PM work is done via /specflow workflow commands
   validate-dev-role:
     runs-on: ubuntu-latest
     steps:
@@ -302,7 +236,7 @@ jobs:
       - name: Install dependencies
         run: uv sync
 
-      - name: Validate Dev commands (build, debug, refactor)
+      - name: Validate Dev commands (cleanup, debug, refactor)
         run: |
           echo "=== Validating Dev role commands ==="
           uv run python << 'PYTHON'
@@ -312,7 +246,7 @@ jobs:
               config = yaml.safe_load(f)
 
           dev_role = config['roles']['definitions']['dev']
-          required_commands = {'build', 'debug', 'refactor'}
+          required_commands = {'cleanup', 'debug', 'refactor'}
           actual_commands = set(dev_role['commands'])
 
           missing = required_commands - actual_commands
@@ -379,7 +313,7 @@ jobs:
       - name: Install dependencies
         run: uv sync
 
-      - name: Validate Security commands (scan, triage, fix, audit)
+      - name: Validate Security commands (fix, report, scan, triage)
         run: |
           echo "=== Validating Security role commands ==="
           uv run python << 'PYTHON'
@@ -389,7 +323,7 @@ jobs:
               config = yaml.safe_load(f)
 
           sec_role = config['roles']['definitions']['sec']
-          required_commands = {'scan', 'triage', 'fix', 'audit'}
+          required_commands = {'fix', 'report', 'scan', 'triage'}
           actual_commands = set(sec_role['commands'])
 
           missing = required_commands - actual_commands
@@ -474,7 +408,7 @@ jobs:
       - name: Install dependencies
         run: uv sync
 
-      - name: Validate QA commands (test, verify, review)
+      - name: Validate QA commands (review, test)
         run: |
           echo "=== Validating QA role commands ==="
           uv run python << 'PYTHON'
@@ -484,7 +418,7 @@ jobs:
               config = yaml.safe_load(f)
 
           qa_role = config['roles']['definitions']['qa']
-          required_commands = {'test', 'verify', 'review'}
+          required_commands = {'review', 'test'}
           actual_commands = set(qa_role['commands'])
 
           missing = required_commands - actual_commands
@@ -634,7 +568,7 @@ jobs:
       - name: Install dependencies
         run: uv sync
 
-      - name: Validate Ops commands (deploy, monitor, respond, scale)
+      - name: Validate Ops commands (monitor, respond, scale)
         run: |
           echo "=== Validating Ops role commands ==="
           uv run python << 'PYTHON'
@@ -644,7 +578,7 @@ jobs:
               config = yaml.safe_load(f)
 
           ops_role = config['roles']['definitions']['ops']
-          required_commands = {'deploy', 'monitor', 'respond', 'scale'}
+          required_commands = {'monitor', 'respond', 'scale'}
           actual_commands = set(ops_role['commands'])
 
           missing = required_commands - actual_commands
@@ -681,7 +615,7 @@ jobs:
 
   # Summary job (optional - runs after all validations)
   validation-summary:
-    needs: [validate-schema, validate-commands, validate-agent-sync, validate-pm-role, validate-dev-role, validate-sec-role, validate-qa-role, validate-team-mode, validate-ops-role]
+    needs: [validate-schema, validate-commands, validate-agent-sync, validate-dev-role, validate-sec-role, validate-qa-role, validate-team-mode, validate-ops-role]
     runs-on: ubuntu-latest
     if: always()
     steps:
@@ -695,7 +629,6 @@ jobs:
           if [ "${{ needs.validate-schema.result }}" = "success" ]; then echo "  ✓ Schema validation"; else echo "  ❌ Schema validation"; fi
           if [ "${{ needs.validate-commands.result }}" = "success" ]; then echo "  ✓ Command structure validation"; else echo "  ❌ Command structure validation"; fi
           if [ "${{ needs.validate-agent-sync.result }}" = "success" ]; then echo "  ✓ Agent sync validation"; else echo "  ❌ Agent sync validation"; fi
-          if [ "${{ needs.validate-pm-role.result }}" = "success" ]; then echo "  ✓ PM role validation"; else echo "  ❌ PM role validation"; fi
           if [ "${{ needs.validate-dev-role.result }}" = "success" ]; then echo "  ✓ Dev role validation"; else echo "  ❌ Dev role validation"; fi
           if [ "${{ needs.validate-sec-role.result }}" = "success" ]; then echo "  ✓ Security role validation"; else echo "  ❌ Security role validation"; fi
           if [ "${{ needs.validate-qa-role.result }}" = "success" ]; then echo "  ✓ QA role validation"; else echo "  ❌ QA role validation"; fi

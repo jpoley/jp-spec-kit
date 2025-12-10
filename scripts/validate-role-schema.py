@@ -34,9 +34,12 @@ import yaml
 
 
 class RoleValidator:
-    """Validator for role-based command structure."""
+    """Validator for role-based command structure.
 
-    REQUIRED_ROLES = {"pm", "arch", "dev", "sec", "qa", "ops", "all"}
+    NOTE: PM role removed - PM work is done via /specflow workflow commands.
+    """
+
+    REQUIRED_ROLES = {"arch", "dev", "sec", "qa", "ops", "all"}
 
     def __init__(self, config: dict):
         """Initialize validator with workflow config."""
