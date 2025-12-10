@@ -1,14 +1,14 @@
 # Workflow Step Tracking - Constitutional Principles
 
 **Authority:** Architectural Governance
-**Scope:** JP Spec Kit workflow integration
+**Scope:** Specflow workflow integration
 **Related:** [ADR-002](../adr/ADR-002-workflow-step-tracking-architecture.md)
 
 ---
 
 ## Purpose
 
-This document defines the non-negotiable principles governing workflow step tracking in JP Spec Kit. These principles ensure consistency, reliability, and maintainability of the workflow state machine integration.
+This document defines the non-negotiable principles governing workflow step tracking in Specflow. These principles ensure consistency, reliability, and maintainability of the workflow state machine integration.
 
 **Principle Source:** Gregor Hohpe's architectural philosophy applied to workflow orchestration.
 

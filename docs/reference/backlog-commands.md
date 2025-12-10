@@ -1,6 +1,6 @@
-# Backlog.md Command Reference for jp-spec-kit
+# Backlog.md Command Reference for Specflow
 
-Complete reference for all Backlog.md commands available in jp-spec-kit projects.
+Complete reference for all Backlog.md commands available in Specflow projects.
 
 ## Table of Contents
 

@@ -1,6 +1,6 @@
 # Agent & MCP Server Integrations
 
-This document provides a comprehensive overview of all agents in JP Spec Kit and their configured MCP (Model Context Protocol) server integrations.
+This document provides a comprehensive overview of all agents in Specflow and their configured MCP (Model Context Protocol) server integrations.
 
 ## Architecture Overview
 
