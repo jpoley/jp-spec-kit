@@ -1,8 +1,8 @@
-# JP Spec Kit Hooks Quick Start
+# Specflow Hooks Quick Start
 
 ## Overview
 
-Hooks allow you to run custom scripts when workflow events occur in your JP Spec Kit project. This enables automation of tasks like running tests, updating documentation, quality gates, and integration with external tools.
+Hooks allow you to run custom scripts when workflow events occur in your Specflow project. This enables automation of tasks like running tests, updating documentation, quality gates, and integration with external tools.
 
 ## Getting Started
 

@@ -1,6 +1,6 @@
 # Workflow Customization Guide
 
-This guide explains how to customize the JP Spec Kit workflow by modifying `jpspec_workflow.yml`.
+This guide explains how to customize the Specflow workflow by modifying `jpspec_workflow.yml`.
 
 ## Overview
 
@@ -537,7 +537,7 @@ Custom agents will generate warnings but won't block execution:
 [WARNING] UNKNOWN_AGENT: Workflow 'validate' references unknown agent 'compliance-officer'.
 ```
 
-This is by design - you can use custom agents without modifying JP Spec Kit code.
+This is by design - you can use custom agents without modifying Specflow code.
 
 ### Breaking Changes
 
@@ -553,7 +553,7 @@ Removing states or workflows can break existing tasks:
 Check the `version` field in `jpspec_workflow.yml`:
 
 ```yaml
-version: "1.1"  # Must match JP Spec Kit's expected schema version
+version: "1.1"  # Must match Specflow's expected schema version
 ```
 
 Incompatible versions will cause validation errors.
@@ -696,7 +696,7 @@ vim jpspec_workflow.yml
 If all else fails, restore the default configuration:
 
 ```bash
-# Copy from template (JP Spec Kit installation)
+# Copy from template (Specflow installation)
 cp ~/.local/share/specify-cli/templates/jpspec_workflow.yml ./jpspec_workflow.yml
 ```
 

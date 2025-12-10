@@ -1,6 +1,6 @@
 # Workflow Troubleshooting Guide
 
-This guide provides solutions for common issues when working with JP Spec Kit workflow configuration.
+This guide provides solutions for common issues when working with Specflow workflow configuration.
 
 ## Quick Diagnostics
 
@@ -46,7 +46,7 @@ Searched locations:
 
 **Solution 1: Create default configuration**
 ```bash
-# Copy from JP Spec Kit templates
+# Copy from Specflow templates
 cp ~/.local/share/specify-cli/templates/jpspec_workflow.yml ./jpspec_workflow.yml
 
 # Or create in memory/ directory
@@ -132,7 +132,7 @@ grep -A 20 "^states:" jpspec_workflow.yml
 
 **Solution 4: Check schema version**
 ```yaml
-# Ensure version matches JP Spec Kit's expected version
+# Ensure version matches Specflow's expected version
 version: "1.1"  # Current version
 ```
 
@@ -517,13 +517,13 @@ specify workflow validate
 ```
 
 **Causes**:
-1. JP Spec Kit not installed
+1. Specflow not installed
 2. Old version without workflow commands
 3. Path issue
 
 **Solutions**:
 
-**Solution 1: Install/update JP Spec Kit**
+**Solution 1: Install/update Specflow**
 ```bash
 # Install latest version
 uv tool install . --force
@@ -740,7 +740,7 @@ If none of these solutions work:
 3. Report via GitHub Issues with:
    - Error message
    - Minimal jpspec_workflow.yml
-   - JP Spec Kit version (`specify --version`)
+   - Specflow version (`specify --version`)
    - Steps to reproduce
 
 ---

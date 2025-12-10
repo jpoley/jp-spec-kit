@@ -1,10 +1,10 @@
 # Backlog.md Quick Start Guide
 
-Get started with Backlog.md task management integration in jp-spec-kit in under 5 minutes.
+Get started with Backlog.md task management integration in Specflow in under 5 minutes.
 
 ## What is Backlog.md Integration?
 
-Backlog.md integration extends jp-spec-kit's spec-driven development workflow with powerful task lifecycle management:
+Backlog.md integration extends Specflow's spec-driven development workflow with powerful task lifecycle management:
 
 - **Visual Task Boards**: Kanban boards in terminal and web UI
 - **AI-Powered Management**: Claude Code and other AI assistants can manage tasks via MCP
@@ -16,7 +16,7 @@ Backlog.md integration extends jp-spec-kit's spec-driven development workflow wi
 
 ## Prerequisites
 
-- jp-spec-kit installed and initialized (`specify init`)
+- Specflow installed and initialized (`specify init`)
 - Node.js 18+ (for Backlog.md CLI)
 - Claude Code (optional, for AI integration)
 
@@ -244,8 +244,8 @@ backlog init
 
 ## FAQ
 
-### Q: Can I use Backlog.md without jp-spec-kit?
-**A**: Yes! Backlog.md is a standalone tool. jp-spec-kit integration adds automatic task generation from specs.
+### Q: Can I use Backlog.md without Specflow?
+**A**: Yes! Backlog.md is a standalone tool. Specflow integration adds automatic task generation from specs.
 
 ### Q: Do I need Claude Code?
 **A**: No, you can use Backlog.md CLI and web UI manually. MCP integration just adds AI-powered task management.

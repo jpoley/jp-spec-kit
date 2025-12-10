@@ -31,7 +31,7 @@ The constitution lives at `memory/constitution.md` in your project and serves as
 
 ### Why Tier Selection Matters
 
-JP Spec Kit provides **three constitution tiers** to match different project needs:
+Specflow provides **three constitution tiers** to match different project needs:
 
 | Tier | Best For | Enforcement Level | Key Characteristics |
 |------|----------|-------------------|---------------------|
@@ -267,7 +267,7 @@ specify init --here --constitution heavy
 ```
 
 **Detection logic:**
-- JP Spec Kit detects existing project if any of these exist:
+- Specflow detects existing project if any of these exist:
   - `.git/` directory
   - `package.json` (Node.js)
   - `pyproject.toml` (Python)
@@ -279,10 +279,10 @@ specify init --here --constitution heavy
 
 ### Project Upgrade
 
-Update existing JP Spec Kit installation:
+Update existing Specflow installation:
 
 ```bash
-# Upgrade JP Spec Kit
+# Upgrade Specflow
 specify upgrade
 
 # If constitution missing, you'll be prompted:
@@ -338,7 +338,7 @@ specify init my-project --constitution medium
 **When to use manual customization:**
 - After adding new languages/frameworks
 - When automatic detection failed
-- After upgrading JP Spec Kit
+- After upgrading Specflow
 - To refresh constitution with latest repo state
 
 ### What Gets Detected
@@ -709,7 +709,7 @@ echo "✅ Constitution validated"
 
 ### How Enforcement Works
 
-Before executing `/jpspec` commands, JP Spec Kit checks:
+Before executing `/jpspec` commands, Specflow checks:
 
 1. **Constitution exists** - Is `memory/constitution.md` present?
 2. **Constitution validated** - Are there NEEDS_VALIDATION markers?
@@ -907,11 +907,11 @@ specify constitution version
 
 ### `specify upgrade`
 
-Upgrade JP Spec Kit and handle constitution detection.
+Upgrade Specflow and handle constitution detection.
 
 **Usage:**
 ```bash
-# Upgrade JP Spec Kit
+# Upgrade Specflow
 specify upgrade
 
 # If constitution missing:
@@ -994,7 +994,7 @@ Constitution versions follow **semantic versioning**:
 
 ### Handling Upgrades
 
-When JP Spec Kit releases new constitution templates:
+When Specflow releases new constitution templates:
 
 **Future feature:**
 ```bash
@@ -1227,7 +1227,7 @@ Signed-off-by: Your Name <you@example.com>"
 - [Constitution Distribution PRD](../prd/constitution-distribution-prd.md) - Full feature specification
 - [Tiered Constitution Templates](../../templates/constitutions/) - Template source files
 - [Case Study: Constitution Templates](../case-studies/02-constitution-templates.md) - Implementation story
-- [JP Spec Kit CLI Reference](../reference/cli-commands.md) - All CLI commands
+- [Specflow CLI Reference](../reference/cli-commands.md) - All CLI commands
 
 ---
 
@@ -1251,7 +1251,7 @@ specify constitution validate --json
 # Run LLM customization
 /speckit:constitution
 
-# Upgrade JP Spec Kit (detects missing constitutions)
+# Upgrade Specflow (detects missing constitutions)
 specify upgrade
 ```
 

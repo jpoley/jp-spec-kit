@@ -216,7 +216,7 @@ The script automatically:
 
 **Example output:**
 ```
-🚀 JP Spec Kit Release Script
+🚀 Specflow Release Script
 ==================================================
 
 📋 Current state:

@@ -2,7 +2,7 @@
 
 ## Overview
 
-CodeQL is GitHub's semantic code analysis engine that provides deep dataflow analysis for detecting complex security vulnerabilities. This guide covers installation, database creation, query execution, and integration with jp-spec-kit.
+CodeQL is GitHub's semantic code analysis engine that provides deep dataflow analysis for detecting complex security vulnerabilities. This guide covers installation, database creation, query execution, and integration with Specflow.
 
 **Prerequisites**:
 - Review [CodeQL Licensing](../legal/codeql-licensing-review.md) before proceeding
@@ -13,7 +13,7 @@ CodeQL is GitHub's semantic code analysis engine that provides deep dataflow ana
 
 ### Method 1: Automated Setup (Recommended)
 
-jp-spec-kit provides a setup script that handles CodeQL CLI installation:
+Specflow provides a setup script that handles CodeQL CLI installation:
 
 ```bash
 # Download and install CodeQL CLI
@@ -281,11 +281,11 @@ codeql database analyze mydb --format=json --output=results.json
 codeql database analyze mydb --format=text
 ```
 
-## Integration with jp-spec-kit
+## Integration with Specflow
 
 ### Using specify CLI
 
-jp-spec-kit integrates CodeQL through the `specify security scan` command:
+Specflow integrates CodeQL through the `specify security scan` command:
 
 ```bash
 # Scan with CodeQL (requires --codeql flag)
@@ -332,7 +332,7 @@ scanners:
 
 ### Unified Finding Format (UFFormat)
 
-jp-spec-kit converts CodeQL SARIF output to UFFormat:
+Specflow converts CodeQL SARIF output to UFFormat:
 
 ```python
 # CodeQL SARIF result
@@ -646,7 +646,7 @@ codeql database create db \
 - [Security Lab](https://securitylab.github.com/)
 - [CodeQL Slack](https://codeql.slack.com)
 
-### jp-spec-kit Resources
+### Specflow Resources
 - [CodeQL Licensing Review](../legal/codeql-licensing-review.md)
 - [Security CI/CD Integration](./security-cicd-integration.md)
 - [Dataflow Analysis Patterns](../../memory/security/dataflow-analysis.md)
@@ -665,4 +665,4 @@ After setting up CodeQL:
 ---
 
 **Last Updated**: 2025-12-04
-**Maintained By**: JP Spec Kit Security Team
+**Maintained By**: Specflow Security Team

@@ -1,6 +1,6 @@
-# Backlog.md User Guide for jp-spec-kit
+# Backlog.md User Guide for Specflow
 
-Comprehensive guide to using Backlog.md task management with jp-spec-kit's spec-driven development workflow.
+Comprehensive guide to using Backlog.md task management with Specflow's spec-driven development workflow.
 
 ## Table of Contents
 
@@ -18,7 +18,7 @@ Comprehensive guide to using Backlog.md task management with jp-spec-kit's spec-
 
 ### What is Backlog.md Integration?
 
-Backlog.md integration enhances jp-spec-kit with a robust task lifecycle management layer that bridges the gap between specification and execution.
+Backlog.md integration enhances Specflow with a robust task lifecycle management layer that bridges the gap between specification and execution.
 
 **The Integration Flow**:
 ```
@@ -46,7 +46,7 @@ Completed Feature
 
 ```
 ┌─────────────────────────────────────────┐
-│          jp-spec-kit Layer              │
+│           Specflow Layer                │
 │  /jpspec:specify → spec.md              │
 │  /jpspec:plan → plan.md                 │
 │  /jpspec:tasks → Generate Tasks         │
@@ -74,7 +74,7 @@ Completed Feature
 
 ### Prerequisites
 
-- jp-spec-kit installed: `uv tool install specify-cli --from git+https://github.com/jpoley/jp-spec-kit.git`
+- Specflow installed: `uv tool install specify-cli --from git+https://github.com/jpoley/jp-spec-kit.git`
 - Node.js 18+ or npm/pnpm
 - Git repository initialized
 - Claude Code (optional, for AI integration)
@@ -99,7 +99,7 @@ backlog --version
 ### Step 2: Initialize Backlog in Your Project
 
 ```bash
-# Navigate to your jp-spec-kit project
+# Navigate to your Specflow project
 cd your-project
 
 # Initialize Backlog.md
@@ -199,7 +199,7 @@ specify tasks generate --format backlog-md
 
 ### Task Format Mapping
 
-jp-spec-kit tasks map to Backlog.md like this:
+Specflow tasks map to Backlog.md like this:
 
 **tasks.md format**:
 ```markdown
@@ -233,7 +233,7 @@ Create User model in src/models/user.py
 
 ### Understanding Labels and Dependencies
 
-**Labels** encode the structure from jp-spec-kit:
+**Labels** encode the structure from Specflow:
 
 - **User Story Labels**: `US1`, `US2`, `US3` (from `[US1]` markers)
 - **Phase Labels**: `setup`, `foundational`, `implementation`, `polish`
@@ -950,12 +950,12 @@ backlog board --filter US1  # Instead of viewing all tasks
 
 **Resources**:
 - [Backlog.md Documentation](https://github.com/MrLesk/Backlog.md)
-- [jp-spec-kit Issues](https://github.com/jpoley/jp-spec-kit/issues)
+- [Specflow Issues](https://github.com/jpoley/jp-spec-kit/issues)
 - [MCP Protocol Docs](https://modelcontextprotocol.io)
 
 **Report Issues**:
 ```bash
-# For jp-spec-kit integration issues
+# For Specflow integration issues
 # Open issue at: https://github.com/jpoley/jp-spec-kit/issues
 
 # For Backlog.md tool issues

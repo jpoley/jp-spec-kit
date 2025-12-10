@@ -1,10 +1,10 @@
 # Workflow State Mapping Guide
 
-This guide explains how backlog.md task states map to `/jpspec` workflow commands in the JP Spec Kit Spec-Driven Development (SDD) workflow.
+This guide explains how backlog.md task states map to `/jpspec` workflow commands in the Specflow Spec-Driven Development (SDD) workflow.
 
 ## Overview
 
-JP Spec Kit uses a state machine to coordinate task progression through the SDD lifecycle. Each task state corresponds to a workflow phase, and each phase is executed by running a `/jpspec` command.
+Specflow uses a state machine to coordinate task progression through the SDD lifecycle. Each task state corresponds to a workflow phase, and each phase is executed by running a `/jpspec` command.
 
 **Key Concept**: Task states represent **where you are** in the development lifecycle, while `/jpspec` commands represent **how to move forward**.
 

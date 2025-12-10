@@ -2,7 +2,7 @@
 
 ## Overview
 
-The JP Spec Kit Security Scanner MCP Server exposes security scanning capabilities through the Model Context Protocol (MCP). This enables AI agents, IDEs, and dashboards to query security findings and trigger scans programmatically.
+The Specflow Security Scanner MCP Server exposes security scanning capabilities through the Model Context Protocol (MCP). This enables AI agents, IDEs, and dashboards to query security findings and trigger scans programmatically.
 
 **CRITICAL ARCHITECTURE NOTE:** The MCP server does NOT make LLM API calls. It:
 1. Exposes security data as resources (read-only queries)
@@ -36,7 +36,7 @@ See [ADR-008: Security MCP Server Architecture](../adr/ADR-008-security-mcp-serv
 ### Prerequisites
 
 - Python 3.11+
-- JP Spec Kit installed (`uv tool install . --force`)
+- Specflow installed (`uv tool install . --force`)
 - MCP-compatible client (Claude Desktop, MCP Inspector, etc.)
 
 ### Install MCP Python SDK
@@ -66,7 +66,7 @@ Add the security scanner server to your `.mcp.json` configuration:
       "command": "python",
       "args": ["-m", "specify_cli.security.mcp_server"],
       "env": {},
-      "description": "JP Spec Kit Security Scanner: scan, triage, and fix security findings"
+      "description": "Specflow Security Scanner: scan, triage, and fix security findings"
     }
   }
 }
@@ -569,7 +569,7 @@ For issues or questions:
 
 1. Check the [Troubleshooting](#troubleshooting) section
 2. Review [ADR-008](../adr/ADR-008-security-mcp-server-architecture.md) for architecture details
-3. Open an issue on the JP Spec Kit repository
+3. Open an issue on the Specflow repository
 
 ---
 
