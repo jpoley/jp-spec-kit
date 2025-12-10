@@ -47,7 +47,7 @@ Example: `.specify-backup-20251207-143052/`
 
 ### User Story 1 - Preserve Multiple Backup Versions (Priority: P1)
 
-As a developer using JP Spec Kit, I want each upgrade to create a uniquely named backup directory so that I can access previous versions of my templates after multiple upgrades.
+As a developer using JP Specflow, I want each upgrade to create a uniquely named backup directory so that I can access previous versions of my templates after multiple upgrades.
 
 **Why this priority**: Core functionality - without this, the entire backup system is unreliable.
 

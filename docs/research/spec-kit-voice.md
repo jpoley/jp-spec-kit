@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-Phase 1 of **spec-kit-voice** introduces a cross-platform voice input/output capability to JP Spec Kit. This enables users to interact with coding tools via natural speech, with AI-generated responses spoken back. Desktop clients use a Pipecat-based pipeline (Whisper + Piper); iOS clients use native STT/TTS APIs. Both communicate with a shared `/chat` endpoint for LLM interaction.
+Phase 1 of **spec-kit-voice** introduces a cross-platform voice input/output capability to JP Specflow. This enables users to interact with coding tools via natural speech, with AI-generated responses spoken back. Desktop clients use a Pipecat-based pipeline (Whisper + Piper); iOS clients use native STT/TTS APIs. Both communicate with a shared `/chat` endpoint for LLM interaction.
 
 ---
 

@@ -168,7 +168,7 @@ To improve security documentation:
 
 ## Related Documentation
 
-- [JP Spec Kit Documentation](../../README.md)
+- [JP Specflow Documentation](../../README.md)
 - [Workflow Guide](../guides/workflow-architecture.md)
 - [Agent Classification](../reference/agent-loop-classification.md)
 

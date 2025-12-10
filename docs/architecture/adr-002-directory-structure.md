@@ -4,7 +4,7 @@
 
 **Date**: 2025-12-03
 
-**Deciders**: JP Spec Kit Development Team
+**Deciders**: JP Specflow Development Team
 
 **Context and Problem Statement**:
 

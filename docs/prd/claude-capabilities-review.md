@@ -1,4 +1,4 @@
-# PRD: Claude Code Capabilities Review - JP Spec Kit Utilization Analysis
+# PRD: Claude Code Capabilities Review - JP Specflow Utilization Analysis
 
 **Date**: 2025-11-30
 **Author**: @pm-planner (Product Requirements Manager - Technical Capabilities Analyst)
@@ -9,7 +9,7 @@
 
 ## Executive Summary
 
-This document provides a comprehensive analysis of Claude Code's official capabilities and JP Spec Kit's utilization of these features. The analysis is based on official Anthropic documentation, community resources, and a thorough audit of the JP Spec Kit codebase.
+This document provides a comprehensive analysis of Claude Code's official capabilities and JP Specflow's utilization of these features. The analysis is based on official Anthropic documentation, community resources, and a thorough audit of the JP Specflow codebase.
 
 ### Overall Utilization Score: 67/100 (Good)
 
@@ -31,7 +31,7 @@ This document provides a comprehensive analysis of Claude Code's official capabi
 ### Strategic Recommendation Priority
 1. **Quick Wins** (Immediate): Add permissions.deny rules, extend SessionStart hooks, document thinking modes
 2. **High Value** (1-2 weeks): Create Skills for PM/Architect/QA personas, implement checkpoint awareness
-3. **Long Term** (1-3 months): Develop JP Spec Kit Plugin, explore Output Styles, create statusline
+3. **Long Term** (1-3 months): Develop JP Specflow Plugin, explore Output Styles, create statusline
 
 ---
 
@@ -537,9 +537,9 @@ You are a [role description and expertise areas]...
 
 ---
 
-## 2. Utilization Matrix: JP Spec Kit Implementation
+## 2. Utilization Matrix: JP Specflow Implementation
 
-This section provides detailed ratings for each capability's utilization in JP Spec Kit.
+This section provides detailed ratings for each capability's utilization in JP Specflow.
 
 ### Rating Scale
 - **Excellent** (90-100%): Comprehensive implementation, best practices followed
@@ -658,7 +658,7 @@ $ARGUMENTS
 - No SKILL.md files in project
 
 **Gap Analysis**:
-- ❌ **Critical Gap**: Skills are ideal for JP Spec Kit's agent-based workflows
+- ❌ **Critical Gap**: Skills are ideal for JP Specflow's agent-based workflows
 - ❌ No PM planner skill (despite having subagent)
 - ❌ No architect skill
 - ❌ No QA validator skill
@@ -748,8 +748,8 @@ Skills differ from slash commands in key ways:
 `.claude/settings.json` contains:
 ```json
 {
-  "description": "Claude Code settings for JP Spec Kit project",
-  "projectName": "JP Spec Kit",
+  "description": "Claude Code settings for JP Specflow project",
+  "projectName": "JP Specflow",
   "allowedTools": ["Read", "Write", "Edit", "Glob", "Grep", "Bash", "WebFetch", "WebSearch", "Task", "TodoWrite"],
   "preferences": {
     "codeStyle": "ruff",
@@ -903,12 +903,12 @@ color: blue
 - No plugin packaging
 
 **Gap Analysis**:
-- ❌ **Strategic Opportunity**: JP Spec Kit IS a plugin candidate
+- ❌ **Strategic Opportunity**: JP Specflow IS a plugin candidate
 - ❌ No plugin distribution mechanism
 - ❌ Missing opportunity to share SDD workflow with community
 
 **Opportunity**:
-JP Spec Kit contains all components of a comprehensive plugin:
+JP Specflow contains all components of a comprehensive plugin:
 - ✅ Slash commands (16 commands in `/jpspec` and `/speckit`)
 - ✅ Subagent (PM backlog manager)
 - ✅ Hooks (4 quality/safety hooks)
@@ -939,7 +939,7 @@ jp-spec-kit-plugin/
 ```
 
 **Recommendations**:
-1. **Long-term Strategic**: Create JP Spec Kit Plugin package
+1. **Long-term Strategic**: Create JP Specflow Plugin package
 2. **Long-term**: Publish to Claude Code marketplace
 3. **Long-term**: Enable team/community installation via `/plugin`
 4. **Low Priority**: Create plugin documentation and examples
@@ -1165,7 +1165,7 @@ Background tasks could improve:
 - N/A for this project (terminal-based workflow)
 
 **Recommendations**:
-- None (not applicable to JP Spec Kit's terminal-first approach)
+- None (not applicable to JP Specflow's terminal-first approach)
 
 ---
 
@@ -1281,7 +1281,7 @@ Background tasks could improve:
 - No community sharing mechanism
 
 **High-Impact Improvements**:
-1. **Strategic**: Create JP Spec Kit Plugin package
+1. **Strategic**: Create JP Specflow Plugin package
 2. **Strategic**: Publish to Claude Code marketplace
 3. **Long-term**: Build plugin ecosystem for SDD
 
@@ -1598,7 +1598,7 @@ done
 
 ### 5.4 Long-Term Enhancements (1-3 Months)
 
-**1. Create JP Spec Kit Plugin Package**
+**1. Create JP Specflow Plugin Package**
 - **Effort**: 60 hours
 - **Value**: 40/100 (strategic)
 - **Impact**: Community sharing, reputation building
@@ -1795,8 +1795,8 @@ backlog task list --plain | grep -i "claude\|hook\|skill\|mcp\|agent"
 
 **Priority: LOW (Long-Term)**
 
-12. **Create JP Spec Kit Plugin Package**
-    - **Description**: Package JP Spec Kit as a Claude Code plugin for community sharing and easy installation
+12. **Create JP Specflow Plugin Package**
+    - **Description**: Package JP Specflow as a Claude Code plugin for community sharing and easy installation
     - **AC**:
       - [ ] .claude-plugin/ directory structure created
       - [ ] manifest.json and marketplace.json created
@@ -1877,7 +1877,7 @@ Weights:
 - % of sessions with environment setup errors (baseline: TBD, target: <5%)
 
 **Adoption Metrics**:
-- Number of team members using JP Spec Kit Claude Code setup
+- Number of team members using JP Specflow Claude Code setup
 - Number of external contributors using plugin (if published)
 - Community engagement (GitHub stars, issues, discussions)
 
@@ -1911,7 +1911,7 @@ Weights:
 
 ### 8.1 Summary of Findings
 
-JP Spec Kit demonstrates **good** (67/100) utilization of Claude Code capabilities, with particular strength in:
+JP Specflow demonstrates **good** (67/100) utilization of Claude Code capabilities, with particular strength in:
 - **Hooks** (90%): Comprehensive quality and safety automation
 - **CLAUDE.md** (90%): Excellent hierarchical documentation
 - **Slash Commands** (85%): Rich SDD workflow coverage
@@ -1943,7 +1943,7 @@ However, significant opportunities exist in underutilized areas:
 
 ### 8.3 Expected Outcomes
 
-**By implementing these recommendations**, JP Spec Kit will:
+**By implementing these recommendations**, JP Specflow will:
 - Achieve **85%+ utilization score** (from current 67%)
 - Automate SDD expertise through Skills and Subagents
 - Enforce quality gates through Hooks

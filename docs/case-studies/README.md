@@ -1,10 +1,10 @@
-# JP Spec Kit Case Studies
+# JP Specflow Case Studies
 
 Real-world usage examples with quantitative metrics and honest assessments.
 
 ## Purpose
 
-These case studies document actual projects built using JP Spec Kit's Spec-Driven Development (SDD) workflow. Each case study includes:
+These case studies document actual projects built using JP Specflow's Spec-Driven Development (SDD) workflow. Each case study includes:
 
 - Project overview and context
 - Quantitative metrics (time, quality, rework)

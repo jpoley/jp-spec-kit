@@ -13,7 +13,7 @@
 
 ### Problem Statement
 
-JP Spec Kit has introduced a sophisticated role-based command architecture (task-361, task-367) with 7 personas (PM, Architect, Developer, Security, QA, Ops, All) and role-specific command namespaces. However, **we have zero visibility into how users interact with this role system**, creating critical gaps in product development:
+JP Specflow has introduced a sophisticated role-based command architecture (task-361, task-367) with 7 personas (PM, Architect, Developer, Security, QA, Ops, All) and role-specific command namespaces. However, **we have zero visibility into how users interact with this role system**, creating critical gaps in product development:
 
 1. **No usage analytics**: We don't know which roles developers select or which commands they use
 2. **No adoption metrics**: We can't measure if role-based commands improve workflow efficiency
@@ -78,7 +78,7 @@ Introduce an **opt-in, privacy-preserving telemetry system** for role usage anal
 ### Primary Personas
 
 #### Persona 1: Product Manager (Elena)
-**Background**: Elena maintains JP Spec Kit and needs data to prioritize new role-specific features. She wants to know which roles developers use most and which commands are underutilized.
+**Background**: Elena maintains JP Specflow and needs data to prioritize new role-specific features. She wants to know which roles developers use most and which commands are underutilized.
 
 **Pain Points**:
 - No visibility into role selection patterns
@@ -91,7 +91,7 @@ Introduce an **opt-in, privacy-preserving telemetry system** for role usage anal
 - Measure adoption of new features (e.g., handoff clicks)
 
 #### Persona 2: Developer (Marcus)
-**Background**: Marcus is a privacy-conscious developer who uses JP Spec Kit daily. He's willing to share usage data if it improves the product, but only with strong privacy guarantees.
+**Background**: Marcus is a privacy-conscious developer who uses JP Specflow daily. He's willing to share usage data if it improves the product, but only with strong privacy guarantees.
 
 **Pain Points**:
 - Distrust of telemetry systems that collect PII
@@ -104,7 +104,7 @@ Introduce an **opt-in, privacy-preserving telemetry system** for role usage anal
 - Easy opt-out and data deletion
 
 #### Persona 3: Open Source Contributor (Sarah)
-**Background**: Sarah contributes to JP Spec Kit and wants to understand usage patterns to improve documentation and tutorials for specific roles.
+**Background**: Sarah contributes to JP Specflow and wants to understand usage patterns to improve documentation and tutorials for specific roles.
 
 **Pain Points**:
 - No data on which roles need better documentation
@@ -120,7 +120,7 @@ Introduce an **opt-in, privacy-preserving telemetry system** for role usage anal
 
 #### US1: Opt-In to Telemetry with Privacy Notice
 
-**As a** developer using JP Spec Kit,
+**As a** developer using JP Specflow,
 **I want** to see a clear privacy notice during init/configure,
 **So that** I understand what telemetry is collected and can make an informed consent decision.
 
@@ -446,7 +446,7 @@ Introduce an **opt-in, privacy-preserving telemetry system** for role usage anal
   ```
   Role Usage Analytics (Optional)
 
-  Help improve JP Spec Kit by sharing anonymous role usage data.
+  Help improve JP Specflow by sharing anonymous role usage data.
 
   What we collect:
   - Which roles you select (PM, Dev, QA, etc.)
@@ -702,7 +702,7 @@ View individual task details:
 **Method**:
 1. Recruit 5 beta users (diverse roles: PM, Dev, QA)
 2. Show privacy notice during init workflow
-3. After opt-in decision, interview: "What data does JP Spec Kit collect?"
+3. After opt-in decision, interview: "What data does JP Specflow collect?"
 4. Measure comprehension accuracy
 
 **Success Criteria**:
@@ -1049,7 +1049,7 @@ The following features are explicitly excluded from v1 to maintain focus and shi
                   Role Usage Analytics (Optional)
 ═══════════════════════════════════════════════════════════════
 
-Help improve JP Spec Kit by sharing anonymous role usage data.
+Help improve JP Specflow by sharing anonymous role usage data.
 
 What we collect:
   ✓ Which roles you select (PM, Architect, Dev, Security, QA, Ops)
@@ -1142,7 +1142,7 @@ Enable telemetry? [y/N/defer]:
 
 ### C. FAQ
 
-**Q: Can I use JP Spec Kit without enabling telemetry?**
+**Q: Can I use JP Specflow without enabling telemetry?**
 A: Yes! Telemetry is entirely optional. All features work with telemetry disabled.
 
 **Q: What happens if I opt-out after opting in?**
@@ -1164,7 +1164,7 @@ A: The file is gitignored by default. Even if committed, it only contains hashed
 A: Possibly in v2, but only with explicit opt-in (separate from v1 consent). We'll ask permission first.
 
 **Q: How does this relate to Claude Code hooks?**
-A: Claude Code hooks track tool-level events (file edits, git operations). JP Spec Kit telemetry tracks workflow-level events (role selection, agent invocations). They're complementary.
+A: Claude Code hooks track tool-level events (file edits, git operations). JP Specflow telemetry tracks workflow-level events (role selection, agent invocations). They're complementary.
 
 ---
 

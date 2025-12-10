@@ -9,7 +9,7 @@
 
 ## Executive Summary
 
-The Agent Hooks system transforms JP Spec Kit from a **linear, synchronous workflow engine** into an **event-driven automation platform**. It enables automated quality gates, workflow orchestration, and third-party integrations without modifying core workflow commands.
+The Agent Hooks system transforms JP Specflow from a **linear, synchronous workflow engine** into an **event-driven automation platform**. It enables automated quality gates, workflow orchestration, and third-party integrations without modifying core workflow commands.
 
 **Core Design Principles**:
 1. **Tool-Agnostic**: Works with Claude Code, Gemini, Copilot, or headless automation
@@ -30,7 +30,7 @@ The Agent Hooks system transforms JP Spec Kit from a **linear, synchronous workf
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│                         JP Spec Kit CLI                              │
+│                         JP Specflow CLI                              │
 │  ┌────────────────┐  ┌────────────────┐  ┌────────────────┐        │
 │  │ /jpspec:specify│  │/jpspec:implement│  │ backlog task   │        │
 │  │                │  │                 │  │   operations   │        │
@@ -468,7 +468,7 @@ def task_edit(task_id: str, status: str):
 
 ### 3. Claude Code Hook Complementarity
 
-**JP Spec Kit Hooks** (this system):
+**JP Specflow Hooks** (this system):
 - **Scope**: Workflow-level events (spec.created, task.completed)
 - **Trigger**: /jpspec commands, backlog operations
 - **Use Cases**: Automated testing, documentation updates, CI/CD integration
@@ -479,7 +479,7 @@ def task_edit(task_id: str, status: str):
 - **Use Cases**: Permission requests, safety checks, session lifecycle
 
 **Relationship**: Complementary, not overlapping
-- JP Spec Kit hooks can create/modify Claude Code hooks as artifacts
+- JP Specflow hooks can create/modify Claude Code hooks as artifacts
 - Example: `project.initialized` event creates `.claude/hooks/stop-quality-gate.py`
 
 ---

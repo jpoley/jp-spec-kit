@@ -1,4 +1,4 @@
-# PRD: JP Spec Kit Architecture Enhancements
+# PRD: JP Specflow Architecture Enhancements
 
 **Related Tasks**: task-079, task-081, task-083, task-084, task-086, task-182, task-243, task-244, task-245, task-246
 
@@ -23,13 +23,13 @@
 
 ## Executive Summary
 
-This PRD defines architecture enhancements to JP Spec Kit aimed at increasing adoption by 3x, reducing implementation rework by 30%, and improving user satisfaction to 4.5/5.
+This PRD defines architecture enhancements to JP Specflow aimed at increasing adoption by 3x, reducing implementation rework by 30%, and improving user satisfaction to 4.5/5.
 
-**Problem**: JP Spec Kit's current architecture creates adoption barriers through excessive scaffolding, lack of quality enforcement before implementation, and limited distribution channels.
+**Problem**: JP Specflow's current architecture creates adoption barriers through excessive scaffolding, lack of quality enforcement before implementation, and limited distribution channels.
 
 **Solution**: Four integrated architecture domains that reduce friction for new users while maintaining quality for complex projects.
 
-**Business Value**: Enable JP Spec Kit to scale from solo developers to 10+ person teams.
+**Business Value**: Enable JP Specflow to scale from solo developers to 10+ person teams.
 
 ## Problem Statement
 
@@ -74,7 +74,7 @@ As a **product manager**, I want **automated quality gates before implementation
 
 ### US3: Marketplace Plugin Distribution (task-081)
 
-As an **end user**, I want **JP Spec Kit available as a Claude plugin** so that **I can easily discover, install, and update it through the marketplace**.
+As an **end user**, I want **JP Specflow available as a Claude plugin** so that **I can easily discover, install, and update it through the marketplace**.
 
 **Acceptance Criteria:**
 - [ ] Plugin contains all slash commands (/jpspec:*, /speckit:*)

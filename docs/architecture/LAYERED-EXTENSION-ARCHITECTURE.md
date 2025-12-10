@@ -1,8 +1,8 @@
-# JP Spec Kit - Layered Extension Architecture
+# JP Specflow - Layered Extension Architecture
 
 ## Overview
 
-JP Spec Kit has been transformed from a fork into a **layered extension** of GitHub's spec-kit. This architecture allows you to:
+JP Specflow has been transformed from a fork into a **layered extension** of GitHub's spec-kit. This architecture allows you to:
 
 - ✅ **Stay current** with upstream spec-kit features
 - ✅ **Add custom** agents, stacks, and workflows  
@@ -18,14 +18,14 @@ JP Spec Kit has been transformed from a fork into a **layered extension** of Git
 ┌─────────────────────────────────────────┐
 │  Your Project                           │
 │  ┌───────────────────────────────────┐  │
-│  │ JP Spec Kit Extension (Layer 2)  │  │  ← Custom jpspec commands
+│  │ JP Specflow Extension (Layer 2)  │  │  ← Custom jpspec commands
 │  │ • jpspec:* commands               │  │  ← Multi-language support  
 │  │ • .languages/ expertise           │  │  ← Expert personas
 │  │ • Multi-agent workflows           │  │  ← Advanced orchestration
 │  └───────────────────────────────────┘  │
 │           ↓ Overlays on top of ↓        │
 │  ┌───────────────────────────────────┐  │
-│  │ Base Spec Kit (Layer 1)          │  │  ← Core /speckit.* commands
+│  │ Base Specflow (Layer 1)          │  │  ← Core /speckit.* commands
 │  │ • /speckit.* commands             │  │  ← Standard templates
 │  │ • Core templates                  │  │  ← Setup scripts
 │  │ • Setup scripts                   │  │
@@ -335,7 +335,7 @@ specify upgrade
 specify upgrade --base-version 0.0.20 --extension-version 0.0.20
 ```
 
-### If You're New to JP Spec Kit
+### If You're New to JP Specflow
 
 Just use the standard workflow:
 ```bash
@@ -530,7 +530,7 @@ specify upgrade --debug
 
 ## Summary
 
-JP Spec Kit is now a **true layered extension** that:
+JP Specflow is now a **true layered extension** that:
 
 1. ✅ Downloads base spec-kit from `github/spec-kit`
 2. ✅ Overlays jp-spec-kit extensions from `jpoley/jp-spec-kit`

@@ -9,10 +9,10 @@
 
 ### Problem Statement
 
-JP Spec Kit has a comprehensive constitution (`memory/constitution.md`) that defines critical workflow rules, artifact progression, task quality standards, and development practices. However, this constitution currently exists **only in the jp-spec-kit repository itself**, not in the target repositories that use JP Spec Kit.
+JP Specflow has a comprehensive constitution (`memory/constitution.md`) that defines critical workflow rules, artifact progression, task quality standards, and development practices. However, this constitution currently exists **only in the jp-spec-kit repository itself**, not in the target repositories that use JP Specflow.
 
 This creates a fundamental problem:
-- **Workflow rules are invisible** to projects using JP Spec Kit
+- **Workflow rules are invisible** to projects using JP Specflow
 - **No guidance for users** on artifact progression (PRD → Functional Spec → Technical Spec → ADR → Implementation → Runbook)
 - **Workflow mode variations** (light/medium/heavy) are not documented in target repos
 - **Committer skill separation** and git commit requirements exist only in jp-spec-kit
@@ -160,7 +160,7 @@ specify init --here
 **Evidence**:
 - Users have explicitly requested constitution distribution (user request in this session)
 - Constitution contains critical workflow rules (artifact progression, git requirements, task quality)
-- Without constitution, users lack guidance on how to use JP Spec Kit correctly
+- Without constitution, users lack guidance on how to use JP Specflow correctly
 
 **Mitigation**:
 - Make constitution creation opt-in with clear value proposition
@@ -189,7 +189,7 @@ specify init --here
 **Evidence**:
 - Templates already exist (task-241 ✅)
 - --constitution flag works (task-242 ✅)
-- LLM integration already exists in JP Spec Kit (slash commands use Claude)
+- LLM integration already exists in JP Specflow (slash commands use Claude)
 - Detection logic straightforward (check file existence)
 
 **Technical Challenges**:
@@ -636,14 +636,14 @@ specify init --here
 
 **Triggers**:
 1. `specify init --here` (initializing in current directory)
-2. `specify upgrade` (updating JP Spec Kit)
+2. `specify upgrade` (updating JP Specflow)
 3. Any `/jpspec` command when constitution missing (just-in-time)
 
 **Validation Method**:
 - User interviews: When do they expect constitution to be created?
 - Test scenarios:
   - New contributor clones repo without constitution
-  - Existing project adds JP Spec Kit
+  - Existing project adds JP Specflow
   - Project created before constitution feature existed
 
 **Decision Criteria**:

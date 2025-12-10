@@ -11,7 +11,7 @@
 
 ### Problem Statement
 
-JP Spec Kit provides 23 custom slash commands for Spec-Driven Development workflows via the `.claude/commands/` directory structure. These commands work perfectly in Claude Code CLI but are **completely invisible** in VS Code and VS Code Insiders when using the GitHub Copilot extension.
+JP Specflow provides 23 custom slash commands for Spec-Driven Development workflows via the `.claude/commands/` directory structure. These commands work perfectly in Claude Code CLI but are **completely invisible** in VS Code and VS Code Insiders when using the GitHub Copilot extension.
 
 This creates a significant usability gap: developers working in VS Code cannot access critical workflow commands (`/jpspec:specify`, `/jpspec:implement`, `/speckit:plan`, etc.) directly in their IDE, forcing them to context-switch to the CLI or manually copy prompts.
 
@@ -43,9 +43,9 @@ Create a dual-agent system that supports both Claude Code CLI and VS Code Copilo
 ### Business Value
 
 - **Velocity**: Developers can invoke SDD workflows directly in their IDE, eliminating context-switching overhead
-- **Adoption**: Lowers barrier to entry for JP Spec Kit - developers don't need to learn a separate CLI tool
+- **Adoption**: Lowers barrier to entry for JP Specflow - developers don't need to learn a separate CLI tool
 - **Consistency**: Ensures identical workflow experience across Claude Code CLI and VS Code environments
-- **Strategic Alignment**: Positions JP Spec Kit as IDE-agnostic, supporting both Claude AI and GitHub Copilot ecosystems
+- **Strategic Alignment**: Positions JP Specflow as IDE-agnostic, supporting both Claude AI and GitHub Copilot ecosystems
 
 ---
 
@@ -138,7 +138,7 @@ Acceptance Criteria:
 
 **US-3: Automated Command Synchronization**
 ```
-As a maintainer of JP Spec Kit,
+As a maintainer of JP Specflow,
 I want changes to .claude/commands/ to automatically sync to .github/agents/,
 So that I don't need to manually maintain two copies of every command.
 
@@ -500,7 +500,7 @@ hooks:
 ```markdown
 ## Using jpspec with VS Code Copilot
 
-JP Spec Kit commands are available in **both** Claude Code CLI and VS Code Copilot Chat:
+JP Specflow commands are available in **both** Claude Code CLI and VS Code Copilot Chat:
 
 ### In Claude Code CLI
 ```bash
@@ -532,7 +532,7 @@ git commit -m "Sync Copilot agents"
 ```markdown
 ## Copilot Agent Synchronization
 
-JP Spec Kit maintains two agent systems:
+JP Specflow maintains two agent systems:
 - `.claude/commands/` for Claude Code CLI
 - `.github/agents/` for VS Code Copilot
 

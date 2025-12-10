@@ -1,4 +1,4 @@
-# JP Spec Kit - Backlog
+# JP Specflow - Backlog
 
 **Project:** jp-spec-kit
 **Last Updated:** 2025-11-24
