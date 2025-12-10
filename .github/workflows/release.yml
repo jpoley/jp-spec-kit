@@ -2,124 +2,103 @@ name: Create Release
 
 on:
   push:
-    branches: [ main ]
+    tags:
+      - 'v*'
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., v1.0.0). Only use if tag was not pushed.'
+        required: false
+        type: string
 
 jobs:
   release:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      pull-requests: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Get version from pyproject.toml
-        id: get_tag
-        run: |
-          chmod +x .github/workflows/scripts/get-next-version.sh
-          .github/workflows/scripts/get-next-version.sh
-      - name: Check if release already exists
-        id: check_release
-        run: |
-          chmod +x .github/workflows/scripts/check-release-exists.sh
-          .github/workflows/scripts/check-release-exists.sh ${{ steps.get_tag.outputs.new_version }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Update version in source files
-        if: steps.check_release.outputs.exists == 'false'
-        env:
-          NEW_VERSION: ${{ steps.get_tag.outputs.new_version }}
-        run: |
-          chmod +x .github/workflows/scripts/update-version.sh
-          .github/workflows/scripts/update-version.sh "$NEW_VERSION"
-      - name: Commit and push version bump
-        if: steps.check_release.outputs.exists == 'false'
-        id: commit_version
-        env:
-          NEW_VERSION: ${{ steps.get_tag.outputs.new_version }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add pyproject.toml src/specify_cli/__init__.py
 
-          # Check if there are changes to commit (only version files)
-          if git diff --cached --quiet pyproject.toml src/specify_cli/__init__.py; then
-            echo "No version changes needed"
-            echo "version_committed=true" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-
-          git commit -m "chore: bump version to $NEW_VERSION [skip ci]"
-
-          # Try direct push first
-          if git push origin main; then
-            echo "✅ Version files updated directly on main"
-            echo "version_committed=true" >> $GITHUB_OUTPUT
+      - name: Determine version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ inputs.version }}" ]; then
+            VERSION="${{ inputs.version }}"
+          elif [ "${{ github.event_name }}" = "push" ]; then
+            VERSION="${GITHUB_REF#refs/tags/}"
           else
-            echo "⚠️ Direct push failed (branch protection). Creating PR instead..."
-
-            # Create a branch and PR for the version bump
-            VERSION_NUM="${NEW_VERSION#v}"
-            BRANCH_NAME="chore/version-bump-${VERSION_NUM}"
-            git checkout -b "$BRANCH_NAME"
-            git push origin "$BRANCH_NAME"
-
-            # Try to create PR - may fail if Actions can't create PRs
-            if gh pr create \
-              --title "chore: bump version to $NEW_VERSION" \
-              --body "Automated version bump to $NEW_VERSION for upcoming release. This PR was created because main branch is protected and requires PRs." \
-              --base main \
-              --head "$BRANCH_NAME"; then
-              echo "✅ Created PR for version bump - release will complete after PR merge"
-              echo "version_committed=false" >> $GITHUB_OUTPUT
-            else
-              echo "❌ Could not create PR. Cleaning up branch..."
-              git push origin --delete "$BRANCH_NAME" || true
-              echo "version_committed=false" >> $GITHUB_OUTPUT
-              exit 1  # Fail workflow - don't create tag without version sync
-            fi
+            echo "::error::No version specified. Push a tag or provide version input."
+            exit 1
           fi
-      - name: Create git tag on version commit
-        if: steps.check_release.outputs.exists == 'false' && steps.commit_version.outputs.version_committed == 'true'
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "version_num=${VERSION#v}" >> $GITHUB_OUTPUT
+          echo "📦 Releasing version: $VERSION"
+
+      - name: Verify version matches source files
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          TAG_VERSION="${{ steps.version.outputs.version_num }}"
+          TOML_VERSION=$(grep -Po '(?<=^version = ")[^"]*' pyproject.toml || echo "")
+          INIT_VERSION=$(grep -Po '(?<=__version__ = ")[^"]*' src/specify_cli/__init__.py || echo "")
 
-          # Fetch latest state from remote (version commit was just pushed)
-          git fetch origin main
-          git fetch --tags
-          git checkout main
-          git reset --hard origin/main
+          echo "Tag version: $TAG_VERSION"
+          echo "pyproject.toml: $TOML_VERSION"
+          echo "__init__.py: $INIT_VERSION"
 
-          # Tag the current commit (which has the version update)
-          if ! git rev-parse ${{ steps.get_tag.outputs.new_version }} >/dev/null 2>&1; then
-            git tag ${{ steps.get_tag.outputs.new_version }}
-            git push origin ${{ steps.get_tag.outputs.new_version }}
-            echo "Created tag ${{ steps.get_tag.outputs.new_version }}"
-          else
-            echo "Tag ${{ steps.get_tag.outputs.new_version }} already exists"
+          if [ "$TAG_VERSION" != "$TOML_VERSION" ]; then
+            echo "::error::Version mismatch! Tag: $TAG_VERSION, pyproject.toml: $TOML_VERSION"
+            echo "Run: ./scripts/release.py $TAG_VERSION"
+            exit 1
           fi
-      - name: Create release package variants
-        if: steps.check_release.outputs.exists == 'false' && steps.commit_version.outputs.version_committed == 'true'
+
+          if [ -n "$INIT_VERSION" ] && [ "$TAG_VERSION" != "$INIT_VERSION" ]; then
+            echo "::error::Version mismatch! Tag: $TAG_VERSION, __init__.py: $INIT_VERSION"
+            exit 1
+          fi
+
+          echo "✅ Version files are in sync with tag"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Build package
+        run: uv build
+
+      - name: Create release packages
         run: |
           chmod +x .github/workflows/scripts/create-release-packages.sh
-          .github/workflows/scripts/create-release-packages.sh ${{ steps.get_tag.outputs.new_version }}
+          .github/workflows/scripts/create-release-packages.sh ${{ steps.version.outputs.version }}
+
+      - name: Get previous tag
+        id: prev_tag
+        run: |
+          PREV_TAG=$(git tag --sort=-v:refname | grep -E '^v[0-9]' | sed -n '2p' || echo "")
+          echo "tag=$PREV_TAG" >> $GITHUB_OUTPUT
+          echo "Previous tag: $PREV_TAG"
+
       - name: Generate release notes
-        if: steps.check_release.outputs.exists == 'false' && steps.commit_version.outputs.version_committed == 'true'
         id: release_notes
         run: |
           chmod +x .github/workflows/scripts/generate-release-notes.sh
-          .github/workflows/scripts/generate-release-notes.sh ${{ steps.get_tag.outputs.new_version }} ${{ steps.get_tag.outputs.latest_tag }}
+          .github/workflows/scripts/generate-release-notes.sh ${{ steps.version.outputs.version }} "${{ steps.prev_tag.outputs.tag }}"
+
       - name: Create GitHub Release
-        if: steps.check_release.outputs.exists == 'false' && steps.commit_version.outputs.version_committed == 'true'
         run: |
           chmod +x .github/workflows/scripts/create-github-release.sh
-          .github/workflows/scripts/create-github-release.sh ${{ steps.get_tag.outputs.new_version }}
+          .github/workflows/scripts/create-github-release.sh ${{ steps.version.outputs.version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ steps.version.outputs.version }}
+          path: dist/
