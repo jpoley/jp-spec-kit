@@ -19,8 +19,8 @@ Use `specify init --light` when:
 ## What's Different
 
 ### Skipped in Light Mode
-- `/jpspec:research` phase
-- `/jpspec:analyze` phase
+- `/specflow:research` phase
+- `/specflow:analyze` phase
 - Detailed data models
 - API contracts
 - Quickstart documentation
@@ -62,7 +62,7 @@ docs/
 specify init my-feature --light
 
 # Check if project is light mode
-ls .jpspec-light-mode
+ls .specflow-light-mode
 
 # The marker file indicates light mode is active
 ```
@@ -71,10 +71,10 @@ ls .jpspec-light-mode
 
 If a feature becomes more complex than expected:
 
-1. Delete `.jpspec-light-mode` marker
-2. Run `/jpspec:specify` to create full spec
-3. Run `/jpspec:research` if needed
-4. Run `/jpspec:plan` for detailed planning
+1. Delete `.specflow-light-mode` marker
+2. Run `/specflow:specify` to create full spec
+3. Run `/specflow:research` if needed
+4. Run `/specflow:plan` for detailed planning
 
 ## Downgrading from Full Mode to Light Mode
 
@@ -93,7 +93,7 @@ Downgrading from full mode to light mode is **not supported**. Once you have upg
 
 ## Best Practices
 
-1. **Start with assessment**: Run `/jpspec:assess` first to confirm light mode is appropriate
+1. **Start with assessment**: Run `/specflow:assess` first to confirm light mode is appropriate
 2. **Don't force it**: If complexity grows, upgrade to full mode
 3. **Document out-of-scope**: Be explicit about what's not included
 4. **Maintain quality**: Light mode ≠ lower quality, just less documentation

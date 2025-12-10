@@ -2,7 +2,7 @@
 
 ## Overview
 
-The `/jpspec:assess` command helps teams determine the appropriate development workflow based on feature complexity. This guide explains when to use Spec-Driven Development (SDD), when to use lightweight approaches, and how to make informed workflow decisions.
+The `/specflow:assess` command helps teams determine the appropriate development workflow based on feature complexity. This guide explains when to use Spec-Driven Development (SDD), when to use lightweight approaches, and how to make informed workflow decisions.
 
 ## The Problem
 
@@ -142,14 +142,14 @@ The assessment evaluates 8 key dimensions, each scored 1-4 points:
 ```
 
 **Use These SDD Phases:**
-- ✅ `/jpspec:specify` - Create lightweight spec
-- ✅ `/jpspec:implement` - Direct implementation
+- ✅ `/specflow:specify` - Create lightweight spec
+- ✅ `/specflow:implement` - Direct implementation
 - ✅ Code review (part of implement)
 
 **Skip These SDD Phases:**
-- ❌ `/jpspec:research` - No market research needed
-- ❌ `/jpspec:plan` - No full architectural planning
-- ❌ `/jpspec:validate` - No dedicated QA phase
+- ❌ `/specflow:research` - No market research needed
+- ❌ `/specflow:plan` - No full architectural planning
+- ❌ `/specflow:validate` - No dedicated QA phase
 
 **Why Spec-Light?**
 - Captures key decisions without excessive documentation
@@ -177,35 +177,35 @@ The assessment evaluates 8 key dimensions, each scored 1-4 points:
 
 **Workflow:**
 ```
-1. /jpspec:specify
+1. /specflow:specify
    - Comprehensive PRD
    - User stories and use cases
    - DVF+V risk assessment
    - Success metrics
 
-2. /jpspec:research
+2. /specflow:research
    - Market analysis
    - Competitive landscape
    - Technical feasibility
    - Business validation
 
-3. /jpspec:plan
+3. /specflow:plan
    - System architecture
    - Platform design
    - ADRs for key decisions
    - Integration patterns
 
-4. /jpspec:implement
+4. /specflow:implement
    - Parallel dev (frontend/backend)
    - Comprehensive code review
    - Integration testing
 
-5. /jpspec:validate
+5. /specflow:validate
    - QA and testing
    - Security review
    - Documentation review
 
-6. /jpspec:operate
+6. /specflow:operate
    - CI/CD setup
    - Monitoring and alerting
    - Phased rollout
@@ -225,10 +225,10 @@ The assessment evaluates 8 key dimensions, each scored 1-4 points:
 
 ```bash
 # Interactive assessment
-/jpspec:assess
+/specflow:assess
 
 # With feature context
-/jpspec:assess "Integrate Stripe payment processing"
+/specflow:assess "Integrate Stripe payment processing"
 
 # As part of project initialization
 specify init
@@ -351,7 +351,7 @@ The assessment integrates with backlog task management:
 backlog task create "New feature" --ac "Criterion 1" --ac "Criterion 2"
 
 # Assessment determines workflow
-/jpspec:assess "New feature"
+/specflow:assess "New feature"
 
 # Based on recommendation, choose approach:
 
@@ -362,7 +362,7 @@ backlog task edit 1 -s "In Progress"
 backlog task edit 1 -s "Specified"
 
 # If Complex: Follow full SDD workflow
-/jpspec:specify "New feature"
+/specflow:specify "New feature"
 ```
 
 ## Examples and Case Studies
@@ -440,15 +440,15 @@ Score: 31/32 (Complex)
 Recommendation: Full SDD Workflow
 
 Approach:
-1. /jpspec:specify - Full PRD with business case
-2. /jpspec:research - Competitive analysis, technical spikes
-3. /jpspec:plan - Architecture blueprint, ADRs
+1. /specflow:specify - Full PRD with business case
+2. /specflow:research - Competitive analysis, technical spikes
+3. /specflow:plan - Architecture blueprint, ADRs
 4. Phased implementation:
    - Phase 1: Data model + migration strategy
    - Phase 2: Tenant isolation
    - Phase 3: UI and routing
-5. /jpspec:validate - Security audit, QA
-6. /jpspec:operate - Staged rollout with monitoring
+5. /specflow:validate - Security audit, QA
+6. /specflow:operate - Staged rollout with monitoring
 ```
 
 ## FAQ
@@ -484,7 +484,7 @@ A: Yes! Save assessment results with specs. Helps with retrospectives and calibr
 
 ## Summary
 
-The `/jpspec:assess` command helps you:
+The `/specflow:assess` command helps you:
 1. **Make informed decisions** about workflow based on complexity
 2. **Avoid over-engineering** simple features with excessive planning
 3. **Reduce risk** on complex features through proper specification

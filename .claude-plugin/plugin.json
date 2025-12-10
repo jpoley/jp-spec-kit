@@ -22,34 +22,34 @@
   "components": {
     "commands": [
       {
-        "name": "jpspec:specify",
+        "name": "specflow:specify",
         "description": "Create/update feature specs using PM planner agent (manages /speckit.tasks)",
-        "file": "../.claude/commands/jpspec/specify.md"
+        "file": "../.claude/commands/specflow/specify.md"
       },
       {
-        "name": "jpspec:plan",
+        "name": "specflow:plan",
         "description": "Execute planning workflow (architect + platform engineer)",
-        "file": "../.claude/commands/jpspec/plan.md"
+        "file": "../.claude/commands/specflow/plan.md"
       },
       {
-        "name": "jpspec:research",
+        "name": "specflow:research",
         "description": "Execute research and business validation workflow",
-        "file": "../.claude/commands/jpspec/research.md"
+        "file": "../.claude/commands/specflow/research.md"
       },
       {
-        "name": "jpspec:implement",
+        "name": "specflow:implement",
         "description": "Execute implementation (frontend + backend engineers + code review)",
-        "file": "../.claude/commands/jpspec/implement.md"
+        "file": "../.claude/commands/specflow/implement.md"
       },
       {
-        "name": "jpspec:validate",
+        "name": "specflow:validate",
         "description": "Execute QA and validation (QA + security + docs + release)",
-        "file": "../.claude/commands/jpspec/validate.md"
+        "file": "../.claude/commands/specflow/validate.md"
       },
       {
-        "name": "jpspec:operate",
+        "name": "specflow:operate",
         "description": "Execute operations (SRE for CI/CD + K8s + DevSecOps + observability)",
-        "file": "../.claude/commands/jpspec/operate.md"
+        "file": "../.claude/commands/specflow/operate.md"
       }
     ],
     "agents": [

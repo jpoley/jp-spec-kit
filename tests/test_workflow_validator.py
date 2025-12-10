@@ -889,7 +889,7 @@ class TestSpecialTransitions:
         config = {
             "states": ["To Do", "In Progress", "Done"],
             "workflows": {
-                "start": {"command": "/jpspec:start", "input_states": ["To Do"]},
+                "start": {"command": "/specflow:start", "input_states": ["To Do"]},
             },
             "transitions": [
                 {"from": "To Do", "to": "In Progress", "via": "start"},
@@ -906,9 +906,9 @@ class TestSpecialTransitions:
         config = {
             "states": ["To Do", "In Progress", "Review", "Done"],
             "workflows": {
-                "start": {"command": "/jpspec:start", "input_states": ["To Do"]},
+                "start": {"command": "/specflow:start", "input_states": ["To Do"]},
                 "review": {
-                    "command": "/jpspec:review",
+                    "command": "/specflow:review",
                     "input_states": ["In Progress"],
                 },
             },
@@ -929,9 +929,9 @@ class TestSpecialTransitions:
         config = {
             "states": ["To Do", "In Progress", "Deployed", "Done"],
             "workflows": {
-                "start": {"command": "/jpspec:start", "input_states": ["To Do"]},
+                "start": {"command": "/specflow:start", "input_states": ["To Do"]},
                 "deploy": {
-                    "command": "/jpspec:deploy",
+                    "command": "/specflow:deploy",
                     "input_states": ["In Progress"],
                 },
             },
@@ -956,8 +956,8 @@ class TestSpecialTransitions:
         config = {
             "states": ["To Do", "Validated", "Deployed"],
             "workflows": {
-                "validate": {"command": "/jpspec:validate", "input_states": ["To Do"]},
-                "deploy": {"command": "/jpspec:deploy", "input_states": ["Validated"]},
+                "validate": {"command": "/specflow:validate", "input_states": ["To Do"]},
+                "deploy": {"command": "/specflow:deploy", "input_states": ["Validated"]},
             },
             "transitions": [
                 {"from": "To Do", "to": "Validated", "via": "validate"},
@@ -976,9 +976,9 @@ class TestSpecialTransitions:
         config = {
             "states": ["To Do", "In Progress", "Review"],
             "workflows": {
-                "start": {"command": "/jpspec:start", "input_states": ["To Do"]},
+                "start": {"command": "/specflow:start", "input_states": ["To Do"]},
                 "review": {
-                    "command": "/jpspec:review",
+                    "command": "/specflow:review",
                     "input_states": ["In Progress"],
                 },
             },
@@ -999,7 +999,7 @@ class TestSpecialTransitions:
         config = {
             "states": ["To Do", "In Progress", "Done"],
             "workflows": {
-                "start": {"command": "/jpspec:start", "input_states": ["To Do"]},
+                "start": {"command": "/specflow:start", "input_states": ["To Do"]},
             },
             "transitions": [
                 {"from": "To Do", "to": "In Progress", "via": "start"},
@@ -1036,12 +1036,12 @@ class TestSpecialTransitions:
         config = {
             "states": ["To Do", "In Progress", "Review", "Deployed", "Done"],
             "workflows": {
-                "start": {"command": "/jpspec:start", "input_states": ["To Do"]},
+                "start": {"command": "/specflow:start", "input_states": ["To Do"]},
                 "review": {
-                    "command": "/jpspec:review",
+                    "command": "/specflow:review",
                     "input_states": ["In Progress"],
                 },
-                "deploy": {"command": "/jpspec:deploy", "input_states": ["Review"]},
+                "deploy": {"command": "/specflow:deploy", "input_states": ["Review"]},
             },
             "transitions": [
                 {"from": "To Do", "to": "In Progress", "via": "start"},

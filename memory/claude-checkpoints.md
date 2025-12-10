@@ -106,7 +106,7 @@ User: I understand now, but I prefer the original. Undo please.
 
 ## Integration with SDD Workflow
 
-### During /jpspec:implement
+### During /specflow:implement
 
 Before risky implementation:
 1. Ensure Git is clean (commit or stash)

@@ -1,5 +1,5 @@
 ---
-name: "jpspec-security_fix"
+name: "specflow-security_fix"
 description: "Generate and apply security patches for vulnerability findings from triage results."
 target: "chat"
 tools:
@@ -13,7 +13,7 @@ tools:
   - "mcp__serena__*"
   - "Skill"
 ---
-# /jpspec:security fix - Automated Security Fix Generation
+# /specflow:security fix - Automated Security Fix Generation
 
 Generate secure code patches for vulnerability findings, validate syntax, and optionally apply patches.
 
@@ -35,7 +35,7 @@ $ARGUMENTS
 
 This command requires:
 1. Triage results exist at `docs/security/triage-results.json`
-2. Run `/jpspec:security triage` first if triage results don't exist
+2. Run `/specflow:security triage` first if triage results don't exist
 
 ## Workflow Overview
 
@@ -56,7 +56,7 @@ This command requires:
 # Check if triage results exist
 if [ ! -f "docs/security/triage-results.json" ]; then
   echo "❌ Error: Triage results not found at docs/security/triage-results.json"
-  echo "Run /jpspec:security triage first to generate triage results."
+  echo "Run /specflow:security triage first to generate triage results."
   exit 1
 fi
 
@@ -367,7 +367,7 @@ Create human-readable report at `docs/security/fix-summary.md`:
 
 3. Re-run security scan to verify fixes:
    ```bash
-   /jpspec:security scan
+   /specflow:security scan
    ```
 
 4. Commit changes:
@@ -413,7 +413,7 @@ Fix Summary Report:
 Next Steps:
 1. Review failed patches and apply manually
 2. Run tests: pytest tests/
-3. Re-run security scan: /jpspec:security scan
+3. Re-run security scan: /specflow:security scan
 4. Commit fixes: git commit -m "fix: security patches"
 ================================================================================
 ```
@@ -430,10 +430,10 @@ Next Steps:
 Required file: docs/security/triage-results.json
 
 Run triage first:
-  /jpspec:security triage
+  /specflow:security triage
 
 Then retry:
-  /jpspec:security fix
+  /specflow:security fix
 ```
 
 ### No True Positives
@@ -464,7 +464,7 @@ Possible causes:
 Next steps:
 1. Review finding manually
 2. Create custom patch
-3. Re-run: /jpspec:security fix --finding {finding.id}
+3. Re-run: /specflow:security fix --finding {finding.id}
 ```
 
 ### Patch Application Failed
@@ -490,7 +490,7 @@ Next steps:
 
 ## Help Text
 
-**Command**: `/jpspec:security fix [options]`
+**Command**: `/specflow:security fix [options]`
 
 **Purpose**: Generate and apply security patches for vulnerability findings from triage.
 
@@ -504,21 +504,21 @@ Next steps:
 
 ```bash
 # Generate patches for all TP findings (no auto-apply)
-/jpspec:security fix
+/specflow:security fix
 
 # Generate and apply all patches
-/jpspec:security fix --apply
+/specflow:security fix --apply
 
 # Fix specific finding
-/jpspec:security fix --finding SQL-001
+/specflow:security fix --finding SQL-001
 
 # Generate patches with review
-/jpspec:security fix --review
+/specflow:security fix --review
 ```
 
 **Prerequisites**:
 - Triage results must exist: `docs/security/triage-results.json`
-- Run `/jpspec:security triage` first if needed
+- Run `/specflow:security triage` first if needed
 
 **Output**:
 - Patch files: `docs/security/patches/{finding-id}.patch`
@@ -534,6 +534,6 @@ Next steps:
 6. Generate fix summary report
 
 **See Also**:
-- `/jpspec:security scan` - Run security scanners
-- `/jpspec:security triage` - Classify and prioritize findings
+- `/specflow:security scan` - Run security scanners
+- `/specflow:security triage` - Classify and prioritize findings
 - `memory/security/fix-patterns.md` - Common fix patterns

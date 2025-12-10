@@ -22,7 +22,7 @@ Add role selection prompts to /speckit:init and /speckit:configure commands. Use
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [ ] #1 Define role selection UX with 5 roles (PM, Dev, Sec, QA, All)
-- [ ] #2 Determine configuration storage location (jpspec_workflow.yml + .vscode/settings.json)
+- [ ] #2 Determine configuration storage location (specflow_workflow.yml + .vscode/settings.json)
 - [ ] #3 Document role-to-command mappings
 - [ ] #4 Specify multi-role support (primary + secondary roles)
 - [ ] #5 Define team vs user mode configuration

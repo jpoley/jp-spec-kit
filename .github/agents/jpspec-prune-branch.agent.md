@@ -1,5 +1,5 @@
 ---
-name: "jpspec-prune-branch"
+name: "specflow-prune-branch"
 description: "Prune local branches that have been merged and deleted on remote."
 target: "chat"
 tools:

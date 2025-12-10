@@ -1,1 +1,0 @@
-../../../templates/commands/jpspec/init.md

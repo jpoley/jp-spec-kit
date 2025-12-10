@@ -159,7 +159,7 @@ Types:
 
 Examples:
   feat(cli): add support for Windsurf agent
-  fix(templates): correct jpspec command paths
+  fix(templates): correct specflow command paths
   docs(readme): update installation instructions
   test(cli): add tests for --force flag
 ```
@@ -200,9 +200,9 @@ jp-spec-kit/
 │   ├── bash/              # Bash automation scripts
 │   └── powershell/        # PowerShell equivalents
 ├── templates/             # Project templates
-│   └── commands/jpspec/   # jpspec workflow commands
+│   └── commands/specflow/   # specflow workflow commands
 ├── .claude/
-│   └── commands/jpspec/   # Installed jpspec commands
+│   └── commands/specflow/   # Installed specflow commands
 ├── .github/workflows/     # GitHub Actions CI/CD
 ├── docs/                  # Documentation
 │   └── reference/         # Technical reference docs
@@ -240,13 +240,13 @@ See `CONTRIBUTING-AGENTS.md` for detailed instructions. Key steps:
 
 Commands are in two locations:
 
-- **Templates**: `templates/commands/jpspec/*.md` (for new projects)
-- **Installed**: `.claude/commands/jpspec/*.md` (for this repo)
+- **Templates**: `templates/commands/specflow/*.md` (for new projects)
+- **Installed**: `.claude/commands/specflow/*.md` (for this repo)
 
 When modifying:
-1. Update template in `templates/commands/jpspec/`
-2. Update installed version in `.claude/commands/jpspec/`
-3. Test with `/jpspec:<command>` in Claude Code
+1. Update template in `templates/commands/specflow/`
+2. Update installed version in `.claude/commands/specflow/`
+3. Test with `/specflow:<command>` in Claude Code
 
 ### Adding New Scripts
 
@@ -374,7 +374,7 @@ This is a critical file. Changes here require:
 
 ### Agent-Specific Notes
 
-- **Claude Code**: Use `/jpspec:*` commands for workflows
+- **Claude Code**: Use `/specflow:*` commands for workflows
 - **GitHub Copilot**: Context from `.github/prompts/` (if exists)
 - **All Agents**: Follow this AGENTS.md for consistent development
 

@@ -219,4 +219,4 @@ jobs:
 
 ## Related Documentation
 
-- [Security Commands Reference](../reference/jpspec-security-commands.md)
+- [Security Commands Reference](../reference/specflow-security-commands.md)

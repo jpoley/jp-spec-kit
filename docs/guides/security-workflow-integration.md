@@ -1,6 +1,6 @@
 # Security Workflow Integration Guide
 
-This guide shows how to integrate `/jpspec:security` commands into your Spec-Driven Development workflow, including automatic task creation, CI/CD integration, and SARIF output for GitHub Security.
+This guide shows how to integrate `/specflow:security` commands into your Spec-Driven Development workflow, including automatic task creation, CI/CD integration, and SARIF output for GitHub Security.
 
 ## Table of Contents
 
@@ -14,18 +14,18 @@ This guide shows how to integrate `/jpspec:security` commands into your Spec-Dri
 
 ## Overview
 
-The `/jpspec:security` command family provides comprehensive security scanning and remediation tracking for your SDD workflow:
+The `/specflow:security` command family provides comprehensive security scanning and remediation tracking for your SDD workflow:
 
 ```bash
-/jpspec:security scan      # Run SAST, SCA, secrets detection
-/jpspec:security triage    # AI-powered vulnerability assessment
-/jpspec:security report    # Generate audit reports
-/jpspec:security fix       # Generate patches for findings
+/specflow:security scan      # Run SAST, SCA, secrets detection
+/specflow:security triage    # AI-powered vulnerability assessment
+/specflow:security report    # Generate audit reports
+/specflow:security fix       # Generate patches for findings
 ```
 
 **Key Integration Features:**
 
-1. **Workflow States** - Add security to your `jpspec_workflow.yml`
+1. **Workflow States** - Add security to your `specflow_workflow.yml`
 2. **Automatic Tasks** - Create backlog tasks with `--create-tasks` flag
 3. **CI/CD Integration** - GitHub Actions, GitLab CI examples
 4. **SARIF Output** - GitHub Security tab integration
@@ -40,7 +40,7 @@ The `/jpspec:security` command family provides comprehensive security scanning a
 Add a dedicated "Security Review" state to your workflow:
 
 ```yaml
-# jpspec_workflow.yml
+# specflow_workflow.yml
 
 states:
   - "To Do"
@@ -60,7 +60,7 @@ states:
 ```yaml
 workflows:
   security:
-    command: "/jpspec:security"
+    command: "/specflow:security"
     description: "Execute security scans and create remediation tasks"
     agents:
       - name: "secure-by-design-engineer"
@@ -116,7 +116,7 @@ transitions:
 **Workflow sequence:**
 
 ```
-Implementation → /jpspec:security → Security Review → /jpspec:validate → Validated → Deployed
+Implementation → /specflow:security → Security Review → /specflow:validate → Validated → Deployed
 ```
 
 **When to use:**
@@ -132,11 +132,11 @@ Implementation → /jpspec:security → Security Review → /jpspec:validate →
 Extend the existing validate workflow to include security:
 
 ```yaml
-# jpspec_workflow.yml
+# specflow_workflow.yml
 
 workflows:
   validate:
-    command: "/jpspec:validate"
+    command: "/specflow:validate"
     description: "Execute validation using QA, security, and documentation agents"
     agents:
       - name: "quality-guardian"
@@ -190,7 +190,7 @@ transitions:
 **Workflow sequence:**
 
 ```
-Implementation → /jpspec:validate (includes security) → Validated → Deployed
+Implementation → /specflow:validate (includes security) → Validated → Deployed
 ```
 
 **When to use:**
@@ -209,13 +209,13 @@ The `--create-tasks` flag automatically creates backlog tasks for security findi
 
 ```bash
 # Create tasks during scan
-/jpspec:security scan --create-tasks
+/specflow:security scan --create-tasks
 
 # Create tasks during report generation
-/jpspec:security report --create-tasks
+/specflow:security report --create-tasks
 
 # Control which severities create tasks
-/jpspec:security scan --create-tasks --severity critical,high
+/specflow:security scan --create-tasks --severity critical,high
 ```
 
 ### Task Format
@@ -276,7 +276,7 @@ An attacker could:
 
 ---
 
-**Created by:** /jpspec:security --create-tasks
+**Created by:** /specflow:security --create-tasks
 **Audit Report:** docs/security/audit-report.md
 ```
 
@@ -303,13 +303,13 @@ Control which findings create tasks:
 
 ```bash
 # Only critical and high (recommended for most teams)
-/jpspec:security scan --create-tasks --severity critical,high
+/specflow:security scan --create-tasks --severity critical,high
 
 # All severities (may create noise)
-/jpspec:security scan --create-tasks --severity critical,high,medium,low
+/specflow:security scan --create-tasks --severity critical,high,medium,low
 
 # Critical only (for very high-velocity teams)
-/jpspec:security scan --create-tasks --severity critical
+/specflow:security scan --create-tasks --severity critical
 ```
 
 ### Priority Mapping
@@ -907,7 +907,7 @@ cat .specify/hooks/hooks.yaml
 
 - [CI/CD Integration Examples](../platform/security-cicd-examples.md) - Complete CI/CD configurations
 - [SARIF Output Guide](../../templates/docs/security/sarif-output-guide.md) - SARIF format specification
-- `/jpspec:security scan --help` - Security scan command reference
+- `/specflow:security scan --help` - Security scan command reference
 - [Security Commands Documentation](../reference/security-commands.md) - Complete command reference
 
 ## See Also

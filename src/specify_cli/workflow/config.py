@@ -1,8 +1,8 @@
 """Workflow configuration loader and query API.
 
 This module provides the WorkflowConfig class for loading, parsing, validating,
-and querying jpspec workflow configuration files. It is the foundation for
-workflow constraint enforcement in /jpspec commands.
+and querying specflow workflow configuration files. It is the foundation for
+workflow constraint enforcement in /specflow commands.
 
 Example:
     >>> config = WorkflowConfig.load()
@@ -29,29 +29,29 @@ from .exceptions import (
 )
 
 # Default locations to search for config file (in order of priority)
-# Version 2.0+ uses specflow_workflow.yml, 1.x uses jpspec_workflow.yml
+# Version 2.0+ uses specflow_workflow.yml, 1.x uses specflow_workflow.yml
 DEFAULT_CONFIG_NAMES = [
     "specflow_workflow.yml",  # v2.0+ (preferred)
     "specflow_workflow.yaml",
-    "jpspec_workflow.yml",  # v1.x (legacy, still supported)
-    "jpspec_workflow.yaml",
+    "specflow_workflow.yml",  # v1.x (legacy, still supported)
+    "specflow_workflow.yaml",
 ]
 
 # Default locations for schema file
 DEFAULT_SCHEMA_PATHS = [
     "schemas/specflow_workflow.schema.json",  # v2.0+ (preferred)
     "memory/specflow_workflow.schema.json",
-    "memory/jpspec_workflow.schema.json",  # v1.x (legacy)
-    ".specify/jpspec_workflow.schema.json",
+    "memory/specflow_workflow.schema.json",  # v1.x (legacy)
+    ".specify/specflow_workflow.schema.json",
 ]
 
 
 class WorkflowConfig:
-    """Loads and provides query API for jpspec workflow configuration.
+    """Loads and provides query API for specflow workflow configuration.
 
     The workflow config defines:
     - States: Task progression stages (e.g., Specified, Planned, Validated)
-    - Workflows: /jpspec commands with agent assignments
+    - Workflows: /specflow commands with agent assignments
     - Transitions: Valid state changes between states
     - Agent loops: Inner/outer loop classification for agents
 
@@ -113,7 +113,7 @@ class WorkflowConfig:
 
         Searches for the config file in the following order:
         1. Explicit path (if provided)
-        2. Current working directory (jpspec_workflow.yml)
+        2. Current working directory (specflow_workflow.yml)
         3. memory/ directory
         4. .specify/ directory
 
@@ -207,7 +207,7 @@ class WorkflowConfig:
 
         Example:
             >>> config = WorkflowConfig.load()
-            >>> # ... modify jpspec_workflow.yml ...
+            >>> # ... modify specflow_workflow.yml ...
             >>> config = config.reload()  # Pick up changes
         """
         if self._config_path is None:
@@ -513,7 +513,7 @@ class WorkflowConfig:
 
         Example:
             >>> config.workflows["implement"]
-            {'command': '/jpspec:implement', 'agents': [...], ...}
+            {'command': '/specflow:implement', 'agents': [...], ...}
         """
         return dict(self._data.get("workflows", {}))
 
@@ -620,7 +620,7 @@ class WorkflowConfig:
                 return candidate
 
         raise WorkflowConfigNotFoundError(
-            "jpspec_workflow.yml", searched_paths=searched
+            "specflow_workflow.yml", searched_paths=searched
         )
 
     @classmethod

@@ -27,7 +27,7 @@ import pytest
 # Role-based command namespace directories (from specflow_workflow.yml)
 # These are the expected subdirectories in .claude/commands/
 EXPECTED_COMMAND_NAMESPACES = {
-    "jpspec",
+    "specflow",
     "speckit",
     "arch",
     "dev",
@@ -170,36 +170,36 @@ class TestTemplateCoverage:
     and no orphan symlinks exist.
     """
 
-    def test_jpspec_templates_have_symlinks(
+    def test_specflow_templates_have_symlinks(
         self, claude_commands_dir: Path, templates_commands_dir: Path
     ) -> None:
-        """Verify every active jpspec template has a corresponding symlink (R4).
+        """Verify every active specflow template has a corresponding symlink (R4).
 
         Note: Deprecated templates (_DEPRECATED_*.md) are excluded as they are
         documentation artifacts, not active commands.
         """
-        jpspec_templates_dir = templates_commands_dir / "jpspec"
-        if not jpspec_templates_dir.exists():
-            pytest.skip("No templates/commands/jpspec directory")
+        specflow_templates_dir = templates_commands_dir / "specflow"
+        if not specflow_templates_dir.exists():
+            pytest.skip("No templates/commands/specflow directory")
 
-        claude_jpspec_dir = claude_commands_dir / "jpspec"
-        if not claude_jpspec_dir.exists():
+        claude_specflow_dir = claude_commands_dir / "specflow"
+        if not claude_specflow_dir.exists():
             pytest.skip(
-                "No .claude/commands/jpspec directory - dev-setup not initialized"
+                "No .claude/commands/specflow directory - dev-setup not initialized"
             )
 
         # Only check active templates (exclude deprecated)
         template_files = {
             f.name
-            for f in jpspec_templates_dir.glob("*.md")
+            for f in specflow_templates_dir.glob("*.md")
             if _is_active_template(f.name)
         }
-        symlink_files = {f.name for f in claude_jpspec_dir.glob("*.md")}
+        symlink_files = {f.name for f in claude_specflow_dir.glob("*.md")}
 
         missing_symlinks = template_files - symlink_files
 
         assert not missing_symlinks, (
-            f"Found {len(missing_symlinks)} jpspec template(s) without symlinks:\n"
+            f"Found {len(missing_symlinks)} specflow template(s) without symlinks:\n"
             + "\n".join(f"  - {t}" for t in sorted(missing_symlinks))
             + "\n\nEvery active template must have a corresponding symlink\n"
             "\nTo fix:\n"
@@ -238,23 +238,23 @@ class TestTemplateCoverage:
             "  uv run specify dev-setup --force\n"
         )
 
-    def test_no_orphan_symlinks_in_jpspec(
+    def test_no_orphan_symlinks_in_specflow(
         self, claude_commands_dir: Path, templates_commands_dir: Path
     ) -> None:
-        """Verify no orphan symlinks exist in jpspec directory (R5)."""
-        jpspec_templates_dir = templates_commands_dir / "jpspec"
-        claude_jpspec_dir = claude_commands_dir / "jpspec"
+        """Verify no orphan symlinks exist in specflow directory (R5)."""
+        specflow_templates_dir = templates_commands_dir / "specflow"
+        claude_specflow_dir = claude_commands_dir / "specflow"
 
-        if not claude_jpspec_dir.exists():
-            pytest.skip("No .claude/commands/jpspec directory")
+        if not claude_specflow_dir.exists():
+            pytest.skip("No .claude/commands/specflow directory")
 
-        template_files = {f.name for f in jpspec_templates_dir.glob("*.md")}
-        symlink_files = {f.name for f in claude_jpspec_dir.glob("*.md")}
+        template_files = {f.name for f in specflow_templates_dir.glob("*.md")}
+        symlink_files = {f.name for f in claude_specflow_dir.glob("*.md")}
 
         orphan_symlinks = symlink_files - template_files
 
         assert not orphan_symlinks, (
-            f"Found {len(orphan_symlinks)} orphan symlink(s) in jpspec:\n"
+            f"Found {len(orphan_symlinks)} orphan symlink(s) in specflow:\n"
             + "\n".join(
                 f"  - {s} (no matching template)" for s in sorted(orphan_symlinks)
             )
@@ -295,7 +295,7 @@ class TestSubdirectoryStructure:
     """Test R7: Subdirectory structure matches expected layout.
 
     Validates that .claude/commands/ maintains proper subdirectory structure
-    (jpspec/ and speckit/) matching the dev-setup architecture.
+    (specflow/ and speckit/) matching the dev-setup architecture.
     """
 
     def test_expected_subdirectories_exist(self, claude_commands_dir: Path) -> None:
@@ -303,7 +303,7 @@ class TestSubdirectoryStructure:
         if not claude_commands_dir.exists():
             pytest.skip("No .claude/commands directory - dev-setup not initialized")
 
-        expected_dirs = {"jpspec", "speckit"}
+        expected_dirs = {"specflow", "speckit"}
         missing_dirs = {
             d for d in expected_dirs if not (claude_commands_dir / d).exists()
         }
@@ -318,7 +318,7 @@ class TestSubdirectoryStructure:
     def test_no_unexpected_subdirectories(self, claude_commands_dir: Path) -> None:
         """Verify no unexpected subdirectories exist in .claude/commands/ (R7).
 
-        Expected namespaces include jpspec, speckit, and role-based directories
+        Expected namespaces include specflow, speckit, and role-based directories
         (arch, dev, ops, pm, qa, sec) as defined in specflow_workflow.yml.
         """
         if not claude_commands_dir.exists():
@@ -346,7 +346,7 @@ class TestSubdirectoryStructure:
         assert not root_md_files, (
             "Found .md files at .claude/commands/ root (should be in subdirectories):\n"
             + "\n".join(f"  - {f.name}" for f in root_md_files)
-            + "\n\nAll .md files must be in jpspec/ or speckit/ subdirectories\n"
+            + "\n\nAll .md files must be in specflow/ or speckit/ subdirectories\n"
             "\nTo fix:\n"
             "  uv run specify dev-setup --force\n"
         )
@@ -359,10 +359,10 @@ class TestDevSetupDirectoryStructure:
         """Verify complete dev-setup directory structure exists."""
         required_paths = [
             ".claude/commands",
-            ".claude/commands/jpspec",
+            ".claude/commands/specflow",
             ".claude/commands/speckit",
             "templates/commands",
-            "templates/commands/jpspec",
+            "templates/commands/specflow",
         ]
 
         missing_paths = [p for p in required_paths if not (project_root / p).exists()]

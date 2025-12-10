@@ -1,4 +1,4 @@
-"""Task context loader for AC validation in /jpspec:validate command.
+"""Task context loader for AC validation in /specflow:validate command.
 
 This module provides the foundational capability to load backlog tasks,
 parse acceptance criteria into structured format, and determine validation

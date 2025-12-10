@@ -1,5 +1,5 @@
 ---
-name: "jpspec-init"
+name: "specflow-init"
 description: "Initialize or setup constitution for a project, handling both greenfield (new) and brownfield (existing) projects"
 target: "chat"
 tools:
@@ -27,7 +27,7 @@ This command sets up the project constitution, automatically detecting whether t
 
 ### Overview
 
-The `/jpspec:init` command:
+The `/specflow:init` command:
 1. Detects project type (greenfield vs brownfield)
 2. Analyzes repository for tech stack detection
 3. Selects appropriate constitution tier
@@ -44,7 +44,7 @@ Parse `$ARGUMENTS` for optional flags:
 | `--tier {light\|medium\|heavy}` | Force specific constitution tier |
 | `--force` | Overwrite existing constitution without prompting |
 | `--skip-analysis` | Skip tech stack analysis, use template defaults |
-| `--configure-workflow` | Also run workflow configuration (like /jpspec:reset) |
+| `--configure-workflow` | Also run workflow configuration (like /specflow:reset) |
 
 ### Step 1: Project Type Detection
 
@@ -203,7 +203,7 @@ build_tools:
 
 # Repository Facts
 
-**Generated**: {YYYY-MM-DD} by `/jpspec:init` command
+**Generated**: {YYYY-MM-DD} by `/specflow:init` command
 
 This document contains automatically detected repository characteristics.
 LLM agents reference this file for project context.
@@ -238,20 +238,20 @@ Write customized constitution to `memory/constitution.md`.
 
 ### Step 7: Workflow Configuration (Optional)
 
-If `--configure-workflow` flag is provided OR if `jpspec_workflow.yml` doesn't exist:
+If `--configure-workflow` flag is provided OR if `specflow_workflow.yml` doesn't exist:
 
-Prompt for workflow configuration (same as `/jpspec:reset`):
+Prompt for workflow configuration (same as `/specflow:reset`):
 
 ```
 Would you like to configure workflow validation modes now?
   1. Yes - Configure validation gates for each transition
   2. No - Use defaults (NONE for all transitions)
-  3. Later - Run /jpspec:reset when ready
+  3. Later - Run /specflow:reset when ready
 
 Choice [2]: _
 ```
 
-If yes, run the same validation mode prompts as `/jpspec:reset`.
+If yes, run the same validation mode prompts as `/specflow:reset`.
 
 ### Step 8: Generate Summary Report
 
@@ -297,7 +297,7 @@ Rationale: Complexity score 8/14 suggests standard business project controls
 
   ✓ memory/repo-facts.md (tech stack analysis)
   ✓ memory/constitution.md (governance document)
-  {✓ jpspec_workflow.yml (if --configure-workflow)}
+  {✓ specflow_workflow.yml (if --configure-workflow)}
 
 📋 VALIDATION CHECKLIST
 
@@ -321,7 +321,7 @@ Look for NEEDS_VALIDATION markers:
    git commit -s -m "docs: add constitution and repo facts"
 
 4. Start your first workflow:
-   /jpspec:assess <feature-name>
+   /specflow:assess <feature-name>
 
 💡 TIP: Run '/speckit:constitution' for more detailed customization
 ```
@@ -353,7 +353,7 @@ This appears to be a new project. Recommended setup:
 
 1. Constitution: light tier (can upgrade later)
 2. Workflow: Start with NONE validation (faster iteration)
-3. First feature: Run /jpspec:assess to evaluate complexity
+3. First feature: Run /specflow:assess to evaluate complexity
 
 Would you like to:
   1. Use recommended settings (fast setup)
@@ -365,9 +365,9 @@ Choice [1]: _
 
 ### Integration with Existing Commands
 
-- **After init**: Run `/jpspec:assess <feature>` to start workflow
+- **After init**: Run `/specflow:assess <feature>` to start workflow
 - **To customize more**: Run `/speckit:constitution` for detailed customization
-- **To reconfigure workflow**: Run `/jpspec:reset`
+- **To reconfigure workflow**: Run `/specflow:reset`
 - **CLI equivalent**: `specify init --here --constitution {tier}`
 
 ### Quality Checks

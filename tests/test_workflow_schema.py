@@ -1,4 +1,4 @@
-"""Unit tests for jpspec_workflow.schema.json validation."""
+"""Unit tests for specflow_workflow.schema.json validation."""
 
 import json
 from pathlib import Path
@@ -8,7 +8,7 @@ import yaml
 from jsonschema import Draft7Validator, ValidationError, validate
 
 # Path to the schema file
-SCHEMA_PATH = Path(__file__).parent.parent / "memory" / "jpspec_workflow.schema.json"
+SCHEMA_PATH = Path(__file__).parent.parent / "memory" / "specflow_workflow.schema.json"
 
 
 @pytest.fixture
@@ -29,7 +29,7 @@ def valid_config():
         ],
         "workflows": {
             "specify": {
-                "command": "/jpspec:specify",
+                "command": "/specflow:specify",
                 "agents": ["product-requirements-manager"],
                 "input_states": ["To Do"],
                 "output_state": "Specified",
@@ -37,7 +37,7 @@ def valid_config():
                 "optional": False,
             },
             "plan": {
-                "command": "/jpspec:plan",
+                "command": "/specflow:plan",
                 "agents": ["software-architect"],
                 "input_states": ["Specified"],
                 "output_state": "Planned",
@@ -66,7 +66,7 @@ def full_config():
         ],
         "workflows": {
             "specify": {
-                "command": "/jpspec:specify",
+                "command": "/specflow:specify",
                 "agents": ["product-requirements-manager"],
                 "input_states": ["To Do"],
                 "output_state": "Specified",
@@ -74,7 +74,7 @@ def full_config():
                 "optional": False,
             },
             "research": {
-                "command": "/jpspec:research",
+                "command": "/specflow:research",
                 "agents": ["researcher", "business-validator"],
                 "input_states": ["Specified"],
                 "output_state": "Researched",
@@ -82,7 +82,7 @@ def full_config():
                 "optional": False,
             },
             "plan": {
-                "command": "/jpspec:plan",
+                "command": "/specflow:plan",
                 "agents": ["software-architect", "platform-engineer"],
                 "input_states": ["Researched"],
                 "output_state": "Planned",
@@ -90,7 +90,7 @@ def full_config():
                 "optional": False,
             },
             "implement": {
-                "command": "/jpspec:implement",
+                "command": "/specflow:implement",
                 "agents": ["frontend-engineer", "backend-engineer", "code-reviewer"],
                 "input_states": ["Planned"],
                 "output_state": "In Implementation",
@@ -98,7 +98,7 @@ def full_config():
                 "optional": False,
             },
             "validate": {
-                "command": "/jpspec:validate",
+                "command": "/specflow:validate",
                 "agents": [
                     "quality-guardian",
                     "secure-by-design-engineer",
@@ -111,7 +111,7 @@ def full_config():
                 "optional": False,
             },
             "operate": {
-                "command": "/jpspec:operate",
+                "command": "/specflow:operate",
                 "agents": ["sre-agent"],
                 "input_states": ["Validated"],
                 "output_state": "Deployed",
@@ -375,26 +375,26 @@ class TestWorkflowsValidation:
 
 
 class TestCommandPatternValidation:
-    """Test /jpspec command pattern validation."""
+    """Test /specflow command pattern validation."""
 
     def test_valid_command_specify(self, schema, valid_config):
-        """Test /jpspec:specify is valid."""
-        valid_config["workflows"]["specify"]["command"] = "/jpspec:specify"
+        """Test /specflow:specify is valid."""
+        valid_config["workflows"]["specify"]["command"] = "/specflow:specify"
         validate(instance=valid_config, schema=schema)
 
     def test_valid_command_implement(self, schema, valid_config):
-        """Test /jpspec:implement is valid."""
-        valid_config["workflows"]["specify"]["command"] = "/jpspec:implement"
+        """Test /specflow:implement is valid."""
+        valid_config["workflows"]["specify"]["command"] = "/specflow:implement"
         validate(instance=valid_config, schema=schema)
 
     def test_valid_command_with_underscore(self, schema, valid_config):
-        """Test /jpspec:security_audit is valid."""
-        valid_config["workflows"]["specify"]["command"] = "/jpspec:security_audit"
+        """Test /specflow:security_audit is valid."""
+        valid_config["workflows"]["specify"]["command"] = "/specflow:security_audit"
         validate(instance=valid_config, schema=schema)
 
     def test_invalid_command_no_slash(self, schema, valid_config):
         """Test command without leading slash fails."""
-        valid_config["workflows"]["specify"]["command"] = "jpspec:specify"
+        valid_config["workflows"]["specify"]["command"] = "specflow:specify"
         with pytest.raises(ValidationError) as exc_info:
             validate(instance=valid_config, schema=schema)
         # Error message varies by jsonschema version
@@ -412,7 +412,7 @@ class TestCommandPatternValidation:
 
     def test_invalid_command_uppercase(self, schema, valid_config):
         """Test command with uppercase fails."""
-        valid_config["workflows"]["specify"]["command"] = "/jpspec:Specify"
+        valid_config["workflows"]["specify"]["command"] = "/specflow:Specify"
         with pytest.raises(ValidationError) as exc_info:
             validate(instance=valid_config, schema=schema)
         # Error message varies by jsonschema version
@@ -421,7 +421,7 @@ class TestCommandPatternValidation:
 
     def test_invalid_command_empty_action(self, schema, valid_config):
         """Test command without action fails."""
-        valid_config["workflows"]["specify"]["command"] = "/jpspec:"
+        valid_config["workflows"]["specify"]["command"] = "/specflow:"
         with pytest.raises(ValidationError) as exc_info:
             validate(instance=valid_config, schema=schema)
         # Error message varies by jsonschema version
@@ -558,7 +558,7 @@ states:
     description: Feature spec created
 workflows:
   specify:
-    command: "/jpspec:specify"
+    command: "/specflow:specify"
     agents:
       - pm
     input_states:
@@ -583,7 +583,7 @@ states:
   - name: Done
 workflows:
   complete:
-    command: "/jpspec:complete"
+    command: "/specflow:complete"
     agents:
       - finisher
     input_states:
@@ -671,7 +671,7 @@ class TestSchemaValidationTool:
             "states": [{"name": "Test"}],
             "workflows": {
                 "bad_workflow": {
-                    "command": "invalid",  # Missing /jpspec: prefix
+                    "command": "invalid",  # Missing /specflow: prefix
                     "agents": ["pm"],
                     "input_states": ["To Do"],
                     "output_state": "Done",

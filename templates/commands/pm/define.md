@@ -17,7 +17,7 @@ Check if this project is in light mode:
 
 ```bash
 # Check for light mode marker
-if [ -f ".jpspec-light-mode" ]; then
+if [ -f ".specflow-light-mode" ]; then
   echo "LIGHT MODE DETECTED - Using streamlined specification"
   # Use spec-light-template.md for output
 else
@@ -26,7 +26,7 @@ else
 fi
 ```
 
-**If `.jpspec-light-mode` exists**, use light mode specification:
+**If `.specflow-light-mode` exists**, use light mode specification:
 
 | Aspect | Full Mode | Light Mode |
 |--------|-----------|------------|
@@ -46,9 +46,9 @@ Continue with the workflow below, but:
 
 This command creates comprehensive feature specifications using the PM Planner agent, integrating with backlog.md for task management.
 
-{{INCLUDE:.claude/commands/jpspec/_constitution-check.md}}
+{{INCLUDE:.claude/commands/specflow/_constitution-check.md}}
 
-{{INCLUDE:.claude/commands/jpspec/_workflow-state.md}}
+{{INCLUDE:.claude/commands/specflow/_workflow-state.md}}
 
 **For /pm:define**: Required input state is `workflow:Assessed`. Output state will be `workflow:Specified`.
 

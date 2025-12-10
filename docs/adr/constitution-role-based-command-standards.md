@@ -46,7 +46,7 @@ Where:
 **Examples**:
 - ✅ `/pm:assess` - Clear role and action
 - ✅ `/sec:scan-web` - Clear role, action, qualifier
-- ❌ `/jpspec:security_fix` - No role in namespace
+- ❌ `/specflow:security_fix` - No role in namespace
 - ❌ `/assess` - Missing role context
 
 ---

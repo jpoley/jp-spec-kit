@@ -1,6 +1,6 @@
 ---
-name: "jpspec-security_web"
-description: "jpspec security_web workflow command"
+name: "specflow-security_web"
+description: "specflow security_web workflow command"
 target: "chat"
 tools:
   - "Read"
@@ -13,7 +13,7 @@ tools:
   - "mcp__serena__*"
   - "Skill"
 ---
-# /jpspec:security_web
+# /specflow:security_web
 
 Test web applications for security vulnerabilities using dynamic analysis with Playwright.
 
@@ -41,8 +41,8 @@ Read security configuration for DAST settings:
 
 ```bash
 # Check if config exists
-if [ -f .jpspec/security-config.yml ]; then
-    echo "Using DAST configuration from .jpspec/security-config.yml"
+if [ -f .specflow/security-config.yml ]; then
+    echo "Using DAST configuration from .specflow/security-config.yml"
 else
     echo "No DAST configuration found. Using defaults."
 fi
@@ -65,7 +65,7 @@ Ensure target is accessible before scanning:
 
 ```bash
 # Get target URL from CLI arg or config
-TARGET_URL="${1:-$(yq '.dast.target_url' .jpspec/security-config.yml 2>/dev/null)}"
+TARGET_URL="${1:-$(yq '.dast.target_url' .specflow/security-config.yml 2>/dev/null)}"
 
 if [ -z "$TARGET_URL" ]; then
     echo "ERROR: No target URL specified. Use --url or set dast.target_url in config."
@@ -132,7 +132,7 @@ if auth_type == "form":
         raise ValueError("Authentication failed - still on login page")
 
     # Save authenticated session
-    await context.storage_state(path=".jpspec/.dast-session.json")
+    await context.storage_state(path=".specflow/.dast-session.json")
     print("Authentication successful")
 ```
 
@@ -288,8 +288,8 @@ Findings saved to: docs/security/web-findings.json
 
 Next Steps:
 1. Review findings: cat docs/security/web-findings.json | jq
-2. Triage findings: /jpspec:security_triage --input docs/security/web-findings.json
-3. Generate report: /jpspec:security_report
+2. Triage findings: /specflow:security_triage --input docs/security/web-findings.json
+3. Generate report: /specflow:security_report
 "
 
 # Exit with failure if critical findings
@@ -309,14 +309,14 @@ await browser.close()
 await playwright.stop()
 
 # Remove session file (contains credentials)
-if os.path.exists(".jpspec/.dast-session.json"):
-    os.remove(".jpspec/.dast-session.json")
+if os.path.exists(".specflow/.dast-session.json"):
+    os.remove(".specflow/.dast-session.json")
 ```
 
 ## Command Options
 
 ```bash
-/jpspec:security_web [OPTIONS]
+/specflow:security_web [OPTIONS]
 
 Options:
   --url URL                  Target URL to scan (required if not in config)
@@ -337,13 +337,13 @@ Options:
 
 ```bash
 # Scan single page
-/jpspec:security_web --url https://example.com
+/specflow:security_web --url https://example.com
 
 # Crawl entire site
-/jpspec:security_web --url https://example.com --crawl --max-pages 200
+/specflow:security_web --url https://example.com --crawl --max-pages 200
 
 # Authenticated scan
-/jpspec:security_web \
+/specflow:security_web \
   --url https://example.com \
   --crawl \
   --auth-type form \
@@ -352,7 +352,7 @@ Options:
   --password $ADMIN_PASSWORD
 
 # Scan with exclusions
-/jpspec:security_web \
+/specflow:security_web \
   --url https://example.com \
   --crawl \
   --exclude "/logout" \
@@ -421,10 +421,10 @@ backlog task edit [task-id] --notes "See web scan: docs/security/web-findings.js
 
 ## Related Commands
 
-- `/jpspec:security scan` - Run SAST scanners (Semgrep, CodeQL, Bandit)
-- `/jpspec:security_triage` - Triage web security findings
-- `/jpspec:security_report` - Generate comprehensive security report
-- `/jpspec:security_fix` - Apply automated fixes to findings
+- `/specflow:security scan` - Run SAST scanners (Semgrep, CodeQL, Bandit)
+- `/specflow:security_triage` - Triage web security findings
+- `/specflow:security_report` - Generate comprehensive security report
+- `/specflow:security_fix` - Apply automated fixes to findings
 
 ## References
 

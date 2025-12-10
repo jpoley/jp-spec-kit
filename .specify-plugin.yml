@@ -16,25 +16,25 @@ extends:
 
 # What this plugin provides
 provides:
-  # Custom slash commands (jpspec:* namespace)
+  # Custom slash commands (specflow:* namespace)
   commands:
-    - path: templates/commands/jpspec/specify.md
-      name: jpspec:specify
+    - path: templates/commands/specflow/specify.md
+      name: specflow:specify
       description: Product Requirements Manager
-    - path: templates/commands/jpspec/plan.md
-      name: jpspec:plan
+    - path: templates/commands/specflow/plan.md
+      name: specflow:plan
       description: Architecture & Platform Planning
-    - path: templates/commands/jpspec/research.md
-      name: jpspec:research
+    - path: templates/commands/specflow/research.md
+      name: specflow:research
       description: Market Research & Analysis
-    - path: templates/commands/jpspec/implement.md
-      name: jpspec:implement
+    - path: templates/commands/specflow/implement.md
+      name: specflow:implement
       description: Multi-Agent Implementation
-    - path: templates/commands/jpspec/validate.md
-      name: jpspec:validate
+    - path: templates/commands/specflow/validate.md
+      name: specflow:validate
       description: QA, Security, Release Validation
-    - path: templates/commands/jpspec/operate.md
-      name: jpspec:operate
+    - path: templates/commands/specflow/operate.md
+      name: specflow:operate
       description: SRE Operations
 
   # Language-specific expertise
@@ -64,8 +64,8 @@ provides:
 
   # Extended templates (override base)
   templates:
-    - source: templates/jpspec-plan-template.md
-      destination: .specify/jpspec-plan-template.md
+    - source: templates/specflow-plan-template.md
+      destination: .specify/specflow-plan-template.md
       merge_strategy: override
 
 # Installation behavior
@@ -81,7 +81,7 @@ installation:
       source: jpoley/jp-spec-kit
       version: 0.0.20
       files:
-        - templates/commands/jpspec/**
+        - templates/commands/specflow/**
         - .languages/**
         - memory/constitution.md
   

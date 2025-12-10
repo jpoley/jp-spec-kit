@@ -11,7 +11,7 @@
 
 ### Business Objectives
 
-JP Specflow currently suffers from **command namespace overload**: 18+ commands in flat namespaces (`/jpspec:*`, `/speckit:*`) create discoverability challenges and cognitive burden for users. Security commands are scattered, and there's no logical grouping by role or persona.
+JP Specflow currently suffers from **command namespace overload**: 18+ commands in flat namespaces (`/specflow:*`, `/speckit:*`) create discoverability challenges and cognitive burden for users. Security commands are scattered, and there's no logical grouping by role or persona.
 
 **Investment Justification**:
 - **Reduce onboarding time**: From 2 hours to 30 minutes
@@ -67,42 +67,42 @@ Roles:
 #### Product Manager (`/pm`)
 | Old | New | Agent |
 |-----|-----|-------|
-| `/jpspec:assess` | `/pm:assess` | @workflow-assessor |
-| `/jpspec:specify` | `/pm:specify` | @pm-planner |
-| `/jpspec:research` | `/pm:research` | @researcher |
+| `/specflow:assess` | `/pm:assess` | @workflow-assessor |
+| `/specflow:specify` | `/pm:specify` | @pm-planner |
+| `/specflow:research` | `/pm:research` | @researcher |
 
 #### Developer (`/dev`)
 | Old | New | Agent |
 |-----|-----|-------|
-| `/jpspec:plan` | `/dev:plan` | @software-architect |
-| `/jpspec:implement` | `/dev:implement` | @frontend-engineer, @backend-engineer |
-| `/jpspec:operate` | `/dev:operate` | @sre-agent |
-| `/jpspec:init` | `/dev:init` | (system) |
-| `/jpspec:reset` | `/dev:reset` | (system) |
-| `/jpspec:prune-branch` | `/dev:prune-branch` | (system) |
+| `/specflow:plan` | `/dev:plan` | @software-architect |
+| `/specflow:implement` | `/dev:implement` | @frontend-engineer, @backend-engineer |
+| `/specflow:operate` | `/dev:operate` | @sre-agent |
+| `/specflow:init` | `/dev:init` | (system) |
+| `/specflow:reset` | `/dev:reset` | (system) |
+| `/specflow:prune-branch` | `/dev:prune-branch` | (system) |
 | `/speckit:implement` | `/dev:implement-light` | (lightweight) |
 | `/speckit:plan` | `/dev:plan-light` | (lightweight) |
 
 #### Security Engineer (`/sec`)
 | Old | New | Agent |
 |-----|-----|-------|
-| `/jpspec:security_fix` | `/sec:fix` | @secure-by-design-engineer |
-| `/jpspec:security_report` | `/sec:report` | @secure-by-design-engineer |
-| `/jpspec:security_triage` | `/sec:triage` | @secure-by-design-engineer |
-| `/jpspec:security_web` | `/sec:scan-web` | @secure-by-design-engineer |
-| `/jpspec:security_workflow` | `/sec:workflow` | @secure-by-design-engineer |
+| `/specflow:security_fix` | `/sec:fix` | @secure-by-design-engineer |
+| `/specflow:security_report` | `/sec:report` | @secure-by-design-engineer |
+| `/specflow:security_triage` | `/sec:triage` | @secure-by-design-engineer |
+| `/specflow:security_web` | `/sec:scan-web` | @secure-by-design-engineer |
+| `/specflow:security_workflow` | `/sec:workflow` | @secure-by-design-engineer |
 
 #### QA Engineer (`/qa`)
 | Old | New | Agent |
 |-----|-----|-------|
-| `/jpspec:validate` | `/qa:validate` | @quality-guardian |
+| `/specflow:validate` | `/qa:validate` | @quality-guardian |
 | `/speckit:checklist` | `/qa:checklist` | @quality-guardian |
 | `/speckit:analyze` | `/qa:analyze` | @quality-guardian |
 
 #### SRE/DevOps (`/ops`)
 | Old | New | Notes |
 |-----|-----|-------|
-| `/jpspec:operate` | `/ops:deploy` | Deployment focus |
+| `/specflow:operate` | `/ops:deploy` | Deployment focus |
 | - | `/ops:monitor` | New command |
 | - | `/ops:incident` | New command |
 | - | `/ops:runbook` | New command |
@@ -139,7 +139,7 @@ Roles:
 
 ### ADR-002: Role Selection Mechanism
 
-**Decision**: Store role selection in `jpspec_workflow.yml` with environment variable override
+**Decision**: Store role selection in `specflow_workflow.yml` with environment variable override
 
 **Rationale**:
 - Project-scoped (not global user config)
@@ -183,7 +183,7 @@ role_config:
 **Example Migration**:
 ```bash
 # Old (still works, shows warning)
-/jpspec:assess feature-x
+/specflow:assess feature-x
 ⚠️ Deprecated. Use /pm:assess instead.
 
 # New
@@ -219,8 +219,8 @@ role_config:
 - [ ] Implement alias system (include-based forwarding)
 
 ### Phase 2: Role Selection (Weeks 3-4)
-- [ ] Enhance `/jpspec:init` with role selection prompt
-- [ ] Update `jpspec_workflow.yml` schema
+- [ ] Enhance `/specflow:init` with role selection prompt
+- [ ] Update `specflow_workflow.yml` schema
 - [ ] Implement environment variable override
 - [ ] Update VS Code Copilot agent metadata
 
@@ -327,7 +327,7 @@ role_config:
    - Backwards compatibility strategy
 
 2. ✅ [ADR: Role Selection During Initialization](../adr/ADR-role-selection-during-initialization.md)
-   - Storage location decision (jpspec_workflow.yml)
+   - Storage location decision (specflow_workflow.yml)
    - Interactive prompt design
    - VS Code Copilot integration
    - Environment variable override
@@ -393,7 +393,7 @@ By applying Gregor Hohpe's principles—selling options rather than solutions, m
 - Gregor Hohpe, "Platform Strategy"
 - Gregor Hohpe, "Enterprise Integration Patterns"
 - [VS Code Copilot Agents Plan](../platform/vscode-copilot-agents-plan.md)
-- [Workflow Configuration](../../jpspec_workflow.yml)
+- [Workflow Configuration](../../specflow_workflow.yml)
 
 ---
 

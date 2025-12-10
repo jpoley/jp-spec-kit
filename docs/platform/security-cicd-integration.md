@@ -1,8 +1,8 @@
-# CI/CD Integration Guide: /jpspec:security Commands
+# CI/CD Integration Guide: /specflow:security Commands
 
 **Audience**: Platform Engineers, DevOps Engineers
 **Last Updated**: 2025-12-02
-**Related**: `jpspec-security-platform.md`
+**Related**: `specflow-security-platform.md`
 
 ---
 
@@ -66,7 +66,7 @@ jobs:
 repos:
   - repo: local
     hooks:
-      - id: jpspec-security-scan
+      - id: specflow-security-scan
         name: Security Scan (Fast)
         entry: specify security scan --fast --changed-only --fail-on critical
         language: system
@@ -150,7 +150,7 @@ jobs:
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: security-results.sarif
-          category: jpspec-security
+          category: specflow-security
 
       - name: Comment PR
         if: github.event_name == 'pull_request'
@@ -292,7 +292,7 @@ jobs:
 - name: Cache Scan Results
   uses: actions/cache@v4
   with:
-    path: .jpspec/cache/security
+    path: .specflow/cache/security
     key: security-scan-${{ hashFiles('**/*.py', '**/*.ts', '**/*.go') }}
 ```
 
@@ -386,7 +386,7 @@ jobs:
 
 ### Policy-Based Gates
 
-Define policy in `.jpspec/security-policy.yml`:
+Define policy in `.specflow/security-policy.yml`:
 
 ```yaml
 gates:
@@ -404,7 +404,7 @@ gates:
 **Enforcement**:
 ```yaml
 - name: Security Scan with Policy
-  run: specify security scan --policy .jpspec/security-policy.yml
+  run: specify security scan --policy .specflow/security-policy.yml
 ```
 
 ---
@@ -451,7 +451,7 @@ git commit --no-verify -m "fix: critical production bug [security-bypass]"
   uses: github/codeql-action/upload-sarif@v3
   with:
     sarif_file: security-results.sarif
-    category: jpspec-security  # Group results by tool
+    category: specflow-security  # Group results by tool
 ```
 
 **Benefits**:
@@ -621,9 +621,9 @@ workflows:
 ```
 
 **Key Metrics**:
-- `jpspec_security_scan_duration_seconds` - Scan performance
-- `jpspec_security_findings_total` - Findings by severity
-- `jpspec_security_gate_blocks_total` - Pipeline blocks
+- `specflow_security_scan_duration_seconds` - Scan performance
+- `specflow_security_findings_total` - Findings by severity
+- `specflow_security_gate_blocks_total` - Pipeline blocks
 
 ---
 
@@ -833,8 +833,8 @@ jobs:
 
 ## References
 
-- **Platform Design**: `docs/platform/jpspec-security-platform.md`
-- **PRD**: `docs/prd/jpspec-security-commands.md`
+- **Platform Design**: `docs/platform/specflow-security-platform.md`
+- **PRD**: `docs/prd/specflow-security-commands.md`
 - **GitHub Actions Docs**: https://docs.github.com/en/actions
 - **SARIF Spec**: https://docs.oasis-open.org/sarif/sarif/v2.1.0/
 

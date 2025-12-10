@@ -14,44 +14,44 @@ specify workflow validate
 backlog task view task-123
 
 # 3. Check which workflows are valid for current state
-# (This information is in jpspec_workflow.yml)
-cat jpspec_workflow.yml | grep -A 3 "input_states.*Planned"
+# (This information is in specflow_workflow.yml)
+cat specflow_workflow.yml | grep -A 3 "input_states.*Planned"
 
-# 4. Verify jpspec_workflow.yml exists
-ls -la jpspec_workflow.yml
+# 4. Verify specflow_workflow.yml exists
+ls -la specflow_workflow.yml
 
 # 5. Check YAML syntax
-python -c "import yaml; yaml.safe_load(open('jpspec_workflow.yml'))"
+python -c "import yaml; yaml.safe_load(open('specflow_workflow.yml'))"
 ```
 
 ## Configuration Issues
 
-### Error: "jpspec_workflow.yml not found"
+### Error: "specflow_workflow.yml not found"
 
 **Symptom**:
 ```
-[ERROR] WorkflowConfigNotFoundError: jpspec_workflow.yml not found
+[ERROR] WorkflowConfigNotFoundError: specflow_workflow.yml not found
 Searched locations:
-  - /home/user/project/jpspec_workflow.yml
-  - /home/user/project/memory/jpspec_workflow.yml
-  - /home/user/project/.specify/jpspec_workflow.yml
+  - /home/user/project/specflow_workflow.yml
+  - /home/user/project/memory/specflow_workflow.yml
+  - /home/user/project/.specify/specflow_workflow.yml
 ```
 
 **Causes**:
 1. Configuration file missing
 2. Working in wrong directory
-3. File named incorrectly (e.g., `jpspec-workflow.yml` instead of `jpspec_workflow.yml`)
+3. File named incorrectly (e.g., `specflow-workflow.yml` instead of `specflow_workflow.yml`)
 
 **Solutions**:
 
 **Solution 1: Create default configuration**
 ```bash
 # Copy from Specflow templates
-cp ~/.local/share/specify-cli/templates/jpspec_workflow.yml ./jpspec_workflow.yml
+cp ~/.local/share/specify-cli/templates/specflow_workflow.yml ./specflow_workflow.yml
 
 # Or create in memory/ directory
 mkdir -p memory
-cp ~/.local/share/specify-cli/templates/jpspec_workflow.yml memory/jpspec_workflow.yml
+cp ~/.local/share/specify-cli/templates/specflow_workflow.yml memory/specflow_workflow.yml
 ```
 
 **Solution 2: Check current directory**
@@ -70,7 +70,7 @@ cd /path/to/your/project
 ls -la | grep -i workflow
 
 # Rename if found
-mv jpspec-workflow.yml jpspec_workflow.yml
+mv specflow-workflow.yml specflow_workflow.yml
 ```
 
 ---
@@ -96,7 +96,7 @@ Errors:
 **Solution 1: Check YAML syntax**
 ```bash
 # Validate YAML syntax
-python -c "import yaml; yaml.safe_load(open('jpspec_workflow.yml'))"
+python -c "import yaml; yaml.safe_load(open('specflow_workflow.yml'))"
 
 # Common YAML errors:
 # - Inconsistent indentation (use spaces, not tabs)
@@ -124,10 +124,10 @@ transitions:
 **Solution 3: Fix state name typos**
 ```bash
 # Find all state references
-grep -n "output_state\|input_states" jpspec_workflow.yml
+grep -n "output_state\|input_states" specflow_workflow.yml
 
 # Verify state names match states list exactly (case-sensitive)
-grep -A 20 "^states:" jpspec_workflow.yml
+grep -A 20 "^states:" specflow_workflow.yml
 ```
 
 **Solution 4: Check schema version**
@@ -159,14 +159,14 @@ Valid input states: ['Planned']
 backlog task view task-123
 
 # If state is "Specified", run planning first
-/jpspec:plan
+/specflow:plan
 # Then run implementation
-/jpspec:implement
+/specflow:implement
 ```
 
 **Solution 2: Check workflow sequence**
 ```yaml
-# Verify input_states in jpspec_workflow.yml
+# Verify input_states in specflow_workflow.yml
 workflows:
   implement:
     input_states: ["Planned"]  # implement requires "Planned" state
@@ -200,7 +200,7 @@ Workflows must be acyclic (DAG).
 **Solution 1: Review transition graph**
 ```bash
 # Extract all transitions
-grep -A 5 "^  - name:" jpspec_workflow.yml | grep -E "from:|to:|via:"
+grep -A 5 "^  - name:" specflow_workflow.yml | grep -E "from:|to:|via:"
 
 # Look for cycles:
 # from: A, to: B
@@ -227,8 +227,8 @@ transitions:
 
 **Solution 3: Remove or fix circular transition**
 ```bash
-# Edit jpspec_workflow.yml
-vim jpspec_workflow.yml
+# Edit specflow_workflow.yml
+vim specflow_workflow.yml
 
 # Remove the transition creating the cycle
 # Or change it to use via: "rework"
@@ -366,11 +366,11 @@ Valid input states: ['In Implementation']
 **Solution 1: Run missing workflow step**
 ```bash
 # Check what workflow should run from current state
-cat jpspec_workflow.yml | grep -B 5 "input_states.*Planned"
+cat specflow_workflow.yml | grep -B 5 "input_states.*Planned"
 
 # Run the correct workflow
-/jpspec:implement  # Moves from Planned → In Implementation
-/jpspec:validate   # Now this will work
+/specflow:implement  # Moves from Planned → In Implementation
+/specflow:validate   # Now this will work
 ```
 
 **Solution 2: Check task state is correct**
@@ -402,7 +402,7 @@ workflows:
 ### Error: "Custom workflow not working"
 
 **Symptom**:
-- Custom workflow doesn't appear in `/jpspec:` commands
+- Custom workflow doesn't appear in `/specflow:` commands
 - Custom state not available in backlog
 - Transitions not working as expected
 
@@ -418,7 +418,7 @@ workflows:
 # Complete workflow definition required
 workflows:
   my-custom-workflow:
-    command: "/jpspec:my-custom-workflow"  # Required
+    command: "/specflow:my-custom-workflow"  # Required
     description: "Custom workflow description"  # Required
     agents:  # Required (at least one)
       - name: "custom-agent"
@@ -457,7 +457,7 @@ specify workflow validate
 ### Error: "Performance issues with workflow config"
 
 **Symptom**:
-- Slow `/jpspec` command execution
+- Slow `/specflow` command execution
 - Long delays when checking states
 - High memory usage
 
@@ -554,7 +554,7 @@ import yaml
 import sys
 
 try:
-    config = yaml.safe_load(open('jpspec_workflow.yml'))
+    config = yaml.safe_load(open('specflow_workflow.yml'))
     assert 'states' in config
     assert 'workflows' in config
     assert 'transitions' in config
@@ -576,19 +576,19 @@ except Exception as e:
 **Step 1: Check Git history**
 ```bash
 # See recent changes to workflow config
-git log --oneline jpspec_workflow.yml
+git log --oneline specflow_workflow.yml
 
 # View specific change
-git show <commit-hash>:jpspec_workflow.yml
+git show <commit-hash>:specflow_workflow.yml
 ```
 
 **Step 2: Restore previous version**
 ```bash
 # Restore from Git
-git checkout HEAD~1 jpspec_workflow.yml
+git checkout HEAD~1 specflow_workflow.yml
 
 # Or restore from specific commit
-git checkout <commit-hash> jpspec_workflow.yml
+git checkout <commit-hash> specflow_workflow.yml
 
 # Verify
 specify workflow validate
@@ -597,13 +597,13 @@ specify workflow validate
 **Step 3: Create backup before changes**
 ```bash
 # Always backup before editing
-cp jpspec_workflow.yml jpspec_workflow.yml.backup.$(date +%Y%m%d_%H%M%S)
+cp specflow_workflow.yml specflow_workflow.yml.backup.$(date +%Y%m%d_%H%M%S)
 
 # Edit safely
-vim jpspec_workflow.yml
+vim specflow_workflow.yml
 
 # If issues occur, restore
-cp jpspec_workflow.yml.backup.* jpspec_workflow.yml
+cp specflow_workflow.yml.backup.* specflow_workflow.yml
 ```
 
 ---
@@ -614,19 +614,19 @@ cp jpspec_workflow.yml.backup.* jpspec_workflow.yml
 
 ```bash
 # 1. Backup current config (just in case)
-mv jpspec_workflow.yml jpspec_workflow.yml.broken
+mv specflow_workflow.yml specflow_workflow.yml.broken
 
 # 2. Copy default configuration
-cp ~/.local/share/specify-cli/templates/jpspec_workflow.yml ./jpspec_workflow.yml
+cp ~/.local/share/specify-cli/templates/specflow_workflow.yml ./specflow_workflow.yml
 
 # Or from project templates
-cp jpspec_workflow.yml
+cp specflow_workflow.yml
 
 # 3. Verify default works
 specify workflow validate
 
 # 4. Gradually re-add customizations from broken config
-diff jpspec_workflow.yml.broken jpspec_workflow.yml
+diff specflow_workflow.yml.broken specflow_workflow.yml
 ```
 
 ---
@@ -637,9 +637,9 @@ diff jpspec_workflow.yml.broken jpspec_workflow.yml
 
 ```bash
 # Pre-commit checklist
-vim jpspec_workflow.yml
+vim specflow_workflow.yml
 specify workflow validate
-git add jpspec_workflow.yml
+git add specflow_workflow.yml
 git commit -s -m "feat(workflow): add custom phase"
 ```
 
@@ -647,7 +647,7 @@ git commit -s -m "feat(workflow): add custom phase"
 
 ```bash
 # Commit workflow changes separately
-git add jpspec_workflow.yml
+git add specflow_workflow.yml
 git commit -s -m "feat(workflow): add security audit phase
 
 - Add Security Audited state
@@ -664,7 +664,7 @@ git commit -s -m "feat(workflow): add security audit phase
 backlog task create "Test custom workflow"
 
 # Run through custom workflow
-/jpspec:custom-workflow
+/specflow:custom-workflow
 
 # Verify it works before using on real features
 ```
@@ -678,7 +678,7 @@ workflows:
     # CUSTOM: Required for SOC2 compliance
     # Added: 2025-12-01
     # Owner: Security Team
-    command: "/jpspec:security-audit"
+    command: "/specflow:security-audit"
     # ...
 ```
 
@@ -705,7 +705,7 @@ workflows:
 
 ```bash
 # Compare to working examples
-diff jpspec_workflow.yml docs/examples/workflows/minimal-workflow.yml
+diff specflow_workflow.yml docs/examples/workflows/minimal-workflow.yml
 
 # Learn from other examples
 ls docs/examples/workflows/
@@ -728,7 +728,7 @@ If none of these solutions work:
 
 1. Create minimal reproduction:
    ```bash
-   # Simplify jpspec_workflow.yml to smallest failing case
+   # Simplify specflow_workflow.yml to smallest failing case
    # Share anonymized version
    ```
 
@@ -739,7 +739,7 @@ If none of these solutions work:
 
 3. Report via GitHub Issues with:
    - Error message
-   - Minimal jpspec_workflow.yml
+   - Minimal specflow_workflow.yml
    - Specflow version (`specify --version`)
    - Steps to reproduce
 
@@ -748,7 +748,7 @@ If none of these solutions work:
 ## Summary
 
 **Most Common Issues**:
-1. **Config not found** → Create `jpspec_workflow.yml` in project root
+1. **Config not found** → Create `specflow_workflow.yml` in project root
 2. **State transition error** → Run workflows in correct sequence
 3. **Circular dependencies** → Use `via: "rework"` for backward transitions
 4. **Unreachable states** → Add transitions or remove unused states

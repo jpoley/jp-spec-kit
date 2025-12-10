@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
-"""PostToolUse hook: Auto-emit jp-spec-kit events when /jpspec commands complete.
+"""PostToolUse hook: Auto-emit jp-spec-kit events when /specflow commands complete.
 
 This hook intercepts SlashCommand tool completions and emits corresponding
 jp-spec-kit events to trigger user-configured hooks in .specify/hooks/.
 
 Event Mapping:
-    /jpspec:assess    → workflow.assessed
-    /jpspec:specify   → spec.created
-    /jpspec:research  → research.completed
-    /jpspec:plan      → plan.created
-    /jpspec:implement → implement.completed
-    /jpspec:validate  → validate.completed
-    /jpspec:operate   → deploy.completed
+    /specflow:assess    → workflow.assessed
+    /specflow:specify   → spec.created
+    /specflow:research  → research.completed
+    /specflow:plan      → plan.created
+    /specflow:implement → implement.completed
+    /specflow:validate  → validate.completed
+    /specflow:operate   → deploy.completed
 
 The hook operates in a fail-open mode - errors are logged but don't block workflow.
 """
@@ -21,15 +21,15 @@ import re
 import subprocess
 import sys
 
-# Event type mapping for /jpspec commands
+# Event type mapping for /specflow commands
 COMMAND_EVENT_MAP = {
-    "/jpspec:assess": "workflow.assessed",
-    "/jpspec:specify": "spec.created",
-    "/jpspec:research": "research.completed",
-    "/jpspec:plan": "plan.created",
-    "/jpspec:implement": "implement.completed",
-    "/jpspec:validate": "validate.completed",
-    "/jpspec:operate": "deploy.completed",
+    "/specflow:assess": "workflow.assessed",
+    "/specflow:specify": "spec.created",
+    "/specflow:research": "research.completed",
+    "/specflow:plan": "plan.created",
+    "/specflow:implement": "implement.completed",
+    "/specflow:validate": "validate.completed",
+    "/specflow:operate": "deploy.completed",
 }
 
 
@@ -150,19 +150,19 @@ def main():
     tool_input = input_data.get("tool_input", {})
     command = tool_input.get("command", "")
 
-    # Check if this is a /jpspec command
-    jpspec_command = None
+    # Check if this is a /specflow command
+    specflow_command = None
     for cmd_prefix in COMMAND_EVENT_MAP:
         if command.startswith(cmd_prefix):
-            jpspec_command = cmd_prefix
+            specflow_command = cmd_prefix
             break
 
-    if not jpspec_command:
-        allow("Not a /jpspec command")
+    if not specflow_command:
+        allow("Not a /specflow command")
         return
 
     # Get event type
-    event_type = COMMAND_EVENT_MAP[jpspec_command]
+    event_type = COMMAND_EVENT_MAP[specflow_command]
 
     # Extract feature and task IDs from command arguments (with is_command=True)
     feature_id = extract_feature_id(command, is_command=True)
@@ -179,7 +179,7 @@ def main():
     success, message = emit_event(event_type, feature_id, task_id)
 
     # Always allow (fail-open) but report results
-    context_parts = [f"Command: {jpspec_command}", f"Event: {event_type}"]
+    context_parts = [f"Command: {specflow_command}", f"Event: {event_type}"]
     if feature_id:
         context_parts.append(f"Feature: {feature_id}")
     if task_id:

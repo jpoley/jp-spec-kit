@@ -18,34 +18,34 @@ This configuration enables parallel development tracks where frontend and backen
 
 ```
 To Do
-  ↓ /jpspec:assess
+  ↓ /specflow:assess
 Assessed
-  ↓ /jpspec:specify
+  ↓ /specflow:specify
 Specified
-  ↓ /jpspec:plan (defines API contract)
+  ↓ /specflow:plan (defines API contract)
 Planned
   ├─────────────────┬────────────────┐
   ↓                 ↓                ↓
 Frontend Track    Backend Track    (parallel)
   ↓                 ↓
-/jpspec:implement-frontend    /jpspec:implement-backend
+/specflow:implement-frontend    /specflow:implement-backend
   ↓                 ↓
 Frontend In Progress    Backend In Progress
   ↓                 ↓
-/jpspec:validate-frontend    /jpspec:validate-backend
+/specflow:validate-frontend    /specflow:validate-backend
   ↓                 ↓
 Frontend Validated    Backend Validated
   └─────────────────┬────────────────┘
                     ↓ (both required)
-            /jpspec:integrate
+            /specflow:integrate
                     ↓
         Integration In Progress
                     ↓
-      /jpspec:validate-integration
+      /specflow:validate-integration
                     ↓
         Integration Validated
                     ↓
-          /jpspec:operate
+          /specflow:operate
                     ↓
               Deployed
                     ↓
@@ -154,7 +154,7 @@ Integration In Progress → Backend In Progress (backend issues)
 ### 1. Setup
 
 ```bash
-cp docs/examples/workflows/parallel-workflows.yml jpspec_workflow.yml
+cp docs/examples/workflows/parallel-workflows.yml specflow_workflow.yml
 specify workflow validate
 ```
 
@@ -162,11 +162,11 @@ specify workflow validate
 
 ```bash
 backlog task create "User authentication"
-/jpspec:assess
-/jpspec:specify
+/specflow:assess
+/specflow:specify
 
 # Planning phase defines API contract
-/jpspec:plan
+/specflow:plan
 # Creates docs/api/user-auth-api-contract.yaml
 ```
 
@@ -179,8 +179,8 @@ backlog task create "User auth - frontend implementation" \
   --assignee @frontend-team
 
 # Frontend team works independently
-/jpspec:implement-frontend
-/jpspec:validate-frontend
+/specflow:implement-frontend
+/specflow:validate-frontend
 ```
 
 **Backend Team Task**:
@@ -190,29 +190,29 @@ backlog task create "User auth - backend implementation" \
   --assignee @backend-team
 
 # Backend team works independently
-/jpspec:implement-backend
-/jpspec:validate-backend
+/specflow:implement-backend
+/specflow:validate-backend
 ```
 
 ### 4. Integration
 
 ```bash
 # Once both tracks reach "Validated" state
-/jpspec:integrate
+/specflow:integrate
 
 # Connects frontend to real backend
 # Removes mocks
 # Runs end-to-end tests
 
-/jpspec:validate-integration
-/jpspec:operate
+/specflow:validate-integration
+/specflow:operate
 ```
 
 ## Coordination Points
 
 ### Point 1: API Contract Review
 
-**When**: After `/jpspec:plan`
+**When**: After `/specflow:plan`
 
 **Action**: Both teams review and approve API contract
 
@@ -225,7 +225,7 @@ backlog task create "User auth - backend implementation" \
 
 ### Point 2: Integration Readiness
 
-**When**: Before `/jpspec:integrate`
+**When**: Before `/specflow:integrate`
 
 **Action**: Verify both tracks are validated
 
@@ -238,7 +238,7 @@ backlog task create "User auth - backend implementation" \
 
 ### Point 3: Deployment Readiness
 
-**When**: After `/jpspec:validate-integration`
+**When**: After `/specflow:validate-integration`
 
 **Action**: Verify end-to-end system works
 
@@ -257,13 +257,13 @@ backlog task create "User auth - backend implementation" \
 backlog task view task-frontend-123
 
 # 2. Implement using API contract
-/jpspec:implement-frontend
+/specflow:implement-frontend
 # - Use docs/api/{feature}-api-contract.yaml
 # - Mock backend responses
 # - Focus on UI/UX
 
 # 3. Validate independently
-/jpspec:validate-frontend
+/specflow:validate-frontend
 # - Component tests
 # - Visual regression tests
 # - Accessibility tests
@@ -272,12 +272,12 @@ backlog task view task-frontend-123
 # (Wait for backend team to reach "Backend Validated")
 
 # 5. Integration (coordinated)
-/jpspec:integrate
+/specflow:integrate
 # - Connect to real backend
 # - Remove mocks
 
 # 6. E2E validation
-/jpspec:validate-integration
+/specflow:validate-integration
 ```
 
 ### Backend Team
@@ -287,13 +287,13 @@ backlog task view task-frontend-123
 backlog task view task-backend-123
 
 # 2. Implement API contract
-/jpspec:implement-backend
+/specflow:implement-backend
 # - Implement docs/api/{feature}-api-contract.yaml exactly
 # - Focus on business logic
 # - Add database schema
 
 # 3. Validate independently
-/jpspec:validate-backend
+/specflow:validate-backend
 # - API contract tests
 # - Integration tests
 # - Security tests
@@ -302,11 +302,11 @@ backlog task view task-backend-123
 # (Wait for frontend team to reach "Frontend Validated")
 
 # 5. Integration (coordinated)
-/jpspec:integrate
+/specflow:integrate
 # - Verify contract implementation
 
 # 6. E2E validation
-/jpspec:validate-integration
+/specflow:validate-integration
 ```
 
 ## Advanced Patterns
@@ -387,8 +387,8 @@ diff docs/api/{feature}-api-contract.yaml \
 vim docs/api/{feature}-api-contract.yaml
 
 # Both teams update implementation
-/jpspec:implement-frontend  # Frontend updates
-/jpspec:implement-backend   # Backend updates
+/specflow:implement-frontend  # Frontend updates
+/specflow:implement-backend   # Backend updates
 ```
 
 ### Issue 2: Integration Blocked on One Track
@@ -423,10 +423,10 @@ backlog task edit task-backend-123 -s "Backend In Progress" \
 ```bash
 # Check which component is failing
 # Frontend issue?
-/jpspec:implement-frontend  # Fix and re-validate
+/specflow:implement-frontend  # Fix and re-validate
 
 # Backend issue?
-/jpspec:implement-backend  # Fix and re-validate
+/specflow:implement-backend  # Fix and re-validate
 
 # Both?
 # Coordinate fix between teams

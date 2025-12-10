@@ -10,7 +10,7 @@
 
 ## Context and Problem Statement
 
-Specflow currently has 18+ slash commands across two flat namespaces (`/jpspec` and `/speckit`). This creates several user experience and discoverability challenges:
+Specflow currently has 18+ slash commands across two flat namespaces (`/specflow` and `/speckit`). This creates several user experience and discoverability challenges:
 
 ### Current Pain Points
 
@@ -48,7 +48,7 @@ From the **Engine Room perspective** (Technical Execution):
 ## Considered Options
 
 ### Option 1: Flat Namespace with Prefixes (Status Quo)
-Keep current structure but add prefixes: `/jpspec-pm-*`, `/jpspec-dev-*`, etc.
+Keep current structure but add prefixes: `/specflow-pm-*`, `/specflow-dev-*`, etc.
 
 **Pros**:
 - Zero breaking changes
@@ -148,9 +148,9 @@ Each role namespace uses **persona-appropriate verbs** that reflect how that rol
 
 | Current Command | New Command | Verb Rationale |
 |-----------------|-------------|----------------|
-| `/jpspec:assess` | `/pm:assess` | PM assesses feature viability and complexity |
-| `/jpspec:specify` | `/pm:define` | PM defines requirements (not "specifies" - too technical) |
-| `/jpspec:research` | `/pm:discover` | PM discovers user needs and market gaps |
+| `/specflow:assess` | `/pm:assess` | PM assesses feature viability and complexity |
+| `/specflow:specify` | `/pm:define` | PM defines requirements (not "specifies" - too technical) |
+| `/specflow:research` | `/pm:discover` | PM discovers user needs and market gaps |
 
 **Agent Assignment**: `@product-requirements-manager`, `@workflow-assessor`, `@researcher`, `@business-validator`
 
@@ -160,7 +160,7 @@ Each role namespace uses **persona-appropriate verbs** that reflect how that rol
 
 | Current Command | New Command | Verb Rationale |
 |-----------------|-------------|----------------|
-| `/jpspec:plan` | `/arch:design` | Architect designs system architecture |
+| `/specflow:plan` | `/arch:design` | Architect designs system architecture |
 | `/speckit:plan` | `/arch:design-light` | Lightweight design for simpler features |
 | *New* | `/arch:decide` | Create Architecture Decision Records (ADRs) |
 | *New* | `/arch:model` | Create data models, API contracts, diagrams |
@@ -173,9 +173,9 @@ Each role namespace uses **persona-appropriate verbs** that reflect how that rol
 
 | Current Command | New Command | Verb Rationale |
 |-----------------|-------------|----------------|
-| `/jpspec:implement` | `/dev:build` | Developer builds features (action-oriented) |
+| `/specflow:implement` | `/dev:build` | Developer builds features (action-oriented) |
 | `/speckit:implement` | `/dev:build-light` | Lightweight build for simpler features |
-| `/jpspec:prune-branch` | `/dev:cleanup` | Developer cleans up branches |
+| `/specflow:prune-branch` | `/dev:cleanup` | Developer cleans up branches |
 | *New* | `/dev:debug` | Debugging assistance |
 | *New* | `/dev:refactor` | Refactoring guidance |
 
@@ -187,11 +187,11 @@ Each role namespace uses **persona-appropriate verbs** that reflect how that rol
 
 | Current Command | New Command | Verb Rationale |
 |-----------------|-------------|----------------|
-| `/jpspec:security_triage` | `/sec:triage` | Security triages findings by severity |
-| `/jpspec:security_fix` | `/sec:fix` | Security fixes vulnerabilities |
-| `/jpspec:security_report` | `/sec:report` | Security reports on posture |
-| `/jpspec:security_web` | `/sec:scan` | Security scans for vulnerabilities |
-| `/jpspec:security_workflow` | `/sec:audit` | Security audits the workflow |
+| `/specflow:security_triage` | `/sec:triage` | Security triages findings by severity |
+| `/specflow:security_fix` | `/sec:fix` | Security fixes vulnerabilities |
+| `/specflow:security_report` | `/sec:report` | Security reports on posture |
+| `/specflow:security_web` | `/sec:scan` | Security scans for vulnerabilities |
+| `/specflow:security_workflow` | `/sec:audit` | Security audits the workflow |
 
 **Agent Assignment**: `@secure-by-design-engineer`
 
@@ -201,7 +201,7 @@ Each role namespace uses **persona-appropriate verbs** that reflect how that rol
 
 | Current Command | New Command | Verb Rationale |
 |-----------------|-------------|----------------|
-| `/jpspec:validate` | `/qa:verify` | QA verifies implementation meets requirements |
+| `/specflow:validate` | `/qa:verify` | QA verifies implementation meets requirements |
 | `/speckit:checklist` | `/qa:review` | QA reviews against checklist |
 | `/speckit:analyze` | `/qa:test` | QA tests code quality and coverage |
 
@@ -213,7 +213,7 @@ Each role namespace uses **persona-appropriate verbs** that reflect how that rol
 
 | Current Command | New Command | Verb Rationale |
 |-----------------|-------------|----------------|
-| `/jpspec:operate` | `/ops:deploy` | Ops deploys to environments |
+| `/specflow:operate` | `/ops:deploy` | Ops deploys to environments |
 | *New* | `/ops:monitor` | Ops monitors system health |
 | *New* | `/ops:respond` | Ops responds to incidents |
 | *New* | `/ops:scale` | Ops scales infrastructure |
@@ -226,8 +226,8 @@ Each role namespace uses **persona-appropriate verbs** that reflect how that rol
 
 | Current Command | New Command | Verb Rationale |
 |-----------------|-------------|----------------|
-| `/jpspec:init` | `/speckit:init` | Initialize project (all roles) |
-| `/jpspec:reset` | `/speckit:configure` | Configure workflow settings |
+| `/specflow:init` | `/speckit:init` | Initialize project (all roles) |
+| `/specflow:reset` | `/speckit:configure` | Configure workflow settings |
 | `/speckit:constitution` | `/speckit:constitution` | Manage project constitution |
 | `/speckit:tasks` | `/speckit:tasks` | Manage backlog tasks |
 | `/speckit:clarify` | `/speckit:clarify` | Clarify requirements |
@@ -266,8 +266,8 @@ Each role namespace uses **persona-appropriate verbs** that reflect how that rol
 - Old commands work via aliases to new commands
 - Issue deprecation warning when old command used:
   ```
-  ⚠️  /jpspec:assess is deprecated. Use /pm:assess instead.
-  Documentation: https://jpspec.dev/migration
+  ⚠️  /specflow:assess is deprecated. Use /pm:assess instead.
+  Documentation: https://specflow.dev/migration
   ```
 - All documentation updated to show new commands
 - Migration guide published
@@ -276,7 +276,7 @@ Each role namespace uses **persona-appropriate verbs** that reflect how that rol
 - Warnings become more prominent
 - Count down to removal date shown:
   ```
-  ⚠️  /jpspec:assess will be removed in 3 months. Use /pm:assess instead.
+  ⚠️  /specflow:assess will be removed in 3 months. Use /pm:assess instead.
   Auto-migration script: specify migrate-commands
   ```
 - Auto-migration tool available
@@ -290,8 +290,8 @@ Each role namespace uses **persona-appropriate verbs** that reflect how that rol
 - Old commands removed
 - Helpful error message with migration path:
   ```
-  ❌ Command /jpspec:assess has been removed.
-  Use /pm:assess instead. See migration guide: https://jpspec.dev/migration
+  ❌ Command /specflow:assess has been removed.
+  Use /pm:assess instead. See migration guide: https://specflow.dev/migration
   ```
 
 ### Alias Implementation
@@ -299,7 +299,7 @@ Each role namespace uses **persona-appropriate verbs** that reflect how that rol
 Create symbolic links and command wrappers:
 
 ```yaml
-# .claude/commands/jpspec/assess.md (OLD)
+# .claude/commands/specflow/assess.md (OLD)
 ---
 description: "[DEPRECATED] Use /pm:assess instead"
 deprecated: true
@@ -349,7 +349,7 @@ Enter selection [1-7]:
 
 ### Storage: specflow_workflow.yml
 
-Role selection is stored in `specflow_workflow.yml` (renamed from `jpspec_workflow.yml`):
+Role selection is stored in `specflow_workflow.yml` (renamed from `specflow_workflow.yml`):
 
 ```yaml
 # Specflow Workflow Configuration
@@ -451,7 +451,7 @@ The role selection affects command visibility in VS Code:
 ```yaml
 name: "pm-assess"
 description: "Assess feature complexity and SDD workflow suitability"
-target: "jpspec"
+target: "specflow"
 tools: [...]
 role: "pm"  # NEW FIELD
 priority_for_roles: ["pm"]  # Show first for PMs
@@ -649,16 +649,16 @@ squads:
 
 | Old Command | New Command | Role |
 |-------------|-------------|------|
-| `/jpspec:assess` | `/pm:assess` | PM |
-| `/jpspec:specify` | `/pm:define` | PM |
-| `/jpspec:research` | `/pm:discover` | PM |
-| `/jpspec:plan` | `/arch:design` | Architect |
-| `/jpspec:implement` | `/dev:build` | Developer |
-| `/jpspec:validate` | `/qa:verify` | QA |
-| `/jpspec:operate` | `/ops:deploy` | Ops |
-| `/jpspec:security_*` | `/sec:*` | Security |
-| `/jpspec:init` | `/speckit:init` | Utility |
-| `/jpspec:reset` | `/speckit:configure` | Utility |
+| `/specflow:assess` | `/pm:assess` | PM |
+| `/specflow:specify` | `/pm:define` | PM |
+| `/specflow:research` | `/pm:discover` | PM |
+| `/specflow:plan` | `/arch:design` | Architect |
+| `/specflow:implement` | `/dev:build` | Developer |
+| `/specflow:validate` | `/qa:verify` | QA |
+| `/specflow:operate` | `/ops:deploy` | Ops |
+| `/specflow:security_*` | `/sec:*` | Security |
+| `/specflow:init` | `/speckit:init` | Utility |
+| `/specflow:reset` | `/speckit:configure` | Utility |
 
 ---
 
