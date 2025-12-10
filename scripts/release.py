@@ -292,7 +292,7 @@ Workflow:
 
     if branch_exists(release_branch):
         print(f"\n Branch {release_branch} already exists!")
-        print("  Delete it first: git branch -D {release_branch}")
+        print(f"  Delete it first: git branch -D {release_branch}")
         sys.exit(1)
     print(f"  Branch {release_branch} does not exist")
 
