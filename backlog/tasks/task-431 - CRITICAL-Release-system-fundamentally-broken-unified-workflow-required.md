@@ -1,9 +1,11 @@
 ---
 id: task-431
 title: 'CRITICAL: Release system fundamentally broken - unified workflow required'
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@myself'
 created_date: '2025-12-10 21:39'
+updated_date: '2025-12-10 21:53'
 labels:
   - release
   - critical
@@ -71,3 +73,28 @@ No handoff between workflows. No GITHUB_TOKEN limitation issue.
 - [ ] #4 Test release v0.2.346+ creates tag AND GitHub Release with artifacts
 - [ ] #5 Documentation updated to reflect new release process
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Implementation PR: https://github.com/jpoley/jp-spec-kit/pull/728
+
+Changes made:
+1. Rewrote release.yml as unified workflow that handles the entire release process
+2. Deleted release-on-merge.yml (no longer needed)
+3. Updated branding from "Spec Kit Templates" to "Specflow"
+4. Updated ADR-011 status to Accepted
+
+The unified workflow:
+- Triggers on release PR merge (pull_request closed + merged + release/v* branch)
+- Also supports workflow_dispatch for manual releases
+- Creates annotated tag on pinned commit from .release-commit file
+- Builds Python packages with uv
+- Creates template zips for all 13 AI assistants
+- Creates GitHub Release with all artifacts
+- Deletes release branch on success
+
+Key design: No handoff between workflows = no GITHUB_TOKEN limitation.
+
+Next: Test with v0.2.346 release after PR merge.
+<!-- SECTION:NOTES:END -->
