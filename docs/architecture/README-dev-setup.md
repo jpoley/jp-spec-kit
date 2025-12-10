@@ -1,6 +1,6 @@
 # Architecture Documentation
 
-This directory contains architectural design documents and decision records for the JP Spec Kit project.
+This directory contains architectural design documents and decision records for the JP Specflow project.
 
 ## Architecture Documents
 

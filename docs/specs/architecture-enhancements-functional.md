@@ -1,4 +1,4 @@
-# Functional Spec: JP Spec Kit Architecture Enhancements
+# Functional Spec: JP Specflow Architecture Enhancements
 
 **Related Tasks**: task-079, task-081, task-083, task-084, task-086, task-182, task-243, task-244, task-245, task-246
 **PRD Reference**: `docs/prd/architecture-enhancements-prd.md`
@@ -252,7 +252,7 @@ This functional specification defines behaviors for 10 architecture enhancement 
 **Actor**: Claude Code user
 **Preconditions**: Claude Code installed
 **Flow**:
-1. Search "JP Spec Kit" in marketplace
+1. Search "JP Specflow" in marketplace
 2. Click Install
 3. Commands available immediately
 **Postconditions**: /jpspec:* commands ready to use

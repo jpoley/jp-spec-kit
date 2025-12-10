@@ -12,7 +12,7 @@
 
 ### Problem Statement
 
-JP Spec Kit currently operates as a **linear, synchronous workflow system** where each /jpspec command executes agents in isolation without the ability to trigger follow-up automation. This creates three critical gaps:
+JP Specflow currently operates as a **linear, synchronous workflow system** where each /jpspec command executes agents in isolation without the ability to trigger follow-up automation. This creates three critical gaps:
 
 1. **No automated quality gates**: After implementing code, tests must be run manually
 2. **No workflow orchestration**: Documentation updates, code reviews, and CI/CD integration require manual coordination
@@ -22,13 +22,13 @@ These gaps force developers to maintain mental checklists of post-workflow actio
 
 ### Solution Overview
 
-Introduce an **event + hook abstraction** that transforms JP Spec Kit from a linear workflow engine into an **event-driven automation platform**. The system consists of three core components:
+Introduce an **event + hook abstraction** that transforms JP Specflow from a linear workflow engine into an **event-driven automation platform**. The system consists of three core components:
 
 1. **Event Model**: Canonical event types (spec.created, task.completed, implement.completed, etc.)
 2. **Hook Definitions**: YAML configuration in `.specify/hooks/hooks.yaml` mapping events to scripts
 3. **Hook Runner**: CLI command `specify hooks run` that receives events and dispatches to configured hooks
 
-**Key Design Principle**: JP Spec Kit hooks are **tool-agnostic** and **workflow-focused**, complementing Claude Code hooks (tool-level events) rather than replacing them.
+**Key Design Principle**: JP Specflow hooks are **tool-agnostic** and **workflow-focused**, complementing Claude Code hooks (tool-level events) rather than replacing them.
 
 ### Business Value
 
@@ -38,7 +38,7 @@ Introduce an **event + hook abstraction** that transforms JP Spec Kit from a lin
 - **Enable 10+ integration patterns** (CI/CD, notifications, code review automation)
 
 **Strategic Benefits**:
-- **Extensibility**: Opens JP Spec Kit to ecosystem integrations without core code changes
+- **Extensibility**: Opens JP Specflow to ecosystem integrations without core code changes
 - **Reliability**: Automated quality gates reduce human error
 - **Observability**: Audit logging creates compliance trail for enterprise users
 
@@ -67,7 +67,7 @@ Introduce an **event + hook abstraction** that transforms JP Spec Kit from a lin
 ### Primary Personas
 
 #### Persona 1: Senior Backend Engineer (Sarah)
-**Background**: Sarah works on a microservices platform with strict quality gates. She uses JP Spec Kit to manage feature development and needs to ensure tests always run before code review.
+**Background**: Sarah works on a microservices platform with strict quality gates. She uses JP Specflow to manage feature development and needs to ensure tests always run before code review.
 
 **Pain Points**:
 - Forgets to run test suite after implementing features
@@ -80,7 +80,7 @@ Introduce an **event + hook abstraction** that transforms JP Spec Kit from a lin
 - Documentation auto-sync when specs are updated
 
 #### Persona 2: Platform Engineer (Marcus)
-**Background**: Marcus maintains CI/CD infrastructure and wants to integrate JP Spec Kit workflows with Jenkins pipelines. He needs workflow events to trigger downstream automation.
+**Background**: Marcus maintains CI/CD infrastructure and wants to integrate JP Specflow workflows with Jenkins pipelines. He needs workflow events to trigger downstream automation.
 
 **Pain Points**:
 - No way to know when implementation is complete
@@ -206,7 +206,7 @@ So that eng team has backlog items ready
 
 ### User Journey: End-to-End Feature Development
 
-**Scenario**: Sarah implements a new authentication feature using JP Spec Kit with hooks configured.
+**Scenario**: Sarah implements a new authentication feature using JP Specflow with hooks configured.
 
 1. **Specify Phase**: Sarah runs `/jpspec:specify authentication`
    - Event: `spec.created` emitted
@@ -254,9 +254,9 @@ So that eng team has backlog items ready
 - ✅ **User research**: Assessment doc identifies "no automated quality gates" as critical gap
 
 **Validation Experiments**:
-1. **Survey existing users**: Ask 10 JP Spec Kit users "Would you use hooks for automated testing?" (Target: 8/10 yes)
+1. **Survey existing users**: Ask 10 JP Specflow users "Would you use hooks for automated testing?" (Target: 8/10 yes)
 2. **Prototype test**: Ship v0.1 with 3 example hooks, measure adoption after 2 weeks (Target: >50% enable at least one hook)
-3. **Dogfooding**: Use hooks in JP Spec Kit development itself, track time savings (Target: 30%+ reduction in manual steps)
+3. **Dogfooding**: Use hooks in JP Specflow development itself, track time savings (Target: 30%+ reduction in manual steps)
 
 **Mitigations**:
 - Start with high-value use cases (testing, docs) rather than niche integrations
@@ -287,7 +287,7 @@ So that eng team has backlog items ready
 **Risk Level**: LOW
 
 **Technical Risks**:
-- ✅ **Existing patterns**: JP Spec Kit already has workflow engine, just needs event emission layer
+- ✅ **Existing patterns**: JP Specflow already has workflow engine, just needs event emission layer
 - ✅ **Security**: Python subprocess module has battle-tested sandboxing (timeout, cwd, env)
 - ❌ **Webhook reliability**: Retry logic for external webhooks is complex
 
@@ -676,7 +676,7 @@ def implement_command(feature: str):
 
 **Complementary design**:
 - Claude Code hooks: Tool-level events (PreToolUse, PostToolUse, Stop)
-- JP Spec Kit hooks: Workflow-level events (spec.created, task.completed)
+- JP Specflow hooks: Workflow-level events (spec.created, task.completed)
 
 **Potential integration** (v2):
 ```yaml
@@ -689,7 +689,7 @@ hooks:
     description: "Copy example hooks to .claude/hooks/"
 ```
 
-This allows JP Spec Kit hooks to manage Claude Code hooks as artifacts.
+This allows JP Specflow hooks to manage Claude Code hooks as artifacts.
 
 ---
 
@@ -950,7 +950,7 @@ task-210 (ADR) ← parallel to implementation
 
 **H1: Automated testing hooks reduce manual workflow steps by 40%**
 - **Metric**: Count of manual commands before/after hooks enabled
-- **Experiment**: 5 developers use JP Spec Kit for 2 weeks, track workflow steps
+- **Experiment**: 5 developers use JP Specflow for 2 weeks, track workflow steps
 - **Success**: Average reduction >35% (allowing for margin of error)
 
 **H2: Users can configure hooks without documentation in <10 minutes**
@@ -1482,7 +1482,7 @@ hooks:
   - Difference: Batch processing vs SDD workflows
 
 **Key Differentiators**:
-- JP Spec Kit hooks are **workflow-aware** (understand SDD states, artifacts)
+- JP Specflow hooks are **workflow-aware** (understand SDD states, artifacts)
 - **Tool-agnostic** (works with Claude Code, Gemini, Copilot, etc.)
 - **Local-first** (no cloud dependency, works offline)
 - **Developer-centric** (optimized for inner/outer loop, not batch ETL)
@@ -1541,4 +1541,4 @@ hooks:
 
 ---
 
-*This PRD was generated as part of the JP Spec Kit Spec-Driven Development workflow. For questions, contact @pm-planner.*
+*This PRD was generated as part of the JP Specflow Spec-Driven Development workflow. For questions, contact @pm-planner.*

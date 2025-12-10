@@ -11,7 +11,7 @@
 
 ### Business Objectives
 
-JP Spec Kit currently suffers from **command namespace overload**: 18+ commands in flat namespaces (`/jpspec:*`, `/speckit:*`) create discoverability challenges and cognitive burden for users. Security commands are scattered, and there's no logical grouping by role or persona.
+JP Specflow currently suffers from **command namespace overload**: 18+ commands in flat namespaces (`/jpspec:*`, `/speckit:*`) create discoverability challenges and cognitive burden for users. Security commands are scattered, and there's no logical grouping by role or persona.
 
 **Investment Justification**:
 - **Reduce onboarding time**: From 2 hours to 30 minutes

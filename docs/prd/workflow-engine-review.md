@@ -1,4 +1,4 @@
-# Product Requirements Document: JP Spec Kit Workflow Engine Architecture Review
+# Product Requirements Document: JP Specflow Workflow Engine Architecture Review
 
 **Date**: 2025-11-30
 **Document Owner**: @pm-planner
@@ -10,10 +10,10 @@
 ## Executive Summary
 
 ### Purpose
-This PRD provides a comprehensive design review of the JP Spec Kit workflow engine, analyzing its architecture, comparing it to industry standards, evaluating flexibility and durability, and recommending improvements aligned with SVPG Product Operating Model principles.
+This PRD provides a comprehensive design review of the JP Specflow workflow engine, analyzing its architecture, comparing it to industry standards, evaluating flexibility and durability, and recommending improvements aligned with SVPG Product Operating Model principles.
 
 ### Current State Assessment
-JP Spec Kit implements a **configuration-driven state machine workflow engine** with approximately **4,900 lines of Python code** organized in a **centralized `workflow/` module**. The architecture demonstrates strong isolation principles with workflow logic concentrated in dedicated components rather than scattered across the codebase.
+JP Specflow implements a **configuration-driven state machine workflow engine** with approximately **4,900 lines of Python code** organized in a **centralized `workflow/` module**. The architecture demonstrates strong isolation principles with workflow logic concentrated in dedicated components rather than scattered across the codebase.
 
 **Key Strengths:**
 - ✅ **Centralized workflow logic** in `src/specify_cli/workflow/` module (9 core files)
@@ -76,7 +76,7 @@ TOTAL: ~4,900 lines of workflow-specific code
 - ❌ Validation is NOT duplicated in multiple locations
 
 **Comparison to Bad Practices:**
-Many workflow implementations suffer from "distributed logic syndrome" where state transitions are validated in UI, API, and database layers separately. JP Spec Kit avoids this by centralizing all workflow logic in one module.
+Many workflow implementations suffer from "distributed logic syndrome" where state transitions are validated in UI, API, and database layers separately. JP Specflow avoids this by centralizing all workflow logic in one module.
 
 ### 1.2 State Machine Implementation
 
@@ -152,7 +152,7 @@ The system demonstrates **excellent separation of concerns**:
 - **Airflow**: ~40% configuration (DAG files), 60% code
 - **AWS Step Functions**: ~90% configuration (JSON state machine), 10% code (Lambda functions)
 
-JP Spec Kit's **13% configuration ratio** is lower than ideal. More workflow capabilities should be configurable without code changes.
+JP Specflow's **13% configuration ratio** is lower than ideal. More workflow capabilities should be configurable without code changes.
 
 ### 1.4 Artifact-Based Gates
 
@@ -208,7 +208,7 @@ transitions:
 
 ### 2.1 Workflow Engine Patterns
 
-| Pattern | JP Spec Kit | Temporal | Airflow | AWS Step Functions | Prefect | Argo Workflows |
+| Pattern | JP Specflow | Temporal | Airflow | AWS Step Functions | Prefect | Argo Workflows |
 |---------|-------------|----------|---------|-------------------|---------|----------------|
 | **Execution Model** | Local/CLI | Distributed | Scheduled Tasks | Serverless | Distributed | Kubernetes Jobs |
 | **State Storage** | Backlog.md (file) | Database | Database | AWS State Machine | Database | Kubernetes CRDs |
@@ -223,7 +223,7 @@ transitions:
 
 ### 2.2 Architecture Pattern Alignment
 
-**JP Spec Kit follows: Configuration-Driven State Machine Pattern**
+**JP Specflow follows: Configuration-Driven State Machine Pattern**
 
 **Most Similar To:**
 1. **AWS Step Functions** (declarative JSON, state-based, artifact-oriented)
@@ -232,7 +232,7 @@ transitions:
 
 **Key Differences from Mature Engines:**
 
-| Feature | JP Spec Kit | Industry Standard |
+| Feature | JP Specflow | Industry Standard |
 |---------|-------------|-------------------|
 | **State Persistence** | File-based (backlog.md) | Database or managed service |
 | **Execution History** | None | Event log with full audit trail |
@@ -243,7 +243,7 @@ transitions:
 | **Distributed Execution** | Local CLI only | Multi-node orchestration |
 | **Observability** | Basic (logs only) | Metrics, traces, dashboards |
 
-### 2.3 What JP Spec Kit Does Better
+### 2.3 What JP Specflow Does Better
 
 **Strengths vs. Industry Engines:**
 
@@ -274,27 +274,27 @@ transitions:
 1. **Durability** ❌
    - **Temporal**: Replicated database, guaranteed execution
    - **Step Functions**: Managed service with 99.99% SLA
-   - **JP Spec Kit**: File-based state, no crash recovery
+   - **JP Specflow**: File-based state, no crash recovery
 
 2. **Observability** ❌
    - **Prefect**: Real-time UI, metrics dashboard, full run history
    - **Argo**: Kubernetes-native observability, pod logs, traces
-   - **JP Spec Kit**: Logs only, no execution history
+   - **JP Specflow**: Logs only, no execution history
 
 3. **Error Handling** ❌
    - **Temporal**: Automatic retries, timeout handling, compensation workflows
    - **Airflow**: Task retry policies, failure callbacks, alerting
-   - **JP Spec Kit**: No built-in retry, manual recovery only
+   - **JP Specflow**: No built-in retry, manual recovery only
 
 4. **Scale** ❌
    - **Temporal**: Handles millions of workflows concurrently
    - **Step Functions**: Serverless, auto-scales infinitely
-   - **JP Spec Kit**: Single-user CLI, no distributed execution
+   - **JP Specflow**: Single-user CLI, no distributed execution
 
 5. **Versioning** ❌
    - **Temporal**: Multiple workflow versions coexist (old executions run on old code)
    - **Prefect**: Flow versioning with backward compatibility
-   - **JP Spec Kit**: Configuration changes affect all tasks immediately
+   - **JP Specflow**: Configuration changes affect all tasks immediately
 
 ---
 
@@ -386,7 +386,7 @@ class ValidationModePlugin(ABC):
 
 | Engine | Configurability | Example |
 |--------|-----------------|---------|
-| **JP Spec Kit** | 70% | States, transitions, artifacts |
+| **JP Specflow** | 70% | States, transitions, artifacts |
 | **Airflow** | 85% | DAG structure, operators, retries, sensors |
 | **Temporal** | 60% | Activities and workflows (code-driven) |
 | **Step Functions** | 90% | State machine, retry, catch, parallel |
@@ -607,7 +607,7 @@ workflows:
 | **Temporal** | Activity IDs prevent duplicate execution |
 | **Airflow** | Task instance IDs ensure exactly-once semantics |
 | **Step Functions** | Execution ARN prevents duplicate runs |
-| **JP Spec Kit** | State machine + file overwrite (partial) |
+| **JP Specflow** | State machine + file overwrite (partial) |
 
 **Gap:**
 Future features (notifications, webhooks, external integrations) will require **explicit idempotency tokens** to prevent duplicate side effects.
@@ -706,7 +706,7 @@ Implement **lightweight event log** using SQLite or JSON append log:
 
 | Validation Method | Target | Success Criteria |
 |-------------------|--------|------------------|
-| **User Interviews** | 10 JP Spec Kit users | 7/10 report state loss pain |
+| **User Interviews** | 10 JP Specflow users | 7/10 report state loss pain |
 | **Feature Voting** | GitHub Discussions poll | >50 votes for durability features |
 | **Prototype Test** | 5 early adopters | 4/5 prefer persistent state over files |
 | **Usage Analytics** | Backlog.md access patterns | >100 tasks in flight = need for scale |
@@ -795,7 +795,7 @@ Focus on **low-hanging fruit** (state persistence, event log, retry policies) be
 **Question: Does investing in workflow engine improvements work for the business?**
 
 **Business Context:**
-JP Spec Kit is a **developer productivity tool** for **Spec-Driven Development** workflows. Users are individual developers or small teams.
+JP Specflow is a **developer productivity tool** for **Spec-Driven Development** workflows. Users are individual developers or small teams.
 
 **Viability Analysis:**
 
@@ -896,7 +896,7 @@ JP Spec Kit is a **developer productivity tool** for **Spec-Driven Development**
 
 **Feature Comparison Matrix:**
 
-| Feature | JP Spec Kit | Temporal | Airflow | Step Functions | Priority |
+| Feature | JP Specflow | Temporal | Airflow | Step Functions | Priority |
 |---------|-------------|----------|---------|----------------|----------|
 | **State Persistence** | ❌ File | ✅ DB | ✅ DB | ✅ Managed | P0 |
 | **Execution History** | ❌ None | ✅ Full | ✅ Full | ✅ Full | P0 |
@@ -1237,7 +1237,7 @@ JP Spec Kit is a **developer productivity tool** for **Spec-Driven Development**
 
 **DORA Metrics Alignment:**
 
-While JP Spec Kit is not a deployment tool, workflow efficiency impacts **Lead Time for Changes**:
+While JP Specflow is not a deployment tool, workflow efficiency impacts **Lead Time for Changes**:
 
 | Metric | Definition | Current | Target |
 |--------|------------|---------|--------|
@@ -1265,7 +1265,7 @@ Focus on **durability** and **recoverability** first (biggest gaps vs. industry)
 ### 9.1 Summary of Findings
 
 **Architecture Assessment:**
-JP Spec Kit demonstrates a **well-architected, centralized workflow engine** with strong isolation principles and a clear configuration-driven approach. The ~4,900 lines of workflow code are concentrated in a dedicated module, avoiding the "distributed logic syndrome" common in many workflow implementations.
+JP Specflow demonstrates a **well-architected, centralized workflow engine** with strong isolation principles and a clear configuration-driven approach. The ~4,900 lines of workflow code are concentrated in a dedicated module, avoiding the "distributed logic syndrome" common in many workflow implementations.
 
 **Key Strengths:**
 - ✅ **Centralized design** - All workflow logic in `src/specify_cli/workflow/`
@@ -1281,7 +1281,7 @@ JP Spec Kit demonstrates a **well-architected, centralized workflow engine** wit
 - ❌ **Limited extensibility** - No plugin system, hardcoded validation modes
 
 **Industry Comparison:**
-JP Spec Kit achieves **~35% feature parity** with mature workflow engines (Temporal, Airflow, Step Functions). The gaps are primarily in **durability** (state persistence, event log) and **reliability** (retry, compensation), not in **expressiveness** (state machine, artifacts).
+JP Specflow achieves **~35% feature parity** with mature workflow engines (Temporal, Airflow, Step Functions). The gaps are primarily in **durability** (state persistence, event log) and **reliability** (retry, compensation), not in **expressiveness** (state machine, artifacts).
 
 **Strategic Recommendation:**
 **Phased enhancement** starting with **state persistence + event log** (Phase 1, 6-8 weeks) will close the largest gaps while preserving the system's simplicity and developer-friendly UX.
@@ -1291,7 +1291,7 @@ JP Spec Kit achieves **~35% feature parity** with mature workflow engines (Tempo
 **Immediate Actions (Week 1):**
 
 1. **User Research** 🎯
-   - Survey JP Spec Kit users on state loss pain points
+   - Survey JP Specflow users on state loss pain points
    - Validate demand for durability features (>50 votes = strong signal)
    - Prototype SQLite migration and gather feedback
 
@@ -1493,4 +1493,4 @@ Success response to user
 
 **END OF PRD**
 
-*This document represents a comprehensive analysis of the JP Spec Kit workflow engine. All recommendations are subject to user validation and business prioritization decisions.*
+*This document represents a comprehensive analysis of the JP Specflow workflow engine. All recommendations are subject to user validation and business prioritization decisions.*

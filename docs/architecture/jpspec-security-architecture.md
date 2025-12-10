@@ -11,7 +11,7 @@
 
 ### Business Problem
 
-Development teams using JP Spec Kit face a critical gap: **security vulnerabilities are discovered late in the development cycle**, when remediation costs are 10-30x higher than during active development. While the existing `/jpspec:validate` command includes a `@secure-by-design-engineer` agent, there is no automated security scanning integrated into the workflow.
+Development teams using JP Specflow face a critical gap: **security vulnerabilities are discovered late in the development cycle**, when remediation costs are 10-30x higher than during active development. While the existing `/jpspec:validate` command includes a `@secure-by-design-engineer` agent, there is no automated security scanning integrated into the workflow.
 
 **The Core Tension:** Security tools (Semgrep, CodeQL, Trivy, Snyk) exist but operate **outside** the specification-driven development workflow, creating:
 - Tool fragmentation (teams run scans manually, if at all)

@@ -12,7 +12,7 @@
 
 ### Project Description
 
-Integration of security scanning capabilities into JP Spec Kit, including Semgrep orchestration, unified finding format, AI-powered triage, and the `/jpspec:security` command. Part of a larger security platform initiative.
+Integration of security scanning capabilities into JP Specflow, including Semgrep orchestration, unified finding format, AI-powered triage, and the `/jpspec:security` command. Part of a larger security platform initiative.
 
 ### Key Technologies
 

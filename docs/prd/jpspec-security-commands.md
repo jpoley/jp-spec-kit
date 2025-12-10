@@ -11,7 +11,7 @@
 
 ### Problem Statement (Customer Opportunity Focus)
 
-Development teams using JP Spec Kit's specification-driven development (SDD) workflow currently lack integrated security scanning capabilities. While the existing `/jpspec:validate` command includes a `@secure-by-design-engineer` agent, there are no automated security scanning tools orchestrated within the workflow. This creates a critical gap where security vulnerabilities may only be discovered late in the development cycle or after deployment, increasing risk and remediation costs.
+Development teams using JP Specflow's specification-driven development (SDD) workflow currently lack integrated security scanning capabilities. While the existing `/jpspec:validate` command includes a `@secure-by-design-engineer` agent, there are no automated security scanning tools orchestrated within the workflow. This creates a critical gap where security vulnerabilities may only be discovered late in the development cycle or after deployment, increasing risk and remediation costs.
 
 **Customer Pain Points:**
 - **Late vulnerability discovery**: Security issues found in production are 30x more expensive to fix than during development
@@ -32,7 +32,7 @@ Introduce `/jpspec:security` commands that seamlessly integrate security scannin
 /jpspec:security fix       # Generate fix suggestions with code patches
 ```
 
-**Strategic Decision**: Build native implementation (not fork Raptor) using Raptor's proven patterns as reference. This maintains architectural coherence with JP Spec Kit while avoiding the 6GB DevContainer and privileged execution requirements of Raptor.
+**Strategic Decision**: Build native implementation (not fork Raptor) using Raptor's proven patterns as reference. This maintains architectural coherence with JP Specflow while avoiding the 6GB DevContainer and privileged execution requirements of Raptor.
 
 ### Success Metrics (North Star + Key Outcomes)
 
@@ -53,7 +53,7 @@ Introduce `/jpspec:security` commands that seamlessly integrate security scannin
 ### Business Value and Strategic Alignment
 
 **Strategic Alignment:**
-- **SLSA L3 Compliance**: Native security scanning supports JP Spec Kit's mission to enable production-grade quality from day one
+- **SLSA L3 Compliance**: Native security scanning supports JP Specflow's mission to enable production-grade quality from day one
 - **AI-Augmented Velocity**: AI-powered triage and fix suggestions accelerate security remediation without sacrificing thoroughness
 - **Constitutional Principle #6**: "Security by Architectural Design" - embedding security into workflow, not bolting it on
 
@@ -76,7 +76,7 @@ Introduce `/jpspec:security` commands that seamlessly integrate security scannin
 - **Role**: Independent developer building SaaS applications
 - **Goals**: Ship secure features quickly without security expertise overhead
 - **Pain Points**: Doesn't have dedicated security team; overwhelmed by complex security tool outputs
-- **Tech Stack**: Python/TypeScript, uses JP Spec Kit for side projects
+- **Tech Stack**: Python/TypeScript, uses JP Specflow for side projects
 - **Security Knowledge**: Intermediate (knows OWASP Top 10, but not exploitation techniques)
 
 #### Persona 2: Platform Engineer (Marcus)
@@ -163,7 +163,7 @@ graph LR
 
 #### US1: Developer Scans Code for Vulnerabilities
 
-**As a** developer using JP Spec Kit,
+**As a** developer using JP Specflow,
 **I want** to run comprehensive security scans with a single command,
 **So that** I can identify vulnerabilities early without learning multiple security tools.
 
@@ -279,7 +279,7 @@ graph LR
 - ✅ Existing `/jpspec:validate` is actively used (50+ executions in beta)
 - ✅ Raptor (GitHub 221 stars) proves demand for AI-powered security workflows
 - ✅ Security scanning is mandatory for SOC2/ISO27001 compliance
-- ✅ User interviews show 80% of JP Spec Kit users want integrated security
+- ✅ User interviews show 80% of JP Specflow users want integrated security
 
 **Evidence Against:**
 - ❌ Developers may perceive security scans as "slowing them down"
@@ -342,7 +342,7 @@ graph LR
 
 **Evidence For:**
 - ✅ Semgrep has stable Python SDK and CLI (battle-tested)
-- ✅ JP Spec Kit already has MCP integration for AI reasoning
+- ✅ JP Specflow already has MCP integration for AI reasoning
 - ✅ Raptor provides reference implementation patterns (don't need to invent)
 - ✅ Team has experience with similar tool orchestration (pytest, ruff, mypy)
 
@@ -382,7 +382,7 @@ graph LR
 
 **Evidence For:**
 - ✅ Security is top-3 customer request in beta feedback
-- ✅ Aligns with JP Spec Kit mission (production-grade quality)
+- ✅ Aligns with JP Specflow mission (production-grade quality)
 - ✅ Differentiation: competitors (Backstage, Cookiecutter) lack AI-powered security
 - ✅ Resource availability: 1 engineer allocated for 6 weeks
 - ✅ No blocking dependencies on other teams
@@ -816,7 +816,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Install JP Spec Kit
+      - name: Install JP Specflow
         run: pip install jp-spec-kit
       - name: Security Scan
         run: /jpspec:security scan --fail-on critical,high
@@ -1647,12 +1647,12 @@ A feature implementation is considered "Done" when:
 **Installation Options**:
 1. **System Package Manager**: `pip install semgrep`
 2. **Download Binary**: From GitHub releases (~50MB)
-3. **Bundled**: Include in JP Spec Kit distribution (increases size)
+3. **Bundled**: Include in JP Specflow distribution (increases size)
 
 **Version Requirement**: Semgrep >=1.45.0 (for SARIF output support)
 
 **Constraints**:
-- Requires Python 3.7+ (JP Spec Kit already requires 3.11+, so compatible)
+- Requires Python 3.7+ (JP Specflow already requires 3.11+, so compatible)
 - Semgrep Registry requires internet connection (cache rules locally as mitigation)
 - Custom rules require Semgrep YAML format (document in user guide)
 
@@ -1666,7 +1666,7 @@ A feature implementation is considered "Done" when:
 **Dependency Type**: External CLI tool (GitHub-provided)
 
 **License**: **Complex** - Free for OSS, requires GitHub Advanced Security for private repos
-- ⚠️ **Verdict**: Defer to post-MVP until licensing is clarified for JP Spec Kit users
+- ⚠️ **Verdict**: Defer to post-MVP until licensing is clarified for JP Specflow users
 
 **Installation Size**: ~400MB for CLI + ~2GB for language databases
 - ❌ **Blocker**: Too large to bundle; must be download-on-demand
@@ -1683,7 +1683,7 @@ A feature implementation is considered "Done" when:
 **Dependency Type**: External HTTP API (Claude, GPT-4, or self-hosted LLM)
 
 **Options**:
-1. **Anthropic Claude API** (preferred for JP Spec Kit users)
+1. **Anthropic Claude API** (preferred for JP Specflow users)
 2. **OpenAI GPT-4 API** (alternative)
 3. **Self-hosted LLM** (e.g., Llama 3 via Ollama) for privacy-sensitive users
 
@@ -1711,7 +1711,7 @@ A feature implementation is considered "Done" when:
 - Detect `patch` availability before running `--apply`
 - Provide manual application instructions if `patch` not found
 
-### Internal Dependencies (JP Spec Kit)
+### Internal Dependencies (JP Specflow)
 
 #### Backlog.md Integration
 
@@ -1771,11 +1771,11 @@ A feature implementation is considered "Done" when:
 #### Semgrep License Compatibility
 
 **Semgrep OSS License**: LGPL 2.1
-**JP Spec Kit License**: MIT
+**JP Specflow License**: MIT
 
 **Analysis**:
 - ✅ **Compatible**: LGPL allows linking as external tool (subprocess invocation)
-- ✅ **No code incorporation**: JP Spec Kit does not include Semgrep source code
+- ✅ **No code incorporation**: JP Specflow does not include Semgrep source code
 - ✅ **Distribution**: Can recommend/install Semgrep without license conflicts
 
 **Legal Review**: Recommended before MVP launch to confirm interpretation.
@@ -1841,7 +1841,7 @@ A feature implementation is considered "Done" when:
 
 **Mitigation**:
 - Document export control considerations in README
-- JP Spec Kit itself is OSS and not subject to restrictions, but Semgrep may be
+- JP Specflow itself is OSS and not subject to restrictions, but Semgrep may be
 
 ---
 
@@ -1876,7 +1876,7 @@ pre_production_catch_rate = (
 
 #### LI1: `/jpspec:security scan` Adoption Rate
 
-**Definition**: Percentage of JP Spec Kit projects that have run `/jpspec:security scan` at least once
+**Definition**: Percentage of JP Specflow projects that have run `/jpspec:security scan` at least once
 
 **Target**: >80% of active projects within 6 weeks of launch
 
@@ -1993,7 +1993,7 @@ cost_savings = (
 
 **Data Source**: User surveys (quarterly)
 
-**Rationale**: Quantifies ROI for enterprises evaluating JP Spec Kit.
+**Rationale**: Quantifies ROI for enterprises evaluating JP Specflow.
 
 #### LaG3: Security Audit Compliance Rate
 
@@ -2218,14 +2218,14 @@ The `/jpspec:security` feature uses a three-layer architecture to support both i
 
 ## Appendix E: Raptor Comparison and Gap Analysis
 
-This section documents the relationship between JP Spec Kit's `/jpspec:security` and the [Raptor framework](https://github.com/gadievron/raptor).
+This section documents the relationship between JP Specflow's `/jpspec:security` and the [Raptor framework](https://github.com/gadievron/raptor).
 
 ### Strategic Decision: Build Native, Reference Raptor
 
 **Decision**: Build native implementation, use Raptor as reference for patterns.
 
 **Rationale**:
-1. **Scope alignment**: JP Spec Kit is for SDD workflows, not autonomous offensive testing
+1. **Scope alignment**: JP Specflow is for SDD workflows, not autonomous offensive testing
 2. **Dependency hygiene**: Avoid 6GB DevContainer and `--privileged` requirements
 3. **Incremental delivery**: Start with Semgrep, add tools progressively
 4. **Architecture fit**: Native commands integrate naturally with workflow states

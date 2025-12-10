@@ -12,7 +12,7 @@
 
 ### Project Description
 
-Implementation of a tiered constitution template system (light/medium/heavy) for JP Spec Kit's `specify init` command. Enables projects to choose appropriate governance levels based on their complexity and team size.
+Implementation of a tiered constitution template system (light/medium/heavy) for JP Specflow's `specify init` command. Enables projects to choose appropriate governance levels based on their complexity and team size.
 
 ### Key Technologies
 

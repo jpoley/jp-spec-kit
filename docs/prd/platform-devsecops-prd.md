@@ -1,4 +1,4 @@
-# PRD: JP Spec Kit Platform & DevSecOps
+# PRD: JP Specflow Platform & DevSecOps
 
 **Related Tasks**: task-085, task-136, task-168, task-171, task-184, task-195, task-196, task-197, task-249
 
@@ -14,7 +14,7 @@
 | task-168 | Add macOS CI Matrix Testing | CI/CD | Low | FR-CI-003 |
 | task-136 | Add Primary Support for claude-trace Observability | Observability | Medium | FR-OBS-001 |
 | task-171 | Research library documentation MCP replacement | Developer Experience | Medium | FR-DX-001 |
-| task-195 | Create JP Spec Kit Plugin Package | Developer Experience | Low | FR-DX-002 (deferred) |
+| task-195 | Create JP Specflow Plugin Package | Developer Experience | Low | FR-DX-002 (deferred) |
 | task-196 | Experiment with Output Styles for Workflow Phases | Developer Experience | Low | FR-DX-003 (exploratory) |
 | task-197 | Create Custom Statusline with Workflow Context | Developer Experience | Low | FR-DX-004 (future) |
 
@@ -24,7 +24,7 @@
 
 ### Problem Statement
 
-JP Spec Kit users face critical platform challenges:
+JP Specflow users face critical platform challenges:
 
 1. **Security Gaps**: No default protection against accidental exposure of sensitive files (.env, credentials, secrets)
 2. **Slow Feedback Loops**: Developers wait 5-15 minutes for GitHub Actions feedback

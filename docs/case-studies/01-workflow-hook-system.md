@@ -12,7 +12,7 @@
 
 ### Project Description
 
-Implementation of a complete hooks system for JP Spec Kit, enabling event-driven automation during the SDD workflow. The system includes event models, hook configuration, event emission, and integration with Claude Code hooks.
+Implementation of a complete hooks system for JP Specflow, enabling event-driven automation during the SDD workflow. The system includes event models, hook configuration, event emission, and integration with Claude Code hooks.
 
 ### Key Technologies
 

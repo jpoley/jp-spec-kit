@@ -6,10 +6,10 @@
 
 ## Feature Overview
 
-Add comprehensive security scanning capabilities to JP Spec Kit via new `/jpspec:security` commands with subcommands. The decision point is whether to:
+Add comprehensive security scanning capabilities to JP Specflow via new `/jpspec:security` commands with subcommands. The decision point is whether to:
 
 1. **Option A: Integrate Raptor** - Fork/vendor the [gadievron/raptor](https://github.com/gadievron/raptor) framework and maintain it as a dependency
-2. **Option B: Build Native** - Implement security features directly in JP Spec Kit using the same underlying tools (Semgrep, CodeQL, etc.)
+2. **Option B: Build Native** - Implement security features directly in JP Specflow using the same underlying tools (Semgrep, CodeQL, etc.)
 
 ### Raptor Capabilities Summary
 
@@ -22,7 +22,7 @@ Add comprehensive security scanning capabilities to JP Spec Kit via new `/jpspec
 | Patch Generation | Security fix suggestions | Custom |
 | Expert Personas | 9 security expert modes | Prompt engineering |
 
-### JP Spec Kit Current State
+### JP Specflow Current State
 
 - `security-audit-workflow.yml` - Example workflow with threat modeling + security audit phases
 - `security-report-template.md` - Template for security reports
@@ -124,7 +124,7 @@ All three dimensions score >= 6.7, and total exceeds 18. This feature:
 ### Recommendation: Option B (Build Native) with Raptor as Reference
 
 **Rationale:**
-1. **Scope alignment**: JP Spec Kit is for SDD workflows, not autonomous offensive testing
+1. **Scope alignment**: JP Specflow is for SDD workflows, not autonomous offensive testing
 2. **Dependency hygiene**: Avoid 6GB DevContainer and `--privileged` requirements
 3. **Incremental delivery**: Start with Semgrep scanning, add CodeQL, defer fuzzing
 4. **Architecture fit**: Native commands integrate naturally with workflow states

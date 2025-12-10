@@ -1,8 +1,8 @@
-# JP Spec Kit - Plugin Installation Guide
+# JP Specflow - Plugin Installation Guide
 
 > **Transform your development workflow with Spec-Driven Development**
 >
-> JP Spec Kit is a comprehensive Claude Code plugin that provides specialized agents, workflow commands, and integrated tools for the entire software development lifecycle.
+> JP Specflow is a comprehensive Claude Code plugin that provides specialized agents, workflow commands, and integrated tools for the entire software development lifecycle.
 
 ---
 
