@@ -3,8 +3,12 @@
     "content": [
       {
         "files": [
-          "*.md",
-          "toc.yml"
+          "**/*.md",
+          "**/toc.yml"
+        ],
+        "exclude": [
+          "obj/**",
+          "_site/**"
         ]
       },
       {
@@ -58,6 +62,7 @@
     "globalMetadata": {
       "_appTitle": "Specflow Documentation",
       "_appName": "Specflow",
+      "_appLogoPath": "media/logo_small.webp",
       "_appFooter": "Specflow - Specification-driven development for AI-augmented teams",
       "_enableSearch": true,
       "_disableContribution": false,
