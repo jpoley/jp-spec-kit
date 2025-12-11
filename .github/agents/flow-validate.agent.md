@@ -504,13 +504,33 @@ npm run typecheck  # or tsc --noEmit
 - If linting fails: "⚠️  Phase 1 Warning: Linting issues detected. Review before continuing."
 - If type checks fail: "❌ Phase 1 Failed: Type check errors found."
 
+#### Step 4: Document Skipped Tests
+
+**IMPORTANT**: If any tests are skipped, document them for the PR body.
+
+```bash
+# Capture skipped tests with reasons
+pytest tests/ -v 2>&1 | grep -E "SKIPPED" > /tmp/skipped_tests.txt
+```
+
+For each skipped test, categorize and document the reason:
+- **Benchmark tests**: Require full dataset or extended runtime
+- **Performance tests**: Require specific environment or resources
+- **Integration tests**: Require external services (databases, APIs, web servers)
+- **E2E tests**: Require full environment setup
+- **Platform-specific tests**: Require specific OS or architecture
+- **Flaky tests**: Known intermittent failures (should reference issue if exists)
+
+Store this information for Phase 6 PR generation.
+
 **Phase 1 Success**: Print test summary:
 ```
 ✅ Phase 1 Complete: All automated checks passed
-   Tests: 45 passed
+   Tests: 45 passed, 17 skipped
    Coverage: 87%
    Linting: No issues
    Type checks: Passed
+   Skipped tests: Documented for PR
 ```
 
 **Re-run handling**: If tests already passed in previous run, skip and print:
@@ -1029,11 +1049,15 @@ PRs that fail CI:
 - Demonstrate lack of due diligence
 - Will be closed without review
 
-#### Step 1: Check Branch Status
+#### Step 1: Check Branch Status and Merge Conflicts
 
 ```bash
 # Verify current branch is pushed to remote
 git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null
+
+# Check for merge conflicts with main/master
+git fetch origin main
+git merge-tree $(git merge-base HEAD origin/main) HEAD origin/main | grep -q "^<<<<<<<" && echo "CONFLICTS"
 ```
 
 **If branch not pushed**:
@@ -1045,7 +1069,20 @@ Please push your branch first:
 ❌ Phase 6 Failed: Branch not pushed to remote
 ```
 
-Halt and wait for user to push branch.
+**If merge conflicts exist** (MANDATORY - NO EXCEPTIONS):
+```
+❌ Phase 6 Failed: Merge conflicts detected with main branch.
+
+You MUST resolve conflicts before creating a PR:
+  git fetch origin main
+  git rebase origin/main
+  # Resolve any conflicts
+  git push --force-with-lease
+
+DO NOT submit PRs with merge conflicts.
+```
+
+Halt and wait for user to resolve conflicts and rebase.
 
 #### Step 2: Generate PR Title
 
@@ -1090,6 +1127,20 @@ Completes task: task-094
 - ✅ Linting: No issues
 - ✅ Type checks: Passed
 - ✅ Manual testing: Validated all phases execute correctly
+
+## Skipped Tests
+
+**REQUIRED**: If any tests were skipped during validation, document them here with explanations.
+
+<details>
+<summary>N skipped tests - click to expand</summary>
+
+**[Category] tests** (reason):
+- `test_file.py::TestClass::test_name` - [specific reason]
+
+</details>
+
+**Note**: All skipped tests are pre-existing and unrelated to this PR. [Or explain if any are related]
 
 ## Validation Results
 
@@ -1264,7 +1315,9 @@ If any phase fails, the workflow halts with a clear error message. To recover:
 - Tests must pass before proceeding
 - All acceptance criteria must be verified
 - Branch must be pushed to remote before PR creation
+- **No merge conflicts with main branch** (rebase and resolve before PR creation)
 - GitHub CLI (`gh`) must be installed for PR creation
+- **Skipped tests must be documented in PR body with explanations** (category and reason for each)
 
 **Error Recovery**:
 If a phase fails, fix the issue and re-run the command. The workflow will resume from where it left off.
