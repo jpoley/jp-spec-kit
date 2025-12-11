@@ -6,7 +6,80 @@ Task IDs use T001 format for parser regex compatibility.
 """
 
 import pytest
+from pathlib import Path
 from textwrap import dedent
+
+
+@pytest.fixture
+def mock_github_releases(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
+    """Mock the download_and_extract functions to avoid GitHub API calls.
+
+    This fixture mocks the high-level download functions in specify_cli
+    to create a minimal project structure without hitting the network.
+    """
+
+    def mock_download_two_stage(
+        project_path, ai_assistants, script_type, is_current_dir=False, **kwargs
+    ):
+        """Mock two-stage download - create minimal project structure."""
+        tracker = kwargs.get("tracker")
+
+        # Create the expected directory structure
+        project_path.mkdir(parents=True, exist_ok=True)
+
+        # Create .claude directories
+        claude_dir = project_path / ".claude"
+        claude_dir.mkdir(exist_ok=True)
+        (claude_dir / "commands").mkdir(exist_ok=True)
+        (claude_dir / "commands" / "flow").mkdir(exist_ok=True)
+        (claude_dir / "commands" / "speckit").mkdir(exist_ok=True)
+        (claude_dir / "skills").mkdir(exist_ok=True)
+
+        # Create minimal placeholder files
+        (claude_dir / "commands" / "flow" / "assess.md").write_text("# assess")
+        (claude_dir / "commands" / "speckit" / "plan.md").write_text("# plan")
+        (claude_dir / "skills" / "architect.md").write_text("# architect")
+
+        # Create scripts directory
+        scripts_dir = project_path / "scripts" / "bash"
+        scripts_dir.mkdir(parents=True, exist_ok=True)
+        (scripts_dir / "placeholder.sh").write_text("#!/bin/bash\necho ok")
+
+        # Create docs directory
+        docs_dir = project_path / "docs"
+        docs_dir.mkdir(exist_ok=True)
+        (docs_dir / "placeholder.md").write_text("# docs")
+
+        # Update tracker steps if tracker provided
+        if tracker:
+            tracker.complete("fetch-base", "mocked")
+            tracker.complete("fetch-extension", "mocked")
+            tracker.complete("extract-base", "mocked")
+            tracker.complete("extract-extension", "mocked")
+            tracker.complete("merge", "mocked")
+
+        return project_path
+
+    def mock_download_single(project_path, ai_assistants, script_type, **kwargs):
+        """Mock single-stage download - same as two-stage."""
+        tracker = kwargs.get("tracker")
+        result = mock_download_two_stage(
+            project_path, ai_assistants, script_type, **kwargs
+        )
+        if tracker:
+            tracker.complete("fetch", "mocked")
+            tracker.complete("download", "mocked")
+            tracker.complete("extract", "mocked")
+            tracker.complete("zip-list", "mocked")
+            tracker.complete("extracted-summary", "mocked")
+        return result
+
+    monkeypatch.setattr(
+        "specify_cli.download_and_extract_two_stage", mock_download_two_stage
+    )
+    monkeypatch.setattr(
+        "specify_cli.download_and_extract_template", mock_download_single
+    )
 
 
 @pytest.fixture
