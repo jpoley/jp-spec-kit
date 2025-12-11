@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: GitHub Discussions
+    url: https://github.com/{{PROJECT_REPO}}/discussions
+    about: Ask questions, share ideas, and discuss {{PROJECT_NAME}} with the community
+  - name: Documentation
+    url: https://github.com/{{PROJECT_REPO}}/tree/{{DEFAULT_BRANCH}}/docs
+    about: Check the documentation for guides and reference materials
+  - name: Security Vulnerabilities
+    url: https://github.com/{{PROJECT_REPO}}/security/policy
+    about: Report security vulnerabilities privately (do not file public issues)

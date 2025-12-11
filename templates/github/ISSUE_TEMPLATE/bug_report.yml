@@ -1,0 +1,98 @@
+name: Bug Report
+description: Report a bug or unexpected behavior in {{PROJECT_NAME}}
+title: "[Bug]: "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Before Submitting
+
+        - [ ] I have searched existing issues to ensure this bug has not been reported
+        - [ ] I have checked the [documentation](https://github.com/{{PROJECT_REPO}}/tree/{{DEFAULT_BRANCH}}/docs) for relevant information
+        - [ ] I am using a supported version of {{PROJECT_NAME}}
+
+        Thank you for taking the time to report this issue! Please provide as much detail as possible.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is
+      placeholder: What happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Detailed steps to reproduce the behavior
+      placeholder: |
+        1. Run command '...'
+        2. See error '...'
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What you expected to happen
+      placeholder: What should have happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened
+      placeholder: What happened instead?
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Version of {{PROJECT_NAME}} you're using
+      placeholder: "1.0.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System
+      options:
+        - macOS
+        - Linux (Ubuntu/Debian)
+        - Linux (RHEL/CentOS/Fedora)
+        - Linux (Other)
+        - Windows
+        - Windows WSL
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant Logs
+      description: Paste any relevant log output or error messages
+      render: shell
+      placeholder: |
+        $ command
+        Error: ...
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Final Checklist
+      options:
+        - label: I have provided all requested information
+          required: true
+        - label: I can reproduce this issue consistently
+          required: false
+        - label: This issue affects my workflow significantly
+          required: false

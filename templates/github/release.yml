@@ -1,0 +1,60 @@
+# Release notes configuration
+# Categorizes PRs in auto-generated release notes
+# https://docs.github.com/en/repositories/releasing-projects-on-github/automatically-generated-release-notes
+
+changelog:
+  exclude:
+    labels:
+      - skip-changelog
+      - duplicate
+      - invalid
+      - wontfix
+    authors:
+      - renovate
+      - renovate[bot]
+      - github-actions
+      - github-actions[bot]
+      - dependabot
+      - dependabot[bot]
+
+  categories:
+    - title: Breaking Changes
+      labels:
+        - breaking-change
+        - breaking
+
+    - title: New Features
+      labels:
+        - feature
+        - enhancement
+        - feat
+
+    - title: Bug Fixes
+      labels:
+        - bug
+        - fix
+        - bugfix
+
+    - title: Security
+      labels:
+        - security
+        - vulnerability
+
+    - title: Documentation
+      labels:
+        - documentation
+        - docs
+
+    - title: Dependencies
+      labels:
+        - dependencies
+        - deps
+
+    - title: Infrastructure
+      labels:
+        - ci-cd
+        - infrastructure
+
+    - title: Other Changes
+      labels:
+        - "*"

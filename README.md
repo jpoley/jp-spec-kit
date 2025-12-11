@@ -13,6 +13,7 @@
     <a href="https://hub.docker.com/r/jpoley/flowspec-agents"><img src="https://img.shields.io/docker/pulls/jpoley/flowspec-agents" alt="Docker Pulls"/></a>
     <a href="https://github.com/jpoley/jp-spec-kit/stargazers"><img src="https://img.shields.io/github/stars/jpoley/jp-spec-kit?style=social" alt="GitHub stars"/></a>
     <a href="https://github.com/jpoley/jp-spec-kit/blob/main/LICENSE"><img src="https://img.shields.io/github/license/jpoley/jp-spec-kit" alt="License"/></a>
+    <a href="https://scorecard.dev/viewer/?uri=github.com/jpoley/flowspec"><img src="https://api.scorecard.dev/projects/github.com/jpoley/flowspec/badge" alt="OpenSSF Scorecard"/></a>
 </p>
 
 ---

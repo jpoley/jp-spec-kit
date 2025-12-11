@@ -1,0 +1,95 @@
+# Label configuration for actions/labeler
+# Maps file paths to labels for automatic PR labeling
+
+documentation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'docs/**'
+          - '*.md'
+          - 'README*'
+          - 'CHANGELOG*'
+          - 'LICENSE*'
+
+source:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/**'
+
+tests:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'tests/**'
+          - '**/*.test.*'
+          - '**/*.spec.*'
+          - 'conftest.py'
+
+ci-cd:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '.github/workflows/**'
+          - '.github/actions/**'
+          - 'Dockerfile*'
+          - 'docker-compose*'
+          - '.dockerignore'
+
+infrastructure:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'k8s/**'
+          - 'kubernetes/**'
+          - 'manifests/**'
+          - 'terraform/**'
+          - 'helm/**'
+
+dependencies:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'pyproject.toml'
+          - 'requirements*.txt'
+          - 'uv.lock'
+          - 'poetry.lock'
+          - 'Pipfile*'
+
+config:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '*.config.*'
+          - '*.yaml'
+          - '*.yml'
+          - '*.toml'
+          - '*.json'
+          - '.env*'
+          - '!.github/**'
+
+templates:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'templates/**'
+
+scripts:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'scripts/**'
+          - '*.sh'
+
+github:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '.github/**'
+          - '!.github/workflows/**'
+
+memory:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'memory/**'
+
+backlog:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'backlog/**'
+
+claude:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '.claude/**'
+          - 'CLAUDE.md'

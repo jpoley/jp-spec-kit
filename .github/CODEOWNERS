@@ -1,3 +1,29 @@
-# Global code owner
-* @localden
+# Global code owner - default reviewer for all PRs
+* @jpoley
 
+# Documentation
+/docs/ @jpoley
+*.md @jpoley
+README* @jpoley
+
+# Source code
+/src/ @jpoley
+
+# Templates
+/templates/ @jpoley
+
+# Tests
+/tests/ @jpoley
+
+# CI/CD and GitHub configuration
+/.github/ @jpoley
+
+# Memory and constitution
+/memory/ @jpoley
+
+# Scripts
+/scripts/ @jpoley
+
+# Configuration files
+pyproject.toml @jpoley
+uv.lock @jpoley
