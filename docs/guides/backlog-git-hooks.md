@@ -24,26 +24,14 @@ Matching hooks execute (CI, notifications, etc.)
 
 ## Events Emitted
 
-| Change Detected | Event Emitted | Trigger |
-|----------------|---------------|---------|
+| Change Detected | Event Emitted | Detection Method |
+|----------------|---------------|------------------|
 | New task file created | `task.created` | File added in commit |
 | Task status changed | `task.status_changed` | `status:` field changed |
 | Task marked as Done | `task.completed` | `status: Done` or `status: ○ Done` |
 | AC checkbox changed | `task.ac_checked` | `- [x]` or `- [ ]` state changed |
 
 ## Installation
-
-### Automatic Installation (Recommended)
-
-Run the installation script to set up the hook:
-
-```bash
-./scripts/hooks/install-hooks.sh
-```
-
-This creates a symlink from `.git/hooks/post-commit` to the script.
-
-### Manual Installation
 
 Create a symlink in your git hooks directory:
 

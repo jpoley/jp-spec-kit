@@ -36,7 +36,9 @@ fi
 if git rev-parse HEAD~1 &> /dev/null; then
     CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
 else
-    # Initial commit - compare against empty tree
+    # Initial commit - compare against Git's empty tree hash
+    # 4b825dc642cb6eb9a060e54bf8d69288fbee4904 is the well-known SHA1 of an empty tree
+    # (used to diff against the initial commit when there is no HEAD~1)
     CHANGED_FILES=$(git diff --name-only 4b825dc642cb6eb9a060e54bf8d69288fbee4904 HEAD)
 fi
 
@@ -60,8 +62,9 @@ while IFS= read -r file; do
     BASENAME=$(basename "$file" .md)
     TASK_ID=$(echo "$BASENAME" | sed -E 's/^(task-[0-9.]+)( - .*)?$/\1/')
 
-    if [ -z "$TASK_ID" ]; then
-        echo -e "${YELLOW}[post-commit-backlog-events] Could not extract task ID from: $file${NC}" >&2
+    # Validate TASK_ID: must match 'task-' followed by digits or dots
+    if [[ -z "$TASK_ID" || ! "$TASK_ID" =~ ^task-[0-9.]+$ ]]; then
+        echo -e "${YELLOW}[post-commit-backlog-events] Invalid or missing task ID extracted from: $file (got: '$TASK_ID')${NC}" >&2
         continue
     fi
 

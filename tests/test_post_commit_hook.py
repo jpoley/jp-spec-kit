@@ -348,27 +348,36 @@ def test_hook_is_idempotent(mock_git_repo: Path) -> None:
 
 def test_hook_handles_missing_specify(mock_git_repo: Path) -> None:
     """Hook should exit gracefully if specify is not installed."""
-    # Modify PATH to exclude specify
-    env = {"PATH": "/usr/bin:/bin"}
-
-    # Create and commit task
+    # Create and commit task first (so we have something in the repo)
     create_task_file(mock_git_repo, "task-222")
-
-    # Commit with modified environment
-    subprocess.run(["git", "add", "."], cwd=mock_git_repo, check=True)
-    result = subprocess.run(
+    subprocess.run(
+        ["git", "add", "."], cwd=mock_git_repo, check=True, capture_output=True
+    )
+    subprocess.run(
         ["git", "commit", "-m", "Add task-222"],
+        cwd=mock_git_repo,
+        check=True,
+        capture_output=True,
+    )
+
+    # Now run the hook script directly with PATH that excludes specify
+    # (bypassing the wrapper that adds mock specify to PATH)
+    hook_script = mock_git_repo / "scripts" / "hooks" / "post-commit-backlog-events.sh"
+
+    env = {"PATH": "/usr/bin:/bin", "HOME": str(Path.home())}
+    result = subprocess.run(
+        [str(hook_script)],
         cwd=mock_git_repo,
         env=env,
         capture_output=True,
         text=True,
     )
 
-    # Commit should succeed despite hook warning
+    # Hook should exit successfully (exit 0) even without specify
     assert result.returncode == 0
 
     # Hook should output warning about missing specify
-    assert "specify CLI not found" in result.stderr or result.returncode == 0
+    assert "specify CLI not found" in result.stderr
 
 
 def test_hook_handles_non_task_files(mock_git_repo: Path) -> None:
