@@ -614,7 +614,7 @@ BASE_REPO_NAME = "spec-kit"
 BASE_REPO_DEFAULT_VERSION = "latest"  # or specific version like "0.0.20"
 
 EXTENSION_REPO_OWNER = "jpoley"
-EXTENSION_REPO_NAME = "jp-spec-kit"
+EXTENSION_REPO_NAME = "flowspec"
 EXTENSION_REPO_DEFAULT_VERSION = "latest"
 
 # Marker file that identifies the jp-spec-kit source repository
