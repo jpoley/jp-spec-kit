@@ -168,7 +168,7 @@ The hook outputs colored logs to stderr during commit:
 - **Yellow**: Warnings (e.g., specify not found, invalid task ID)
 - **Red**: Errors (should be rare)
 
-If the hook fails, git commit will still succeed (the hook always exits 0).
+If the hook fails, it may exit with a non-zero status, but git commit will still succeed (post-commit hooks do not block commits).
 
 ## Idempotency
 
