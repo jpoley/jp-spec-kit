@@ -1,5 +1,12 @@
 # Build and deploy DocFX documentation to GitHub Pages
-# Only deploys when a release is published (not on every push)
+# Deploys when:
+#   1. A release is published (release: published event)
+#   2. The Release workflow completes successfully (workflow_run trigger)
+#   3. Manual dispatch from Actions tab
+#
+# Note: workflow_run is needed because GITHUB_TOKEN events don't trigger other
+# workflows. When release.yml creates a release using GITHUB_TOKEN, the
+# "release: published" event doesn't fire for other workflows.
 #
 # Security: All GitHub context values are passed via env: blocks to prevent
 # script injection attacks. Version inputs are validated against strict patterns.
@@ -10,6 +17,12 @@ on:
   # Deploy docs when a release is published
   release:
     types: [published]
+
+  # Deploy docs when release workflow completes successfully
+  # This is needed because GITHUB_TOKEN events don't trigger other workflows
+  workflow_run:
+    workflows: ["Release"]
+    types: [completed]
 
   # Allow manual deployment from Actions tab
   workflow_dispatch:
@@ -35,6 +48,10 @@ jobs:
   # Build job
   build:
     runs-on: ubuntu-latest
+    # Skip if workflow_run triggered but the release workflow failed
+    if: |
+      github.event_name != 'workflow_run' ||
+      github.event.workflow_run.conclusion == 'success'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -67,8 +84,9 @@ jobs:
             fi
             VERSION="$INPUT_VERSION"
           else
-            # Fall back to pyproject.toml version
+            # Fall back to pyproject.toml version (for workflow_run, and for workflow_dispatch only if version input is empty)
             VERSION=$(grep -Po '(?<=^version = ")[^"]*' pyproject.toml || echo "dev")
+            echo "Using version from pyproject.toml: $VERSION"
           fi
 
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
