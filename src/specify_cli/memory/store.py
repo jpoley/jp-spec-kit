@@ -29,6 +29,11 @@ class TaskMemoryStore:
         template_dir: Directory containing memory templates
     """
 
+    # Valid task ID pattern: task-<identifier> format
+    # Allows alphanumeric chars and hyphens (e.g., task-42, task-bulk-001, task-feature-x)
+    # Blocks path traversal characters (/, \, ..)
+    TASK_ID_PATTERN = re.compile(r"^task-[a-zA-Z0-9][-a-zA-Z0-9]*$")
+
     def __init__(self, base_path: Optional[Path] = None):
         """Initialize store with optional custom base path.
 
@@ -43,6 +48,31 @@ class TaskMemoryStore:
         # Ensure directories exist
         self.memory_dir.mkdir(parents=True, exist_ok=True)
         self.archive_dir.mkdir(parents=True, exist_ok=True)
+
+    def _validate_task_id(self, task_id: str) -> None:
+        """Validate task ID format to prevent path traversal attacks.
+
+        Args:
+            task_id: Task identifier to validate
+
+        Raises:
+            ValueError: If task_id is invalid or contains path traversal sequences
+        """
+        if not task_id:
+            raise ValueError("Task ID cannot be empty")
+
+        # Must match task-<identifier> format (alphanumeric + hyphens)
+        if not self.TASK_ID_PATTERN.match(task_id):
+            raise ValueError(
+                f"Invalid task ID format: {task_id!r}. "
+                "Must start with 'task-' followed by alphanumeric characters and hyphens"
+            )
+
+        # Defense-in-depth: Explicit check for path traversal characters.
+        # While the regex above already blocks these, this provides an extra safety layer
+        # in case the pattern is accidentally modified, and makes the security intent explicit.
+        if ".." in task_id or "/" in task_id or "\\" in task_id:
+            raise ValueError(f"Invalid characters in task ID: {task_id!r}")
 
     def create(
         self, task_id: str, template: str = "default", task_title: str = "", **kwargs
@@ -303,8 +333,22 @@ class TaskMemoryStore:
 
         Returns:
             Path to the task memory file (may not exist)
+
+        Raises:
+            ValueError: If task_id is invalid or contains path traversal sequences
         """
-        return self.memory_dir / f"{task_id}.md"
+        self._validate_task_id(task_id)
+        path = self.memory_dir / f"{task_id}.md"
+
+        # Final safety check: ensure resolved path is within memory_dir
+        try:
+            path.resolve().relative_to(self.memory_dir.resolve())
+        except ValueError:
+            raise ValueError(
+                f"Task ID resolves to path outside memory directory: {task_id!r}"
+            )
+
+        return path
 
     def _parse_frontmatter(self, content: str) -> tuple[Dict[str, str], str]:
         """Parse YAML frontmatter from markdown content.

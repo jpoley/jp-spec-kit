@@ -556,25 +556,27 @@ class TestLifecycleEdgeCases:
         assert not lifecycle_manager.store.exists(task_id)
 
     def test_empty_task_id(self, lifecycle_manager, e2e_project):
-        """Test handling of empty task ID - creates file with empty name."""
-        # Note: Current implementation doesn't validate empty task IDs
-        # This test documents the current behavior (creates ".md" file)
-        # Future enhancement: Add validation to raise ValueError for empty IDs
-        path = lifecycle_manager.store.create("", task_title="Empty ID")
-        assert path.name == ".md"  # Creates file with just extension
-        # Cleanup
-        path.unlink()
+        """Test that empty task IDs are rejected with ValueError."""
+        # Empty task IDs are now validated and rejected
+        with pytest.raises(ValueError, match="Task ID cannot be empty"):
+            lifecycle_manager.store.create("", task_title="Empty ID")
 
     def test_special_characters_in_task_id(self, lifecycle_manager, e2e_project):
         """Test handling of special characters in task IDs."""
-        # Valid task IDs with hyphens
-        task_id = "task-700-with-extra-hyphens"
+        # Valid task IDs with alphanumeric chars and hyphens are allowed
+        valid_task_id = "task-700-with-extra-hyphens"
 
         lifecycle_manager.on_state_change(
-            task_id=task_id,
+            task_id=valid_task_id,
             old_state="To Do",
             new_state="In Progress",
             task_title="Test Special Chars",
         )
 
-        assert lifecycle_manager.store.exists(task_id)
+        assert lifecycle_manager.store.exists(valid_task_id)
+
+        # Path traversal characters are blocked
+        invalid_task_ids = ["task-../secret", "task-foo/bar", "task-foo\\bar"]
+        for invalid_id in invalid_task_ids:
+            with pytest.raises(ValueError):
+                lifecycle_manager.store.get_path(invalid_id)
