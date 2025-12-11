@@ -67,7 +67,7 @@
       "_enableSearch": true,
       "_disableContribution": false,
       "_gitContribute": {
-        "repo": "https://github.com/jpoley/jp-spec-kit",
+        "repo": "https://github.com/jpoley/flowspec",
         "branch": "main"
       }
     }
