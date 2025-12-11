@@ -1,11 +1,11 @@
 ---
 id: task-300
 title: Add file-friendly timestamp to specify-backup directory path
-status: In Progress
+status: Done
 assignee:
   - '@pm-planner'
 created_date: '2025-12-07 22:28'
-updated_date: '2025-12-07 22:34'
+updated_date: '2025-12-11 03:03'
 labels:
   - backend
   - implement
@@ -33,16 +33,20 @@ Files to modify:
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Backup directory includes ISO 8601-like timestamp (YYYYMMDD-HHMMSS format)
-- [ ] #2 Timestamp is file-system safe (no colons or special characters)
-- [ ] #3 Multiple consecutive upgrades create separate backup directories
-- [ ] #4 Backup directory name displayed correctly in console output
-- [ ] #5 Existing tests pass and new tests cover timestamp format
-- [ ] #6 Documentation updated to reflect new backup naming
+- [x] #1 Backup directory includes ISO 8601-like timestamp (YYYYMMDD-HHMMSS format)
+- [x] #2 Timestamp is file-system safe (no colons or special characters)
+- [x] #3 Multiple consecutive upgrades create separate backup directories
+- [x] #4 Backup directory name displayed correctly in console output
+- [x] #5 Existing tests pass and new tests cover timestamp format
+- [x] #6 Documentation updated to reflect new backup naming
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 PR created: https://github.com/jpoley/jp-spec-kit/pull/600
+
+## Completed
+
+PR #600 merged. Backup directories now include timestamp in YYYYMMDD-HHMMSS format.
 <!-- SECTION:NOTES:END -->
