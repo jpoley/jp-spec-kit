@@ -60,10 +60,10 @@
     "cleanupCacheHistory": false,
     "disableGitFeatures": false,
     "globalMetadata": {
-      "_appTitle": "Specflow Documentation",
-      "_appName": "Specflow",
-      "_appLogoPath": "media/logo_small.webp",
-      "_appFooter": "Specflow - Specification-driven development for AI-augmented teams",
+      "_appTitle": "Flowspec Documentation",
+      "_appName": "Flowspec",
+      "_appLogoPath": "media/flowspec.png",
+      "_appFooter": "Flowspec - Specification-driven development for AI-augmented teams",
       "_enableSearch": true,
       "_disableContribution": false,
       "_gitContribute": {

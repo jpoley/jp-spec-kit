@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Specflow hook security framework provides defense-in-depth protection for hook script execution through sandboxing, validation, monitoring, and audit logging. This document defines the security architecture, controls, and implementation requirements for task-205.
+The Flowspec hook security framework provides defense-in-depth protection for hook script execution through sandboxing, validation, monitoring, and audit logging. This document defines the security architecture, controls, and implementation requirements for task-205.
 
 ## Security Principles
 

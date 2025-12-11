@@ -338,7 +338,7 @@ flowchart TB
 │  │  ┌─────────────────┐   ┌─────────────────┐   ┌─────────────────┐       │ │
 │  │  │    semgrep      │   │     trivy       │   │ flowspec-security │       │ │
 │  │  ├─────────────────┤   ├─────────────────┤   ├─────────────────┤       │ │
-│  │  │ SAST code       │   │ Container/IaC   │   │ JP Spec Kit     │       │ │
+│  │  │ SAST code       │   │ Container/IaC   │   │ Flowspec        │       │ │
 │  │  │ scanning for    │   │ security scans  │   │ Security:       │       │ │
 │  │  │ vulnerabilities │   │ and SBOM        │   │ scan, triage,   │       │ │
 │  │  │                 │   │ generation      │   │ fix with AI     │       │ │

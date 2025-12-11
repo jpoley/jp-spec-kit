@@ -9,10 +9,10 @@
 </p>
 
 <p align="center">
-    <a href="https://github.com/jpoley/jp-spec-kit/actions/workflows/release.yml"><img src="https://github.com/jpoley/jp-spec-kit/actions/workflows/release.yml/badge.svg" alt="Release"/></a>
+    <a href="https://github.com/jpoley/flowspec/actions/workflows/release.yml"><img src="https://github.com/jpoley/flowspec/actions/workflows/release.yml/badge.svg" alt="Release"/></a>
     <a href="https://hub.docker.com/r/jpoley/flowspec-agents"><img src="https://img.shields.io/docker/pulls/jpoley/flowspec-agents" alt="Docker Pulls"/></a>
-    <a href="https://github.com/jpoley/jp-spec-kit/stargazers"><img src="https://img.shields.io/github/stars/jpoley/jp-spec-kit?style=social" alt="GitHub stars"/></a>
-    <a href="https://github.com/jpoley/jp-spec-kit/blob/main/LICENSE"><img src="https://img.shields.io/github/license/jpoley/jp-spec-kit" alt="License"/></a>
+    <a href="https://github.com/jpoley/flowspec/stargazers"><img src="https://img.shields.io/github/stars/jpoley/flowspec?style=social" alt="GitHub stars"/></a>
+    <a href="https://github.com/jpoley/flowspec/blob/main/LICENSE"><img src="https://img.shields.io/github/license/jpoley/flowspec" alt="License"/></a>
     <a href="https://scorecard.dev/viewer/?uri=github.com/jpoley/flowspec"><img src="https://api.scorecard.dev/projects/github.com/jpoley/flowspec/badge" alt="OpenSSF Scorecard"/></a>
 </p>
 
@@ -65,7 +65,7 @@ backlog init "$(basename "$PWD")"
 ### Establish Principles (Optional but Recommended)
 
 ```bash
-/speckit:constitution Create principles focused on code quality, testing, and user experience.
+/flow:init   # Creates constitution with project principles
 ```
 
 ### Assess Your Feature
@@ -170,7 +170,7 @@ Light mode is NOT an excuse to skip artifacts. It's permission to move faster.
 
 ```
 ┌────────────────────────────────────────────────────────────────────────────────┐
-│                         /JPSPEC WORKFLOW STATE MACHINE                          │
+│                        FLOWSPEC WORKFLOW STATE MACHINE                          │
 ├────────────────────────────────────────────────────────────────────────────────┤
 │                                                                                 │
 │   COMMAND              STATE                ARTIFACTS PRODUCED                  │
@@ -224,7 +224,7 @@ Light mode is NOT an excuse to skip artifacts. It's permission to move faster.
 
 ```
 ┌────────────────────────────────────────────────────────────────────────────────┐
-│                            /JPSPEC COMMAND REFERENCE                            │
+│                           FLOWSPEC COMMAND REFERENCE                            │
 ├──────────────────┬───────────────┬────────────────┬────────────────────────────┤
 │     COMMAND      │  INPUT STATE  │  OUTPUT STATE  │     PRIMARY AGENTS         │
 ├──────────────────┼───────────────┼────────────────┼────────────────────────────┤
@@ -369,8 +369,8 @@ project/
 - **[Devcontainer Template](templates/devcontainer/README.md)** - Devcontainer setup guide
 
 ### Workflow Details
-- **[JP Spec Workflow Diagram](docs/diagrams/flowspec-workflow.md)** - Full visual workflow
-- **[JP Spec + Backlog Integration](docs/guides/flowspec-backlog-workflow.md)** - How commands integrate
+- **[Flowspec Workflow Diagram](docs/diagrams/flowspec-workflow.md)** - Full visual workflow
+- **[Flowspec + Backlog Integration](docs/guides/flowspec-backlog-workflow.md)** - How commands integrate
 - **[Agent Loop Classification](docs/reference/agent-loop-classification.md)** - Which agents for which phases
 
 ### Reference
@@ -381,7 +381,7 @@ project/
 
 ## Legacy /speckit Commands
 
-The original `/speckit.*` commands from [GitHub's spec-kit](https://github.com/github/spec-kit) are available but **do not integrate with backlog.md**. Use `/flowspec` commands for the integrated workflow.
+The original `/speckit.*` commands are available for standalone specification work but **do not integrate with backlog.md**. Use `/flow:*` commands for the fully integrated workflow with task tracking.
 
 ## Contributing
 
