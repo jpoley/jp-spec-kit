@@ -123,8 +123,7 @@ while IFS= read -r file; do
         # Compare checkbox states
         if [ "$CURRENT_ACS" != "$PREV_ACS" ]; then
             # Count checked boxes in current and previous
-            # Note: grep -c returns 0 (count) but exits 1 when no match, which would trigger || echo "0"
-            # causing "0\n0". Use a subshell to capture only the count.
+            # Note: grep -c returns the count (0 if no match), but exits 1 when no match; '|| true' ensures the script continues.
             CURRENT_CHECKED=$(echo "$CURRENT_ACS" | grep -c '^- \[x\]' 2>/dev/null || true)
             PREV_CHECKED=$(echo "$PREV_ACS" | grep -c '^- \[x\]' 2>/dev/null || true)
             # Ensure we have valid integers (empty becomes 0)
