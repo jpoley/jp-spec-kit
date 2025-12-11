@@ -12,7 +12,7 @@
 #   docker pull jpoley/flowspec-agents:latest
 #   Or reference in devcontainer.json: "image": "jpoley/flowspec-agents:latest"
 
-FROM mcr.microsoft.com/devcontainers/python:3.11-bullseye
+FROM mcr.microsoft.com/devcontainers/python:3.11-bookworm
 
 # Install Node.js 20 and pnpm
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
