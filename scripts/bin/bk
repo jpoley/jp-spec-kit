@@ -1,0 +1,91 @@
+#!/bin/bash
+# bk - Backlog CLI wrapper with automatic event emission
+#
+# This wrapper transparently proxies all backlog commands while automatically
+# emitting flowspec events for task lifecycle operations.
+#
+# Usage:
+#   bk task create "My task"      # Emits task.created
+#   bk task edit 123 -s Done      # Emits task.completed
+#   bk task edit 123 --check-ac 1 # Emits task.ac_checked
+#
+# Installation:
+#   1. Add to PATH: export PATH="$PATH:/path/to/flowspec/scripts/bin"
+#   2. Or create alias: alias bk='/path/to/flowspec/scripts/bin/bk'
+
+set -euo pipefail
+
+# Capture all arguments
+ARGS=("$@")
+
+# Run the original backlog command and capture output + exit code
+# We need to capture stdout to extract task IDs from create commands
+output=$(backlog "${ARGS[@]}" 2>&1) || exit_code=$?
+exit_code=${exit_code:-0}
+
+# Print the output (preserve original behavior)
+echo "$output"
+
+# Only emit events if backlog succeeded
+if [[ $exit_code -eq 0 ]]; then
+    # Parse command structure
+    CMD="${1:-}"
+    SUBCMD="${2:-}"
+
+    # Only process task commands
+    if [[ "$CMD" == "task" || "$CMD" == "tasks" ]]; then
+        case "$SUBCMD" in
+            create)
+                # Extract task ID from output (format: "Created task task-123")
+                if [[ "$output" =~ Created[[:space:]]+task[[:space:]]+(task-[0-9]+(\.[0-9]+)*) ]]; then
+                    TASK_ID="${BASH_REMATCH[1]}"
+                    # Emit task.created event
+                    specify hooks emit task.created --task-id "$TASK_ID" 2>/dev/null || true
+                fi
+                ;;
+
+            edit)
+                # Get task ID (third argument)
+                TASK_ID="${3:-}"
+
+                if [[ -n "$TASK_ID" ]]; then
+                    # Check for status flag (-s or --status)
+                    # Need to handle both forms: -s "Done", -s Done, --status Done, --status "Done"
+                    STATUS=""
+                    for ((i=3; i<${#ARGS[@]}; i++)); do
+                        if [[ "${ARGS[$i]}" == "-s" || "${ARGS[$i]}" == "--status" ]]; then
+                            # Next argument is the status value
+                            STATUS="${ARGS[$((i+1))]}"
+                            break
+                        fi
+                    done
+
+                    # Emit status change events
+                    if [[ -n "$STATUS" ]]; then
+                        if [[ "$STATUS" == "Done" ]]; then
+                            specify hooks emit task.completed --task-id "$TASK_ID" 2>/dev/null || true
+                        else
+                            specify hooks emit task.status_changed --task-id "$TASK_ID" 2>/dev/null || true
+                        fi
+                    fi
+
+                    # Check for AC check/uncheck flags (--check-ac or --uncheck-ac)
+                    AC_MODIFIED=false
+                    for arg in "${ARGS[@]}"; do
+                        if [[ "$arg" == "--check-ac" || "$arg" == "--uncheck-ac" ]]; then
+                            AC_MODIFIED=true
+                            break
+                        fi
+                    done
+
+                    if [[ "$AC_MODIFIED" == true ]]; then
+                        specify hooks emit task.ac_checked --task-id "$TASK_ID" 2>/dev/null || true
+                    fi
+                fi
+                ;;
+        esac
+    fi
+fi
+
+# Exit with the original backlog exit code
+exit $exit_code

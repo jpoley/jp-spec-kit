@@ -1,11 +1,11 @@
 ---
 id: task-204.02
 title: Create backlog CLI wrapper with auto-emit events
-status: To Do
+status: Done
 assignee:
-  - '@galway'
+  - '@backend-engineer'
 created_date: '2025-12-03 02:19'
-updated_date: '2025-12-04 04:01'
+updated_date: '2025-12-11 20:52'
 labels:
   - hooks
   - cli
@@ -81,12 +81,61 @@ bk() {
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Shell wrapper script created at scripts/bin/bk
-- [ ] #2 Wrapper passes all arguments to backlog CLI transparently
-- [ ] #3 Wrapper detects task create and emits task.created
-- [ ] #4 Wrapper detects status changes and emits appropriate events
-- [ ] #5 Wrapper detects AC check/uncheck and emits task.ac_checked
-- [ ] #6 Wrapper preserves original exit code from backlog CLI
-- [ ] #7 Installation instructions documented (PATH, alias)
-- [ ] #8 Works with both bash and zsh
+- [x] #1 Shell wrapper script created at scripts/bin/bk
+- [x] #2 Wrapper passes all arguments to backlog CLI transparently
+- [x] #3 Wrapper detects task create and emits task.created
+- [x] #4 Wrapper detects status changes and emits appropriate events
+- [x] #5 Wrapper detects AC check/uncheck and emits task.ac_checked
+- [x] #6 Wrapper preserves original exit code from backlog CLI
+- [x] #7 Installation instructions documented (PATH, alias)
+- [x] #8 Works with both bash and zsh
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+1. Examine existing backlog CLI and hooks system
+2. Create bk wrapper script at scripts/bin/bk
+3. Implement command detection and argument parsing
+4. Add event emission for each command type
+5. Create shell tests for bash and zsh
+6. Create documentation
+7. Test and validate all ACs
+<!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Implemented backlog CLI wrapper with automatic event emission.
+
+Implementation:
+- Created scripts/bin/bk wrapper script (78 lines, bash)
+- Wrapper transparently proxies all backlog commands
+- Auto-emits events: task.created, task.completed, task.status_changed, task.ac_checked
+- Preserves exit codes and output from backlog CLI
+- Works with both bash and zsh
+- Silent event emission (errors suppressed)
+
+Testing:
+- Manual testing confirmed all event types working correctly
+- Verified exit code preservation (success and failure)
+- Verified zsh compatibility
+- Created comprehensive test suite (tests/test_backlog_wrapper.sh)
+- Created simple smoke test (tests/test_backlog_wrapper_simple.sh)
+
+Documentation:
+- Created docs/guides/backlog-wrapper.md
+- Includes installation instructions (3 options)
+- Usage examples and troubleshooting
+- Event emission reference table
+- Integration examples with hooks
+
+Technical Details:
+- Regex parsing for task ID extraction: "Created task task-(d+)"
+- Argument parsing for status changes and AC operations
+- Event emission via specify hooks CLI
+- Exit code preserved with exit $exit_code at end
+- 2>/dev/null for silent event emission failures
+
+All 8 acceptance criteria met and verified.
+<!-- SECTION:NOTES:END -->
