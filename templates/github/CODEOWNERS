@@ -1,0 +1,20 @@
+# Global code owner - default reviewer for all PRs
+* {{MAINTAINER}}
+
+# Documentation
+/docs/ {{MAINTAINER}}
+*.md {{MAINTAINER}}
+README* {{MAINTAINER}}
+
+# Source code
+/src/ {{MAINTAINER}}
+
+# Tests
+/tests/ {{MAINTAINER}}
+
+# CI/CD and GitHub configuration
+/.github/ {{MAINTAINER}}
+
+# Configuration files
+pyproject.toml {{MAINTAINER}}
+package.json {{MAINTAINER}}

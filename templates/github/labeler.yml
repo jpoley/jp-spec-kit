@@ -1,0 +1,60 @@
+# Label configuration for actions/labeler
+# Maps file paths to labels for automatic PR labeling
+
+documentation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'docs/**'
+          - '*.md'
+          - 'README*'
+          - 'CHANGELOG*'
+          - 'LICENSE*'
+
+source:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/**'
+
+tests:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'tests/**'
+          - '**/*.test.*'
+          - '**/*.spec.*'
+
+ci-cd:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '.github/workflows/**'
+          - '.github/actions/**'
+          - 'Dockerfile*'
+          - 'docker-compose*'
+
+infrastructure:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'k8s/**'
+          - 'kubernetes/**'
+          - 'terraform/**'
+          - 'helm/**'
+
+dependencies:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'pyproject.toml'
+          - 'requirements*.txt'
+          - 'package.json'
+          - 'package-lock.json'
+          - 'yarn.lock'
+          - 'pnpm-lock.yaml'
+
+config:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '*.config.*'
+          - '*.yaml'
+          - '*.yml'
+          - '*.toml'
+          - '*.json'
+          - '.env*'
+          - '!.github/**'
