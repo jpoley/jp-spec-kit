@@ -1,0 +1,50 @@
+# Backlog Task Memory Configuration
+#
+# This configuration enables automatic task memory lifecycle management
+# integrated with backlog.md task state transitions.
+
+# Task Memory Lifecycle Hooks
+#
+# These hooks are triggered by Claude Code post-tool-use events when
+# backlog task edit commands are detected.
+hooks:
+  # Post-task-update hook
+  #
+  # Triggered after: backlog task edit <id> -s <status>
+  # Actions:
+  #   - To Do → In Progress: Create task memory file
+  #   - In Progress → Done: Archive task memory file
+  #   - Done → In Progress: Restore from archive
+  #   - In Progress → To Do: Delete memory file
+  post_task_update:
+    enabled: true
+    # Hook script location (relative to project root)
+    script: .claude/hooks/post-tool-use-task-memory-lifecycle.py
+    # Maximum execution time in milliseconds
+    timeout: 5000
+    # Log level: DEBUG, INFO, WARNING, ERROR
+    log_level: INFO
+
+# Task Memory Storage Settings
+memory:
+  # Directory for active task memory files
+  active_dir: backlog/memory
+  # Directory for archived task memory files
+  archive_dir: backlog/memory/archive
+  # Template directory for memory file creation
+  template_dir: templates/memory
+  # Default template to use for new memory files
+  default_template: default
+
+# CLAUDE.md Integration
+#
+# Automatically update backlog/CLAUDE.md with @import directives
+# for active task memory files.
+claude_md:
+  enabled: true
+  # Path to CLAUDE.md file (relative to project root)
+  path: backlog/CLAUDE.md
+  # Auto-update import when task status changes
+  auto_update_import: true
+  # Section name in CLAUDE.md for active task context
+  section_name: "Active Task Context"
