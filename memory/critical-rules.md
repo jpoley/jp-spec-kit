@@ -96,6 +96,40 @@ Direct file editing breaks metadata sync, Git tracking, and relationships.
 
 See: `backlog/CLAUDE.md` for detailed guidance.
 
+## Task Memory - Durable Context (CRITICAL)
+
+Task memory (`backlog/memory/task-XXX.md`) stores context that MUST survive:
+- Context resets/compaction
+- Session switches and machine changes
+- Agent handoffs between workflow phases (plan → implement → validate → deploy)
+
+### What MUST be in Task Memory
+
+**"Critical Context" section (NEVER DELETE):**
+1. **What**: Brief description of what we're building
+2. **Why**: Business value, user need, or problem being solved
+3. **Constraints**: Technical requirements, deadlines, dependencies
+4. **AC Status**: Which acceptance criteria are complete/incomplete
+
+**Key Decisions:**
+- Architecture choices with rationale
+- Trade-offs made and why
+- Rejected approaches and why they failed
+
+### When to Update Task Memory
+
+- **Session start**: Read memory, update "Current State"
+- **After decisions**: Record in "Key Decisions" immediately
+- **Before session end**: Update "Current State" with what's done/next
+- **After blocking issues**: Document in "Blocked/Open Questions"
+
+### Memory Hygiene
+
+- Keep "Critical Context" under 500 words - link to docs for details
+- Decisions should include date and rationale
+- Remove resolved items from "Blocked/Open Questions"
+- Archive large sections to `docs/research/` when they grow too big
+
 ## PR-Task Synchronization (Required)
 
 When a PR completes a backlog task, update the task **before or with** PR creation:

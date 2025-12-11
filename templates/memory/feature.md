@@ -2,6 +2,7 @@
 task_id: {task_id}
 created: {created_date}
 updated: {updated_date}
+template: feature
 ---
 # Task Memory: {task_id}
 
@@ -9,19 +10,30 @@ updated: {updated_date}
 
 ## Critical Context (NEVER DELETE)
 
-<!-- This section survives context resets. Keep it concise but complete. -->
-
 ### What We're Building
 
-### Why (Business/User Value)
+### Why (User/Business Value)
+
+As a [role], I want [feature], so that [benefit].
 
 ### Constraints & Requirements
 
-### Acceptance Criteria Tracking
+**Functional:**
+-
+
+**Non-Functional:**
+-
+
+### Acceptance Criteria Status
+
+- [ ] AC#1:
+- [ ] AC#2:
 
 ## Key Decisions
 
-<!-- Record decisions with rationale - these inform validation/deploy phases -->
+<!-- Record architecture choices, trade-offs, rejected approaches with dates and rationale -->
+
+## Technical Approach
 
 ## Current State
 

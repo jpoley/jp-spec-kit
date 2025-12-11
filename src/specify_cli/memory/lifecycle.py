@@ -134,14 +134,83 @@ class LifecycleManager:
     def _on_task_complete(self, task_id: str) -> None:
         """Archive memory when task moves to Done.
 
+        Syncs key context from memory to backlog task notes before archiving.
+
         Args:
             task_id: Task identifier
         """
         try:
+            # Sync critical context to backlog before archiving
+            self._sync_memory_to_backlog(task_id)
+
             self.store.archive(task_id)
             logger.info(f"Archived task memory: {task_id}")
         except FileNotFoundError:
             logger.warning(f"No memory to archive for {task_id}")
+
+    def _sync_memory_to_backlog(self, task_id: str) -> None:
+        """Sync key decisions and context from memory to backlog task.
+
+        Extracts "Key Decisions" section from memory and appends to task notes.
+        This ensures durable context survives even if memory files are lost.
+
+        Args:
+            task_id: Task identifier
+        """
+        import os
+        import subprocess
+        import re
+
+        # Skip sync in test environments to avoid subprocess overhead
+        if os.environ.get("PYTEST_CURRENT_TEST"):
+            logger.debug(f"Skipping backlog sync in test environment for {task_id}")
+            return
+
+        try:
+            if not self.store.exists(task_id):
+                return
+
+            content = self.store.read(task_id)
+
+            # Extract Key Decisions section
+            decisions_match = re.search(
+                r"## Key Decisions\s*\n(.*?)(?=\n## |\Z)",
+                content,
+                re.DOTALL,
+            )
+
+            if not decisions_match:
+                return
+
+            decisions = decisions_match.group(1).strip()
+
+            # Skip if empty or just HTML comments
+            decisions_clean = re.sub(
+                r"<!--.*?-->", "", decisions, flags=re.DOTALL
+            ).strip()
+            if not decisions_clean:
+                return
+
+            # Append to backlog task notes via CLI
+            task_num = task_id.replace("task-", "")
+            note = f"## Key Decisions (from task memory)\n\n{decisions_clean}"
+
+            result = subprocess.run(
+                ["backlog", "task", "edit", task_num, "--append-notes", note],
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+
+            if result.returncode == 0:
+                logger.info(f"Synced key decisions to backlog task {task_id}")
+            else:
+                logger.warning(f"Failed to sync to backlog: {result.stderr}")
+
+        except subprocess.TimeoutExpired:
+            logger.warning(f"Timeout syncing memory to backlog for {task_id}")
+        except Exception as e:
+            logger.warning(f"Error syncing memory to backlog: {e}")
 
     def _on_task_archive(self, task_id: str) -> None:
         """Delete memory when task is archived.
