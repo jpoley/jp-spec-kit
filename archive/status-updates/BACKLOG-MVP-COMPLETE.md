@@ -226,7 +226,7 @@ src/specify_cli/backlog/
 Now that the foundational MVP components are complete, the next priority is to integrate this functionality into the Specify CLI:
 
 1. **Add CLI Command**: Implement `specify tasks generate --format backlog-md`
-2. **Enhance /specflow:tasks**: Update the slash command to support Backlog.md generation
+2. **Enhance /flow:tasks**: Update the slash command to support Backlog.md generation
 3. **Add Migration Tool**: Create `specify backlog migrate` to convert existing tasks.md files
 4. **Documentation**: Add user guide for task generation workflow
 

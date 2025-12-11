@@ -1,6 +1,6 @@
-# specflow_workflow.yml Schema Validation
+# flowspec_workflow.yml Schema Validation
 
-This document provides examples and guidance for validating `specflow_workflow.yml` configuration files using the JSON Schema at `memory/specflow_workflow.schema.json`.
+This document provides examples and guidance for validating `flowspec_workflow.yml` configuration files using the JSON Schema at `memory/flowspec_workflow.schema.json`.
 
 ## Overview
 
@@ -8,7 +8,7 @@ The JSON Schema validates:
 
 - **Structure**: Ensures all required fields are present (version, states, workflows, transitions)
 - **Types**: Validates correct data types (strings, arrays, objects, booleans, integers)
-- **Formats**: Enforces patterns like `/specflow:*` for commands, `@agent-name` for agent identities
+- **Formats**: Enforces patterns like `/flow:*` for commands, `@agent-name` for agent identities
 - **Relationships**: Validates uniqueness constraints, minimum items, and allowed values
 - **Completeness**: Checks artifact definitions, agent loops, and metadata
 
@@ -22,11 +22,11 @@ import yaml
 from jsonschema import validate, ValidationError
 
 # Load schema
-with open('memory/specflow_workflow.schema.json') as f:
+with open('memory/flowspec_workflow.schema.json') as f:
     schema = json.load(f)
 
 # Load workflow config
-with open('specflow_workflow.yml') as f:
+with open('flowspec_workflow.yml') as f:
     workflow = yaml.safe_load(f)
 
 # Validate
@@ -45,7 +45,7 @@ except ValidationError as e:
 pip install check-jsonschema
 
 # Validate workflow YAML
-check-jsonschema --schemafile memory/specflow_workflow.schema.json specflow_workflow.yml
+check-jsonschema --schemafile memory/flowspec_workflow.schema.json flowspec_workflow.yml
 ```
 
 ## Schema Structure
@@ -88,7 +88,7 @@ Workflow definitions must include:
 
 | Field           | Required | Type    | Description                                    |
 |-----------------|----------|---------|------------------------------------------------|
-| `command`       | Yes      | string  | Slash command (pattern: `/specflow:[a-z][a-z0-9_]*`)      |
+| `command`       | Yes      | string  | Slash command (pattern: `/flow:[a-z][a-z0-9_]*`)      |
 | `agents`        | Yes      | array   | Agent names or agent objects                   |
 | `input_states`  | Yes      | array   | Valid states to start this workflow            |
 | `output_state`  | Yes      | string  | State after workflow completes                 |
@@ -190,7 +190,7 @@ states:
   - "Planned"
 workflows:
   specify:
-    command: "/specflow:specify"
+    command: "/flow:specify"
     agents:
       - "product-requirements-manager"
     input_states:
@@ -214,10 +214,10 @@ version: "1.0"    # ✅ Valid
 
 #### 2. Invalid command pattern
 ```yaml
-command: "specflow:specify"     # ❌ Missing leading slash
-command: "/specify"           # ❌ Missing specflow: prefix
-command: "/specflow:Specify"    # ❌ Uppercase not allowed
-command: "/specflow:specify"    # ✅ Valid
+command: "flowspec:specify"     # ❌ Missing leading slash
+command: "/specify"           # ❌ Missing flowspec: prefix
+command: "/flow:Specify"    # ❌ Uppercase not allowed
+command: "/flow:specify"    # ✅ Valid
 ```
 
 #### 3. Empty required arrays
@@ -245,7 +245,7 @@ identity: "@pm-planner"   # ✅ Valid
 ```yaml
 workflows:
   specify:
-    command: "/specflow:specify"
+    command: "/flow:specify"
     agents: ["pm"]
     input_states: ["To Do"]
     output_state: "Specified"
@@ -262,10 +262,10 @@ import json
 import yaml
 
 # Load schema and config
-with open('memory/specflow_workflow.schema.json') as f:
+with open('memory/flowspec_workflow.schema.json') as f:
     schema = json.load(f)
 
-with open('specflow_workflow.yml') as f:
+with open('flowspec_workflow.yml') as f:
     config = yaml.safe_load(f)
 
 # Get all validation errors
@@ -300,9 +300,9 @@ from jsonschema import validate
 import sys
 
 try:
-    with open('memory/specflow_workflow.schema.json') as f:
+    with open('memory/flowspec_workflow.schema.json') as f:
         schema = json.load(f)
-    with open('specflow_workflow.yml') as f:
+    with open('flowspec_workflow.yml') as f:
         workflow = yaml.safe_load(f)
     validate(instance=workflow, schema=schema)
     print("✅ Workflow configuration is valid")
@@ -319,7 +319,7 @@ The schema supports versioning through:
 
 1. **Config version field**: `version: "1.0"` in the YAML
 2. **Schema version**: `metadata.schema_version` field
-3. **Schema $id**: `https://jp-spec-kit/schemas/specflow_workflow.schema.json`
+3. **Schema $id**: `https://jp-spec-kit/schemas/flowspec_workflow.schema.json`
 
 When updating the schema:
 - Maintain backward compatibility when possible
@@ -343,22 +343,22 @@ python3 -c "
 import json, yaml
 from jsonschema import validate
 
-with open('memory/specflow_workflow.schema.json') as f:
+with open('memory/flowspec_workflow.schema.json') as f:
     schema = json.load(f)
-with open('specflow_workflow.yml') as f:
+with open('flowspec_workflow.yml') as f:
     workflow = yaml.safe_load(f)
 validate(instance=workflow, schema=schema)
-print('✅ specflow_workflow.yml is valid')
+print('✅ flowspec_workflow.yml is valid')
 "
 ```
 
 ## Related Documentation
 
-- **Workflow Configuration Guide**: `docs/guides/specflow-workflow-guide.md`
+- **Workflow Configuration Guide**: `docs/guides/flowspec-workflow-guide.md`
 - **Artifact Path Patterns**: `docs/reference/artifact-path-patterns.md`
 - **Agent Loop Classification**: `docs/reference/agent-loop-classification.md`
-- **Schema Definition**: `memory/specflow_workflow.schema.json`
-- **Workflow YAML**: `specflow_workflow.yml`
+- **Schema Definition**: `memory/flowspec_workflow.schema.json`
+- **Workflow YAML**: `flowspec_workflow.yml`
 
 ## References
 

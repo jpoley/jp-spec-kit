@@ -21,7 +21,7 @@ Modify sync-copilot-agents.sh to generate role-filtered agents in .github/agents
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Role configuration reading from specflow_workflow.yml implemented
+- [ ] #1 Role configuration reading from flowspec_workflow.yml implemented
 - [ ] #2 get_role_metadata() function extracts agent role mappings
 - [ ] #3 generate_frontmatter() enhanced with role and priority fields
 - [ ] #4 Role-specific agent generation (--role flag) supported
@@ -38,7 +38,7 @@ Modify sync-copilot-agents.sh to generate role-filtered agents in .github/agents
 <!-- SECTION:PLAN:BEGIN -->
 DEPENDS ON: task-364, task-367
 
-1. Read role definitions from specflow_workflow.yml
+1. Read role definitions from flowspec_workflow.yml
 2. Add role metadata to agent frontmatter (role:, priority_for_roles:)
 3. Generate role-specific handoff chains
 4. Filter agents based on primary role selection

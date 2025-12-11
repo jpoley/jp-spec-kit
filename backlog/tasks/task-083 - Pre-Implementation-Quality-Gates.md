@@ -7,7 +7,7 @@ assignee:
 created_date: '2025-11-27 21:54'
 updated_date: '2025-12-04 17:07'
 labels:
-  - specflow
+  - flowspec
   - feature
   - quality
   - P0
@@ -19,7 +19,7 @@ priority: high
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Add automated quality gates that run before /specflow:implement can proceed. Zero implementations should start with incomplete specs. Gates: Spec completeness (no NEEDS CLARIFICATION markers), Required files exist (spec.md, plan.md, tasks.md), Constitutional compliance check, Spec quality threshold (70/100). Include --skip-quality-gates flag for power users.
+Add automated quality gates that run before /flow:implement can proceed. Zero implementations should start with incomplete specs. Gates: Spec completeness (no NEEDS CLARIFICATION markers), Required files exist (spec.md, plan.md, tasks.md), Constitutional compliance check, Spec quality threshold (70/100). Include --skip-quality-gates flag for power users.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria

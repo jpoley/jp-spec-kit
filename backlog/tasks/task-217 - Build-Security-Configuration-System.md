@@ -17,7 +17,7 @@ priority: medium
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Implement .specflow/security-config.yml configuration file support with scanner selection, rulesets, and AI settings.
+Implement .flowspec/security-config.yml configuration file support with scanner selection, rulesets, and AI settings.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -36,7 +36,7 @@ Implement .specflow/security-config.yml configuration file support with scanner 
 ## Implementation Plan: Build Security Configuration System
 
 ### Overview
-Implement .specflow/security-config.yml configuration file support for scanner selection, rulesets, path exclusions, and AI settings.
+Implement .flowspec/security-config.yml configuration file support for scanner selection, rulesets, path exclusions, and AI settings.
 
 ### Step-by-Step Implementation
 
@@ -77,14 +77,14 @@ class SecurityConfig(BaseModel):
     }
     
     # Custom rules
-    custom_rules_dir: Optional[str] = ".specflow/security-rules/"
+    custom_rules_dir: Optional[str] = ".flowspec/security-rules/"
 ```
 
 #### Step 2: Implement Configuration Loader (2 hours)
 **File**: `src/specify_cli/security/config.py`
 
 ```python
-def load_security_config(path: str = ".specflow/security-config.yml") -> SecurityConfig:
+def load_security_config(path: str = ".flowspec/security-config.yml") -> SecurityConfig:
     """Load security configuration with fallback to defaults."""
     if not Path(path).exists():
         return SecurityConfig()  # Use defaults

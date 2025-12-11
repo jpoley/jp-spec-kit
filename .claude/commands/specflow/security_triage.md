@@ -1,1 +1,0 @@
-../../../templates/commands/specflow/security_triage.md

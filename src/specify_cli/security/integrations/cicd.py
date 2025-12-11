@@ -100,7 +100,7 @@ class CICDIntegration:
                     "if": "always()",
                     "with": {
                         "sarif_file": "security-results.sarif",
-                        "category": "specflow-security",
+                        "category": "flowspec-security",
                     },
                 }
             )
@@ -263,7 +263,7 @@ The workflow is configured in `.github/workflows/security.yml`:
 
 ## Customization
 
-Edit `.specflow/security-config.yml` to customize:
+Edit `.flowspec/security-config.yml` to customize:
 - Enabled scanners
 - Severity thresholds
 - Path exclusions

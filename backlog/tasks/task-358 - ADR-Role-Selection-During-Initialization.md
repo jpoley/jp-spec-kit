@@ -16,13 +16,13 @@ priority: high
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Document architecture decision for how users select their primary role during /specflow:init or /specflow:reset, and how that affects command auto-loading in VS Code
+Document architecture decision for how users select their primary role during /flow:init or /flow:reset, and how that affects command auto-loading in VS Code
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [x] #1 Define role selection mechanism (interactive prompt during init/reset)
-- [x] #2 Document storage location and format (specflow_workflow.yml or separate file)
+- [x] #2 Document storage location and format (flowspec_workflow.yml or separate file)
 - [x] #3 Specify VS Code Copilot integration impact
 - [x] #4 Design extensibility for future roles
 <!-- AC:END -->
@@ -54,7 +54,7 @@ Created comprehensive ADR at: /home/jpoley/ps/jp-spec-kit/docs/adr/ADR-role-sele
 ## Key Design Decisions
 
 ### 1. Storage Location
-Chose specflow_workflow.yml extension over separate file or global config:
+Chose flowspec_workflow.yml extension over separate file or global config:
 - Project-scoped (correct abstraction level)
 - Git-tracked (team can share)
 - Colocated with workflow definitions
@@ -68,7 +68,7 @@ Created user-friendly role selection interface:
 - Default to Developer role
 
 ### 3. Configuration Schema
-Extended specflow_workflow.yml with role_config section:
+Extended flowspec_workflow.yml with role_config section:
 ```yaml
 role_config:
   primary_role: "dev"

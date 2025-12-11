@@ -1,10 +1,10 @@
 # Security Threat Model and Limitations
 
-This document describes the threat model, security boundaries, and known limitations of the `/specflow:security` scanning system.
+This document describes the threat model, security boundaries, and known limitations of the `/flow:security` scanning system.
 
 ## Scope
 
-### What `/specflow:security` Protects Against
+### What `/flow:security` Protects Against
 
 | Category | Coverage | Tools |
 |----------|----------|-------|
@@ -14,7 +14,7 @@ This document describes the threat model, security boundaries, and known limitat
 | **Dependency vulnerabilities** | Medium | Trivy (containers) |
 | **Configuration issues** | Medium | Custom rules |
 
-### What `/specflow:security` Does NOT Protect Against
+### What `/flow:security` Does NOT Protect Against
 
 | Category | Reason | Mitigation |
 |----------|--------|------------|
@@ -243,5 +243,5 @@ This threat model is reviewed and updated:
 ## Related Documentation
 
 - [Privacy Policy](./security-privacy-policy.md) - AI data handling
-- [Command Reference](./specflow-security-commands.md) - CLI options
+- [Command Reference](./flowspec-security-commands.md) - CLI options
 - [CI/CD Integration](../guides/security-cicd-integration.md) - Pipeline security

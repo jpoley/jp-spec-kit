@@ -2,7 +2,7 @@
 
 ## Overview
 
-Muckross is responsible for the **security scanning platform** - the `/specflow:security` command suite including scanning, AI triage, fix generation, and reporting.
+Muckross is responsible for the **security scanning platform** - the `/flow:security` command suite including scanning, AI triage, fix generation, and reporting.
 
 ## Task Status Summary
 
@@ -10,8 +10,8 @@ Muckross is responsible for the **security scanning platform** - the `/specflow:
 | Task | Description | Status |
 |------|-------------|--------|
 | task-211 | Implement Semgrep Scanner Orchestration Module | Done |
-| task-215 | Implement /specflow:security CLI Commands | Done |
-| task-247 | Plan /specflow:security Architecture and Platform | Done |
+| task-215 | Implement /flow:security CLI Commands | Done |
+| task-247 | Plan /flow:security Architecture and Platform | Done |
 | task-249 | Implement Tool Dependency Management Module | Done |
 | task-255 | Implement ADR-005: Scanner Orchestration Pattern | Done |
 | task-256 | Implement ADR-006: AI Triage Engine Design | Done |
@@ -32,7 +32,7 @@ Muckross is responsible for the **security scanning platform** - the `/specflow:
 | task-280 | Benchmark AI Triage Engine Accuracy | task-212 | 3-4 days |
 | task-213 | Implement Automated Fix Generation | task-212 | 3-4 days |
 | task-214 | Build Security Audit Report Generator | task-212 | 2.5-3.5 days |
-| task-216 | Integrate /specflow:security with Workflow | task-215 | 2-3 days |
+| task-216 | Integrate /flow:security with Workflow | task-215 | 2-3 days |
 | task-218 | Write Security Commands Documentation | task-215 | 1-2 days |
 | task-219 | Build Security Commands Test Suite | task-215 | 2-3 days |
 | task-221 | Implement Security Expert Personas | task-212 | 2-3 days |
@@ -87,20 +87,20 @@ Validate AI triage accuracy before building dependent features.
    - Must complete before task-213, task-214, task-221
 
 ### Wave 3: Core Security Commands
-Build the remaining /specflow:security subcommands.
+Build the remaining /flow:security subcommands.
 
 5. **task-213** - Automated Fix Generation
-   - Enables: `/specflow:security fix`
+   - Enables: `/flow:security fix`
    - Dependencies: task-212 (triage engine)
    - Pattern library for 5 CWE categories
 
 6. **task-214** - Security Audit Report Generator
-   - Enables: `/specflow:security audit`
+   - Enables: `/flow:security audit`
    - Dependencies: task-212 (triage results)
    - Multi-format output (MD, HTML, PDF, SARIF)
 
 7. **task-218** - Security Commands Documentation
-   - Document all /specflow:security subcommands
+   - Document all /flow:security subcommands
    - Usage examples, configuration reference
 
 8. **task-219** - Security Commands Test Suite
@@ -111,7 +111,7 @@ Build the remaining /specflow:security subcommands.
 Integrate security into the SDD workflow.
 
 9. **task-216** - Integrate with Workflow and Backlog
-   - Hook into /specflow:validate phase
+   - Hook into /flow:validate phase
    - Auto-create security tasks from findings
    - Track remediation progress
 

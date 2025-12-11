@@ -73,12 +73,12 @@ def test_register_memory_resources(tmp_project: Path) -> None:
     """Test that memory resources can be registered with MCP server."""
     from specify_cli.memory.mcp import register_memory_resources
 
-    server = FastMCP("specflow-test")
+    server = FastMCP("flowspec-test")
     register_memory_resources(server, tmp_project)
 
     # Verify server was created
     assert server is not None
-    assert server.name == "specflow-test"
+    assert server.name == "flowspec-test"
 
     # The server should have registered the resources
     # We can't easily inspect FastMCP's internal state, but we can verify
@@ -92,7 +92,7 @@ def test_create_memory_mcp_server(tmp_project: Path) -> None:
     server = create_memory_mcp_server(tmp_project)
 
     assert server is not None
-    assert server.name == "specflow-memory"
+    assert server.name == "flowspec-memory"
 
 
 def test_business_logic_task_memory_exists(tmp_project: Path) -> None:

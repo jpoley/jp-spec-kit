@@ -183,7 +183,7 @@ jobs:
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: security-results.sarif
-          category: specflow-security
+          category: flowspec-security
 
       - name: Upload Scan Artifacts
         if: always()

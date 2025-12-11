@@ -67,23 +67,23 @@ This configuration adds enhanced security validation to the standard SDD workflo
 
 ```
 To Do
-  ↓ /specflow:assess
+  ↓ /flow:assess
 Assessed
-  ↓ /specflow:specify
+  ↓ /flow:specify
 Specified
-  ↓ /specflow:research (optional)
+  ↓ /flow:research (optional)
 Researched
-  ↓ /specflow:plan
+  ↓ /flow:plan
 Planned
-  ↓ /specflow:threat-model (NEW - with approval gate)
+  ↓ /flow:threat-model (NEW - with approval gate)
 Threat Modeled
-  ↓ /specflow:implement
+  ↓ /flow:implement
 In Implementation
-  ↓ /specflow:validate
+  ↓ /flow:validate
 Validated
-  ↓ /specflow:security-audit (NEW - with approval gate)
+  ↓ /flow:security-audit (NEW - with approval gate)
 Security Audited
-  ↓ /specflow:operate
+  ↓ /flow:operate
 Deployed
   ↓ manual
 Done
@@ -139,7 +139,7 @@ Pen test complete. All critical vulns resolved."
 
 1. **Copy the configuration**:
    ```bash
-   cp docs/examples/workflows/security-audit-workflow.yml specflow_workflow.yml
+   cp docs/examples/workflows/security-audit-workflow.yml flowspec_workflow.yml
    ```
 
 2. **Create compliance-officer agent definition**:
@@ -169,24 +169,24 @@ Pen test complete. All critical vulns resolved."
 
 4. **Run the workflow**:
    ```bash
-   /specflow:assess
-   /specflow:specify
-   /specflow:plan
+   /flow:assess
+   /flow:specify
+   /flow:plan
 
    # Threat Modeling Phase
-   /specflow:threat-model
+   /flow:threat-model
    # Review docs/security/{feature}-threat-model.md
    # Type SECURITY_APPROVED to proceed
 
-   /specflow:implement
-   /specflow:validate
+   /flow:implement
+   /flow:validate
 
    # Security Audit Phase
-   /specflow:security-audit
+   /flow:security-audit
    # Review docs/security/{feature}-audit-report.md
    # Type AUDIT_PASSED to proceed
 
-   /specflow:operate
+   /flow:operate
    backlog task edit task-123 -s Done
    ```
 
@@ -327,10 +327,10 @@ backlog task edit task-123 -s "Threat Modeled" \
   --notes "Security design issue: Session management needs rework"
 
 # Re-run threat modeling with updated design
-/specflow:threat-model
+/flow:threat-model
 
 # Continue with implementation
-/specflow:implement
+/flow:implement
 ```
 
 ### Vulnerabilities Found in Audit
@@ -343,13 +343,13 @@ backlog task edit task-123 -s "In Implementation" \
   --notes "Security audit found SQL injection in search endpoint (H-002)"
 
 # Fix vulnerability
-/specflow:implement
+/flow:implement
 
 # Re-validate
-/specflow:validate
+/flow:validate
 
 # Re-audit
-/specflow:security-audit
+/flow:security-audit
 ```
 
 ## Customization
@@ -367,7 +367,7 @@ states:
 
 workflows:
   security-design:
-    command: "/specflow:security-design"
+    command: "/flow:security-design"
     agents:
       - name: "secure-by-design-engineer"
         responsibilities:
@@ -384,7 +384,7 @@ workflows:
 ```yaml
 workflows:
   hipaa-compliance:
-    command: "/specflow:hipaa-compliance"
+    command: "/flow:hipaa-compliance"
     agents:
       - name: "compliance-officer"
         responsibilities:
@@ -397,7 +397,7 @@ workflows:
 
 ## Best Practices
 
-1. **Threat Model Early** - Run `/specflow:threat-model` before writing code
+1. **Threat Model Early** - Run `/flow:threat-model` before writing code
 2. **Document Mitigations** - Link each threat to a mitigation control
 3. **Track Accepted Risks** - Document why low-priority findings are accepted
 4. **Involve Security Team** - Don't approve gates alone; involve security experts

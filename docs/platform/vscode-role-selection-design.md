@@ -10,13 +10,13 @@
 
 ## Executive Summary
 
-This design enables users to select their primary role during `/specflow:init` or `/specflow:reset`, which customizes VS Code Copilot agent visibility, handoffs, and chat interface prominence based on their role in the development team.
+This design enables users to select their primary role during `/flow:init` or `/flow:reset`, which customizes VS Code Copilot agent visibility, handoffs, and chat interface prominence based on their role in the development team.
 
 **Business Impact**:
 - **Reduced cognitive load**: Users see only role-relevant commands
 - **Faster workflow navigation**: Role-specific handoff chains guide next steps
 - **Team flexibility**: Multiple roles per user, team-wide role configuration
-- **Platform adoption**: Improved VS Code Copilot UX increases Specflow adoption
+- **Platform adoption**: Improved VS Code Copilot UX increases Flowspec adoption
 
 **Design Principles**:
 1. **Progressive disclosure**: Show only what's relevant to the user's role
@@ -30,7 +30,7 @@ This design enables users to select their primary role during `/specflow:init` o
 
 ### 1.1 Role Definitions
 
-Specflow defines five primary roles based on workflow phases:
+Flowspec defines five primary roles based on workflow phases:
 
 | Role | Primary Workflows | Agent Focus | Use Case |
 |------|-------------------|-------------|----------|
@@ -42,7 +42,7 @@ Specflow defines five primary roles based on workflow phases:
 
 ### 1.2 Interactive Role Selection (init.md)
 
-Add to `/specflow:init` after Step 6 (Generate Constitution):
+Add to `/flow:init` after Step 6 (Generate Constitution):
 
 ```markdown
 ### Step 6.5: VS Code Role Configuration (Optional)
@@ -58,23 +58,23 @@ Select your primary role to customize VS Code chat handoffs:
 
   1. Product Manager (PM)
      Focus: Requirements, research, business validation
-     Commands: /specflow:assess, /specflow:specify, /specflow:research
+     Commands: /flow:assess, /flow:specify, /flow:research
 
   2. Developer (Dev)
      Focus: Architecture, implementation, deployment
-     Commands: /specflow:plan, /specflow:implement, /specflow:operate
+     Commands: /flow:plan, /flow:implement, /flow:operate
 
   3. Security Engineer (Sec)
      Focus: Security scanning, triage, vulnerability fixes
-     Commands: /specflow:security_*, /specflow:validate (security only)
+     Commands: /flow:security_*, /flow:validate (security only)
 
   4. QA Engineer (QA)
      Focus: Testing, documentation, quality validation
-     Commands: /specflow:validate
+     Commands: /flow:validate
 
   5. Full Workflow (All) [default]
      Focus: Complete SDD workflow (all phases)
-     Commands: All /specflow and /speckit commands
+     Commands: All /flowspec and /speckit commands
 
   6. Skip - Don't configure role-based UI
      (All agents remain equally visible)
@@ -107,7 +107,7 @@ Mode [1]: 2
 
 ### 1.3 Reset Command Integration (reset.md)
 
-Add to `/specflow:reset` after Step 3 (Prompt for Validation Modes):
+Add to `/flow:reset` after Step 3 (Prompt for Validation Modes):
 
 ```markdown
 ### Step 3.5: VS Code Role Reconfiguration (Optional)
@@ -152,22 +152,22 @@ specify reset --vscode-role all
 
 ### 2.1 Recommended Approach: Dual Configuration Strategy
 
-**Decision**: Use **both** `.vscode/settings.json` (user-specific) and `specflow_workflow.yml` (team-wide).
+**Decision**: Use **both** `.vscode/settings.json` (user-specific) and `flowspec_workflow.yml` (team-wide).
 
 | Storage Location | Scope | Version Control | Use Case |
 |------------------|-------|-----------------|----------|
 | `.vscode/settings.json` | User/machine-specific | Gitignored (default) | Individual developer preferences |
-| `specflow_workflow.yml` | Team-wide | Committed to git | Consistent team role definitions |
+| `flowspec_workflow.yml` | Team-wide | Committed to git | Consistent team role definitions |
 
 **Rationale**:
 - **User autonomy**: Developers can override team defaults for their local environment
 - **Team consistency**: Default role configurations shared via git
 - **VS Code native**: `.vscode/settings.json` is the canonical place for editor configuration
-- **Single source of truth**: `specflow_workflow.yml` remains authoritative for workflow logic
+- **Single source of truth**: `flowspec_workflow.yml` remains authoritative for workflow logic
 
 ### 2.2 Configuration Schema
 
-#### specflow_workflow.yml (Team-wide defaults)
+#### flowspec_workflow.yml (Team-wide defaults)
 
 Add new top-level section:
 
@@ -197,9 +197,9 @@ vscode_roles:
         - "specify"
         - "research"
       agents:
-        - "specflow-assess"
-        - "specflow-specify"
-        - "specflow-research"
+        - "flowspec-assess"
+        - "flowspec-specify"
+        - "flowspec-research"
 
     dev:
       name: "Developer"
@@ -209,9 +209,9 @@ vscode_roles:
         - "implement"
         - "operate"
       agents:
-        - "specflow-plan"
-        - "specflow-implement"
-        - "specflow-operate"
+        - "flowspec-plan"
+        - "flowspec-implement"
+        - "flowspec-operate"
 
     sec:
       name: "Security Engineer"
@@ -222,11 +222,11 @@ vscode_roles:
         - "security_fix"
         - "validate"  # Only security aspects
       agents:
-        - "specflow-security_workflow"
-        - "specflow-security_triage"
-        - "specflow-security_fix"
-        - "specflow-security_report"
-        - "specflow-security_web"
+        - "flowspec-security_workflow"
+        - "flowspec-security_triage"
+        - "flowspec-security_fix"
+        - "flowspec-security_report"
+        - "flowspec-security_web"
 
     qa:
       name: "QA Engineer"
@@ -234,7 +234,7 @@ vscode_roles:
       workflows:
         - "validate"
       agents:
-        - "specflow-validate"
+        - "flowspec-validate"
         - "speckit-checklist"
 
     all:
@@ -256,8 +256,8 @@ vscode_roles:
 {
   "chat.promptFiles": true,
 
-  // Specflow Role Configuration (overrides specflow_workflow.yml)
-  "specflow.vscode.role": {
+  // Flowspec Role Configuration (overrides flowspec_workflow.yml)
+  "flowspec.vscode.role": {
     "primary": "dev",
     "secondary": ["qa", "sec"],
     "visibility": "de-prioritize",  // "hide" | "de-prioritize" | "show-all"
@@ -266,18 +266,18 @@ vscode_roles:
 
   // VS Code Copilot Agent Pinning (native VS Code feature)
   "chat.agent.pinnedAgents": [
-    "specflow-plan",
-    "specflow-implement",
-    "specflow-validate"
+    "flowspec-plan",
+    "flowspec-implement",
+    "flowspec-validate"
   ]
 }
 ```
 
 ### 2.3 Configuration Resolution Order
 
-1. Read `.vscode/settings.json` → Extract `specflow.vscode.role.*`
-2. Read `specflow_workflow.yml` → Extract `vscode_roles.*`
-3. Merge with precedence: `.vscode/settings.json` > `specflow_workflow.yml` > defaults
+1. Read `.vscode/settings.json` → Extract `flowspec.vscode.role.*`
+2. Read `flowspec_workflow.yml` → Extract `vscode_roles.*`
+3. Merge with precedence: `.vscode/settings.json` > `flowspec_workflow.yml` > defaults
 4. Apply to agent generation and handoff configuration
 
 ---
@@ -294,14 +294,14 @@ scripts/bash/sync-copilot-agents.sh
 
 # Output structure:
 .github/agents/
-  specflow-assess.agent.md       # PM, All
-  specflow-specify.agent.md      # PM, All
-  specflow-research.agent.md     # PM, All
-  specflow-plan.agent.md         # Dev, All
-  specflow-implement.agent.md    # Dev, All
-  specflow-validate.agent.md     # QA, Sec, All
-  specflow-operate.agent.md      # Dev, All
-  specflow-security_*.agent.md   # Sec, All
+  flowspec-assess.agent.md       # PM, All
+  flowspec-specify.agent.md      # PM, All
+  flowspec-research.agent.md     # PM, All
+  flowspec-plan.agent.md         # Dev, All
+  flowspec-implement.agent.md    # Dev, All
+  flowspec-validate.agent.md     # QA, Sec, All
+  flowspec-operate.agent.md      # Dev, All
+  flowspec-security_*.agent.md   # Sec, All
   speckit-*.agent.md           # All roles (utilities)
 ```
 
@@ -309,7 +309,7 @@ scripts/bash/sync-copilot-agents.sh
 
 ```yaml
 ---
-name: "specflow-plan"
+name: "flowspec-plan"
 description: "Execute planning workflow using architect and platform engineer"
 target: "chat"
 tools: [...]
@@ -330,29 +330,29 @@ Role-specific handoff chains guide users through their workflow:
 #### PM Role Handoff Chain
 
 ```yaml
-# specflow-assess.agent.md (PM role)
+# flowspec-assess.agent.md (PM role)
 handoffs:
   - label: "✓ Assessment Complete → Specify Requirements"
-    agent: "specflow-specify"
+    agent: "flowspec-specify"
     prompt: "Assessment complete. Create the PRD."
     send: false
   # No other handoffs shown for PM role
 
-# specflow-specify.agent.md (PM role)
+# flowspec-specify.agent.md (PM role)
 handoffs:
   - label: "✓ Specification Complete → Conduct Research"
-    agent: "specflow-research"
+    agent: "flowspec-research"
     prompt: "PRD complete. Conduct market and technical research."
     send: false
   - label: "🔀 Hand off to Developer → Plan Architecture"
-    agent: "specflow-plan"
+    agent: "flowspec-plan"
     prompt: "PRD complete. Ready for technical design. (Developer role)"
     send: false
 
-# specflow-research.agent.md (PM role)
+# flowspec-research.agent.md (PM role)
 handoffs:
   - label: "✓ Research Complete → Hand off to Developer"
-    agent: "specflow-plan"
+    agent: "flowspec-plan"
     prompt: "Research complete. Ready for technical design. (Developer role)"
     send: false
 ```
@@ -360,24 +360,24 @@ handoffs:
 #### Dev Role Handoff Chain
 
 ```yaml
-# specflow-plan.agent.md (Dev role)
+# flowspec-plan.agent.md (Dev role)
 handoffs:
   - label: "✓ Planning Complete → Begin Implementation"
-    agent: "specflow-implement"
+    agent: "flowspec-implement"
     prompt: "Architecture designed. Begin implementation."
     send: false
 
-# specflow-implement.agent.md (Dev role)
+# flowspec-implement.agent.md (Dev role)
 handoffs:
   - label: "✓ Implementation Complete → Run Validation"
-    agent: "specflow-validate"
+    agent: "flowspec-validate"
     prompt: "Code complete. Run QA validation. (QA role)"
     send: false
 
-# specflow-validate.agent.md (Dev role)
+# flowspec-validate.agent.md (Dev role)
 handoffs:
   - label: "✓ Validation Complete → Deploy to Production"
-    agent: "specflow-operate"
+    agent: "flowspec-operate"
     prompt: "Validation passed. Deploy to production."
     send: false
 ```
@@ -390,7 +390,7 @@ handoffs:
 # PM → Dev handoff (requires PR approval in team mode)
 handoffs:
   - label: "🔀 Hand off to Developer → Plan Architecture"
-    agent: "specflow-plan"
+    agent: "flowspec-plan"
     prompt: "PRD complete. Ready for technical design. (Developer role)"
     send: false
     approval_required: true  # NEW: Indicates cross-role gate
@@ -398,7 +398,7 @@ handoffs:
 # Dev → QA handoff (requires review)
 handoffs:
   - label: "🔀 Hand off to QA → Run Validation"
-    agent: "specflow-validate"
+    agent: "flowspec-validate"
     prompt: "Implementation complete. Ready for QA validation. (QA role)"
     send: false
     approval_required: true
@@ -415,15 +415,15 @@ Leverage VS Code's native `chat.agent.pinnedAgents` setting:
 ```json
 {
   "chat.agent.pinnedAgents": [
-    "specflow-plan",
-    "specflow-implement",
-    "specflow-operate"
+    "flowspec-plan",
+    "flowspec-implement",
+    "flowspec-operate"
   ]
 }
 ```
 
 **Implementation**:
-- `/specflow:init` and `/specflow:reset` write to `.vscode/settings.json`
+- `/flow:init` and `/flow:reset` write to `.vscode/settings.json`
 - Pin agents based on selected role
 - Users can manually customize pinned agents
 
@@ -433,7 +433,7 @@ Add `priority` field to agent frontmatter:
 
 ```yaml
 ---
-name: "specflow-plan"
+name: "flowspec-plan"
 priority: 1  # High priority for Dev role
 roles:
   - "dev"
@@ -491,7 +491,7 @@ sync-copilot-agents.sh [OPTIONS]
 New Options:
   --role {pm|dev|sec|qa|all}   Generate agents for specific role only
   --with-roles                 Add role metadata to all agents (default)
-  --team-mode                  Use specflow_workflow.yml role config (default)
+  --team-mode                  Use flowspec_workflow.yml role config (default)
   --user-mode                  Use .vscode/settings.json role config
 
 Examples:
@@ -510,9 +510,9 @@ Examples:
 get_role_metadata() {
     local namespace="$1"
     local command="$2"
-    local config_file="${3:-specflow_workflow.yml}"
+    local config_file="${3:-flowspec_workflow.yml}"
 
-    # Read role config from specflow_workflow.yml
+    # Read role config from flowspec_workflow.yml
     # (or .vscode/settings.json if --user-mode)
 
     # Extract roles for this agent
@@ -659,7 +659,7 @@ generate_vscode_settings() {
         echo "{}" > "$settings_file"
     fi
 
-    # Merge Specflow role config
+    # Merge Flowspec role config
     python3 << PYTHON
 import json
 from pathlib import Path
@@ -667,8 +667,8 @@ from pathlib import Path
 settings_file = Path("$settings_file")
 settings = json.loads(settings_file.read_text())
 
-# Add Specflow role config
-settings["specflow.vscode.role"] = {
+# Add Flowspec role config
+settings["flowspec.vscode.role"] = {
     "primary": "$primary_role",
     "secondary": "$secondary_roles".split(",") if "$secondary_roles" else [],
     "visibility": "de-prioritize",
@@ -677,10 +677,10 @@ settings["specflow.vscode.role"] = {
 
 # Add pinned agents based on role
 role_agents = {
-    "pm": ["specflow-assess", "specflow-specify", "specflow-research"],
-    "dev": ["specflow-plan", "specflow-implement", "specflow-operate"],
-    "sec": ["specflow-security_workflow", "specflow-security_triage", "specflow-validate"],
-    "qa": ["specflow-validate", "speckit-checklist"],
+    "pm": ["flowspec-assess", "flowspec-specify", "flowspec-research"],
+    "dev": ["flowspec-plan", "flowspec-implement", "flowspec-operate"],
+    "sec": ["flowspec-security_workflow", "flowspec-security_triage", "flowspec-validate"],
+    "qa": ["flowspec-validate", "speckit-checklist"],
     "all": []  # No pinning for all role
 }
 
@@ -698,7 +698,7 @@ PYTHON
 **Integration with init/reset**:
 
 ```bash
-# Called from /specflow:init or /specflow:reset after role selection
+# Called from /flow:init or /flow:reset after role selection
 if [[ "$vscode_role" != "skip" ]]; then
     generate_vscode_settings "$primary_role" "$secondary_roles" "$mode"
 
@@ -718,7 +718,7 @@ fi
 
 ```json
 {
-  "specflow.vscode.role": {
+  "flowspec.vscode.role": {
     "primary": "dev",
     "secondary": ["qa", "sec"]
   }
@@ -760,7 +760,7 @@ specify config set vscode.role.primary dev
 
 ```bash
 specify reset --vscode-role qa --vscode-secondary dev
-# → Updates specflow_workflow.yml
+# → Updates flowspec_workflow.yml
 # → Regenerates agents with new role metadata
 # → Updates .vscode/settings.json
 ```
@@ -768,7 +768,7 @@ specify reset --vscode-role qa --vscode-secondary dev
 ### 5.3 Team vs Individual Role Selection
 
 **Team mode** (`mode: "team"`):
-- Role config stored in `specflow_workflow.yml`
+- Role config stored in `flowspec_workflow.yml`
 - Committed to git
 - Enforced via CI/CD
 - All team members see same default role assignments
@@ -781,8 +781,8 @@ specify reset --vscode-role qa --vscode-secondary dev
 **Resolution**:
 ```python
 def resolve_role_config():
-    user_config = read_vscode_settings().get("specflow.vscode.role", {})
-    team_config = read_specflow_workflow().get("vscode_roles", {})
+    user_config = read_vscode_settings().get("flowspec.vscode.role", {})
+    team_config = read_flowspec_workflow().get("vscode_roles", {})
 
     if user_config.get("mode") == "user":
         # User override takes precedence
@@ -903,7 +903,7 @@ name: Validate Team Roles
 on:
   pull_request:
     paths:
-      - 'specflow_workflow.yml'
+      - 'flowspec_workflow.yml'
       - '.vscode/settings.json'
 
 jobs:
@@ -914,11 +914,11 @@ jobs:
 
       - name: Check role configuration
         run: |
-          # Validate specflow_workflow.yml role definitions
+          # Validate flowspec_workflow.yml role definitions
           specify workflow validate
 
           # Check .vscode/settings.json not committed in team mode
-          if grep -q '"mode": "team"' specflow_workflow.yml; then
+          if grep -q '"mode": "team"' flowspec_workflow.yml; then
             if git ls-files | grep -q '.vscode/settings.json'; then
               echo "ERROR: .vscode/settings.json committed in team mode"
               exit 1
@@ -932,7 +932,7 @@ jobs:
           import yaml
           from pathlib import Path
 
-          config = yaml.safe_load(Path("specflow_workflow.yml").read_text())
+          config = yaml.safe_load(Path("flowspec_workflow.yml").read_text())
           roles = config["vscode_roles"]["roles"]
 
           # Check all referenced agents exist
@@ -993,7 +993,7 @@ def track_role_event(event: RoleEvent, metadata: dict):
     }
 
     # Write to local telemetry file
-    telemetry_file = Path(".specflow/telemetry.jsonl")
+    telemetry_file = Path(".flowspec/telemetry.jsonl")
     telemetry_file.parent.mkdir(exist_ok=True)
 
     with telemetry_file.open("a") as f:
@@ -1056,7 +1056,7 @@ GROUP BY from_role_hash, to_role_hash;
 ╚══════════════════════════════════════════════════════════════╝
 
 Role: Developer (Dev)
-Agents used: specflow-plan, specflow-implement, specflow-validate
+Agents used: flowspec-plan, flowspec-implement, flowspec-validate
 
 Rate your experience (1-5): _
 
@@ -1080,7 +1080,7 @@ What could be improved?
     "positive": "Role handoffs guided me perfectly",
     "negative": "Wanted to see security agents too"
   },
-  "agents_used": ["specflow-plan", "specflow-implement", "specflow-validate"],
+  "agents_used": ["flowspec-plan", "flowspec-implement", "flowspec-validate"],
   "workflow_duration_minutes": 120
 }
 ```
@@ -1094,7 +1094,7 @@ What could be improved?
 | Task ID | Description | Priority | Depends On |
 |---------|-------------|----------|------------|
 | task-TBD-1 | Design: Role selection UX in init.md and reset.md | HIGH | None |
-| task-TBD-2 | Design: Configuration storage (specflow_workflow.yml + .vscode/settings.json) | HIGH | None |
+| task-TBD-2 | Design: Configuration storage (flowspec_workflow.yml + .vscode/settings.json) | HIGH | None |
 | task-TBD-3 | Design: VS Code integration architecture | HIGH | task-TBD-2 |
 | task-TBD-4 | Design: sync-copilot-agents.sh role enhancements | MEDIUM | task-TBD-2 |
 | task-TBD-5 | Design: Multi-role support and team mode | MEDIUM | task-TBD-3 |
@@ -1105,7 +1105,7 @@ What could be improved?
 
 | Task ID | Description | Acceptance Criteria |
 |---------|-------------|---------------------|
-| task-TBD-8 | Add role definitions to specflow_workflow.yml | ✓ 5 roles defined (pm, dev, sec, qa, all)<br>✓ Agent mappings complete<br>✓ Schema validated |
+| task-TBD-8 | Add role definitions to flowspec_workflow.yml | ✓ 5 roles defined (pm, dev, sec, qa, all)<br>✓ Agent mappings complete<br>✓ Schema validated |
 | task-TBD-9 | Implement role selection prompts in init.md | ✓ Interactive prompts work<br>✓ Multi-role support<br>✓ Team vs user mode selection |
 | task-TBD-10 | Implement role selection prompts in reset.md | ✓ Re-configuration works<br>✓ Preserves existing config<br>✓ CLI flags supported |
 | task-TBD-11 | Implement .vscode/settings.json generation | ✓ JSON structure correct<br>✓ Merges with existing settings<br>✓ Agent pinning configured |
@@ -1114,7 +1114,7 @@ What could be improved?
 
 | Task ID | Description | Acceptance Criteria |
 |---------|-------------|---------------------|
-| task-TBD-12 | Add get_role_metadata() to sync-copilot-agents.sh | ✓ Reads specflow_workflow.yml<br>✓ Extracts agent roles<br>✓ Calculates priority |
+| task-TBD-12 | Add get_role_metadata() to sync-copilot-agents.sh | ✓ Reads flowspec_workflow.yml<br>✓ Extracts agent roles<br>✓ Calculates priority |
 | task-TBD-13 | Enhance generate_frontmatter() with role metadata | ✓ Role metadata in frontmatter<br>✓ Priority field set<br>✓ Backward compatible |
 | task-TBD-14 | Regenerate all agents with role metadata | ✓ 23 agents updated<br>✓ Role metadata present<br>✓ No unresolved includes |
 | task-TBD-15 | Test role-filtered handoffs in VS Code | ✓ PM role shows PM handoffs only<br>✓ Dev role shows Dev handoffs<br>✓ Cross-role handoffs marked |
@@ -1142,8 +1142,8 @@ What could be improved?
 
 ### Technical Success
 
-- [x] Role selection integrated into `/specflow:init` and `/specflow:reset`
-- [ ] Configuration stored in both `specflow_workflow.yml` and `.vscode/settings.json`
+- [x] Role selection integrated into `/flow:init` and `/flow:reset`
+- [ ] Configuration stored in both `flowspec_workflow.yml` and `.vscode/settings.json`
 - [ ] Agent metadata includes role and priority fields
 - [ ] sync-copilot-agents.sh generates role-aware frontmatter
 - [ ] VS Code agent pinning configured based on role
@@ -1189,10 +1189,10 @@ What could be improved?
 
 | Option | Pros | Cons | Decision |
 |--------|------|------|----------|
-| **A: specflow_workflow.yml only** | Single source of truth, version-controlled | No user overrides, not VS Code native | ❌ Rejected |
+| **A: flowspec_workflow.yml only** | Single source of truth, version-controlled | No user overrides, not VS Code native | ❌ Rejected |
 | **B: .vscode/settings.json only** | VS Code native, user-friendly | Not team-sharable, gitignored by default | ❌ Rejected |
 | **C: Dual strategy (both)** | Team defaults + user overrides, best of both | Slightly more complex | ✅ **Selected** |
-| **D: New .specflow/roles.yml** | Clean separation | Yet another config file to manage | ❌ Rejected |
+| **D: New .flowspec/roles.yml** | Clean separation | Yet another config file to manage | ❌ Rejected |
 
 ### Agent Filtering
 
@@ -1234,7 +1234,7 @@ What could be improved?
    - Role-specific artifact templates
 
 5. **Enterprise SSO Integration**
-   - Map company roles to Specflow roles
+   - Map company roles to Flowspec roles
    - Auto-configure based on LDAP/AD groups
 
 ---

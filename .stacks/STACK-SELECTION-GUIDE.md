@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide helps project architects and platform engineers choose the right technology stack based on project requirements, team composition, and business constraints. It should be used during the `/specflow:plan` workflow to make informed architectural decisions.
+This guide helps project architects and platform engineers choose the right technology stack based on project requirements, team composition, and business constraints. It should be used during the `/flow:plan` workflow to make informed architectural decisions.
 
 ## Selection Process
 
@@ -369,13 +369,13 @@ Coding standards by language:
 - `.languages/ts-js/` - TypeScript/JavaScript principles
 - `.languages/mobile/` - Mobile development principles
 
-## Usage in specflow Workflow
+## Usage in flowspec Workflow
 
-This guide should be consulted during the `/specflow:plan` workflow:
+This guide should be consulted during the `/flow:plan` workflow:
 
 1. **Project Architect** uses this guide to recommend stack(s)
 2. **Platform Engineer** validates technical feasibility
-3. Both agents document the decision rationale in `/specflow.constitution`
-4. Stack choice influences the implementation approach in `/specflow:implement`
+3. Both agents document the decision rationale in `/flowspec.constitution`
+4. Stack choice influences the implementation approach in `/flow:implement`
 
 The selected stack(s) become part of the project's architectural decisions and guide all subsequent development work.

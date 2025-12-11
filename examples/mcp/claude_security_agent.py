@@ -3,7 +3,7 @@
 
 This example demonstrates the MCP server workflow for security scanning.
 It shows how to:
-1. Connect to the specflow-security MCP server
+1. Connect to the flowspec-security MCP server
 2. Run security scans
 3. Get triage instructions (skill invocation pattern)
 4. Get fix generation instructions (skill invocation pattern)
@@ -250,7 +250,7 @@ async def run_security_workflow(
         MCPConnectionError: If MCP connection fails
         MCPResponseError: If MCP response is invalid
     """
-    print("Connecting to specflow-security MCP server...")
+    print("Connecting to flowspec-security MCP server...")
 
     async with connect_to_security_mcp(timeout=timeout) as session:
         await _run_workflow_with_session(

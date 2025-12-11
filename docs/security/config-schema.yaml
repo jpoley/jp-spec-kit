@@ -1,7 +1,7 @@
 # Security Configuration Schema
 #
 # This file documents the security configuration options for jp-spec-kit.
-# Place your configuration in `.specflow/security-config.yml` at the project root.
+# Place your configuration in `.flowspec/security-config.yml` at the project root.
 
 # Scanner Configuration
 scanners:
@@ -79,7 +79,7 @@ triage:
 # Report Configuration
 reporting:
   format: markdown  # Options: markdown, html, json, sarif
-  output_dir: null  # Default: .specflow/security-reports/
+  output_dir: null  # Default: .flowspec/security-reports/
   include_false_positives: false  # Include FP findings in report
   max_remediations: 10  # Max number of remediation examples
 
@@ -320,5 +320,5 @@ max_findings: 1000    # Limit total findings to prevent overwhelming output
 # feedback:
 #   enabled: true
 #   collection_method: interactive  # Options: interactive, file, api
-#   feedback_file: .specflow/security-feedback.jsonl
+#   feedback_file: .flowspec/security-feedback.jsonl
 #   # Future: Use feedback to fine-tune classification model

@@ -52,7 +52,7 @@ VALID_SCANNERS = frozenset({"semgrep", "codeql", "trivy", "bandit", "safety"})
 VALID_SEVERITIES = frozenset({"critical", "high", "medium", "low", "info"})
 
 # Initialize MCP server
-mcp = FastMCP("specflow-security") if MCP_AVAILABLE else None
+mcp = FastMCP("flowspec-security") if MCP_AVAILABLE else None
 
 # Initialize scanner orchestrator
 _orchestrator = None

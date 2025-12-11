@@ -218,15 +218,15 @@ dependencies: [task-foundational-auth]
 
 ```
 1. [Spec Creation]
-   Developer: Run /specflow:specify to create spec.md
+   Developer: Run /flow:specify to create spec.md
    Output: spec.md with user stories
 
 2. [Planning]
-   Developer: Run /specflow:plan to create plan.md
+   Developer: Run /flow:plan to create plan.md
    Output: plan.md with architecture
 
 3. [Task Generation] ← NEW INTEGRATION POINT
-   Developer: Run /specflow:tasks (modified to generate Backlog.md tasks)
+   Developer: Run /flow:tasks (modified to generate Backlog.md tasks)
    Output:
    - Backlog.md initialized (if first time)
    - Tasks generated as individual task-*.md files
@@ -312,7 +312,7 @@ dependencies: [task-foundational-auth]
 
 | Step | User Action | System Response | Pain/Delight |
 |------|------------|----------------|--------------|
-| 1 | Run `/specflow:tasks` | Tasks generated into Backlog.md | ✅ Delight: Automatic setup |
+| 1 | Run `/flow:tasks` | Tasks generated into Backlog.md | ✅ Delight: Automatic setup |
 | 2 | Run `backlog board` | See Kanban with all tasks in "todo" | ✅ Delight: Visual clarity |
 | 3 | Ask Claude: "Start task-001" | AI updates task status to "in_progress", opens relevant files | ✅ Delight: AI integration |
 | 4 | Implement feature | AI completes subtasks automatically | ✅ Delight: Reduced manual tracking |
@@ -327,7 +327,7 @@ dependencies: [task-foundational-auth]
 
 | Step | User Action | System Response | Pain/Delight |
 |------|------------|----------------|--------------|
-| 1 | Run `/specflow:tasks` | Tasks generated, unassigned | ✅ Delight: Tasks ready for assignment |
+| 1 | Run `/flow:tasks` | Tasks generated, unassigned | ✅ Delight: Tasks ready for assignment |
 | 2 | Run `backlog browser` | Web UI opens, drag tasks to assign | ✅ Delight: Visual assignment |
 | 3 | Assign US1 to Dev1, US2 to Dev2 | Tasks updated with assignees | ✅ Delight: Clear ownership |
 | 4 | Daily: Check `backlog board` | See who's blocked, what's in progress | ✅ Delight: Team visibility |
@@ -347,7 +347,7 @@ dependencies: [task-foundational-auth]
 
 **Acceptance Criteria**:
 - **Given** I have a valid spec.md with user stories and a plan.md
-- **When** I run `/specflow:tasks` or `specify tasks generate`
+- **When** I run `/flow:tasks` or `specify tasks generate`
 - **Then** the system should:
   - Create a `backlog/` directory if it doesn't exist
   - Generate one `task-<id> - <title>.md` file per task
@@ -360,7 +360,7 @@ dependencies: [task-foundational-auth]
 
 **Edge Cases**:
 - **Existing backlog/**: Prompt user "Backlog exists, regenerate? (yes/no/merge)"
-- **Missing spec.md**: Error with guidance to run `/specflow:specify` first
+- **Missing spec.md**: Error with guidance to run `/flow:specify` first
 - **Invalid task format in tasks.md**: Validation error with line numbers
 
 ---
@@ -555,7 +555,7 @@ dependencies: [task-foundational-auth]
 - Summary: "Generated N tasks across M user stories"
 
 **Error Handling**:
-- Missing spec.md: Error "Spec file not found. Run `/specflow:specify` first."
+- Missing spec.md: Error "Spec file not found. Run `/flow:specify` first."
 - Invalid task format: Validation error with line number
 - Backlog already exists: Prompt for regeneration strategy (overwrite/merge/cancel)
 
@@ -709,7 +709,7 @@ Claude (via MCP):
 **Requirement**: Allow users to use tasks.md OR Backlog.md for 1-2 releases during transition.
 
 **Implementation**:
-- `/specflow:tasks` accepts `--format` flag: `tasks-md` (default) or `backlog-md`
+- `/flow:tasks` accepts `--format` flag: `tasks-md` (default) or `backlog-md`
 - Documentation clearly states Backlog.md is recommended for new projects
 - Deprecation notice in tasks.md format: "Consider migrating to Backlog.md for enhanced task management"
 
@@ -776,7 +776,7 @@ Claude (via MCP):
 
 **NFR4.3**: Error Messages
 - **Requirement**: Errors include actionable guidance, not just failure messages
-- **Example**: ❌ "Task generation failed" → ✅ "spec.md not found. Create it with: /specflow:specify"
+- **Example**: ❌ "Task generation failed" → ✅ "spec.md not found. Create it with: /flow:specify"
 
 ---
 
@@ -803,7 +803,7 @@ Claude (via MCP):
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
 │  ┌─────────────┐    ┌──────────────┐    ┌─────────────────┐  │
-│  │ /specflow:    │───▶│ Spec Files   │───▶│ Task Generator  │  │
+│  │ /flow:    │───▶│ Spec Files   │───▶│ Task Generator  │  │
 │  │  specify    │    │              │    │                 │  │
 │  │  plan       │    │ - spec.md    │    │ Parses specs    │  │
 │  │  research   │    │ - plan.md    │    │ Creates tasks   │  │
@@ -865,7 +865,7 @@ Claude (via MCP):
 **Flow 1: Task Generation (Spec → Backlog.md)**
 
 ```
-1. User runs: /specflow:tasks --feature 001-auth
+1. User runs: /flow:tasks --feature 001-auth
 
 2. jp-spec-kit Task Generator:
    a. Read /specs/001-auth/spec.md
@@ -1276,7 +1276,7 @@ my-project/
 - ✅ Output summary: "Generated 42 tasks across 3 user stories"
 
 **Edge Case Testing**:
-- ❌ Missing spec.md → Error: "spec.md not found. Run /specflow:specify first"
+- ❌ Missing spec.md → Error: "spec.md not found. Run /flow:specify first"
 - ❌ Invalid task format → Error with line number
 - ❌ Existing backlog/ → Prompt: "Regenerate? (yes/no/merge)"
 - ✅ Large spec (200 tasks) → Complete in <10 seconds
@@ -1480,7 +1480,7 @@ my-project/
 
 **Definition**:
 - Numerator: # of features with active `backlog/` directory and >1 task file
-- Denominator: # of features generated via `/specflow:tasks` in last 90 days
+- Denominator: # of features generated via `/flow:tasks` in last 90 days
 - **Target**: 60% within 6 months of release
 
 **Why This Metric**:

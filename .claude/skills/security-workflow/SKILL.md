@@ -74,7 +74,7 @@ Security: [Vulnerability Type] in [Component]
 
 ---
 
-**Created by:** `/specflow:security --create-tasks`
+**Created by:** `/flow:security --create-tasks`
 **Audit Report:** `docs/security/audit-report.md`
 ```
 
@@ -186,7 +186,7 @@ An attacker could bypass authentication, extract database contents, modify data,
 
 ---
 
-**Created by:** /specflow:security --create-tasks
+**Created by:** /flow:security --create-tasks
 **Audit Report:** docs/security/audit-report.md
 EOF
 )" \
@@ -231,7 +231,7 @@ done
 
 ### Option 1: Dedicated Security State
 
-Add a dedicated security verification state to `specflow_workflow.yml`:
+Add a dedicated security verification state to `flowspec_workflow.yml`:
 
 ```yaml
 states:
@@ -248,7 +248,7 @@ states:
 
 workflows:
   security:
-    command: "/specflow:security"
+    command: "/flow:security"
     description: "Execute security scans and create remediation tasks"
     agents:
       - name: "secure-by-design-engineer"
@@ -296,7 +296,7 @@ Integrate security into the existing validate workflow:
 ```yaml
 workflows:
   validate:
-    command: "/specflow:validate"
+    command: "/flow:validate"
     description: "Execute validation using QA, security, and documentation agents"
     agents:
       - name: "quality-guardian"

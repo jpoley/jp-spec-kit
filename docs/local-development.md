@@ -74,8 +74,8 @@ uvx --from /path/to/jp-spec-kit specify init demo-anywhere --ai copilot --ignore
 
 Set an environment variable for convenience:
 ```bash
-export SPECFLOW_SRC=/path/to/jp-spec-kit
-uvx --from "$SPECFLOW_SRC" specify init demo-env --ai copilot --ignore-agent-tools --script ps
+export FLOWSPEC_SRC=/path/to/jp-spec-kit
+uvx --from "$FLOWSPEC_SRC" specify init demo-env --ai copilot --ignore-agent-tools --script ps
 ```
 
 (Optional) Define a shell function:

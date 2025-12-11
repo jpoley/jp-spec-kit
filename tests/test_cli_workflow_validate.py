@@ -27,7 +27,7 @@ class TestWorkflowValidateValid:
     def test_validate_default_config(self, tmp_path, monkeypatch):
         """Valid default config exits with 0 and shows success message."""
         # Create valid config
-        config = tmp_path / "specflow_workflow.yml"
+        config = tmp_path / "flowspec_workflow.yml"
         config.write_text("""
 version: "1.0"
 states:
@@ -60,7 +60,7 @@ states:
   - Done
 workflows:
   complete:
-    command: /specflow:complete
+    command: /flow:complete
     agents:
       - PM Planner
     input_states:
@@ -79,7 +79,7 @@ transitions:
 
     def test_validate_verbose_output(self, tmp_path, monkeypatch):
         """--verbose flag shows additional details."""
-        config = tmp_path / "specflow_workflow.yml"
+        config = tmp_path / "flowspec_workflow.yml"
         config.write_text("""
 version: "1.0"
 states:
@@ -122,7 +122,7 @@ class TestWorkflowValidateFileErrors:
 
     def test_invalid_yaml_syntax(self, tmp_path, monkeypatch):
         """Invalid YAML syntax exits with 2."""
-        config = tmp_path / "specflow_workflow.yml"
+        config = tmp_path / "flowspec_workflow.yml"
         config.write_text("""
 invalid: yaml: syntax: here
   - indentation error
@@ -137,7 +137,7 @@ invalid: yaml: syntax: here
 
     def test_empty_config_file(self, tmp_path, monkeypatch):
         """Empty config file exits with 2."""
-        config = tmp_path / "specflow_workflow.yml"
+        config = tmp_path / "flowspec_workflow.yml"
         config.write_text("")
         monkeypatch.chdir(tmp_path)
 
@@ -152,7 +152,7 @@ class TestWorkflowValidateSchemaErrors:
 
     def test_missing_required_field(self, tmp_path, monkeypatch):
         """Config missing required field fails schema validation."""
-        config = tmp_path / "specflow_workflow.yml"
+        config = tmp_path / "flowspec_workflow.yml"
         config.write_text("""
 # Missing version field
 states:
@@ -172,7 +172,7 @@ class TestWorkflowValidateSemanticErrors:
 
     def test_circular_dependency_detected(self, tmp_path, monkeypatch):
         """Circular dependency in transitions fails validation."""
-        config = tmp_path / "specflow_workflow.yml"
+        config = tmp_path / "flowspec_workflow.yml"
         config.write_text("""
 version: "1.0"
 states:
@@ -197,7 +197,7 @@ transitions:
 
     def test_unreachable_state_error(self, tmp_path, monkeypatch):
         """Unreachable state fails validation."""
-        config = tmp_path / "specflow_workflow.yml"
+        config = tmp_path / "flowspec_workflow.yml"
         config.write_text("""
 version: "1.0"
 states:
@@ -220,7 +220,7 @@ transitions:
 
     def test_undefined_state_reference(self, tmp_path, monkeypatch):
         """Workflow referencing undefined state fails validation."""
-        config = tmp_path / "specflow_workflow.yml"
+        config = tmp_path / "flowspec_workflow.yml"
         config.write_text("""
 version: "1.0"
 states:
@@ -246,7 +246,7 @@ class TestWorkflowValidateJSONOutput:
 
     def test_json_output_valid_config(self, tmp_path, monkeypatch):
         """--json flag outputs valid JSON with success data."""
-        config = tmp_path / "specflow_workflow.yml"
+        config = tmp_path / "flowspec_workflow.yml"
         config.write_text("""
 version: "1.0"
 states:
@@ -279,7 +279,7 @@ transitions:
 
     def test_json_output_with_errors(self, tmp_path, monkeypatch):
         """--json flag outputs error details in JSON."""
-        config = tmp_path / "specflow_workflow.yml"
+        config = tmp_path / "flowspec_workflow.yml"
         config.write_text("""
 version: "1.0"
 states:
@@ -336,7 +336,7 @@ transitions:
 
     def test_json_output_no_color_codes(self, tmp_path, monkeypatch):
         """--json output contains no ANSI color codes."""
-        config = tmp_path / "specflow_workflow.yml"
+        config = tmp_path / "flowspec_workflow.yml"
         config.write_text("""
 version: "1.0"
 states:
@@ -362,7 +362,7 @@ class TestWorkflowValidateWarnings:
 
     def test_unknown_agent_warning(self, tmp_path, monkeypatch):
         """Unknown agent produces warning but exits with 0."""
-        config = tmp_path / "specflow_workflow.yml"
+        config = tmp_path / "flowspec_workflow.yml"
         config.write_text("""
 version: "1.0"
 states:
@@ -389,7 +389,7 @@ transitions:
 
     def test_verbose_shows_warnings(self, tmp_path, monkeypatch):
         """--verbose flag displays warnings."""
-        config = tmp_path / "specflow_workflow.yml"
+        config = tmp_path / "flowspec_workflow.yml"
         config.write_text("""
 version: "1.0"
 states:
@@ -417,7 +417,7 @@ transitions:
 
     def test_json_includes_warnings(self, tmp_path, monkeypatch):
         """--json output includes warnings array."""
-        config = tmp_path / "specflow_workflow.yml"
+        config = tmp_path / "flowspec_workflow.yml"
         config.write_text("""
 version: "1.0"
 states:
@@ -453,7 +453,7 @@ class TestWorkflowValidateExitCodes:
 
     def test_exit_code_0_on_success(self, tmp_path, monkeypatch):
         """Valid config exits with 0."""
-        config = tmp_path / "specflow_workflow.yml"
+        config = tmp_path / "flowspec_workflow.yml"
         config.write_text("""
 version: "1.0"
 states:
@@ -471,7 +471,7 @@ transitions:
 
     def test_exit_code_1_on_validation_error(self, tmp_path, monkeypatch):
         """Validation errors exit with 1."""
-        config = tmp_path / "specflow_workflow.yml"
+        config = tmp_path / "flowspec_workflow.yml"
         config.write_text("""
 version: "1.0"
 states:

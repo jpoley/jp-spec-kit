@@ -23,8 +23,8 @@ This runbook provides procedures for recovering from dev-setup validation failur
 ```
 ❌ ERROR: Found non-symlink .md files in .claude/commands/
 Files that should be symlinks:
-  .claude/commands/specflow/implement.md
-  .claude/commands/specflow/research.md
+  .claude/commands/flowspec/implement.md
+  .claude/commands/flowspec/research.md
 ```
 
 ### Root Cause
@@ -52,21 +52,21 @@ make dev-validate
 git status .claude/commands/
 
 # 2. Back up changes
-cp .claude/commands/specflow/implement.md /tmp/implement-backup.md
+cp .claude/commands/flowspec/implement.md /tmp/implement-backup.md
 
 # 3. Merge changes into templates
 # Compare and merge manually
-diff .claude/commands/specflow/implement.md templates/commands/specflow/implement.md
-vim templates/commands/specflow/implement.md
+diff .claude/commands/flowspec/implement.md templates/commands/flowspec/implement.md
+vim templates/commands/flowspec/implement.md
 
 # 4. Recreate symlinks
 make dev-fix
 
 # 5. Verify changes are present
-cat .claude/commands/specflow/implement.md
+cat .claude/commands/flowspec/implement.md
 
 # 6. Commit template changes
-git add templates/commands/specflow/implement.md
+git add templates/commands/flowspec/implement.md
 git commit -s -m "fix: merge changes into template"
 ```
 

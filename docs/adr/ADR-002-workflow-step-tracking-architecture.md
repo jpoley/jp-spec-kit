@@ -11,7 +11,7 @@
 
 ### Business Problem
 
-Specflow orchestrates complex software development workflows through `/specflow` commands (assess, specify, research, plan, implement, validate, operate). Currently, backlog.md tasks use simple statuses ("To Do", "In Progress", "Done") that don't reflect **which workflow phase** a task is in.
+Flowspec orchestrates complex software development workflows through `/flowspec` commands (assess, specify, research, plan, implement, validate, operate). Currently, backlog.md tasks use simple statuses ("To Do", "In Progress", "Done") that don't reflect **which workflow phase** a task is in.
 
 **The Core Tension:** Developers need visibility into workflow progression without cluttering their task board with 9+ status columns.
 
@@ -20,14 +20,14 @@ Specflow orchestrates complex software development workflows through `/specflow`
 **Primary Value Streams:**
 
 1. **Developer Experience** - Engineers see at a glance which workflow phase each task is in
-2. **Workflow Orchestration** - `/specflow` commands can enforce state-based preconditions
+2. **Workflow Orchestration** - `/flowspec` commands can enforce state-based preconditions
 3. **Progress Transparency** - Stakeholders understand where work is in the development lifecycle
 4. **Compliance Tracking** - For regulated industries, workflow phase tracking provides audit trail
 
 **Success Metrics:**
 
 - Reduced confusion about task state (measured by Slack/issue questions)
-- Increased adoption of `/specflow` workflow commands (usage metrics)
+- Increased adoption of `/flowspec` workflow commands (usage metrics)
 - Zero invalid state transitions (constraint enforcement)
 
 ---
@@ -61,8 +61,8 @@ After analyzing the problem through Hohpe's architectural lens, I recommend **Op
 
 2. **Workflow Steps (metadata field)** - Track precise workflow phase:
    - Stored in YAML frontmatter: `workflow_step: Planned`
-   - Maps to `specflow_workflow.yml` states
-   - Updated automatically by `/specflow` commands
+   - Maps to `flowspec_workflow.yml` states
+   - Updated automatically by `/flowspec` commands
    - Optional for simple workflows (backward compatible)
 
 3. **Visual Indicators** - TUI shows workflow step as label/tag:
@@ -105,7 +105,7 @@ priority: high
 # src/specify_cli/workflow/sync.py
 
 class WorkflowStateSynchronizer:
-    """Synchronizes backlog.md status with specflow workflow steps."""
+    """Synchronizes backlog.md status with flowspec workflow steps."""
 
     def update_task_workflow_step(
         self,
@@ -113,7 +113,7 @@ class WorkflowStateSynchronizer:
         workflow: str,
         feature: str
     ) -> None:
-        """Update task workflow step after /specflow command completes.
+        """Update task workflow step after /flowspec command completes.
 
         Args:
             task_id: Backlog task ID
@@ -151,7 +151,7 @@ class WorkflowStateSynchronizer:
         self._update_task(task_id, updates)
 ```
 
-### Integration with specflow_workflow.yml
+### Integration with flowspec_workflow.yml
 
 **Workflow configuration already defines states:**
 
@@ -193,7 +193,7 @@ WORKFLOW_STEP_TO_STATUS = {
 
 #### Option A: Expand Board Columns to Match Workflow States
 
-**Approach:** Use all 9 specflow workflow states as board columns.
+**Approach:** Use all 9 flowspec workflow states as board columns.
 
 **Pros:**
 - Direct 1:1 mapping
@@ -265,7 +265,7 @@ WORKFLOW_STEP_TO_STATUS = {
 **Hohpe Assessment:**
 - **Levels of Abstraction** ✓ - Board vs. metadata separation
 - **Composability** ✓ - Optional workflow tracking layers on top of basic board
-- **Consistency** ✓ - Single source of truth (specflow_workflow.yml)
+- **Consistency** ✓ - Single source of truth (flowspec_workflow.yml)
 - **Consumption** ✓ - Simple default, power when needed
 
 ---
@@ -286,7 +286,7 @@ WORKFLOW_STEP_TO_STATUS = {
 
 **Rating: 9/10**
 
-- Single source of truth: `specflow_workflow.yml` defines all workflow steps
+- Single source of truth: `flowspec_workflow.yml` defines all workflow steps
 - Automatic synchronization prevents drift
 - Follows existing backlog.md patterns (optional metadata fields)
 
@@ -309,7 +309,7 @@ WORKFLOW_STEP_TO_STATUS = {
 
 **Easy:**
 - Board view stays simple (3-4 columns)
-- Workflow steps auto-update via `/specflow` commands
+- Workflow steps auto-update via `/flowspec` commands
 - Visual tags show current phase
 
 **Needs Work:**
@@ -322,13 +322,13 @@ WORKFLOW_STEP_TO_STATUS = {
 
 **Rating: 9/10**
 
-- Workflow steps validated against specflow_workflow.yml states
+- Workflow steps validated against flowspec_workflow.yml states
 - State transitions validated against allowed workflows
 - Prevents invalid state changes
 
 **Example Validation:**
 ```python
-# In /specflow:implement command
+# In /flow:implement command
 if task.workflow_step != "Planned":
     raise WorkflowError(
         f"Cannot implement from {task.workflow_step}. "
@@ -341,7 +341,7 @@ if task.workflow_step != "Planned":
 **Rating: 8/10**
 
 **Covers:**
-- All workflow states from specflow_workflow.yml
+- All workflow states from flowspec_workflow.yml
 - Backward transitions (rework scenarios)
 - Optional workflows (research, operate)
 - Terminal states (Done, Deployed)
@@ -355,7 +355,7 @@ if task.workflow_step != "Planned":
 
 **Rating: 9/10**
 
-- Adding workflow states: Just update specflow_workflow.yml
+- Adding workflow states: Just update flowspec_workflow.yml
 - Changing board columns: Just update backlog/config.yml statuses
 - Custom project workflows: Override default mappings
 
@@ -375,18 +375,18 @@ workflow_step_mappings:
 
 ### Principle 1: Workflow Step Tracking Standards
 
-**Mandate:** All tasks participating in `/specflow` workflows MUST track `workflow_step` metadata.
+**Mandate:** All tasks participating in `/flowspec` workflows MUST track `workflow_step` metadata.
 
 **Rationale:** Enables state-based workflow enforcement and artifact validation.
 
 **Implementation:**
-- `/specflow` commands automatically set workflow_step
+- `/flowspec` commands automatically set workflow_step
 - Manual task creation can omit workflow_step (for simple tasks)
 - `backlog workflow validate` command checks alignment
 
 ### Principle 2: State Machine Integration
 
-**Mandate:** All workflow steps MUST be defined in `specflow_workflow.yml`.
+**Mandate:** All workflow steps MUST be defined in `flowspec_workflow.yml`.
 
 **Rationale:** Single source of truth prevents configuration drift.
 
@@ -408,12 +408,12 @@ workflow_step_mappings:
 
 ### Principle 4: Automatic Synchronization
 
-**Mandate:** Workflow steps MUST auto-update via `/specflow` commands.
+**Mandate:** Workflow steps MUST auto-update via `/flowspec` commands.
 
 **Rationale:** Manual maintenance is error-prone and defeats automation purpose.
 
 **Implementation:**
-- Each `/specflow` command updates workflow_step via WorkflowStateSynchronizer
+- Each `/flowspec` command updates workflow_step via WorkflowStateSynchronizer
 - Status auto-updated if transitioning from "To Do"
 - Feature linking (`workflow_feature`) enables artifact validation
 
@@ -435,14 +435,14 @@ workflow_step_mappings:
 
 ### Phase 2: Integration (v0.0.155)
 
-**Scope:** Integrate with `/specflow` commands
+**Scope:** Integrate with `/flowspec` commands
 
-- [ ] Update `/specflow:assess` to set workflow_step = "Assessed"
-- [ ] Update `/specflow:specify` to set workflow_step = "Specified"
-- [ ] Update `/specflow:plan` to set workflow_step = "Planned"
-- [ ] Update `/specflow:implement` to set workflow_step = "In Implementation"
-- [ ] Update `/specflow:validate` to set workflow_step = "Validated"
-- [ ] Update `/specflow:operate` to set workflow_step = "Deployed"
+- [ ] Update `/flow:assess` to set workflow_step = "Assessed"
+- [ ] Update `/flow:specify` to set workflow_step = "Specified"
+- [ ] Update `/flow:plan` to set workflow_step = "Planned"
+- [ ] Update `/flow:implement` to set workflow_step = "In Implementation"
+- [ ] Update `/flow:validate` to set workflow_step = "Validated"
+- [ ] Update `/flow:operate` to set workflow_step = "Deployed"
 
 **Risk:** Medium - requires coordination with task-090, task-091
 
@@ -489,7 +489,7 @@ def get_workflow_step_status_mapping(self) -> dict[str, str]:
         >>> config.get_workflow_step_status_mapping()
         {'Planned': 'In Progress', 'Validated': 'In Review', ...}
     """
-    # Could be defined in specflow_workflow.yml or use smart defaults
+    # Could be defined in flowspec_workflow.yml or use smart defaults
 ```
 
 ### For Task-091 (Workflow Validation)
@@ -546,7 +546,7 @@ def validate_task_workflow_step(
 
 **Mitigation:**
 - `backlog workflow sync` command to detect and fix
-- Validation in `/specflow` commands before execution
+- Validation in `/flowspec` commands before execution
 - Periodic automated checks in CI
 
 ### Risk 3: Complexity Creep
@@ -578,7 +578,7 @@ def validate_task_workflow_step(
 **Idea:** Let each project define custom columns matching their workflow.
 
 **Why Rejected:**
-- Violates DRY (specflow_workflow.yml already defines states)
+- Violates DRY (flowspec_workflow.yml already defines states)
 - Configuration complexity explosion
 - Hard to share tasks across projects
 - Hohpe: "Flexibility at wrong layer" - this is workflow config, not UI config
@@ -611,14 +611,14 @@ def validate_task_workflow_step(
 
 1. **Zero Breaking Changes** - All existing tasks work unchanged
 2. **Performance** - No measurable TUI rendering slowdown (<5ms per task)
-3. **Adoption** - 80%+ of `/specflow` workflow tasks use workflow_step within 2 months
+3. **Adoption** - 80%+ of `/flowspec` workflow tasks use workflow_step within 2 months
 4. **Error Rate** - <5% invalid state transitions (measured via validation errors)
 
 **Subjective Measures:**
 
 1. **Developer Feedback** - Positive sentiment in retrospectives
 2. **Reduced Questions** - Fewer "where is this task?" questions in Slack
-3. **Increased Workflow Usage** - More projects adopt full `/specflow` workflow
+3. **Increased Workflow Usage** - More projects adopt full `/flowspec` workflow
 
 ---
 
@@ -628,13 +628,13 @@ def validate_task_workflow_step(
 
 1. **Levels of Abstraction** - Board status (simple) vs. workflow step (detailed)
 2. **Composition over Configuration** - Layered approach (basic + optional workflow)
-3. **Single Source of Truth** - specflow_workflow.yml defines all workflow states
-4. **Fail Fast** - Validate workflow steps early (on task edit, before /specflow execution)
+3. **Single Source of Truth** - flowspec_workflow.yml defines all workflow states
+4. **Fail Fast** - Validate workflow steps early (on task edit, before /flowspec execution)
 5. **Progressive Disclosure** - Simple default (no workflow_step), power when needed
 
 ### Related Documents
 
-- `specflow_workflow.yml` - Authoritative workflow state definitions
+- `flowspec_workflow.yml` - Authoritative workflow state definitions
 - `backlog/config.yml` - Board column configuration
 - `docs/reference/agent-loop-classification.md` - Inner/outer loop agents
 - `docs/reference/artifact-path-patterns.md` - Artifact validation patterns
@@ -644,7 +644,7 @@ def validate_task_workflow_step(
 - task-090: Implement WorkflowConfig Python class (ACTUALLY DONE - needs status update)
 - task-091: Implement workflow validation logic
 - task-095: Document backlog.md state mapping
-- task-096: Update /specflow commands to check workflow constraints
+- task-096: Update /flowspec commands to check workflow constraints
 - task-182: Extend specify init to configure transition validation modes
 
 ---

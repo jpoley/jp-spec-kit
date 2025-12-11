@@ -4,7 +4,7 @@
 # This script synchronizes .claude/commands/ and templates/commands/ to .github/agents/ by:
 # - Resolving {{INCLUDE:path}} directives
 # - Transforming frontmatter to Copilot format (name, description, tools, handoffs)
-# - Adding role metadata from specflow_workflow.yml
+# - Adding role metadata from flowspec_workflow.yml
 # - Supporting role-based filtering (--role dev, --role qa, etc.)
 # - Renaming files to {role}-{command}.agent.md or {namespace}-{command}.agent.md
 #
@@ -28,7 +28,7 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 COMMANDS_DIR="$PROJECT_ROOT/.claude/commands"
 TEMPLATES_COMMANDS_DIR="$PROJECT_ROOT/templates/commands"
 AGENTS_DIR="$PROJECT_ROOT/.github/agents"
-WORKFLOW_CONFIG="$PROJECT_ROOT/specflow_workflow.yml"
+WORKFLOW_CONFIG="$PROJECT_ROOT/flowspec_workflow.yml"
 
 # Determine Python command - prefer uv venv if available (for CI compatibility)
 # This handles CI environments where yaml is only in the uv-managed venv
@@ -97,11 +97,11 @@ Options:
   --help              Show this help message
 
 Source:
-  - .claude/commands/{specflow,speckit}/*.md (legacy workflow commands)
+  - .claude/commands/{flowspec,speckit}/*.md (legacy workflow commands)
   - templates/commands/{role}/*.md (role-based commands)
 Target: .github/agents/{role}-{command}.agent.md or {namespace}-{command}.agent.md
 
-Role Configuration: specflow_workflow.yml
+Role Configuration: flowspec_workflow.yml
 
 Examples:
   $(basename "$0")                    # Sync all commands
@@ -157,7 +157,7 @@ parse_args() {
     done
 }
 
-# Load role metadata from specflow_workflow.yml
+# Load role metadata from flowspec_workflow.yml
 get_role_metadata() {
     if [[ "$ROLE_METADATA_LOADED" == true ]]; then
         return 0
@@ -397,7 +397,7 @@ get_handoffs() {
     local command="$2"
 
     # Role-based commands use role-specific handoffs
-    if [[ -n "$role" && "$role" != "specflow" && "$role" != "speckit" ]]; then
+    if [[ -n "$role" && "$role" != "flowspec" && "$role" != "speckit" ]]; then
         # Get next logical command in same role
         case "$role" in
             pm)
@@ -558,8 +558,8 @@ HANDOFF
         return
     fi
 
-    # Legacy specflow workflow commands
-    if [[ "$role" != "specflow" ]]; then
+    # Legacy flowspec workflow commands
+    if [[ "$role" != "flowspec" ]]; then
         echo ""
         return
     fi
@@ -569,7 +569,7 @@ HANDOFF
             cat << 'HANDOFF'
 handoffs:
   - label: "Specify Requirements"
-    agent: "specflow-specify"
+    agent: "flowspec-specify"
     prompt: "The assessment is complete. Based on the assessment, create detailed product requirements."
     send: false
 HANDOFF
@@ -578,11 +578,11 @@ HANDOFF
             cat << 'HANDOFF'
 handoffs:
   - label: "Conduct Research"
-    agent: "specflow-research"
+    agent: "flowspec-research"
     prompt: "The specification is complete. Conduct research to validate technical feasibility and market fit."
     send: false
   - label: "Create Technical Design"
-    agent: "specflow-plan"
+    agent: "flowspec-plan"
     prompt: "The specification is complete. Create the technical architecture and platform design."
     send: false
 HANDOFF
@@ -591,7 +591,7 @@ HANDOFF
             cat << 'HANDOFF'
 handoffs:
   - label: "Create Technical Design"
-    agent: "specflow-plan"
+    agent: "flowspec-plan"
     prompt: "Research is complete. Create the technical architecture and platform design based on findings."
     send: false
 HANDOFF
@@ -600,7 +600,7 @@ HANDOFF
             cat << 'HANDOFF'
 handoffs:
   - label: "Begin Implementation"
-    agent: "specflow-implement"
+    agent: "flowspec-implement"
     prompt: "Planning is complete. Begin implementing the feature according to the technical design."
     send: false
 HANDOFF
@@ -609,7 +609,7 @@ HANDOFF
             cat << 'HANDOFF'
 handoffs:
   - label: "Run Validation"
-    agent: "specflow-validate"
+    agent: "flowspec-validate"
     prompt: "Implementation is complete. Run QA validation, security review, and documentation checks."
     send: false
 HANDOFF
@@ -618,7 +618,7 @@ HANDOFF
             cat << 'HANDOFF'
 handoffs:
   - label: "Deploy to Production"
-    agent: "specflow-operate"
+    agent: "flowspec-operate"
     prompt: "Validation is complete. Deploy the feature to production and configure operations."
     send: false
 HANDOFF
@@ -637,8 +637,8 @@ HANDOFF
 get_tools() {
     local role="$1"
 
-    # Full workflow tools for specflow and role-based commands
-    if [[ "$role" == "specflow" ]] || [[ "$role" =~ ^(pm|arch|dev|qa|sec|ops)$ ]]; then
+    # Full workflow tools for flowspec and role-based commands
+    if [[ "$role" == "flowspec" ]] || [[ "$role" =~ ^(pm|arch|dev|qa|sec|ops)$ ]]; then
         cat << 'TOOLS'
 tools:
   - "Read"
@@ -892,7 +892,7 @@ generate_vscode_settings() {
         "visibleInRoles": ["ops", "all"],
         "autoLoadInRoles": ["ops"]
       },
-      "specflow-*": {
+      "flowspec-*": {
         "visibleInRoles": ["all"]
       },
       "speckit-*": {
@@ -919,8 +919,8 @@ cleanup_stale() {
     old_nullglob=$(shopt -p nullglob || true)
     shopt -s nullglob
 
-    # Remove old-format files (specflow.*.md and speckit.*.md)
-    for old_file in "$AGENTS_DIR"/specflow.*.md "$AGENTS_DIR"/speckit.*.md; do
+    # Remove old-format files (flowspec.*.md and speckit.*.md)
+    for old_file in "$AGENTS_DIR"/flowspec.*.md "$AGENTS_DIR"/speckit.*.md; do
         if [[ -f "$old_file" ]]; then
             if [[ "$FORCE" == true ]]; then
                 rm "$old_file"
@@ -942,7 +942,7 @@ cleanup_stale() {
 
         # Parse role and command from filename
         local role command
-        if [[ "$basename" =~ ^(pm|arch|dev|qa|sec|ops|specflow|speckit)-(.+)$ ]]; then
+        if [[ "$basename" =~ ^(pm|arch|dev|qa|sec|ops|flowspec|speckit)-(.+)$ ]]; then
             role="${BASH_REMATCH[1]}"
             command="${BASH_REMATCH[2]}"
         else
@@ -1011,8 +1011,8 @@ main() {
     fi
 
     # Process legacy namespaces (if they exist)
-    if [[ -d "$COMMANDS_DIR/specflow" ]]; then
-        process_namespace "specflow" "$COMMANDS_DIR/specflow"
+    if [[ -d "$COMMANDS_DIR/flowspec" ]]; then
+        process_namespace "flowspec" "$COMMANDS_DIR/flowspec"
     fi
     if [[ -d "$COMMANDS_DIR/speckit" ]]; then
         process_namespace "speckit" "$COMMANDS_DIR/speckit"

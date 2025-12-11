@@ -77,7 +77,7 @@ Automatically runs `ruff check --fix` on Python files after Edit/Write operation
 
 **Hook**: `.claude/hooks/pre-implement.sh`
 
-Runs automated quality gates before `/specflow:implement` can proceed. Ensures specifications are complete and high-quality before implementation begins.
+Runs automated quality gates before `/flow:implement` can proceed. Ensures specifications are complete and high-quality before implementation begins.
 
 **Gates Enforced**:
 1. **Required Files**: Validates `spec.md`, `plan.md`, and `tasks.md` exist

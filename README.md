@@ -10,7 +10,7 @@
 
 <p align="center">
     <a href="https://github.com/jpoley/jp-spec-kit/actions/workflows/release.yml"><img src="https://github.com/jpoley/jp-spec-kit/actions/workflows/release.yml/badge.svg" alt="Release"/></a>
-    <a href="https://hub.docker.com/r/jpoley/specflow-agents"><img src="https://img.shields.io/docker/pulls/jpoley/specflow-agents" alt="Docker Pulls"/></a>
+    <a href="https://hub.docker.com/r/jpoley/flowspec-agents"><img src="https://img.shields.io/docker/pulls/jpoley/flowspec-agents" alt="Docker Pulls"/></a>
     <a href="https://github.com/jpoley/jp-spec-kit/stargazers"><img src="https://img.shields.io/github/stars/jpoley/jp-spec-kit?style=social" alt="GitHub stars"/></a>
     <a href="https://github.com/jpoley/jp-spec-kit/blob/main/LICENSE"><img src="https://img.shields.io/github/license/jpoley/jp-spec-kit" alt="License"/></a>
 </p>
@@ -19,7 +19,7 @@
 
 ## What is JP Spec Kit?
 
-JP Spec Kit transforms how you build software with AI. Instead of giving AI loose instructions, you give it **structured specifications** and **tracked tasks**. Each `/specflow` command launches specialized AI agents that:
+JP Spec Kit transforms how you build software with AI. Instead of giving AI loose instructions, you give it **structured specifications** and **tracked tasks**. Each `/flowspec` command launches specialized AI agents that:
 
 1. **Read** existing specifications and tasks
 2. **Create** the right artifacts for each phase
@@ -30,7 +30,7 @@ JP Spec Kit transforms how you build software with AI. Instead of giving AI loos
 
 ### Option A: Devcontainer (Recommended)
 
-Use the pre-built [`jpoley/specflow-agents`](https://hub.docker.com/r/jpoley/specflow-agents) Docker image with all AI coding assistants pre-installed:
+Use the pre-built [`jpoley/flowspec-agents`](https://hub.docker.com/r/jpoley/flowspec-agents) Docker image with all AI coding assistants pre-installed:
 
 ```bash
 # Copy devcontainer template to your project
@@ -70,24 +70,24 @@ backlog init "$(basename "$PWD")"
 ### Assess Your Feature
 
 ```bash
-/specflow:assess Build a REST API for task management with JWT authentication
+/flow:assess Build a REST API for task management with JWT authentication
 ```
 
 ### Run the Appropriate Workflow
 
 **For Full SDD (complex features):**
 ```bash
-/specflow:specify Build a REST API for task management with JWT authentication
-/specflow:plan
-/specflow:implement
-/specflow:validate
-/specflow:operate
+/flow:specify Build a REST API for task management with JWT authentication
+/flow:plan
+/flow:implement
+/flow:validate
+/flow:operate
 ```
 
 **For Light/Medium (medium features):**
 ```bash
-/specflow:specify Build a new user settings page
-/specflow:implement
+/flow:specify Build a new user settings page
+/flow:implement
 ```
 
 **For Simple tasks:**
@@ -122,10 +122,10 @@ backlog task create "Fix login button alignment" --ac "Button aligns with form f
 └────────────────────────────────────────────────────────────────────────┘
 ```
 
-### Quick Decision: Run `/specflow:assess` first
+### Quick Decision: Run `/flow:assess` first
 
 ```bash
-/specflow:assess Build a REST API with user authentication
+/flow:assess Build a REST API with user authentication
 ```
 
 This scores your feature across 8 dimensions and recommends: **Skip SDD**, **Light/Medium**, or **Full SDD**.
@@ -180,33 +180,33 @@ Light mode is NOT an excuse to skip artifacts. It's permission to move faster.
 │                    └────┬─────┘                                                 │
 │                         │                                                       │
 │                         ▼                                                       │
-│   /specflow:specify  ┌──────────┐            • [feature]-prd.md                   │
+│   /flow:specify  ┌──────────┐            • [feature]-prd.md                   │
 │                    │Specified │            • [feature]-functional.md            │
 │                    └────┬─────┘                                                 │
 │                         │                                                       │
 │                         ▼                                                       │
-│   /specflow:research ┌──────────┐            • Research reports          OPTIONAL │
+│   /flow:research ┌──────────┐            • Research reports          OPTIONAL │
 │   (optional)       │Researched│            • Competitive analysis               │
 │                    └────┬─────┘                                                 │
 │                         │                                                       │
 │                         ▼                                                       │
-│   /specflow:plan     ┌──────────┐            • [feature]-technical.md             │
+│   /flow:plan     ┌──────────┐            • [feature]-technical.md             │
 │                    │ Planned  │            • adr-XXX-[topic].md                 │
 │                    └────┬─────┘            • Platform design docs               │
 │                         │                                                       │
 │                         ▼                                                       │
-│   /specflow:implement┌──────────┐            • Source code (src/)                 │
+│   /flow:implement┌──────────┐            • Source code (src/)                 │
 │                    │   In     │            • Unit & integration tests           │
 │                    │Progress  │            • API documentation                  │
 │                    └────┬─────┘                                                 │
 │                         │                                                       │
 │                         ▼                                                       │
-│   /specflow:validate ┌──────────┐            • QA reports                         │
+│   /flow:validate ┌──────────┐            • QA reports                         │
 │                    │Validated │            • Security scan results              │
 │                    └────┬─────┘            • Test coverage reports              │
 │                         │                                                       │
 │                         ▼                                                       │
-│   /specflow:operate  ┌──────────┐            • [service]-runbook.md               │
+│   /flow:operate  ┌──────────┐            • [service]-runbook.md               │
 │                    │Deployed  │            • Deployment configs                 │
 │                    └────┬─────┘            • Monitoring dashboards              │
 │                         │                                                       │
@@ -227,13 +227,13 @@ Light mode is NOT an excuse to skip artifacts. It's permission to move faster.
 ├──────────────────┬───────────────┬────────────────┬────────────────────────────┤
 │     COMMAND      │  INPUT STATE  │  OUTPUT STATE  │     PRIMARY AGENTS         │
 ├──────────────────┼───────────────┼────────────────┼────────────────────────────┤
-│ /specflow:assess   │ (any)         │ (no change)    │ Complexity Scorer          │
-│ /specflow:specify  │ To Do         │ Specified      │ PM Planner                 │
-│ /specflow:research │ Specified     │ Researched     │ Researcher, Validator      │
-│ /specflow:plan     │ Specified*    │ Planned        │ Architect, Platform Eng    │
-│ /specflow:implement│ Planned       │ In Progress    │ Frontend/Backend Engineers │
-│ /specflow:validate │ In Progress   │ Validated      │ QA, Security Engineers     │
-│ /specflow:operate  │ Validated     │ Deployed       │ SRE Agent                  │
+│ /flow:assess   │ (any)         │ (no change)    │ Complexity Scorer          │
+│ /flow:specify  │ To Do         │ Specified      │ PM Planner                 │
+│ /flow:research │ Specified     │ Researched     │ Researcher, Validator      │
+│ /flow:plan     │ Specified*    │ Planned        │ Architect, Platform Eng    │
+│ /flow:implement│ Planned       │ In Progress    │ Frontend/Backend Engineers │
+│ /flow:validate │ In Progress   │ Validated      │ QA, Security Engineers     │
+│ /flow:operate  │ Validated     │ Deployed       │ SRE Agent                  │
 └──────────────────┴───────────────┴────────────────┴────────────────────────────┘
 * Also accepts "Researched" state
 ```
@@ -296,7 +296,7 @@ backlog task edit 42 -s Done
 
 ## Implementation = Code + Docs + Tests
 
-Every `/specflow:implement` produces **three mandatory deliverables**:
+Every `/flow:implement` produces **three mandatory deliverables**:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -330,7 +330,7 @@ Implementation is NOT complete until all three are delivered.
 
 ### Devcontainer: All AI Agents Pre-Installed
 
-The [`jpoley/specflow-agents`](https://hub.docker.com/r/jpoley/specflow-agents) Docker image provides a ready-to-use development environment with Claude Code, Codex, Gemini CLI, and GitHub Copilot CLI pre-installed. See [Quick Start](#quick-start) for setup instructions.
+The [`jpoley/flowspec-agents`](https://hub.docker.com/r/jpoley/flowspec-agents) Docker image provides a ready-to-use development environment with Claude Code, Codex, Gemini CLI, and GitHub Copilot CLI pre-installed. See [Quick Start](#quick-start) for setup instructions.
 
 ### Multi-Agent Setup
 
@@ -344,13 +344,13 @@ specify init my-project --ai claude,copilot,cursor-agent
 ```
 project/
 ├── .devcontainer/              # Devcontainer configuration
-│   └── devcontainer.json       # Uses jpoley/specflow-agents image
+│   └── devcontainer.json       # Uses jpoley/flowspec-agents image
 ├── docs/
-│   ├── prd/                    # PRDs from /specflow:specify
+│   ├── prd/                    # PRDs from /flow:specify
 │   ├── specs/                  # Functional & Technical specs
 │   ├── adr/                    # Architecture Decision Records
 │   ├── platform/               # Platform design docs
-│   ├── qa/                     # QA reports from /specflow:validate
+│   ├── qa/                     # QA reports from /flow:validate
 │   ├── security/               # Security scans
 │   └── runbooks/               # Operational runbooks
 ├── src/                        # Implementation code
@@ -368,19 +368,19 @@ project/
 - **[Devcontainer Template](templates/devcontainer/README.md)** - Devcontainer setup guide
 
 ### Workflow Details
-- **[JP Spec Workflow Diagram](docs/diagrams/specflow-workflow.md)** - Full visual workflow
-- **[JP Spec + Backlog Integration](docs/guides/specflow-backlog-workflow.md)** - How commands integrate
+- **[JP Spec Workflow Diagram](docs/diagrams/flowspec-workflow.md)** - Full visual workflow
+- **[JP Spec + Backlog Integration](docs/guides/flowspec-backlog-workflow.md)** - How commands integrate
 - **[Agent Loop Classification](docs/reference/agent-loop-classification.md)** - Which agents for which phases
 
 ### Reference
 - **[Backlog User Guide](docs/guides/backlog-user-guide.md)** - Complete task management
 - **[Inner Loop Reference](docs/reference/inner-loop.md)** - Development cycle
 - **[Outer Loop Reference](docs/reference/outer-loop.md)** - CI/CD and deployment
-- **[Docker Hub Architecture](docs/platform/dockerhub-devcontainer-architecture.md)** - specflow-agents image details
+- **[Docker Hub Architecture](docs/platform/dockerhub-devcontainer-architecture.md)** - flowspec-agents image details
 
 ## Legacy /speckit Commands
 
-The original `/speckit.*` commands from [GitHub's spec-kit](https://github.com/github/spec-kit) are available but **do not integrate with backlog.md**. Use `/specflow` commands for the integrated workflow.
+The original `/speckit.*` commands from [GitHub's spec-kit](https://github.com/github/spec-kit) are available but **do not integrate with backlog.md**. Use `/flowspec` commands for the integrated workflow.
 
 ## Contributing
 
@@ -397,5 +397,5 @@ MIT License - see [LICENSE](LICENSE) for details.
 ---
 
 <div align="center">
-    <p><em>Built on <a href="https://github.com/github/spec-kit">GitHub's spec-kit</a> | Powered by <a href="https://github.com/MrLesk/Backlog.md">Backlog.md</a> | Docker: <a href="https://hub.docker.com/r/jpoley/specflow-agents">jpoley/specflow-agents</a></em></p>
+    <p><em>Built on <a href="https://github.com/github/spec-kit">GitHub's spec-kit</a> | Powered by <a href="https://github.com/MrLesk/Backlog.md">Backlog.md</a> | Docker: <a href="https://hub.docker.com/r/jpoley/flowspec-agents">jpoley/flowspec-agents</a></em></p>
 </div>

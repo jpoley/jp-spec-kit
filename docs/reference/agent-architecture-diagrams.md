@@ -1,6 +1,6 @@
 # Agent Architecture Diagrams
 
-This document provides visual representations of the Specflow agent ecosystem, showing all 16 workflow agents, 13 AI coding platforms, 9 MCP servers, and how they interconnect across the SDD workflow.
+This document provides visual representations of the Flowspec agent ecosystem, showing all 16 workflow agents, 13 AI coding platforms, 9 MCP servers, and how they interconnect across the SDD workflow.
 
 ## Quick Reference
 
@@ -10,7 +10,7 @@ This document provides visual representations of the Specflow agent ecosystem, s
 | AI Coding Platforms | 13 | Supported IDE/CLI integrations |
 | MCP Servers | 9 | Tool integrations via Model Context Protocol |
 | Workflow States | 9 | Task progression states |
-| Slash Commands | 7 | `/specflow:*` workflow commands |
+| Slash Commands | 7 | `/flow:*` workflow commands |
 
 ---
 
@@ -22,14 +22,14 @@ This document provides visual representations of the Specflow agent ecosystem, s
 stateDiagram-v2
     [*] --> ToDo: Task Created
 
-    ToDo --> Assessed: /specflow:assess
-    Assessed --> Specified: /specflow:specify
-    Specified --> Researched: /specflow:research
-    Specified --> Planned: /specflow:plan (skip research)
-    Researched --> Planned: /specflow:plan
-    Planned --> InImpl: /specflow:implement
-    InImpl --> Validated: /specflow:validate
-    Validated --> Deployed: /specflow:operate
+    ToDo --> Assessed: /flow:assess
+    Assessed --> Specified: /flow:specify
+    Specified --> Researched: /flow:research
+    Specified --> Planned: /flow:plan (skip research)
+    Researched --> Planned: /flow:plan
+    Planned --> InImpl: /flow:implement
+    InImpl --> Validated: /flow:validate
+    Validated --> Deployed: /flow:operate
 
     Deployed --> Done: Manual close
     Validated --> Done: Manual close
@@ -77,40 +77,40 @@ stateDiagram-v2
                               ┌─────────────┐
                               │   TO DO     │ ◄── Task Created
                               └──────┬──────┘
-                                     │ /specflow:assess
+                                     │ /flow:assess
                                      ▼
                               ┌─────────────┐
                               │  ASSESSED   │ ◄── Complexity evaluated
                               └──────┬──────┘
-                                     │ /specflow:specify
+                                     │ /flow:specify
                                      ▼
                               ┌─────────────┐
                               │  SPECIFIED  │ ◄── PRD + Tasks created
                               └──────┬──────┘
                                      │
                     ┌────────────────┼────────────────┐
-                    │ /specflow:plan   │ /specflow:research
+                    │ /flow:plan   │ /flow:research
                     │ (skip research)│                │
                     ▼                ▼                │
               ┌─────────────┐ ┌─────────────┐        │
               │   PLANNED   │ │ RESEARCHED  │────────┘
               └──────┬──────┘ └──────┬──────┘
-                     │               │ /specflow:plan
+                     │               │ /flow:plan
                      │               ▼
                      │        ┌─────────────┐
                      └───────►│   PLANNED   │ ◄── ADRs created
                               └──────┬──────┘
-                                     │ /specflow:implement
+                                     │ /flow:implement
                                      ▼
                               ┌──────────────────┐
         ┌──── Rework ◄────────│IN IMPLEMENTATION│ ◄── Code written
         │                     └──────┬──────────┘
-        │                            │ /specflow:validate
+        │                            │ /flow:validate
         │                            ▼
         │                     ┌─────────────┐
         │     ┌─ Rework ◄─────│  VALIDATED  │ ◄── QA + Security passed
         │     │               └──────┬──────┘
-        │     │                      │ /specflow:operate
+        │     │                      │ /flow:operate
         │     │                      ▼
         │     │               ┌─────────────┐
         │     │  Rollback ◄───│  DEPLOYED   │ ◄── In production
@@ -154,7 +154,7 @@ flowchart TB
         BCR[backend-code-reviewer]
     end
 
-    subgraph WORKFLOWS["/specflow Commands"]
+    subgraph WORKFLOWS["/flowspec Commands"]
         direction LR
         A[assess] --> S[specify] --> R[research] --> P[plan] --> I[implement] --> V[validate] --> O[operate]
     end
@@ -196,7 +196,7 @@ flowchart TB
 ║  └────────┬────────┘   └────────┬────────┘   └────────┬────────┘             ║
 ║           │                     │                     │                       ║
 ║           ▼                     ▼                     ▼                       ║
-║      /specflow:assess       /specflow:specify      /specflow:research              ║
+║      /flow:assess       /flow:specify      /flow:research              ║
 ║                                                       │                       ║
 ║  ┌─────────────────┐                          ┌──────┴────────┐              ║
 ║  │ business-       │                          │ software-     │              ║
@@ -207,7 +207,7 @@ flowchart TB
 ║                                                       │                       ║
 ║  ┌─────────────────┐                          ┌───────┴───────┐              ║
 ║  │ platform-       │                          │               │              ║
-║  │ engineer        │──────────────────────────┤ /specflow:plan  │              ║
+║  │ engineer        │──────────────────────────┤ /flow:plan  │              ║
 ║  │ @platform-      │                          │               │              ║
 ║  │ engineer        │                          └───────────────┘              ║
 ║  └─────────────────┘                                                         ║
@@ -221,13 +221,13 @@ flowchart TB
 ║           │                     │                     │                       ║
 ║           └─────────────────────┼─────────────────────┘                       ║
 ║                                 ▼                                             ║
-║  ┌─────────────────┐     /specflow:validate    ┌─────────────────┐             ║
+║  ┌─────────────────┐     /flow:validate    ┌─────────────────┐             ║
 ║  │ release-manager │            │            │ sre-agent       │             ║
 ║  │ @release-       │────────────┘            │ @sre-agent      │             ║
 ║  │ manager         │                         └────────┬────────┘             ║
 ║  └─────────────────┘                                  │                       ║
 ║                                                       ▼                       ║
-║                                                /specflow:operate               ║
+║                                                /flow:operate               ║
 ╚═══════════════════════════════════════════════════════════════════════════════╝
 
 ╔═══════════════════════════════════════════════════════════════════════════════╗
@@ -243,7 +243,7 @@ flowchart TB
 ║           │                     │                     │                       ║
 ║           └─────────────────────┼─────────────────────┘                       ║
 ║                                 ▼                                             ║
-║                          /specflow:implement                                    ║
+║                          /flow:implement                                    ║
 ║                                 ▲                                             ║
 ║           ┌─────────────────────┼─────────────────────┐                       ║
 ║           │                     │                     │                       ║
@@ -275,7 +275,7 @@ flowchart TB
         SH[shadcn-ui<br/>UI Components]
         CD[chrome-devtools<br/>Browser DevTools]
         BL[backlog<br/>Task Management]
-        SEC[specflow-security<br/>Security Scanner]
+        SEC[flowspec-security<br/>Security Scanner]
     end
 
     subgraph AGENTS["WORKFLOW AGENTS"]
@@ -336,7 +336,7 @@ flowchart TB
 │  ├─────────────────────────────────────────────────────────────────────────┤ │
 │  │                                                                         │ │
 │  │  ┌─────────────────┐   ┌─────────────────┐   ┌─────────────────┐       │ │
-│  │  │    semgrep      │   │     trivy       │   │ specflow-security │       │ │
+│  │  │    semgrep      │   │     trivy       │   │ flowspec-security │       │ │
 │  │  ├─────────────────┤   ├─────────────────┤   ├─────────────────┤       │ │
 │  │  │ SAST code       │   │ Container/IaC   │   │ JP Spec Kit     │       │ │
 │  │  │ scanning for    │   │ security scans  │   │ Security:       │       │ │
@@ -491,13 +491,13 @@ flowchart TB
 
     subgraph WORKFLOW["SDD WORKFLOW COMMANDS"]
         direction LR
-        C1["/specflow:assess"]
-        C2["/specflow:specify"]
-        C3["/specflow:research"]
-        C4["/specflow:plan"]
-        C5["/specflow:implement"]
-        C6["/specflow:validate"]
-        C7["/specflow:operate"]
+        C1["/flow:assess"]
+        C2["/flow:specify"]
+        C3["/flow:research"]
+        C4["/flow:plan"]
+        C5["/flow:implement"]
+        C6["/flow:validate"]
+        C7["/flow:operate"]
     end
 
     subgraph AGENTS["WORKFLOW AGENTS (16)"]
@@ -534,7 +534,7 @@ flowchart TB
         M6[shadcn-ui]
         M7[chrome-devtools]
         M8[backlog]
-        M9[specflow-security]
+        M9[flowspec-security]
     end
 
     subgraph ARTIFACTS["OUTPUT ARTIFACTS"]
@@ -577,7 +577,7 @@ flowchart TB
                                       │
                                       ▼
 ┌───────────────────────────────────────────────────────────────────────────────┐
-│                      SDD WORKFLOW COMMANDS (/specflow:*)                        │
+│                      SDD WORKFLOW COMMANDS (/flow:*)                        │
 │                                                                               │
 │   assess ──► specify ──► research ──► plan ──► implement ──► validate ──► operate │
 │      │          │           │          │           │            │           │
@@ -632,7 +632,7 @@ flowchart TB
 │  │  shadcn-ui    │  │   │  • Security.md      │   │  • Validated        │
 │  │ chrome-devtools│  │   │  • deploy/          │   │  • Deployed         │
 │  │   backlog     │  │   │                     │   │  • Done             │
-│  │ specflow-security│  │   │                     │   │                     │
+│  │ flowspec-security│  │   │                     │   │                     │
 │  └───────────────┘  │   │                     │   │                     │
 └─────────────────────┘   └─────────────────────┘   └─────────────────────┘
 ```
@@ -709,13 +709,13 @@ Legend: ● = Uses this MCP server
 
 | Command | Agents | Input State(s) | Output State | Output Artifacts |
 |---------|--------|----------------|--------------|------------------|
-| `/specflow:assess` | workflow-assessor | To Do | Assessed | `docs/assess/{feature}-assessment.md` |
-| `/specflow:specify` | pm-planner | Assessed | Specified | `docs/prd/{feature}.md`, backlog tasks |
-| `/specflow:research` | researcher, business-validator | Specified | Researched | `docs/research/{feature}-*.md` |
-| `/specflow:plan` | software-architect, platform-engineer | Specified, Researched | Planned | `docs/adr/ADR-*.md` |
-| `/specflow:implement` | frontend-eng, backend-eng, ai-ml-eng, reviewers | Planned | In Implementation | `src/`, `tests/` |
-| `/specflow:validate` | quality-guardian, secure-by-design, tech-writer, release-mgr | In Implementation | Validated | `docs/qa/`, `docs/security/` |
-| `/specflow:operate` | sre-agent | Validated | Deployed | `deploy/` |
+| `/flow:assess` | workflow-assessor | To Do | Assessed | `docs/assess/{feature}-assessment.md` |
+| `/flow:specify` | pm-planner | Assessed | Specified | `docs/prd/{feature}.md`, backlog tasks |
+| `/flow:research` | researcher, business-validator | Specified | Researched | `docs/research/{feature}-*.md` |
+| `/flow:plan` | software-architect, platform-engineer | Specified, Researched | Planned | `docs/adr/ADR-*.md` |
+| `/flow:implement` | frontend-eng, backend-eng, ai-ml-eng, reviewers | Planned | In Implementation | `src/`, `tests/` |
+| `/flow:validate` | quality-guardian, secure-by-design, tech-writer, release-mgr | In Implementation | Validated | `docs/qa/`, `docs/security/` |
+| `/flow:operate` | sre-agent | Validated | Deployed | `deploy/` |
 
 ---
 
@@ -723,7 +723,7 @@ Legend: ● = Uses this MCP server
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────┐
-│                         SPECFLOW - QUICK REFERENCE                              │
+│                         FLOWSPEC - QUICK REFERENCE                              │
 ├─────────────────────────────────────────────────────────────────────────────────┤
 │                                                                                 │
 │  WORKFLOW AGENTS: 16 total                                                      │
@@ -737,14 +737,14 @@ Legend: ● = Uses this MCP server
 │                                                                                 │
 │  MCP SERVERS: 9 integrations                                                    │
 │    • Dev: github, serena, shadcn-ui                                             │
-│    • Security: trivy, semgrep, specflow-security                                  │
+│    • Security: trivy, semgrep, flowspec-security                                  │
 │    • Testing: playwright-test, chrome-devtools                                  │
 │    • Workflow: backlog                                                          │
 │                                                                                 │
 │  STATES: To Do → Assessed → Specified → Researched → Planned →                  │
 │          In Implementation → Validated → Deployed → Done                        │
 │                                                                                 │
-│  COMMANDS: /specflow:assess, specify, research, plan, implement, validate, operate│
+│  COMMANDS: /flow:assess, specify, research, plan, implement, validate, operate│
 │                                                                                 │
 └─────────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -754,7 +754,7 @@ Legend: ● = Uses this MCP server
 ## Related Documentation
 
 - [Agent Loop Classification](./agent-loop-classification.md)
-- [Workflow Configuration](../../specflow_workflow.yml)
+- [Workflow Configuration](../../flowspec_workflow.yml)
 - [MCP Configuration](../../.mcp.json)
 - [Inner Loop Reference](./inner-loop.md)
 - [Outer Loop Reference](./outer-loop.md)

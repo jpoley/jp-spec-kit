@@ -1,10 +1,10 @@
 # Security CI/CD Integration Guide
 
-This guide explains how to use Specflow's security scanning in your CI/CD pipelines.
+This guide explains how to use Flowspec's security scanning in your CI/CD pipelines.
 
 ## Overview
 
-Specflow provides GitHub Actions workflows for automated security scanning:
+Flowspec provides GitHub Actions workflows for automated security scanning:
 
 | Workflow | Purpose | Trigger |
 |----------|---------|---------|
@@ -219,4 +219,4 @@ jobs:
 
 ## Related Documentation
 
-- [Security Commands Reference](../reference/specflow-security-commands.md)
+- [Security Commands Reference](../reference/flowspec-security-commands.md)

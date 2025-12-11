@@ -19,8 +19,8 @@ Breaking CLAUDE.md into modular components:
 | `claude-hooks.md` | Documentation for all Claude Code hooks | `CLAUDE.md` |
 | `mcp-configuration.md` | MCP server list, health checks, troubleshooting | `CLAUDE.md` |
 | `constitution.md` | Project-specific core principles (template) | Project customization |
-| `specflow_workflow.yml` | Workflow configuration | `/specflow` commands |
-| `specflow_workflow.schema.json` | Workflow config JSON schema | Validation |
+| `flowspec_workflow.yml` | Workflow configuration | `/flowspec` commands |
+| `flowspec_workflow.schema.json` | Workflow config JSON schema | Validation |
 | `WORKFLOW_DESIGN_SPEC.md` | Workflow system design spec | Reference |
 
 ## Using @import Syntax

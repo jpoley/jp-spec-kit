@@ -22,7 +22,7 @@ Integrate the Mermaid diagram, Excalidraw diagram, and comprehensive documentati
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Documentation placed in docs/reference/ directory as specflow-workflow.md
+- [ ] #1 Documentation placed in docs/reference/ directory as flowspec-workflow.md
 - [ ] #2 Excalidraw source file placed in docs/assets/diagrams/ directory
 - [ ] #3 PNG export placed in docs/assets/images/ directory
 - [ ] #4 Document is linked from main README.md or relevant index file

@@ -2,7 +2,7 @@
 
 ## Overview
 
-The `/specflow:assess` command helps teams determine the appropriate development workflow based on feature complexity. This guide explains when to use Spec-Driven Development (SDD), when to use lightweight approaches, and how to make informed workflow decisions.
+The `/flow:assess` command helps teams determine the appropriate development workflow based on feature complexity. This guide explains when to use Spec-Driven Development (SDD), when to use lightweight approaches, and how to make informed workflow decisions.
 
 ## The Problem
 
@@ -142,14 +142,14 @@ The assessment evaluates 8 key dimensions, each scored 1-4 points:
 ```
 
 **Use These SDD Phases:**
-- ✅ `/specflow:specify` - Create lightweight spec
-- ✅ `/specflow:implement` - Direct implementation
+- ✅ `/flow:specify` - Create lightweight spec
+- ✅ `/flow:implement` - Direct implementation
 - ✅ Code review (part of implement)
 
 **Skip These SDD Phases:**
-- ❌ `/specflow:research` - No market research needed
-- ❌ `/specflow:plan` - No full architectural planning
-- ❌ `/specflow:validate` - No dedicated QA phase
+- ❌ `/flow:research` - No market research needed
+- ❌ `/flow:plan` - No full architectural planning
+- ❌ `/flow:validate` - No dedicated QA phase
 
 **Why Spec-Light?**
 - Captures key decisions without excessive documentation
@@ -177,35 +177,35 @@ The assessment evaluates 8 key dimensions, each scored 1-4 points:
 
 **Workflow:**
 ```
-1. /specflow:specify
+1. /flow:specify
    - Comprehensive PRD
    - User stories and use cases
    - DVF+V risk assessment
    - Success metrics
 
-2. /specflow:research
+2. /flow:research
    - Market analysis
    - Competitive landscape
    - Technical feasibility
    - Business validation
 
-3. /specflow:plan
+3. /flow:plan
    - System architecture
    - Platform design
    - ADRs for key decisions
    - Integration patterns
 
-4. /specflow:implement
+4. /flow:implement
    - Parallel dev (frontend/backend)
    - Comprehensive code review
    - Integration testing
 
-5. /specflow:validate
+5. /flow:validate
    - QA and testing
    - Security review
    - Documentation review
 
-6. /specflow:operate
+6. /flow:operate
    - CI/CD setup
    - Monitoring and alerting
    - Phased rollout
@@ -225,10 +225,10 @@ The assessment evaluates 8 key dimensions, each scored 1-4 points:
 
 ```bash
 # Interactive assessment
-/specflow:assess
+/flow:assess
 
 # With feature context
-/specflow:assess "Integrate Stripe payment processing"
+/flow:assess "Integrate Stripe payment processing"
 
 # As part of project initialization
 specify init
@@ -351,7 +351,7 @@ The assessment integrates with backlog task management:
 backlog task create "New feature" --ac "Criterion 1" --ac "Criterion 2"
 
 # Assessment determines workflow
-/specflow:assess "New feature"
+/flow:assess "New feature"
 
 # Based on recommendation, choose approach:
 
@@ -362,7 +362,7 @@ backlog task edit 1 -s "In Progress"
 backlog task edit 1 -s "Specified"
 
 # If Complex: Follow full SDD workflow
-/specflow:specify "New feature"
+/flow:specify "New feature"
 ```
 
 ## Examples and Case Studies
@@ -440,15 +440,15 @@ Score: 31/32 (Complex)
 Recommendation: Full SDD Workflow
 
 Approach:
-1. /specflow:specify - Full PRD with business case
-2. /specflow:research - Competitive analysis, technical spikes
-3. /specflow:plan - Architecture blueprint, ADRs
+1. /flow:specify - Full PRD with business case
+2. /flow:research - Competitive analysis, technical spikes
+3. /flow:plan - Architecture blueprint, ADRs
 4. Phased implementation:
    - Phase 1: Data model + migration strategy
    - Phase 2: Tenant isolation
    - Phase 3: UI and routing
-5. /specflow:validate - Security audit, QA
-6. /specflow:operate - Staged rollout with monitoring
+5. /flow:validate - Security audit, QA
+6. /flow:operate - Staged rollout with monitoring
 ```
 
 ## FAQ
@@ -484,7 +484,7 @@ A: Yes! Save assessment results with specs. Helps with retrospectives and calibr
 
 ## Summary
 
-The `/specflow:assess` command helps you:
+The `/flow:assess` command helps you:
 1. **Make informed decisions** about workflow based on complexity
 2. **Avoid over-engineering** simple features with excessive planning
 3. **Reduce risk** on complex features through proper specification

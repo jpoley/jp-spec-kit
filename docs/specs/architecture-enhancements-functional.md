@@ -1,4 +1,4 @@
-# Functional Spec: JP Specflow Architecture Enhancements
+# Functional Spec: JP Flowspec Architecture Enhancements
 
 **Related Tasks**: task-079, task-081, task-083, task-084, task-086, task-182, task-243, task-244, task-245, task-246
 **PRD Reference**: `docs/prd/architecture-enhancements-prd.md`
@@ -44,7 +44,7 @@ This functional specification defines behaviors for 10 architecture enhancement 
 
 **FR-TIER-003**: Transition Validation Modes (task-182)
 - **Input**: `--validation-mode {NONE|KEYWORD|PULL_REQUEST}`
-- **Output**: specflow_workflow.yml configured with selected mode
+- **Output**: flowspec_workflow.yml configured with selected mode
 - **Rules**: NONE for light tier, KEYWORD for medium, PULL_REQUEST for heavy
 - **Errors**: Reject invalid mode for selected tier
 
@@ -96,7 +96,7 @@ This functional specification defines behaviors for 10 architecture enhancement 
 
 **FR-PLUGIN-002**: Command Bundling
 - **Input**: .claude/commands/ directory
-- **Output**: All /specflow:* and /speckit:* commands in plugin
+- **Output**: All /flow:* and /speckit:* commands in plugin
 - **Rules**: Preserve command arguments and descriptions
 - **Errors**: Skip invalid command files with warning
 
@@ -239,10 +239,10 @@ This functional specification defines behaviors for 10 architecture enhancement 
 **Postconditions**: Project initialized with minimal overhead
 
 ### UC-2: Quality Gate Enforcement
-**Actor**: Developer running /specflow:implement
+**Actor**: Developer running /flow:implement
 **Preconditions**: Feature with spec files
 **Flow**:
-1. Run `/specflow:implement`
+1. Run `/flow:implement`
 2. Gates 1-5 run automatically
 3. If pass: proceed to implementation
 4. If fail: show errors with remediation
@@ -252,10 +252,10 @@ This functional specification defines behaviors for 10 architecture enhancement 
 **Actor**: Claude Code user
 **Preconditions**: Claude Code installed
 **Flow**:
-1. Search "JP Specflow" in marketplace
+1. Search "JP Flowspec" in marketplace
 2. Click Install
 3. Commands available immediately
-**Postconditions**: /specflow:* commands ready to use
+**Postconditions**: /flow:* commands ready to use
 
 ### UC-4: LLM Constitution Customization
 **Actor**: Existing repo owner

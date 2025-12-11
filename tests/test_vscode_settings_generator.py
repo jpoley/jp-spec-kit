@@ -178,13 +178,13 @@ class TestVSCodeSettingsGenerator:
         # Check prompt files configuration
         assert settings["github.copilot.chat.promptFiles"]["enabled"] is True
 
-        # Check Specflow configuration
-        assert "specflow" in settings
-        specflow_config = settings["specflow"]
-        assert specflow_config["primaryRole"] == "dev"
-        assert specflow_config["displayName"] == "Developer"
-        assert specflow_config["icon"] == "💻"
-        assert specflow_config["commands"] == ["build", "debug", "refactor"]
+        # Check Flowspec configuration
+        assert "flowspec" in settings
+        flowspec_config = settings["flowspec"]
+        assert flowspec_config["primaryRole"] == "dev"
+        assert flowspec_config["displayName"] == "Developer"
+        assert flowspec_config["icon"] == "💻"
+        assert flowspec_config["commands"] == ["build", "debug", "refactor"]
 
         # Check extensions
         assert "extensions" in settings
@@ -214,9 +214,9 @@ class TestVSCodeSettingsGenerator:
         assert settings["editor.fontSize"] == 14
         assert settings["files.autoSave"] == "afterDelay"
 
-        # New Specflow settings added
-        assert "specflow" in settings
-        assert settings["specflow"]["primaryRole"] == "dev"
+        # New Flowspec settings added
+        assert "flowspec" in settings
+        assert settings["flowspec"]["primaryRole"] == "dev"
 
         # Extensions merged
         recommendations = settings["extensions"]["recommendations"]
@@ -255,7 +255,7 @@ class TestVSCodeSettingsGenerator:
         with open(output_path, encoding="utf-8") as f:
             settings = json.load(f)
 
-        assert settings["specflow"]["primaryRole"] == "dev"
+        assert settings["flowspec"]["primaryRole"] == "dev"
 
     def test_write_settings_force_overwrite(
         self,
@@ -282,7 +282,7 @@ class TestVSCodeSettingsGenerator:
 
         # Old data should be gone
         assert "existing" not in settings
-        assert settings["specflow"]["primaryRole"] == "pm"
+        assert settings["flowspec"]["primaryRole"] == "pm"
 
     def test_write_settings_merge_existing_file(
         self,
@@ -309,7 +309,7 @@ class TestVSCodeSettingsGenerator:
         # Existing data preserved
         assert settings["editor.fontSize"] == 16
         # New data added
-        assert settings["specflow"]["primaryRole"] == "dev"
+        assert settings["flowspec"]["primaryRole"] == "dev"
 
     def test_get_default_settings_path(self) -> None:
         """Test getting default settings path."""
@@ -338,8 +338,8 @@ class TestVSCodeSettingsGenerator:
         pm_settings = generator.generate(role="pm", merge_existing=False)
 
         # Different primary roles
-        assert dev_settings["specflow"]["primaryRole"] == "dev"
-        assert pm_settings["specflow"]["primaryRole"] == "pm"
+        assert dev_settings["flowspec"]["primaryRole"] == "dev"
+        assert pm_settings["flowspec"]["primaryRole"] == "pm"
 
         # Different agent orders
         dev_agents = dev_settings["github.copilot.chat.agents"]["pinnedAgents"]
@@ -347,5 +347,5 @@ class TestVSCodeSettingsGenerator:
         assert dev_agents != pm_agents
 
         # Different commands
-        assert dev_settings["specflow"]["commands"] == ["build", "debug", "refactor"]
-        assert pm_settings["specflow"]["commands"] == ["assess", "define", "discover"]
+        assert dev_settings["flowspec"]["commands"] == ["build", "debug", "refactor"]
+        assert pm_settings["flowspec"]["commands"] == ["assess", "define", "discover"]

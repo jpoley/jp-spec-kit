@@ -1,6 +1,6 @@
 ---
 id: task-428
-title: 'CRITICAL: /specflow commands installation failure - forensic analysis and fix'
+title: 'CRITICAL: /flowspec commands installation failure - forensic analysis and fix'
 status: To Do
 assignee: []
 created_date: '2025-12-10 20:17'
@@ -8,7 +8,7 @@ updated_date: '2025-12-10 20:52'
 labels:
   - critical
   - release
-  - specflow
+  - flowspec
   - cli
 dependencies: []
 priority: high
@@ -17,34 +17,34 @@ priority: high
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-# Critical Failure Analysis: /specflow Commands Not Working
+# Critical Failure Analysis: /flowspec Commands Not Working
 
 ## Executive Summary
 
-Multiple cascading failures have resulted in users being unable to use `/specflow` commands when installing jp-spec-kit. This affects ALL new installations and reinstallations.
+Multiple cascading failures have resulted in users being unable to use `/flowspec` commands when installing jp-spec-kit. This affects ALL new installations and reinstallations.
 
 ## Root Cause Analysis
 
 ### Failure #1: Release Tag Race Condition
 
-**What happened:** The v0.2.344 release was tagged on a commit (`8b0c8d6`) that **forked BEFORE** the specflow rename PR was merged.
+**What happened:** The v0.2.344 release was tagged on a commit (`8b0c8d6`) that **forked BEFORE** the flowspec rename PR was merged.
 
 **Evidence:**
 ```
 Git graph shows parallel paths:
 * d04de27 chore: release v0.2.344 (#722)   <-- CURRENT main
 * 9908e7d fix: PR-based release workflow (#721)
-* 8da08a6 feat!: rename /jpspec to /specflow (#719)  <-- SPECFLOW RENAME
+* 8da08a6 feat!: rename /jpspec to /flowspec (#719)  <-- FLOWSPEC RENAME
 | * 8b0c8d6 chore: release v0.2.344        <-- v0.2.344 TAG HERE (WRONG!)
 |/  
-* ac228c2 docs(task-410.06): Specflow branding  <-- COMMON ANCESTOR
+* ac228c2 docs(task-410.06): Flowspec branding  <-- COMMON ANCESTOR
 ```
 
-**Impact:** v0.2.344 release packages contain `/jpspec` commands, NOT `/specflow` commands.
+**Impact:** v0.2.344 release packages contain `/jpspec` commands, NOT `/flowspec` commands.
 
 **Verification:**
 - `git merge-base --is-ancestor 8da08a6 v0.2.344` returns FALSE
-- v0.2.344 packages show `templates/commands/jpspec/` (no specflow)
+- v0.2.344 packages show `templates/commands/jpspec/` (no flowspec)
 
 ### Failure #2: Symlinks in Git Don't Work in GitHub Zipballs
 
@@ -68,18 +68,18 @@ $ git show v0.2.343:.claude/commands/jpspec/init.md
 
 ### Failure #3: Incorrect Command Namespace in All Recent Releases
 
-**What happened:** Even v0.2.344 (today's release) generates packages with `/jpspec:*` commands instead of `/specflow:*`.
+**What happened:** Even v0.2.344 (today's release) generates packages with `/jpspec:*` commands instead of `/flow:*`.
 
 **Evidence:**
 ```bash
 $ unzip -l spec-kit-template-claude-sh-v0.2.344.zip | grep commands
-.claude/commands/jpspec/init.md      # WRONG - should be specflow
+.claude/commands/jpspec/init.md      # WRONG - should be flowspec
 .claude/commands/jpspec/specify.md   # WRONG
 .claude/commands/jpspec/plan.md      # WRONG
 ```
 
 **Impact:** Users installing with `specify init` get commands like `/jpspec:init` which:
-1. Don't match the documentation (which says `/specflow:*`)
+1. Don't match the documentation (which says `/flow:*`)
 2. Don't match the CLAUDE.md instructions
 3. Create massive user confusion
 
@@ -98,7 +98,7 @@ $ unzip -l spec-kit-template-claude-sh-v0.2.344.zip | grep commands
 
 ## Affected Users
 
-1. **ALL new `specify init` installations** - Get jpspec commands instead of specflow
+1. **ALL new `specify init` installations** - Get jpspec commands instead of flowspec
 2. **ALL reinstallations** - Same issue
 3. **Direct repo cloners** - Get broken symlink text files
 4. **Developers** - Local development environment has broken symlinks
@@ -108,7 +108,7 @@ $ unzip -l spec-kit-template-claude-sh-v0.2.344.zip | grep commands
 | Date | Event | Commit | Issue |
 |------|-------|--------|-------|
 | Dec 7 | jpspec symlinks introduced | 520e124 | Symlinks don't work in zipballs |
-| Dec 10 9:37 | Specflow rename merged | 8da08a6 | -- |
+| Dec 10 9:37 | Flowspec rename merged | 8da08a6 | -- |
 | Dec 10 ~10:00 | v0.2.344 release created | 8b0c8d6 | Tagged BEFORE rename merge |
 | Dec 10 ~11:00 | v0.2.344 packages built | -- | Built from wrong commit |
 
@@ -116,18 +116,18 @@ $ unzip -l spec-kit-template-claude-sh-v0.2.344.zip | grep commands
 
 | Scenario | Status | Details |
 |----------|--------|---------|
-| `specify init --ai claude` | PARTIAL | Gets jpspec commands, not specflow |
-| `/specflow:init` command | BROKEN | Command doesn't exist in packages |
+| `specify init --ai claude` | PARTIAL | Gets jpspec commands, not flowspec |
+| `/flow:init` command | BROKEN | Command doesn't exist in packages |
 | `/jpspec:init` command | WORKS | But deprecated/undocumented |
 | Direct repo clone | BROKEN | Symlinks become text files |
-| Documentation | INCORRECT | Says /specflow but users get /jpspec |
+| Documentation | INCORRECT | Says /flowspec but users get /jpspec |
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Running `specify init --ai claude` creates project with `/specflow:*` commands
-- [ ] #2 All /specflow commands work as documented
-- [ ] #3 Release packages contain specflow directory (not jpspec)
+- [ ] #1 Running `specify init --ai claude` creates project with `/flow:*` commands
+- [ ] #2 All /flowspec commands work as documented
+- [ ] #3 Release packages contain flowspec directory (not jpspec)
 - [ ] #4 Direct repo clones have real files (not symlinks) in .claude/commands/
 - [ ] #5 Version numbers are correct and consistent
 - [ ] #6 Documentation matches actual behavior
@@ -144,7 +144,7 @@ $ unzip -l spec-kit-template-claude-sh-v0.2.344.zip | grep commands
 **Problem solved:** Failure #2 - GitHub zipballs break symlinks
 
 **Directories to fix:**
-- `.claude/commands/specflow/` - Replace symlinks → real files
+- `.claude/commands/flowspec/` - Replace symlinks → real files
 - `.claude/commands/pm/` - Replace symlinks → real files
 - `.claude/commands/dev/` - Replace symlinks → real files
 - `.claude/commands/arch/` - Replace symlinks → real files
@@ -186,12 +186,12 @@ $ unzip -l spec-kit-template-claude-sh-v0.2.344.zip | grep commands
 - Run `./scripts/release.py --commit-hash $(git rev-parse HEAD)`
 - Verify PR contains correct commit reference
 - After merge, verify tag points to correct commit
-- Verify packages contain `/specflow` commands
+- Verify packages contain `/flowspec` commands
 
 ### Phase 5: Verification (~20 min)
 - Fresh install: `uv tool install specify-cli --from git+https://github.com/jpoley/jp-spec-kit.git`
 - Run: `specify init test-project --ai claude`
-- Verify `/specflow:*` commands present and functional
+- Verify `/flow:*` commands present and functional
 - Verify `/pm:*` commands present and functional
 - Verify no `_DEPRECATED_` stubs in commands
 
@@ -204,7 +204,7 @@ $ unzip -l spec-kit-template-claude-sh-v0.2.344.zip | grep commands
 
 ## Future Work (Separate Task)
 
-- task-430: `specflow-cli init` to replace `specify init` for AI tool management
+- task-430: `flowspec-cli init` to replace `specify init` for AI tool management
 <!-- SECTION:PLAN:END -->
 
 ## Implementation Notes
@@ -221,7 +221,7 @@ specify init my-project --ai claude
 They get:
 1. CLI installs correctly (from git main branch)
 2. `specify init` downloads RELEASE PACKAGES (v0.2.343 or v0.2.344)
-3. Release packages contain `/jpspec:*` commands, NOT `/specflow:*`
+3. Release packages contain `/jpspec:*` commands, NOT `/flow:*`
 4. User sees `/jpspec:_DEPRECATED_*` commands (confusing)
 5. Role-based commands (/pm, /dev, /arch) are MISSING
 
@@ -229,7 +229,7 @@ They get:
 
 The rename commit created `_DEPRECATED_*.md` stub files that say "use /pm:assess instead". These:
 1. Were meant as backward compatibility redirects
-2. Are showing up as primary commands because specflow commands don't exist in packages
+2. Are showing up as primary commands because flowspec commands don't exist in packages
 3. Are confusing users
 
 ## Role-Based Commands Missing
@@ -237,7 +237,7 @@ The rename commit created `_DEPRECATED_*.md` stub files that say "use /pm:assess
 The /pm, /dev, /arch, /ops, /qa, /sec namespaces were supposed to be:
 - ADDITIONS (new way to invoke same functionality)
 - NOT deprecations of anything
-- Should coexist with /specflow commands
+- Should coexist with /flowspec commands
 
 But they're:
 1. Symlinks on origin/main (broken in git clones)
@@ -245,7 +245,7 @@ But they're:
 
 ## Failure #5: Release System is Unreliable (CRITICAL)
 
-**User reported:** `./scripts/release.py` was run AFTER the specflow merge was on main, but the release was still built from old code.
+**User reported:** `./scripts/release.py` was run AFTER the flowspec merge was on main, but the release was still built from old code.
 
 **Impact:** The release system cannot be trusted to release current main. The next release will have the same problem.
 

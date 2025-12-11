@@ -255,7 +255,7 @@ cat docs/security/findings.json
 **Recommended for Most Teams**:
 
 ```yaml
-# .specflow/security-config.yml
+# .flowspec/security-config.yml
 scanners:
   - name: semgrep
     enabled: true

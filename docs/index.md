@@ -1,4 +1,4 @@
-# Specflow
+# Flowspec
 
 *Specification-driven development for AI-augmented teams.*
 
@@ -21,7 +21,7 @@ Customize and extend the Spec-Driven Development workflow to match your organiza
 ### Understanding Workflows
 
 - [Workflow Architecture](guides/workflow-architecture.md) - Overall workflow system design and components
-- [JP Spec Workflow Guide](guides/specflow-workflow-guide.md) - Comprehensive guide to the workflow system
+- [JP Spec Workflow Guide](guides/flowspec-workflow-guide.md) - Comprehensive guide to the workflow system
 - [Workflow State Mapping](guides/workflow-state-mapping.md) - How workflow states map to backlog task states
 
 ### Customization
@@ -38,7 +38,7 @@ Customize and extend the Spec-Driven Development workflow to match your organiza
 
 ### Reference
 
-- [Workflow Schema](reference/workflow-schema.md) - Complete schema reference for specflow_workflow.yml
+- [Workflow Schema](reference/workflow-schema.md) - Complete schema reference for flowspec_workflow.yml
 - [Workflow Schema Validation](reference/workflow-schema-validation.md) - Validation rules and constraints
 - [Workflow Artifact Flow](reference/workflow-artifact-flow.md) - How artifacts flow between workflow phases
 - [Workflow Step Principles](reference/workflow-step-principles.md) - Design principles for workflow steps

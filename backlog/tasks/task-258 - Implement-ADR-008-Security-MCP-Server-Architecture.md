@@ -396,7 +396,7 @@ MCP (Model Context Protocol) server enables tool composition, allowing other AI 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-Implemented MCP server with ZERO API CALLS architecture. Server exposes tools (scan, triage, fix) and resources (findings, status, config). Tools return skill invocation instructions rather than calling LLMs directly. All 19 tests passing. Files created: src/specify_cli/security/mcp_server.py, tests/security/test_mcp_server.py, docs/guides/security-mcp-guide.md. Updated .mcp.json with specflow-security server config.
+Implemented MCP server with ZERO API CALLS architecture. Server exposes tools (scan, triage, fix) and resources (findings, status, config). Tools return skill invocation instructions rather than calling LLMs directly. All 19 tests passing. Files created: src/specify_cli/security/mcp_server.py, tests/security/test_mcp_server.py, docs/guides/security-mcp-guide.md. Updated .mcp.json with flowspec-security server config.
 
 AC10-11: MCP examples created in examples/mcp/ (claude_security_agent.py, security_dashboard.py, mcp_utils.py)
 

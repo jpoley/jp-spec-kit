@@ -161,7 +161,7 @@ LLM-based detection analyzes file patterns and package.json/requirements.txt but
 **Symptoms**:
 - Constitution validation fails
 - Section exists but content is genuinely unknown (e.g., compliance requirements)
-- Cannot start `/specflow` work (Heavy tier)
+- Cannot start `/flowspec` work (Heavy tier)
 
 **Example:**
 ```markdown
@@ -225,7 +225,7 @@ If Heavy tier blocks work and validation cannot be completed:
 
 ```bash
 # Document reason in team chat/issue tracker
-/specflow:specify --skip-validation
+/flow:specify --skip-validation
 
 # Create task to resolve
 backlog task create "Validate compliance section in constitution" \
@@ -312,20 +312,20 @@ cp memory/constitution.md memory/constitution.md.backup
 
 ## Command Enforcement Issues
 
-### Problem: /specflow command blocked by unvalidated constitution (Heavy tier)
+### Problem: /flowspec command blocked by unvalidated constitution (Heavy tier)
 
 **Symptoms**:
 ```bash
-$ /specflow:specify
+$ /flow:specify
 ❌ Error: Constitution validation required.
 Constitution has 1 unvalidated section:
   - Compliance frameworks (line 142)
 
-Cannot proceed with /specflow commands until validation complete.
+Cannot proceed with /flowspec commands until validation complete.
 ```
 
 **Cause**:
-Heavy tier enforces hard blocks on /specflow commands when constitution has unvalidated sections.
+Heavy tier enforces hard blocks on /flowspec commands when constitution has unvalidated sections.
 
 **Resolution**:
 
@@ -350,15 +350,15 @@ nvim memory/constitution.md
 specify constitution validate
 # ✓ Constitution fully validated
 
-# 5. Now run /specflow command
-/specflow:specify
+# 5. Now run /flowspec command
+/flow:specify
 ```
 
 **Option 2: Emergency skip (Document justification):**
 
 ```bash
 # Document in team chat, issue tracker, or commit message WHY you're skipping
-/specflow:specify --skip-validation
+/flow:specify --skip-validation
 
 # Create follow-up task
 backlog task create "Complete constitution validation" \
@@ -397,11 +397,11 @@ Ref: task-123"
 
 ---
 
-### Problem: /specflow command warns but doesn't block (Medium tier) - unclear if safe to proceed
+### Problem: /flowspec command warns but doesn't block (Medium tier) - unclear if safe to proceed
 
 **Symptoms**:
 ```bash
-$ /specflow:implement
+$ /flow:implement
 ⚠️  Warning: Constitution has 1 unvalidated section:
   - Security scanning tools (line 203)
 
@@ -435,7 +435,7 @@ Medium tier uses warnings + confirmation prompts but allows proceeding after ack
    specify constitution validate
 
    # Now proceed
-   /specflow:implement
+   /flow:implement
    ```
 
 2. **Is this a one-time occurrence or recurring?**
@@ -472,12 +472,12 @@ Medium tier uses warnings + confirmation prompts but allows proceeding after ack
 ### Problem: Constitution version mismatch after `specify upgrade`
 
 **Symptoms**:
-- Upgraded Specflow to new version
+- Upgraded Flowspec to new version
 - Constitution feels outdated compared to new templates
 - New features reference constitution sections that don't exist
 
 **Cause**:
-Specflow upgraded but constitution template not updated. Constitutions are never automatically overwritten to preserve customizations.
+Flowspec upgraded but constitution template not updated. Constitutions are never automatically overwritten to preserve customizations.
 
 **Resolution**:
 
@@ -563,7 +563,7 @@ specify constitution upgrade --interactive
 ```
 
 **Prevention**:
-- Review release notes when upgrading Specflow
+- Review release notes when upgrading Flowspec
 - Schedule quarterly constitution review
 - Track constitution template versions in your project docs
 
@@ -793,7 +793,7 @@ This monorepo contains multiple services with different tech stacks:
 **Symptoms**:
 - Constitution exists but CI doesn't check it
 - PRs merged without constitution compliance
-- `/specflow` commands enforce locally but not in CI
+- `/flowspec` commands enforce locally but not in CI
 
 **Cause**:
 CI/CD pipeline not configured to validate constitution or check compliance.
@@ -814,7 +814,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Specflow
+      - name: Install Flowspec
         run: |
           pip install uv
           uv tool install jp-spec-kit
@@ -949,7 +949,7 @@ Please analyze my project and customize memory/constitution.md:
 - ❌ Use `--skip-validation` without documenting justification
 - ❌ Choose Heavy tier "just to be safe" (creates unnecessary friction)
 - ❌ Overwrite constitution without backing up custom amendments
-- ❌ Ignore warnings from `/specflow` commands (treat as technical debt)
+- ❌ Ignore warnings from `/flowspec` commands (treat as technical debt)
 - ❌ Leave unvalidated sections indefinitely (schedule resolution)
 
 ---
@@ -960,7 +960,7 @@ Please analyze my project and customize memory/constitution.md:
 - [Constitution Validation Workflow](./constitution-validation.md) - Validation process details
 - [Constitution Distribution PRD](../prd/constitution-distribution-prd.md) - Feature specification
 - [Tiered Constitution Templates](../../templates/constitutions/) - Template source files
-- [Specflow CLI Reference](../reference/cli-commands.md) - All CLI commands
+- [Flowspec CLI Reference](../reference/cli-commands.md) - All CLI commands
 
 ---
 
@@ -982,7 +982,7 @@ specify init --here                             # Add to existing project
 /speckit:constitution                           # Run LLM detection
 
 # Upgrade
-specify upgrade                                 # Upgrade Specflow
+specify upgrade                                 # Upgrade Flowspec
 
 # Search for issues
 grep -i "NEEDS_VALIDATION" memory/constitution.md   # Find markers
@@ -1019,7 +1019,7 @@ templates/constitutions/                # Template source files
 
 2. **Review related guides:**
    - [Constitution Distribution Guide](./constitution-distribution.md)
-   - [Specflow Troubleshooting](./troubleshooting.md)
+   - [Flowspec Troubleshooting](./troubleshooting.md)
    - [Backlog Troubleshooting](./backlog-troubleshooting.md)
 
 3. **Search existing issues:**

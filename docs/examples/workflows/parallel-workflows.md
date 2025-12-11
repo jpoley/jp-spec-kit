@@ -18,34 +18,34 @@ This configuration enables parallel development tracks where frontend and backen
 
 ```
 To Do
-  ↓ /specflow:assess
+  ↓ /flow:assess
 Assessed
-  ↓ /specflow:specify
+  ↓ /flow:specify
 Specified
-  ↓ /specflow:plan (defines API contract)
+  ↓ /flow:plan (defines API contract)
 Planned
   ├─────────────────┬────────────────┐
   ↓                 ↓                ↓
 Frontend Track    Backend Track    (parallel)
   ↓                 ↓
-/specflow:implement-frontend    /specflow:implement-backend
+/flow:implement-frontend    /flow:implement-backend
   ↓                 ↓
 Frontend In Progress    Backend In Progress
   ↓                 ↓
-/specflow:validate-frontend    /specflow:validate-backend
+/flow:validate-frontend    /flow:validate-backend
   ↓                 ↓
 Frontend Validated    Backend Validated
   └─────────────────┬────────────────┘
                     ↓ (both required)
-            /specflow:integrate
+            /flow:integrate
                     ↓
         Integration In Progress
                     ↓
-      /specflow:validate-integration
+      /flow:validate-integration
                     ↓
         Integration Validated
                     ↓
-          /specflow:operate
+          /flow:operate
                     ↓
               Deployed
                     ↓
@@ -154,7 +154,7 @@ Integration In Progress → Backend In Progress (backend issues)
 ### 1. Setup
 
 ```bash
-cp docs/examples/workflows/parallel-workflows.yml specflow_workflow.yml
+cp docs/examples/workflows/parallel-workflows.yml flowspec_workflow.yml
 specify workflow validate
 ```
 
@@ -162,11 +162,11 @@ specify workflow validate
 
 ```bash
 backlog task create "User authentication"
-/specflow:assess
-/specflow:specify
+/flow:assess
+/flow:specify
 
 # Planning phase defines API contract
-/specflow:plan
+/flow:plan
 # Creates docs/api/user-auth-api-contract.yaml
 ```
 
@@ -179,8 +179,8 @@ backlog task create "User auth - frontend implementation" \
   --assignee @frontend-team
 
 # Frontend team works independently
-/specflow:implement-frontend
-/specflow:validate-frontend
+/flow:implement-frontend
+/flow:validate-frontend
 ```
 
 **Backend Team Task**:
@@ -190,29 +190,29 @@ backlog task create "User auth - backend implementation" \
   --assignee @backend-team
 
 # Backend team works independently
-/specflow:implement-backend
-/specflow:validate-backend
+/flow:implement-backend
+/flow:validate-backend
 ```
 
 ### 4. Integration
 
 ```bash
 # Once both tracks reach "Validated" state
-/specflow:integrate
+/flow:integrate
 
 # Connects frontend to real backend
 # Removes mocks
 # Runs end-to-end tests
 
-/specflow:validate-integration
-/specflow:operate
+/flow:validate-integration
+/flow:operate
 ```
 
 ## Coordination Points
 
 ### Point 1: API Contract Review
 
-**When**: After `/specflow:plan`
+**When**: After `/flow:plan`
 
 **Action**: Both teams review and approve API contract
 
@@ -225,7 +225,7 @@ backlog task create "User auth - backend implementation" \
 
 ### Point 2: Integration Readiness
 
-**When**: Before `/specflow:integrate`
+**When**: Before `/flow:integrate`
 
 **Action**: Verify both tracks are validated
 
@@ -238,7 +238,7 @@ backlog task create "User auth - backend implementation" \
 
 ### Point 3: Deployment Readiness
 
-**When**: After `/specflow:validate-integration`
+**When**: After `/flow:validate-integration`
 
 **Action**: Verify end-to-end system works
 
@@ -257,13 +257,13 @@ backlog task create "User auth - backend implementation" \
 backlog task view task-frontend-123
 
 # 2. Implement using API contract
-/specflow:implement-frontend
+/flow:implement-frontend
 # - Use docs/api/{feature}-api-contract.yaml
 # - Mock backend responses
 # - Focus on UI/UX
 
 # 3. Validate independently
-/specflow:validate-frontend
+/flow:validate-frontend
 # - Component tests
 # - Visual regression tests
 # - Accessibility tests
@@ -272,12 +272,12 @@ backlog task view task-frontend-123
 # (Wait for backend team to reach "Backend Validated")
 
 # 5. Integration (coordinated)
-/specflow:integrate
+/flow:integrate
 # - Connect to real backend
 # - Remove mocks
 
 # 6. E2E validation
-/specflow:validate-integration
+/flow:validate-integration
 ```
 
 ### Backend Team
@@ -287,13 +287,13 @@ backlog task view task-frontend-123
 backlog task view task-backend-123
 
 # 2. Implement API contract
-/specflow:implement-backend
+/flow:implement-backend
 # - Implement docs/api/{feature}-api-contract.yaml exactly
 # - Focus on business logic
 # - Add database schema
 
 # 3. Validate independently
-/specflow:validate-backend
+/flow:validate-backend
 # - API contract tests
 # - Integration tests
 # - Security tests
@@ -302,11 +302,11 @@ backlog task view task-backend-123
 # (Wait for frontend team to reach "Frontend Validated")
 
 # 5. Integration (coordinated)
-/specflow:integrate
+/flow:integrate
 # - Verify contract implementation
 
 # 6. E2E validation
-/specflow:validate-integration
+/flow:validate-integration
 ```
 
 ## Advanced Patterns
@@ -387,8 +387,8 @@ diff docs/api/{feature}-api-contract.yaml \
 vim docs/api/{feature}-api-contract.yaml
 
 # Both teams update implementation
-/specflow:implement-frontend  # Frontend updates
-/specflow:implement-backend   # Backend updates
+/flow:implement-frontend  # Frontend updates
+/flow:implement-backend   # Backend updates
 ```
 
 ### Issue 2: Integration Blocked on One Track
@@ -423,10 +423,10 @@ backlog task edit task-backend-123 -s "Backend In Progress" \
 ```bash
 # Check which component is failing
 # Frontend issue?
-/specflow:implement-frontend  # Fix and re-validate
+/flow:implement-frontend  # Fix and re-validate
 
 # Backend issue?
-/specflow:implement-backend  # Fix and re-validate
+/flow:implement-backend  # Fix and re-validate
 
 # Both?
 # Coordinate fix between teams

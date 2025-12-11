@@ -29,17 +29,17 @@ backlog task edit 42 -s Done     # Complete task
 
 ```bash
 # Workflow Commands (stateful, sequential stages)
-/specflow:assess    # Evaluate SDD workflow suitability
-/specflow:specify   # Create/update feature specs
-/specflow:research  # Research and validation
-/specflow:plan      # Execute planning workflow
-/specflow:implement # Implementation with code review
-/specflow:validate  # QA, security, docs validation
-/specflow:operate   # SRE operations (CI/CD, K8s)
+/flow:assess    # Evaluate SDD workflow suitability
+/flow:specify   # Create/update feature specs
+/flow:research  # Research and validation
+/flow:plan      # Execute planning workflow
+/flow:implement # Implementation with code review
+/flow:validate  # QA, security, docs validation
+/flow:operate   # SRE operations (CI/CD, K8s)
 
 # Setup & Configuration Commands
-/specflow:init      # Initialize constitution (greenfield/brownfield)
-/specflow:reset     # Re-run workflow configuration prompts
+/flow:init      # Initialize constitution (greenfield/brownfield)
+/flow:reset     # Re-run workflow configuration prompts
 
 # Utility Commands (stateless, run anytime)
 /dev:debug          # Debugging assistance
@@ -64,7 +64,7 @@ backlog task edit 42 -s Done     # Complete task
 
 ## Engineering Subagents
 
-JP Spec Kit includes specialized engineering subagents for implementation tasks. These agents are invoked during `/specflow:implement` and provide focused expertise:
+JP Spec Kit includes specialized engineering subagents for implementation tasks. These agents are invoked during `/flow:implement` and provide focused expertise:
 
 ### Backend Engineer
 **Location**: `.claude/agents/backend-engineer.md`
@@ -118,7 +118,7 @@ JP Spec Kit includes specialized engineering subagents for implementation tasks.
 
 ### Agent Invocation
 
-Agents are automatically invoked by `/specflow:implement` based on task labels:
+Agents are automatically invoked by `/flow:implement` based on task labels:
 - Tasks labeled `backend` → backend-engineer
 - Tasks labeled `frontend` → frontend-engineer
 - All tasks → qa-engineer (for test coverage)
@@ -128,23 +128,23 @@ See [Workflow Configuration](#workflow-configuration) for customizing agent assi
 
 ## Workflow Configuration
 
-JP Spec Kit uses a configurable workflow system defined in `specflow_workflow.yml` at the project root.
+JP Spec Kit uses a configurable workflow system defined in `flowspec_workflow.yml` at the project root.
 
 ### Configuration File Location
 
-**Default**: `{project-root}/specflow_workflow.yml`
+**Default**: `{project-root}/flowspec_workflow.yml`
 
 The workflow configuration defines:
 - **States**: Task progression stages (e.g., Specified, Planned, Validated)
-- **Workflows**: `/specflow` commands with agent assignments
+- **Workflows**: `/flowspec` commands with agent assignments
 - **Transitions**: Valid state changes between states
 - **Agent Loops**: Inner/outer loop classification
 
-### How /specflow Commands Use Workflow Config
+### How /flowspec Commands Use Workflow Config
 
-Each `/specflow` command:
+Each `/flowspec` command:
 1. Checks current task state from backlog.md
-2. Validates state is a valid input for the command (from `specflow_workflow.yml`)
+2. Validates state is a valid input for the command (from `flowspec_workflow.yml`)
 3. Executes agents assigned to the workflow
 4. Transitions task to the command's output state
 5. Creates artifacts defined in transitions
@@ -153,7 +153,7 @@ Example:
 ```yaml
 workflows:
   implement:
-    command: "/specflow:implement"
+    command: "/flow:implement"
     agents:
       - frontend-engineer
       - backend-engineer
@@ -164,7 +164,7 @@ workflows:
 ### Validate Workflow Configuration
 
 ```bash
-# Validate default specflow_workflow.yml
+# Validate default flowspec_workflow.yml
 specify workflow validate
 
 # Validate custom workflow file
@@ -190,17 +190,17 @@ specify workflow validate --json
 
 | Command | Input State(s) | Output State | Agents |
 |---------|---------------|--------------|--------|
-| `/specflow:assess` | To Do | Assessed | workflow-assessor |
-| `/specflow:specify` | Assessed | Specified | product-requirements-manager |
-| `/specflow:research` | Specified | Researched | researcher, business-validator |
-| `/specflow:plan` | Specified, Researched | Planned | software-architect, platform-engineer |
-| `/specflow:implement` | Planned | In Implementation | frontend/backend engineers, reviewers |
-| `/specflow:validate` | In Implementation | Validated | quality-guardian, secure-by-design-engineer |
-| `/specflow:operate` | Validated | Deployed | sre-agent |
+| `/flow:assess` | To Do | Assessed | workflow-assessor |
+| `/flow:specify` | Assessed | Specified | product-requirements-manager |
+| `/flow:research` | Specified | Researched | researcher, business-validator |
+| `/flow:plan` | Specified, Researched | Planned | software-architect, platform-engineer |
+| `/flow:implement` | Planned | In Implementation | frontend/backend engineers, reviewers |
+| `/flow:validate` | In Implementation | Validated | quality-guardian, secure-by-design-engineer |
+| `/flow:operate` | Validated | Deployed | sre-agent |
 
 ### Customizing Your Workflow
 
-You can customize the workflow by editing `specflow_workflow.yml`:
+You can customize the workflow by editing `flowspec_workflow.yml`:
 - Add/remove phases
 - Change agent assignments
 - Add custom states
@@ -208,30 +208,30 @@ You can customize the workflow by editing `specflow_workflow.yml`:
 
 See [Workflow Customization Guide](docs/guides/workflow-customization.md) for details.
 
-### /specflow + Backlog.md Integration
+### /flowspec + Backlog.md Integration
 
-Every `/specflow` command integrates with backlog.md:
+Every `/flowspec` command integrates with backlog.md:
 
 **Design commands create tasks**:
 ```bash
-# /specflow:specify creates implementation tasks with ACs
+# /flow:specify creates implementation tasks with ACs
 backlog task create "Implement feature X" --ac "AC 1" --ac "AC 2" -l backend
 ```
 
 **Implementation commands consume tasks**:
 ```bash
-# /specflow:implement discovers and works from existing tasks
+# /flow:implement discovers and works from existing tasks
 backlog task edit task-42 -s "In Progress" -a @backend-engineer
 backlog task edit task-42 --check-ac 1  # Check ACs progressively
 ```
 
-**Key rule**: Never run `/specflow:implement` without first running `/specflow:specify` to create tasks.
+**Key rule**: Never run `/flow:implement` without first running `/flow:specify` to create tasks.
 
-See [JP Spec + Backlog.md Integration Guide](docs/guides/specflow-backlog-workflow.md) for complete details.
+See [JP Spec + Backlog.md Integration Guide](docs/guides/flowspec-backlog-workflow.md) for complete details.
 
 ### Workflow Documentation
 
-- [JP Spec + Backlog.md Integration](docs/guides/specflow-backlog-workflow.md) - Complete integration guide
+- [JP Spec + Backlog.md Integration](docs/guides/flowspec-backlog-workflow.md) - Complete integration guide
 - [Workflow State Mapping](docs/guides/workflow-state-mapping.md) - State and command mapping
 - [Workflow Customization Guide](docs/guides/workflow-customization.md) - How to modify workflows
 - [Workflow Architecture](docs/guides/workflow-architecture.md) - Overall design
@@ -248,13 +248,13 @@ jp-spec-kit/
 ├── tests/                  # Test suite (pytest)
 ├── templates/              # Project templates
 │   ├── docs/               # Workflow artifact directories (copied to project docs/)
-│   │   ├── assess/         # Assessment reports (/specflow:assess)
-│   │   ├── prd/            # Product Requirements Documents (/specflow:specify)
-│   │   ├── research/       # Research reports (/specflow:research)
-│   │   ├── adr/            # Architecture Decision Records (/specflow:plan)
-│   │   ├── platform/       # Platform design docs (/specflow:plan)
-│   │   ├── qa/             # QA reports (/specflow:validate)
-│   │   └── security/       # Security reports (/specflow:validate)
+│   │   ├── assess/         # Assessment reports (/flow:assess)
+│   │   ├── prd/            # Product Requirements Documents (/flow:specify)
+│   │   ├── research/       # Research reports (/flow:research)
+│   │   ├── adr/            # Architecture Decision Records (/flow:plan)
+│   │   ├── platform/       # Platform design docs (/flow:plan)
+│   │   ├── qa/             # QA reports (/flow:validate)
+│   │   └── security/       # Security reports (/flow:validate)
 │   ├── skills/             # Skill templates (copied to .claude/skills/)
 │   ├── *-template.md       # Artifact templates
 │   └── commands/           # Slash command templates

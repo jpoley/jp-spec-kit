@@ -17,7 +17,7 @@ priority: medium
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Build .specflow/security-policy.yml parser and enforcement engine. Support severity-based gates, tool configuration, compliance mappings, and finding exemptions with expiration.
+Build .flowspec/security-policy.yml parser and enforcement engine. Support severity-based gates, tool configuration, compliance mappings, and finding exemptions with expiration.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -36,7 +36,7 @@ Build .specflow/security-policy.yml parser and enforcement engine. Support sever
 ## Implementation Plan: Security Policy as Code Configuration
 
 ### Overview
-Build .specflow/security-policy.yml parser and enforcement engine to support version-controlled security policies with severity gates, tool configuration, and exemptions.
+Build .flowspec/security-policy.yml parser and enforcement engine to support version-controlled security policies with severity gates, tool configuration, and exemptions.
 
 ### Step-by-Step Implementation
 
@@ -98,7 +98,7 @@ Build .specflow/security-policy.yml parser and enforcement engine to support ver
 
 1. Create policy loader:
    ```python
-   def load_security_policy(path: str = ".specflow/security-policy.yml") -> SecurityPolicy:
+   def load_security_policy(path: str = ".flowspec/security-policy.yml") -> SecurityPolicy:
        """Load and validate security policy from YAML file."""
        if not Path(path).exists():
            logger.warning(f"No policy file found at {path}, using defaults")
@@ -142,7 +142,7 @@ Build .specflow/security-policy.yml parser and enforcement engine to support ver
 
 3. Add policy validator CLI command:
    ```bash
-   specify security policy validate [--file .specflow/security-policy.yml]
+   specify security policy validate [--file .flowspec/security-policy.yml]
    ```
 
 #### Step 3: Implement Policy Enforcement
@@ -289,7 +289,7 @@ Build .specflow/security-policy.yml parser and enforcement engine to support ver
 1. **Init command**:
    ```bash
    specify security policy init [--minimal]
-   # Creates .specflow/security-policy.yml from template
+   # Creates .flowspec/security-policy.yml from template
    ```
 
 2. **Validate command**:

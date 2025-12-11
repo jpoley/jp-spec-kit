@@ -9,7 +9,7 @@
 
 ## Context
 
-Specflow operates as a **linear, synchronous workflow system** where each /specflow command executes agents in isolation. This creates critical automation gaps:
+Flowspec operates as a **linear, synchronous workflow system** where each /flowspec command executes agents in isolation. This creates critical automation gaps:
 
 1. **No automated quality gates**: Tests must be run manually after implementation
 2. **No workflow orchestration**: Documentation updates and code reviews require manual coordination
@@ -34,19 +34,19 @@ Implement a **canonical event model** with the following design:
 Events follow a `<domain>.<action>` naming convention:
 
 **Workflow Events**:
-- `workflow.assessed` - /specflow:assess completed
-- `spec.created` - /specflow:specify completed
+- `workflow.assessed` - /flow:assess completed
+- `spec.created` - /flow:specify completed
 - `spec.updated` - PRD file modified
-- `research.completed` - /specflow:research completed
-- `plan.created` - /specflow:plan completed
+- `research.completed` - /flow:research completed
+- `plan.created` - /flow:plan completed
 - `plan.updated` - Plan file modified
 - `adr.created` - ADR document created
-- `implement.started` - /specflow:implement started
-- `implement.completed` - /specflow:implement completed
-- `validate.started` - /specflow:validate started
-- `validate.completed` - /specflow:validate completed
-- `deploy.started` - /specflow:operate started
-- `deploy.completed` - /specflow:operate completed
+- `implement.started` - /flow:implement started
+- `implement.completed` - /flow:implement completed
+- `validate.started` - /flow:validate started
+- `validate.completed` - /flow:validate completed
+- `deploy.started` - /flow:operate started
+- `deploy.completed` - /flow:operate completed
 
 **Task Events**:
 - `task.created` - New backlog task created
@@ -135,7 +135,7 @@ Event IDs use **ULIDs** (Universally Unique Lexicographically Sortable Identifie
 
 ### 5. Event Emission Points
 
-**Workflow Commands** (all /specflow commands):
+**Workflow Commands** (all /flowspec commands):
 - Emit AFTER successful command completion
 - Failures don't emit events (only success events in v1)
 - Emit synchronously before command returns
@@ -224,7 +224,7 @@ CREATE TABLE events (
 
 **Example**:
 ```python
-redis_client.publish("specflow.events", json.dumps(event))
+redis_client.publish("flowspec.events", json.dumps(event))
 ```
 
 **Rejected Because**:
@@ -334,7 +334,7 @@ class EventEmitter:
 ```json
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Specflow Base Event",
+  "title": "Flowspec Base Event",
   "type": "object",
   "required": ["event_type", "event_id", "schema_version", "timestamp", "project_root"],
   "properties": {
@@ -425,7 +425,7 @@ def test_implement_command_emits_event(tmp_path):
     project = setup_test_project(tmp_path)
 
     # Execute command
-    result = run_command(["specflow:implement", "auth"])
+    result = run_command(["flowspec:implement", "auth"])
 
     # Verify event emitted
     events = get_emitted_events()

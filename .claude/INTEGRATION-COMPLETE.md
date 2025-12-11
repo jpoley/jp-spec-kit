@@ -7,7 +7,7 @@ jp-spec-kit now has **full agents.md specification support** with a Python integ
 ## What Was Implemented
 
 ### ✅ Option 2: Hybrid Inline Approach (Partial)
-- Updated `/specflow:operate` with condensed inline SRE agent context
+- Updated `/flow:operate` with condensed inline SRE agent context
 - Demonstrated the approach but realized it's not scalable
 
 ### ✅ Option 3: Full agents.md Integration Layer (Complete)
@@ -25,7 +25,7 @@ jp-spec-kit now has **full agents.md specification support** with a Python integ
 ├── load-agent.py                # Agent context loader ⭐
 ├── agents-config.json           # Agent mapping config ⭐
 ├── AGENTS-INTEGRATION.md        # Integration docs ⭐
-└── commands/specflow/             # Slash commands (ready to use agents)
+└── commands/flowspec/             # Slash commands (ready to use agents)
     ├── specify.md
     ├── plan.md
     ├── research.md
@@ -38,7 +38,7 @@ jp-spec-kit now has **full agents.md specification support** with a Python integ
 
 ### Pattern 1: Load Single Agent
 
-In any slash command (e.g., `.claude/commands/specflow/operate.md`):
+In any slash command (e.g., `.claude/commands/flowspec/operate.md`):
 
 ```markdown
 Use the Task tool to launch a **general-purpose** agent with the following prompt:
@@ -54,7 +54,7 @@ $(python3 .claude/load-agent.py sre-agent)
 
 ### Pattern 2: Load Multiple Agents
 
-For workflows requiring multiple agents (e.g., `.claude/commands/specflow/plan.md`):
+For workflows requiring multiple agents (e.g., `.claude/commands/flowspec/plan.md`):
 
 ```markdown
 \`\`\`
@@ -87,7 +87,7 @@ Check `.claude/agents-config.json` to see which agents are available for each wo
 
 1. **Update remaining slash commands** to use agent loader:
 
-   **`.claude/commands/specflow/specify.md`**:
+   **`.claude/commands/flowspec/specify.md`**:
    ```markdown
    # Before
    Use the Task tool to launch the **product-requirements-manager-enhanced** agent...
@@ -102,21 +102,21 @@ Check `.claude/agents-config.json` to see which agents are available for each wo
    \`\`\`
    ```
 
-   **`.claude/commands/specflow/plan.md`**:
+   **`.claude/commands/flowspec/plan.md`**:
    ```markdown
    $(python3 .claude/load-agent.py software-architect-enhanced platform-engineer-enhanced)
 
    # TASK: Design architecture and platform for: [USER INPUT]
    ```
 
-   **`.claude/commands/specflow/research.md`**:
+   **`.claude/commands/flowspec/research.md`**:
    ```markdown
    $(python3 .claude/load-agent.py researcher business-validator)
 
    # TASK: Research and validate: [USER INPUT]
    ```
 
-   **`.claude/commands/specflow/implement.md`**:
+   **`.claude/commands/flowspec/implement.md`**:
    ```markdown
    # For frontend tasks
    $(python3 .claude/load-agent.py frontend-engineer frontend-code-reviewer)
@@ -128,7 +128,7 @@ Check `.claude/agents-config.json` to see which agents are available for each wo
    $(python3 .claude/load-agent.py ai-ml-engineer)
    ```
 
-   **`.claude/commands/specflow/validate.md`**:
+   **`.claude/commands/flowspec/validate.md`**:
    ```markdown
    $(python3 .claude/load-agent.py quality-guardian secure-by-design-engineer tech-writer release-manager)
 
@@ -138,12 +138,12 @@ Check `.claude/agents-config.json` to see which agents are available for each wo
 2. **Test each slash command**:
    ```bash
    # In Claude Code
-   /specflow:specify Create a user authentication feature
-   /specflow:plan Design microservices architecture
-   /specflow:research Analyze AI coding assistant market
-   /specflow:implement Build React component
-   /specflow:validate Review code quality and security
-   /specflow:operate Create CI/CD pipeline
+   /flow:specify Create a user authentication feature
+   /flow:plan Design microservices architecture
+   /flow:research Analyze AI coding assistant market
+   /flow:implement Build React component
+   /flow:validate Review code quality and security
+   /flow:operate Create CI/CD pipeline
    ```
 
 3. **Update main documentation**:
@@ -190,11 +190,11 @@ python .claude/load-agent.py researcher business-validator | grep "##" | head -1
 ### Test Slash Commands
 ```bash
 # Example test workflow
-/specflow:research Analyze DevOps tools market
-/specflow:plan Design CI/CD platform
-/specflow:implement Build deployment automation
-/specflow:validate Review security and compliance
-/specflow:operate Set up production infrastructure
+/flow:research Analyze DevOps tools market
+/flow:plan Design CI/CD platform
+/flow:implement Build deployment automation
+/flow:validate Review security and compliance
+/flow:operate Set up production infrastructure
 ```
 
 ## Benefits Achieved
@@ -227,12 +227,12 @@ python .claude/load-agent.py researcher business-validator | grep "##" | head -1
 | `.claude/load-agent.py` | Agent loader script | ✅ Created |
 | `.claude/agents-config.json` | Agent mapping | ✅ Created |
 | `.claude/AGENTS-INTEGRATION.md` | Integration docs | ✅ Created |
-| `.claude/commands/specflow/operate.md` | Operate workflow | ✅ Updated |
-| `.claude/commands/specflow/specify.md` | Specify workflow | ⏸️ Ready to update |
-| `.claude/commands/specflow/plan.md` | Plan workflow | ⏸️ Ready to update |
-| `.claude/commands/specflow/research.md` | Research workflow | ⏸️ Ready to update |
-| `.claude/commands/specflow/implement.md` | Implement workflow | ⏸️ Ready to update |
-| `.claude/commands/specflow/validate.md` | Validate workflow | ⏸️ Ready to update |
+| `.claude/commands/flowspec/operate.md` | Operate workflow | ✅ Updated |
+| `.claude/commands/flowspec/specify.md` | Specify workflow | ⏸️ Ready to update |
+| `.claude/commands/flowspec/plan.md` | Plan workflow | ⏸️ Ready to update |
+| `.claude/commands/flowspec/research.md` | Research workflow | ⏸️ Ready to update |
+| `.claude/commands/flowspec/implement.md` | Implement workflow | ⏸️ Ready to update |
+| `.claude/commands/flowspec/validate.md` | Validate workflow | ⏸️ Ready to update |
 
 ## Agent-to-Workflow Matrix
 
@@ -283,7 +283,7 @@ python .claude/load-agent.py researcher business-validator | grep "##" | head -1
 
 ```bash
 # 1. User runs slash command
-/specflow:operate Build production deployment pipeline
+/flow:operate Build production deployment pipeline
 
 # 2. Slash command loads agent
 $(python .claude/load-agent.py sre-agent)
@@ -322,7 +322,7 @@ TASK: Build production deployment pipeline
 
 4. **How do I test the integration?**
    - Run `python .claude/load-agent.py sre-agent`
-   - Use `/specflow:operate` in Claude Code
+   - Use `/flow:operate` in Claude Code
    - Check output includes full agent context
 
 ## Congratulations! 🎉
@@ -334,4 +334,4 @@ You now have a **production-ready agents.md integration** that:
 - Preserves your existing agent definitions
 - Works seamlessly with Claude Code
 
-The foundation is complete. Just update the remaining 5 slash commands following the pattern demonstrated in `/specflow:operate`, and you'll have full end-to-end integration!
+The foundation is complete. Just update the remaining 5 slash commands following the pattern demonstrated in `/flow:operate`, and you'll have full end-to-end integration!

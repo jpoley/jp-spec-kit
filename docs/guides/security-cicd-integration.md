@@ -4,7 +4,7 @@ Complete examples for integrating security scanning into your CI/CD pipelines.
 
 ## Overview
 
-This guide shows how to integrate security scanners directly in CI/CD pipelines. For interactive security workflows in Claude Code sessions, use the `/specflow:security` slash commands (see [Security Quickstart](./security-quickstart.md)).
+This guide shows how to integrate security scanners directly in CI/CD pipelines. For interactive security workflows in Claude Code sessions, use the `/flow:security` slash commands (see [Security Quickstart](./security-quickstart.md)).
 
 **CI/CD Integration Strategy:**
 
@@ -13,7 +13,7 @@ This guide shows how to integrate security scanners directly in CI/CD pipelines.
 3. **Main Branch** - Comprehensive audit with reporting
 4. **Scheduled** - Regular scans for new vulnerabilities
 
-**Note**: `/specflow:security` commands are designed for Claude Code sessions, not CI/CD automation. This guide uses scanner CLIs directly (Semgrep, Bandit, etc.) for pipeline integration.
+**Note**: `/flow:security` commands are designed for Claude Code sessions, not CI/CD automation. This guide uses scanner CLIs directly (Semgrep, Bandit, etc.) for pipeline integration.
 
 ## GitHub Actions
 
@@ -323,7 +323,7 @@ sast:
   variables:
     SAST_EXCLUDED_ANALYZERS: ""
 
-specflow-security:
+flowspec-security:
   stage: test
   image: python:3.11
   script:
@@ -659,7 +659,7 @@ workflows:
 repos:
   - repo: local
     hooks:
-      - id: specflow-security
+      - id: flowspec-security
         name: Security Scan
         entry: specify security scan --quick --fail-on critical
         language: python
@@ -675,7 +675,7 @@ repos:
 repos:
   - repo: local
     hooks:
-      - id: specflow-security-python
+      - id: flowspec-security-python
         name: Security Scan (Python)
         entry: specify security scan --scanner semgrep --quick --fail-on high
         language: python
@@ -683,7 +683,7 @@ repos:
         types: [python]
         pass_filenames: false
 
-      - id: specflow-security-bandit
+      - id: flowspec-security-bandit
         name: Bandit Security Check
         entry: bandit -r
         language: python
@@ -776,5 +776,5 @@ permissions:
 ## Related Documentation
 
 - [Security Quickstart](./security-quickstart.md)
-- [Command Reference](../reference/specflow-security-commands.md)
+- [Command Reference](../reference/flowspec-security-commands.md)
 - [Custom Rules](./security-custom-rules.md)

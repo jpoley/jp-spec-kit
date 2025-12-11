@@ -1,6 +1,6 @@
 {
   "name": "SpecFlow Agents Dev Environment",
-  "image": "jpoley/specflow-agents:latest",
+  "image": "jpoley/flowspec-agents:latest",
 
   "customizations": {
     "vscode": {

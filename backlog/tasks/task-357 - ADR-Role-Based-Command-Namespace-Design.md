@@ -16,7 +16,7 @@ priority: high
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Document architecture decision for transitioning from flat /specflow and /speckit namespaces to role-based command organization (pm, dev, sec, qa, ops)
+Document architecture decision for transitioning from flat /flowspec and /speckit namespaces to role-based command organization (pm, dev, sec, qa, ops)
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria

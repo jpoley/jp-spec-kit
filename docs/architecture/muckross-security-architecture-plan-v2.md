@@ -16,14 +16,14 @@ This document defines the **CORRECTED** architecture that adheres to the fundame
 
 ## Command Naming Convention
 
-All security slash commands follow the `/specflow:security_*` pattern with underscores:
+All security slash commands follow the `/flow:security_*` pattern with underscores:
 
-- `/specflow:security_scan` - Run security scanners
-- `/specflow:security_triage` - AI-powered vulnerability triage
-- `/specflow:security_fix` - Generate and apply security patches
-- `/specflow:security_report` - Generate security audit reports
+- `/flow:security_scan` - Run security scanners
+- `/flow:security_triage` - AI-powered vulnerability triage
+- `/flow:security_fix` - Generate and apply security patches
+- `/flow:security_report` - Generate security audit reports
 
-**NOT** `/specflow:security-scan` (dashes are incorrect).
+**NOT** `/flow:security-scan` (dashes are incorrect).
 
 ## Command Types: CLI vs Agentic
 
@@ -32,7 +32,7 @@ This system provides two types of commands:
 | Type | Location | Execution | Example | Use Case |
 |------|----------|-----------|---------|----------|
 | **CLI (Deterministic)** | `src/specify_cli/commands/` | Python code, no LLM | `specify security scan` | Scanner orchestration, data parsing |
-| **Agentic (LLM-Powered)** | `.claude/commands/` | AI coding tool executes | `/specflow:security_triage` | Vulnerability analysis, fix generation |
+| **Agentic (LLM-Powered)** | `.claude/commands/` | AI coding tool executes | `/flow:security_triage` | Vulnerability analysis, fix generation |
 
 **CLI Commands (`specify security *`):**
 - Written in Python
@@ -41,21 +41,21 @@ This system provides two types of commands:
 - Execute scanners, parse outputs, format data
 - Example: `specify security scan` runs Semgrep/Bandit
 
-**Agentic Commands (`/specflow:security_*`):**
+**Agentic Commands (`/flow:security_*`):**
 - Written as markdown prompts
 - Executed by AI coding tools (Claude Code, Cursor, etc.)
 - Invoke skills for analysis, triage, reporting
-- Example: `/specflow:security_triage` invokes `.claude/skills/security-triage.md`
+- Example: `/flow:security_triage` invokes `.claude/skills/security-triage.md`
 
 ## Workflow Independence
 
-**This is NOT part of the core specflow workflow.**
+**This is NOT part of the core flowspec workflow.**
 
 The security commands are **optional capabilities** that any developer or security engineer can run independently:
 
 - **Not gated by workflow state** - No required input states
 - **Runs anytime** - Can be invoked on any repository at any time
-- **Independent of `/specflow:specify → /specflow:plan → /specflow:implement`** - Does not require prior workflow steps
+- **Independent of `/flow:specify → /flow:plan → /flow:implement`** - Does not require prior workflow steps
 - **Optional integration** - Can optionally integrate with backlog.md for task tracking
 
 This is a standalone security analysis toolkit, not a required step in the SDD workflow.
@@ -179,11 +179,11 @@ src/specify_cli/scanners/
 **Files:**
 ```
 .claude/commands/
-├── specflow-security_scan.md     # Run scanners → findings.json
-├── specflow-security_triage.md   # Invoke security-triage.md skill
-├── specflow-security_fix.md      # Invoke security-fixer.md skill
-├── specflow-security_report.md   # Invoke security-reporter.md skill
-└── specflow-security.md          # Main command (orchestrates all)
+├── flowspec-security_scan.md     # Run scanners → findings.json
+├── flowspec-security_triage.md   # Invoke security-triage.md skill
+├── flowspec-security_fix.md      # Invoke security-fixer.md skill
+├── flowspec-security_report.md   # Invoke security-reporter.md skill
+└── flowspec-security.md          # Main command (orchestrates all)
 ```
 
 ### Layer 4: Configuration System (Python + YAML)
@@ -210,7 +210,7 @@ src/specify_cli/config/
 ### 1. Scanning Phase (Python)
 
 ```bash
-/specflow:security_scan
+/flow:security_scan
 ```
 
 **Flow:**
@@ -237,7 +237,7 @@ src/specify_cli/config/
 ### 2. Triage Phase (AI Skill)
 
 ```bash
-/specflow:security_triage
+/flow:security_triage
 ```
 
 **Flow:**
@@ -270,7 +270,7 @@ src/specify_cli/config/
 ### 3. Fix Generation Phase (AI Skill)
 
 ```bash
-/specflow:security_fix
+/flow:security_fix
 ```
 
 **Flow:**
@@ -297,7 +297,7 @@ src/specify_cli/config/
 ### 4. Reporting Phase (Python + AI Skill)
 
 ```bash
-/specflow:security_report
+/flow:security_report
 ```
 
 **Flow:**
@@ -324,7 +324,7 @@ src/specify_cli/config/
    - AI coding tool executes skill natively
 
 3. **Slash Command:**
-   - `.claude/commands/specflow-security_triage.md`
+   - `.claude/commands/flowspec-security_triage.md`
    - Invokes security-triage skill
    - Reads findings.json → writes triage-results.json
 
@@ -342,7 +342,7 @@ src/specify_cli/config/
    - AI coding tool creates actual patches
 
 2. **Slash Command:**
-   - `.claude/commands/specflow-security_fix.md`
+   - `.claude/commands/flowspec-security_fix.md`
    - Invokes security-fixer skill
    - Reads triage-results.json → writes patches/
 
@@ -372,7 +372,7 @@ src/specify_cli/config/
    ```
 
 3. **Slash Command:**
-   - `.claude/commands/specflow-security_triage.md`
+   - `.claude/commands/flowspec-security_triage.md`
    - Reads config → invokes appropriate skill variant
 
 **Output:**
@@ -393,7 +393,7 @@ src/specify_cli/config/
    - Calculates precision/recall/F1
 
 3. **AI Skill Execution:**
-   - Script invokes `/specflow:security_triage`
+   - Script invokes `/flow:security_triage`
    - **AI coding tool** executes skill
    - Python measures accuracy of results
 
@@ -471,7 +471,7 @@ src/specify_cli/config/
    - AI coding tool generates markdown
 
 2. **Slash Command:**
-   - `.claude/commands/specflow-security_report.md`
+   - `.claude/commands/flowspec-security_report.md`
    - Invokes security-reporter skill
    - Reads triage-results.json → writes audit-report.md
 
@@ -484,18 +484,18 @@ src/specify_cli/config/
 - `docs/security/audit-report.md` (by AI)
 - `docs/security/audit-report.html` (by Python)
 
-### task-216: Integrate /specflow:security with Workflow and Backlog ✅
+### task-216: Integrate /flow:security with Workflow and Backlog ✅
 
 **CORRECTED Implementation:**
 
 1. **Optional Workflow Integration:**
    - Security commands are NOT required workflow steps
-   - Can optionally add to `specflow_workflow.yml` if desired
+   - Can optionally add to `flowspec_workflow.yml` if desired
    - Example (optional):
    ```yaml
    workflows:
      security:
-       command: "/specflow:security"
+       command: "/flow:security"
        agents: ["security-triage", "security-fixer"]
        input_states: []  # No required input states
        output_state: "Security Reviewed"
@@ -504,7 +504,7 @@ src/specify_cli/config/
 2. **Optional Backlog Integration:**
    - Security findings can optionally create tasks
    - Tasks track fix implementation
-   - `/specflow:security` can optionally update task status
+   - `/flow:security` can optionally update task status
 
 3. **Python Code:**
    - `src/specify_cli/commands/security.py` - Backlog integration
@@ -598,11 +598,11 @@ All skills in `.claude/skills/`:
 
 All commands in `.claude/commands/`:
 
-1. **specflow-security_scan.md** - Run scanners
-2. **specflow-security_triage.md** - Invoke triage skill
-3. **specflow-security_fix.md** - Invoke fixer skill
-4. **specflow-security_report.md** - Invoke reporter skill
-5. **specflow-security.md** - Main orchestrator
+1. **flowspec-security_scan.md** - Run scanners
+2. **flowspec-security_triage.md** - Invoke triage skill
+3. **flowspec-security_fix.md** - Invoke fixer skill
+4. **flowspec-security_report.md** - Invoke reporter skill
+5. **flowspec-security.md** - Main orchestrator
 
 ## Configuration Files
 

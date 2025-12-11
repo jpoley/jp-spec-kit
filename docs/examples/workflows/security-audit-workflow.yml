@@ -38,7 +38,7 @@ states:
 
 workflows:
   assess:
-    command: "/specflow:assess"
+    command: "/flow:assess"
     description: "Evaluate SDD workflow suitability"
     agents:
       - name: "workflow-assessor"
@@ -52,7 +52,7 @@ workflows:
     optional: false
 
   specify:
-    command: "/specflow:specify"
+    command: "/flow:specify"
     description: "Create feature specifications"
     agents:
       - name: "product-requirements-manager"
@@ -66,7 +66,7 @@ workflows:
     optional: false
 
   research:
-    command: "/specflow:research"
+    command: "/flow:research"
     description: "Research and business validation"
     agents:
       - name: "researcher"
@@ -85,7 +85,7 @@ workflows:
     optional: true
 
   plan:
-    command: "/specflow:plan"
+    command: "/flow:plan"
     description: "Execute planning workflow"
     agents:
       - name: "software-architect"
@@ -104,7 +104,7 @@ workflows:
     optional: false
 
   threat-model:
-    command: "/specflow:threat-model"
+    command: "/flow:threat-model"
     description: "Security threat modeling and design review"
     agents:
       - name: "secure-by-design-engineer"
@@ -128,7 +128,7 @@ workflows:
     requires_human_approval: true
 
   implement:
-    command: "/specflow:implement"
+    command: "/flow:implement"
     description: "Execute implementation with code review"
     agents:
       - name: "frontend-engineer"
@@ -156,7 +156,7 @@ workflows:
     optional: false
 
   validate:
-    command: "/specflow:validate"
+    command: "/flow:validate"
     description: "Execute validation (QA, security, docs)"
     agents:
       - name: "quality-guardian"
@@ -184,7 +184,7 @@ workflows:
     optional: false
 
   security-audit:
-    command: "/specflow:security-audit"
+    command: "/flow:security-audit"
     description: "Comprehensive security audit before deployment"
     agents:
       - name: "secure-by-design-engineer"
@@ -209,7 +209,7 @@ workflows:
     requires_human_approval: true
 
   operate:
-    command: "/specflow:operate"
+    command: "/flow:operate"
     description: "Execute operations workflow"
     agents:
       - name: "sre-agent"

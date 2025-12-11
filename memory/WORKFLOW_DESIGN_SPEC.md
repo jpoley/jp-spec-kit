@@ -6,13 +6,13 @@
 
 ## Executive Summary
 
-This document specifies the design for a workflow configuration system that synchronizes `/specflow` commands with backlog.md task states. The system allows users to customize their spec-driven development workflow without modifying code.
+This document specifies the design for a workflow configuration system that synchronizes `/flowspec` commands with backlog.md task states. The system allows users to customize their spec-driven development workflow without modifying code.
 
 ## Problem Statement
 
 The JP Spec Kit has two workflow systems that need synchronization:
 
-1. **Agent Loop Workflow** (`/specflow` commands)
+1. **Agent Loop Workflow** (`/flowspec` commands)
    - 6 commands: specify, research, plan, implement, validate, operate
    - Each uses specific agents
    - Execute in sequence
@@ -20,15 +20,15 @@ The JP Spec Kit has two workflow systems that need synchronization:
 
 2. **Task State Workflow** (backlog.md)
    - Task states: To Do, In Progress, Done
-   - Backlog.md doesn't know about `/specflow` workflow phases
+   - Backlog.md doesn't know about `/flowspec` workflow phases
    - No constraint enforcement between the two systems
 
-**Current Gap**: Users can run `/specflow` commands in any order, on tasks in any state. There's no synchronization between task state and workflow phase.
+**Current Gap**: Users can run `/flowspec` commands in any order, on tasks in any state. There's no synchronization between task state and workflow phase.
 
 ## Solution Overview
 
 Create a **declarative workflow configuration** system that:
-- Maps `/specflow` commands to task states
+- Maps `/flowspec` commands to task states
 - Specifies which agents participate in each phase
 - Validates state transitions
 - Allows user customization
@@ -39,13 +39,13 @@ Create a **declarative workflow configuration** system that:
 ### Core Components
 
 ```
-specflow_workflow.yml          ← User-customizable configuration
+flowspec_workflow.yml          ← User-customizable configuration
     ↓
 WorkflowConfig (Python)      ← Load and parse configuration
     ↓
 WorkflowValidator (Python)   ← Validate configuration
     ↓
-/specflow commands             ← Enforce constraints
+/flowspec commands             ← Enforce constraints
     ↓
 backlog.md states            ← Reflect workflow phase
 ```
@@ -54,10 +54,10 @@ backlog.md states            ← Reflect workflow phase
 
 ```
 jp-spec-kit/
-├── specflow_workflow.yml                 ← Configuration (new)
+├── flowspec_workflow.yml                 ← Configuration (new)
 ├── memory/
 │   ├── WORKFLOW_DESIGN_SPEC.md        ← This file
-│   └── specflow_workflow.schema.json    ← JSON schema for validation
+│   └── flowspec_workflow.schema.json    ← JSON schema for validation
 ├── src/specify_cli/
 │   ├── workflow/                       ← New package
 │   │   ├── __init__.py
@@ -73,12 +73,12 @@ jp-spec-kit/
 │   └── workflows/                     ← Configuration examples
 └── tests/
     ├── test_workflow_config.py        ← Unit tests
-    └── test_specflow_workflow_integration.py ← Integration tests
+    └── test_flowspec_workflow_integration.py ← Integration tests
 ```
 
 ## Configuration Structure
 
-### specflow_workflow.yml
+### flowspec_workflow.yml
 
 ```yaml
 version: "1.0"
@@ -99,10 +99,10 @@ states:
   - name: "Deployed"
     description: "Feature deployed"
 
-# Workflow phases mapped to /specflow commands
+# Workflow phases mapped to /flowspec commands
 workflows:
   specify:
-    command: "/specflow:specify"
+    command: "/flow:specify"
     agents: ["product-requirements-manager"]
     input_states: ["To Do"]
     output_state: "Specified"
@@ -110,7 +110,7 @@ workflows:
     optional: false
 
   research:
-    command: "/specflow:research"
+    command: "/flow:research"
     agents: ["researcher", "business-validator"]
     input_states: ["Specified"]
     output_state: "Researched"
@@ -118,7 +118,7 @@ workflows:
     optional: false
 
   plan:
-    command: "/specflow:plan"
+    command: "/flow:plan"
     agents: ["software-architect", "platform-engineer"]
     input_states: ["Researched"]
     output_state: "Planned"
@@ -126,7 +126,7 @@ workflows:
     optional: false
 
   implement:
-    command: "/specflow:implement"
+    command: "/flow:implement"
     agents: ["frontend-engineer", "backend-engineer", "code-reviewer"]
     input_states: ["Planned"]
     output_state: "In Implementation"
@@ -134,7 +134,7 @@ workflows:
     optional: false
 
   validate:
-    command: "/specflow:validate"
+    command: "/flow:validate"
     agents: ["quality-guardian", "secure-by-design-engineer", "tech-writer", "release-manager"]
     input_states: ["In Implementation"]
     output_state: "Validated"
@@ -142,7 +142,7 @@ workflows:
     optional: false
 
   operate:
-    command: "/specflow:operate"
+    command: "/flow:operate"
     agents: ["sre-agent"]
     input_states: ["Validated"]
     output_state: "Deployed"
@@ -191,7 +191,7 @@ agent_loops:
     - "release-manager"
 ```
 
-### JSON Schema (specflow_workflow.schema.json)
+### JSON Schema (flowspec_workflow.schema.json)
 
 The schema validates:
 - `version` is string "1.0"
@@ -207,7 +207,7 @@ The schema validates:
 **File**: `src/specify_cli/workflow/config.py`
 
 **Responsibilities**:
-- Load specflow_workflow.yml from project root or memory/
+- Load flowspec_workflow.yml from project root or memory/
 - Parse YAML and structure as Python objects
 - Validate against JSON schema
 - Provide query API
@@ -248,9 +248,9 @@ class WorkflowValidator:
 
 ## Integration Points
 
-### 1. /specflow Command Execution
+### 1. /flowspec Command Execution
 
-Each `/specflow` command:
+Each `/flowspec` command:
 1. Loads WorkflowConfig
 2. Checks current task state
 3. Validates state is in `input_states`
@@ -259,7 +259,7 @@ Each `/specflow` command:
 
 **Pseudo-code**:
 ```python
-def specflow_specify(task_id, ...):
+def flowspec_specify(task_id, ...):
     config = WorkflowConfig()
     task = load_task(task_id)
 
@@ -330,15 +330,15 @@ Done
 
 **Example 1** - Wrong State:
 ```
-Error: Cannot execute '/specflow:implement' on task in 'Specified' state
-Reason: /specflow:implement requires task to be in: ['Planned']
-Suggestion: Run /specflow:research and /specflow:plan first
+Error: Cannot execute '/flow:implement' on task in 'Specified' state
+Reason: /flow:implement requires task to be in: ['Planned']
+Suggestion: Run /flow:research and /flow:plan first
 ```
 
 **Example 2** - Invalid Configuration:
 ```
 Error: Invalid workflow configuration
-File: specflow_workflow.yml
+File: flowspec_workflow.yml
 Problem: State 'Security Reviewed' is unreachable from 'To Do'
 Fix: Ensure all states are connected in transitions
 ```
@@ -374,7 +374,7 @@ states:
 
 workflows:
   security_audit:
-    command: "/specflow:audit"
+    command: "/flow:audit"
     agents: ["secure-by-design-engineer"]
     input_states: ["Validated"]
     output_state: "Security Audited"
@@ -416,11 +416,11 @@ src/specify_cli/workflow/
 
 **Coverage**: >90%
 
-### Integration Tests (test_specflow_workflow_integration.py)
+### Integration Tests (test_flowspec_workflow_integration.py)
 - State transitions work
 - Invalid transitions are rejected
 - Custom configurations work
-- All 6 /specflow commands enforce constraints
+- All 6 /flowspec commands enforce constraints
 
 **Coverage**: >80%
 
@@ -432,7 +432,7 @@ src/specify_cli/workflow/
 ## Success Criteria
 
 1. **Functionality**:
-   - All 6 /specflow commands enforce state constraints ✓
+   - All 6 /flowspec commands enforce state constraints ✓
    - State transitions are validated ✓
    - Users can customize workflows ✓
    - Configuration is validated at runtime ✓
@@ -450,7 +450,7 @@ src/specify_cli/workflow/
    - Code follows project style ✓
 
 4. **Compatibility**:
-   - Existing /specflow commands still work ✓
+   - Existing /flowspec commands still work ✓
    - Backlog.md integration smooth ✓
    - Configuration is version-controlled ✓
    - Can migrate from no-config to config ✓
@@ -468,7 +468,7 @@ src/specify_cli/workflow/
 
 **Phase 1** (Foundation):
 - Task 88: JSON Schema
-- Task 89: Default specflow_workflow.yml
+- Task 89: Default flowspec_workflow.yml
 
 **Phase 2** (Core):
 - Task 90: WorkflowConfig class
@@ -476,7 +476,7 @@ src/specify_cli/workflow/
 
 **Phase 3** (Integration):
 - Task 95: State mapping docs
-- Task 96: Update /specflow commands
+- Task 96: Update /flowspec commands
 - Task 99: Validation CLI
 
 **Phase 4** (UX & Testing):
@@ -494,7 +494,7 @@ src/specify_cli/workflow/
 
 ## Open Questions / Decisions Needed
 
-1. **Config Location**: Root directory (specflow_workflow.yml) or memory/?
+1. **Config Location**: Root directory (flowspec_workflow.yml) or memory/?
    - **Decision**: Root directory for visibility and easy editing
 
 2. **Default Behavior**: Strict (prevent all invalid transitions) or Permissive (warn only)?
@@ -518,7 +518,7 @@ src/specify_cli/workflow/
 - **Phase**: Synonym for workflow
 - **Agent**: An AI agent that executes workflow tasks
 - **Transition**: Movement from one state to another via a workflow
-- **Configuration**: specflow_workflow.yml file defining the workflow model
+- **Configuration**: flowspec_workflow.yml file defining the workflow model
 
 ### B. Configuration Change Checklist
 

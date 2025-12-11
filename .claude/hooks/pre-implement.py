@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Pre-implementation quality gates for SDD workflow.
 
-Validates spec quality before /specflow:implement proceeds.
+Validates spec quality before /flow:implement proceeds.
 Supports tiered thresholds: light (50), medium (70), heavy (85).
 """
 
@@ -90,10 +90,10 @@ def check_required_files(
     plan_file = adr_dir / "plan.md"
 
     if not spec_file.exists():
-        missing.append(f"Missing: {spec_file} - Create with /specflow:specify")
+        missing.append(f"Missing: {spec_file} - Create with /flow:specify")
 
     if not plan_file.exists():
-        missing.append(f"Missing: {plan_file} - Create with /specflow:plan")
+        missing.append(f"Missing: {plan_file} - Create with /flow:plan")
 
     if not tasks_file.exists():
         missing.append(f"Missing: {tasks_file} - Create with /speckit:tasks")
@@ -124,7 +124,7 @@ def check_spec_completeness(spec_file: Path) -> GateResult:
             name="spec_completeness",
             passed=False,
             message="spec.md not found",
-            details=["Create spec using /specflow:specify"],
+            details=["Create spec using /flow:specify"],
         )
 
     content = spec_file.read_text()
@@ -134,7 +134,7 @@ def check_spec_completeness(spec_file: Path) -> GateResult:
             name="spec_completeness",
             passed=False,
             message="spec.md is empty",
-            details=["Create spec using /specflow:specify"],
+            details=["Create spec using /flow:specify"],
         )
 
     found_markers = []
@@ -175,7 +175,7 @@ def check_constitutional_compliance(spec_file: Path) -> GateResult:
             name="constitutional_compliance",
             passed=False,
             message="spec.md not found",
-            details=["Create spec using /specflow:specify"],
+            details=["Create spec using /flow:specify"],
         )
 
     content = spec_file.read_text().lower()
@@ -225,7 +225,7 @@ def check_quality_threshold(
             name="quality_threshold",
             passed=False,
             message="spec.md not found",
-            details=["Create spec using /specflow:specify"],
+            details=["Create spec using /flow:specify"],
         )
 
     content = spec_file.read_text()

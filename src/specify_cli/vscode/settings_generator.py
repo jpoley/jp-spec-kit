@@ -181,8 +181,8 @@ class VSCodeSettingsGenerator:
         # Configure prompt files
         settings["github.copilot.chat.promptFiles"] = {"enabled": True}
 
-        # Configure Specflow-specific settings
-        settings["specflow"] = {
+        # Configure Flowspec-specific settings
+        settings["flowspec"] = {
             "primaryRole": role,
             "displayName": role_def.get("display_name", role.title()),
             "icon": role_def.get("icon", ""),

@@ -169,7 +169,7 @@ def demonstrate_sarif_export(findings: list[Finding]) -> None:
     """Show SARIF export."""
     print("=== SARIF Export Demo ===\n")
 
-    exporter = SARIFExporter(tool_name="specflow-demo", tool_version="1.0.0")
+    exporter = SARIFExporter(tool_name="flowspec-demo", tool_version="1.0.0")
     sarif_doc = exporter.export(findings)
 
     print(f"SARIF Version: {sarif_doc['version']}")

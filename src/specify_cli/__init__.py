@@ -1557,13 +1557,13 @@ def prompt_validation_modes() -> dict[str, str]:
     """
     # Transitions to configure with descriptions
     transitions_info = [
-        ("assess", "To Do → Assessed", "after /specflow:assess"),
-        ("specify", "Assessed → Specified", "after /specflow:specify, produces PRD"),
-        ("research", "Specified → Researched", "after /specflow:research"),
-        ("plan", "Researched → Planned", "after /specflow:plan, produces ADRs"),
-        ("implement", "Planned → In Implementation", "after /specflow:implement"),
-        ("validate", "In Implementation → Validated", "after /specflow:validate"),
-        ("operate", "Validated → Deployed", "after /specflow:operate"),
+        ("assess", "To Do → Assessed", "after /flow:assess"),
+        ("specify", "Assessed → Specified", "after /flow:specify, produces PRD"),
+        ("research", "Specified → Researched", "after /flow:research"),
+        ("plan", "Researched → Planned", "after /flow:plan, produces ADRs"),
+        ("implement", "Planned → In Implementation", "after /flow:implement"),
+        ("validate", "In Implementation → Validated", "after /flow:validate"),
+        ("operate", "Validated → Deployed", "after /flow:operate"),
     ]
 
     modes: dict[str, str] = {}
@@ -1646,11 +1646,11 @@ def display_validation_summary(modes: dict[str, str]) -> None:
     console.print()
 
 
-def generate_specflow_workflow_yml(
+def generate_flowspec_workflow_yml(
     project_path: Path,
     transition_modes: dict[str, str] | None = None,
 ) -> None:
-    """Generate specflow_workflow.yml with per-transition validation modes.
+    """Generate flowspec_workflow.yml with per-transition validation modes.
 
     Args:
         project_path: Path to the project directory.
@@ -1701,7 +1701,7 @@ def generate_specflow_workflow_yml(
         lines.append("")
 
     # Write the file
-    workflow_file = project_path / "specflow_workflow.yml"
+    workflow_file = project_path / "flowspec_workflow.yml"
     workflow_file.write_text("\n".join(lines), encoding="utf-8")
 
 
@@ -3231,7 +3231,7 @@ def init(
 
             # Handle light mode setup
             if light:
-                light_marker = project_path / ".specflow-light-mode"
+                light_marker = project_path / ".flowspec-light-mode"
                 light_marker.write_text(
                     "# Light mode enabled - ~60% faster workflow (example: 135 min → 50 min)\n# See docs/guides/when-to-use-light-mode.md for details\n"
                 )
@@ -3511,9 +3511,9 @@ def init(
             # Non-interactive with no explicit flags: use defaults (all NONE)
             transition_modes = {}
 
-    generate_specflow_workflow_yml(project_path, transition_modes)
+    generate_flowspec_workflow_yml(project_path, transition_modes)
     console.print()
-    console.print("[green]Generated specflow_workflow.yml[/green]")
+    console.print("[green]Generated flowspec_workflow.yml[/green]")
 
     # Display validation summary
     display_validation_summary(transition_modes)
@@ -4520,13 +4520,13 @@ def dev_setup(
     Set up jp-spec-kit source repository for development.
 
     This command prepares the jp-spec-kit source repository to use its own
-    /speckit:* and /specflow:* commands during development. It creates symlinks
+    /speckit:* and /flow:* commands during development. It creates symlinks
     for multiple AI agents:
 
-    - Claude Code: .claude/commands/speckit/ and .claude/commands/specflow/
+    - Claude Code: .claude/commands/speckit/ and .claude/commands/flowspec/
       (symlinks to templates/commands/)
     - VS Code Copilot: .github/prompts/ (symlinks as speckit.*.prompt.md
-      and specflow.*.prompt.md)
+      and flowspec.*.prompt.md)
 
     It also creates .vscode/settings.json with chat.promptFiles enabled for Copilot.
 
@@ -4556,7 +4556,7 @@ def dev_setup(
         raise typer.Exit(1)
 
     templates_dir = project_path / "templates" / "commands"
-    specflow_templates_dir = templates_dir / "specflow"
+    flowspec_templates_dir = templates_dir / "flowspec"
     speckit_templates_dir = templates_dir / "speckit"
     if not templates_dir.exists():
         console.print(
@@ -4570,13 +4570,13 @@ def dev_setup(
         if speckit_templates_dir.exists()
         else []
     )
-    specflow_files = (
-        list(specflow_templates_dir.glob("*.md"))
-        if specflow_templates_dir.exists()
+    flowspec_files = (
+        list(flowspec_templates_dir.glob("*.md"))
+        if flowspec_templates_dir.exists()
         else []
     )
 
-    if not speckit_files and not specflow_files:
+    if not speckit_files and not flowspec_files:
         console.print(
             f"[yellow]Warning:[/yellow] No command templates found in {templates_dir}"
         )
@@ -4637,25 +4637,25 @@ def dev_setup(
             f"{claude_speckit_created} created, {claude_speckit_skipped} skipped",
         )
 
-    # === Claude Code Setup - specflow commands ===
-    tracker.add("claude_specflow", "Set up Claude Code specflow commands")
+    # === Claude Code Setup - flowspec commands ===
+    tracker.add("claude_flowspec", "Set up Claude Code flowspec commands")
 
-    specflow_commands_dir = project_path / ".claude" / "commands" / "specflow"
-    specflow_commands_dir.mkdir(parents=True, exist_ok=True)
+    flowspec_commands_dir = project_path / ".claude" / "commands" / "flowspec"
+    flowspec_commands_dir.mkdir(parents=True, exist_ok=True)
 
-    claude_specflow_created = 0
-    claude_specflow_skipped = 0
-    claude_specflow_errors = []
+    claude_flowspec_created = 0
+    claude_flowspec_skipped = 0
+    claude_flowspec_errors = []
 
-    for template_file in specflow_files:
-        symlink_path = specflow_commands_dir / template_file.name
+    for template_file in flowspec_files:
+        symlink_path = flowspec_commands_dir / template_file.name
         relative_target = (
             Path("..")
             / ".."
             / ".."
             / "templates"
             / "commands"
-            / "specflow"
+            / "flowspec"
             / template_file.name
         )
 
@@ -4664,22 +4664,22 @@ def dev_setup(
                 if force:
                     symlink_path.unlink()
                     symlink_path.symlink_to(relative_target)
-                    claude_specflow_created += 1
+                    claude_flowspec_created += 1
                 else:
-                    claude_specflow_skipped += 1
+                    claude_flowspec_skipped += 1
             else:
                 symlink_path.symlink_to(relative_target)
-                claude_specflow_created += 1
+                claude_flowspec_created += 1
         except OSError as e:
-            claude_specflow_errors.append(f"specflow/{template_file.name}: {e}")
+            claude_flowspec_errors.append(f"flowspec/{template_file.name}: {e}")
 
-    if claude_specflow_errors:
-        tracker.error("claude_specflow", f"{len(claude_specflow_errors)} errors")
-        all_errors.extend(claude_specflow_errors)
+    if claude_flowspec_errors:
+        tracker.error("claude_flowspec", f"{len(claude_flowspec_errors)} errors")
+        all_errors.extend(claude_flowspec_errors)
     else:
         tracker.complete(
-            "claude_specflow",
-            f"{claude_specflow_created} created, {claude_specflow_skipped} skipped",
+            "claude_flowspec",
+            f"{claude_flowspec_created} created, {claude_flowspec_skipped} skipped",
         )
 
     # === VS Code Copilot Setup ===
@@ -4720,17 +4720,17 @@ def dev_setup(
         except OSError as e:
             copilot_errors.append(f"{prompt_name}: {e}")
 
-    # Create specflow.*.prompt.md symlinks for specflow commands
-    for template_file in specflow_files:
-        # VS Code Copilot uses specflow.*.prompt.md format
-        prompt_name = f"specflow.{template_file.stem}.prompt.md"
+    # Create flowspec.*.prompt.md symlinks for flowspec commands
+    for template_file in flowspec_files:
+        # VS Code Copilot uses flowspec.*.prompt.md format
+        prompt_name = f"flowspec.{template_file.stem}.prompt.md"
         symlink_path = prompts_dir / prompt_name
         relative_target = (
             Path("..")
             / ".."
             / "templates"
             / "commands"
-            / "specflow"
+            / "flowspec"
             / template_file.name
         )
 
@@ -4809,8 +4809,8 @@ def dev_setup(
             else:
                 broken += 1
 
-    # Check Claude specflow symlinks
-    for symlink_path in specflow_commands_dir.glob("*.md"):
+    # Check Claude flowspec symlinks
+    for symlink_path in flowspec_commands_dir.glob("*.md"):
         if symlink_path.is_symlink():
             if symlink_path.resolve().exists():
                 valid += 1
@@ -4843,17 +4843,17 @@ def dev_setup(
     console.print("  [dim]speckit:[/dim]")
     for template_file in sorted(speckit_files):
         console.print(f"    [cyan]/speckit:{template_file.stem}[/cyan]")
-    console.print("  [dim]specflow:[/dim]")
-    for template_file in sorted(specflow_files):
-        console.print(f"    [cyan]/specflow:{template_file.stem}[/cyan]")
+    console.print("  [dim]flowspec:[/dim]")
+    for template_file in sorted(flowspec_files):
+        console.print(f"    [cyan]/flow:{template_file.stem}[/cyan]")
 
     console.print(
         "\n[bold]VS Code Copilot[/bold] - The following prompts are now available:"
     )
     for template_file in sorted(speckit_files):
         console.print(f"  [cyan]/speckit.{template_file.stem}[/cyan]")
-    for template_file in sorted(specflow_files):
-        console.print(f"  [cyan]/specflow.{template_file.stem}[/cyan]")
+    for template_file in sorted(flowspec_files):
+        console.print(f"  [cyan]/flowspec.{template_file.stem}[/cyan]")
 
     console.print(
         "\n[dim]Note: Restart your AI assistant to pick up the new commands.[/dim]"
@@ -5782,7 +5782,7 @@ def gate(
     Exit codes: 0=passed, 1=failed, 2=error
 
     This command is designed to be run before starting implementation
-    (e.g., in CI/CD pipelines or as part of /specflow:implement workflow).
+    (e.g., in CI/CD pipelines or as part of /flow:implement workflow).
 
     Example usage:
         specify gate                    # Check with default threshold (70)
@@ -6041,11 +6041,11 @@ def config_validation(
     """
     import yaml
 
-    workflow_path = Path.cwd() / "specflow_workflow.yml"
+    workflow_path = Path.cwd() / "flowspec_workflow.yml"
 
     if not workflow_path.exists():
         console.print(
-            "[red]Error:[/red] No specflow_workflow.yml found in current directory"
+            "[red]Error:[/red] No flowspec_workflow.yml found in current directory"
         )
         console.print("[dim]Run 'specify init' first to create a project[/dim]")
         raise typer.Exit(1)
@@ -7075,7 +7075,7 @@ def workflow_validate(
         None,
         "--file",
         "-f",
-        help="Path to workflow config file (defaults to specflow_workflow.yml or specflow_workflow.yml in standard locations)",
+        help="Path to workflow config file (defaults to flowspec_workflow.yml or flowspec_workflow.yml in standard locations)",
     ),
     verbose: bool = typer.Option(
         False,
@@ -7091,7 +7091,7 @@ def workflow_validate(
 ):
     """Validate workflow configuration file.
 
-    Validates specflow_workflow.yml (v2.0+) or specflow_workflow.yml (v1.x) against:
+    Validates flowspec_workflow.yml (v2.0+) or flowspec_workflow.yml (v1.x) against:
     1. JSON schema (structural validation)
     2. Semantic validation (circular dependencies, reachability, etc.)
 

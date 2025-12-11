@@ -10,7 +10,7 @@
 
 ## Executive Summary
 
-This document outlines the migration strategy for transitioning from flat command namespaces (`/specflow:*`, `/speckit:*`) to role-based hierarchical namespaces (`/pm:*`, `/dev:*`, `/sec:*`, `/qa:*`, `/ops:*`) over a **12-month deprecation period**.
+This document outlines the migration strategy for transitioning from flat command namespaces (`/flow:*`, `/speckit:*`) to role-based hierarchical namespaces (`/pm:*`, `/dev:*`, `/sec:*`, `/qa:*`, `/ops:*`) over a **12-month deprecation period**.
 
 ### Goals
 
@@ -30,14 +30,14 @@ Old commands become **aliases** that redirect to new commands with deprecation w
 
 **Example**:
 ```bash
-User types: /specflow:assess feature-x
+User types: /flow:assess feature-x
 
 System executes: /pm:assess feature-x
 
 System displays warning:
-⚠️  /specflow:assess is deprecated and will be removed in 8 months.
+⚠️  /flow:assess is deprecated and will be removed in 8 months.
 Please use /pm:assess instead.
-Migration guide: https://specflow.dev/docs/migration
+Migration guide: https://flowspec.dev/docs/migration
 ```
 
 ### Implementation: Command Forwarding
@@ -48,7 +48,7 @@ Create symlinks from old locations to new:
 
 ```bash
 # Old command redirects to new
-.claude/commands/specflow/assess.md → .claude/commands/pm/assess.md
+.claude/commands/flowspec/assess.md → .claude/commands/pm/assess.md
 ```
 
 **Pros**: Simple, filesystem-native
@@ -63,7 +63,7 @@ Create symlinks from old locations to new:
 Old command files include new command with deprecation metadata:
 
 ```markdown
-# .claude/commands/specflow/assess.md (OLD LOCATION)
+# .claude/commands/flowspec/assess.md (OLD LOCATION)
 ---
 description: "[DEPRECATED] Use /pm:assess - Assess SDD workflow suitability"
 deprecated: true
@@ -79,7 +79,7 @@ This command is deprecated and will be removed on **2026-12-09**.
 
 Please use **`/pm:assess`** instead.
 
-Migration guide: https://specflow.dev/docs/migration
+Migration guide: https://flowspec.dev/docs/migration
 
 ---
 
@@ -113,17 +113,17 @@ Migration guide: https://specflow.dev/docs/migration
 
 **User Experience**:
 ```bash
-$ /specflow:assess user-auth
+$ /flow:assess user-auth
 
 ⚠️  Deprecation Warning
 
-Command: /specflow:assess
+Command: /flow:assess
 Status: DEPRECATED (soft)
 Replacement: /pm:assess
 Removal Date: 2026-12-09 (8 months)
 
 This command still works but will be removed.
-Update your workflows: https://specflow.dev/docs/migration
+Update your workflows: https://flowspec.dev/docs/migration
 
 ───────────────────────────────────────────────────────────
 
@@ -150,13 +150,13 @@ Update your workflows: https://specflow.dev/docs/migration
 
 **User Experience**:
 ```bash
-$ /specflow:assess user-auth
+$ /flow:assess user-auth
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ⚠️  DEPRECATION WARNING (3 MONTHS UNTIL REMOVAL)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Command: /specflow:assess
+Command: /flow:assess
 Status: DEPRECATED (hard)
 Replacement: /pm:assess
 Removal Date: 2026-09-09 (3 months)
@@ -165,7 +165,7 @@ ACTION REQUIRED:
 Run: specify migrate-commands --dry-run
 to update all your workflows automatically.
 
-Migration guide: https://specflow.dev/docs/migration
+Migration guide: https://flowspec.dev/docs/migration
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -181,11 +181,11 @@ specify migrate-commands --dry-run
 Found 12 deprecated commands in your project:
 
 File: .github/workflows/ci.yml
-  Line 45: /specflow:assess → /pm:assess
-  Line 67: /specflow:specify → /pm:specify
+  Line 45: /flow:assess → /pm:assess
+  Line 67: /flow:specify → /pm:specify
 
 File: docs/guides/quickstart.md
-  Line 23: /specflow:implement → /dev:implement
+  Line 23: /flow:implement → /dev:implement
 
 Run without --dry-run to apply changes automatically.
 ```
@@ -210,13 +210,13 @@ Run without --dry-run to apply changes automatically.
 
 **User Experience**:
 ```bash
-$ /specflow:assess user-auth
+$ /flow:assess user-auth
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🚨 CRITICAL: COMMAND REMOVAL IN 30 DAYS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Command: /specflow:assess
+Command: /flow:assess
 Status: WILL BE REMOVED IN 30 DAYS
 Replacement: /pm:assess
 Removal Date: 2026-12-09
@@ -227,7 +227,7 @@ This command will STOP WORKING in 30 days.
 Auto-migrate now:
   specify migrate-commands
 
-Need help? Contact support: support@specflow.dev
+Need help? Contact support: support@flowspec.dev
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -252,25 +252,25 @@ Need help? Contact support: support@specflow.dev
 
 **User Experience**:
 ```bash
-$ /specflow:assess user-auth
+$ /flow:assess user-auth
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ❌ COMMAND NOT FOUND
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Command: /specflow:assess
+Command: /flow:assess
 Status: REMOVED (as of 2026-12-09)
 
 This command has been replaced by /pm:assess
 
 Update your command:
-  OLD: /specflow:assess user-auth
+  OLD: /flow:assess user-auth
   NEW: /pm:assess user-auth
 
-Migration guide: https://specflow.dev/docs/migration
+Migration guide: https://flowspec.dev/docs/migration
 Auto-migrate: specify migrate-commands
 
-Need help? support@specflow.dev
+Need help? support@flowspec.dev
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
@@ -282,35 +282,35 @@ Need help? support@specflow.dev
 ### Product Manager Commands
 | Old Command | New Command | Deprecation Phase |
 |-------------|-------------|-------------------|
-| `/specflow:assess` | `/pm:assess` | Month 0 |
-| `/specflow:specify` | `/pm:specify` | Month 0 |
-| `/specflow:research` | `/pm:research` | Month 0 |
+| `/flow:assess` | `/pm:assess` | Month 0 |
+| `/flow:specify` | `/pm:specify` | Month 0 |
+| `/flow:research` | `/pm:research` | Month 0 |
 
 ### Developer Commands
 | Old Command | New Command | Deprecation Phase |
 |-------------|-------------|-------------------|
-| `/specflow:plan` | `/dev:plan` | Month 0 |
-| `/specflow:implement` | `/dev:implement` | Month 0 |
-| `/specflow:operate` | `/dev:operate` | Month 0 |
-| `/specflow:init` | `/dev:init` | Month 0 |
-| `/specflow:reset` | `/dev:reset` | Month 0 |
-| `/specflow:prune-branch` | `/dev:prune-branch` | Month 0 |
+| `/flow:plan` | `/dev:plan` | Month 0 |
+| `/flow:implement` | `/dev:implement` | Month 0 |
+| `/flow:operate` | `/dev:operate` | Month 0 |
+| `/flow:init` | `/dev:init` | Month 0 |
+| `/flow:reset` | `/dev:reset` | Month 0 |
+| `/flow:prune-branch` | `/dev:prune-branch` | Month 0 |
 | `/speckit:implement` | `/dev:implement-light` | Month 3 |
 | `/speckit:plan` | `/dev:plan-light` | Month 3 |
 
 ### Security Commands
 | Old Command | New Command | Deprecation Phase |
 |-------------|-------------|-------------------|
-| `/specflow:security_fix` | `/sec:fix` | Month 0 |
-| `/specflow:security_report` | `/sec:report` | Month 0 |
-| `/specflow:security_triage` | `/sec:triage` | Month 0 |
-| `/specflow:security_web` | `/sec:scan-web` | Month 0 |
-| `/specflow:security_workflow` | `/sec:workflow` | Month 0 |
+| `/flow:security_fix` | `/sec:fix` | Month 0 |
+| `/flow:security_report` | `/sec:report` | Month 0 |
+| `/flow:security_triage` | `/sec:triage` | Month 0 |
+| `/flow:security_web` | `/sec:scan-web` | Month 0 |
+| `/flow:security_workflow` | `/sec:workflow` | Month 0 |
 
 ### QA Commands
 | Old Command | New Command | Deprecation Phase |
 |-------------|-------------|-------------------|
-| `/specflow:validate` | `/qa:validate` | Month 0 |
+| `/flow:validate` | `/qa:validate` | Month 0 |
 | `/speckit:checklist` | `/qa:checklist` | Month 3 |
 | `/speckit:analyze` | `/qa:analyze` | Month 3 |
 
@@ -353,7 +353,7 @@ git commit -m "chore: migrate to role-based command namespaces"
 
 1. **Find deprecated commands**:
 ```bash
-grep -r "/specflow:" .github/ docs/ scripts/
+grep -r "/flow:" .github/ docs/ scripts/
 ```
 
 2. **Replace using mapping table** (see above)
@@ -429,18 +429,18 @@ def migrate_commands(
 
     # Command mapping
     MIGRATIONS = {
-        r'/specflow:assess\b': '/pm:assess',
-        r'/specflow:specify\b': '/pm:specify',
-        r'/specflow:research\b': '/pm:research',
-        r'/specflow:plan\b': '/dev:plan',
-        r'/specflow:implement\b': '/dev:implement',
-        r'/specflow:operate\b': '/dev:operate',
-        r'/specflow:validate\b': '/qa:validate',
-        r'/specflow:security_fix\b': '/sec:fix',
-        r'/specflow:security_report\b': '/sec:report',
-        r'/specflow:security_triage\b': '/sec:triage',
-        r'/specflow:security_web\b': '/sec:scan-web',
-        r'/specflow:security_workflow\b': '/sec:workflow',
+        r'/flow:assess\b': '/pm:assess',
+        r'/flow:specify\b': '/pm:specify',
+        r'/flow:research\b': '/pm:research',
+        r'/flow:plan\b': '/dev:plan',
+        r'/flow:implement\b': '/dev:implement',
+        r'/flow:operate\b': '/dev:operate',
+        r'/flow:validate\b': '/qa:validate',
+        r'/flow:security_fix\b': '/sec:fix',
+        r'/flow:security_report\b': '/sec:report',
+        r'/flow:security_triage\b': '/sec:triage',
+        r'/flow:security_web\b': '/sec:scan-web',
+        r'/flow:security_workflow\b': '/sec:workflow',
         r'/speckit:checklist\b': '/qa:checklist',
         r'/speckit:analyze\b': '/qa:analyze',
         r'/speckit:implement\b': '/dev:implement-light',
@@ -481,18 +481,18 @@ def migrate_commands(
 
 ### Announcement Template
 
-**Subject**: Specflow v2.0 - Role-Based Command Namespaces (Action Required)
+**Subject**: Flowspec v2.0 - Role-Based Command Namespaces (Action Required)
 
 **Body**:
 ```
-Hi Specflow users,
+Hi Flowspec users,
 
-We're excited to announce Specflow v2.0 with role-based command
+We're excited to announce Flowspec v2.0 with role-based command
 namespaces for improved discoverability and developer experience.
 
 What's Changing:
 • Commands are now organized by role: /pm, /dev, /sec, /qa, /ops
-• Old commands (/specflow:*, /speckit:*) are deprecated
+• Old commands (/flow:*, /speckit:*) are deprecated
 • 12-month transition period with full backwards compatibility
 
 Action Required:
@@ -507,10 +507,10 @@ Timeline:
 • Month 9-12: Final warning period
 • Month 12+: Old commands removed
 
-Migration Guide: https://specflow.dev/docs/migration
-Questions? support@specflow.dev
+Migration Guide: https://flowspec.dev/docs/migration
+Questions? support@flowspec.dev
 
-Thanks for using Specflow!
+Thanks for using Flowspec!
 The JP Spec Team
 ```
 
@@ -543,7 +543,7 @@ pip install --upgrade specify-cli
 **Solution**:
 ```bash
 # 1. Check script for old commands
-grep -r "/specflow:" .github/
+grep -r "/flow:" .github/
 
 # 2. Run migration tool on specific files
 specify migrate-commands --files ".github/workflows/*"
@@ -585,7 +585,7 @@ If critical issues arise during migration:
 ### Post-Removal Rollback (Month 12+)
 
 1. **No rollback available**: Old commands permanently removed
-2. **Support available**: Contact support@specflow.dev
+2. **Support available**: Contact support@flowspec.dev
 3. **Migration tool**: Can regenerate old-style commands if needed
 
 ---

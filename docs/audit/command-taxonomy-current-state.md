@@ -12,7 +12,7 @@ There are **8 command namespaces** with **63 total command files**:
 | Namespace | Command Count | Purpose |
 |-----------|---------------|---------|
 | `speckit` | 10 | Core SDD workflow (spec → plan → implement) |
-| `specflow` | 29 (15 active + 14 deprecated) | Extended SDD workflow with agents |
+| `flowspec` | 29 (15 active + 14 deprecated) | Extended SDD workflow with agents |
 | `pm` | 3 | Product Manager role commands |
 | `arch` | 3 | Architect role commands |
 | `dev` | 4 | Developer role commands |
@@ -47,48 +47,48 @@ There are **8 command namespaces** with **63 total command files**:
 
 ---
 
-## Namespace: `specflow`
+## Namespace: `flowspec`
 
-**Location**: `templates/commands/specflow/`
+**Location**: `templates/commands/flowspec/`
 **Commands**: 15 active + 14 deprecated + 3 partials
 
 ### Active Commands
 
 | Command | Description |
 |---------|-------------|
-| `/specflow:assess` | Evaluate if SDD workflow is appropriate for a feature. Output: Full SDD workflow (complex), Spec-light mode (medium), Skip SDD (simple). |
-| `/specflow:implement` | Execute implementation using specialized frontend and backend engineer agents with code review. |
-| `/specflow:init` | Initialize or setup constitution for a project, handling both greenfield (new) and brownfield (existing) projects |
-| `/specflow:operate` | Execute operations workflow using SRE agent for CI/CD, Kubernetes, DevSecOps, observability, and operational excellence. |
-| `/specflow:plan` | Execute planning workflow using project architect and platform engineer agents (builds out /speckit.constitution). |
-| `/specflow:prune-branch` | Prune local branches that have been merged and deleted on remote. |
-| `/specflow:research` | Execute research and business validation workflow using specialized agents. |
-| `/specflow:reset` | Reset workflow configuration by re-asking startup questions and regenerating specflow_workflow.yml |
-| `/specflow:security_fix` | Generate and apply security patches for vulnerability findings from triage results. |
-| `/specflow:security_report` | Generate comprehensive security audit report from scan and triage results using security-reporter skill. |
-| `/specflow:security_triage` | (no description in file) |
-| `/specflow:security_web` | (no description in file) |
-| `/specflow:security_workflow` | Integrate security scanning and remediation into the SDD workflow with automatic backlog task creation. |
-| `/specflow:specify` | Create or update feature specifications using PM planner agent (manages /speckit.tasks). |
-| `/specflow:validate` | Execute validation and quality assurance using QA, security, documentation, and release management agents. |
+| `/flow:assess` | Evaluate if SDD workflow is appropriate for a feature. Output: Full SDD workflow (complex), Spec-light mode (medium), Skip SDD (simple). |
+| `/flow:implement` | Execute implementation using specialized frontend and backend engineer agents with code review. |
+| `/flow:init` | Initialize or setup constitution for a project, handling both greenfield (new) and brownfield (existing) projects |
+| `/flow:operate` | Execute operations workflow using SRE agent for CI/CD, Kubernetes, DevSecOps, observability, and operational excellence. |
+| `/flow:plan` | Execute planning workflow using project architect and platform engineer agents (builds out /speckit.constitution). |
+| `/flow:prune-branch` | Prune local branches that have been merged and deleted on remote. |
+| `/flow:research` | Execute research and business validation workflow using specialized agents. |
+| `/flow:reset` | Reset workflow configuration by re-asking startup questions and regenerating flowspec_workflow.yml |
+| `/flow:security_fix` | Generate and apply security patches for vulnerability findings from triage results. |
+| `/flow:security_report` | Generate comprehensive security audit report from scan and triage results using security-reporter skill. |
+| `/flow:security_triage` | (no description in file) |
+| `/flow:security_web` | (no description in file) |
+| `/flow:security_workflow` | Integrate security scanning and remediation into the SDD workflow with automatic backlog task creation. |
+| `/flow:specify` | Create or update feature specifications using PM planner agent (manages /speckit.tasks). |
+| `/flow:validate` | Execute validation and quality assurance using QA, security, documentation, and release management agents. |
 
 ### Deprecated Commands
 
 | Deprecated Command | Replacement | Description |
 |--------------------|-------------|-------------|
-| `/specflow:_DEPRECATED_assess` | `/pm:assess` | Evaluate if SDD workflow is appropriate |
-| `/specflow:_DEPRECATED_implement` | `/dev:build` | Execute implementation with agents |
-| `/specflow:_DEPRECATED_operate` | `/ops:deploy` | Execute operations workflow |
-| `/specflow:_DEPRECATED_plan` | `/arch:design` | Execute planning workflow |
-| `/specflow:_DEPRECATED_prune-branch` | `/dev:cleanup` | Prune merged branches |
-| `/specflow:_DEPRECATED_research` | `/pm:discover` | Research and validation workflow |
-| `/specflow:_DEPRECATED_security_fix` | `/sec:fix` | Security patch generation |
-| `/specflow:_DEPRECATED_security_report` | `/sec:report` | Security audit report |
-| `/specflow:_DEPRECATED_security_triage` | `/sec:triage` | Security triage |
-| `/specflow:_DEPRECATED_security_web` | `/sec:scan` | Security scanning |
-| `/specflow:_DEPRECATED_security_workflow` | `/sec:audit` | Security workflow integration |
-| `/specflow:_DEPRECATED_specify` | `/pm:define` | Create feature specifications |
-| `/specflow:_DEPRECATED_validate` | `/qa:verify` | Validation and QA |
+| `/flow:_DEPRECATED_assess` | `/pm:assess` | Evaluate if SDD workflow is appropriate |
+| `/flow:_DEPRECATED_implement` | `/dev:build` | Execute implementation with agents |
+| `/flow:_DEPRECATED_operate` | `/ops:deploy` | Execute operations workflow |
+| `/flow:_DEPRECATED_plan` | `/arch:design` | Execute planning workflow |
+| `/flow:_DEPRECATED_prune-branch` | `/dev:cleanup` | Prune merged branches |
+| `/flow:_DEPRECATED_research` | `/pm:discover` | Research and validation workflow |
+| `/flow:_DEPRECATED_security_fix` | `/sec:fix` | Security patch generation |
+| `/flow:_DEPRECATED_security_report` | `/sec:report` | Security audit report |
+| `/flow:_DEPRECATED_security_triage` | `/sec:triage` | Security triage |
+| `/flow:_DEPRECATED_security_web` | `/sec:scan` | Security scanning |
+| `/flow:_DEPRECATED_security_workflow` | `/sec:audit` | Security workflow integration |
+| `/flow:_DEPRECATED_specify` | `/pm:define` | Create feature specifications |
+| `/flow:_DEPRECATED_validate` | `/qa:verify` | Validation and QA |
 
 ### Partial/Include Files
 
@@ -186,16 +186,16 @@ There are **8 command namespaces** with **63 total command files**:
 
 ### Commands with Same Name in Multiple Namespaces
 
-| Command Name | speckit | specflow | Role-Based | Same Implementation? |
+| Command Name | speckit | flowspec | Role-Based | Same Implementation? |
 |--------------|---------|----------|------------|---------------------|
-| `init` | `/speckit:init` | `/specflow:init` | - | **NO** - Different implementations |
-| `specify` | `/speckit:specify` | `/specflow:specify` | `/pm:define` | **NO** - speckit is simpler, specflow/pm are agent-based |
-| `plan` | `/speckit:plan` | `/specflow:plan` | `/arch:design` | **UNKNOWN** - Need to verify |
-| `implement` | `/speckit:implement` | `/specflow:implement` | `/dev:build` | **UNKNOWN** - Need to verify |
-| `assess` | - | `/specflow:assess` | `/pm:assess` | Likely same |
-| `research` | - | `/specflow:research` | `/pm:discover` | Likely same |
-| `validate` | - | `/specflow:validate` | `/qa:verify` | Likely same |
-| `operate` | - | `/specflow:operate` | `/ops:deploy` | Likely same |
+| `init` | `/speckit:init` | `/flow:init` | - | **NO** - Different implementations |
+| `specify` | `/speckit:specify` | `/flow:specify` | `/pm:define` | **NO** - speckit is simpler, flowspec/pm are agent-based |
+| `plan` | `/speckit:plan` | `/flow:plan` | `/arch:design` | **UNKNOWN** - Need to verify |
+| `implement` | `/speckit:implement` | `/flow:implement` | `/dev:build` | **UNKNOWN** - Need to verify |
+| `assess` | - | `/flow:assess` | `/pm:assess` | Likely same |
+| `research` | - | `/flow:research` | `/pm:discover` | Likely same |
+| `validate` | - | `/flow:validate` | `/qa:verify` | Likely same |
+| `operate` | - | `/flow:operate` | `/ops:deploy` | Likely same |
 | `checklist` | `/speckit:checklist` | - | `/qa:review` | **UNKNOWN** |
 
 ### speckit-only Commands (no equivalent elsewhere)
@@ -208,15 +208,15 @@ There are **8 command namespaces** with **63 total command files**:
 | `/speckit:constitution` | Constitution generation |
 | `/speckit:tasks` | Task backlog generation |
 
-### specflow-only Commands (no equivalent elsewhere)
+### flowspec-only Commands (no equivalent elsewhere)
 
 | Command | Description |
 |---------|-------------|
-| `/specflow:reset` | Reset workflow configuration |
-| `/specflow:prune-branch` | Git branch cleanup (also `/dev:cleanup`) |
-| `/specflow:security_*` | Security workflow commands |
+| `/flow:reset` | Reset workflow configuration |
+| `/flow:prune-branch` | Git branch cleanup (also `/dev:cleanup`) |
+| `/flow:security_*` | Security workflow commands |
 
-### Role-based-only Commands (no equivalent in speckit/specflow)
+### Role-based-only Commands (no equivalent in speckit/flowspec)
 
 | Command | Description |
 |---------|-------------|
@@ -233,9 +233,9 @@ There are **8 command namespaces** with **63 total command files**:
 
 ## Key Implementation Differences
 
-### `/speckit:specify` vs `/specflow:specify`
+### `/speckit:specify` vs `/flow:specify`
 
-| Aspect | speckit | specflow |
+| Aspect | speckit | flowspec |
 |--------|---------|----------|
 | Implementation | Shell script (`create-new-feature.sh`) | Agent-based (PM Planner) |
 | Output | Simple spec from template | Full PRD with SVPG methodology |
@@ -243,30 +243,30 @@ There are **8 command namespaces** with **63 total command files**:
 | Workflow state | No | Yes (requires `workflow:Assessed` state) |
 | Complexity | Lower | Higher |
 
-### `/speckit:init` vs `/specflow:init`
+### `/speckit:init` vs `/flow:init`
 
-| Aspect | speckit | specflow |
+| Aspect | speckit | flowspec |
 |--------|---------|----------|
 | Purpose | Initialize with constitution + role selection | Initialize constitution for greenfield/brownfield |
-| Workflow config | Generates `specflow_workflow.yml` | Similar |
+| Workflow config | Generates `flowspec_workflow.yml` | Similar |
 | Complexity | Simpler | More comprehensive |
 
 ---
 
 ## Deprecation Mapping Summary
 
-The current deprecation files map specflow commands to role-based commands:
+The current deprecation files map flowspec commands to role-based commands:
 
 ```
-/specflow:assess     → /pm:assess
-/specflow:specify    → /pm:define
-/specflow:research   → /pm:discover
-/specflow:plan       → /arch:design
-/specflow:implement  → /dev:build
-/specflow:validate   → /qa:verify
-/specflow:operate    → /ops:deploy
-/specflow:prune-branch → /dev:cleanup
-/specflow:security_* → /sec:*
+/flow:assess     → /pm:assess
+/flow:specify    → /pm:define
+/flow:research   → /pm:discover
+/flow:plan       → /arch:design
+/flow:implement  → /dev:build
+/flow:validate   → /qa:verify
+/flow:operate    → /ops:deploy
+/flow:prune-branch → /dev:cleanup
+/flow:security_* → /sec:*
 ```
 
 ---
@@ -283,8 +283,8 @@ The `.claude/commands/` directory contains symlinks to templates:
 ├── pm -> ../../templates/commands/pm           (symlink to dir)
 ├── qa -> ../../templates/commands/qa           (symlink to dir)
 ├── sec -> ../../templates/commands/sec         (symlink to dir)
-├── specflow/                                   (directory with symlinks)
-│   ├── assess.md -> ../../../templates/commands/specflow/assess.md
+├── flowspec/                                   (directory with symlinks)
+│   ├── assess.md -> ../../../templates/commands/flowspec/assess.md
 │   ├── _DEPRECATED_*.md -> ...
 │   └── ... (individual file symlinks)
 └── speckit/                                    (directory with symlinks)
@@ -292,22 +292,22 @@ The `.claude/commands/` directory contains symlinks to templates:
     └── ... (individual file symlinks)
 ```
 
-**Note**: Role-based namespaces are directory symlinks, while speckit/specflow contain individual file symlinks.
+**Note**: Role-based namespaces are directory symlinks, while speckit/flowspec contain individual file symlinks.
 
 ---
 
 ## Questions for Clarification
 
-1. **What is the intended relationship between speckit and specflow?**
+1. **What is the intended relationship between speckit and flowspec?**
    - Are they separate products/modes?
-   - Should specflow contain ALL speckit functionality plus more?
+   - Should flowspec contain ALL speckit functionality plus more?
    - Or are they independent workflows?
 
-2. **Should specflow be the "primary" namespace with role-based as aliases?**
+2. **Should flowspec be the "primary" namespace with role-based as aliases?**
    - Current deprecation suggests role-based are primary
-   - But user indicated specflow should be primary
+   - But user indicated flowspec should be primary
 
-3. **What happens to speckit commands that don't exist in specflow?**
+3. **What happens to speckit commands that don't exist in flowspec?**
    - `/speckit:analyze`
    - `/speckit:clarify`
    - `/speckit:configure`
@@ -316,7 +316,7 @@ The `.claude/commands/` directory contains symlinks to templates:
 
 4. **Should the two `specify` implementations be unified or kept separate?**
    - speckit version: simple, script-based
-   - specflow version: complex, agent-based with PRD methodology
+   - flowspec version: complex, agent-based with PRD methodology
 
 ---
 

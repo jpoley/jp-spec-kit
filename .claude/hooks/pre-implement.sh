@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Pre-implementation quality gates
-# Ensures spec quality before /specflow:implement proceeds
+# Ensures spec quality before /flow:implement proceeds
 
 set -euo pipefail
 
@@ -57,7 +57,7 @@ echo "Gate 1: Checking required files..."
 if [[ ! -f "$SPEC_FILE" ]]; then
     GATES_PASSED=false
     GATE_ERRORS+=("${RED}✗${NC} Missing required file: $SPEC_FILE")
-    GATE_ERRORS+=("  → Create spec using /specflow:specify")
+    GATE_ERRORS+=("  → Create spec using /flow:specify")
 else
     echo -e "${GREEN}✓${NC} spec.md exists"
 fi
@@ -65,7 +65,7 @@ fi
 if [[ ! -f "$PLAN_FILE" ]]; then
     GATES_PASSED=false
     GATE_ERRORS+=("${RED}✗${NC} Missing required file: $PLAN_FILE")
-    GATE_ERRORS+=("  → Create plan using /specflow:plan")
+    GATE_ERRORS+=("  → Create plan using /flow:plan")
 else
     echo -e "${GREEN}✓${NC} plan.md exists"
 fi
@@ -124,7 +124,7 @@ if [[ -f "$SPEC_FILE" ]]; then
     if [[ ! -s "$SPEC_FILE" ]]; then
         GATES_PASSED=false
         GATE_ERRORS+=("${RED}✗${NC} spec.md is empty")
-        GATE_ERRORS+=("  → Create specification using /specflow:specify")
+        GATE_ERRORS+=("  → Create specification using /flow:specify")
     fi
 else
     echo -e "${YELLOW}⚠${NC} Skipping completeness check (spec.md not found)"

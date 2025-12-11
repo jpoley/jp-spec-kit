@@ -1,10 +1,10 @@
 # Backlog.md Quick Start Guide
 
-Get started with Backlog.md task management integration in Specflow in under 5 minutes.
+Get started with Backlog.md task management integration in Flowspec in under 5 minutes.
 
 ## What is Backlog.md Integration?
 
-Backlog.md integration extends Specflow's spec-driven development workflow with powerful task lifecycle management:
+Backlog.md integration extends Flowspec's spec-driven development workflow with powerful task lifecycle management:
 
 - **Visual Task Boards**: Kanban boards in terminal and web UI
 - **AI-Powered Management**: Claude Code and other AI assistants can manage tasks via MCP
@@ -16,7 +16,7 @@ Backlog.md integration extends Specflow's spec-driven development workflow with 
 
 ## Prerequisites
 
-- Specflow installed and initialized (`specify init`)
+- Flowspec installed and initialized (`specify init`)
 - Node.js 18+ (for Backlog.md CLI)
 - Claude Code (optional, for AI integration)
 
@@ -51,13 +51,13 @@ backlog init
 
 ```bash
 # Create a spec first (if you haven't already)
-/specflow:specify Build a user authentication system with login, signup, and password reset
+/flow:specify Build a user authentication system with login, signup, and password reset
 
 # Create a plan
-/specflow:plan Use Node.js with Express, PostgreSQL database, and JWT for tokens
+/flow:plan Use Node.js with Express, PostgreSQL database, and JWT for tokens
 
 # Generate tasks (currently creates tasks.md)
-/specflow:tasks
+/flow:tasks
 
 # 🚧 COMING SOON: Direct Backlog.md generation
 # specify tasks generate --format backlog-md
@@ -244,8 +244,8 @@ backlog init
 
 ## FAQ
 
-### Q: Can I use Backlog.md without Specflow?
-**A**: Yes! Backlog.md is a standalone tool. Specflow integration adds automatic task generation from specs.
+### Q: Can I use Backlog.md without Flowspec?
+**A**: Yes! Backlog.md is a standalone tool. Flowspec integration adds automatic task generation from specs.
 
 ### Q: Do I need Claude Code?
 **A**: No, you can use Backlog.md CLI and web UI manually. MCP integration just adds AI-powered task management.

@@ -39,7 +39,7 @@ Configure VS Code Copilot to respect role selection. Generate .vscode/settings.j
 <!-- SECTION:PLAN:BEGIN -->
 DEPENDS ON: task-364, task-367
 
-1. Read primary role from specflow_workflow.yml
+1. Read primary role from flowspec_workflow.yml
 2. Generate .vscode/settings.json with github.copilot.chat.agents
 3. Pin role-appropriate agents to top of list
 4. Configure handoff priorities based on role
@@ -58,11 +58,11 @@ VS Code role integration architecture with agent pinning based on user's primary
 ### Key Components
 1. **VSCodeSettingsGenerator** (src/specify_cli/vscode/settings_generator.py)
    - Generates .vscode/settings.json with role-based agent pinning
-   - Reads role config from specflow_workflow.yml
+   - Reads role config from flowspec_workflow.yml
    - Pins primary role agents to top 6 positions
    - Merges with existing settings without overwriting user preferences
 
-2. **specflow_workflow.yml** - Role definitions with:
+2. **flowspec_workflow.yml** - Role definitions with:
    - 7 roles: pm, arch, dev, sec, qa, ops, all
    - Agent mappings per role
    - Command visibility per role
@@ -70,7 +70,7 @@ VS Code role integration architecture with agent pinning based on user's primary
 3. **Generated .vscode/settings.json** structure:
    - github.copilot.chat.agents with pinnedAgents
    - github.copilot.chat.promptFiles enabled
-   - specflow config (primaryRole, displayName, icon, commands, agentOrder)
+   - flowspec config (primaryRole, displayName, icon, commands, agentOrder)
    - Extension recommendations
 
 ### Testing

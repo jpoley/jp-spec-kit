@@ -6,12 +6,12 @@ A comprehensive Spec-Driven Development (SDD) toolkit designed specifically for 
 
 ### Workflow Commands (6)
 Execute complete development workflows with a single command:
-- `/specflow:specify` - Create comprehensive feature specifications
-- `/specflow:plan` - Architectural planning and design
-- `/specflow:research` - Research and business validation
-- `/specflow:implement` - Frontend + backend implementation with code review
-- `/specflow:validate` - QA, security, documentation, and release validation
-- `/specflow:operate` - SRE operations, CI/CD, Kubernetes, and observability
+- `/flow:specify` - Create comprehensive feature specifications
+- `/flow:plan` - Architectural planning and design
+- `/flow:research` - Research and business validation
+- `/flow:implement` - Frontend + backend implementation with code review
+- `/flow:validate` - QA, security, documentation, and release validation
+- `/flow:operate` - SRE operations, CI/CD, Kubernetes, and observability
 
 ### Specialized Agents (15)
 Purpose-built agents for every stage of development:
@@ -79,42 +79,42 @@ You should see `jp-spec-kit` in the list of installed plugins.
 ### 2. Start a New Feature
 Begin with specification:
 ```bash
-/specflow:specify Add user authentication with OAuth2
+/flow:specify Add user authentication with OAuth2
 ```
 
 ### 3. Plan the Architecture
 Design the system:
 ```bash
-/specflow:plan Design authentication system architecture
+/flow:plan Design authentication system architecture
 ```
 
 ### 4. Research and Validate
 Conduct research if needed:
 ```bash
-/specflow:research Evaluate OAuth2 providers and security best practices
+/flow:research Evaluate OAuth2 providers and security best practices
 ```
 
 ### 5. Implement
 Execute implementation:
 ```bash
-/specflow:implement Build OAuth2 authentication system
+/flow:implement Build OAuth2 authentication system
 ```
 
 ### 6. Validate
 Run comprehensive validation:
 ```bash
-/specflow:validate Check authentication implementation for security and quality
+/flow:validate Check authentication implementation for security and quality
 ```
 
 ### 7. Operate
 Set up operations and monitoring:
 ```bash
-/specflow:operate Set up CI/CD pipeline and monitoring for auth service
+/flow:operate Set up CI/CD pipeline and monitoring for auth service
 ```
 
 ## 📖 Command Details
 
-### /specflow:specify
+### /flow:specify
 **Purpose**: Create comprehensive Product Requirement Documents (PRDs)
 **Agent**: product-requirements-manager-enhanced
 **Outputs**:
@@ -126,10 +126,10 @@ Set up operations and monitoring:
 
 **Example**:
 ```bash
-/specflow:specify Build a real-time chat feature with presence indicators
+/flow:specify Build a real-time chat feature with presence indicators
 ```
 
-### /specflow:plan
+### /flow:plan
 **Purpose**: Architectural planning and system design
 **Agents**: software-architect-enhanced, platform-engineer-enhanced
 **Outputs**:
@@ -141,10 +141,10 @@ Set up operations and monitoring:
 
 **Example**:
 ```bash
-/specflow:plan Design microservices architecture for chat system
+/flow:plan Design microservices architecture for chat system
 ```
 
-### /specflow:research
+### /flow:research
 **Purpose**: Technical research and business validation
 **Agents**: researcher, business-validator
 **Outputs**:
@@ -156,10 +156,10 @@ Set up operations and monitoring:
 
 **Example**:
 ```bash
-/specflow:research Compare WebSocket vs Server-Sent Events for real-time messaging
+/flow:research Compare WebSocket vs Server-Sent Events for real-time messaging
 ```
 
-### /specflow:implement
+### /flow:implement
 **Purpose**: Full-stack implementation with code review
 **Agents**: frontend-engineer, backend-engineer, frontend-code-reviewer, backend-code-reviewer
 **Outputs**:
@@ -170,10 +170,10 @@ Set up operations and monitoring:
 
 **Example**:
 ```bash
-/specflow:implement Build chat WebSocket server and React frontend
+/flow:implement Build chat WebSocket server and React frontend
 ```
 
-### /specflow:validate
+### /flow:validate
 **Purpose**: Quality assurance, security, and release readiness
 **Agents**: quality-guardian, secure-by-design-engineer, tech-writer, release-manager
 **Outputs**:
@@ -184,10 +184,10 @@ Set up operations and monitoring:
 
 **Example**:
 ```bash
-/specflow:validate Check chat feature for security vulnerabilities and test coverage
+/flow:validate Check chat feature for security vulnerabilities and test coverage
 ```
 
-### /specflow:operate
+### /flow:operate
 **Purpose**: Operations, CI/CD, and production readiness
 **Agent**: sre-agent
 **Outputs**:
@@ -199,7 +199,7 @@ Set up operations and monitoring:
 
 **Example**:
 ```bash
-/specflow:operate Set up CI/CD pipeline with security scanning for chat service
+/flow:operate Set up CI/CD pipeline with security scanning for chat service
 ```
 
 ## 🔧 Configuration
@@ -304,26 +304,26 @@ specify → plan → research → implement → validate → operate
 ### 2. Provide Context
 When using commands, provide clear context:
 ```bash
-/specflow:specify [Feature Name]
+/flow:specify [Feature Name]
 Context: [Background information, user needs, constraints]
 ```
 
 ### 3. Iterate
 Don't hesitate to re-run commands with refinements:
 ```bash
-/specflow:plan Update architecture to use event-driven design instead of polling
+/flow:plan Update architecture to use event-driven design instead of polling
 ```
 
 ### 4. Use Research for Decisions
 Before making major technical decisions:
 ```bash
-/specflow:research Evaluate trade-offs between PostgreSQL and MongoDB for chat persistence
+/flow:research Evaluate trade-offs between PostgreSQL and MongoDB for chat persistence
 ```
 
 ### 5. Validate Early and Often
 Run validation throughout development, not just at the end:
 ```bash
-/specflow:validate Check current implementation for security issues
+/flow:validate Check current implementation for security issues
 ```
 
 ## 🤝 Support

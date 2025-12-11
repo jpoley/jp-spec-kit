@@ -125,7 +125,7 @@ def schema_path(tmp_path: Path) -> Path:
             },
         },
     }
-    schema_file = tmp_path / "memory" / "specflow_workflow.schema.json"
+    schema_file = tmp_path / "memory" / "flowspec_workflow.schema.json"
     schema_file.parent.mkdir(parents=True, exist_ok=True)
     with open(schema_file, "w") as f:
         json.dump(schema, f)
@@ -202,13 +202,13 @@ class TestWorkflowConfigLoading:
     def test_load_from_cwd(self, tmp_path: Path, monkeypatch):
         """Test loading config from current working directory."""
         # Create config in tmp_path
-        config_file = tmp_path / "specflow_workflow.yml"
+        config_file = tmp_path / "flowspec_workflow.yml"
         config_data = {
             "version": "1.0",
             "states": [{"name": "Test"}],
             "workflows": {
                 "test": {
-                    "command": "/specflow:test",
+                    "command": "/flow:test",
                     "agents": ["agent"],
                     "input_states": ["To Do"],
                     "output_state": "Test",
@@ -263,14 +263,14 @@ class TestWorkflowConfigCaching:
     def test_reload_clears_and_reloads(self, tmp_path: Path):
         """Test reload clears cache and reloads from file."""
         # Create initial config
-        config_file = tmp_path / "specflow_workflow.yml"
+        config_file = tmp_path / "flowspec_workflow.yml"
         initial_data = {
             "version": "1.0",
             "description": "Initial",
             "states": [{"name": "Test"}],
             "workflows": {
                 "test": {
-                    "command": "/specflow:test",
+                    "command": "/flow:test",
                     "agents": ["agent"],
                     "input_states": ["To Do"],
                     "output_state": "Test",
@@ -457,7 +457,7 @@ class TestWorkflowConfigProperties:
         assert "implement" in workflows
 
         specify = workflows["specify"]
-        assert specify["command"] == "/specflow:specify"
+        assert specify["command"] == "/flow:specify"
         assert specify["agents"] == ["product-requirements-manager"]
 
     def test_version_property(self, config: WorkflowConfig):
@@ -538,7 +538,7 @@ class TestWorkflowConfigEdgeCases:
             "states": [{"name": "Test"}],
             "workflows": {
                 "test": {
-                    "command": "/specflow:test",
+                    "command": "/flow:test",
                     "agents": [],  # Empty list
                     "input_states": ["To Do"],
                     "output_state": "Test",
@@ -561,7 +561,7 @@ class TestWorkflowConfigEdgeCases:
             "states": [{"name": "Test"}],
             "workflows": {
                 "test": {
-                    "command": "/specflow:test",
+                    "command": "/flow:test",
                     "agents": ["agent"],
                     "input_states": ["To Do"],
                     # output_state missing
@@ -614,7 +614,7 @@ class TestWorkflowConfigEdgeCases:
             "states": ["Specified", "Planned"],  # Strings instead of objects
             "workflows": {
                 "test": {
-                    "command": "/specflow:test",
+                    "command": "/flow:test",
                     "agents": ["agent"],
                     "input_states": ["To Do"],
                     "output_state": "Specified",
@@ -637,7 +637,7 @@ class TestWorkflowConfigEdgeCases:
             "states": [{"name": "Test"}],
             "workflows": {
                 "test": {
-                    "command": "/specflow:test",
+                    "command": "/flow:test",
                     "agents": ["agent"],
                     "input_states": ["To Do"],
                     "output_state": "Test",

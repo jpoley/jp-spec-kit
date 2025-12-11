@@ -13,7 +13,7 @@
 
 ### Problem Statement
 
-JP Specflow has introduced a sophisticated role-based command architecture (task-361, task-367) with 7 personas (PM, Architect, Developer, Security, QA, Ops, All) and role-specific command namespaces. However, **we have zero visibility into how users interact with this role system**, creating critical gaps in product development:
+JP Flowspec has introduced a sophisticated role-based command architecture (task-361, task-367) with 7 personas (PM, Architect, Developer, Security, QA, Ops, All) and role-specific command namespaces. However, **we have zero visibility into how users interact with this role system**, creating critical gaps in product development:
 
 1. **No usage analytics**: We don't know which roles developers select or which commands they use
 2. **No adoption metrics**: We can't measure if role-based commands improve workflow efficiency
@@ -27,7 +27,7 @@ These gaps force product decisions based on intuition rather than data, increasi
 Introduce an **opt-in, privacy-preserving telemetry system** for role usage analytics. The system consists of:
 
 1. **RoleEvent Tracking**: Canonical event types (role.selected, agent.invoked, handoff.clicked)
-2. **Local Storage**: JSONL telemetry file at `.specflow/telemetry.jsonl`
+2. **Local Storage**: JSONL telemetry file at `.flowspec/telemetry.jsonl`
 3. **Privacy-by-Design**: PII hashing, opt-in consent, local-only storage (v1)
 4. **User Control**: CLI commands to view, export, and delete telemetry data
 5. **Transparent Opt-In**: Clear privacy notice during init/configure with benefits and guarantees
@@ -78,7 +78,7 @@ Introduce an **opt-in, privacy-preserving telemetry system** for role usage anal
 ### Primary Personas
 
 #### Persona 1: Product Manager (Elena)
-**Background**: Elena maintains JP Specflow and needs data to prioritize new role-specific features. She wants to know which roles developers use most and which commands are underutilized.
+**Background**: Elena maintains JP Flowspec and needs data to prioritize new role-specific features. She wants to know which roles developers use most and which commands are underutilized.
 
 **Pain Points**:
 - No visibility into role selection patterns
@@ -91,7 +91,7 @@ Introduce an **opt-in, privacy-preserving telemetry system** for role usage anal
 - Measure adoption of new features (e.g., handoff clicks)
 
 #### Persona 2: Developer (Marcus)
-**Background**: Marcus is a privacy-conscious developer who uses JP Specflow daily. He's willing to share usage data if it improves the product, but only with strong privacy guarantees.
+**Background**: Marcus is a privacy-conscious developer who uses JP Flowspec daily. He's willing to share usage data if it improves the product, but only with strong privacy guarantees.
 
 **Pain Points**:
 - Distrust of telemetry systems that collect PII
@@ -104,7 +104,7 @@ Introduce an **opt-in, privacy-preserving telemetry system** for role usage anal
 - Easy opt-out and data deletion
 
 #### Persona 3: Open Source Contributor (Sarah)
-**Background**: Sarah contributes to JP Specflow and wants to understand usage patterns to improve documentation and tutorials for specific roles.
+**Background**: Sarah contributes to JP Flowspec and wants to understand usage patterns to improve documentation and tutorials for specific roles.
 
 **Pain Points**:
 - No data on which roles need better documentation
@@ -120,15 +120,15 @@ Introduce an **opt-in, privacy-preserving telemetry system** for role usage anal
 
 #### US1: Opt-In to Telemetry with Privacy Notice
 
-**As a** developer using JP Specflow,
+**As a** developer using JP Flowspec,
 **I want** to see a clear privacy notice during init/configure,
 **So that** I understand what telemetry is collected and can make an informed consent decision.
 
 **Acceptance Criteria**:
-- [ ] AC1: During `/specflow:init`, user sees telemetry opt-in prompt with privacy notice
+- [ ] AC1: During `/flow:init`, user sees telemetry opt-in prompt with privacy notice
 - [ ] AC2: Privacy notice explains: local-only storage, PII hashing, opt-out anytime, view/delete data
 - [ ] AC3: User can opt-in (Y), opt-out (N), or defer decision (skip)
-- [ ] AC4: Consent is stored in `specflow_workflow.yml` with timestamp
+- [ ] AC4: Consent is stored in `flowspec_workflow.yml` with timestamp
 - [ ] AC5: Non-interactive mode via `--telemetry-enabled` flag
 
 **Priority**: Must Have
@@ -143,7 +143,7 @@ Introduce an **opt-in, privacy-preserving telemetry system** for role usage anal
 - [ ] AC1: When user selects role in init/configure, `role.selected` event is tracked
 - [ ] AC2: Event payload includes: timestamp, role (pm/arch/dev/sec/qa/ops/all), hashed project ID
 - [ ] AC3: Tracking only occurs if telemetry is enabled (consent check)
-- [ ] AC4: Event is appended to `.specflow/telemetry.jsonl`
+- [ ] AC4: Event is appended to `.flowspec/telemetry.jsonl`
 - [ ] AC5: No raw PII in event (project name, username, file paths are hashed)
 
 **Priority**: Must Have
@@ -158,7 +158,7 @@ Introduce an **opt-in, privacy-preserving telemetry system** for role usage anal
 - [ ] AC1: When user runs role-based command (e.g., `/pm:assess`), `agent.invoked` event is tracked
 - [ ] AC2: Event payload includes: timestamp, role, command, agent (e.g., `@workflow-assessor`), hashed project ID
 - [ ] AC3: Tracking only occurs if telemetry is enabled
-- [ ] AC4: Event is appended to `.specflow/telemetry.jsonl`
+- [ ] AC4: Event is appended to `.flowspec/telemetry.jsonl`
 - [ ] AC5: Performance overhead < 50ms per event
 
 **Priority**: Must Have
@@ -173,7 +173,7 @@ Introduce an **opt-in, privacy-preserving telemetry system** for role usage anal
 - [ ] AC1: When user clicks handoff link in VS Code Copilot, `handoff.clicked` event is tracked
 - [ ] AC2: Event payload includes: timestamp, source_agent, target_agent, hashed project ID
 - [ ] AC3: Tracking only occurs if telemetry is enabled
-- [ ] AC4: Event is appended to `.specflow/telemetry.jsonl`
+- [ ] AC4: Event is appended to `.flowspec/telemetry.jsonl`
 - [ ] AC5: Works with VS Code Copilot extension integration
 
 **Priority**: Nice to Have (depends on VS Code integration)
@@ -202,7 +202,7 @@ Introduce an **opt-in, privacy-preserving telemetry system** for role usage anal
 **Acceptance Criteria**:
 - [ ] AC1: `specify telemetry export --format json` exports to JSON file
 - [ ] AC2: `specify telemetry export --format csv` exports to CSV file
-- [ ] AC3: Export includes all events in `.specflow/telemetry.jsonl`
+- [ ] AC3: Export includes all events in `.flowspec/telemetry.jsonl`
 - [ ] AC4: Export file is written to user-specified path or default `telemetry-export.{json,csv}`
 - [ ] AC5: Export maintains privacy - hashed values, not raw PII
 
@@ -215,10 +215,10 @@ Introduce an **opt-in, privacy-preserving telemetry system** for role usage anal
 **So that** I can revoke consent and ensure my usage data is removed.
 
 **Acceptance Criteria**:
-- [ ] AC1: `specify telemetry clear` command deletes `.specflow/telemetry.jsonl`
+- [ ] AC1: `specify telemetry clear` command deletes `.flowspec/telemetry.jsonl`
 - [ ] AC2: Command prompts for confirmation before deletion (safety check)
 - [ ] AC3: Command with `--force` flag skips confirmation
-- [ ] AC4: Command also clears `.specflow/telemetry.salt` (hash salt file)
+- [ ] AC4: Command also clears `.flowspec/telemetry.salt` (hash salt file)
 - [ ] AC5: After deletion, telemetry opt-in prompt shows again on next init/configure
 
 **Priority**: Must Have
@@ -232,7 +232,7 @@ Introduce an **opt-in, privacy-preserving telemetry system** for role usage anal
 **Acceptance Criteria**:
 - [ ] AC1: `specify telemetry stats` command shows aggregated metrics
 - [ ] AC2: Metrics include: total events, events by type, events by role, top 5 commands
-- [ ] AC3: Stats calculated from local `.specflow/telemetry.jsonl` (no remote call)
+- [ ] AC3: Stats calculated from local `.flowspec/telemetry.jsonl` (no remote call)
 - [ ] AC4: Stats respect date range filters: `--since`, `--until`
 - [ ] AC5: Stats output is human-readable with color formatting
 
@@ -300,7 +300,7 @@ Introduce an **opt-in, privacy-preserving telemetry system** for role usage anal
 
 **Mitigation**:
 1. **PII Hashing**: SHA-256 hash all potentially identifying data
-2. **Project-Specific Salt**: Generate unique salt per project in `.specflow/telemetry.salt` (gitignored)
+2. **Project-Specific Salt**: Generate unique salt per project in `.flowspec/telemetry.salt` (gitignored)
 3. **Path Sanitization**: Remove usernames and absolute paths before hashing
 4. **Privacy Verification Tests**: Assert no raw PII in telemetry.jsonl (property-based testing)
 5. **Code Review**: Mandatory security review of telemetry module
@@ -373,10 +373,10 @@ Introduce an **opt-in, privacy-preserving telemetry system** for role usage anal
 
 ### FR2: Configuration and Consent Management
 
-**Description**: Implement opt-in consent configuration in `specflow_workflow.yml` with consent management API.
+**Description**: Implement opt-in consent configuration in `flowspec_workflow.yml` with consent management API.
 
 **Requirements**:
-- **FR2.1**: Telemetry section in `specflow_workflow.yml`:
+- **FR2.1**: Telemetry section in `flowspec_workflow.yml`:
   ```yaml
   telemetry:
     enabled: false  # Default to disabled
@@ -387,28 +387,28 @@ Introduce an **opt-in, privacy-preserving telemetry system** for role usage anal
   - `get_telemetry_consent() -> bool`
   - `set_telemetry_consent(enabled: bool)`
   - `get_telemetry_config() -> dict`
-- **FR2.3**: Environment variable override: `SPECFLOW_TELEMETRY_ENABLED=true`
+- **FR2.3**: Environment variable override: `FLOWSPEC_TELEMETRY_ENABLED=true`
 - **FR2.4**: Config validation in `specify workflow validate` command
 - **FR2.5**: Opt-in only - telemetry disabled by default
 
 **Acceptance Criteria**:
-- [ ] Telemetry section added to specflow_workflow.yml schema
+- [ ] Telemetry section added to flowspec_workflow.yml schema
 - [ ] Consent management API implemented
-- [ ] Env var override works (SPECFLOW_TELEMETRY_ENABLED)
+- [ ] Env var override works (FLOWSPEC_TELEMETRY_ENABLED)
 - [ ] Config validation passes in workflow validate
 - [ ] Default is disabled (opt-in only)
 
 ### FR3: JSONL Storage
 
-**Description**: Append-only JSONL file storage for telemetry events at `.specflow/telemetry.jsonl`.
+**Description**: Append-only JSONL file storage for telemetry events at `.flowspec/telemetry.jsonl`.
 
 **Requirements**:
-- **FR3.1**: JSONL writer appends events to `.specflow/telemetry.jsonl`
+- **FR3.1**: JSONL writer appends events to `.flowspec/telemetry.jsonl`
 - **FR3.2**: Each event is one line of JSON (newline-delimited)
 - **FR3.3**: File created on first event, append-only thereafter
-- **FR3.4**: File location: `.specflow/telemetry.jsonl` (project-local)
-- **FR3.5**: Gitignore `.specflow/telemetry.jsonl` and `.specflow/telemetry.salt`
-- **FR3.6**: File rotation after 10,000 events (archive to `.specflow/telemetry-{date}.jsonl.gz`)
+- **FR3.4**: File location: `.flowspec/telemetry.jsonl` (project-local)
+- **FR3.5**: Gitignore `.flowspec/telemetry.jsonl` and `.flowspec/telemetry.salt`
+- **FR3.6**: File rotation after 10,000 events (archive to `.flowspec/telemetry-{date}.jsonl.gz`)
 
 **Acceptance Criteria**:
 - [ ] JSONL writer appends events correctly
@@ -423,7 +423,7 @@ Introduce an **opt-in, privacy-preserving telemetry system** for role usage anal
 
 **Requirements**:
 - **FR4.1**: `hash_pii(data: str) -> str` function using SHA-256
-- **FR4.2**: Project-specific salt generated in `.specflow/telemetry.salt`
+- **FR4.2**: Project-specific salt generated in `.flowspec/telemetry.salt`
 - **FR4.3**: Salt is 32 bytes of random data (cryptographically secure)
 - **FR4.4**: Deterministic hashing - same input produces same hash within project
 - **FR4.5**: `anonymize_path(path: str) -> str` removes username and absolute paths
@@ -431,7 +431,7 @@ Introduce an **opt-in, privacy-preserving telemetry system** for role usage anal
 
 **Acceptance Criteria**:
 - [ ] hash_pii() implemented with SHA-256
-- [ ] Salt generation works and stores in .specflow/telemetry.salt
+- [ ] Salt generation works and stores in .flowspec/telemetry.salt
 - [ ] Deterministic hashing verified
 - [ ] anonymize_path() removes usernames
 - [ ] anonymize_project_name() hashes identifiers
@@ -441,12 +441,12 @@ Introduce an **opt-in, privacy-preserving telemetry system** for role usage anal
 **Description**: Interactive opt-in prompt during init/configure with clear privacy notice.
 
 **Requirements**:
-- **FR5.1**: Prompt displayed during `/specflow:init` if telemetry not configured
+- **FR5.1**: Prompt displayed during `/flow:init` if telemetry not configured
 - **FR5.2**: Privacy notice text:
   ```
   Role Usage Analytics (Optional)
 
-  Help improve JP Specflow by sharing anonymous role usage data.
+  Help improve JP Flowspec by sharing anonymous role usage data.
 
   What we collect:
   - Which roles you select (PM, Dev, QA, etc.)
@@ -478,10 +478,10 @@ Introduce an **opt-in, privacy-preserving telemetry system** for role usage anal
 
 **Requirements**:
 - **FR6.1**: Role selection events:
-  - Hook `/specflow:init` and `/specflow:reset` commands
+  - Hook `/flow:init` and `/flow:reset` commands
   - Track when user selects role (pm/arch/dev/sec/qa/ops/all)
 - **FR6.2**: Agent invocation events:
-  - Hook all `/specflow:*` commands
+  - Hook all `/flow:*` commands
   - Track which agent is invoked (e.g., `@workflow-assessor`, `@backend-engineer`)
 - **FR6.3**: Handoff click events:
   - Hook VS Code Copilot agent handoff links
@@ -510,9 +510,9 @@ Introduce an **opt-in, privacy-preserving telemetry system** for role usage anal
   - Export to CSV: `--format csv`
   - Output path: `--output telemetry-export.{json,csv}`
 - **FR7.3**: `specify telemetry clear` command:
-  - Delete `.specflow/telemetry.jsonl`
+  - Delete `.flowspec/telemetry.jsonl`
   - Prompt for confirmation (skip with `--force`)
-  - Also delete `.specflow/telemetry.salt`
+  - Also delete `.flowspec/telemetry.salt`
 - **FR7.4**: `specify telemetry stats` command:
   - Show aggregated metrics: total events, events by type, top 5 commands
   - Date range filters: `--since`, `--until`
@@ -556,7 +556,7 @@ Introduce an **opt-in, privacy-preserving telemetry system** for role usage anal
 **NFR-S2**: Hash salt must be cryptographically secure
 - **Rationale**: Prevent hash reversal attacks
 - **Implementation**: Use `secrets.token_bytes(32)` for salt generation
-- **Storage**: `.specflow/telemetry.salt` with 0600 permissions (read/write owner only)
+- **Storage**: `.flowspec/telemetry.salt` with 0600 permissions (read/write owner only)
 
 **NFR-S3**: Consent must be enforced before tracking
 - **Rationale**: Legal compliance (GDPR, CCPA)
@@ -565,7 +565,7 @@ Introduce an **opt-in, privacy-preserving telemetry system** for role usage anal
 
 **NFR-S4**: Telemetry files must be gitignored
 - **Rationale**: Prevent accidental PII commit to public repos
-- **Implementation**: Add `.specflow/telemetry.jsonl` and `.specflow/telemetry.salt` to .gitignore
+- **Implementation**: Add `.flowspec/telemetry.jsonl` and `.flowspec/telemetry.salt` to .gitignore
 - **Validation**: Integration test asserting files are gitignored
 
 ### Privacy
@@ -657,7 +657,7 @@ task-408 (Privacy Utilities) [HIGH - FOUNDATIONAL]
 2. task-403: Core telemetry module (RoleEvent, track_role_event, JSONL writer)
 
 **Phase 2: Configuration (Est. 1 day)**
-3. task-404: Configuration system (opt-in consent, specflow_workflow.yml)
+3. task-404: Configuration system (opt-in consent, flowspec_workflow.yml)
 
 **Phase 3: Integration (Est. 1 day)**
 4. task-405: Event integration (hook role selection, agent invocation, handoffs)
@@ -702,7 +702,7 @@ View individual task details:
 **Method**:
 1. Recruit 5 beta users (diverse roles: PM, Dev, QA)
 2. Show privacy notice during init workflow
-3. After opt-in decision, interview: "What data does JP Specflow collect?"
+3. After opt-in decision, interview: "What data does JP Flowspec collect?"
 4. Measure comprehension accuracy
 
 **Success Criteria**:
@@ -800,10 +800,10 @@ A task is considered "Done" when:
 2. When prompted "Enable telemetry? [y/N/defer]:", enter "y"
 3. Select role: "dev"
 4. Run command: `/dev:build`
-5. Verify events tracked in `.specflow/telemetry.jsonl`
+5. Verify events tracked in `.flowspec/telemetry.jsonl`
 
 **Expected Results**:
-- Consent stored in `specflow_workflow.yml`: `telemetry.enabled = true`
+- Consent stored in `flowspec_workflow.yml`: `telemetry.enabled = true`
 - 2 events in telemetry.jsonl:
   - Event 1: `role.selected` with role="dev"
   - Event 2: `agent.invoked` with command="/dev:build", agent="@backend-engineer"
@@ -824,7 +824,7 @@ A task is considered "Done" when:
 
 **Expected Results**:
 - Consent stored: `telemetry.enabled = false`
-- `.specflow/telemetry.jsonl` does NOT exist
+- `.flowspec/telemetry.jsonl` does NOT exist
 - No telemetry events tracked despite running commands
 
 **Pass Criteria**: No telemetry file created, no events tracked
@@ -839,7 +839,7 @@ A task is considered "Done" when:
    - Project path: "/home/jsmith/projects/acme-corp-internal/"
 2. Opt-in to telemetry
 3. Select role and run commands
-4. Inspect `.specflow/telemetry.jsonl` with privacy scanner
+4. Inspect `.flowspec/telemetry.jsonl` with privacy scanner
 
 **Expected Results**:
 - NO raw project name "john-smith-secret-app" in file
@@ -862,7 +862,7 @@ A task is considered "Done" when:
 **Expected Results**:
 - `view` command displays 10 events in table format
 - `export` command creates `/tmp/export.json` with 10 events
-- `clear` command deletes `.specflow/telemetry.jsonl` and `.specflow/telemetry.salt`
+- `clear` command deletes `.flowspec/telemetry.jsonl` and `.flowspec/telemetry.salt`
 
 **Pass Criteria**: All commands execute successfully, data is deleted
 
@@ -900,7 +900,7 @@ A task is considered "Done" when:
 - task-361: Role selection in init/reset commands (DONE)
 - task-367: Role-based command namespaces (DONE)
 - Hooks system: `src/specify_cli/hooks/` (exists, needs extension)
-- Config system: `specflow_workflow.yml` (exists, needs telemetry section)
+- Config system: `flowspec_workflow.yml` (exists, needs telemetry section)
 
 **External Dependencies**:
 - Python standard library: `json`, `hashlib`, `secrets`, `pathlib`
@@ -1049,7 +1049,7 @@ The following features are explicitly excluded from v1 to maintain focus and shi
                   Role Usage Analytics (Optional)
 ═══════════════════════════════════════════════════════════════
 
-Help improve JP Specflow by sharing anonymous role usage data.
+Help improve JP Flowspec by sharing anonymous role usage data.
 
 What we collect:
   ✓ Which roles you select (PM, Architect, Dev, Security, QA, Ops)
@@ -1070,7 +1070,7 @@ Privacy guarantees:
   🔒 Delete anytime: specify telemetry clear
   🔒 Opt-out anytime: specify workflow configure
 
-Storage location: .specflow/telemetry.jsonl (gitignored)
+Storage location: .flowspec/telemetry.jsonl (gitignored)
 
 Why we collect this:
   📊 Understand which roles developers use most
@@ -1142,7 +1142,7 @@ Enable telemetry? [y/N/defer]:
 
 ### C. FAQ
 
-**Q: Can I use JP Specflow without enabling telemetry?**
+**Q: Can I use JP Flowspec without enabling telemetry?**
 A: Yes! Telemetry is entirely optional. All features work with telemetry disabled.
 
 **Q: What happens if I opt-out after opting in?**
@@ -1152,7 +1152,7 @@ A: Run `specify telemetry clear` to delete all collected data and disable future
 A: Yes! Run `specify telemetry view` to see all events in a table format.
 
 **Q: Is my data sent to a remote server?**
-A: No. In v1, all telemetry is stored locally in `.specflow/telemetry.jsonl`. No remote transmission.
+A: No. In v1, all telemetry is stored locally in `.flowspec/telemetry.jsonl`. No remote transmission.
 
 **Q: How do you hash PII? Can it be reversed?**
 A: We use SHA-256 with a project-specific salt. Hashing is one-way (irreversible). Even we can't recover the original data.
@@ -1164,7 +1164,7 @@ A: The file is gitignored by default. Even if committed, it only contains hashed
 A: Possibly in v2, but only with explicit opt-in (separate from v1 consent). We'll ask permission first.
 
 **Q: How does this relate to Claude Code hooks?**
-A: Claude Code hooks track tool-level events (file edits, git operations). JP Specflow telemetry tracks workflow-level events (role selection, agent invocations). They're complementary.
+A: Claude Code hooks track tool-level events (file edits, git operations). JP Flowspec telemetry tracks workflow-level events (role selection, agent invocations). They're complementary.
 
 ---
 

@@ -37,5 +37,5 @@ Add 'specify quality' command for automated spec assessment. Measures: Completen
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-AC #9: Implemented specify gate command with exit codes 0/1/2. Integrated into /specflow:implement as Phase 0 (mandatory quality gate before implementation).
+AC #9: Implemented specify gate command with exit codes 0/1/2. Integrated into /flow:implement as Phase 0 (mandatory quality gate before implementation).
 <!-- SECTION:NOTES:END -->

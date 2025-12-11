@@ -5,7 +5,7 @@ states:
 
 workflows:
   specify:
-    command: "/specflow:specify"
+    command: "/flow:specify"
     agents:
       - "pm-agent"
     input_states:

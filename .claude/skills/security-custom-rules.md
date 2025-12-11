@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This skill enables Claude Code to help users create, validate, and test custom security rules for `/specflow:security` scanning. You will guide users through the process of writing Semgrep and Bandit rules tailored to their organization's security requirements.
+This skill enables Claude Code to help users create, validate, and test custom security rules for `/flow:security` scanning. You will guide users through the process of writing Semgrep and Bandit rules tailored to their organization's security requirements.
 
 ## When to Use This Skill
 
@@ -10,7 +10,7 @@ This skill enables Claude Code to help users create, validate, and test custom s
 - When user wants to detect organization-specific vulnerabilities
 - When user needs to reduce false positives in security scans
 - When user wants to enforce internal coding standards
-- When invoked via `/specflow:security_custom_rules` command
+- When invoked via `/flow:security_custom_rules` command
 
 ## Rule Formats Supported
 
@@ -451,7 +451,7 @@ cp /tmp/test-rule.yml .specify/security/rules/
 
 3. **Avoid overly broad regex patterns**
 
-## Integration with specflow Workflow
+## Integration with flowspec Workflow
 
 ### Creating Rules for Project
 

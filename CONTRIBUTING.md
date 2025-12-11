@@ -1,6 +1,6 @@
-## Contributing to Specflow
+## Contributing to Flowspec
 
-Hi there! We're thrilled that you'd like to contribute to Specflow. Contributions to this project are [released](https://help.github.com/articles/github-terms-of-service/#6-contributions-under-repository-license) to the public under the [project's open source license](LICENSE).
+Hi there! We're thrilled that you'd like to contribute to Flowspec. Contributions to this project are [released](https://help.github.com/articles/github-terms-of-service/#6-contributions-under-repository-license) to the public under the [project's open source license](LICENSE).
 
 Please note that this project is released with a [Contributor Code of Conduct](CODE_OF_CONDUCT.md). By participating in this project you agree to abide by its terms.
 
@@ -47,7 +47,7 @@ When working on spec-kit:
 
 ## Development Setup for jp-spec-kit
 
-jp-spec-kit can use its own `/speckit.*` and `/specflow:*` commands during development. This ensures developers test the same commands that users receive.
+jp-spec-kit can use its own `/speckit.*` and `/flow:*` commands during development. This ensures developers test the same commands that users receive.
 
 ### Quick Setup
 
@@ -114,12 +114,12 @@ Once set up, you can use these commands in Claude Code:
 - `/speckit:constitution` - Work with project constitution
 
 **JP Spec-Kit Commands** (already available):
-- `/specflow:specify` - Product requirements management
-- `/specflow:plan` - Architecture planning
-- `/specflow:research` - Market research
-- `/specflow:implement` - Multi-agent implementation
-- `/specflow:validate` - QA and validation
-- `/specflow:operate` - SRE operations
+- `/flow:specify` - Product requirements management
+- `/flow:plan` - Architecture planning
+- `/flow:research` - Market research
+- `/flow:implement` - Multi-agent implementation
+- `/flow:validate` - QA and validation
+- `/flow:operate` - SRE operations
 
 ## AI contributions in Spec Kit
 

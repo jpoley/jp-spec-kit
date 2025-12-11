@@ -217,7 +217,7 @@ async def connect_to_security_mcp(
     project_root: Path | None = None,
     timeout: int = DEFAULT_MCP_TIMEOUT,
 ) -> AsyncIterator[ClientSession]:
-    """Connect to specflow-security MCP server with timeout.
+    """Connect to flowspec-security MCP server with timeout.
 
     Args:
         project_root: Optional project root path

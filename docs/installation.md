@@ -12,7 +12,7 @@
 
 ### Initialize a New Project
 
-The easiest way to get started is to initialize a new project with Specflow.
+The easiest way to get started is to initialize a new project with Flowspec.
 
 ```bash
 uvx --from git+https://github.com/jpoley/jp-spec-kit.git specify init <PROJECT_NAME>
@@ -70,10 +70,10 @@ uvx --from git+https://github.com/jpoley/jp-spec-kit.git specify init <project_n
 ## Verification
 
 After initialization, you should see the following commands available in your AI agent:
-- `/specflow:specify` - Create specifications
-- `/specflow:plan` - Generate implementation plans
-- `/specflow:implement` - Execute implementation with code review
-- `/specflow:validate` - QA and security validation
+- `/flow:specify` - Create specifications
+- `/flow:plan` - Generate implementation plans
+- `/flow:implement` - Execute implementation with code review
+- `/flow:validate` - QA and security validation
 
 The `scripts/bash` directory will contain both `.sh` and `.ps1` scripts.
 
@@ -93,7 +93,7 @@ If you're using GitHub Copilot in VS Code, the initialization process automatica
 
 ### Private assets or API rate limits (authenticated downloads)
 
-If the Specflow repository or its release assets are private, or you're operating behind corporate restrictions/rate limits, provide a GitHub token so the CLI can authenticate when resolving releases and downloading assets.
+If the Flowspec repository or its release assets are private, or you're operating behind corporate restrictions/rate limits, provide a GitHub token so the CLI can authenticate when resolving releases and downloading assets.
 
 Supported methods:
 

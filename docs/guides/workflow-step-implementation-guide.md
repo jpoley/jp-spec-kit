@@ -9,7 +9,7 @@
 
 ## Overview
 
-This guide provides implementation details for adding workflow step tracking to backlog.md tasks, enabling integration with the `/specflow` workflow state machine.
+This guide provides implementation details for adding workflow step tracking to backlog.md tasks, enabling integration with the `/flowspec` workflow state machine.
 
 ### Quick Summary
 
@@ -181,7 +181,7 @@ from .exceptions import WorkflowStateError
 
 
 class WorkflowStateSynchronizer:
-    """Synchronizes backlog.md task status with specflow workflow steps."""
+    """Synchronizes backlog.md task status with flowspec workflow steps."""
 
     def __init__(self, backlog_dir: Path | None = None):
         """Initialize synchronizer.
@@ -201,7 +201,7 @@ class WorkflowStateSynchronizer:
         feature: str | None = None,
         auto_status: bool = True,
     ) -> Task:
-        """Update task workflow step after /specflow command completes.
+        """Update task workflow step after /flowspec command completes.
 
         Args:
             task_id: Backlog task ID (e.g., "task-042")
@@ -359,16 +359,16 @@ class WorkflowStateSynchronizer:
         return datetime.now().isoformat()
 ```
 
-#### 2.2 Integration with /specflow Commands
+#### 2.2 Integration with /flowspec Commands
 
-**Pattern for all /specflow commands:**
+**Pattern for all /flowspec commands:**
 
 ```python
-# Example: .claude/commands/specflow.implement.md
+# Example: .claude/commands/flowspec.implement.md
 
 from specify_cli.workflow.sync import WorkflowStateSynchronizer
 
-# After /specflow:implement completes successfully
+# After /flow:implement completes successfully
 sync = WorkflowStateSynchronizer()
 
 # Update all tasks related to this feature
@@ -384,27 +384,27 @@ for task_id in implementation_tasks:
 **Specific integrations:**
 
 ```python
-# /specflow:assess
+# /flow:assess
 sync.update_task_workflow_step(task_id, "assess", feature)
 # Sets workflow_step = "Assessed"
 
-# /specflow:specify
+# /flow:specify
 sync.update_task_workflow_step(task_id, "specify", feature)
 # Sets workflow_step = "Specified"
 
-# /specflow:plan
+# /flow:plan
 sync.update_task_workflow_step(task_id, "plan", feature)
 # Sets workflow_step = "Planned"
 
-# /specflow:implement
+# /flow:implement
 sync.update_task_workflow_step(task_id, "implement", feature)
 # Sets workflow_step = "In Implementation"
 
-# /specflow:validate
+# /flow:validate
 sync.update_task_workflow_step(task_id, "validate", feature)
 # Sets workflow_step = "Validated"
 
-# /specflow:operate
+# /flow:operate
 sync.update_task_workflow_step(task_id, "operate", feature)
 # Sets workflow_step = "Deployed"
 ```
@@ -481,7 +481,7 @@ def validate_task_ready_for_workflow(
 def _validate_artifacts(self, workflow: str, feature: str) -> list[str]:
     """Validate required artifacts exist for workflow.
 
-    Uses specflow_workflow.yml transitions to find required artifacts.
+    Uses flowspec_workflow.yml transitions to find required artifacts.
     """
     errors = []
     config = WorkflowConfig.load()
@@ -652,12 +652,12 @@ def test_invalid_workflow_transition():
 ### Integration Tests
 
 ```python
-# tests/test_specflow_workflow_integration.py
+# tests/test_flowspec_workflow_integration.py
 
-def test_specflow_implement_updates_workflow_step(tmp_path):
-    """Test /specflow:implement updates task workflow_step."""
+def test_flowspec_implement_updates_workflow_step(tmp_path):
+    """Test /flow:implement updates task workflow_step."""
     # Setup: Create task with workflow_step = "Planned"
-    # Execute: Run /specflow:implement
+    # Execute: Run /flow:implement
     # Verify: workflow_step updated to "In Implementation"
     pass
 
@@ -665,7 +665,7 @@ def test_specflow_implement_updates_workflow_step(tmp_path):
 def test_workflow_validation_blocks_invalid_transitions(tmp_path):
     """Test workflow validation prevents invalid state transitions."""
     # Setup: Create task with workflow_step = "To Do"
-    # Execute: Try to run /specflow:implement
+    # Execute: Try to run /flow:implement
     # Verify: Validation error raised
     pass
 ```
@@ -686,7 +686,7 @@ def test_workflow_validation_blocks_invalid_transitions(tmp_path):
 
 ### Simple Kanban Boards
 
-**Use Case:** Projects not using `/specflow` workflows.
+**Use Case:** Projects not using `/flowspec` workflows.
 
 **Support:**
 - Workflow fields remain None
@@ -795,7 +795,7 @@ backlog task task-042 --plain
 # Shows workflow_step: To Do
 
 # Run planning workflow first
-/specflow:plan
+/flow:plan
 ```
 
 ### Issue: Workflow Step Not Displaying
@@ -821,6 +821,6 @@ Check TUI version and rendering settings. Ensure using v0.0.150+.
 ## References
 
 - [ADR-002: Workflow Step Tracking Architecture](../adr/ADR-002-workflow-step-tracking-architecture.md)
-- [specflow_workflow.yml](../../specflow_workflow.yml)
+- [flowspec_workflow.yml](../../flowspec_workflow.yml)
 - [Backlog User Guide](./backlog-user-guide.md)
 - [Workflow State Mapping](./workflow-state-mapping.md) (to be created in Phase 4)

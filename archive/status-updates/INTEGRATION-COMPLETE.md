@@ -126,12 +126,12 @@ scripts/bash/
 │            SPEC-DRIVEN WORKFLOW (jp-spec-kit)           │
 └─────────────────────────────────────────────────────────┘
                           ↓
-        /specflow:specify → spec.md (user stories)
-        /specflow:plan → plan.md (architecture)
+        /flow:specify → spec.md (user stories)
+        /flow:plan → plan.md (architecture)
                           ↓
 ┌─────────────────────────────────────────────────────────┐
 │                  NEW INTEGRATION POINT                   │
-│   /specflow:tasks --format backlog-md (TO BE BUILT)       │
+│   /flow:tasks --format backlog-md (TO BE BUILT)       │
 │   - Parse specs                                          │
 │   - Map to Backlog.md format                             │
 │   - Generate task-*.md files                             │
@@ -251,7 +251,7 @@ Try:
 - [ ] Build task parser (`src/specify_cli/backlog/parser.py`)
 - [ ] Build Backlog.md writer (`src/specify_cli/backlog/writer.py`)
 - [ ] Build task mapper (`src/specify_cli/backlog/mapper.py`)
-- [ ] Enhance `/specflow:tasks` command
+- [ ] Enhance `/flow:tasks` command
 - [ ] Test with real jp-spec-kit features
 
 ### Medium Term (Full Integration - 2-3 months)

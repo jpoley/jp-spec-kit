@@ -52,17 +52,17 @@
                               ↓
 ┌──────────────────────────────────────────────────────────────────────┐
 │  Configuration Written                                               │
-│  ├─> specflow_workflow.yml (team mode)                                 │
+│  ├─> flowspec_workflow.yml (team mode)                                 │
 │  │    └─> vscode_roles.default_role: "dev"                           │
 │  └─> .vscode/settings.json                                           │
-│       ├─> specflow.vscode.role.primary: "dev"                          │
-│       ├─> specflow.vscode.role.secondary: ["qa", "sec"]                │
-│       └─> chat.agent.pinnedAgents: [specflow-plan, ...]                │
+│       ├─> flowspec.vscode.role.primary: "dev"                          │
+│       ├─> flowspec.vscode.role.secondary: ["qa", "sec"]                │
+│       └─> chat.agent.pinnedAgents: [flowspec-plan, ...]                │
 └──────────────────────────────────────────────────────────────────────┘
                               ↓
 ┌──────────────────────────────────────────────────────────────────────┐
 │  Agent Generation (sync-copilot-agents.sh --with-roles)             │
-│  ├─> Read role config from specflow_workflow.yml                       │
+│  ├─> Read role config from flowspec_workflow.yml                       │
 │  ├─> Add role metadata to .github/agents/*.agent.md                  │
 │  │    ├─> roles: ["dev", "all"]                                      │
 │  │    └─> priority: 5                                                │
@@ -73,14 +73,14 @@
 │  VS Code Copilot Agent Display                                       │
 │  ┌────────────────────────────────────────────────────────┐          │
 │  │  📌 Pinned Agents (Dev role)                           │          │
-│  │    ├─> specflow-plan (Architecture & Design)            │          │
-│  │    ├─> specflow-implement (Coding & Review)             │          │
-│  │    └─> specflow-operate (Deployment & SRE)              │          │
+│  │    ├─> flowspec-plan (Architecture & Design)            │          │
+│  │    ├─> flowspec-implement (Coding & Review)             │          │
+│  │    └─> flowspec-operate (Deployment & SRE)              │          │
 │  └────────────────────────────────────────────────────────┘          │
 │  ┌────────────────────────────────────────────────────────┐          │
 │  │  ⭐ Secondary Role Agents (visible, de-prioritized)   │          │
-│  │    ├─> specflow-validate (QA - secondary role)          │          │
-│  │    └─> specflow-security_* (Sec - secondary role)       │          │
+│  │    ├─> flowspec-validate (QA - secondary role)          │          │
+│  │    └─> flowspec-security_* (Sec - secondary role)       │          │
 │  └────────────────────────────────────────────────────────┘          │
 │  ┌────────────────────────────────────────────────────────┐          │
 │  │  📋 Utility Agents (always shown)                     │          │
@@ -90,7 +90,7 @@
 │  └────────────────────────────────────────────────────────┘          │
 │  ┌────────────────────────────────────────────────────────┐          │
 │  │  🔽 Other Agents (collapsed/de-prioritized)           │          │
-│  │    └─> specflow-assess, specflow-specify (PM role)        │          │
+│  │    └─> flowspec-assess, flowspec-specify (PM role)        │          │
 │  └────────────────────────────────────────────────────────┘          │
 └──────────────────────────────────────────────────────────────────────┘
 ```
@@ -108,7 +108,7 @@
 │  Step 1: Read .vscode/settings.json                             │
 │  ┌───────────────────────────────────────────────────────────┐  │
 │  │  {                                                        │  │
-│  │    "specflow.vscode.role": {                                │  │
+│  │    "flowspec.vscode.role": {                                │  │
 │  │      "primary": "dev",                                    │  │
 │  │      "secondary": ["qa"],                                 │  │
 │  │      "mode": "user"        ← User override               │  │
@@ -118,22 +118,22 @@
 └─────────────────────────────────────────────────────────────────┘
                          ↓
 ┌─────────────────────────────────────────────────────────────────┐
-│  Step 2: Read specflow_workflow.yml                              │
+│  Step 2: Read flowspec_workflow.yml                              │
 │  ┌───────────────────────────────────────────────────────────┐  │
 │  │  vscode_roles:                                            │  │
 │  │    default_role: "all"     ← Team default                │  │
 │  │    roles:                                                 │  │
 │  │      dev:                                                 │  │
-│  │        agents: [specflow-plan, specflow-implement, ...]      │  │
+│  │        agents: [flowspec-plan, flowspec-implement, ...]      │  │
 │  │      qa:                                                  │  │
-│  │        agents: [specflow-validate, ...]                    │  │
+│  │        agents: [flowspec-validate, ...]                    │  │
 │  └───────────────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────────┘
                          ↓
 ┌─────────────────────────────────────────────────────────────────┐
 │  Step 3: Merge Configuration (Precedence)                      │
 │                                                                 │
-│  .vscode/settings.json  >  specflow_workflow.yml  >  Defaults    │
+│  .vscode/settings.json  >  flowspec_workflow.yml  >  Defaults    │
 │  ──────────────────────    ───────────────────    ────────     │
 │  User override              Team default          Hardcoded    │
 │  (mode: "user")             (mode: "team")        (mode: N/A)  │
@@ -148,12 +148,12 @@
 │  │    mode: "user"            (from .vscode/settings.json)   │  │
 │  │                                                           │  │
 │  │  Agent List for "dev":                                    │  │
-│  │    - specflow-plan          (from specflow_workflow.yml)      │  │
-│  │    - specflow-implement     (from specflow_workflow.yml)      │  │
-│  │    - specflow-operate       (from specflow_workflow.yml)      │  │
+│  │    - flowspec-plan          (from flowspec_workflow.yml)      │  │
+│  │    - flowspec-implement     (from flowspec_workflow.yml)      │  │
+│  │    - flowspec-operate       (from flowspec_workflow.yml)      │  │
 │  │                                                           │  │
 │  │  Agent List for "qa":                                     │  │
-│  │    - specflow-validate      (from specflow_workflow.yml)      │  │
+│  │    - flowspec-validate      (from flowspec_workflow.yml)      │  │
 │  └───────────────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────────┘
                          ↓
@@ -176,7 +176,7 @@
 └─────────────────────────────────────────────────────────────────┘
 
     ╔══════════════╗
-    ║ /specflow:assess ║  ← PM starts here
+    ║ /flow:assess ║  ← PM starts here
     ╚══════════════╝
          │
          │ Assessment Report created
@@ -185,13 +185,13 @@
     ┌────────────────────────────────────┐
     │  Handoff: ✓ Assessment Complete    │
     │  → Specify Requirements            │
-    │  (agent: specflow-specify)           │
+    │  (agent: flowspec-specify)           │
     │  [Click to proceed]                │
     └────────────────────────────────────┘
          │
          ▼
     ╔═══════════════╗
-    ║ /specflow:specify ║
+    ║ /flow:specify ║
     ╚═══════════════╝
          │
          │ PRD created
@@ -200,18 +200,18 @@
     ┌────────────────────────────────────┐
     │  Handoff: ✓ Specification Complete │
     │  → Conduct Research                │
-    │  (agent: specflow-research)          │
+    │  (agent: flowspec-research)          │
     │  [Optional - Click to proceed]     │
     └────────────────────────────────────┘
          │                  ┌────────────────────────────────────┐
          │                  │  Handoff: 🔀 Hand off to Developer │
          │                  │  → Plan Architecture               │
-         ├─────────────────>│  (agent: specflow-plan)              │
+         ├─────────────────>│  (agent: flowspec-plan)              │
          │                  │  [Cross-role handoff]              │
          │                  └────────────────────────────────────┘
          ▼                             │
     ╔═══════════════╗                 │
-    ║ /specflow:research ║               │
+    ║ /flow:research ║               │
     ╚═══════════════╝                 │
          │                             │
          │ Research Report             │
@@ -220,7 +220,7 @@
     ┌────────────────────────────────┐ │
     │  Handoff: 🔀 Hand off to Dev   │ │
     │  → Plan Architecture           │ │
-    │  (agent: specflow-plan)          │ │
+    │  (agent: flowspec-plan)          │ │
     │  [Cross-role handoff]          │ │
     └────────────────────────────────┘ │
          │                             │
@@ -234,7 +234,7 @@
 └─────────────────────────────────────────────────────────────────┘
 
     ╔═══════════╗
-    ║ /specflow:plan ║  ← Dev starts here (from PM handoff)
+    ║ /flow:plan ║  ← Dev starts here (from PM handoff)
     ╚═══════════╝
          │
          │ ADRs created
@@ -243,13 +243,13 @@
     ┌────────────────────────────────────┐
     │  Handoff: ✓ Planning Complete      │
     │  → Begin Implementation            │
-    │  (agent: specflow-implement)         │
+    │  (agent: flowspec-implement)         │
     │  [Click to proceed]                │
     └────────────────────────────────────┘
          │
          ▼
     ╔═══════════════════╗
-    ║ /specflow:implement ║
+    ║ /flow:implement ║
     ╚═══════════════════╝
          │
          │ Code & Tests created
@@ -258,7 +258,7 @@
     ┌────────────────────────────────────┐
     │  Handoff: 🔀 Hand off to QA        │
     │  → Run Validation                  │
-    │  (agent: specflow-validate)          │
+    │  (agent: flowspec-validate)          │
     │  [Cross-role handoff]              │
     └────────────────────────────────────┘
          │
@@ -269,7 +269,7 @@
 └─────────────────────────────────────────────────────────────────┘
 
     ╔═══════════════╗
-    ║ /specflow:validate ║  ← QA starts here (from Dev handoff)
+    ║ /flow:validate ║  ← QA starts here (from Dev handoff)
     ╚═══════════════╝
          │
          │ QA + Security Reports
@@ -278,7 +278,7 @@
     ┌────────────────────────────────────┐
     │  Handoff: 🔀 Hand off to SRE       │
     │  → Deploy to Production            │
-    │  (agent: specflow-operate)           │
+    │  (agent: flowspec-operate)           │
     │  [Cross-role handoff]              │
     └────────────────────────────────────┘
          │
@@ -289,7 +289,7 @@
 └─────────────────────────────────────────────────────────────────┘
 
     ╔═══════════════╗
-    ║ /specflow:operate ║  ← Dev/SRE deploys
+    ║ /flow:operate ║  ← Dev/SRE deploys
     ╚═══════════════╝
          │
          │ Deployed to Production
@@ -301,7 +301,7 @@
     └────────────────────────────────────┘
 
 Legend:
-  ╔═════╗  = /specflow command (agent invocation)
+  ╔═════╗  = /flowspec command (agent invocation)
   ┌─────┐  = Handoff prompt (VS Code UI)
   ✓        = Same-role handoff (smooth transition)
   🔀       = Cross-role handoff (approval gate)
@@ -318,25 +318,25 @@ Legend:
 
 Priority 1: PRIMARY ROLE AGENTS (Pinned at top)
 ┌────────────────────────────────────────────────┐
-│  📌 specflow-plan         (priority: 1)          │
-│  📌 specflow-implement    (priority: 1)          │
-│  📌 specflow-operate      (priority: 1)          │
+│  📌 flowspec-plan         (priority: 1)          │
+│  📌 flowspec-implement    (priority: 1)          │
+│  📌 flowspec-operate      (priority: 1)          │
 └────────────────────────────────────────────────┘
          ↑
          │ Configured in .vscode/settings.json:
-         │ "chat.agent.pinnedAgents": ["specflow-plan", ...]
+         │ "chat.agent.pinnedAgents": ["flowspec-plan", ...]
          │
 
 Priority 2: SECONDARY ROLE AGENTS (Visible, not pinned)
 ┌────────────────────────────────────────────────┐
-│  ⭐ specflow-validate     (priority: 2)          │
+│  ⭐ flowspec-validate     (priority: 2)          │
 │     (QA - secondary role)                      │
-│  ⭐ specflow-security_*   (priority: 2)          │
+│  ⭐ flowspec-security_*   (priority: 2)          │
 │     (Sec - secondary role)                     │
 └────────────────────────────────────────────────┘
          ↑
          │ Configured in .vscode/settings.json:
-         │ "specflow.vscode.role.secondary": ["qa", "sec"]
+         │ "flowspec.vscode.role.secondary": ["qa", "sec"]
          │
 
 Priority 3: UTILITY AGENTS (Always shown)
@@ -352,11 +352,11 @@ Priority 3: UTILITY AGENTS (Always shown)
 
 Priority 4: OTHER ROLE AGENTS (Collapsed/De-prioritized)
 ┌────────────────────────────────────────────────┐
-│  🔽 specflow-assess       (priority: 4)          │
+│  🔽 flowspec-assess       (priority: 4)          │
 │     (PM role - not user's role)                │
-│  🔽 specflow-specify      (priority: 4)          │
+│  🔽 flowspec-specify      (priority: 4)          │
 │     (PM role - not user's role)                │
-│  🔽 specflow-research     (priority: 4)          │
+│  🔽 flowspec-research     (priority: 4)          │
 │     (PM role - not user's role)                │
 └────────────────────────────────────────────────┘
          ↑
@@ -369,7 +369,7 @@ Implementation in Agent Frontmatter:
 ═══════════════════════════════════════════════════
 
 ---
-name: "specflow-plan"
+name: "flowspec-plan"
 description: "Execute planning workflow..."
 target: "chat"
 tools: [...]
@@ -389,12 +389,12 @@ priority: 1
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │  TEAM MODE (mode: "team")                                        │
-│  Configuration in specflow_workflow.yml (version-controlled)      │
+│  Configuration in flowspec_workflow.yml (version-controlled)      │
 └─────────────────────────────────────────────────────────────────┘
 
 Repository Structure:
   project/
-    ├─ specflow_workflow.yml        ← COMMITTED (team config)
+    ├─ flowspec_workflow.yml        ← COMMITTED (team config)
     │   └─> vscode_roles:
     │         default_role: "dev"
     │         roles:
@@ -417,7 +417,7 @@ All team members:
   └─> No local configuration required
 
 CI/CD Enforcement:
-  ├─> Validate specflow_workflow.yml schema
+  ├─> Validate flowspec_workflow.yml schema
   ├─> Reject PRs with .vscode/settings.json changes
   └─> Ensure role-agent mappings are complete
 
@@ -430,26 +430,26 @@ CI/CD Enforcement:
 
 Repository Structure:
   project/
-    ├─ specflow_workflow.yml        ← COMMITTED (fallback config)
+    ├─ flowspec_workflow.yml        ← COMMITTED (fallback config)
     │   └─> vscode_roles:
     │         default_role: "all"  (ignored in user mode)
     │
     ├─ .vscode/
     │   └─ settings.json          ← GITIGNORED (user override)
     │       {
-    │         "specflow.vscode.role": {
+    │         "flowspec.vscode.role": {
     │           "primary": "qa",    ← User's preference
     │           "secondary": ["dev"],
     │           "mode": "user"      ← Enables override
     │         },
-    │         "chat.agent.pinnedAgents": ["specflow-validate"]
+    │         "chat.agent.pinnedAgents": ["flowspec-validate"]
     │       }
     │
     └─ .gitignore
         └─> .vscode/settings.json
 
 Individual developers:
-  ├─> Configure their own role via /specflow:reset
+  ├─> Configure their own role via /flow:reset
   ├─> .vscode/settings.json created locally
   ├─> Not committed to git
   └─> Personal customization
@@ -465,17 +465,17 @@ Use Cases:
 Configuration Resolution (Mixed Mode):
 
   1. Developer A (team mode):
-     specflow_workflow.yml → default_role: "dev"
+     flowspec_workflow.yml → default_role: "dev"
      .vscode/settings.json → (empty)
      ➜ Effective role: "dev"
 
   2. Developer B (user mode override):
-     specflow_workflow.yml → default_role: "dev"
+     flowspec_workflow.yml → default_role: "dev"
      .vscode/settings.json → primary: "qa", mode: "user"
      ➜ Effective role: "qa" (user override wins)
 
   3. Developer C (no configuration):
-     specflow_workflow.yml → (missing vscode_roles section)
+     flowspec_workflow.yml → (missing vscode_roles section)
      .vscode/settings.json → (empty)
      ➜ Effective role: "all" (hardcoded default)
 ```
@@ -486,10 +486,10 @@ Configuration Resolution (Mixed Mode):
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  INPUT: .claude/commands/{specflow,speckit}/*.md                  │
-│  ├─> specflow/assess.md                                           │
-│  ├─> specflow/specify.md                                          │
-│  ├─> specflow/plan.md                                             │
+│  INPUT: .claude/commands/{flowspec,speckit}/*.md                  │
+│  ├─> flowspec/assess.md                                           │
+│  ├─> flowspec/specify.md                                          │
+│  ├─> flowspec/plan.md                                             │
 │  ├─> ...                                                        │
 │  └─> speckit/checklist.md                                       │
 └─────────────────────────────────────────────────────────────────┘
@@ -518,10 +518,10 @@ Configuration Resolution (Mixed Mode):
 ┌─────────────────────────────────────────────────────────────────┐
 │  STEP 4: NEW - Get Role Metadata                                │
 │  ┌─────────────────────────────────────────────────────────┐    │
-│  │  get_role_metadata("specflow", "plan")                    │    │
-│  │    ├─> Read specflow_workflow.yml                         │    │
+│  │  get_role_metadata("flowspec", "plan")                    │    │
+│  │    ├─> Read flowspec_workflow.yml                         │    │
 │  │    ├─> Extract vscode_roles.roles.*                     │    │
-│  │    ├─> Find matching role for "specflow-plan"             │    │
+│  │    ├─> Find matching role for "flowspec-plan"             │    │
 │  │    │    └─> roles: ["dev", "all"]                       │    │
 │  │    └─> Calculate priority: 1 (high for dev)             │    │
 │  └─────────────────────────────────────────────────────────┘    │
@@ -531,7 +531,7 @@ Configuration Resolution (Mixed Mode):
 │  STEP 5: Generate Enhanced Frontmatter                          │
 │  ┌─────────────────────────────────────────────────────────┐    │
 │  │  ---                                                    │    │
-│  │  name: "specflow-plan"                                    │    │
+│  │  name: "flowspec-plan"                                    │    │
 │  │  description: "Execute planning workflow..."           │    │
 │  │  target: "chat"                                         │    │
 │  │  tools:                                                 │    │
@@ -544,7 +544,7 @@ Configuration Resolution (Mixed Mode):
 │  │  priority: 1          ← NEW                             │    │
 │  │  handoffs:                                              │    │
 │  │    - label: "✓ Planning Complete → Begin Implementation"│   │
-│  │      agent: "specflow-implement"                         │    │
+│  │      agent: "flowspec-implement"                         │    │
 │  │      prompt: "..."                                      │    │
 │  │      send: false                                        │    │
 │  │  ---                                                    │    │
@@ -558,8 +558,8 @@ Configuration Resolution (Mixed Mode):
                          ↓
 ┌─────────────────────────────────────────────────────────────────┐
 │  STEP 7: Write Output                                           │
-│  ├─> .github/agents/specflow-plan.agent.md                        │
-│  ├─> .github/agents/specflow-implement.agent.md                   │
+│  ├─> .github/agents/flowspec-plan.agent.md                        │
+│  ├─> .github/agents/flowspec-implement.agent.md                   │
 │  ├─> ... (23 total agents)                                      │
 │  └─> Post-validation (YAML valid, no unresolved includes)       │
 └─────────────────────────────────────────────────────────────────┘
@@ -575,7 +575,7 @@ Configuration Resolution (Mixed Mode):
 CLI Flags (Enhanced):
   --with-roles        Add role metadata (default: true)
   --role {pm|dev|...} Generate agents for specific role only
-  --team-mode         Use specflow_workflow.yml role config
+  --team-mode         Use flowspec_workflow.yml role config
   --user-mode         Use .vscode/settings.json role config
 ```
 

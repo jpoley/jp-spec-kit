@@ -15,12 +15,12 @@ priority: low
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Provide pre-commit hook template and setup script for local security scanning. Enable fast feedback (<10 seconds) before commit using /specflow:security scan --fast.
+Provide pre-commit hook template and setup script for local security scanning. Enable fast feedback (<10 seconds) before commit using /flow:security scan --fast.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Create .pre-commit-config.yaml template with specflow-security hook
+- [ ] #1 Create .pre-commit-config.yaml template with flowspec-security hook
 - [ ] #2 Implement setup script scripts/setup-security-hooks.sh with installation
 - [ ] #3 Add documentation for pre-commit hook usage in docs/guides/
 - [ ] #4 Test hook performance (<10 seconds for typical 5-10 file commit)
@@ -41,7 +41,7 @@ Create pre-commit hook template and setup script for fast local security scannin
 **File**: `templates/.pre-commit-config.yaml`
 **Duration**: 1 hour
 
-1. Create template with specflow-security hook:
+1. Create template with flowspec-security hook:
    ```yaml
    # JP Spec Kit Security Pre-commit Hook
    # Install: pip install pre-commit && pre-commit install
@@ -49,7 +49,7 @@ Create pre-commit hook template and setup script for fast local security scannin
    repos:
      - repo: local
        hooks:
-         - id: specflow-security-fast-scan
+         - id: flowspec-security-fast-scan
            name: JP Spec Kit Security Scan (Fast)
            description: Run fast security scan on changed files
            entry: specify security scan --fast --changed-only --fail-on critical
@@ -77,7 +77,7 @@ Create pre-commit hook template and setup script for fast local security scannin
 1. Implement setup script:
    ```bash
    #!/bin/bash
-   # Setup script for /specflow:security pre-commit hooks
+   # Setup script for /flow:security pre-commit hooks
    
    set -e
    
@@ -103,7 +103,7 @@ Create pre-commit hook template and setup script for fast local security scannin
    
      - repo: local
        hooks:
-         - id: specflow-security-fast-scan
+         - id: flowspec-security-fast-scan
            name: JP Spec Kit Security Scan (Fast)
            entry: specify security scan --fast --changed-only --fail-on critical
            language: system

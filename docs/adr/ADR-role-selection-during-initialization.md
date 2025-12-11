@@ -53,7 +53,7 @@ By capturing role information upfront, we can:
 
 ## Considered Options
 
-### Option 1: Global User Config (~/.specflow/config.yml)
+### Option 1: Global User Config (~/.flowspec/config.yml)
 Store role preference in user's home directory.
 
 **Pros**:
@@ -71,7 +71,7 @@ Store role preference in user's home directory.
 
 ---
 
-### Option 2: Project Config (specflow_workflow.yml)
+### Option 2: Project Config (flowspec_workflow.yml)
 Extend existing workflow config with role section.
 
 **Pros**:
@@ -90,7 +90,7 @@ Extend existing workflow config with role section.
 
 ---
 
-### Option 3: Separate Role Config File (.specflow-role.yml)
+### Option 3: Separate Role Config File (.flowspec-role.yml)
 Create dedicated file for role configuration.
 
 **Pros**:
@@ -128,9 +128,9 @@ Store role in IDE settings, not in project.
 
 ## Decision Outcome
 
-**Chosen Option**: Option 2 - Extend specflow_workflow.yml
+**Chosen Option**: Option 2 - Extend flowspec_workflow.yml
 
-Store role configuration in project's `specflow_workflow.yml` with user-specific overrides via environment variable.
+Store role configuration in project's `flowspec_workflow.yml` with user-specific overrides via environment variable.
 
 ---
 
@@ -138,14 +138,14 @@ Store role configuration in project's `specflow_workflow.yml` with user-specific
 
 ### Interactive Prompt During Init/Reset
 
-When user runs `/specflow:init` or `/specflow:reset`:
+When user runs `/flow:init` or `/flow:reset`:
 
 ```bash
 specify init
 
 # Output:
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃ Specflow - Project Initialization                        ┃
+┃ Flowspec - Project Initialization                        ┃
 ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
 Select your primary role for command suggestions:
@@ -189,13 +189,13 @@ Enter selection [1-6] (default: 2): _
 specify init --role dev
 
 # Or via environment variable
-export SPECFLOW_PRIMARY_ROLE=pm
+export FLOWSPEC_PRIMARY_ROLE=pm
 specify init
 ```
 
 ---
 
-## Storage Format: specflow_workflow.yml Extension
+## Storage Format: flowspec_workflow.yml Extension
 
 Add new top-level `role_config` section:
 
@@ -290,16 +290,16 @@ Users can override their role per-session without modifying config:
 
 ```bash
 # Temporary role switch for this session
-export SPECFLOW_PRIMARY_ROLE=pm
+export FLOWSPEC_PRIMARY_ROLE=pm
 claude code
 
 # Run single command as different role
-SPECFLOW_PRIMARY_ROLE=sec /sec:scan-web
+FLOWSPEC_PRIMARY_ROLE=sec /sec:scan-web
 ```
 
 **Precedence Order**:
-1. `SPECFLOW_PRIMARY_ROLE` environment variable (highest)
-2. `role_config.primary_role` in `specflow_workflow.yml`
+1. `FLOWSPEC_PRIMARY_ROLE` environment variable (highest)
+2. `role_config.primary_role` in `flowspec_workflow.yml`
 3. Default to `"all"` (show all commands)
 
 ---
@@ -372,7 +372,7 @@ Each `.github/agents/*.agent.md` file includes role metadata:
 ```yaml
 name: "dev-plan"
 description: "Execute planning workflow using architect and platform engineer"
-target: "specflow"
+target: "flowspec"
 tools: [Read, Write, Edit, Bash, Grep, Glob, Skill, mcp__backlog__*]
 
 # === NEW: Role-Based Metadata ===
@@ -405,7 +405,7 @@ specify init --reset-role
 specify reset --role pm
 
 # Or edit config directly
-vim specflow_workflow.yml
+vim flowspec_workflow.yml
 # Change: primary_role: "pm"
 ```
 
@@ -438,7 +438,7 @@ specify init --role all
 
 To add a new role (e.g., "Data Engineer"):
 
-1. **Add to role_config in specflow_workflow.yml**:
+1. **Add to role_config in flowspec_workflow.yml**:
 ```yaml
 role_config:
   roles:
@@ -483,7 +483,7 @@ def get_available_roles(workflow_config: dict) -> list[str]:
 ### Negative
 
 1. **Configuration Complexity**: One more thing to configure
-2. **Git Conflicts**: Multiple users editing specflow_workflow.yml
+2. **Git Conflicts**: Multiple users editing flowspec_workflow.yml
 3. **Discovery Burden**: Users must understand role concept
 4. **Migration**: Existing projects need to run init/reset to set role
 
@@ -505,7 +505,7 @@ def get_available_roles(workflow_config: dict) -> list[str]:
 - No breaking changes
 
 **Phase 2: Prompted Adoption (Month 4-6)**
-- When user runs any `/specflow` command, check if role is set
+- When user runs any `/flowspec` command, check if role is set
 - If not set, show one-time prompt:
   ```
   🎯 Quick Setup: Select your role to see relevant commands
@@ -525,7 +525,7 @@ def get_available_roles(workflow_config: dict) -> list[str]:
 | Risk | Likelihood | Impact | Mitigation |
 |------|-----------|--------|------------|
 | Users confused by role concept | Medium | Medium | Clear documentation, interactive prompt with descriptions |
-| Git conflicts on specflow_workflow.yml | High | Low | JSON merge strategy, environment variable override |
+| Git conflicts on flowspec_workflow.yml | High | Low | JSON merge strategy, environment variable override |
 | Role selection adds friction | Low | Medium | Make selection < 30 seconds, allow skip |
 | Users select wrong role | Medium | Low | Easy to switch, "All Roles" fallback |
 | Team members have different roles | High | Low | Each user can override with env var |
@@ -535,10 +535,10 @@ def get_available_roles(workflow_config: dict) -> list[str]:
 ## Implementation Tasks
 
 ### Phase 1: Core Functionality (Week 1) ✅
-- [x] Add `role_config` schema to specflow_workflow.yml
+- [x] Add `role_config` schema to flowspec_workflow.yml
 - [x] Implement role selection prompt in init/configure commands
 - [x] Store selected role in config
-- [x] Add environment variable override (SPECFLOW_PRIMARY_ROLE)
+- [x] Add environment variable override (FLOWSPEC_PRIMARY_ROLE)
 
 ### Phase 2: IDE Integration (Week 2) ✅
 - [x] Update VS Code agent metadata with role fields
@@ -577,7 +577,7 @@ def get_available_roles(workflow_config: dict) -> list[str]:
 
 - [ADR: Role-Based Command Namespaces](./ADR-role-based-command-namespaces.md)
 - [Design: Command Migration Path](./design-command-migration-path.md)
-- [Workflow Configuration Schema](../../specflow_workflow.yml)
+- [Workflow Configuration Schema](../../flowspec_workflow.yml)
 - [VS Code Copilot Agents Plan](../platform/vscode-copilot-agents-plan.md)
 
 ---
@@ -634,7 +634,7 @@ specify vscode generate --force
   "github.copilot.chat.promptFiles": {
     "enabled": true
   },
-  "specflow": {
+  "flowspec": {
     "primaryRole": "dev",
     "displayName": "Developer",
     "icon": "💻",

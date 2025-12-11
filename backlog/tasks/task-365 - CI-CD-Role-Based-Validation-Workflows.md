@@ -34,7 +34,7 @@ Add CI validation for role-based command structure. DEPENDS ON: task-367 (comman
 <!-- SECTION:PLAN:BEGIN -->
 DEPENDS ON: task-367, task-363
 
-1. Add workflow to validate specflow_workflow.yml schema
+1. Add workflow to validate flowspec_workflow.yml schema
 2. Validate all role commands exist in correct directories
 3. Check agent-to-role mappings are valid
 4. Verify backwards-compatible aliases work

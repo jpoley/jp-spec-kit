@@ -1,6 +1,6 @@
 # Security Quickstart Guide
 
-This guide helps you get started with security scanning in 5 minutes using `/specflow:security` commands.
+This guide helps you get started with security scanning in 5 minutes using `/flow:security` commands.
 
 ## Prerequisites
 
@@ -27,7 +27,7 @@ semgrep --version
 In a Claude Code session:
 
 ```
-/specflow:security scan
+/flow:security scan
 ```
 
 This will:
@@ -64,7 +64,7 @@ Findings include:
 Use AI to classify findings and get simple explanations:
 
 ```
-/specflow:security triage --persona beginner
+/flow:security triage --persona beginner
 ```
 
 **What this does:**
@@ -96,7 +96,7 @@ An attacker could steal all user data or delete the database.
 Generate and review a security patch:
 
 ```
-/specflow:security fix
+/flow:security fix
 ```
 
 **Workflow:**
@@ -116,7 +116,7 @@ Generate and review a security patch:
 Create a comprehensive security report:
 
 ```
-/specflow:security report
+/flow:security report
 ```
 
 **Generated Report Includes:**
@@ -130,14 +130,14 @@ Create a comprehensive security report:
 
 | Command | Purpose | When to Use |
 |---------|---------|-------------|
-| `/specflow:security scan` | Find vulnerabilities | Before every PR, commit, or release |
-| `/specflow:security triage` | Classify findings | After scanning to prioritize fixes |
-| `/specflow:security fix` | Apply security patches | When ready to fix vulnerabilities |
-| `/specflow:security report` | Generate audit report | For compliance, reviews, stakeholders |
+| `/flow:security scan` | Find vulnerabilities | Before every PR, commit, or release |
+| `/flow:security triage` | Classify findings | After scanning to prioritize fixes |
+| `/flow:security fix` | Apply security patches | When ready to fix vulnerabilities |
+| `/flow:security report` | Generate audit report | For compliance, reviews, stakeholders |
 
 ## Configuration
 
-Create `.specflow/security-config.yml` in your project root:
+Create `.flowspec/security-config.yml` in your project root:
 
 ```yaml
 # Security scanning configuration
@@ -229,7 +229,7 @@ jobs:
 In Claude Code, before committing:
 
 ```
-/specflow:security scan
+/flow:security scan
 ```
 
 Reviews critical issues only before commit.
@@ -237,9 +237,9 @@ Reviews critical issues only before commit.
 ### Workflow 2: Pull Request Security Review
 
 ```
-/specflow:security scan
-/specflow:security triage --persona expert
-/specflow:security fix --review
+/flow:security scan
+/flow:security triage --persona expert
+/flow:security fix --review
 ```
 
 Full security check with AI triage and fix generation.
@@ -247,9 +247,9 @@ Full security check with AI triage and fix generation.
 ### Workflow 3: Compliance Audit
 
 ```
-/specflow:security scan --all-scanners
-/specflow:security triage --persona compliance
-/specflow:security report --format pdf --compliance soc2
+/flow:security scan --all-scanners
+/flow:security triage --persona compliance
+/flow:security report --format pdf --compliance soc2
 ```
 
 Comprehensive audit for regulatory requirements.
@@ -283,7 +283,7 @@ Findings are automatically mapped to OWASP Top 10 2021:
 
 ## Personas Explained
 
-The `/specflow:security triage` command supports three personas:
+The `/flow:security triage` command supports three personas:
 
 ### Beginner Persona
 **Use when**: Training junior developers, onboarding new team members
@@ -323,7 +323,7 @@ pip install semgrep bandit
 
 **Solution**: Run scan first:
 ```
-/specflow:security scan
+/flow:security scan
 ```
 
 ### "AI API error"
@@ -338,13 +338,13 @@ pip install semgrep bandit
 ### High False Positive Rate
 
 **Solution**:
-1. Use AI triage to auto-classify: `/specflow:security triage`
-2. Add exclusions to `.specflow/security-config.yml`
+1. Use AI triage to auto-classify: `/flow:security triage`
+2. Add exclusions to `.flowspec/security-config.yml`
 3. Create custom rules to reduce noise (see Custom Rules guide)
 
 ## Next Steps
 
-- [Command Reference](../reference/specflow-security-commands.md) - Complete command documentation
+- [Command Reference](../reference/flowspec-security-commands.md) - Complete command documentation
 - [CI/CD Integration](./security-cicd-integration.md) - Detailed pipeline setup
 - [Custom Rules Guide](./security-custom-rules.md) - Writing custom security rules
 - [Threat Model](../reference/security-threat-model.md) - Security limitations

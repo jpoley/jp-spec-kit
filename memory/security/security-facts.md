@@ -16,8 +16,8 @@ This document contains key security facts that AI tools (Claude Code, skills, co
 
 ### 3. Configuration Hierarchy
 Default locations searched in order:
-1. `.specflow/security-config.yml`
-2. `.specflow/security-config.yaml`
+1. `.flowspec/security-config.yml`
+2. `.flowspec/security-config.yaml`
 3. `.security/config.yml`
 4. `.security/config.yaml`
 5. `security-config.yml`
@@ -125,7 +125,7 @@ If scanner fails:
 ## File Locations
 
 ### Configuration
-- Config file: `.specflow/security-config.yml`
+- Config file: `.flowspec/security-config.yml`
 - Custom rules: `.security/rules/` (configurable)
 - Output reports: `docs/security/` (configurable)
 
@@ -148,7 +148,7 @@ from specify_cli.security.config import load_config
 config = load_config()
 
 # Load from specific path
-config = load_config(Path(".specflow/security-config.yml"))
+config = load_config(Path(".flowspec/security-config.yml"))
 
 # Disable validation (for testing)
 config = load_config(validate=False)
@@ -178,7 +178,7 @@ if config.exclusions.matches_path(file_path):
 - ADR-008: Security MCP Server Architecture
 - ADR-009: Scanner Orchestration Pattern
 - `docs/guides/security-quickstart.md`: User-facing guide
-- `docs/platform/specflow-security-platform.md`: Platform design
+- `docs/platform/flowspec-security-platform.md`: Platform design
 
 ## Version History
 

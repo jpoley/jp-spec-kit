@@ -9,7 +9,7 @@
 
 ## Context and Problem Statement
 
-Specflow's `/specflow:*` commands orchestrate 15+ specialized AI agents across 6 workflows (specify, plan, research, implement, validate, operate). Currently, all task management is manual and ad-hoc with no standardized lifecycle tracking.
+Flowspec's `/flow:*` commands orchestrate 15+ specialized AI agents across 6 workflows (specify, plan, research, implement, validate, operate). Currently, all task management is manual and ad-hoc with no standardized lifecycle tracking.
 
 **Problems**:
 - No automated task activation when agents start work
@@ -19,7 +19,7 @@ Specflow's `/specflow:*` commands orchestrate 15+ specialized AI agents across 6
 - Manual coordination across parallel/sequential agent execution
 - Missing audit trail of agent work
 
-**Goal**: Design a standardized backlog.md CLI integration pattern that all specflow commands can adopt uniformly, enabling automated task lifecycle management from discovery through completion.
+**Goal**: Design a standardized backlog.md CLI integration pattern that all flowspec commands can adopt uniformly, enabling automated task lifecycle management from discovery through completion.
 
 ---
 
@@ -37,7 +37,7 @@ Specflow's `/specflow:*` commands orchestrate 15+ specialized AI agents across 6
 ## Considered Options
 
 ### Option 1: Command-Level Integration Only
-**Approach**: Add backlog CLI calls only at command entry/exit in `.claude/commands/specflow/*.md`
+**Approach**: Add backlog CLI calls only at command entry/exit in `.claude/commands/flowspec/*.md`
 
 **Pros**:
 - Minimal changes to agent contexts
@@ -111,13 +111,13 @@ The hybrid approach provides the best balance of:
 
 ## Task Lifecycle State Machine
 
-All specflow-managed tasks follow this lifecycle:
+All flowspec-managed tasks follow this lifecycle:
 
 ```
 ┌─────────────┐
 │   To Do     │  Initial state (task created but not started)
 └──────┬──────┘
-       │ Entry Hook: /specflow:* command invoked
+       │ Entry Hook: /flow:* command invoked
        │ Actions: assign agent(s), add plan
        ▼
 ┌─────────────┐
@@ -194,15 +194,15 @@ backlog task edit <id> --check-ac 2 --notes "<summary>" -s Done
 
 ## Task Naming Conventions
 
-All specflow-created tasks follow this format:
+All flowspec-created tasks follow this format:
 
 ```
-specflow-{command}-{feature-slug}-{yyyymmdd}-{descriptor}
+flowspec-{command}-{feature-slug}-{yyyymmdd}-{descriptor}
 ```
 
 ### Format Breakdown
 
-- **Prefix**: `specflow-` (identifies creator)
+- **Prefix**: `flowspec-` (identifies creator)
 - **Command**: One of: `specify`, `plan`, `research`, `implement`, `validate`, `operate`
 - **Feature Slug**: Kebab-case feature identifier (e.g., `user-authentication`, `api-redesign`)
 - **Timestamp**: Date in `yyyymmdd` format for uniqueness and ordering
@@ -212,17 +212,17 @@ specflow-{command}-{feature-slug}-{yyyymmdd}-{descriptor}
 
 **Main Tasks**:
 ```
-specflow-specify-user-auth-20251128
-specflow-implement-graphql-resolver-20251128
-specflow-validate-payment-flow-20251128
-specflow-operate-k8s-deployment-20251129
+flowspec-specify-user-auth-20251128
+flowspec-implement-graphql-resolver-20251128
+flowspec-validate-payment-flow-20251128
+flowspec-operate-k8s-deployment-20251129
 ```
 
 **Subtasks** (with descriptor):
 ```
-specflow-specify-user-auth-20251128-epic-signup
-specflow-implement-api-redesign-20251128-backend
-specflow-operate-k8s-deployment-20251129-observability
+flowspec-specify-user-auth-20251128-epic-signup
+flowspec-implement-api-redesign-20251128-backend
+flowspec-operate-k8s-deployment-20251129-observability
 ```
 
 ### Rationale
@@ -230,7 +230,7 @@ specflow-operate-k8s-deployment-20251129-observability
 - **Parseable**: Easy to extract command, feature, date programmatically
 - **Unique**: Timestamp prevents collisions
 - **Sortable**: Alphabetical sort = chronological order
-- **Searchable**: `backlog search "specflow-implement"` finds all implementation tasks
+- **Searchable**: `backlog search "flowspec-implement"` finds all implementation tasks
 - **Hierarchical**: Subtasks group under parent via naming
 
 ---
@@ -239,7 +239,7 @@ specflow-operate-k8s-deployment-20251129-observability
 
 ### Command-Level Injection (All Commands)
 
-**Entry Hook Pattern** (add to `.claude/commands/specflow/*.md`):
+**Entry Hook Pattern** (add to `.claude/commands/flowspec/*.md`):
 
 ```markdown
 ## Pre-Execution: Task Activation
@@ -327,7 +327,7 @@ Key capabilities:
 
 ## Integration Points by Command
 
-### /specflow:specify (PM Planner)
+### /flow:specify (PM Planner)
 
 **Entry Hook**:
 ```bash
@@ -352,7 +352,7 @@ backlog task edit <id> --check-ac 1 --check-ac 2 --notes "PRD created: X epics, 
 
 ---
 
-### /specflow:plan (Architect + Platform Engineer)
+### /flow:plan (Architect + Platform Engineer)
 
 **Entry Hook**:
 ```bash
@@ -370,7 +370,7 @@ backlog task edit <id> --notes "Architecture: ADR-X, Y. Platform: CI/CD design, 
 
 ---
 
-### /specflow:research (Researcher → Business Validator)
+### /flow:research (Researcher → Business Validator)
 
 **Entry Hook**:
 ```bash
@@ -393,7 +393,7 @@ backlog task edit <id> --check-ac 2 --notes "Validation: GO with Z% confidence" 
 
 ---
 
-### /specflow:implement (Engineers + Reviewers)
+### /flow:implement (Engineers + Reviewers)
 
 **Entry Hook**:
 ```bash
@@ -422,7 +422,7 @@ backlog task edit <id> --notes "Feature implemented: [summary]" -s Done
 
 ---
 
-### /specflow:validate (QA → Security → Docs → Release)
+### /flow:validate (QA → Security → Docs → Release)
 
 **Entry Hook**:
 ```bash
@@ -454,7 +454,7 @@ backlog task edit <id> -s Done
 
 ---
 
-### /specflow:operate (SRE Agent)
+### /flow:operate (SRE Agent)
 
 **Entry Hook**:
 ```bash
@@ -487,7 +487,7 @@ backlog task edit <id> --notes "Operations complete: CI/CD, K8s, observability, 
 ```python
 def test_specify_entry_hook():
     """Verify specify command activates task correctly."""
-    task_id = "specflow-specify-auth-20251128"
+    task_id = "flowspec-specify-auth-20251128"
 
     # Simulate command entry hook
     result = subprocess.run([
@@ -508,7 +508,7 @@ def test_specify_entry_hook():
 ```python
 def test_research_phase_transition():
     """Verify research → validation transition updates assignee."""
-    task_id = "specflow-research-market-20251128"
+    task_id = "flowspec-research-market-20251128"
 
     # Phase 1 → Phase 2
     result = subprocess.run([
@@ -527,7 +527,7 @@ def test_research_phase_transition():
 ```python
 def test_implement_exit_hook():
     """Verify implement command completes task correctly."""
-    task_id = "specflow-implement-api-20251128"
+    task_id = "flowspec-implement-api-20251128"
 
     # Simulate exit hook
     result = subprocess.run([
@@ -551,7 +551,7 @@ def test_implement_exit_hook():
 def test_specify_workflow_end_to_end():
     """Verify complete specify workflow from entry to exit."""
     feature = "user-authentication"
-    task_id = f"specflow-specify-{feature}-20251128"
+    task_id = f"flowspec-specify-{feature}-20251128"
 
     # Entry hook
     activate_task(task_id, "@pm-planner")
@@ -573,7 +573,7 @@ def test_specify_workflow_end_to_end():
 ```python
 def test_validate_human_approval_required():
     """Verify validate command blocks until human approval."""
-    task_id = "specflow-validate-release-20251128"
+    task_id = "flowspec-validate-release-20251128"
 
     # Phases 1-3 complete
     complete_validation_phases(task_id)
@@ -599,7 +599,7 @@ def test_validate_human_approval_required():
 
 ### Manual Testing Checklist
 
-- [ ] Run each specflow command and verify entry hook activates task
+- [ ] Run each flowspec command and verify entry hook activates task
 - [ ] Verify multi-phase commands update assignees correctly
 - [ ] Test AC checking during agent execution
 - [ ] Verify exit hooks complete tasks with all ACs checked
@@ -614,7 +614,7 @@ def test_validate_human_approval_required():
 
 ### Positive
 
-- **Standardized Lifecycle**: All specflow tasks follow consistent lifecycle
+- **Standardized Lifecycle**: All flowspec tasks follow consistent lifecycle
 - **Audit Trail**: Complete visibility into agent work and transitions
 - **Reduced Manual Work**: Automated task activation and completion
 - **Better Context**: Agents can query task state before/during work
@@ -656,7 +656,7 @@ def test_validate_human_approval_required():
 ### Migration Path
 
 **Phase 1: Manual Task Creation**
-- Developers manually create tasks before running specflow commands
+- Developers manually create tasks before running flowspec commands
 - Commands handle lifecycle management only
 
 **Phase 2: Semi-Automated Creation**
@@ -671,9 +671,9 @@ def test_validate_human_approval_required():
 
 ## References
 
-- **Audit Document**: `docs/audits/specflow-command-audit.md`
+- **Audit Document**: `docs/audits/flowspec-command-audit.md`
 - **Backlog.md CLI**: https://backlog.md
-- **Command Files**: `.claude/commands/specflow/*.md`
+- **Command Files**: `.claude/commands/flowspec/*.md`
 - **Agent Context Files**: `templates/agent-contexts/`
 - **Task-106**: Backlog task tracking this architecture design
 
@@ -744,14 +744,14 @@ backlog task <id> --plain
 backlog task list -s "In Progress" --plain
 
 # Search tasks
-backlog search "specflow-implement" --plain
+backlog search "flowspec-implement" --plain
 ```
 
 ---
 
 ## Appendix: Template Injection Example
 
-**Before Integration** (`.claude/commands/specflow/specify.md`):
+**Before Integration** (`.claude/commands/flowspec/specify.md`):
 
 ```markdown
 ## Execution Instructions

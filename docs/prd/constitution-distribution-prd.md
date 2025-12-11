@@ -9,10 +9,10 @@
 
 ### Problem Statement
 
-JP Specflow has a comprehensive constitution (`memory/constitution.md`) that defines critical workflow rules, artifact progression, task quality standards, and development practices. However, this constitution currently exists **only in the jp-spec-kit repository itself**, not in the target repositories that use JP Specflow.
+JP Flowspec has a comprehensive constitution (`memory/constitution.md`) that defines critical workflow rules, artifact progression, task quality standards, and development practices. However, this constitution currently exists **only in the jp-spec-kit repository itself**, not in the target repositories that use JP Flowspec.
 
 This creates a fundamental problem:
-- **Workflow rules are invisible** to projects using JP Specflow
+- **Workflow rules are invisible** to projects using JP Flowspec
 - **No guidance for users** on artifact progression (PRD → Functional Spec → Technical Spec → ADR → Implementation → Runbook)
 - **Workflow mode variations** (light/medium/heavy) are not documented in target repos
 - **Committer skill separation** and git commit requirements exist only in jp-spec-kit
@@ -30,7 +30,7 @@ Distribute tiered constitution templates (light/medium/heavy) to target reposito
 3. **Tier-appropriate selection**: Users choose appropriate tier (light/medium/heavy) for their project type
 4. **LLM customization accuracy**: 90%+ of auto-detected repo facts are correct (languages, frameworks, CI configs)
 5. **User validation**: Clear NEEDS_VALIDATION markers guide users to review/approve auto-generated content
-6. **Constitution compliance**: /specflow commands check for constitution existence before executing
+6. **Constitution compliance**: /flowspec commands check for constitution existence before executing
 
 ## Background
 
@@ -57,7 +57,7 @@ All templates have:
 1. **Existing project detection** - Detect repos without constitution during `specify init --here` or `specify upgrade`
 2. **LLM customization command** - `/speckit:constitution` slash command to analyze repo and customize template
 3. **Validation workflow** - Help users review and approve NEEDS_VALIDATION sections
-4. **Constitution enforcement** - /specflow commands verify constitution exists and is validated
+4. **Constitution enforcement** - /flowspec commands verify constitution exists and is validated
 
 ### Current User Flow (task-241 + task-242)
 
@@ -141,12 +141,12 @@ specify init --here
 
 ### US-6: Constitution Enforcement in Workflow
 
-**As a** developer running `/specflow` commands
+**As a** developer running `/flowspec` commands
 **I want** to be reminded if my constitution has unvalidated sections
 **So that** I don't start work based on incorrect assumptions
 
 **Acceptance Criteria**:
-- Before executing `/specflow:specify`, `/specflow:plan`, etc., check for constitution
+- Before executing `/flow:specify`, `/flow:plan`, etc., check for constitution
 - If `memory/constitution.md` missing, warn: "No constitution found - run `specify constitution create`"
 - If NEEDS_VALIDATION markers present, warn: "Constitution has unvalidated sections - run `specify constitution validate`"
 - User can proceed with `--skip-validation` flag (not recommended)
@@ -160,7 +160,7 @@ specify init --here
 **Evidence**:
 - Users have explicitly requested constitution distribution (user request in this session)
 - Constitution contains critical workflow rules (artifact progression, git requirements, task quality)
-- Without constitution, users lack guidance on how to use JP Specflow correctly
+- Without constitution, users lack guidance on how to use JP Flowspec correctly
 
 **Mitigation**:
 - Make constitution creation opt-in with clear value proposition
@@ -189,7 +189,7 @@ specify init --here
 **Evidence**:
 - Templates already exist (task-241 ✅)
 - --constitution flag works (task-242 ✅)
-- LLM integration already exists in JP Specflow (slash commands use Claude)
+- LLM integration already exists in JP Flowspec (slash commands use Claude)
 - Detection logic straightforward (check file existence)
 
 **Technical Challenges**:
@@ -329,9 +329,9 @@ specify init --here
 - Constitution missing → error: "No constitution found - run `specify constitution create`"
 - Malformed constitution → warn user, list parsing errors
 
-### FR-5: Constitution Enforcement in /specflow Commands
+### FR-5: Constitution Enforcement in /flowspec Commands
 
-**Description**: /specflow commands verify constitution exists and is validated before execution.
+**Description**: /flowspec commands verify constitution exists and is validated before execution.
 
 **Inputs**:
 - Current working directory
@@ -458,8 +458,8 @@ specify init --here
 
 ### New Implementation Tasks (To Be Created)
 
-**Task: Constitution Enforcement in /specflow Commands**
-- Description: Add constitution checks to all /specflow slash commands
+**Task: Constitution Enforcement in /flowspec Commands**
+- Description: Add constitution checks to all /flowspec slash commands
 - Acceptance Criteria:
   - Before command execution, check `memory/constitution.md` existence
   - Check for NEEDS_VALIDATION markers
@@ -538,7 +538,7 @@ specify init --here
 - Acceptance Criteria:
   - Issue: LLM generated incorrect language detection
   - Issue: Constitution validation stuck on unresolvable NEEDS_VALIDATION
-  - Issue: /specflow command blocked by unvalidated constitution
+  - Issue: /flowspec command blocked by unvalidated constitution
   - Issue: Constitution version mismatch after upgrade
   - Each issue includes symptoms, cause, resolution
 - Location: `docs/guides/constitution-troubleshooting.md`
@@ -562,16 +562,16 @@ specify init --here
 - Dependencies: task-244
 
 **Task: Constitution Enforcement Integration Tests**
-- Description: Verify /specflow commands enforce constitution checks
+- Description: Verify /flowspec commands enforce constitution checks
 - Acceptance Criteria:
-  - Test light tier: /specflow:specify warns but proceeds
-  - Test medium tier: /specflow:specify prompts for confirmation
-  - Test heavy tier: /specflow:specify blocks execution
+  - Test light tier: /flow:specify warns but proceeds
+  - Test medium tier: /flow:specify prompts for confirmation
+  - Test heavy tier: /flow:specify blocks execution
   - Test --skip-validation flag bypasses checks
   - Test unvalidated constitution triggers validation warning
 - Labels: testing, integration-tests, constitution
 - Priority: High
-- Dependencies: Constitution Enforcement in /specflow Commands
+- Dependencies: Constitution Enforcement in /flowspec Commands
 
 ## Discovery and Validation Plan
 
@@ -636,14 +636,14 @@ specify init --here
 
 **Triggers**:
 1. `specify init --here` (initializing in current directory)
-2. `specify upgrade` (updating JP Specflow)
-3. Any `/specflow` command when constitution missing (just-in-time)
+2. `specify upgrade` (updating JP Flowspec)
+3. Any `/flowspec` command when constitution missing (just-in-time)
 
 **Validation Method**:
 - User interviews: When do they expect constitution to be created?
 - Test scenarios:
   - New contributor clones repo without constitution
-  - Existing project adds JP Specflow
+  - Existing project adds JP Flowspec
   - Project created before constitution feature existed
 
 **Decision Criteria**:
@@ -656,7 +656,7 @@ specify init --here
 **Rationale**:
 - `specify init --here` is explicit initialization → create constitution
 - `specify upgrade` is maintenance operation → safe to add constitution
-- `/specflow` commands failing is surprising → warn, don't auto-create
+- `/flowspec` commands failing is surprising → warn, don't auto-create
 - Users can manually run `specify constitution create` if needed
 
 ### Phase 4: Memory Bank Integration (Week 4)
@@ -670,7 +670,7 @@ specify init --here
 
 **Validation Method**:
 - Prototype repo-facts.md format
-- Test LLM context usage in other /specflow commands
+- Test LLM context usage in other /flowspec commands
 - Measure detection speed (re-detect vs cached)
 - User feedback: is repo-facts.md useful to read?
 
@@ -682,7 +682,7 @@ specify init --here
 **Recommendation**: **Store in `memory/repo-facts.md`** (Option 1)
 
 **Rationale**:
-- Persistent facts help LLM agents in all /specflow commands
+- Persistent facts help LLM agents in all /flowspec commands
 - Version-controlled facts track project evolution over time
 - Human-readable markdown format allows manual edits
 - `memory/` is already the designated location for project memory
@@ -747,7 +747,7 @@ specify init --here
 
 ### AC-5: Constitution Enforcement
 
-- [ ] /specflow commands check `memory/constitution.md` existence before execution
+- [ ] /flowspec commands check `memory/constitution.md` existence before execution
 - [ ] If missing, warn: "No constitution found - run `specify constitution create`"
 - [ ] If NEEDS_VALIDATION markers present, warn: "Constitution has X unvalidated sections"
 - [ ] Light tier: warning only (can proceed)
@@ -767,7 +767,7 @@ specify init --here
 - [ ] Unit tests for constitution detection logic
 - [ ] Integration tests for `specify init --here` with/without existing constitution
 - [ ] LLM customization accuracy tests (90%+ correct detections)
-- [ ] Constitution enforcement tests for all /specflow commands
+- [ ] Constitution enforcement tests for all /flowspec commands
 - [ ] Edge case tests: empty repo, multi-language, monorepo
 
 ## Dependencies and Constraints
@@ -850,12 +850,12 @@ specify init --here
 ### Phase 2: Enforcement (Week 3)
 
 **Goals**:
-- Add constitution checks to all /specflow commands
+- Add constitution checks to all /flowspec commands
 - Implement tier-specific enforcement (light/medium/heavy)
 - Add `--skip-validation` flag
 
 **Deliverables**:
-- /specflow commands enforce constitution existence
+- /flowspec commands enforce constitution existence
 - Tier-appropriate warnings/blocks
 - User can bypass with flag
 

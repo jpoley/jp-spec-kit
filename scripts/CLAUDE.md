@@ -149,7 +149,7 @@ Validates .claude/commands/ structure to ensure single-source-of-truth architect
 - R1: All .md files in .claude/commands/ must be symlinks (no regular files)
 - R2: All symlinks must resolve to existing files (no broken symlinks)
 - R3: All symlinks must point to templates/commands/ directory
-- R7: Expected subdirectories (specflow/, speckit/) must exist
+- R7: Expected subdirectories (flowspec/, speckit/) must exist
 
 **Exit codes:**
 - 0: All validations passed
@@ -185,7 +185,7 @@ repos:
 
 ## migrate-commands-to-subdirs.sh
 
-Migrates slash commands from flat structure (e.g., `specflow.implement.md`) to subdirectory structure (e.g., `specflow/implement.md`).
+Migrates slash commands from flat structure (e.g., `flowspec.implement.md`) to subdirectory structure (e.g., `flowspec/implement.md`).
 
 ```bash
 # Preview what would be moved
@@ -202,7 +202,7 @@ Migrates slash commands from flat structure (e.g., `specflow.implement.md`) to s
 ```
 
 **What it does:**
-- Moves `specflow.*.md` files to `specflow/` subdirectory (renamed to `*.md`)
+- Moves `flowspec.*.md` files to `flowspec/` subdirectory (renamed to `*.md`)
 - Moves `speckit.*.md` files to `speckit/` subdirectory (renamed to `*.md`)
 - Creates subdirectories if they don't exist
 - Checks for broken symlinks after migration

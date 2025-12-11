@@ -57,17 +57,17 @@ class PreCommitConfig:
                 bandit_hook["entry"] += " " + " ".join(self.additional_args["bandit"])
             hooks.append(bandit_hook)
 
-        # specflow security hook
-        specflow_hook = {
-            "id": "specflow-security",
-            "name": "specflow security scan",
+        # flowspec security hook
+        flowspec_hook = {
+            "id": "flowspec-security",
+            "name": "flowspec security scan",
             "entry": f"specify security scan --fail-on {self.fail_on_severity}",
             "language": "python",
             "types": ["python", "javascript", "typescript"],
             "pass_filenames": False,
             "stages": ["pre-commit"],
         }
-        hooks.append(specflow_hook)
+        hooks.append(flowspec_hook)
 
         config = {
             "repos": [

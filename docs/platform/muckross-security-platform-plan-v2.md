@@ -39,13 +39,13 @@ This is the single most important architectural constraint. Any implementation t
 
 **The Muckross Security Platform is NOT part of the core JP Spec workflow.**
 
-This security scanning capability is an **optional, standalone feature** that can be used independently of the standard `/specflow:specify → /specflow:plan → /specflow:implement` workflow.
+This security scanning capability is an **optional, standalone feature** that can be used independently of the standard `/flow:specify → /flow:plan → /flow:implement` workflow.
 
 **Key Points:**
 - **No workflow state requirements**: Can be run at any time, in any project state
-- **No dependency on /specflow commands**: Works standalone without spec-driven workflow
+- **No dependency on /flowspec commands**: Works standalone without spec-driven workflow
 - **Optional for developers**: Security scanning is a supplementary capability
-- **CI/CD independence**: Can run in pipelines without specflow context
+- **CI/CD independence**: Can run in pipelines without flowspec context
 - **Security engineer focused**: Designed for security practitioners, not feature development
 
 **When to use:**
@@ -57,7 +57,7 @@ This security scanning capability is an **optional, standalone feature** that ca
 
 **NOT required for:**
 - Standard feature development workflow
-- `/specflow:implement` task execution
+- `/flow:implement` task execution
 - Product requirement implementation
 
 ---
@@ -143,7 +143,7 @@ This security scanning capability is an **optional, standalone feature** that ca
 
 ## 3. Command Execution Context
 
-**Two types of slash commands exist in Specflow:**
+**Two types of slash commands exist in Flowspec:**
 
 ### 3.1 CLI Commands (Deterministic)
 
@@ -169,7 +169,7 @@ This security scanning capability is an **optional, standalone feature** that ca
 | **Location** | `.claude/commands/` |
 | **Execution** | AI coding tool (Claude Code, Cursor) |
 | **Purpose** | Intelligent triage, fix generation |
-| **Example** | `/specflow:security_triage` |
+| **Example** | `/flow:security_triage` |
 | **Use in** | Local development with AI tools |
 
 **Characteristics:**
@@ -181,17 +181,17 @@ This security scanning capability is an **optional, standalone feature** that ca
 
 ### 3.3 Command Naming Convention
 
-**All security commands use underscores (matching specflow pattern):**
+**All security commands use underscores (matching flowspec pattern):**
 
 | Command | Type | Purpose |
 |---------|------|---------|
 | `specify security scan` | CLI | Run security scanners |
-| `/specflow:security_scan` | Agentic | Invoke scan with context |
-| `/specflow:security_triage` | Agentic | AI-powered triage |
-| `/specflow:security_fix` | Agentic | Generate security fixes |
-| `/specflow:security_report` | Agentic | Generate security reports |
+| `/flow:security_scan` | Agentic | Invoke scan with context |
+| `/flow:security_triage` | Agentic | AI-powered triage |
+| `/flow:security_fix` | Agentic | Generate security fixes |
+| `/flow:security_report` | Agentic | Generate security reports |
 
-**Rationale**: Underscores match the `/specflow:*` command pattern and are more shell-friendly than hyphens.
+**Rationale**: Underscores match the `/flow:*` command pattern and are more shell-friendly than hyphens.
 
 ### 3.4 CI/CD Pipeline Uses CLI Commands ONLY
 
@@ -212,7 +212,7 @@ This security scanning capability is an **optional, standalone feature** that ca
 
 # GitHub Actions - WRONG (would fail)
 - name: Run Security Triage
-  run: /specflow:security_triage  # ERROR: No AI tool in CI/CD
+  run: /flow:security_triage  # ERROR: No AI tool in CI/CD
 ```
 
 ---
@@ -249,7 +249,7 @@ You are a security expert performing triage...
 
 **Commands reference memory:**
 ```markdown
-# .claude/commands/specflow-security_triage.md
+# .claude/commands/flowspec-security_triage.md
 
 This command invokes the security-triage skill which references:
 - Security facts and thresholds
@@ -735,7 +735,7 @@ $ specify security scan
 
 # 2. Developer asks AI tool to triage (agentic command - LLM-powered)
 $ # In Claude Code:
-# User: "/specflow:security_triage"
+# User: "/flow:security_triage"
 # → Claude Code reads security://findings via MCP
 # → Claude Code invokes security_triage tool via MCP
 # → MCP server returns skill invocation instruction
@@ -745,7 +745,7 @@ $ # In Claude Code:
 
 # 3. Developer asks AI tool to generate fixes (agentic command - LLM-powered)
 $ # In Claude Code:
-# User: "/specflow:security_fix"
+# User: "/flow:security_fix"
 # → Claude Code reads triage results
 # → Claude Code invokes security_fix tool via MCP
 # → MCP server returns skill invocation instruction
@@ -760,7 +760,7 @@ $ git commit -m "fix: apply security patches"
 
 **Key distinction:**
 - **CLI commands** (`specify security scan`): Deterministic, safe for CI/CD
-- **Agentic commands** (`/specflow:security_triage`): LLM-powered, local development only
+- **Agentic commands** (`/flow:security_triage`): LLM-powered, local development only
 
 ---
 
@@ -916,20 +916,20 @@ Manual validation: Run skill, compare output to fixture, adjust skill if needed.
 from prometheus_client import Histogram, Counter, Gauge
 
 SCAN_DURATION = Histogram(
-    'specflow_security_scan_duration_seconds',
+    'flowspec_security_scan_duration_seconds',
     'Semgrep scan execution time',
     ['tool', 'scan_type'],
     buckets=[1, 5, 10, 30, 60, 120, 300]
 )
 
 FINDINGS_TOTAL = Counter(
-    'specflow_security_findings_total',
+    'flowspec_security_findings_total',
     'Total security findings from scanners',
     ['severity', 'cwe_id', 'tool']
 )
 
 MCP_TOOL_INVOCATIONS = Counter(
-    'specflow_security_mcp_tool_invocations_total',
+    'flowspec_security_mcp_tool_invocations_total',
     'MCP tool invocation count',
     ['tool_name']
 )
@@ -974,7 +974,7 @@ MCP_TOOL_INVOCATIONS.labels(tool_name='security_triage').inc()
 - Memory resources exposed via `security://knowledge/*`
 - No Anthropic SDK imported
 - No API calls made from MCP server
-- All security commands use underscores: `/specflow:security_scan`, `/specflow:security_triage`, `/specflow:security_fix`
+- All security commands use underscores: `/flow:security_scan`, `/flow:security_triage`, `/flow:security_fix`
 
 ### 10.2 Task 258: Implement ADR-008 Security MCP Server Architecture
 
@@ -986,7 +986,7 @@ MCP_TOOL_INVOCATIONS.labels(tool_name='security_triage').inc()
 4. **Add examples** of skill invocation flow
 5. **Document memory integration** (skills import memory/security/*.md)
 6. **Clarify CLI vs agentic commands** (deterministic vs LLM-powered)
-7. **Document workflow independence** (not part of core specflow flow)
+7. **Document workflow independence** (not part of core flowspec flow)
 
 **Acceptance Criteria (CORRECTED):**
 - ADR-008 explicitly states "NO LLM API calls in MCP server"
@@ -1004,7 +1004,7 @@ MCP_TOOL_INVOCATIONS.labels(tool_name='security_triage').inc()
    - Install Semgrep
    - Run `specify security scan` (CLI command - deterministic)
    - Upload SARIF to GitHub Security tab
-   - **NO agentic commands in CI/CD** (no `/specflow:security_triage`)
+   - **NO agentic commands in CI/CD** (no `/flow:security_triage`)
    - **NO AI triage in CI/CD** (happens locally with AI tool)
 
 2. **Artifact Storage**
@@ -1013,7 +1013,7 @@ MCP_TOOL_INVOCATIONS.labels(tool_name='security_triage').inc()
 
 **Acceptance Criteria (CORRECTED):**
 - CI/CD runs CLI commands only (`specify security scan`)
-- No agentic commands in CI/CD (no `/specflow:*` commands)
+- No agentic commands in CI/CD (no `/flow:*` commands)
 - No AI triage in pipeline
 - No API keys or LLM dependencies in CI/CD
 - Findings artifact uploaded for local triage with AI tool
@@ -1190,7 +1190,7 @@ MCP_TOOL_INVOCATIONS.labels(tool_name='security_triage').inc()
    ↓
 6. Developer downloads findings artifact
    ↓
-7. Developer asks AI tool to triage: "/specflow:security_triage" (agentic - LLM)
+7. Developer asks AI tool to triage: "/flow:security_triage" (agentic - LLM)
    ↓
 8. AI tool reads security://findings via MCP
    ↓
@@ -1202,7 +1202,7 @@ MCP_TOOL_INVOCATIONS.labels(tool_name='security_triage').inc()
     ↓
 12. AI tool writes triage results to docs/security/triage-results.json
     ↓
-13. Developer asks AI tool to generate fixes: "/specflow:security_fix" (agentic - LLM)
+13. Developer asks AI tool to generate fixes: "/flow:security_fix" (agentic - LLM)
     ↓
 14. AI tool invokes security_fix tool via MCP
     ↓
@@ -1222,8 +1222,8 @@ MCP_TOOL_INVOCATIONS.labels(tool_name='security_triage').inc()
 ### 11.2 Where AI Happens
 
 **AI happens ONLY in step 11 and 16 (agentic commands):**
-- Step 11: AI tool executes security-triage skill with `/specflow:security_triage` (LLM-powered)
-- Step 16: AI tool executes security-fix skill with `/specflow:security_fix` (LLM-powered)
+- Step 11: AI tool executes security-triage skill with `/flow:security_triage` (LLM-powered)
+- Step 16: AI tool executes security-fix skill with `/flow:security_fix` (LLM-powered)
 
 **AI does NOT happen in (CLI commands only):**
 - Pre-commit hooks (step 2) - CLI: `specify security scan --fast`
@@ -1233,7 +1233,7 @@ MCP_TOOL_INVOCATIONS.labels(tool_name='security_triage').inc()
 
 **Command types:**
 - **CLI (deterministic)**: `specify security scan` - Safe for automation
-- **Agentic (LLM-powered)**: `/specflow:security_triage`, `/specflow:security_fix` - Local development only
+- **Agentic (LLM-powered)**: `/flow:security_triage`, `/flow:security_fix` - Local development only
 
 ---
 
@@ -1269,7 +1269,7 @@ Before declaring any implementation complete, verify:
 - [ ] No `import anthropic` or `import openai` in Python code
 - [ ] No API key handling in environment variables or config
 - [ ] No LLM API calls in MCP server code
-- [ ] No agentic commands (no `/specflow:*`) in CI/CD pipelines
+- [ ] No agentic commands (no `/flow:*`) in CI/CD pipelines
 - [ ] CI/CD uses CLI commands only (`specify security scan`)
 - [ ] Skills exist in `.claude/skills/` directory with `@import memory/security/*.md`
 - [ ] Memory files exist in `memory/security/` directory
@@ -1278,9 +1278,9 @@ Before declaring any implementation complete, verify:
 - [ ] Docker image contains NO Anthropic SDK
 - [ ] Tests cover scanner execution, not AI inference
 - [ ] Documentation explicitly states "ZERO API KEYS"
-- [ ] All security commands use underscores: `/specflow:security_scan`, `/specflow:security_triage`, `/specflow:security_fix`, `/specflow:security_report`
+- [ ] All security commands use underscores: `/flow:security_scan`, `/flow:security_triage`, `/flow:security_fix`, `/flow:security_report`
 - [ ] Documentation clarifies CLI vs agentic command distinction
-- [ ] Documentation clarifies workflow independence (not part of core specflow flow)
+- [ ] Documentation clarifies workflow independence (not part of core flowspec flow)
 
 ---
 
@@ -1294,7 +1294,7 @@ Before declaring any implementation complete, verify:
 3. Replace AI API calls with skill invocation instructions
 4. Create skill templates in `.claude/skills/` with `@import memory/security/*.md`
 5. Create memory files in `memory/security/` directory
-6. Update all command names to use underscores (`/specflow:security_scan`, etc.)
+6. Update all command names to use underscores (`/flow:security_scan`, etc.)
 
 **CI/CD Changes:**
 1. Remove AI triage (agentic commands) from GitHub Actions workflow
@@ -1322,15 +1322,15 @@ Before declaring any implementation complete, verify:
 **For users who expected AI in CI/CD:**
 - AI triage (agentic commands) now happens locally with AI coding tool
 - CI/CD only runs CLI commands (scanners - deterministic)
-- No `/specflow:*` commands in CI/CD
-- Developer must use AI tool (Claude Code, etc.) for triage with `/specflow:security_triage`
+- No `/flow:*` commands in CI/CD
+- Developer must use AI tool (Claude Code, etc.) for triage with `/flow:security_triage`
 
 **For users who expected MCP server to call AI APIs:**
 - MCP server returns skill invocation instructions (agentic commands)
 - Skills import memory files for context (`@import memory/security/*.md`)
 - AI tool executes skills using its own LLM access
 - No API keys needed in deployment
-- Command names changed to use underscores: `/specflow:security_scan`, `/specflow:security_triage`, etc.
+- Command names changed to use underscores: `/flow:security_scan`, `/flow:security_triage`, etc.
 
 ---
 
@@ -1347,9 +1347,9 @@ Before declaring any implementation complete, verify:
 7. ✅ Docker image contains scanners only (no Anthropic SDK)
 8. ✅ Tests cover scanner execution (not AI inference)
 9. ✅ Documentation explicitly states "ZERO API KEYS"
-10. ✅ All security commands use underscores: `/specflow:security_scan`, `/specflow:security_triage`, `/specflow:security_fix`, `/specflow:security_report`
+10. ✅ All security commands use underscores: `/flow:security_scan`, `/flow:security_triage`, `/flow:security_fix`, `/flow:security_report`
 11. ✅ Documentation clarifies CLI vs agentic command distinction
-12. ✅ Documentation clarifies workflow independence (optional capability, not core specflow flow)
+12. ✅ Documentation clarifies workflow independence (optional capability, not core flowspec flow)
 13. ✅ All 11 tasks have updated implementation plans
 14. ✅ Validation checklist passes for all components
 15. ✅ **ZERO API DEPENDENCIES anywhere in the system**
@@ -1361,9 +1361,9 @@ Before declaring any implementation complete, verify:
 ### 16.1 Related Documents
 
 - **ADR-008**: Security MCP Server Architecture (needs update)
-- **Platform Plan v1**: `docs/platform/specflow-security-platform.md` (superseded)
-- **Assessment**: `docs/assess/specflow-security-commands-assessment.md`
-- **PRD**: `docs/prd/specflow-security-commands.md`
+- **Platform Plan v1**: `docs/platform/flowspec-security-platform.md` (superseded)
+- **Assessment**: `docs/assess/flowspec-security-commands-assessment.md`
+- **PRD**: `docs/prd/flowspec-security-commands.md`
 
 ### 16.2 External References
 

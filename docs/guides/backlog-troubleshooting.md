@@ -1,6 +1,6 @@
 # Backlog.md Troubleshooting Guide
 
-Comprehensive troubleshooting for common issues with Backlog.md integration in Specflow.
+Comprehensive troubleshooting for common issues with Backlog.md integration in Flowspec.
 
 ## Table of Contents
 
@@ -836,7 +836,7 @@ Report if you encounter:
 **For Backlog.md tool issues**:
 https://github.com/MrLesk/Backlog.md/issues
 
-**For Specflow integration issues**:
+**For Flowspec integration issues**:
 https://github.com/jpoley/jp-spec-kit/issues
 
 **Include in report**:
@@ -864,9 +864,9 @@ tail -50 ~/.local/state/claude-code/logs/mcp-backlog.log
 
 ### Community Help
 
-- **Discord**: [Specflow community](https://discord.gg/...)
+- **Discord**: [Flowspec community](https://discord.gg/...)
 - **GitHub Discussions**: https://github.com/jpoley/jp-spec-kit/discussions
-- **Stack Overflow**: Tag with `specflow` and `backlog-md`
+- **Stack Overflow**: Tag with `flowspec` and `backlog-md`
 
 ### Quick Diagnostic
 

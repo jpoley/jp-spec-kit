@@ -4,14 +4,14 @@
 
 **Date**: 2025-12-03
 
-**Deciders**: JP Specflow Development Team
+**Deciders**: JP Flowspec Development Team
 
 **Context and Problem Statement**:
 
-We currently have three different versions of specflow commands:
+We currently have three different versions of flowspec commands:
 
-1. **Enhanced versions** in `.claude/commands/specflow/` (20KB files with full backlog integration)
-2. **Minimal versions** in `templates/commands/specflow/` (3KB files, basic stubs)
+1. **Enhanced versions** in `.claude/commands/flowspec/` (20KB files with full backlog integration)
+2. **Minimal versions** in `templates/commands/flowspec/` (3KB files, basic stubs)
 3. **Distributed versions** (same as #2, installed by `specify init`)
 
 This creates several problems:
@@ -26,8 +26,8 @@ This creates several problems:
 
 ```
 implement.md file sizes:
-- .claude/commands/specflow/implement.md:     19,960 bytes (6.8x larger)
-- templates/commands/specflow/implement.md:    2,945 bytes
+- .claude/commands/flowspec/implement.md:     19,960 bytes (6.8x larger)
+- templates/commands/flowspec/implement.md:    2,945 bytes
 - nanofuse .claude/commands/implement.md:    2,933 bytes (user gets minimal)
 ```
 
@@ -49,7 +49,7 @@ End users get a vastly inferior experience (3KB stub) compared to what jp-spec-k
 
 ### Option 1: Keep Current Dual-Source Model (Status Quo)
 
-**Description**: Continue maintaining enhanced commands in `.claude/commands/specflow/` and minimal templates in `templates/commands/specflow/`.
+**Description**: Continue maintaining enhanced commands in `.claude/commands/flowspec/` and minimal templates in `templates/commands/flowspec/`.
 
 **Pros**:
 - No migration needed
@@ -69,7 +69,7 @@ End users get a vastly inferior experience (3KB stub) compared to what jp-spec-k
 
 ### Option 2: Make `.claude/commands/` the Source (Invert)
 
-**Description**: Use `.claude/commands/specflow/` as the canonical source, copy from there to `templates/` during build.
+**Description**: Use `.claude/commands/flowspec/` as the canonical source, copy from there to `templates/` during build.
 
 **Pros**:
 - ✅ Enhanced commands become canonical
@@ -87,7 +87,7 @@ End users get a vastly inferior experience (3KB stub) compared to what jp-spec-k
 
 ### Option 3: Single Source in `templates/` with Symlinks (SELECTED)
 
-**Description**: Move enhanced commands to `templates/commands/specflow/` (the canonical source). dev-setup creates symlinks from `.claude/commands/` to templates.
+**Description**: Move enhanced commands to `templates/commands/flowspec/` (the canonical source). dev-setup creates symlinks from `.claude/commands/` to templates.
 
 **Pros**:
 - ✅ One canonical source (templates/)
@@ -130,19 +130,19 @@ End users get a vastly inferior experience (3KB stub) compared to what jp-spec-k
 
 ### Implementation Approach:
 
-1. **Move enhanced specflow commands** from `.claude/commands/specflow/` to `templates/commands/specflow/`
-2. **Update dev-setup command** to create specflow symlinks (currently only does speckit)
-3. **Delete original `.claude/commands/specflow/` files** - replace with symlinks created by dev-setup
+1. **Move enhanced flowspec commands** from `.claude/commands/flowspec/` to `templates/commands/flowspec/`
+2. **Update dev-setup command** to create flowspec symlinks (currently only does speckit)
+3. **Delete original `.claude/commands/flowspec/` files** - replace with symlinks created by dev-setup
 4. **Keep init command unchanged** - it already copies from templates
 
 ### File Flow:
 
 ```
-templates/commands/specflow/implement.md   ◄─── CANONICAL SOURCE (20KB enhanced)
+templates/commands/flowspec/implement.md   ◄─── CANONICAL SOURCE (20KB enhanced)
                 │
-                ├─► (dev-setup symlink) .claude/commands/specflow/implement.md
+                ├─► (dev-setup symlink) .claude/commands/flowspec/implement.md
                 │
-                └─► (init copy) user-project/.claude/commands/specflow/implement.md
+                └─► (init copy) user-project/.claude/commands/flowspec/implement.md
 ```
 
 ---

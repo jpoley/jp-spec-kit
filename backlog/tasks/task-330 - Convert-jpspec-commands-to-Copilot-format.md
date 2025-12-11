@@ -1,6 +1,6 @@
 ---
 id: task-330
-title: Convert specflow commands to Copilot format
+title: Convert flowspec commands to Copilot format
 status: To Do
 assignee: []
 created_date: '2025-12-08 22:28'
@@ -15,13 +15,13 @@ priority: high
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Convert all 15 specflow.* commands from .claude/commands/specflow/ to .github/agents/ with correct mode: frontmatter and resolved includes
+Convert all 15 flowspec.* commands from .claude/commands/flowspec/ to .github/agents/ with correct mode: frontmatter and resolved includes
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 All 15 specflow.* files exist in .github/agents/ with correct naming
-- [ ] #2 Each file has mode: specflow.<name> frontmatter (not mode: agent)
+- [ ] #1 All 15 flowspec.* files exist in .github/agents/ with correct naming
+- [ ] #2 Each file has mode: flowspec.<name> frontmatter (not mode: agent)
 - [ ] #3 All {{INCLUDE:...}} directives are resolved and embedded
 - [ ] #4 Commands appear in VS Code Copilot Chat command picker
 - [ ] #5 Commands appear in VS Code Insiders Copilot Chat command picker

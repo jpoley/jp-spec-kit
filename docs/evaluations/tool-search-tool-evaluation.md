@@ -114,7 +114,7 @@ Designed for applications with large tool catalogs (10+ tools) where:
 | **Primary Users** | Developers practicing SDD |
 | **Components** | CLI, templates, slash commands |
 | **Integration** | Backlog.md, Claude Code |
-| **Workflows** | /specflow:specify, /specflow:plan, /specflow:implement, etc. |
+| **Workflows** | /flow:specify, /flow:plan, /flow:implement, etc. |
 
 ### What tool-search-tool IS
 
@@ -148,7 +148,7 @@ JP Spec Kit and tool-search-tool operate at fundamentally different abstraction 
 ┌────────────────────────────────────────────────────────────┐
 │                    User Layer                               │
 │  JP Spec Kit users execute workflows via Claude Code       │
-│  (/specflow:specify, /specflow:plan, etc.)                    │
+│  (/flow:specify, /flow:plan, etc.)                    │
 └────────────────────────────────────────────────────────────┘
                               │
                               ▼
@@ -241,23 +241,23 @@ If the underlying goal is "help users discover and use the right tools," conside
 
 | Command | Purpose | When to Use |
 |---------|---------|-------------|
-| /specflow:specify | Create feature specs | Starting new features |
-| /specflow:plan | Architecture planning | After spec approval |
-| /specflow:implement | Code generation | After planning |
-| /specflow:validate | Quality checks | Before PR |
-| /specflow:operate | DevOps/SRE tasks | Deployment |
+| /flow:specify | Create feature specs | Starting new features |
+| /flow:plan | Architecture planning | After spec approval |
+| /flow:implement | Code generation | After planning |
+| /flow:validate | Quality checks | Before PR |
+| /flow:operate | DevOps/SRE tasks | Deployment |
 ```
 
 ### 2. Add Help Command
 
-Create `/specflow:help` that explains:
+Create `/flow:help` that explains:
 - Available commands and their purposes
 - Recommended workflow progression
 - Common use cases and examples
 
 ### 3. Workflow Tutorial
 
-Create `docs/guides/specflow-workflow-tutorial.md`:
+Create `docs/guides/flowspec-workflow-tutorial.md`:
 - Step-by-step guide through a feature
 - When to use each command
 - Tips for effective SDD

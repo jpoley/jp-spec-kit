@@ -1,6 +1,6 @@
 # Custom Security Rules Guide
 
-This guide explains how to create custom security rules for `/specflow:security` scanning.
+This guide explains how to create custom security rules for `/flow:security` scanning.
 
 ## Overview
 
@@ -310,7 +310,7 @@ rules:
       - python
 ```
 
-## Integrating with specflow
+## Integrating with flowspec
 
 ### Custom Rule Workflow
 
@@ -458,5 +458,5 @@ semgrep --validate --config rule.yml
 ## Related Documentation
 
 - [Security Quickstart](./security-quickstart.md)
-- [Command Reference](../reference/specflow-security-commands.md)
+- [Command Reference](../reference/flowspec-security-commands.md)
 - [Semgrep Rule Syntax](https://semgrep.dev/docs/writing-rules/rule-syntax/)

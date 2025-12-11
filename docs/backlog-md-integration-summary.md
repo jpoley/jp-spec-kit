@@ -93,7 +93,7 @@ Backlog.md:   task-012 - Create User model.md
 **Solution**: **Generate-once with conflict-aware regeneration**
 
 **Workflow**:
-1. **Initial Generation**: `/specflow:tasks` → Backlog.md tasks created
+1. **Initial Generation**: `/flow:tasks` → Backlog.md tasks created
 2. **Execution**: Developers update task status, add notes, assign work
 3. **Spec Changes**: Developer runs `specify tasks regenerate`
 4. **Conflict Detection**: System detects manually edited tasks
@@ -117,9 +117,9 @@ Backlog.md:   task-012 - Create User model.md
                                 │
                                 ▼
                     ┌────────────────────────┐
-                    │  /specflow:specify       │
-                    │  /specflow:plan          │
-                    │  /specflow:research      │
+                    │  /flow:specify       │
+                    │  /flow:plan          │
+                    │  /flow:research      │
                     └───────────┬────────────┘
                                 │
                                 ▼
@@ -132,7 +132,7 @@ Backlog.md:   task-012 - Create User model.md
                                 │
                                 ▼
               ┌──────────────────────────────────────┐
-              │  /specflow:tasks (ENHANCED)            │
+              │  /flow:tasks (ENHANCED)            │
               │  - Parse spec.md user stories        │
               │  - Map to Backlog.md format          │
               │  - Generate task-*.md files          │
@@ -261,7 +261,7 @@ Phase 3: User Story 1 (MVP)
 ```
 
 **Acceptance Criteria**:
-- ✅ Run `/specflow:tasks --format backlog-md` on existing feature
+- ✅ Run `/flow:tasks --format backlog-md` on existing feature
 - ✅ Verify `backlog/tasks/` directory created with task-*.md files
 - ✅ Verify user story labels preserved: `labels: [US1]`, `labels: [US2]`
 - ✅ Verify parallelizable tasks have `labels: [parallelizable]`
@@ -431,7 +431,7 @@ Phase 3: User Story 1 (MVP)
 ### Tools Available
 - **Backlog.md CLI**: v1.20.1 installed via pnpm
 - **MCP Server**: Configured for Claude Code
-- **jp-spec-kit**: Current task generation via `/specflow:tasks`
+- **jp-spec-kit**: Current task generation via `/flow:tasks`
 
 ---
 

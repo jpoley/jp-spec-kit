@@ -61,7 +61,7 @@ cat .specify/memory/repo-facts.md
 specify constitution validate
 
 # Test with a slash command
-/specflow:specify
+/flow:specify
 ```
 
 ## Constitution Sections

@@ -10,7 +10,7 @@
 
 ## Purpose
 
-This document defines the **constitutional standards** for role-based command namespaces in Specflow. These principles are intended to be incorporated into `/speckit.constitution` as authoritative rules that govern command creation, organization, and evolution.
+This document defines the **constitutional standards** for role-based command namespaces in Flowspec. These principles are intended to be incorporated into `/speckit.constitution` as authoritative rules that govern command creation, organization, and evolution.
 
 ## What is speckit.constitution?
 
@@ -21,7 +21,7 @@ The **speckit.constitution** is the living document that defines:
 - Command and workflow conventions
 - Extensibility guidelines
 
-It serves as the **single source of truth** for how Specflow should be built and extended.
+It serves as the **single source of truth** for how Flowspec should be built and extended.
 
 ---
 
@@ -46,7 +46,7 @@ Where:
 **Examples**:
 - ✅ `/pm:assess` - Clear role and action
 - ✅ `/sec:scan-web` - Clear role, action, qualifier
-- ❌ `/specflow:security_fix` - No role in namespace
+- ❌ `/flow:security_fix` - No role in namespace
 - ❌ `/assess` - Missing role context
 
 ---
@@ -119,7 +119,7 @@ Where:
 **Adding New Roles**:
 1. Propose role prefix in ADR
 2. Get approval from core team
-3. Add to `specflow_workflow.yml` role_config
+3. Add to `flowspec_workflow.yml` role_config
 4. Update this constitution document
 
 ---
@@ -237,7 +237,7 @@ agents: ["@workflow-assessor"]
 2. Choose appropriate action verb (see 4.2)
 3. Add optional qualifier if needed (see 4.3)
 4. Create command file: `.claude/commands/{role}/{action}.md`
-5. Add agent assignments in `specflow_workflow.yml`
+5. Add agent assignments in `flowspec_workflow.yml`
 6. Generate Copilot agents: `scripts/bash/sync-copilot-agents.sh`
 7. Update documentation
 
@@ -258,7 +258,7 @@ agents: ["@workflow-assessor"]
    - Justify need for new role
    - Define scope and responsibilities
    - Map to existing agents or propose new agents
-2. **Update specflow_workflow.yml**:
+2. **Update flowspec_workflow.yml**:
    ```yaml
    role_config:
      roles:
@@ -411,7 +411,7 @@ Code reviewers MUST verify:
 - [ADR: Role-Based Command Namespaces](./ADR-role-based-command-namespaces.md)
 - [ADR: Role Selection During Initialization](./ADR-role-selection-during-initialization.md)
 - [Design: Command Migration Path](./design-command-migration-path.md)
-- [Workflow Configuration](../../specflow_workflow.yml)
+- [Workflow Configuration](../../flowspec_workflow.yml)
 
 ---
 

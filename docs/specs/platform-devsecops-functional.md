@@ -174,7 +174,7 @@ This functional specification defines behaviors for 9 platform infrastructure ta
 **Postconditions**: CI issues caught before push
 
 ### UC-3: Debugging Complex Workflow
-**Actor**: Developer with failing /specflow command
+**Actor**: Developer with failing /flowspec command
 **Preconditions**: claude-trace configured
 **Flow**:
 1. Command fails with unclear error
@@ -197,7 +197,7 @@ This functional specification defines behaviors for 9 platform infrastructure ta
 **Actor**: New developer running security scan
 **Preconditions**: Semgrep not installed
 **Flow**:
-1. Developer runs `/specflow:validate`
+1. Developer runs `/flow:validate`
 2. System detects Semgrep not installed
 3. Prompts: "Semgrep required. Install now? [Y/n]"
 4. Downloads and installs to cache

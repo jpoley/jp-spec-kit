@@ -2,7 +2,7 @@
 
 This test module provides comprehensive unit testing for the WorkflowStateGuard
 class and its helper functions. Unlike the integration tests in
-test_specflow_workflow_integration.py, these tests focus on testing individual
+test_flowspec_workflow_integration.py, these tests focus on testing individual
 methods and components in isolation using mocks and test doubles.
 
 Coverage areas:
@@ -55,12 +55,12 @@ def complete_config():
         "states": ["To Do", "In Progress", "Done"],
         "workflows": {
             "start": {
-                "command": "/specflow:start",
+                "command": "/flow:start",
                 "input_states": ["To Do"],
                 "output_state": "In Progress",
             },
             "finish": {
-                "command": "/specflow:finish",
+                "command": "/flow:finish",
                 "input_states": ["In Progress"],
                 "output_state": "Done",
             },
@@ -120,7 +120,7 @@ class TestInitialization:
         monkeypatch.chdir(tmp_path)
 
         # Create config in first default location
-        default_file = tmp_path / "specflow_workflow.yml"
+        default_file = tmp_path / "flowspec_workflow.yml"
         default_file.write_text(yaml.dump(minimal_config))
 
         guard = WorkflowStateGuard()
@@ -135,9 +135,9 @@ class TestInitialization:
 
         # Should check all paths from DEFAULT_CONFIG_PATHS
         assert len(guard.DEFAULT_CONFIG_PATHS) == 3
-        assert guard.DEFAULT_CONFIG_PATHS[0] == Path("specflow_workflow.yml")
-        assert guard.DEFAULT_CONFIG_PATHS[1] == Path("memory/specflow_workflow.yml")
-        assert guard.DEFAULT_CONFIG_PATHS[2] == Path(".specflow/workflow.yml")
+        assert guard.DEFAULT_CONFIG_PATHS[0] == Path("flowspec_workflow.yml")
+        assert guard.DEFAULT_CONFIG_PATHS[1] == Path("memory/flowspec_workflow.yml")
+        assert guard.DEFAULT_CONFIG_PATHS[2] == Path(".flowspec/workflow.yml")
 
     def test_load_config_handles_yaml_error(self, tmp_path):
         """_load_config returns empty dict on YAML parse error."""
@@ -194,7 +194,7 @@ class TestConfigurationQueries:
 
         wf_config = guard.get_workflow_config("start")
 
-        assert wf_config["command"] == "/specflow:start"
+        assert wf_config["command"] == "/flow:start"
         assert wf_config["input_states"] == ["To Do"]
         assert wf_config["output_state"] == "In Progress"
 
@@ -498,10 +498,10 @@ class TestErrorMessageBuilding:
         guard = WorkflowStateGuard(config_path=config_file)
 
         message = guard._build_blocked_message(
-            "start", "Wrong", ["To Do"], ["/specflow:finish"]
+            "start", "Wrong", ["To Do"], ["/flow:finish"]
         )
 
-        assert "/specflow:start" in message
+        assert "/flow:start" in message
 
     def test_build_blocked_message_includes_current_state(
         self, tmp_path, complete_config
@@ -512,7 +512,7 @@ class TestErrorMessageBuilding:
         guard = WorkflowStateGuard(config_path=config_file)
 
         message = guard._build_blocked_message(
-            "start", "Wrong", ["To Do"], ["/specflow:finish"]
+            "start", "Wrong", ["To Do"], ["/flow:finish"]
         )
 
         assert 'Current state: "Wrong"' in message
@@ -540,11 +540,11 @@ class TestErrorMessageBuilding:
         guard = WorkflowStateGuard(config_path=config_file)
 
         message = guard._build_blocked_message(
-            "start", "In Progress", ["To Do"], ["/specflow:finish"]
+            "start", "In Progress", ["To Do"], ["/flow:finish"]
         )
 
         assert "Suggestions:" in message
-        assert "/specflow:finish" in message
+        assert "/flow:finish" in message
 
     def test_build_blocked_message_no_suggestions_available(
         self, tmp_path, complete_config
@@ -580,7 +580,7 @@ class TestErrorMessageBuilding:
 
         lines = message.split("\n")
         assert len(lines) > 5  # Should be multi-line
-        assert lines[0] == "Cannot run /specflow:start"
+        assert lines[0] == "Cannot run /flow:start"
         assert lines[1] == ""  # Blank line for readability
 
 
@@ -600,7 +600,7 @@ class TestWorkflowSuggestions:
 
         workflows = guard.get_valid_workflows_for_state("To Do")
 
-        assert workflows == ["/specflow:start"]
+        assert workflows == ["/flow:start"]
 
     def test_get_valid_workflows_multiple_matches(self, tmp_path):
         """get_valid_workflows_for_state returns all matching workflows."""
@@ -617,8 +617,8 @@ class TestWorkflowSuggestions:
         workflows = guard.get_valid_workflows_for_state("Ready")
 
         assert len(workflows) == 2
-        assert "/specflow:option1" in workflows
-        assert "/specflow:option2" in workflows
+        assert "/flow:option1" in workflows
+        assert "/flow:option2" in workflows
 
     def test_get_valid_workflows_no_matches(self, tmp_path, complete_config):
         """get_valid_workflows_for_state returns empty list when no match."""
@@ -639,7 +639,7 @@ class TestWorkflowSuggestions:
         workflows1 = guard.get_valid_workflows_for_state("to do")
         workflows2 = guard.get_valid_workflows_for_state("TO DO")
 
-        assert workflows1 == workflows2 == ["/specflow:start"]
+        assert workflows1 == workflows2 == ["/flow:start"]
 
     def test_get_valid_workflows_sorted(self, tmp_path):
         """get_valid_workflows_for_state returns sorted list."""
@@ -657,7 +657,7 @@ class TestWorkflowSuggestions:
         workflows = guard.get_valid_workflows_for_state("Ready")
 
         # Should be sorted alphabetically
-        assert workflows == ["/specflow:alpha", "/specflow:beta", "/specflow:zebra"]
+        assert workflows == ["/flow:alpha", "/flow:beta", "/flow:zebra"]
 
     def test_get_valid_workflows_no_config(self):
         """get_valid_workflows_for_state returns empty list with no config."""
@@ -810,7 +810,7 @@ class TestConvenienceFunctions:
     ):
         """check_workflow_state searches default paths when path=None."""
         monkeypatch.chdir(tmp_path)
-        config_file = tmp_path / "specflow_workflow.yml"
+        config_file = tmp_path / "flowspec_workflow.yml"
         config_file.write_text(yaml.dump(complete_config))
 
         can_proceed, message = check_workflow_state("start", "To Do")
@@ -840,7 +840,7 @@ class TestConvenienceFunctions:
     ):
         """get_next_state searches default paths when path=None."""
         monkeypatch.chdir(tmp_path)
-        config_file = tmp_path / "specflow_workflow.yml"
+        config_file = tmp_path / "flowspec_workflow.yml"
         config_file.write_text(yaml.dump(complete_config))
 
         next_state = get_next_state("start")
@@ -854,7 +854,7 @@ class TestConvenienceFunctions:
 
         workflows = get_valid_workflows("To Do", config_path=str(config_file))
 
-        assert workflows == ["/specflow:start"]
+        assert workflows == ["/flow:start"]
 
     def test_get_valid_workflows_empty_list(self, tmp_path, complete_config):
         """get_valid_workflows returns empty list for unknown state."""
@@ -870,12 +870,12 @@ class TestConvenienceFunctions:
     ):
         """get_valid_workflows searches default paths when path=None."""
         monkeypatch.chdir(tmp_path)
-        config_file = tmp_path / "specflow_workflow.yml"
+        config_file = tmp_path / "flowspec_workflow.yml"
         config_file.write_text(yaml.dump(complete_config))
 
         workflows = get_valid_workflows("To Do")
 
-        assert workflows == ["/specflow:start"]
+        assert workflows == ["/flow:start"]
 
 
 # =============================================================================
@@ -1049,7 +1049,7 @@ class TestStateCheckResponse:
             message="Error",
             current_state="Wrong",
             required_states=["Right"],
-            suggested_workflows=["/specflow:fix"],
+            suggested_workflows=["/flow:fix"],
             next_state="Fixed",
         )
 
@@ -1057,7 +1057,7 @@ class TestStateCheckResponse:
         assert response.message == "Error"
         assert response.current_state == "Wrong"
         assert response.required_states == ["Right"]
-        assert response.suggested_workflows == ["/specflow:fix"]
+        assert response.suggested_workflows == ["/flow:fix"]
         assert response.next_state == "Fixed"
 
     def test_response_equality(self):

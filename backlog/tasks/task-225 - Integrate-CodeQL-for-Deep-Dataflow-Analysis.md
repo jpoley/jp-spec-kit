@@ -46,7 +46,7 @@ CodeQL provides semantic code analysis with dataflow tracking, catching vulnerab
 #### Step 1: CodeQL Licensing Review (4-6 hours)
 **Files:**
 - docs/legal/codeql-licensing-review.md (new)
-- docs/architecture/specflow-security-architecture.md (update)
+- docs/architecture/flowspec-security-architecture.md (update)
 
 **Tasks:**
 1. Review GitHub CodeQL licensing terms

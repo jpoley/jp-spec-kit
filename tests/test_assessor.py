@@ -439,7 +439,7 @@ class TestFeatureAssessment:
         next_steps = assessment.get_next_steps()
 
         # Assert
-        assert "/specflow:specify User Auth" in next_steps
+        assert "/flow:specify User Auth" in next_steps
 
     def test_get_next_steps_spec_light(self):
         """Test next steps for Spec-Light."""

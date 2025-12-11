@@ -164,7 +164,7 @@ bash scripts/bash/sync-copilot-agents.sh --validate
 # Validate PM configuration
 python3 << 'EOF'
 import yaml
-with open('specflow_workflow.yml') as f:
+with open('flowspec_workflow.yml') as f:
     config = yaml.safe_load(f)
 pm = config['roles']['definitions']['pm']
 print(f"Commands: {pm['commands']}")
@@ -177,7 +177,7 @@ EOF
 # Validate Dev configuration + run tests
 python3 << 'EOF'
 import yaml
-with open('specflow_workflow.yml') as f:
+with open('flowspec_workflow.yml') as f:
     config = yaml.safe_load(f)
 dev = config['roles']['definitions']['dev']
 print(f"Commands: {dev['commands']}")
@@ -191,7 +191,7 @@ uv run pytest tests/ -v
 # Validate Sec configuration + run scan
 python3 << 'EOF'
 import yaml
-with open('specflow_workflow.yml') as f:
+with open('flowspec_workflow.yml') as f:
     config = yaml.safe_load(f)
 sec = config['roles']['definitions']['sec']
 print(f"Commands: {sec['commands']}")
@@ -205,7 +205,7 @@ uv tool run bandit -r src/ -ll
 # Validate QA configuration + check coverage
 python3 << 'EOF'
 import yaml
-with open('specflow_workflow.yml') as f:
+with open('flowspec_workflow.yml') as f:
     config = yaml.safe_load(f)
 qa = config['roles']['definitions']['qa']
 print(f"Commands: {qa['commands']}")
@@ -219,7 +219,7 @@ uv run pytest tests/ --cov=src/specify_cli --cov-report=term-missing
 # Validate Ops configuration + check workflows
 python3 << 'EOF'
 import yaml
-with open('specflow_workflow.yml') as f:
+with open('flowspec_workflow.yml') as f:
     config = yaml.safe_load(f)
 ops = config['roles']['definitions']['ops']
 print(f"Commands: {ops['commands']}")
@@ -233,7 +233,7 @@ ls -la .github/workflows/
 ### Schema Validation Failures
 ```bash
 # Check YAML syntax
-yamllint specflow_workflow.yml
+yamllint flowspec_workflow.yml
 
 # Validate against schema with verbose output
 python scripts/validate-workflow-config.py 2>&1 | less
@@ -246,7 +246,7 @@ python3 << 'EOF'
 import yaml
 from pathlib import Path
 
-with open('specflow_workflow.yml') as f:
+with open('flowspec_workflow.yml') as f:
     config = yaml.safe_load(f)
 
 for role, data in config['roles']['definitions'].items():
@@ -293,7 +293,7 @@ set -e
 
 # Run validation if role files changed
 CHANGED_FILES=$(git diff --cached --name-only)
-if echo "$CHANGED_FILES" | grep -qE "(specflow_workflow\.yml|templates/commands/|\.github/agents/)"; then
+if echo "$CHANGED_FILES" | grep -qE "(flowspec_workflow\.yml|templates/commands/|\.github/agents/)"; then
     echo "Running role validation..."
     python scripts/validate-role-schema.py
     bash scripts/bash/sync-copilot-agents.sh --validate

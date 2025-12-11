@@ -16,25 +16,25 @@ extends:
 
 # What this plugin provides
 provides:
-  # Custom slash commands (specflow:* namespace)
+  # Custom slash commands (flowspec:* namespace)
   commands:
-    - path: templates/commands/specflow/specify.md
-      name: specflow:specify
+    - path: templates/commands/flowspec/specify.md
+      name: flowspec:specify
       description: Product Requirements Manager
-    - path: templates/commands/specflow/plan.md
-      name: specflow:plan
+    - path: templates/commands/flowspec/plan.md
+      name: flowspec:plan
       description: Architecture & Platform Planning
-    - path: templates/commands/specflow/research.md
-      name: specflow:research
+    - path: templates/commands/flowspec/research.md
+      name: flowspec:research
       description: Market Research & Analysis
-    - path: templates/commands/specflow/implement.md
-      name: specflow:implement
+    - path: templates/commands/flowspec/implement.md
+      name: flowspec:implement
       description: Multi-Agent Implementation
-    - path: templates/commands/specflow/validate.md
-      name: specflow:validate
+    - path: templates/commands/flowspec/validate.md
+      name: flowspec:validate
       description: QA, Security, Release Validation
-    - path: templates/commands/specflow/operate.md
-      name: specflow:operate
+    - path: templates/commands/flowspec/operate.md
+      name: flowspec:operate
       description: SRE Operations
 
   # Language-specific expertise
@@ -64,8 +64,8 @@ provides:
 
   # Extended templates (override base)
   templates:
-    - source: templates/specflow-plan-template.md
-      destination: .specify/specflow-plan-template.md
+    - source: templates/flowspec-plan-template.md
+      destination: .specify/flowspec-plan-template.md
       merge_strategy: override
 
 # Installation behavior
@@ -81,7 +81,7 @@ installation:
       source: jpoley/jp-spec-kit
       version: 0.0.20
       files:
-        - templates/commands/specflow/**
+        - templates/commands/flowspec/**
         - .languages/**
         - memory/constitution.md
   

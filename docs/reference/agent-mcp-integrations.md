@@ -1,18 +1,18 @@
 # Agent & MCP Server Integrations
 
-This document provides a comprehensive overview of all agents in Specflow and their configured MCP (Model Context Protocol) server integrations.
+This document provides a comprehensive overview of all agents in Flowspec and their configured MCP (Model Context Protocol) server integrations.
 
 ## Architecture Overview
 
 ```mermaid
 flowchart TB
-    subgraph Workflows["Workflows (specflow commands)"]
-        specify["/specflow:specify"]
-        plan["/specflow:plan"]
-        research["/specflow:research"]
-        implement["/specflow:implement"]
-        validate["/specflow:validate"]
-        operate["/specflow:operate"]
+    subgraph Workflows["Workflows (flowspec commands)"]
+        specify["/flow:specify"]
+        plan["/flow:plan"]
+        research["/flow:research"]
+        implement["/flow:implement"]
+        validate["/flow:validate"]
+        operate["/flow:operate"]
     end
 
     subgraph Agents["Agents"]
@@ -67,27 +67,27 @@ flowchart TB
 
 ## Agents by Workflow
 
-### `/specflow:specify` - Requirements
+### `/flow:specify` - Requirements
 
 | Agent | Description | MCP Servers |
 |-------|-------------|-------------|
 | **product-requirements-manager** | Product management using SVPG principles, outcomes over outputs | github, serena |
 
-### `/specflow:plan` - Architecture (Parallel Execution)
+### `/flow:plan` - Architecture (Parallel Execution)
 
 | Agent | Description | MCP Servers |
 |-------|-------------|-------------|
 | **software-architect** | Enterprise architect using Hohpe's principles, Enterprise Integration Patterns | github, serena |
 | **platform-engineer** | DevOps/CI/CD expert, DORA metrics, NIST/SSDF compliance | github, serena |
 
-### `/specflow:research` - Research & Validation (Parallel Execution)
+### `/flow:research` - Research & Validation (Parallel Execution)
 
 | Agent | Description | MCP Servers |
 |-------|-------------|-------------|
 | **researcher** | Market research, competitive intelligence, technical feasibility | github, serena |
 | **business-validator** | Business viability, financial feasibility, TAM/SAM/SOM analysis | github, serena |
 
-### `/specflow:implement` - Development
+### `/flow:implement` - Development
 
 | Agent | Description | MCP Servers |
 |-------|-------------|-------------|
@@ -97,7 +97,7 @@ flowchart TB
 | **frontend-code-reviewer** | Frontend code review: quality, performance, accessibility, security | github, serena, trivy, semgrep, shadcn-ui, playwright-test, chrome-devtools |
 | **backend-code-reviewer** | Backend code review: security, performance, scalability | github, serena, trivy, semgrep |
 
-### `/specflow:validate` - Quality Assurance
+### `/flow:validate` - Quality Assurance
 
 | Agent | Description | MCP Servers |
 |-------|-------------|-------------|
@@ -106,7 +106,7 @@ flowchart TB
 | **tech-writer** | Documentation, API references, user guides, tutorials | github, serena |
 | **release-manager** | Release coordination, quality validation, deployment management | github, serena, trivy |
 
-### `/specflow:operate` - Operations
+### `/flow:operate` - Operations
 
 | Agent | Description | MCP Servers |
 |-------|-------------|-------------|
@@ -172,21 +172,21 @@ These agents handle post-commit automation:
 ### Sequential Workflows
 
 ```
-/specflow:specify  →  product-requirements-manager
-/specflow:operate  →  sre-agent
+/flow:specify  →  product-requirements-manager
+/flow:operate  →  sre-agent
 ```
 
 ### Parallel Workflows
 
 ```
-/specflow:plan     →  software-architect ║ platform-engineer
-/specflow:research →  researcher ║ business-validator
+/flow:plan     →  software-architect ║ platform-engineer
+/flow:research →  researcher ║ business-validator
 ```
 
 ### Sequential with Review Gates
 
 ```
-/specflow:implement →  frontend-engineer  →  frontend-code-reviewer
+/flow:implement →  frontend-engineer  →  frontend-code-reviewer
                      backend-engineer   →  backend-code-reviewer
                      ai-ml-engineer     (parallel)
 ```
@@ -194,7 +194,7 @@ These agents handle post-commit automation:
 ### Multi-Stage Validation
 
 ```
-/specflow:validate →  quality-guardian
+/flow:validate →  quality-guardian
                     secure-by-design-engineer
                     tech-writer
                     release-manager
@@ -257,4 +257,4 @@ color: blue
 
 - [Agent Loop Classification](./agent-loop-classification.md)
 - [MCP Configuration Guide](../MCP-CONFIGURATION.md)
-- [Workflow Commands](../../templates/commands/specflow/)
+- [Workflow Commands](../../templates/commands/flowspec/)

@@ -1,4 +1,4 @@
-"""Workflow state guard for /specflow command validation.
+"""Workflow state guard for /flowspec command validation.
 
 Validates that tasks are in allowed states before command execution
 and updates state after successful completion.
@@ -50,7 +50,7 @@ class TaskSystem(Protocol):
 
 
 class WorkflowStateGuard:
-    """Guards /specflow commands by validating workflow state transitions.
+    """Guards /flowspec commands by validating workflow state transitions.
 
     This guard enforces workflow constraints to ensure commands are only
     executed when tasks are in appropriate states. It provides:
@@ -60,9 +60,9 @@ class WorkflowStateGuard:
     """
 
     DEFAULT_CONFIG_PATHS = [
-        Path("specflow_workflow.yml"),
-        Path("memory/specflow_workflow.yml"),
-        Path(".specflow/workflow.yml"),
+        Path("flowspec_workflow.yml"),
+        Path("memory/flowspec_workflow.yml"),
+        Path(".flowspec/workflow.yml"),
     ]
 
     def __init__(
@@ -171,7 +171,7 @@ class WorkflowStateGuard:
             next_state = self.get_output_state(workflow_name)
             return StateCheckResponse(
                 result=StateCheckResult.ALLOWED,
-                message=f"State '{current_state}' is valid for /specflow:{workflow_name}",
+                message=f"State '{current_state}' is valid for /flow:{workflow_name}",
                 current_state=current_state,
                 required_states=input_states,
                 next_state=next_state,
@@ -199,7 +199,7 @@ class WorkflowStateGuard:
     ) -> str:
         """Build a helpful error message when state check fails."""
         lines = [
-            f"Cannot run /specflow:{workflow_name}",
+            f"Cannot run /flow:{workflow_name}",
             "",
             f'  Current state: "{current_state}"',
             f"  Required states: {', '.join(required_states)}",
@@ -237,7 +237,7 @@ class WorkflowStateGuard:
         for wf_name, wf_config in self.config.get("workflows", {}).items():
             input_states = wf_config.get("input_states", [])
             if current_normalized in [self.normalize_state(s) for s in input_states]:
-                valid.append(f"/specflow:{wf_name}")
+                valid.append(f"/flow:{wf_name}")
         return sorted(valid)
 
     def update_task_state(self, task_id: str, workflow_name: str) -> tuple[bool, str]:

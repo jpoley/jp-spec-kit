@@ -38,7 +38,7 @@ Parse `$ARGUMENTS` for optional flags:
 | `--configure-workflow` | Also run workflow configuration |
 
 Environment variable override:
-- `SPECFLOW_PRIMARY_ROLE`: Override role selection (e.g., `export SPECFLOW_PRIMARY_ROLE=dev`)
+- `FLOWSPEC_PRIMARY_ROLE`: Override role selection (e.g., `export FLOWSPEC_PRIMARY_ROLE=dev`)
 
 ### Step 1: Project Type Detection
 
@@ -92,12 +92,12 @@ If constitution exists and `--force` is not set:
 ### Step 3: Role Selection Prompt
 
 **Precedence order** for role selection:
-1. `SPECFLOW_PRIMARY_ROLE` environment variable (highest priority)
+1. `FLOWSPEC_PRIMARY_ROLE` environment variable (highest priority)
 2. `--role` flag from command line
 3. Interactive prompt (if not provided)
 4. Default to "all" if non-interactive and no override
 
-If `--role` flag is NOT provided and `SPECFLOW_PRIMARY_ROLE` env var is NOT set:
+If `--role` flag is NOT provided and `FLOWSPEC_PRIMARY_ROLE` env var is NOT set:
 
 Display interactive role selection:
 
@@ -157,10 +157,10 @@ Enter selection [1-7] (default: 3): _
 Validate input is in range 1-7. If invalid, reprompt.
 
 **Environment Variable Detection**:
-If `SPECFLOW_PRIMARY_ROLE` is set, show:
+If `FLOWSPEC_PRIMARY_ROLE` is set, show:
 ```
 Role auto-selected from environment variable:
-  SPECFLOW_PRIMARY_ROLE={role}
+  FLOWSPEC_PRIMARY_ROLE={role}
   Selected: {icon} {display_name}
 
 (Override with --role flag if needed)
@@ -314,9 +314,9 @@ Read the tier-appropriate template and customize:
 
 Write customized constitution to `memory/constitution.md`.
 
-### Step 8: Update specflow_workflow.yml with Role
+### Step 8: Update flowspec_workflow.yml with Role
 
-Check if `specflow_workflow.yml` exists. If it does, update the `roles.primary` field:
+Check if `flowspec_workflow.yml` exists. If it does, update the `roles.primary` field:
 
 ```yaml
 roles:
@@ -326,13 +326,13 @@ roles:
     # ... existing role definitions remain unchanged
 ```
 
-If `specflow_workflow.yml` does not exist, this will be handled by workflow configuration in the next step.
+If `flowspec_workflow.yml` does not exist, this will be handled by workflow configuration in the next step.
 
 **IMPORTANT**: Preserve all other fields in the file. Only update `roles.primary`.
 
 ### Step 9: Workflow Configuration (Optional)
 
-If `--configure-workflow` flag is provided OR if `specflow_workflow.yml` doesn't exist:
+If `--configure-workflow` flag is provided OR if `flowspec_workflow.yml` doesn't exist:
 
 Prompt for workflow configuration:
 
@@ -405,8 +405,8 @@ Rationale: {reason based on complexity score and project type}
 
   ✓ memory/repo-facts.md (tech stack analysis)
   ✓ memory/constitution.md (governance document)
-  ✓ specflow_workflow.yml (role configuration updated)
-  {✓ specflow_workflow.yml (workflow validation modes) - if --configure-workflow}
+  ✓ flowspec_workflow.yml (role configuration updated)
+  {✓ flowspec_workflow.yml (workflow validation modes) - if --configure-workflow}
 
 📋 VALIDATION CHECKLIST
 
@@ -425,10 +425,10 @@ Look for NEEDS_VALIDATION markers:
 🎯 NEXT STEPS
 
 1. Review constitution: memory/constitution.md
-2. Review role configuration: specflow_workflow.yml (roles section)
+2. Review role configuration: flowspec_workflow.yml (roles section)
 3. Resolve all NEEDS_VALIDATION markers
 4. Commit initialization files:
-   git add memory/repo-facts.md memory/constitution.md specflow_workflow.yml
+   git add memory/repo-facts.md memory/constitution.md flowspec_workflow.yml
    git commit -s -m "feat: initialize project with constitution and role"
 
 5. Start your first workflow (based on your role):
@@ -443,8 +443,8 @@ Look for NEEDS_VALIDATION markers:
 💡 TIPS
 
 • Change role anytime: /speckit:configure --role <new_role>
-• Override role per session: export SPECFLOW_PRIMARY_ROLE=<role>
-• See all commands regardless of role: Set show_all_commands: true in specflow_workflow.yml
+• Override role per session: export FLOWSPEC_PRIMARY_ROLE=<role>
+• See all commands regardless of role: Set show_all_commands: true in flowspec_workflow.yml
 • Customize constitution further: /speckit:constitution
 ```
 
@@ -464,8 +464,8 @@ Look for NEEDS_VALIDATION markers:
 - **Detection failure**: Fall back to user prompts for tier selection
 - **Invalid tier value**: Show valid options (light, medium, heavy)
 - **Invalid role value**: Show valid options (pm, arch, dev, sec, qa, ops, all)
-- **No specflow_workflow.yml**: Create one with selected role
-- **Invalid SPECFLOW_PRIMARY_ROLE env var**: Show warning and fall back to prompt
+- **No flowspec_workflow.yml**: Create one with selected role
+- **Invalid FLOWSPEC_PRIMARY_ROLE env var**: Show warning and fall back to prompt
 
 ### Greenfield Quick Start
 
@@ -502,7 +502,7 @@ Before completing:
 - [ ] memory/ directory exists (created if needed)
 - [ ] memory/repo-facts.md created with analysis
 - [ ] memory/constitution.md created with appropriate tier
-- [ ] specflow_workflow.yml exists with roles.primary set
+- [ ] flowspec_workflow.yml exists with roles.primary set
 - [ ] Selected role is valid (pm, arch, dev, sec, qa, ops, all)
 - [ ] NEEDS_VALIDATION markers preserved where appropriate
 - [ ] Summary shows selected role with icon
@@ -513,7 +513,7 @@ Before completing:
 1. **Role-first experience**: Role selection happens early for personalized setup
 2. **Non-destructive by default**: Requires `--force` to overwrite existing constitution
 3. **Git-safe**: Creates new files, doesn't modify existing tracked files
-4. **Environment variable support**: `SPECFLOW_PRIMARY_ROLE` allows per-session overrides
+4. **Environment variable support**: `FLOWSPEC_PRIMARY_ROLE` allows per-session overrides
 5. **Idempotent**: Running twice without `--force` is a no-op
 6. **Tech stack aware**: Customizes constitution based on actual project technologies
 7. **Tier upgradeable**: Start light, upgrade to medium/heavy as project grows

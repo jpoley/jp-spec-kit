@@ -159,7 +159,7 @@ claude-trace --output ./traces -- claude "write tests"
 
 | Benefit | Description |
 |---------|-------------|
-| **Workflow Debugging** | See what /specflow:* commands send to Claude |
+| **Workflow Debugging** | See what /flow:* commands send to Claude |
 | **Agent Observability** | Understand multi-agent coordination |
 | **Learning Tool** | See how Claude Code works internally |
 | **Issue Diagnosis** | Debug unexpected behavior |
@@ -247,7 +247,7 @@ JP Spec Kit supports:
 | See Claude's responses | Claude Code terminal output |
 | Track implementation | Backlog.md task notes |
 | Debug workflows | Claude Code verbose mode |
-| Quality validation | /specflow:validate |
+| Quality validation | /flow:validate |
 
 ---
 
@@ -282,7 +282,7 @@ claude-trace could be reconsidered if:
 Create `docs/guides/debugging-workflows.md`:
 
 ```markdown
-## Debugging /specflow:* Workflows
+## Debugging /flow:* Workflows
 
 ### Enable Verbose Output
 Claude Code provides verbose output by default. To see more detail:
@@ -294,7 +294,7 @@ Claude Code provides verbose output by default. To see more detail:
 - Track decisions and reasoning
 - Review completed tasks for context
 
-### Leverage /specflow:validate
+### Leverage /flow:validate
 - Run validation to check implementation
 - Review generated reports
 - Use findings to improve workflows
@@ -309,7 +309,7 @@ Add `docs/reference/troubleshooting.md`:
 
 ### Slash Command Not Working
 1. Check CLAUDE.md is in project root
-2. Verify command syntax: /specflow:command
+2. Verify command syntax: /flow:command
 3. Review Claude Code version compatibility
 
 ### Unexpected Agent Behavior

@@ -43,7 +43,7 @@ Latest release shown: v0.2.344 (the last working release)
 
 ### Secondary Issues
 
-1. **Branding inconsistency**: Release titles say "Spec Kit Templates" - should be "Specflow"
+1. **Branding inconsistency**: Release titles say "Spec Kit Templates" - should be "Flowspec"
 2. **Unnecessary complexity**: Two workflows when one would work
 3. **The race condition fix is moot**: PR #725 fixed commit pinning, but it doesn't matter if release.yml never runs
 
@@ -69,7 +69,7 @@ No handoff between workflows. No GITHUB_TOKEN limitation issue.
 <!-- AC:BEGIN -->
 - [ ] #1 Single unified release.yml workflow handles entire release process
 - [ ] #2 release-on-merge.yml is deleted
-- [ ] #3 Branding updated to Specflow everywhere (not Spec Kit Templates)
+- [ ] #3 Branding updated to Flowspec everywhere (not Spec Kit Templates)
 - [ ] #4 Test release v0.2.346+ creates tag AND GitHub Release with artifacts
 - [ ] #5 Documentation updated to reflect new release process
 <!-- AC:END -->
@@ -82,7 +82,7 @@ Implementation PR: https://github.com/jpoley/jp-spec-kit/pull/728
 Changes made:
 1. Rewrote release.yml as unified workflow that handles the entire release process
 2. Deleted release-on-merge.yml (no longer needed)
-3. Updated branding from "Spec Kit Templates" to "Specflow"
+3. Updated branding from "Spec Kit Templates" to "Flowspec"
 4. Updated ADR-011 status to Accepted
 
 The unified workflow:

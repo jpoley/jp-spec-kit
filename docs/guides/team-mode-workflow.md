@@ -2,7 +2,7 @@
 
 ## Overview
 
-Specflow supports both **Solo Mode** (single developer) and **Team Mode** (multiple developers). This guide explains how to configure and work with Team Mode properly to avoid conflicts and ensure smooth collaboration.
+Flowspec supports both **Solo Mode** (single developer) and **Team Mode** (multiple developers). This guide explains how to configure and work with Team Mode properly to avoid conflicts and ensure smooth collaboration.
 
 ## Solo vs Team Mode
 
@@ -64,11 +64,11 @@ Each developer should generate their own settings:
 bash scripts/bash/sync-copilot-agents.sh --with-vscode
 ```
 
-This creates a user-specific settings file based on the role configuration in `specflow_workflow.yml`.
+This creates a user-specific settings file based on the role configuration in `flowspec_workflow.yml`.
 
 ## Role Selection in Team Mode
 
-Each developer can configure their primary role in `specflow_workflow.yml` (locally, not committed):
+Each developer can configure their primary role in `flowspec_workflow.yml` (locally, not committed):
 
 ```yaml
 roles:
@@ -95,7 +95,7 @@ roles:
 
 3. **Set your role preference** (optional, local only):
    ```bash
-   # Edit specflow_workflow.yml (don't commit!)
+   # Edit flowspec_workflow.yml (don't commit!)
    # Change roles.primary to your preferred role
    ```
 
@@ -256,7 +256,7 @@ Send a message to all team members:
 1. **Document team mode** in README.md
 2. **Set up CI/CD validation** (already included in `.github/workflows/role-validation.yml`)
 3. **Provide onboarding guide** for new team members
-4. **Keep `specflow_workflow.yml` in sync** with latest role definitions
+4. **Keep `flowspec_workflow.yml` in sync** with latest role definitions
 
 ### For Team Members
 
@@ -305,7 +305,7 @@ Each role uses their specific commands, avoiding conflicts and confusion.
 ## FAQ
 
 ### Q: Can I use multiple roles?
-**A**: Yes! Set `show_all_commands: true` in `specflow_workflow.yml` to see all commands regardless of role.
+**A**: Yes! Set `show_all_commands: true` in `flowspec_workflow.yml` to see all commands regardless of role.
 
 ### Q: What if I'm the only developer but want team mode?
 **A**: You can manually enable team mode by gitignoring `.vscode/settings.json`. This is useful for projects that will grow to multiple contributors.

@@ -3,7 +3,7 @@
 **Status:** Accepted
 **Date:** 2025-12-03
 **Author:** Platform Engineer
-**Context:** Resolution of task-220 - Clarifying relationship between task-198 and /specflow:security
+**Context:** Resolution of task-220 - Clarifying relationship between task-198 and /flow:security
 **Supersedes:** None
 **Amended by:** None
 
@@ -11,13 +11,13 @@
 
 ## Context
 
-Task-220 was created to "Resolve Relationship with task-198 Unified Vulnerability Scanner" and determine integration strategy between `/specflow:security` commands and a planned Trivy + Snyk scanner design.
+Task-220 was created to "Resolve Relationship with task-198 Unified Vulnerability Scanner" and determine integration strategy between `/flow:security` commands and a planned Trivy + Snyk scanner design.
 
 During investigation, we discovered:
 
 1. **Task-198 was repurposed** - It now covers "Define Event Model Schema for jp-spec-kit Hooks" (completed 2025-12-03), not a unified vulnerability scanner
 2. **No separate scanner task exists** - The "Trivy + Snyk unified scanner" was a conceptual reference, not a tracked task
-3. **Native implementation supersedes** - The `/specflow:security` architecture (ADR-005 through ADR-008) provides unified scanning through the adapter pattern
+3. **Native implementation supersedes** - The `/flow:security` architecture (ADR-005 through ADR-008) provides unified scanning through the adapter pattern
 
 ## Decision
 
@@ -28,7 +28,7 @@ During investigation, we discovered:
 - There is no conflict with security scanning - these are separate concerns
 
 ### 2. Unified Scanner Architecture
-The native `/specflow:security` implementation provides unified scanning through:
+The native `/flow:security` implementation provides unified scanning through:
 
 | ADR | Component | Description |
 |-----|-----------|-------------|

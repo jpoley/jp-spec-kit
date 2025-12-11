@@ -15,7 +15,7 @@ priority: high
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Add /specflow:security web subcommand for dynamic application security testing using Playwright. Supports authenticated crawling, form submission testing, and common web vulnerability detection.
+Add /flow:security web subcommand for dynamic application security testing using Playwright. Supports authenticated crawling, form submission testing, and common web vulnerability detection.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria

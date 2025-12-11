@@ -1,4 +1,4 @@
-# Product Requirements Document: JP Specflow Workflow Engine Architecture Review
+# Product Requirements Document: JP Flowspec Workflow Engine Architecture Review
 
 **Date**: 2025-11-30
 **Document Owner**: @pm-planner
@@ -10,14 +10,14 @@
 ## Executive Summary
 
 ### Purpose
-This PRD provides a comprehensive design review of the JP Specflow workflow engine, analyzing its architecture, comparing it to industry standards, evaluating flexibility and durability, and recommending improvements aligned with SVPG Product Operating Model principles.
+This PRD provides a comprehensive design review of the JP Flowspec workflow engine, analyzing its architecture, comparing it to industry standards, evaluating flexibility and durability, and recommending improvements aligned with SVPG Product Operating Model principles.
 
 ### Current State Assessment
-JP Specflow implements a **configuration-driven state machine workflow engine** with approximately **4,900 lines of Python code** organized in a **centralized `workflow/` module**. The architecture demonstrates strong isolation principles with workflow logic concentrated in dedicated components rather than scattered across the codebase.
+JP Flowspec implements a **configuration-driven state machine workflow engine** with approximately **4,900 lines of Python code** organized in a **centralized `workflow/` module**. The architecture demonstrates strong isolation principles with workflow logic concentrated in dedicated components rather than scattered across the codebase.
 
 **Key Strengths:**
 - ✅ **Centralized workflow logic** in `src/specify_cli/workflow/` module (9 core files)
-- ✅ **Declarative YAML configuration** (`specflow_workflow.yml`) with JSON Schema validation
+- ✅ **Declarative YAML configuration** (`flowspec_workflow.yml`) with JSON Schema validation
 - ✅ **State machine semantics** with explicit transitions, artifacts, and validation modes
 - ✅ **Comprehensive validation** including cycle detection, reachability analysis, and semantic checks
 - ✅ **Artifact-based gates** with input/output artifact tracking per transition
@@ -76,13 +76,13 @@ TOTAL: ~4,900 lines of workflow-specific code
 - ❌ Validation is NOT duplicated in multiple locations
 
 **Comparison to Bad Practices:**
-Many workflow implementations suffer from "distributed logic syndrome" where state transitions are validated in UI, API, and database layers separately. JP Specflow avoids this by centralizing all workflow logic in one module.
+Many workflow implementations suffer from "distributed logic syndrome" where state transitions are validated in UI, API, and database layers separately. JP Flowspec avoids this by centralizing all workflow logic in one module.
 
 ### 1.2 State Machine Implementation
 
 **Finding: Explicit DAG with Validation ✅**
 
-The state machine is implemented as a **Directed Acyclic Graph (DAG)** defined in `specflow_workflow.yml`:
+The state machine is implemented as a **Directed Acyclic Graph (DAG)** defined in `flowspec_workflow.yml`:
 
 ```yaml
 states:
@@ -152,7 +152,7 @@ The system demonstrates **excellent separation of concerns**:
 - **Airflow**: ~40% configuration (DAG files), 60% code
 - **AWS Step Functions**: ~90% configuration (JSON state machine), 10% code (Lambda functions)
 
-JP Specflow's **13% configuration ratio** is lower than ideal. More workflow capabilities should be configurable without code changes.
+JP Flowspec's **13% configuration ratio** is lower than ideal. More workflow capabilities should be configurable without code changes.
 
 ### 1.4 Artifact-Based Gates
 
@@ -208,7 +208,7 @@ transitions:
 
 ### 2.1 Workflow Engine Patterns
 
-| Pattern | JP Specflow | Temporal | Airflow | AWS Step Functions | Prefect | Argo Workflows |
+| Pattern | JP Flowspec | Temporal | Airflow | AWS Step Functions | Prefect | Argo Workflows |
 |---------|-------------|----------|---------|-------------------|---------|----------------|
 | **Execution Model** | Local/CLI | Distributed | Scheduled Tasks | Serverless | Distributed | Kubernetes Jobs |
 | **State Storage** | Backlog.md (file) | Database | Database | AWS State Machine | Database | Kubernetes CRDs |
@@ -223,7 +223,7 @@ transitions:
 
 ### 2.2 Architecture Pattern Alignment
 
-**JP Specflow follows: Configuration-Driven State Machine Pattern**
+**JP Flowspec follows: Configuration-Driven State Machine Pattern**
 
 **Most Similar To:**
 1. **AWS Step Functions** (declarative JSON, state-based, artifact-oriented)
@@ -232,7 +232,7 @@ transitions:
 
 **Key Differences from Mature Engines:**
 
-| Feature | JP Specflow | Industry Standard |
+| Feature | JP Flowspec | Industry Standard |
 |---------|-------------|-------------------|
 | **State Persistence** | File-based (backlog.md) | Database or managed service |
 | **Execution History** | None | Event log with full audit trail |
@@ -243,7 +243,7 @@ transitions:
 | **Distributed Execution** | Local CLI only | Multi-node orchestration |
 | **Observability** | Basic (logs only) | Metrics, traces, dashboards |
 
-### 2.3 What JP Specflow Does Better
+### 2.3 What JP Flowspec Does Better
 
 **Strengths vs. Industry Engines:**
 
@@ -274,27 +274,27 @@ transitions:
 1. **Durability** ❌
    - **Temporal**: Replicated database, guaranteed execution
    - **Step Functions**: Managed service with 99.99% SLA
-   - **JP Specflow**: File-based state, no crash recovery
+   - **JP Flowspec**: File-based state, no crash recovery
 
 2. **Observability** ❌
    - **Prefect**: Real-time UI, metrics dashboard, full run history
    - **Argo**: Kubernetes-native observability, pod logs, traces
-   - **JP Specflow**: Logs only, no execution history
+   - **JP Flowspec**: Logs only, no execution history
 
 3. **Error Handling** ❌
    - **Temporal**: Automatic retries, timeout handling, compensation workflows
    - **Airflow**: Task retry policies, failure callbacks, alerting
-   - **JP Specflow**: No built-in retry, manual recovery only
+   - **JP Flowspec**: No built-in retry, manual recovery only
 
 4. **Scale** ❌
    - **Temporal**: Handles millions of workflows concurrently
    - **Step Functions**: Serverless, auto-scales infinitely
-   - **JP Specflow**: Single-user CLI, no distributed execution
+   - **JP Flowspec**: Single-user CLI, no distributed execution
 
 5. **Versioning** ❌
    - **Temporal**: Multiple workflow versions coexist (old executions run on old code)
    - **Prefect**: Flow versioning with backward compatibility
-   - **JP Specflow**: Configuration changes affect all tasks immediately
+   - **JP Flowspec**: Configuration changes affect all tasks immediately
 
 ---
 
@@ -306,7 +306,7 @@ transitions:
 
 | Aspect | Customizable? | How? | Effort |
 |--------|---------------|------|--------|
-| **States** | ✅ Yes | Edit `specflow_workflow.yml` states list | Low (YAML edit) |
+| **States** | ✅ Yes | Edit `flowspec_workflow.yml` states list | Low (YAML edit) |
 | **Transitions** | ✅ Yes | Add transition objects in YAML | Low (YAML edit) |
 | **Workflows** | ✅ Yes | Define new workflow + agent | Medium (YAML + command file) |
 | **Agents** | ✅ Yes | Add agent definition + identity | Medium (YAML + agent file) |
@@ -386,7 +386,7 @@ class ValidationModePlugin(ABC):
 
 | Engine | Configurability | Example |
 |--------|-----------------|---------|
-| **JP Specflow** | 70% | States, transitions, artifacts |
+| **JP Flowspec** | 70% | States, transitions, artifacts |
 | **Airflow** | 85% | DAG structure, operators, retries, sensors |
 | **Temporal** | 60% | Activities and workflows (code-driven) |
 | **Step Functions** | 90% | State machine, retry, catch, parallel |
@@ -564,12 +564,12 @@ task = PythonOperator(
 ```
 
 **Recommendation:**
-Add retry configuration to `specflow_workflow.yml`:
+Add retry configuration to `flowspec_workflow.yml`:
 
 ```yaml
 workflows:
   implement:
-    command: "/specflow:implement"
+    command: "/flow:implement"
     retry_policy:
       max_attempts: 3
       initial_interval: 10s
@@ -590,7 +590,7 @@ workflows:
 - ✅ **Validation checks** - Safe to re-run
 
 **Non-Idempotent Operations:**
-- ❌ **Backlog task creation** - `/specflow:specify` creates new tasks each run
+- ❌ **Backlog task creation** - `/flow:specify` creates new tasks each run
 - ❌ **External notifications** (future) - Would send duplicate alerts
 
 **Idempotency Score: 7/10**
@@ -607,7 +607,7 @@ workflows:
 | **Temporal** | Activity IDs prevent duplicate execution |
 | **Airflow** | Task instance IDs ensure exactly-once semantics |
 | **Step Functions** | Execution ARN prevents duplicate runs |
-| **JP Specflow** | State machine + file overwrite (partial) |
+| **JP Flowspec** | State machine + file overwrite (partial) |
 
 **Gap:**
 Future features (notifications, webhooks, external integrations) will require **explicit idempotency tokens** to prevent duplicate side effects.
@@ -706,7 +706,7 @@ Implement **lightweight event log** using SQLite or JSON append log:
 
 | Validation Method | Target | Success Criteria |
 |-------------------|--------|------------------|
-| **User Interviews** | 10 JP Specflow users | 7/10 report state loss pain |
+| **User Interviews** | 10 JP Flowspec users | 7/10 report state loss pain |
 | **Feature Voting** | GitHub Discussions poll | >50 votes for durability features |
 | **Prototype Test** | 5 early adopters | 4/5 prefer persistent state over files |
 | **Usage Analytics** | Backlog.md access patterns | >100 tasks in flight = need for scale |
@@ -795,7 +795,7 @@ Focus on **low-hanging fruit** (state persistence, event log, retry policies) be
 **Question: Does investing in workflow engine improvements work for the business?**
 
 **Business Context:**
-JP Specflow is a **developer productivity tool** for **Spec-Driven Development** workflows. Users are individual developers or small teams.
+JP Flowspec is a **developer productivity tool** for **Spec-Driven Development** workflows. Users are individual developers or small teams.
 
 **Viability Analysis:**
 
@@ -896,7 +896,7 @@ JP Specflow is a **developer productivity tool** for **Spec-Driven Development**
 
 **Feature Comparison Matrix:**
 
-| Feature | JP Specflow | Temporal | Airflow | Step Functions | Priority |
+| Feature | JP Flowspec | Temporal | Airflow | Step Functions | Priority |
 |---------|-------------|----------|---------|----------------|----------|
 | **State Persistence** | ❌ File | ✅ DB | ✅ DB | ✅ Managed | P0 |
 | **Execution History** | ❌ None | ✅ Full | ✅ Full | ✅ Full | P0 |
@@ -957,7 +957,7 @@ JP Specflow is a **developer productivity tool** for **Spec-Driven Development**
    - **Status**: Likely complete (validator.py exists with 657 lines)
    - **Action**: Review cycle detection and reachability
 
-3. **task-096**: Update /specflow commands to check workflow constraints
+3. **task-096**: Update /flowspec commands to check workflow constraints
    - **Action**: Integrate WorkflowConfig into command handlers
    - **Effort**: 1 week
 
@@ -969,7 +969,7 @@ JP Specflow is a **developer productivity tool** for **Spec-Driven Development**
    - **Action**: Ensure >80% coverage for workflow module
    - **Effort**: 1 week
 
-6. **task-101**: Write integration tests for /specflow workflow constraints
+6. **task-101**: Write integration tests for /flowspec workflow constraints
    - **Action**: End-to-end tests for workflow enforcement
    - **Effort**: 1 week
 
@@ -1064,9 +1064,9 @@ JP Specflow is a **developer productivity tool** for **Spec-Driven Development**
 |---------|-------|--------|----------------|
 | task-090 | Implement WorkflowConfig | To Do | ✅ Execute (foundation) |
 | task-091 | Implement workflow validation | To Do | ✅ Execute (foundation) |
-| task-094 | Enhanced /specflow:validate | To Do | ⚠️ Defer to Phase 2 |
+| task-094 | Enhanced /flow:validate | To Do | ⚠️ Defer to Phase 2 |
 | task-095 | Document backlog.md state mapping | To Do | ✅ Execute (documentation) |
-| task-096 | Update /specflow commands for constraints | To Do | ✅ Execute (integration) |
+| task-096 | Update /flowspec commands for constraints | To Do | ✅ Execute (integration) |
 | task-097 | User customization guide | To Do | ✅ Execute (documentation) |
 | task-098 | Workflow config examples | To Do | ✅ Execute (documentation) |
 | task-099 | Workflow config validation CLI | To Do | ✅ Execute (tooling) |
@@ -1237,7 +1237,7 @@ JP Specflow is a **developer productivity tool** for **Spec-Driven Development**
 
 **DORA Metrics Alignment:**
 
-While JP Specflow is not a deployment tool, workflow efficiency impacts **Lead Time for Changes**:
+While JP Flowspec is not a deployment tool, workflow efficiency impacts **Lead Time for Changes**:
 
 | Metric | Definition | Current | Target |
 |--------|------------|---------|--------|
@@ -1265,7 +1265,7 @@ Focus on **durability** and **recoverability** first (biggest gaps vs. industry)
 ### 9.1 Summary of Findings
 
 **Architecture Assessment:**
-JP Specflow demonstrates a **well-architected, centralized workflow engine** with strong isolation principles and a clear configuration-driven approach. The ~4,900 lines of workflow code are concentrated in a dedicated module, avoiding the "distributed logic syndrome" common in many workflow implementations.
+JP Flowspec demonstrates a **well-architected, centralized workflow engine** with strong isolation principles and a clear configuration-driven approach. The ~4,900 lines of workflow code are concentrated in a dedicated module, avoiding the "distributed logic syndrome" common in many workflow implementations.
 
 **Key Strengths:**
 - ✅ **Centralized design** - All workflow logic in `src/specify_cli/workflow/`
@@ -1281,7 +1281,7 @@ JP Specflow demonstrates a **well-architected, centralized workflow engine** wit
 - ❌ **Limited extensibility** - No plugin system, hardcoded validation modes
 
 **Industry Comparison:**
-JP Specflow achieves **~35% feature parity** with mature workflow engines (Temporal, Airflow, Step Functions). The gaps are primarily in **durability** (state persistence, event log) and **reliability** (retry, compensation), not in **expressiveness** (state machine, artifacts).
+JP Flowspec achieves **~35% feature parity** with mature workflow engines (Temporal, Airflow, Step Functions). The gaps are primarily in **durability** (state persistence, event log) and **reliability** (retry, compensation), not in **expressiveness** (state machine, artifacts).
 
 **Strategic Recommendation:**
 **Phased enhancement** starting with **state persistence + event log** (Phase 1, 6-8 weeks) will close the largest gaps while preserving the system's simplicity and developer-friendly UX.
@@ -1291,7 +1291,7 @@ JP Specflow achieves **~35% feature parity** with mature workflow engines (Tempo
 **Immediate Actions (Week 1):**
 
 1. **User Research** 🎯
-   - Survey JP Specflow users on state loss pain points
+   - Survey JP Flowspec users on state loss pain points
    - Validate demand for durability features (>50 votes = strong signal)
    - Prototype SQLite migration and gather feedback
 
@@ -1443,7 +1443,7 @@ backlog task create "Create workflow observability dashboard and metrics" \
 ┌─────────────────────────────────────────────────────────────┐
 │                    CLI Layer (specify)                       │
 ├─────────────────────────────────────────────────────────────┤
-│  /specflow:assess   /specflow:specify   /specflow:implement  ...  │
+│  /flow:assess   /flow:specify   /flow:implement  ...  │
 └─────────────────────┬───────────────────────────────────────┘
                       │
                       ▼
@@ -1472,7 +1472,7 @@ backlog task create "Create workflow observability dashboard and metrics" \
 **Data Flow:**
 
 ```
-User runs /specflow:specify
+User runs /flow:specify
          ↓
 CLI validates current state (via WorkflowConfig)
          ↓
@@ -1493,4 +1493,4 @@ Success response to user
 
 **END OF PRD**
 
-*This document represents a comprehensive analysis of the JP Specflow workflow engine. All recommendations are subject to user validation and business prioritization decisions.*
+*This document represents a comprehensive analysis of the JP Flowspec workflow engine. All recommendations are subject to user validation and business prioritization decisions.*

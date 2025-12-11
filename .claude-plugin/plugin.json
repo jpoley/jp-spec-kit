@@ -22,34 +22,34 @@
   "components": {
     "commands": [
       {
-        "name": "specflow:specify",
+        "name": "flowspec:specify",
         "description": "Create/update feature specs using PM planner agent (manages /speckit.tasks)",
-        "file": "../.claude/commands/specflow/specify.md"
+        "file": "../.claude/commands/flowspec/specify.md"
       },
       {
-        "name": "specflow:plan",
+        "name": "flowspec:plan",
         "description": "Execute planning workflow (architect + platform engineer)",
-        "file": "../.claude/commands/specflow/plan.md"
+        "file": "../.claude/commands/flowspec/plan.md"
       },
       {
-        "name": "specflow:research",
+        "name": "flowspec:research",
         "description": "Execute research and business validation workflow",
-        "file": "../.claude/commands/specflow/research.md"
+        "file": "../.claude/commands/flowspec/research.md"
       },
       {
-        "name": "specflow:implement",
+        "name": "flowspec:implement",
         "description": "Execute implementation (frontend + backend engineers + code review)",
-        "file": "../.claude/commands/specflow/implement.md"
+        "file": "../.claude/commands/flowspec/implement.md"
       },
       {
-        "name": "specflow:validate",
+        "name": "flowspec:validate",
         "description": "Execute QA and validation (QA + security + docs + release)",
-        "file": "../.claude/commands/specflow/validate.md"
+        "file": "../.claude/commands/flowspec/validate.md"
       },
       {
-        "name": "specflow:operate",
+        "name": "flowspec:operate",
         "description": "Execute operations (SRE for CI/CD + K8s + DevSecOps + observability)",
-        "file": "../.claude/commands/specflow/operate.md"
+        "file": "../.claude/commands/flowspec/operate.md"
       }
     ],
     "agents": [

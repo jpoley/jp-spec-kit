@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-Complete platform and testing infrastructure has been designed and implemented to ensure dev-setup consistency for the Specflow project. This infrastructure prevents content drift between development (`specify dev-setup`) and distribution (`specify init`) through automated validation, clear recovery procedures, and comprehensive testing.
+Complete platform and testing infrastructure has been designed and implemented to ensure dev-setup consistency for the Flowspec project. This infrastructure prevents content drift between development (`specify dev-setup`) and distribution (`specify init`) through automated validation, clear recovery procedures, and comprehensive testing.
 
 **Impact**: Achieves DORA Elite performance by catching issues in < 2 minutes, enabling self-healing in < 5 minutes, and eliminating entire class of content drift bugs.
 
@@ -74,7 +74,7 @@ Complete platform and testing infrastructure has been designed and implemented t
 **TestDevSetupValidation** (Core validation tests):
 - `test_claude_commands_are_symlinks_only` - Ensures no regular files
 - `test_all_symlinks_resolve` - Checks for broken symlinks
-- `test_specflow_symlinks_exist` - Verifies specflow directory
+- `test_flowspec_symlinks_exist` - Verifies flowspec directory
 - `test_speckit_symlinks_exist` - Verifies speckit directory
 - `test_template_coverage` - Ensures complete coverage
 
@@ -83,7 +83,7 @@ Complete platform and testing infrastructure has been designed and implemented t
 - `test_no_circular_symlinks` - Prevents infinite loops
 
 **TestTemplateIntegrity** (Template validation tests):
-- `test_all_specflow_commands_in_templates` - Verifies specflow templates
+- `test_all_flowspec_commands_in_templates` - Verifies flowspec templates
 - `test_no_orphan_claude_commands` - Catches orphaned files
 - `test_template_files_are_not_empty` - Ensures content exists
 
@@ -92,7 +92,7 @@ Complete platform and testing infrastructure has been designed and implemented t
 **TestDevSetupInitEquivalence** (Equivalence tests):
 - `test_same_speckit_commands_available` - Same commands in both
 - `test_speckit_command_content_matches` - Identical content
-- `test_specflow_commands_exist_in_templates` - Future state verification
+- `test_flowspec_commands_exist_in_templates` - Future state verification
 - `test_naming_convention_consistency` - Naming standards
 
 **TestDevSetupIdempotency** (Safety tests):
@@ -135,7 +135,7 @@ Complete platform and testing infrastructure has been designed and implemented t
 ```
 ❌ ERROR: Found non-symlink .md files in .claude/commands/
 Files that should be symlinks:
-  .claude/commands/specflow/implement.md
+  .claude/commands/flowspec/implement.md
 
 To fix:
   1. Move enhanced content to templates/commands/
@@ -212,7 +212,7 @@ Development Setup Status
 ==========================================
 
 === .claude/commands/ structure ===
-speckit/  specflow/
+speckit/  flowspec/
 
 === Symlink verification ===
 Total .md files: 17
@@ -302,7 +302,7 @@ All tasks created with proper acceptance criteria, descriptions, labels, and pri
 - [x] Tests verify template coverage is complete
 - [ ] Tests pass with 100% success rate (after migration)
 
-**Status**: Tests created, will pass after specflow migration (task-264)
+**Status**: Tests created, will pass after flowspec migration (task-264)
 
 ---
 
@@ -357,30 +357,30 @@ All tasks created with proper acceptance criteria, descriptions, labels, and pri
 
 ### Migration Tasks (Critical Path)
 
-#### task-264: Migrate specflow commands to templates
+#### task-264: Migrate flowspec commands to templates
 **Priority**: HIGH | **Labels**: infrastructure, migration, dev-setup
 
 **Acceptance Criteria**:
-- [ ] Create templates/commands/specflow/ directory
-- [ ] Copy all specflow commands to templates
+- [ ] Create templates/commands/flowspec/ directory
+- [ ] Copy all flowspec commands to templates
 - [ ] Include _backlog-instructions.md in templates
-- [ ] Update specify dev-setup to create specflow symlinks
+- [ ] Update specify dev-setup to create flowspec symlinks
 - [ ] Verify symlinks work correctly
-- [ ] Remove old specflow files from .claude/commands/
-- [ ] Update tests to verify specflow template coverage
+- [ ] Remove old flowspec files from .claude/commands/
+- [ ] Update tests to verify flowspec template coverage
 
 **Status**: Ready to implement (Phase 2)
 
 ---
 
-#### task-265: Add specflow commands to specify init distribution
+#### task-265: Add flowspec commands to specify init distribution
 **Priority**: MEDIUM | **Labels**: feature, dev-setup
 
 **Acceptance Criteria**:
-- [ ] Update init command to copy specflow templates
-- [ ] Create .claude/commands/specflow/ structure in user projects
-- [ ] Verify specflow commands work in new projects
-- [ ] Add tests for init specflow distribution
+- [ ] Update init command to copy flowspec templates
+- [ ] Create .claude/commands/flowspec/ structure in user projects
+- [ ] Verify flowspec commands work in new projects
+- [ ] Add tests for init flowspec distribution
 - [ ] Update init documentation
 
 **Status**: Blocked by task-264
@@ -422,7 +422,7 @@ All tasks created with proper acceptance criteria, descriptions, labels, and pri
 **Current Status**: All infrastructure files created, ready for testing
 
 ### Phase 2: Content Migration (4-6 hours) - NOT STARTED
-- [ ] Migrate specflow to templates (task-264) - Critical path
+- [ ] Migrate flowspec to templates (task-264) - Critical path
 - [ ] Update specify init (task-265) - Depends on task-264
 - [ ] Verify equivalence
 - [ ] Update tests
@@ -532,7 +532,7 @@ See: docs/reference/dev-setup-consistency.md
 |--------|--------|---------|-----|
 | CI validation time | < 2 min | Not deployed | Phase 3 |
 | Tests pass rate | 100% | ~60% (expected) | Need migration |
-| Non-symlink files | 0 | 9 (specflow) | Task-264 |
+| Non-symlink files | 0 | 9 (flowspec) | Task-264 |
 | Broken symlinks | 0 | 0 | ✓ |
 | MTTR for issues | < 5 min | N/A | Phase 3 |
 
@@ -605,8 +605,8 @@ backlog/tasks/
 ├── task-261 - Add-dev-setup-validation-pre-commit-hook.md
 ├── task-262 - Add-dev-setup-management-Makefile-commands.md
 ├── task-263 - Document-dev-setup-workflow-for-contributors.md
-├── task-264 - Migrate-specflow-commands-to-templates.md
-├── task-265 - Add-specflow-commands-to-specify-init-distribution.md
+├── task-264 - Migrate-flowspec-commands-to-templates.md
+├── task-265 - Add-flowspec-commands-to-specify-init-distribution.md
 └── task-266 - Create-dev-setup-operational-runbook.md
 ```
 
@@ -640,7 +640,7 @@ backlog/tasks/
 6. ⏳ Document any issues
 
 ### Week 2 (Phase 2)
-1. ⏳ Execute task-264 (Migrate specflow to templates)
+1. ⏳ Execute task-264 (Migrate flowspec to templates)
 2. ⏳ Execute task-265 (Update init command)
 3. ⏳ Verify no content loss
 4. ⏳ Update task-263 (CONTRIBUTING.md)
@@ -724,7 +724,7 @@ backlog/tasks/
 **Next Critical Path**:
 1. Create test suite files (Phase 1, task-260)
 2. Create pre-commit hook files (Phase 1, task-261)
-3. Migrate specflow to templates (Phase 2, task-264)
+3. Migrate flowspec to templates (Phase 2, task-264)
 4. Create and enable CI/CD workflow (Phase 3, task-259)
 
 **Total Implementation Time**: 2-3 days of focused work

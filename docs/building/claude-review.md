@@ -32,7 +32,7 @@ The two-stage download architecture is elegant:
 
 ```
 Layer 2: JP Spec Kit Extension
-    ├── /specflow:* commands (6 specialized agents)
+    ├── /flow:* commands (6 specialized agents)
     ├── .languages/ (12 language expertise bases)
     └── Advanced multi-agent orchestration
            ↓ Overlays on ↓
@@ -68,15 +68,15 @@ The 15 specialized agent personas are well-designed:
 - SRE Agent (CI/CD, Kubernetes, DevSecOps)
 - Release Manager
 
-**Observation:** The agent design follows industry best practices but the boundary between specflow and speckit agents is unclear to users.
+**Observation:** The agent design follows industry best practices but the boundary between flowspec and speckit agents is unclear to users.
 
 ### 1.3 File Organization
 
 ```
 jp-spec-kit/
-├── .claude/commands/specflow/     # Live specflow commands (Claude)
+├── .claude/commands/flowspec/     # Live flowspec commands (Claude)
 ├── templates/commands/          # speckit template commands
-│   └── specflow/                  # specflow templates
+│   └── flowspec/                  # flowspec templates
 ├── .languages/                  # 12 language expertise modules
 ├── .agents/                     # 15 agent persona definitions
 ├── .stacks/                     # 10 pre-built project templates
@@ -102,8 +102,8 @@ The documentation and codebase use **inconsistent command naming conventions**:
 |----------|------------|---------|
 | README.md | Dot notation | `/speckit.specify` |
 | CLAUDE.md | Colon notation | `/speckit:specify` |
-| Folder structure | Colon implied | `commands/specflow/specify.md` |
-| Plugin manifest | Colon notation | `specflow:specify` |
+| Folder structure | Colon implied | `commands/flowspec/specify.md` |
+| Plugin manifest | Colon notation | `flowspec:specify` |
 
 **Impact:** Users will be confused about whether to type `/speckit.specify` or `/speckit:specify`. This is a **critical UX issue**.
 
@@ -113,14 +113,14 @@ The documentation and codebase use **inconsistent command naming conventions**:
 
 Two parallel command suites exist with similar purposes:
 
-| specflow Command | speckit Equivalent | Difference |
+| flowspec Command | speckit Equivalent | Difference |
 |----------------|-------------------|------------|
-| `/specflow:specify` | `/speckit:specify` | specflow uses PM agent with SVPG |
-| `/specflow:plan` | `/speckit:plan` | specflow adds multi-agent (Architect + Platform) |
-| `/specflow:implement` | `/speckit:implement` | specflow adds code review agents |
-| `/specflow:validate` | (none) | Unique to specflow |
-| `/specflow:operate` | (none) | Unique to specflow |
-| `/specflow:research` | (none) | Unique to specflow |
+| `/flow:specify` | `/speckit:specify` | flowspec uses PM agent with SVPG |
+| `/flow:plan` | `/speckit:plan` | flowspec adds multi-agent (Architect + Platform) |
+| `/flow:implement` | `/speckit:implement` | flowspec adds code review agents |
+| `/flow:validate` | (none) | Unique to flowspec |
+| `/flow:operate` | (none) | Unique to flowspec |
+| `/flow:research` | (none) | Unique to flowspec |
 | (none) | `/speckit:clarify` | Unique to speckit |
 | (none) | `/speckit:analyze` | Unique to speckit |
 | (none) | `/speckit:constitution` | Unique to speckit |
@@ -128,7 +128,7 @@ Two parallel command suites exist with similar purposes:
 | (none) | `/speckit:tasks` | Unique to speckit |
 
 **Problems:**
-1. Users don't know when to use specflow vs speckit commands
+1. Users don't know when to use flowspec vs speckit commands
 2. Duplicate commands (`specify`, `plan`, `implement`) with subtle differences
 3. No clear guidance on which workflow to follow
 4. Feature matrix not documented anywhere
@@ -137,32 +137,32 @@ Two parallel command suites exist with similar purposes:
 
 ### 2.3 Individual Command Assessment
 
-#### `/specflow:specify` - Product Requirements Manager
+#### `/flow:specify` - Product Requirements Manager
 - **Strengths:** SVPG methodology, DVF+V risk framework, comprehensive PRD output
 - **Weakness:** Very long prompt (168 lines), may overwhelm AI context
 - **Suggestion:** Break into modular components; allow progressive disclosure
 
-#### `/specflow:plan` - Architecture Planning
+#### `/flow:plan` - Architecture Planning
 - **Strengths:** Multi-agent (Architect + Platform Engineer), Hohpe patterns
 - **Weakness:** Output format not specified, hard to know what artifacts are created
 - **Suggestion:** Define explicit output artifacts in documentation
 
-#### `/specflow:research` - Market Validation
+#### `/flow:research` - Market Validation
 - **Strengths:** TAM/SAM/SOM analysis, business viability focus
 - **Weakness:** Positioned as pre-cursor but workflow shows it after specify
 - **Suggestion:** Clarify positioning in workflow (before or after specify)
 
-#### `/specflow:implement` - Multi-Agent Implementation
+#### `/flow:implement` - Multi-Agent Implementation
 - **Strengths:** Frontend + Backend + AI/ML engineers with code reviewers
 - **Weakness:** Parallel vs sequential execution unclear to user
 - **Suggestion:** Add progress indicators and phase notifications
 
-#### `/specflow:validate` - QA & Security
+#### `/flow:validate` - QA & Security
 - **Strengths:** Comprehensive (QA, Security, Docs, Release)
 - **Weakness:** Human gate for release mentioned but mechanism unclear
 - **Suggestion:** Document the human approval workflow explicitly
 
-#### `/specflow:operate` - SRE Operations
+#### `/flow:operate` - SRE Operations
 - **Strengths:** DORA metrics, SLSA compliance, comprehensive K8s/CI-CD coverage
 - **Weakness:** Outputs infrastructure code but no execution guidance
 - **Suggestion:** Add deployment playbook or integration with actual CI/CD tools
@@ -266,7 +266,7 @@ specify workflow
 # Options:
 # 1. MVP Path (fastest): specify → plan → tasks → implement
 # 2. Business-First: research → specify → plan → validate → implement
-# 3. Enterprise: Full specflow workflow with all gates
+# 3. Enterprise: Full flowspec workflow with all gates
 ```
 
 ### 4.3 Error Messages and Recovery
@@ -324,7 +324,7 @@ specify workflow
 
 | Feature | Original Spec-Kit | JP Spec Kit Extension |
 |---------|-------------------|----------------------|
-| Commands | 5 core | 14 total (8 speckit + 6 specflow) |
+| Commands | 5 core | 14 total (8 speckit + 6 flowspec) |
 | Task management | tasks.md file | Backlog.md integration |
 | Multi-agent | Single agent | 15 specialized agents |
 | Language expertise | Generic | 12 language modules |
@@ -368,15 +368,15 @@ specify workflow
 3. Integrate backlog.md installation into `specify init`
 
 #### 6.1.3 Command Decision Guide
-**Issue:** Users don't know when to use specflow vs speckit.
+**Issue:** Users don't know when to use flowspec vs speckit.
 
 **Action:** Create decision flowchart in README:
 ```
-Need market/business validation? → /specflow:research
-Creating new feature requirements? → /specflow:specify (enterprise) or /speckit:specify (quick)
-Planning technical architecture? → /specflow:plan (multi-agent) or /speckit:plan (simple)
+Need market/business validation? → /flow:research
+Creating new feature requirements? → /flow:specify (enterprise) or /speckit:specify (quick)
+Planning technical architecture? → /flow:plan (multi-agent) or /speckit:plan (simple)
 Generating task backlog? → /speckit:tasks
-Implementing features? → /specflow:implement (with review) or /speckit:implement (direct)
+Implementing features? → /flow:implement (with review) or /speckit:implement (direct)
 ```
 
 ### 6.2 Medium Priority (Next Iteration)
@@ -395,8 +395,8 @@ Implementing features? → /specflow:implement (with review) or /speckit:impleme
 **Action:**
 1. Add `--mode simple|standard|enterprise` to init
 2. Simple: speckit commands only
-3. Standard: speckit + basic specflow
-4. Enterprise: Full specflow workflow with all gates
+3. Standard: speckit + basic flowspec
+4. Enterprise: Full flowspec workflow with all gates
 
 #### 6.2.3 Interactive Workflow Assistant
 **Issue:** Users must know correct command sequence.
@@ -578,7 +578,7 @@ docs/
 │   └── choosing-a-workflow.md
 ├── commands/
 │   ├── speckit-commands.md
-│   ├── specflow-commands.md
+│   ├── flowspec-commands.md
 │   └── command-reference.md (table)
 ├── concepts/
 │   ├── layered-architecture.md
@@ -652,12 +652,12 @@ JP Spec Kit represents a thoughtful integration of Spec-Driven Development with 
 
 | Namespace | Command | Location |
 |-----------|---------|----------|
-| specflow | specify | `.claude/commands/specflow/specify.md` |
-| specflow | plan | `.claude/commands/specflow/plan.md` |
-| specflow | research | `.claude/commands/specflow/research.md` |
-| specflow | implement | `.claude/commands/specflow/implement.md` |
-| specflow | validate | `.claude/commands/specflow/validate.md` |
-| specflow | operate | `.claude/commands/specflow/operate.md` |
+| flowspec | specify | `.claude/commands/flowspec/specify.md` |
+| flowspec | plan | `.claude/commands/flowspec/plan.md` |
+| flowspec | research | `.claude/commands/flowspec/research.md` |
+| flowspec | implement | `.claude/commands/flowspec/implement.md` |
+| flowspec | validate | `.claude/commands/flowspec/validate.md` |
+| flowspec | operate | `.claude/commands/flowspec/operate.md` |
 | speckit | specify | `templates/commands/specify.md` |
 | speckit | plan | `templates/commands/plan.md` |
 | speckit | tasks | `templates/commands/tasks.md` |

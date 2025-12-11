@@ -13,7 +13,7 @@
 ```
 WORKFLOWS (stateful, sequential stages)
 ├── /speckit:*    → Lightweight SDD workflow
-└── /specflow:*   → Full agent-based SDD workflow
+└── /flow:*   → Full agent-based SDD workflow
 
 UTILITIES (stateless, run anytime)
 ├── /dev:*        → Developer utilities
@@ -46,27 +46,27 @@ Simple, script-based workflow for smaller features.
 
 **Total: 10 commands - NO CHANGES**
 
-### `/specflow:*` - Full Agent-Based SDD
+### `/flow:*` - Full Agent-Based SDD
 
 Comprehensive workflow with specialized agents, workflow state, constitution checks.
 
 | Command | Purpose | Keep/Change |
 |---------|---------|-------------|
-| `/specflow:init` | Initialize constitution (greenfield/brownfield) | KEEP |
-| `/specflow:assess` | Evaluate SDD appropriateness | KEEP |
-| `/specflow:specify` | Full PRD with PM Planner agent | KEEP |
-| `/specflow:research` | Research and validation | KEEP |
-| `/specflow:plan` | Architecture planning with agents | KEEP |
-| `/specflow:implement` | Implementation with frontend/backend agents | KEEP |
-| `/specflow:validate` | QA and security validation | KEEP |
-| `/specflow:operate` | SRE operations workflow | KEEP |
-| `/specflow:reset` | Reset workflow configuration | KEEP |
-| `/specflow:security_workflow` | Security scanning integration | KEEP |
-| `/specflow:security_fix` | Apply security patches | KEEP |
-| `/specflow:security_report` | Generate security report | KEEP |
-| `/specflow:security_triage` | Triage security findings | KEEP |
-| `/specflow:security_web` | Web security scanning | KEEP |
-| `/specflow:prune-branch` | Git branch cleanup | MOVE to `/dev:cleanup` |
+| `/flow:init` | Initialize constitution (greenfield/brownfield) | KEEP |
+| `/flow:assess` | Evaluate SDD appropriateness | KEEP |
+| `/flow:specify` | Full PRD with PM Planner agent | KEEP |
+| `/flow:research` | Research and validation | KEEP |
+| `/flow:plan` | Architecture planning with agents | KEEP |
+| `/flow:implement` | Implementation with frontend/backend agents | KEEP |
+| `/flow:validate` | QA and security validation | KEEP |
+| `/flow:operate` | SRE operations workflow | KEEP |
+| `/flow:reset` | Reset workflow configuration | KEEP |
+| `/flow:security_workflow` | Security scanning integration | KEEP |
+| `/flow:security_fix` | Apply security patches | KEEP |
+| `/flow:security_report` | Generate security report | KEEP |
+| `/flow:security_triage` | Triage security findings | KEEP |
+| `/flow:security_web` | Web security scanning | KEEP |
+| `/flow:prune-branch` | Git branch cleanup | MOVE to `/dev:cleanup` |
 
 **Total: 15 commands → 14 commands (move 1)**
 
@@ -82,8 +82,8 @@ Stateless commands that can run anytime, outside of workflow context.
 |---------|---------|--------|
 | `/dev:debug` | Debugging assistance | KEEP |
 | `/dev:refactor` | Refactoring guidance | KEEP |
-| `/dev:cleanup` | Prune merged branches | KEEP (absorb `/specflow:prune-branch`) |
-| `/dev:build` | - | **DELETE** (duplicate of `/specflow:implement`) |
+| `/dev:cleanup` | Prune merged branches | KEEP (absorb `/flow:prune-branch`) |
+| `/dev:build` | - | **DELETE** (duplicate of `/flow:implement`) |
 
 ### `/sec:*` - Security Utilities
 
@@ -93,7 +93,7 @@ Stateless commands that can run anytime, outside of workflow context.
 | `/sec:triage` | Triage findings | KEEP |
 | `/sec:fix` | Apply patches | KEEP |
 | `/sec:report` | Generate report | KEEP |
-| `/sec:audit` | - | **DELETE** (duplicate of `/specflow:security_workflow`) |
+| `/sec:audit` | - | **DELETE** (duplicate of `/flow:security_workflow`) |
 
 ### `/arch:*` - Architecture Utilities
 
@@ -101,7 +101,7 @@ Stateless commands that can run anytime, outside of workflow context.
 |---------|---------|--------|
 | `/arch:decide` | Create ADRs | KEEP |
 | `/arch:model` | Create data models, API contracts | KEEP |
-| `/arch:design` | - | **DELETE** (duplicate of `/specflow:plan`) |
+| `/arch:design` | - | **DELETE** (duplicate of `/flow:plan`) |
 
 ### `/ops:*` - Operations Utilities
 
@@ -110,7 +110,7 @@ Stateless commands that can run anytime, outside of workflow context.
 | `/ops:monitor` | Setup monitoring | KEEP |
 | `/ops:respond` | Incident response | KEEP |
 | `/ops:scale` | Scaling guidance | KEEP |
-| `/ops:deploy` | - | **DELETE** (duplicate of `/specflow:operate`) |
+| `/ops:deploy` | - | **DELETE** (duplicate of `/flow:operate`) |
 
 ### `/qa:*` - QA Utilities
 
@@ -118,15 +118,15 @@ Stateless commands that can run anytime, outside of workflow context.
 |---------|---------|--------|
 | `/qa:test` | Execute tests | KEEP |
 | `/qa:review` | Generate checklist | KEEP |
-| `/qa:verify` | - | **DELETE** (duplicate of `/specflow:validate`) |
+| `/qa:verify` | - | **DELETE** (duplicate of `/flow:validate`) |
 
 ### `/pm:*` - Product Manager
 
 | Command | Purpose | Action |
 |---------|---------|--------|
-| `/pm:assess` | - | **DELETE** (duplicate of `/specflow:assess`) |
-| `/pm:define` | - | **DELETE** (duplicate of `/specflow:specify`) |
-| `/pm:discover` | - | **DELETE** (duplicate of `/specflow:research`) |
+| `/pm:assess` | - | **DELETE** (duplicate of `/flow:assess`) |
+| `/pm:define` | - | **DELETE** (duplicate of `/flow:specify`) |
+| `/pm:discover` | - | **DELETE** (duplicate of `/flow:research`) |
 
 **DELETE ENTIRE NAMESPACE** - PM work IS the workflow.
 
@@ -136,22 +136,22 @@ Stateless commands that can run anytime, outside of workflow context.
 
 ### Deprecated Command Files
 
-All `_DEPRECATED_*.md` files in `templates/commands/specflow/`:
+All `_DEPRECATED_*.md` files in `templates/commands/flowspec/`:
 
 ```
-templates/commands/specflow/_DEPRECATED_assess.md
-templates/commands/specflow/_DEPRECATED_implement.md
-templates/commands/specflow/_DEPRECATED_operate.md
-templates/commands/specflow/_DEPRECATED_plan.md
-templates/commands/specflow/_DEPRECATED_prune-branch.md
-templates/commands/specflow/_DEPRECATED_research.md
-templates/commands/specflow/_DEPRECATED_security_fix.md
-templates/commands/specflow/_DEPRECATED_security_report.md
-templates/commands/specflow/_DEPRECATED_security_triage.md
-templates/commands/specflow/_DEPRECATED_security_web.md
-templates/commands/specflow/_DEPRECATED_security_workflow.md
-templates/commands/specflow/_DEPRECATED_specify.md
-templates/commands/specflow/_DEPRECATED_validate.md
+templates/commands/flowspec/_DEPRECATED_assess.md
+templates/commands/flowspec/_DEPRECATED_implement.md
+templates/commands/flowspec/_DEPRECATED_operate.md
+templates/commands/flowspec/_DEPRECATED_plan.md
+templates/commands/flowspec/_DEPRECATED_prune-branch.md
+templates/commands/flowspec/_DEPRECATED_research.md
+templates/commands/flowspec/_DEPRECATED_security_fix.md
+templates/commands/flowspec/_DEPRECATED_security_report.md
+templates/commands/flowspec/_DEPRECATED_security_triage.md
+templates/commands/flowspec/_DEPRECATED_security_web.md
+templates/commands/flowspec/_DEPRECATED_security_workflow.md
+templates/commands/flowspec/_DEPRECATED_specify.md
+templates/commands/flowspec/_DEPRECATED_validate.md
 ```
 
 **Total: 13 files**
@@ -185,8 +185,8 @@ templates/commands/pm/           (entire directory)
 After deleting files, update `.claude/commands/`:
 
 ```bash
-# Remove broken symlinks in specflow/
-rm .claude/commands/specflow/_DEPRECATED_*.md
+# Remove broken symlinks in flowspec/
+rm .claude/commands/flowspec/_DEPRECATED_*.md
 
 # Remove pm namespace entirely
 rm .claude/commands/pm
@@ -210,7 +210,7 @@ rm .claude/commands/pm
 | Namespace | Before | After |
 |-----------|--------|-------|
 | `/speckit:*` | 10 | 10 |
-| `/specflow:*` | 29 | 14 |
+| `/flow:*` | 29 | 14 |
 | `/pm:*` | 3 | **0 (deleted)** |
 | `/arch:*` | 3 | 2 |
 | `/dev:*` | 4 | 3 |
@@ -224,7 +224,7 @@ rm .claude/commands/pm
 ## Implementation Order
 
 1. **Delete deprecated files** (13 files)
-   - All `_DEPRECATED_*.md` in specflow
+   - All `_DEPRECATED_*.md` in flowspec
    - Update symlinks
 
 2. **Delete `/pm` namespace** (3 files + symlink)
@@ -238,9 +238,9 @@ rm .claude/commands/pm
    - `/ops:deploy`
    - `/sec:audit`
 
-4. **Move `/specflow:prune-branch`** to `/dev:cleanup`
+4. **Move `/flow:prune-branch`** to `/dev:cleanup`
    - Verify `/dev:cleanup` has same functionality
-   - Delete `/specflow:prune-branch`
+   - Delete `/flow:prune-branch`
 
 5. **Update documentation**
    - CLAUDE.md command references

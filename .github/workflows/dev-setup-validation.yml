@@ -73,10 +73,10 @@ jobs:
           echo "✓ Passed: All symlinks point to templates/commands/"
           echo ""
 
-          # R7: Verify subdirectory structure (specflow/, speckit/)
+          # R7: Verify subdirectory structure (flowspec/, speckit/)
           echo "Checking R7: Subdirectory structure..."
-          if [ ! -d ".claude/commands/specflow" ]; then
-            echo "❌ FAILED: Missing .claude/commands/specflow directory"
+          if [ ! -d ".claude/commands/flowspec" ]; then
+            echo "❌ FAILED: Missing .claude/commands/flowspec directory"
             echo "Fix: Run 'uv run specify dev-setup --force'"
             exit 1
           fi
@@ -87,12 +87,12 @@ jobs:
           fi
 
           # Check for unexpected subdirectories
-          UNEXPECTED_DIRS=$(find .claude/commands -mindepth 1 -maxdepth 1 -type d ! -name specflow ! -name speckit 2>/dev/null || true)
+          UNEXPECTED_DIRS=$(find .claude/commands -mindepth 1 -maxdepth 1 -type d ! -name flowspec ! -name speckit 2>/dev/null || true)
           if [ -n "$UNEXPECTED_DIRS" ]; then
             echo "❌ FAILED: Found unexpected subdirectories:"
             echo "$UNEXPECTED_DIRS" | sed 's/^/  - /'
             echo ""
-            echo "Expected structure: specflow/, speckit/ only"
+            echo "Expected structure: flowspec/, speckit/ only"
             echo "Fix: Run 'uv run specify dev-setup --force'"
             exit 1
           fi
@@ -103,7 +103,7 @@ jobs:
             echo "❌ FAILED: Found .md files at root level (should be in subdirectories):"
             echo "$ROOT_MD" | sed 's/^/  - /'
             echo ""
-            echo "All .md files must be in specflow/ or speckit/ subdirectories"
+            echo "All .md files must be in flowspec/ or speckit/ subdirectories"
             echo "Fix: Run 'uv run specify dev-setup --force'"
             exit 1
           fi
@@ -122,15 +122,15 @@ jobs:
 
           # Verify expected output structure
           echo "Verifying output structure..."
-          if [ ! -d ".claude/commands/specflow" ] || [ ! -d ".claude/commands/speckit" ]; then
+          if [ ! -d ".claude/commands/flowspec" ] || [ ! -d ".claude/commands/speckit" ]; then
             echo "❌ FAILED: dev-setup did not create expected directory structure"
             exit 1
           fi
 
           # Verify symlinks were created
-          JPSPEC_COUNT=$(find .claude/commands/specflow -name "*.md" -type l 2>/dev/null | wc -l)
+          JPSPEC_COUNT=$(find .claude/commands/flowspec -name "*.md" -type l 2>/dev/null | wc -l)
           SPECKIT_COUNT=$(find .claude/commands/speckit -name "*.md" -type l 2>/dev/null | wc -l)
-          echo "  - Created $JPSPEC_COUNT specflow command symlinks"
+          echo "  - Created $JPSPEC_COUNT flowspec command symlinks"
           echo "  - Created $SPECKIT_COUNT speckit command symlinks"
 
           if [ $JPSPEC_COUNT -eq 0 ] || [ $SPECKIT_COUNT -eq 0 ]; then

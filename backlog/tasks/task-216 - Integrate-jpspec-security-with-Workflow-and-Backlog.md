@@ -1,6 +1,6 @@
 ---
 id: task-216
-title: 'Integrate /specflow:security with Workflow and Backlog'
+title: 'Integrate /flow:security with Workflow and Backlog'
 status: To Do
 assignee:
   - '@muckross'
@@ -17,7 +17,7 @@ priority: high
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Wire /specflow:security commands into specflow_workflow.yml and add backlog.md task creation for findings.
+Wire /flow:security commands into flowspec_workflow.yml and add backlog.md task creation for findings.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -33,15 +33,15 @@ Wire /specflow:security commands into specflow_workflow.yml and add backlog.md t
 ## Implementation Plan
 
 <!-- SECTION:PLAN:BEGIN -->
-## Implementation Plan: Integrate /specflow:security with Workflow and Backlog
+## Implementation Plan: Integrate /flow:security with Workflow and Backlog
 
 ### Overview
-Wire /specflow:security commands into specflow_workflow.yml state machine and add automatic backlog.md task creation for security findings.
+Wire /flow:security commands into flowspec_workflow.yml state machine and add automatic backlog.md task creation for security findings.
 
 ### Step-by-Step Implementation
 
 #### Step 1: Add Security State to Workflow Configuration (2 hours)
-**File**: `specflow_workflow.yml`
+**File**: `flowspec_workflow.yml`
 
 1. Add optional security state:
    ```yaml
@@ -53,7 +53,7 @@ Wire /specflow:security commands into specflow_workflow.yml state machine and ad
    
    workflows:
      security:
-       command: "/specflow:security"
+       command: "/flow:security"
        agents: ["security-scanner"]
        input_states: ["In Implementation", "Validated"]
        output_state: "Security Reviewed"

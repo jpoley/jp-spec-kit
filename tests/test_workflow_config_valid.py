@@ -1,4 +1,4 @@
-"""Tests for validating specflow_workflow.yml configuration.
+"""Tests for validating flowspec_workflow.yml configuration.
 
 This module validates that the workflow configuration file:
 1. Has valid YAML syntax and loads without errors
@@ -9,7 +9,7 @@ This module validates that the workflow configuration file:
 6. All workflows have valid input/output states
 7. Metadata counts are accurate
 
-Task: 118 - Create default specflow_workflow.yml configuration
+Task: 118 - Create default flowspec_workflow.yml configuration
 """
 
 from __future__ import annotations
@@ -25,7 +25,7 @@ import yaml
 @pytest.fixture
 def workflow_config_path() -> Path:
     """Return path to the workflow configuration file."""
-    return Path(__file__).parent.parent / "specflow_workflow.yml"
+    return Path(__file__).parent.parent / "flowspec_workflow.yml"
 
 
 @pytest.fixture
@@ -108,7 +108,7 @@ class TestWorkflows:
     """Test the workflows configuration."""
 
     def test_has_all_seven_workflows(self, workflow_config: dict[str, Any]) -> None:
-        """Verify all 7 /specflow workflows are defined (including assess)."""
+        """Verify all 7 /flowspec workflows are defined (including assess)."""
         expected_workflows = [
             "assess",
             "specify",
@@ -141,13 +141,13 @@ class TestWorkflows:
             for field in required_fields:
                 assert field in workflow, f"Workflow '{name}' missing field: {field}"
 
-    def test_workflow_commands_match_specflow(
+    def test_workflow_commands_match_flowspec(
         self, workflow_config: dict[str, Any]
     ) -> None:
-        """Verify workflow commands follow /specflow:{name} pattern."""
+        """Verify workflow commands follow /flow:{name} pattern."""
         workflows = workflow_config["workflows"]
         for name, workflow in workflows.items():
-            expected_command = f"/specflow:{name}"
+            expected_command = f"/flow:{name}"
             assert workflow["command"] == expected_command, (
                 f"Workflow '{name}' has incorrect command: {workflow['command']}"
             )

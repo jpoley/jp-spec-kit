@@ -1,8 +1,8 @@
-# JP Specflow - Plugin Installation Guide
+# JP Flowspec - Plugin Installation Guide
 
 > **Transform your development workflow with Spec-Driven Development**
 >
-> JP Specflow is a comprehensive Claude Code plugin that provides specialized agents, workflow commands, and integrated tools for the entire software development lifecycle.
+> JP Flowspec is a comprehensive Claude Code plugin that provides specialized agents, workflow commands, and integrated tools for the entire software development lifecycle.
 
 ---
 
@@ -89,7 +89,7 @@ You should see `jp-spec-kit` in the output.
 **Test a command:**
 
 ```bash
-/specflow:specify Build a user authentication system
+/flow:specify Build a user authentication system
 ```
 
 If the command runs without errors, you're all set!
@@ -101,12 +101,12 @@ If the command runs without errors, you're all set!
 Once installed, you'll have access to:
 
 ### 6 Workflow Commands
-- `/specflow:specify` - Create feature specifications (PRDs)
-- `/specflow:plan` - Architectural planning and design
-- `/specflow:research` - Research and business validation
-- `/specflow:implement` - Full-stack implementation with code review
-- `/specflow:validate` - QA, security, and release validation
-- `/specflow:operate` - SRE operations, CI/CD, Kubernetes
+- `/flow:specify` - Create feature specifications (PRDs)
+- `/flow:plan` - Architectural planning and design
+- `/flow:research` - Research and business validation
+- `/flow:implement` - Full-stack implementation with code review
+- `/flow:validate` - QA, security, and release validation
+- `/flow:operate` - SRE operations, CI/CD, Kubernetes
 
 ### 15 Specialized Agents
 Expert agents for every development phase:
@@ -141,7 +141,7 @@ Follow this 7-step workflow for any new feature:
 
 ### 1. **Specify** - Define the Feature
 ```bash
-/specflow:specify Add OAuth2 authentication with Google and GitHub providers
+/flow:specify Add OAuth2 authentication with Google and GitHub providers
 ```
 
 **Output:** Comprehensive PRD with user stories, requirements, and acceptance criteria
@@ -150,7 +150,7 @@ Follow this 7-step workflow for any new feature:
 
 ### 2. **Plan** - Design the Architecture
 ```bash
-/specflow:plan Design authentication system with OAuth2 integration
+/flow:plan Design authentication system with OAuth2 integration
 ```
 
 **Output:** System architecture, component design, API specs, data models
@@ -159,7 +159,7 @@ Follow this 7-step workflow for any new feature:
 
 ### 3. **Research** - Validate Decisions (Optional)
 ```bash
-/specflow:research Compare OAuth2 libraries and security best practices
+/flow:research Compare OAuth2 libraries and security best practices
 ```
 
 **Output:** Technology evaluation, recommendations, risk analysis
@@ -168,7 +168,7 @@ Follow this 7-step workflow for any new feature:
 
 ### 4. **Implement** - Build the Feature
 ```bash
-/specflow:implement Build OAuth2 authentication with Google and GitHub
+/flow:implement Build OAuth2 authentication with Google and GitHub
 ```
 
 **Output:** Production code, tests, code review reports
@@ -177,7 +177,7 @@ Follow this 7-step workflow for any new feature:
 
 ### 5. **Validate** - Quality Assurance
 ```bash
-/specflow:validate Check authentication implementation for security and quality
+/flow:validate Check authentication implementation for security and quality
 ```
 
 **Output:** Test coverage, security audit, documentation review
@@ -186,7 +186,7 @@ Follow this 7-step workflow for any new feature:
 
 ### 6. **Operate** - Production Readiness
 ```bash
-/specflow:operate Set up CI/CD pipeline and monitoring for auth service
+/flow:operate Set up CI/CD pipeline and monitoring for auth service
 ```
 
 **Output:** GitHub Actions workflows, Kubernetes manifests, monitoring setup
@@ -243,19 +243,19 @@ The plugin includes a pre-commit hook (disabled by default).
 
 ```bash
 # Define the API
-/specflow:specify Build a REST API for a task management system with CRUD operations
+/flow:specify Build a REST API for a task management system with CRUD operations
 
 # Design the architecture
-/specflow:plan Design RESTful API with PostgreSQL and Redis caching
+/flow:plan Design RESTful API with PostgreSQL and Redis caching
 
 # Implement
-/specflow:implement Build task management REST API with authentication
+/flow:implement Build task management REST API with authentication
 
 # Validate
-/specflow:validate Check API for security, performance, and test coverage
+/flow:validate Check API for security, performance, and test coverage
 
 # Set up operations
-/specflow:operate Create CI/CD pipeline and monitoring for task API
+/flow:operate Create CI/CD pipeline and monitoring for task API
 ```
 
 ---
@@ -264,19 +264,19 @@ The plugin includes a pre-commit hook (disabled by default).
 
 ```bash
 # Research first
-/specflow:research Evaluate real-time notification solutions (WebSocket vs SSE)
+/flow:research Evaluate real-time notification solutions (WebSocket vs SSE)
 
 # Specify the feature
-/specflow:specify Add real-time notifications using WebSocket
+/flow:specify Add real-time notifications using WebSocket
 
 # Plan the integration
-/specflow:plan Design notification system integration with existing architecture
+/flow:plan Design notification system integration with existing architecture
 
 # Implement
-/specflow:implement Add WebSocket-based real-time notifications
+/flow:implement Add WebSocket-based real-time notifications
 
 # Validate
-/specflow:validate Test notification system for reliability and security
+/flow:validate Test notification system for reliability and security
 ```
 
 ---
@@ -285,19 +285,19 @@ The plugin includes a pre-commit hook (disabled by default).
 
 ```bash
 # Validate current state
-/specflow:validate Review current authentication implementation
+/flow:validate Review current authentication implementation
 
 # Research improvements
-/specflow:research Investigate modern authentication patterns and security best practices
+/flow:research Investigate modern authentication patterns and security best practices
 
 # Plan refactoring
-/specflow:plan Design improved authentication architecture with MFA support
+/flow:plan Design improved authentication architecture with MFA support
 
 # Implement
-/specflow:implement Refactor authentication with multi-factor authentication
+/flow:implement Refactor authentication with multi-factor authentication
 
 # Validate changes
-/specflow:validate Verify refactored authentication meets security standards
+/flow:validate Verify refactored authentication meets security standards
 ```
 
 ---
@@ -344,7 +344,7 @@ If not listed, reinstall:
 
 ### Commands Not Working
 
-**Problem:** `/specflow:specify` shows "command not found"
+**Problem:** `/flow:specify` shows "command not found"
 
 **Solution 1: Reload Claude Code**
 - Restart your Claude Code session
@@ -392,8 +392,8 @@ Most MCP servers work without API keys. Only Context7 and Figma require keys.
 **Solution 2: Provide More Context**
 Agents work better with clear, detailed prompts:
 
-❌ Bad: `/specflow:implement build auth`
-✅ Good: `/specflow:implement Build OAuth2 authentication with Google and GitHub providers, including JWT token management and refresh token rotation`
+❌ Bad: `/flow:implement build auth`
+✅ Good: `/flow:implement Build OAuth2 authentication with Google and GitHub providers, including JWT token management and refresh token rotation`
 
 ---
 
@@ -451,7 +451,7 @@ specify → plan → research → implement → validate → operate
 The more context you provide, the better the output:
 
 ```bash
-/specflow:specify Build a user dashboard
+/flow:specify Build a user dashboard
 
 Context:
 - Users need to view their activity history
@@ -466,17 +466,17 @@ Don't hesitate to re-run commands with refinements:
 
 ```bash
 # First pass
-/specflow:plan Design REST API
+/flow:plan Design REST API
 
 # Refine
-/specflow:plan Update API design to use GraphQL instead of REST
+/flow:plan Update API design to use GraphQL instead of REST
 ```
 
 ### 4. Use Research for Decisions
 Before committing to a technology or approach:
 
 ```bash
-/specflow:research Compare PostgreSQL vs MongoDB for time-series data storage
+/flow:research Compare PostgreSQL vs MongoDB for time-series data storage
 ```
 
 ### 5. Validate Throughout
@@ -484,10 +484,10 @@ Don't wait until the end to validate:
 
 ```bash
 # After implementing a feature
-/specflow:validate Check user authentication implementation
+/flow:validate Check user authentication implementation
 
 # After adding tests
-/specflow:validate Review test coverage for payment processing module
+/flow:validate Review test coverage for payment processing module
 ```
 
 ---
@@ -517,9 +517,9 @@ Don't wait until the end to validate:
 ### Beginner: Your First Feature
 
 1. **Install the plugin** (see Quick Install above)
-2. **Start with specify**: `/specflow:specify Add a contact form to the website`
+2. **Start with specify**: `/flow:specify Add a contact form to the website`
 3. **Review the output**: Read the generated PRD
-4. **Try plan**: `/specflow:plan Design contact form architecture`
+4. **Try plan**: `/flow:plan Design contact form architecture`
 5. **Explore other commands** as you get comfortable
 
 ### Intermediate: Full Workflow
@@ -560,7 +560,7 @@ MIT License - See [LICENSE](LICENSE) for details.
 Installation is complete. Start building with Spec-Driven Development:
 
 ```bash
-/specflow:specify Build something amazing!
+/flow:specify Build something amazing!
 ```
 
 **Questions?** Check the [troubleshooting section](#-troubleshooting) or [open an issue](https://github.com/jpoley/jp-spec-kit/issues).

@@ -13,7 +13,7 @@ The role-based validation workflows ensure that the role-based command architect
 - Pull requests to `main` branch
 - Changes to role-related files:
   - `templates/commands/**`
-  - `specflow_workflow.yml`
+  - `flowspec_workflow.yml`
   - `schemas/**`
   - `.claude/commands/**`
   - `.github/agents/**`
@@ -23,7 +23,7 @@ The role-based validation workflows ensure that the role-based command architect
 
 ### 1. Schema Validation (`validate-schema`)
 
-**Purpose**: Ensures `specflow_workflow.yml` conforms to the JSON schema.
+**Purpose**: Ensures `flowspec_workflow.yml` conforms to the JSON schema.
 
 **Checks**:
 - ✓ Valid YAML syntax
@@ -36,7 +36,7 @@ The role-based validation workflows ensure that the role-based command architect
 
 **Example Run**:
 ```bash
-python scripts/validate-workflow-config.py specflow_workflow.yml schemas/specflow_workflow.schema.json
+python scripts/validate-workflow-config.py flowspec_workflow.yml schemas/flowspec_workflow.schema.json
 ```
 
 **Common Failures**:
@@ -51,7 +51,7 @@ python scripts/validate-workflow-config.py specflow_workflow.yml schemas/specflo
 python scripts/validate-workflow-config.py
 
 # Check for syntax errors
-yamllint specflow_workflow.yml
+yamllint flowspec_workflow.yml
 ```
 
 ---
@@ -148,7 +148,7 @@ git commit -m "chore: sync Copilot agents"
 **Fix**:
 ```bash
 # Check role definition
-grep -A 10 "pm:" specflow_workflow.yml
+grep -A 10 "pm:" flowspec_workflow.yml
 
 # Verify command files
 ls -la templates/commands/pm/
@@ -319,7 +319,7 @@ bash scripts/bash/sync-copilot-agents.sh --validate
 # Test PM role validation
 python3 << 'EOF'
 import yaml
-with open('specflow_workflow.yml') as f:
+with open('flowspec_workflow.yml') as f:
     config = yaml.safe_load(f)
 pm_role = config['roles']['definitions']['pm']
 print(f"Commands: {pm_role['commands']}")
@@ -341,7 +341,7 @@ uv run pytest tests/ --cov=src/specify_cli --cov-report=term-missing
 
 **Error**: "Missing required roles: {'ops'}"
 
-**Cause**: Role definition missing in `specflow_workflow.yml`
+**Cause**: Role definition missing in `flowspec_workflow.yml`
 
 **Fix**:
 ```yaml
@@ -453,7 +453,7 @@ The role validation workflow integrates with:
 ### For Maintainers
 
 1. **Keep schema up-to-date**:
-   - Update `schemas/specflow_workflow.schema.json` when adding features
+   - Update `schemas/flowspec_workflow.schema.json` when adding features
    - Validate backwards compatibility
 
 2. **Document new roles**:

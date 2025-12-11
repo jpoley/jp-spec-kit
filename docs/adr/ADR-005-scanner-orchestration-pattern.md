@@ -3,7 +3,7 @@
 **Status:** Proposed
 **Date:** 2025-12-02
 **Author:** Enterprise Software Architect
-**Context:** /specflow:security commands - Tool integration architecture
+**Context:** /flow:security commands - Tool integration architecture
 **Supersedes:** None
 **Amended by:** None
 
@@ -26,7 +26,7 @@ Security scanning tools (Semgrep, CodeQL, Trivy, Snyk, AFL++) are **disparate co
 
 **Primary Value Streams:**
 
-1. **Developer Productivity** - Single command (`/specflow:security scan`) replaces manual tool orchestration
+1. **Developer Productivity** - Single command (`/flow:security scan`) replaces manual tool orchestration
 2. **Consistency** - Normalized findings format enables unified triage and reporting
 3. **Flexibility** - Add new scanners without changing user-facing commands
 4. **Compliance** - Track tool versions for SLSA attestation
@@ -472,7 +472,7 @@ orchestrator.register_adapter("snyk", SnykAdapter())
 ### 4. Consumption (Developer Experience) - 8/10
 
 **Strengths:**
-- Single command runs all scanners: `/specflow:security scan`
+- Single command runs all scanners: `/flow:security scan`
 - Progress reporting with ETAs
 - Graceful degradation (one scanner fails, others continue)
 
@@ -742,9 +742,9 @@ src/specify_cli/security/adapters/
 
 ### Related Documents
 
-- **Architecture:** `docs/architecture/specflow-security-architecture.md`
+- **Architecture:** `docs/architecture/flowspec-security-architecture.md`
 - **ADR-007:** Unified Security Finding Format
-- **PRD:** `docs/prd/specflow-security-commands.md`
+- **PRD:** `docs/prd/flowspec-security-commands.md`
 
 ### External References
 

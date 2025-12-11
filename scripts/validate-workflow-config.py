@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate specflow_workflow.yml against the JSON Schema.
+"""Validate flowspec_workflow.yml against the JSON Schema.
 
 This script validates the workflow configuration file to ensure it conforms
 to the expected structure, types, and constraints defined in the schema.
@@ -8,8 +8,8 @@ Usage:
     python scripts/validate-workflow-config.py [workflow_file] [schema_file]
 
     If not specified:
-    - workflow_file defaults to: specflow_workflow.yml
-    - schema_file defaults to: memory/specflow_workflow.schema.json
+    - workflow_file defaults to: flowspec_workflow.yml
+    - schema_file defaults to: memory/flowspec_workflow.schema.json
 
 Examples:
     # Validate default workflow config
@@ -121,15 +121,15 @@ def main() -> int:
         print(__doc__)
         return 0
 
-    workflow_file = args[0] if len(args) > 0 else "specflow_workflow.yml"
-    schema_file = args[1] if len(args) > 1 else "memory/specflow_workflow.schema.json"
+    workflow_file = args[0] if len(args) > 0 else "flowspec_workflow.yml"
+    schema_file = args[1] if len(args) > 1 else "memory/flowspec_workflow.schema.json"
 
     workflow_path = Path(workflow_file)
     schema_path = Path(schema_file)
 
     # Print validation info
     print("=" * 70)
-    print("specflow_workflow.yml Validation")
+    print("flowspec_workflow.yml Validation")
     print("=" * 70)
     print(f"Workflow config: {workflow_path}")
     print(f"JSON Schema:     {schema_path}")

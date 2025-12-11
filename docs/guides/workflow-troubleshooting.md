@@ -1,6 +1,6 @@
 # Workflow Troubleshooting Guide
 
-This guide provides solutions for common issues when working with Specflow workflow configuration.
+This guide provides solutions for common issues when working with Flowspec workflow configuration.
 
 ## Quick Diagnostics
 
@@ -14,44 +14,44 @@ specify workflow validate
 backlog task view task-123
 
 # 3. Check which workflows are valid for current state
-# (This information is in specflow_workflow.yml)
-cat specflow_workflow.yml | grep -A 3 "input_states.*Planned"
+# (This information is in flowspec_workflow.yml)
+cat flowspec_workflow.yml | grep -A 3 "input_states.*Planned"
 
-# 4. Verify specflow_workflow.yml exists
-ls -la specflow_workflow.yml
+# 4. Verify flowspec_workflow.yml exists
+ls -la flowspec_workflow.yml
 
 # 5. Check YAML syntax
-python -c "import yaml; yaml.safe_load(open('specflow_workflow.yml'))"
+python -c "import yaml; yaml.safe_load(open('flowspec_workflow.yml'))"
 ```
 
 ## Configuration Issues
 
-### Error: "specflow_workflow.yml not found"
+### Error: "flowspec_workflow.yml not found"
 
 **Symptom**:
 ```
-[ERROR] WorkflowConfigNotFoundError: specflow_workflow.yml not found
+[ERROR] WorkflowConfigNotFoundError: flowspec_workflow.yml not found
 Searched locations:
-  - /home/user/project/specflow_workflow.yml
-  - /home/user/project/memory/specflow_workflow.yml
-  - /home/user/project/.specify/specflow_workflow.yml
+  - /home/user/project/flowspec_workflow.yml
+  - /home/user/project/memory/flowspec_workflow.yml
+  - /home/user/project/.specify/flowspec_workflow.yml
 ```
 
 **Causes**:
 1. Configuration file missing
 2. Working in wrong directory
-3. File named incorrectly (e.g., `specflow-workflow.yml` instead of `specflow_workflow.yml`)
+3. File named incorrectly (e.g., `flowspec-workflow.yml` instead of `flowspec_workflow.yml`)
 
 **Solutions**:
 
 **Solution 1: Create default configuration**
 ```bash
-# Copy from Specflow templates
-cp ~/.local/share/specify-cli/templates/specflow_workflow.yml ./specflow_workflow.yml
+# Copy from Flowspec templates
+cp ~/.local/share/specify-cli/templates/flowspec_workflow.yml ./flowspec_workflow.yml
 
 # Or create in memory/ directory
 mkdir -p memory
-cp ~/.local/share/specify-cli/templates/specflow_workflow.yml memory/specflow_workflow.yml
+cp ~/.local/share/specify-cli/templates/flowspec_workflow.yml memory/flowspec_workflow.yml
 ```
 
 **Solution 2: Check current directory**
@@ -70,7 +70,7 @@ cd /path/to/your/project
 ls -la | grep -i workflow
 
 # Rename if found
-mv specflow-workflow.yml specflow_workflow.yml
+mv flowspec-workflow.yml flowspec_workflow.yml
 ```
 
 ---
@@ -96,7 +96,7 @@ Errors:
 **Solution 1: Check YAML syntax**
 ```bash
 # Validate YAML syntax
-python -c "import yaml; yaml.safe_load(open('specflow_workflow.yml'))"
+python -c "import yaml; yaml.safe_load(open('flowspec_workflow.yml'))"
 
 # Common YAML errors:
 # - Inconsistent indentation (use spaces, not tabs)
@@ -124,15 +124,15 @@ transitions:
 **Solution 3: Fix state name typos**
 ```bash
 # Find all state references
-grep -n "output_state\|input_states" specflow_workflow.yml
+grep -n "output_state\|input_states" flowspec_workflow.yml
 
 # Verify state names match states list exactly (case-sensitive)
-grep -A 20 "^states:" specflow_workflow.yml
+grep -A 20 "^states:" flowspec_workflow.yml
 ```
 
 **Solution 4: Check schema version**
 ```yaml
-# Ensure version matches Specflow's expected version
+# Ensure version matches Flowspec's expected version
 version: "1.1"  # Current version
 ```
 
@@ -159,14 +159,14 @@ Valid input states: ['Planned']
 backlog task view task-123
 
 # If state is "Specified", run planning first
-/specflow:plan
+/flow:plan
 # Then run implementation
-/specflow:implement
+/flow:implement
 ```
 
 **Solution 2: Check workflow sequence**
 ```yaml
-# Verify input_states in specflow_workflow.yml
+# Verify input_states in flowspec_workflow.yml
 workflows:
   implement:
     input_states: ["Planned"]  # implement requires "Planned" state
@@ -200,7 +200,7 @@ Workflows must be acyclic (DAG).
 **Solution 1: Review transition graph**
 ```bash
 # Extract all transitions
-grep -A 5 "^  - name:" specflow_workflow.yml | grep -E "from:|to:|via:"
+grep -A 5 "^  - name:" flowspec_workflow.yml | grep -E "from:|to:|via:"
 
 # Look for cycles:
 # from: A, to: B
@@ -227,8 +227,8 @@ transitions:
 
 **Solution 3: Remove or fix circular transition**
 ```bash
-# Edit specflow_workflow.yml
-vim specflow_workflow.yml
+# Edit flowspec_workflow.yml
+vim flowspec_workflow.yml
 
 # Remove the transition creating the cycle
 # Or change it to use via: "rework"
@@ -366,11 +366,11 @@ Valid input states: ['In Implementation']
 **Solution 1: Run missing workflow step**
 ```bash
 # Check what workflow should run from current state
-cat specflow_workflow.yml | grep -B 5 "input_states.*Planned"
+cat flowspec_workflow.yml | grep -B 5 "input_states.*Planned"
 
 # Run the correct workflow
-/specflow:implement  # Moves from Planned → In Implementation
-/specflow:validate   # Now this will work
+/flow:implement  # Moves from Planned → In Implementation
+/flow:validate   # Now this will work
 ```
 
 **Solution 2: Check task state is correct**
@@ -402,7 +402,7 @@ workflows:
 ### Error: "Custom workflow not working"
 
 **Symptom**:
-- Custom workflow doesn't appear in `/specflow:` commands
+- Custom workflow doesn't appear in `/flow:` commands
 - Custom state not available in backlog
 - Transitions not working as expected
 
@@ -418,7 +418,7 @@ workflows:
 # Complete workflow definition required
 workflows:
   my-custom-workflow:
-    command: "/specflow:my-custom-workflow"  # Required
+    command: "/flow:my-custom-workflow"  # Required
     description: "Custom workflow description"  # Required
     agents:  # Required (at least one)
       - name: "custom-agent"
@@ -457,7 +457,7 @@ specify workflow validate
 ### Error: "Performance issues with workflow config"
 
 **Symptom**:
-- Slow `/specflow` command execution
+- Slow `/flowspec` command execution
 - Long delays when checking states
 - High memory usage
 
@@ -517,13 +517,13 @@ specify workflow validate
 ```
 
 **Causes**:
-1. Specflow not installed
+1. Flowspec not installed
 2. Old version without workflow commands
 3. Path issue
 
 **Solutions**:
 
-**Solution 1: Install/update Specflow**
+**Solution 1: Install/update Flowspec**
 ```bash
 # Install latest version
 uv tool install . --force
@@ -554,7 +554,7 @@ import yaml
 import sys
 
 try:
-    config = yaml.safe_load(open('specflow_workflow.yml'))
+    config = yaml.safe_load(open('flowspec_workflow.yml'))
     assert 'states' in config
     assert 'workflows' in config
     assert 'transitions' in config
@@ -576,19 +576,19 @@ except Exception as e:
 **Step 1: Check Git history**
 ```bash
 # See recent changes to workflow config
-git log --oneline specflow_workflow.yml
+git log --oneline flowspec_workflow.yml
 
 # View specific change
-git show <commit-hash>:specflow_workflow.yml
+git show <commit-hash>:flowspec_workflow.yml
 ```
 
 **Step 2: Restore previous version**
 ```bash
 # Restore from Git
-git checkout HEAD~1 specflow_workflow.yml
+git checkout HEAD~1 flowspec_workflow.yml
 
 # Or restore from specific commit
-git checkout <commit-hash> specflow_workflow.yml
+git checkout <commit-hash> flowspec_workflow.yml
 
 # Verify
 specify workflow validate
@@ -597,13 +597,13 @@ specify workflow validate
 **Step 3: Create backup before changes**
 ```bash
 # Always backup before editing
-cp specflow_workflow.yml specflow_workflow.yml.backup.$(date +%Y%m%d_%H%M%S)
+cp flowspec_workflow.yml flowspec_workflow.yml.backup.$(date +%Y%m%d_%H%M%S)
 
 # Edit safely
-vim specflow_workflow.yml
+vim flowspec_workflow.yml
 
 # If issues occur, restore
-cp specflow_workflow.yml.backup.* specflow_workflow.yml
+cp flowspec_workflow.yml.backup.* flowspec_workflow.yml
 ```
 
 ---
@@ -614,19 +614,19 @@ cp specflow_workflow.yml.backup.* specflow_workflow.yml
 
 ```bash
 # 1. Backup current config (just in case)
-mv specflow_workflow.yml specflow_workflow.yml.broken
+mv flowspec_workflow.yml flowspec_workflow.yml.broken
 
 # 2. Copy default configuration
-cp ~/.local/share/specify-cli/templates/specflow_workflow.yml ./specflow_workflow.yml
+cp ~/.local/share/specify-cli/templates/flowspec_workflow.yml ./flowspec_workflow.yml
 
 # Or from project templates
-cp specflow_workflow.yml
+cp flowspec_workflow.yml
 
 # 3. Verify default works
 specify workflow validate
 
 # 4. Gradually re-add customizations from broken config
-diff specflow_workflow.yml.broken specflow_workflow.yml
+diff flowspec_workflow.yml.broken flowspec_workflow.yml
 ```
 
 ---
@@ -637,9 +637,9 @@ diff specflow_workflow.yml.broken specflow_workflow.yml
 
 ```bash
 # Pre-commit checklist
-vim specflow_workflow.yml
+vim flowspec_workflow.yml
 specify workflow validate
-git add specflow_workflow.yml
+git add flowspec_workflow.yml
 git commit -s -m "feat(workflow): add custom phase"
 ```
 
@@ -647,7 +647,7 @@ git commit -s -m "feat(workflow): add custom phase"
 
 ```bash
 # Commit workflow changes separately
-git add specflow_workflow.yml
+git add flowspec_workflow.yml
 git commit -s -m "feat(workflow): add security audit phase
 
 - Add Security Audited state
@@ -664,7 +664,7 @@ git commit -s -m "feat(workflow): add security audit phase
 backlog task create "Test custom workflow"
 
 # Run through custom workflow
-/specflow:custom-workflow
+/flow:custom-workflow
 
 # Verify it works before using on real features
 ```
@@ -678,7 +678,7 @@ workflows:
     # CUSTOM: Required for SOC2 compliance
     # Added: 2025-12-01
     # Owner: Security Team
-    command: "/specflow:security-audit"
+    command: "/flow:security-audit"
     # ...
 ```
 
@@ -705,7 +705,7 @@ workflows:
 
 ```bash
 # Compare to working examples
-diff specflow_workflow.yml docs/examples/workflows/minimal-workflow.yml
+diff flowspec_workflow.yml docs/examples/workflows/minimal-workflow.yml
 
 # Learn from other examples
 ls docs/examples/workflows/
@@ -728,7 +728,7 @@ If none of these solutions work:
 
 1. Create minimal reproduction:
    ```bash
-   # Simplify specflow_workflow.yml to smallest failing case
+   # Simplify flowspec_workflow.yml to smallest failing case
    # Share anonymized version
    ```
 
@@ -739,8 +739,8 @@ If none of these solutions work:
 
 3. Report via GitHub Issues with:
    - Error message
-   - Minimal specflow_workflow.yml
-   - Specflow version (`specify --version`)
+   - Minimal flowspec_workflow.yml
+   - Flowspec version (`specify --version`)
    - Steps to reproduce
 
 ---
@@ -748,7 +748,7 @@ If none of these solutions work:
 ## Summary
 
 **Most Common Issues**:
-1. **Config not found** → Create `specflow_workflow.yml` in project root
+1. **Config not found** → Create `flowspec_workflow.yml` in project root
 2. **State transition error** → Run workflows in correct sequence
 3. **Circular dependencies** → Use `via: "rework"` for backward transitions
 4. **Unreachable states** → Add transitions or remove unused states

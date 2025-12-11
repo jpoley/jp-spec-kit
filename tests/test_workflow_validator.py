@@ -889,7 +889,7 @@ class TestSpecialTransitions:
         config = {
             "states": ["To Do", "In Progress", "Done"],
             "workflows": {
-                "start": {"command": "/specflow:start", "input_states": ["To Do"]},
+                "start": {"command": "/flow:start", "input_states": ["To Do"]},
             },
             "transitions": [
                 {"from": "To Do", "to": "In Progress", "via": "start"},
@@ -906,9 +906,9 @@ class TestSpecialTransitions:
         config = {
             "states": ["To Do", "In Progress", "Review", "Done"],
             "workflows": {
-                "start": {"command": "/specflow:start", "input_states": ["To Do"]},
+                "start": {"command": "/flow:start", "input_states": ["To Do"]},
                 "review": {
-                    "command": "/specflow:review",
+                    "command": "/flow:review",
                     "input_states": ["In Progress"],
                 },
             },
@@ -929,9 +929,9 @@ class TestSpecialTransitions:
         config = {
             "states": ["To Do", "In Progress", "Deployed", "Done"],
             "workflows": {
-                "start": {"command": "/specflow:start", "input_states": ["To Do"]},
+                "start": {"command": "/flow:start", "input_states": ["To Do"]},
                 "deploy": {
-                    "command": "/specflow:deploy",
+                    "command": "/flow:deploy",
                     "input_states": ["In Progress"],
                 },
             },
@@ -957,11 +957,11 @@ class TestSpecialTransitions:
             "states": ["To Do", "Validated", "Deployed"],
             "workflows": {
                 "validate": {
-                    "command": "/specflow:validate",
+                    "command": "/flow:validate",
                     "input_states": ["To Do"],
                 },
                 "deploy": {
-                    "command": "/specflow:deploy",
+                    "command": "/flow:deploy",
                     "input_states": ["Validated"],
                 },
             },
@@ -982,9 +982,9 @@ class TestSpecialTransitions:
         config = {
             "states": ["To Do", "In Progress", "Review"],
             "workflows": {
-                "start": {"command": "/specflow:start", "input_states": ["To Do"]},
+                "start": {"command": "/flow:start", "input_states": ["To Do"]},
                 "review": {
-                    "command": "/specflow:review",
+                    "command": "/flow:review",
                     "input_states": ["In Progress"],
                 },
             },
@@ -1005,7 +1005,7 @@ class TestSpecialTransitions:
         config = {
             "states": ["To Do", "In Progress", "Done"],
             "workflows": {
-                "start": {"command": "/specflow:start", "input_states": ["To Do"]},
+                "start": {"command": "/flow:start", "input_states": ["To Do"]},
             },
             "transitions": [
                 {"from": "To Do", "to": "In Progress", "via": "start"},
@@ -1042,12 +1042,12 @@ class TestSpecialTransitions:
         config = {
             "states": ["To Do", "In Progress", "Review", "Deployed", "Done"],
             "workflows": {
-                "start": {"command": "/specflow:start", "input_states": ["To Do"]},
+                "start": {"command": "/flow:start", "input_states": ["To Do"]},
                 "review": {
-                    "command": "/specflow:review",
+                    "command": "/flow:review",
                     "input_states": ["In Progress"],
                 },
-                "deploy": {"command": "/specflow:deploy", "input_states": ["Review"]},
+                "deploy": {"command": "/flow:deploy", "input_states": ["Review"]},
             },
             "transitions": [
                 {"from": "To Do", "to": "In Progress", "via": "start"},

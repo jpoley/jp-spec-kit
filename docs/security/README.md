@@ -1,13 +1,13 @@
 # Security Documentation
 
-Complete documentation for `/specflow:security` security scanning features.
+Complete documentation for `/flow:security` security scanning features.
 
 ## Quick Links
 
 | Document | Description | Audience |
 |----------|-------------|----------|
 | [Security Quickstart](../guides/security-quickstart.md) | 5-minute getting started guide | All developers |
-| [Command Reference](../reference/specflow-security-commands.md) | Complete CLI reference | All developers |
+| [Command Reference](../reference/flowspec-security-commands.md) | Complete CLI reference | All developers |
 | [CI/CD Integration](../guides/security-cicd-integration.md) | Pipeline setup examples | DevOps engineers |
 | [Custom Rules Guide](../guides/security-custom-rules.md) | Writing security rules | Security teams |
 | [Threat Model](../reference/security-threat-model.md) | Security boundaries | Security architects |
@@ -18,7 +18,7 @@ Complete documentation for `/specflow:security` security scanning features.
 ### For Developers
 
 1. Start with [Security Quickstart](../guides/security-quickstart.md)
-2. Learn commands from [Command Reference](../reference/specflow-security-commands.md)
+2. Learn commands from [Command Reference](../reference/flowspec-security-commands.md)
 3. Integrate into workflow with [Workflow Integration](../guides/security-workflow-integration.md)
 
 ### For DevOps Engineers
@@ -42,9 +42,9 @@ docs/
 │   ├── security-cicd-integration.md     # CI/CD examples
 │   ├── security-custom-rules.md         # Rule writing guide
 │   ├── security-mcp-guide.md            # MCP server integration
-│   └── security-workflow-integration.md # /specflow workflow
+│   └── security-workflow-integration.md # /flowspec workflow
 ├── reference/
-│   ├── specflow-security-commands.md      # CLI reference
+│   ├── flowspec-security-commands.md      # CLI reference
 │   ├── security-threat-model.md         # Security analysis
 │   └── security-privacy-policy.md       # Privacy & compliance
 └── security/
@@ -168,10 +168,10 @@ To improve security documentation:
 
 ## Related Documentation
 
-- [JP Specflow Documentation](../../README.md)
+- [JP Flowspec Documentation](../../README.md)
 - [Workflow Guide](../guides/workflow-architecture.md)
 - [Agent Classification](../reference/agent-loop-classification.md)
 
 ---
 
-**Questions?** Check the [Command Reference](../reference/specflow-security-commands.md) or open an issue.
+**Questions?** Check the [Command Reference](../reference/flowspec-security-commands.md) or open an issue.

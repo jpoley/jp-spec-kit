@@ -52,7 +52,7 @@ This document describes a plugin architecture for JP Spec Kit that enables plugg
 | Type | Description | Examples |
 |------|-------------|----------|
 | **Workflows** | Custom workflow phases or alternative flows | `ml-training-workflow`, `data-pipeline-flow` |
-| **Commands** | New slash commands for Claude Code or CLI | `specflow:security-scan`, `specflow:perf-test` |
+| **Commands** | New slash commands for Claude Code or CLI | `flowspec:security-scan`, `flowspec:perf-test` |
 | **Agents/Squads** | Custom AI agent personas or multi-agent squads | `security-auditor`, `ml-engineer-squad` |
 | **Stacks** | Technology stack templates and configurations | `fastapi-stack`, `serverless-aws-stack` |
 | **Integrations** | External tool connectors (CI/CD, notifications, etc.) | `jira-sync`, `slack-notifier`, `github-actions` |
@@ -62,7 +62,7 @@ This document describes a plugin architecture for JP Spec Kit that enables plugg
 **UC-1: Add Custom Security Scanning Workflow**
 ```
 As a security engineer,
-I want to install a security-scan plugin that adds a /specflow:security-scan command,
+I want to install a security-scan plugin that adds a /flow:security-scan command,
 So that security analysis is part of my spec-driven workflow.
 ```
 
@@ -84,7 +84,7 @@ So that backlog.md tasks sync bidirectionally with Jira issues.
 ```
 As an ML engineer,
 I want to install an ML-squad plugin that provides ml-engineer and data-scientist personas,
-So that /specflow:implement has ML-specific expertise.
+So that /flow:implement has ML-specific expertise.
 ```
 
 **UC-5: Enterprise Private Registry**
@@ -206,7 +206,7 @@ metadata:
   author: security-team
   license: MIT
   repository: https://github.com/example/security-scanner-plugin
-  description: Adds security scanning to the specflow workflow
+  description: Adds security scanning to the flowspec workflow
   keywords:
     - security
     - scanning
@@ -216,7 +216,7 @@ metadata:
 # What this plugin provides
 provides:
   commands:
-    - name: specflow:security-scan
+    - name: flowspec:security-scan
       description: Run security analysis on implementation
       entrypoint: src/commands/security_scan.py:run
       
@@ -335,7 +335,7 @@ config:
 # Search for plugins
 $ specify plugin search security
 NAME              VERSION  AUTHOR          DESCRIPTION
-security-scanner  1.2.0    security-team   Security scanning for specflow
+security-scanner  1.2.0    security-team   Security scanning for flowspec
 sast-analyzer     2.0.1    acme-tools      Static analysis integration
 
 # Install a plugin
@@ -376,7 +376,7 @@ $ specify plugin enable security-scanner
       ✓ Config validated against schema
       
 [2/3] Registering extensions...
-      ✓ Command: specflow:security-scan
+      ✓ Command: flowspec:security-scan
       ✓ Agent: security-auditor
       ✓ Workflow: secure-implement (wraps: implement)
       ✓ Hook: workflow.implement.completed
@@ -445,7 +445,7 @@ $ specify plugin remove security-scanner
       Remove anyway? [y/N]: y
       
 [2/3] Unregistering extensions...
-      ✓ Removed command: specflow:security-scan
+      ✓ Removed command: flowspec:security-scan
       ✓ Removed agent: security-auditor
       ✓ Removed workflow: secure-implement
       ✓ Removed hooks
@@ -575,7 +575,7 @@ from speckit_sdk.context import PluginContext
 class SecurityScanCommand(Command):
     """Run security analysis on the current feature."""
     
-    name = "specflow:security-scan"
+    name = "flowspec:security-scan"
     description = "Perform SAST/DAST security scanning"
     
     @argument("feature", help="Feature to scan")
@@ -938,7 +938,7 @@ telemetry:
 │                                                                  │
 │  ┌────────────────────────────────────────────────────────────┐ │
 │  │ 🔒 security-scanner           ⭐ 4.8  ⬇️ 12.5k  ✓ Certified │ │
-│  │    Security scanning for specflow workflow                    │ │
+│  │    Security scanning for flowspec workflow                    │ │
 │  │    by security-team • v1.2.0 • Updated 2 days ago          │ │
 │  │    Tags: security, sast, dast                               │ │
 │  └────────────────────────────────────────────────────────────┘ │
@@ -1003,7 +1003,7 @@ $ specify plugin info security-scanner
 security-scanner v1.2.0
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Security scanning for specflow workflow
+Security scanning for flowspec workflow
 
 Author:      security-team
 License:     MIT
@@ -1013,7 +1013,7 @@ Trust Level: ✓ Certified
 Last Update: 2025-12-04
 
 Provides:
-  • Command: specflow:security-scan
+  • Command: flowspec:security-scan
   • Agent: security-auditor
   • Workflow: secure-implement (wraps implement)
 
@@ -1143,7 +1143,7 @@ Accept and install? [y/N]: y
 Next steps:
   1. Configure: specify plugin config jira-sync
   2. Enable:    specify plugin enable jira-sync
-  3. Use:       /specflow:jira-sync
+  3. Use:       /flow:jira-sync
 ```
 
 ---

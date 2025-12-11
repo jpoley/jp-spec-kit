@@ -8,7 +8,7 @@
 
 ## Overview
 
-This design enables **role-based customization** of VS Code Copilot agents in Specflow. Users select their primary role (Product Manager, Developer, Security Engineer, QA Engineer, or Full Workflow) during project initialization, and VS Code automatically displays only role-relevant commands and handoffs.
+This design enables **role-based customization** of VS Code Copilot agents in Flowspec. Users select their primary role (Product Manager, Developer, Security Engineer, QA Engineer, or Full Workflow) during project initialization, and VS Code automatically displays only role-relevant commands and handoffs.
 
 ## Business Value
 
@@ -23,19 +23,19 @@ This design enables **role-based customization** of VS Code Copilot agents in Sp
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  /specflow:init or /specflow:reset                               │
+│  /flow:init or /flow:reset                               │
 │  └─> User selects role: PM | Dev | Sec | QA | All           │
 └─────────────────────────────────────────────────────────────┘
                           ↓
 ┌─────────────────────────────────────────────────────────────┐
 │  Configuration Storage (Dual Strategy)                       │
-│  ├─> specflow_workflow.yml (team defaults, version-controlled) │
+│  ├─> flowspec_workflow.yml (team defaults, version-controlled) │
 │  └─> .vscode/settings.json (user overrides, gitignored)     │
 └─────────────────────────────────────────────────────────────┘
                           ↓
 ┌─────────────────────────────────────────────────────────────┐
 │  sync-copilot-agents.sh Enhancement                          │
-│  ├─> Read role config from specflow_workflow.yml              │
+│  ├─> Read role config from flowspec_workflow.yml              │
 │  ├─> Add role metadata to agent frontmatter                 │
 │  └─> Configure VS Code agent pinning                        │
 └─────────────────────────────────────────────────────────────┘
@@ -52,32 +52,32 @@ This design enables **role-based customization** of VS Code Copilot agents in Sp
 
 ### Product Manager (PM)
 **Focus**: Requirements, research, business validation
-**Commands**: `/specflow:assess`, `/specflow:specify`, `/specflow:research`
+**Commands**: `/flow:assess`, `/flow:specify`, `/flow:research`
 **Handoffs**: PM → Developer (PRD complete → technical design)
 
 ### Developer (Dev)
 **Focus**: Architecture, implementation, deployment
-**Commands**: `/specflow:plan`, `/specflow:implement`, `/specflow:operate`
+**Commands**: `/flow:plan`, `/flow:implement`, `/flow:operate`
 **Handoffs**: Dev → QA (code complete → validation)
 
 ### Security Engineer (Sec)
 **Focus**: Security scanning, triage, vulnerability fixes
-**Commands**: `/specflow:security_*`, `/specflow:validate` (security aspects)
+**Commands**: `/flow:security_*`, `/flow:validate` (security aspects)
 **Handoffs**: Sec → Dev (security issues → fixes)
 
 ### QA Engineer (QA)
 **Focus**: Testing, documentation, quality validation
-**Commands**: `/specflow:validate`, `/speckit:checklist`
+**Commands**: `/flow:validate`, `/speckit:checklist`
 **Handoffs**: QA → SRE (validation passed → deployment)
 
 ### Full Workflow (All)
 **Focus**: Complete SDD workflow (all phases)
-**Commands**: All `/specflow` and `/speckit` commands
+**Commands**: All `/flowspec` and `/speckit` commands
 **Handoffs**: Linear progression through all phases
 
 ## Configuration Example
 
-### specflow_workflow.yml (Team Defaults)
+### flowspec_workflow.yml (Team Defaults)
 
 ```yaml
 vscode_roles:
@@ -87,12 +87,12 @@ vscode_roles:
     pm:
       name: "Product Manager"
       workflows: ["assess", "specify", "research"]
-      agents: ["specflow-assess", "specflow-specify", "specflow-research"]
+      agents: ["flowspec-assess", "flowspec-specify", "flowspec-research"]
 
     dev:
       name: "Developer"
       workflows: ["plan", "implement", "operate"]
-      agents: ["specflow-plan", "specflow-implement", "specflow-operate"]
+      agents: ["flowspec-plan", "flowspec-implement", "flowspec-operate"]
 
     # ... sec, qa, all roles
 ```
@@ -101,7 +101,7 @@ vscode_roles:
 
 ```json
 {
-  "specflow.vscode.role": {
+  "flowspec.vscode.role": {
     "primary": "dev",
     "secondary": ["qa", "sec"],
     "visibility": "de-prioritize",
@@ -109,9 +109,9 @@ vscode_roles:
   },
 
   "chat.agent.pinnedAgents": [
-    "specflow-plan",
-    "specflow-implement",
-    "specflow-operate"
+    "flowspec-plan",
+    "flowspec-implement",
+    "flowspec-operate"
   ]
 }
 ```
@@ -152,7 +152,7 @@ Mode [1]: 2
 - No workflow guidance
 
 **After** (Developer role):
-- 3 pinned agents at top: `specflow-plan`, `specflow-implement`, `specflow-operate`
+- 3 pinned agents at top: `flowspec-plan`, `flowspec-implement`, `flowspec-operate`
 - Role-specific handoffs: "✓ Planning Complete → Begin Implementation"
 - Other agents de-prioritized but accessible
 
@@ -161,18 +161,18 @@ Mode [1]: 2
 **Scenario**: Developer completes implementation, hands off to QA
 
 ```
-/specflow:implement
+/flow:implement
 # → Completes implementation
 
 # VS Code shows handoff button:
 "🔀 Hand off to QA → Run Validation"
-# → Clicking opens specflow-validate with context
+# → Clicking opens flowspec-validate with context
 ```
 
 ## Implementation Phases
 
 ### Phase 1: Foundation (2-3 days)
-- [ ] Add `vscode_roles` schema to `specflow_workflow.yml`
+- [ ] Add `vscode_roles` schema to `flowspec_workflow.yml`
 - [ ] Implement role selection in `init.md` and `reset.md`
 - [ ] Generate `.vscode/settings.json` with role config
 
@@ -217,7 +217,7 @@ Mode [1]: 2
 ## Key Design Decisions
 
 ### 1. Configuration Storage: Dual Strategy ✅
-**Decision**: Use both `specflow_workflow.yml` (team) and `.vscode/settings.json` (user)
+**Decision**: Use both `flowspec_workflow.yml` (team) and `.vscode/settings.json` (user)
 
 **Rationale**:
 - Team defaults in git enable consistent onboarding
@@ -280,7 +280,7 @@ Created in backlog:
 - `task-361`: Role selection in init/reset commands (HIGH)
 - `task-362`: VS Code role integration architecture (HIGH)
 - `task-363`: sync-copilot-agents.sh enhancements (MEDIUM)
-- `task-364`: specflow_workflow.yml schema extension (HIGH)
+- `task-364`: flowspec_workflow.yml schema extension (HIGH)
 - `task-365`: CI/CD role validation workflows (MEDIUM)
 - `task-366`: Telemetry framework (LOW)
 

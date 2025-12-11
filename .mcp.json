@@ -48,7 +48,7 @@
       "env": {},
       "description": "Backlog.md task management: create, update, search tasks with kanban board integration"
     },
-    "specflow-security": {
+    "flowspec-security": {
       "command": "python",
       "args": ["-m", "specify_cli.security.mcp_server"],
       "env": {},

@@ -212,7 +212,7 @@ jobs:
           RELEASE_COMMIT: ${{ steps.version.outputs.release_commit }}
         run: |
           {
-            echo "## 🚀 Specflow Release Created"
+            echo "## 🚀 Flowspec Release Created"
             echo ""
             echo "| Property | Value |"
             echo "|----------|-------|"

@@ -15,8 +15,8 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
 # Configuration
-EXCALIDRAW_FILE = Path(__file__).parent / "specflow-workflow.excalidraw"
-OUTPUT_PNG = Path(__file__).parent / "specflow-workflow.png"
+EXCALIDRAW_FILE = Path(__file__).parent / "flowspec-workflow.excalidraw"
+OUTPUT_PNG = Path(__file__).parent / "flowspec-workflow.png"
 SCALE = 2  # For high DPI
 PADDING = 50
 

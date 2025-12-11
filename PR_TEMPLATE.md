@@ -1,26 +1,26 @@
-# Workflow Configuration System for /specflow Commands
+# Workflow Configuration System for /flowspec Commands
 
 ## Summary
 
-Introduces a comprehensive **workflow configuration system** that synchronizes `/specflow` commands with backlog.md task states, enabling spec-driven development with validated workflow constraints.
+Introduces a comprehensive **workflow configuration system** that synchronizes `/flowspec` commands with backlog.md task states, enabling spec-driven development with validated workflow constraints.
 
 ### What This Solves
 
-**Before**: `/specflow` commands could run in any order on tasks in any state, with no validation
+**Before**: `/flowspec` commands could run in any order on tasks in any state, with no validation
 **After**: Workflow states enforce proper phase ordering, customizable by users without code changes
 
 ## Architecture Overview
 
 ### Three Main Components
 
-1. **specflow_workflow.yml** - User-customizable workflow configuration
+1. **flowspec_workflow.yml** - User-customizable workflow configuration
    - Defines task states (To Do → Specified → Researched → Planned → In Implementation → Validated → Deployed → Done)
-   - Maps each state to a `/specflow` command and required agents
+   - Maps each state to a `/flowspec` command and required agents
    - Specifies valid state transitions
    - Allows user customization without code changes
 
 2. **WorkflowConfig Class** - Load and query configuration
-   - Loads specflow_workflow.yml from project root
+   - Loads flowspec_workflow.yml from project root
    - Validates against JSON schema
    - Provides query API: `get_agents()`, `get_next_state()`, `is_valid_transition()`
    - Caches configuration for performance
@@ -39,14 +39,14 @@ To Do → Specified → Researched → Planned → In Implementation → Validat
 ```
 
 Each transition is:
-- **Enforced** by /specflow commands via state checks
+- **Enforced** by /flowspec commands via state checks
 - **Validated** by WorkflowValidator
-- **Customizable** by editing specflow_workflow.yml
+- **Customizable** by editing flowspec_workflow.yml
 
 ## Design Decisions with Rationale
 
 ### 1. Configuration-Driven vs Hardcoded
-- **Decision**: Use YAML configuration (specflow_workflow.yml)
+- **Decision**: Use YAML configuration (flowspec_workflow.yml)
 - **Why**:
   - User-customizable without code changes
   - Version controlled and reviewable
@@ -54,7 +54,7 @@ Each transition is:
   - Clear separation of concerns
 
 ### 2. Single Source of Truth
-- **Decision**: specflow_workflow.yml in project root
+- **Decision**: flowspec_workflow.yml in project root
 - **Why**:
   - Visible and easy to find
   - Version controlled
@@ -62,7 +62,7 @@ Each transition is:
   - Users don't need to know implementation details
 
 ### 3. State-Based Validation
-- **Decision**: Task state determines valid /specflow commands
+- **Decision**: Task state determines valid /flowspec commands
 - **Why**:
   - Prevents out-of-order execution
   - Clear progression through workflow
@@ -153,15 +153,15 @@ Change execution order while keeping all phases - all customizations validated a
 ✅ **Validated Workflow**: State transitions prevent out-of-order execution
 ✅ **User Customizable**: Modify workflows through configuration edits
 ✅ **Clear Errors**: Helpful messages guide users when constraints violated
-✅ **Synchronized**: Task states match /specflow workflow phases
+✅ **Synchronized**: Task states match /flowspec workflow phases
 ✅ **Version Controlled**: Configuration tracked in git
 ✅ **Extensible**: Schema allows future enhancements
-✅ **No Breaking Changes**: Existing /specflow commands still work
+✅ **No Breaking Changes**: Existing /flowspec commands still work
 ✅ **Well Documented**: Architecture, customization, and troubleshooting guides
 
 ## Success Criteria
 
-- ✅ All /specflow commands enforce state constraints
+- ✅ All /flowspec commands enforce state constraints
 - ✅ State transitions are validated
 - ✅ Users can customize workflows
 - ✅ Configuration is validated at runtime
@@ -194,7 +194,7 @@ Change execution order while keeping all phases - all customizations validated a
 - Validation logic
 
 **Integration Tests** (>80% coverage):
-- All 6 /specflow commands enforce constraints
+- All 6 /flowspec commands enforce constraints
 - State transitions work correctly
 - Custom workflows work
 
@@ -206,12 +206,12 @@ Change execution order while keeping all phases - all customizations validated a
 
 - **Breaking Changes**: None
 - **Dependencies**: No new external dependencies
-- **Configuration**: New optional specflow_workflow.yml
+- **Configuration**: New optional flowspec_workflow.yml
 - **Backward Compatibility**: Fully compatible with existing workflows
 
 ## Related Issues
 
-- Synchronizes /specflow commands with backlog.md states
+- Synchronizes /flowspec commands with backlog.md states
 - Enables user customization without code changes
 - Validates workflow constraints at runtime
 
@@ -235,7 +235,7 @@ Change execution order while keeping all phases - all customizations validated a
 - ✅ All code style follows project standards
 - ✅ Ready for implementation in phases
 
-This PR establishes the foundation and design for workflow configuration synchronization between /specflow commands and backlog.md task states.
+This PR establishes the foundation and design for workflow configuration synchronization between /flowspec commands and backlog.md task states.
 
 Generated with Claude Code
 

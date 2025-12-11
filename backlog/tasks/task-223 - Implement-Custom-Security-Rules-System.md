@@ -17,12 +17,12 @@ priority: medium
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Allow users to define custom security rules in .specflow/security-rules/ directory. Support Semgrep custom rules and pattern definitions.
+Allow users to define custom security rules in .flowspec/security-rules/ directory. Support Semgrep custom rules and pattern definitions.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Create .specflow/security-rules/ directory structure
+- [ ] #1 Create .flowspec/security-rules/ directory structure
 - [ ] #2 Support custom Semgrep rule definitions
 - [ ] #3 Load and validate custom rules at scan time
 - [ ] #4 Document custom rule creation process
@@ -34,13 +34,13 @@ Allow users to define custom security rules in .specflow/security-rules/ directo
 ## Implementation Plan: Implement Custom Security Rules System
 
 ### Overview
-Allow users to define custom Semgrep rules in .specflow/security-rules/ directory with automatic loading and validation.
+Allow users to define custom Semgrep rules in .flowspec/security-rules/ directory with automatic loading and validation.
 
 ### Step-by-Step Implementation
 
 #### Step 1: Create Rules Directory Structure (1 hour)
 ```
-.specflow/security-rules/
+.flowspec/security-rules/
 ├── python/
 │   ├── custom-sql-injection.yml
 │   └── api-auth-bypass.yml
@@ -53,7 +53,7 @@ Allow users to define custom Semgrep rules in .specflow/security-rules/ director
 **File**: `src/specify_cli/security/custom_rules.py`
 
 ```python
-def load_custom_rules(rules_dir: str = ".specflow/security-rules/") -> List[str]:
+def load_custom_rules(rules_dir: str = ".flowspec/security-rules/") -> List[str]:
     """Load custom Semgrep rules from directory."""
     if not Path(rules_dir).exists():
         return []
@@ -74,7 +74,7 @@ def load_custom_rules(rules_dir: str = ".specflow/security-rules/") -> List[str]
 #### Step 3: Integrate with Scan Command (1 hour)
 Pass custom rules to Semgrep:
 ```bash
-semgrep --config auto --config .specflow/security-rules/
+semgrep --config auto --config .flowspec/security-rules/
 ```
 
 #### Step 4: Add Rule Validation (2 hours)

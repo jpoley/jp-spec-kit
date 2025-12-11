@@ -1,4 +1,4 @@
-# JP Specflow - Backlog
+# JP Flowspec - Backlog
 
 **Project:** jp-spec-kit
 **Last Updated:** 2025-11-24
@@ -290,14 +290,14 @@ echo "# TODO.archived/" >> .gitignore  # Optional
 
 ## Phase 2: Slash Command Integration (P1 - High)
 
-**Goal:** Integrate backlog.md with /specflow commands
+**Goal:** Integrate backlog.md with /flowspec commands
 **Estimated Effort:** 4-6 hours
 
-### TASK-008: Update /specflow:specify for Task Creation
+### TASK-008: Update /flow:specify for Task Creation
 
 ```yaml
 id: task-008
-title: Update /specflow:specify for Task Creation
+title: Update /flow:specify for Task Creation
 status: To Do
 priority: P1
 phase: 2
@@ -307,10 +307,10 @@ estimated_effort: 45 minutes
 ```
 
 **Description:**
-Modify the `/specflow:specify` slash command to automatically create Backlog.md tasks from the PRD task breakdown.
+Modify the `/flow:specify` slash command to automatically create Backlog.md tasks from the PRD task breakdown.
 
 **Acceptance Criteria:**
-- [ ] Read current `.claude/commands/specflow/specify.md`
+- [ ] Read current `.claude/commands/flowspec/specify.md`
 - [ ] Add section for task creation after PRD approval
 - [ ] Include task creation commands with:
   - Title from PRD task breakdown
@@ -320,7 +320,7 @@ Modify the `/specflow:specify` slash command to automatically create Backlog.md 
   - Description from PRD
 - [ ] Test with sample specification
 
-**File:** `.claude/commands/specflow/specify.md`
+**File:** `.claude/commands/flowspec/specify.md`
 
 **Implementation Notes:**
 Add to end of specify.md:
@@ -342,11 +342,11 @@ backlog task create "$TASK_TITLE" \
 
 ---
 
-### TASK-009: Update /specflow:plan for Dependency Setting
+### TASK-009: Update /flow:plan for Dependency Setting
 
 ```yaml
 id: task-009
-title: Update /specflow:plan for Dependency Setting
+title: Update /flow:plan for Dependency Setting
 status: To Do
 priority: P1
 phase: 2
@@ -356,16 +356,16 @@ estimated_effort: 30 minutes
 ```
 
 **Description:**
-Modify the `/specflow:plan` slash command to update task dependencies based on architectural design.
+Modify the `/flow:plan` slash command to update task dependencies based on architectural design.
 
 **Acceptance Criteria:**
-- [ ] Read current `.claude/commands/specflow/plan.md`
+- [ ] Read current `.claude/commands/flowspec/plan.md`
 - [ ] Add section for updating task dependencies
 - [ ] Include dependency commands
 - [ ] Include sequence verification
 - [ ] Test with sample architecture plan
 
-**File:** `.claude/commands/specflow/plan.md`
+**File:** `.claude/commands/flowspec/plan.md`
 
 **Implementation Notes:**
 Add to end of plan.md:
@@ -385,11 +385,11 @@ backlog sequence
 
 ---
 
-### TASK-010: Update /specflow:implement for Progress Tracking
+### TASK-010: Update /flow:implement for Progress Tracking
 
 ```yaml
 id: task-010
-title: Update /specflow:implement for Progress Tracking
+title: Update /flow:implement for Progress Tracking
 status: To Do
 priority: P1
 phase: 2
@@ -399,10 +399,10 @@ estimated_effort: 30 minutes
 ```
 
 **Description:**
-Modify the `/specflow:implement` slash command to track implementation progress in Backlog.md.
+Modify the `/flow:implement` slash command to track implementation progress in Backlog.md.
 
 **Acceptance Criteria:**
-- [ ] Read current `.claude/commands/specflow/implement.md`
+- [ ] Read current `.claude/commands/flowspec/implement.md`
 - [ ] Add section for progress tracking
 - [ ] Include status update commands for:
   - Starting work ("In Progress")
@@ -411,7 +411,7 @@ Modify the `/specflow:implement` slash command to track implementation progress 
   - Completing task
 - [ ] Test with sample implementation
 
-**File:** `.claude/commands/specflow/implement.md`
+**File:** `.claude/commands/flowspec/implement.md`
 
 **Implementation Notes:**
 Add to implement.md:
@@ -437,11 +437,11 @@ backlog task edit $TASK_ID --status "Done" --note "Merged to main"
 
 ---
 
-### TASK-011: Update /specflow:validate for Completion Tracking
+### TASK-011: Update /flow:validate for Completion Tracking
 
 ```yaml
 id: task-011
-title: Update /specflow:validate for Completion Tracking
+title: Update /flow:validate for Completion Tracking
 status: To Do
 priority: P1
 phase: 2
@@ -451,16 +451,16 @@ estimated_effort: 30 minutes
 ```
 
 **Description:**
-Modify the `/specflow:validate` slash command to mark tasks complete when validation passes.
+Modify the `/flow:validate` slash command to mark tasks complete when validation passes.
 
 **Acceptance Criteria:**
-- [ ] Read current `.claude/commands/specflow/validate.md`
+- [ ] Read current `.claude/commands/flowspec/validate.md`
 - [ ] Add section for completion tracking
 - [ ] Include task completion commands
 - [ ] Include overview command for status
 - [ ] Test with sample validation
 
-**File:** `.claude/commands/specflow/validate.md`
+**File:** `.claude/commands/flowspec/validate.md`
 
 **Implementation Notes:**
 Add to validate.md:
@@ -480,11 +480,11 @@ backlog overview
 
 ---
 
-### TASK-012: Test Full specflow Workflow Integration
+### TASK-012: Test Full flowspec Workflow Integration
 
 ```yaml
 id: task-012
-title: Test Full specflow Workflow Integration
+title: Test Full flowspec Workflow Integration
 status: To Do
 priority: P1
 phase: 2
@@ -494,28 +494,28 @@ estimated_effort: 60 minutes
 ```
 
 **Description:**
-End-to-end test of the complete specflow workflow with Backlog.md integration.
+End-to-end test of the complete flowspec workflow with Backlog.md integration.
 
 **Acceptance Criteria:**
-- [ ] Run `/specflow:specify` and verify tasks created
-- [ ] Run `/specflow:plan` and verify dependencies set
-- [ ] Run `/specflow:implement` and verify progress tracked
-- [ ] Run `/specflow:validate` and verify completion tracked
+- [ ] Run `/flow:specify` and verify tasks created
+- [ ] Run `/flow:plan` and verify dependencies set
+- [ ] Run `/flow:implement` and verify progress tracked
+- [ ] Run `/flow:validate` and verify completion tracked
 - [ ] Verify Kanban board shows correct status at each stage
 - [ ] Document any issues found
 
 **Test Scenario:**
 ```
-1. /specflow:specify - Create spec for "test feature"
+1. /flow:specify - Create spec for "test feature"
    → Verify: Tasks created in backlog/tasks/
 
-2. /specflow:plan - Plan architecture
+2. /flow:plan - Plan architecture
    → Verify: Task dependencies updated
 
-3. /specflow:implement - Implement feature
+3. /flow:implement - Implement feature
    → Verify: Status changes: To Do → In Progress → Review
 
-4. /specflow:validate - Validate implementation
+4. /flow:validate - Validate implementation
    → Verify: Status changes: Review → Done
 
 5. backlog board
@@ -718,7 +718,7 @@ Create comprehensive documentation for task management with Backlog.md in `docs/
 **Acceptance Criteria:**
 - [ ] Create `docs/reference/task-management.md`
 - [ ] Include Quick Start section
-- [ ] Include integration with /specflow commands
+- [ ] Include integration with /flowspec commands
 - [ ] Include MCP integration for AI agents
 - [ ] Include CLI reference
 - [ ] Include troubleshooting guide

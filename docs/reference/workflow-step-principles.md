@@ -1,14 +1,14 @@
 # Workflow Step Tracking - Constitutional Principles
 
 **Authority:** Architectural Governance
-**Scope:** Specflow workflow integration
+**Scope:** Flowspec workflow integration
 **Related:** [ADR-002](../adr/ADR-002-workflow-step-tracking-architecture.md)
 
 ---
 
 ## Purpose
 
-This document defines the non-negotiable principles governing workflow step tracking in Specflow. These principles ensure consistency, reliability, and maintainability of the workflow state machine integration.
+This document defines the non-negotiable principles governing workflow step tracking in Flowspec. These principles ensure consistency, reliability, and maintainability of the workflow state machine integration.
 
 **Principle Source:** Gregor Hohpe's architectural philosophy applied to workflow orchestration.
 
@@ -18,7 +18,7 @@ This document defines the non-negotiable principles governing workflow step trac
 
 ### Statement
 
-**`specflow_workflow.yml` is the ONLY authoritative source for workflow states and transitions.**
+**`flowspec_workflow.yml` is the ONLY authoritative source for workflow states and transitions.**
 
 ### Rationale
 
@@ -26,10 +26,10 @@ Multiple sources of truth create inconsistency, drift, and maintenance burden. T
 
 ### Implementation Requirements
 
-1. **WorkflowConfig class** MUST load states from `specflow_workflow.yml`
+1. **WorkflowConfig class** MUST load states from `flowspec_workflow.yml`
 2. **No hardcoded states** in Python code, CLI commands, or TUI rendering
 3. **Validation logic** MUST query WorkflowConfig, never duplicate state lists
-4. **Custom board columns** MAY map workflow steps to different status names, but workflow steps themselves come from specflow_workflow.yml
+4. **Custom board columns** MAY map workflow steps to different status names, but workflow steps themselves come from flowspec_workflow.yml
 
 ### Violations
 
@@ -137,7 +137,7 @@ backlog task create "Simple task" --ac "Works"
 
 ### Statement
 
-**Workflow steps MUST be updated automatically by `/specflow` commands. Manual updates are allowed but discouraged.**
+**Workflow steps MUST be updated automatically by `/flowspec` commands. Manual updates are allowed but discouraged.**
 
 ### Rationale
 
@@ -145,7 +145,7 @@ Manual state management is error-prone and defeats the purpose of workflow autom
 
 ### Implementation Requirements
 
-1. **Every `/specflow` command** MUST call `WorkflowStateSynchronizer.update_task_workflow_step()`
+1. **Every `/flowspec` command** MUST call `WorkflowStateSynchronizer.update_task_workflow_step()`
 2. **Updates happen** immediately after successful workflow execution
 3. **Atomic updates** - workflow_step, status, and workflow_feature updated together
 4. **Failure handling** - workflow step NOT updated if workflow execution fails
@@ -154,7 +154,7 @@ Manual state management is error-prone and defeats the purpose of workflow autom
 ### Workflow Integration Pattern
 
 ```python
-# Standard pattern for all /specflow commands
+# Standard pattern for all /flowspec commands
 
 try:
     # 1. Validate preconditions
@@ -185,7 +185,7 @@ except WorkflowError as e:
 backlog task edit task-042 --set-field workflow_step="Planned"
 
 # Better: Let automation handle it
-/specflow:plan
+/flow:plan
 ```
 
 ### Verification
@@ -193,7 +193,7 @@ backlog task edit task-042 --set-field workflow_step="Planned"
 ```bash
 # Test: Workflow updates task state
 backlog task create "Test task" --ac "Test" --set-field workflow_step="Specified"
-/specflow:plan  # Should set workflow_step to "Planned"
+/flow:plan  # Should set workflow_step to "Planned"
 backlog task task-XXX --plain | grep "workflow_step: Planned"
 ```
 
@@ -220,12 +220,12 @@ Failing fast prevents invalid states from propagating through the system. Clear 
 
 ✅ **REQUIRED:** Clear, actionable errors
 ```
-Error: Cannot execute /specflow:implement on task-042
+Error: Cannot execute /flow:implement on task-042
 
 Current state: Specified
 Required states: Planned
 
-Suggested action: Run /specflow:plan first to complete architecture planning.
+Suggested action: Run /flow:plan first to complete architecture planning.
 ```
 
 ❌ **PROHIBITED:** Vague errors
@@ -235,9 +235,9 @@ Error: Invalid state transition
 
 ### Validation Points
 
-1. **Command entry** - Check workflow_step before executing `/specflow` command
+1. **Command entry** - Check workflow_step before executing `/flowspec` command
 2. **Artifact validation** - Check required artifacts exist (if feature linked)
-3. **State machine** - Verify transition exists in specflow_workflow.yml
+3. **State machine** - Verify transition exists in flowspec_workflow.yml
 4. **Manual edits** - Validate workflow_step value when manually set
 
 ### Implementation Example
@@ -280,12 +280,12 @@ def validate_task_ready_for_workflow(
 ```bash
 # Test: Invalid transition rejected
 backlog task create "Test" --ac "Test" --set-field workflow_step="To Do"
-/specflow:implement  # Should fail with clear error message
+/flow:implement  # Should fail with clear error message
 
 # Expected error:
 # Cannot execute implement from state 'To Do'.
 # Valid input states: Planned.
-# Suggested action: Run /specflow:plan first.
+# Suggested action: Run /flow:plan first.
 ```
 
 ---
@@ -344,7 +344,7 @@ workflow_feature: auth       # Optional
 ### Migration Strategy
 
 **Phase 1:** Add optional fields (no breaking changes)
-**Phase 2:** Integrate with `/specflow` (new functionality only)
+**Phase 2:** Integrate with `/flowspec` (new functionality only)
 **Phase 3:** Add validation (opt-in via config)
 **Phase 4:** Document best practices (no enforcement)
 
@@ -411,9 +411,9 @@ Workflow state changes affect downstream decisions. Audit trails enable debuggin
 # Git history shows workflow progression
 git log --oneline backlog/tasks/task-042.md
 
-abc1234 workflow: transition task-042 to Validated via /specflow:validate
-def5678 workflow: transition task-042 to In Implementation via /specflow:implement
-ghi9012 workflow: transition task-042 to Planned via /specflow:plan
+abc1234 workflow: transition task-042 to Validated via /flow:validate
+def5678 workflow: transition task-042 to In Implementation via /flow:implement
+ghi9012 workflow: transition task-042 to Planned via /flow:plan
 ```
 
 ### Logging Standards
@@ -439,8 +439,8 @@ logger.info(
 ### Commit Message Pattern
 
 ```bash
-# Automated commits from /specflow commands
-git commit -m "workflow: transition task-042 to Planned via /specflow:plan
+# Automated commits from /flowspec commands
+git commit -m "workflow: transition task-042 to Planned via /flow:plan
 
 Task: task-042 (Implement OAuth2 authentication)
 Workflow: plan
@@ -534,7 +534,7 @@ Implicit state changes create confusion and reduce trust. Developers must know w
 
 ### Implementation Requirements
 
-1. **Transitions occur** only via explicit `/specflow` command execution
+1. **Transitions occur** only via explicit `/flowspec` command execution
 2. **User confirmation** required for destructive transitions (rework, rollback)
 3. **Clear feedback** provided after state changes
 4. **No background automation** - state changes only during active workflows
@@ -544,7 +544,7 @@ Implicit state changes create confusion and reduce trust. Developers must know w
 
 ```bash
 # Explicit: User runs command, state updates
-/specflow:plan
+/flow:plan
 # Output: Task task-042 transitioned: Specified → Planned
 
 # Clear feedback about what changed
@@ -567,7 +567,7 @@ if time.now() > deadline:
 ✅ **REQUIRED:** Explicit user-triggered transitions
 ```python
 # Good: User explicitly runs workflow
-if user_command == "/specflow:plan":
+if user_command == "/flow:plan":
     task.workflow_step = config.get_next_state(current, "plan")
     print(f"Transitioned {task.task_id}: {current} → {task.workflow_step}")
 ```
@@ -691,9 +691,9 @@ backlog task edit task-001 -s "Done"
 
 **Level 2: Automated Workflow (Transparent)**
 ```bash
-/specflow:specify
-/specflow:plan
-/specflow:implement
+/flow:specify
+/flow:plan
+/flow:implement
 ```
 *User sees:* Workflow steps auto-update, minimal cognitive load
 
@@ -811,9 +811,9 @@ Quarterly review of principles:
 
 These 10 principles ensure workflow step tracking:
 
-1. **Single Source of Truth** - specflow_workflow.yml is canonical
+1. **Single Source of Truth** - flowspec_workflow.yml is canonical
 2. **Optional Participation** - Simple tasks work without workflow metadata
-3. **Automatic Synchronization** - `/specflow` commands update workflow_step
+3. **Automatic Synchronization** - `/flowspec` commands update workflow_step
 4. **Fail-Fast Validation** - Invalid transitions rejected with clear errors
 5. **Backward Compatibility** - Existing workflows continue unchanged
 6. **Observable State** - All changes auditable via Git
@@ -834,4 +834,4 @@ These 10 principles ensure workflow step tracking:
 - **Hohpe, G.** - *The Software Architect Elevator* (Penthouse/Engine Room separation)
 - **Hohpe, G.** - *Cloud Strategy* (Platform Quality Framework - 7 C's)
 - [ADR-002: Workflow Step Tracking Architecture](../adr/ADR-002-workflow-step-tracking-architecture.md)
-- [specflow_workflow.yml](../../specflow_workflow.yml)
+- [flowspec_workflow.yml](../../flowspec_workflow.yml)

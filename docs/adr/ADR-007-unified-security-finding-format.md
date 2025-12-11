@@ -3,7 +3,7 @@
 **Status:** Proposed
 **Date:** 2025-12-02
 **Author:** Enterprise Software Architect
-**Context:** /specflow:security commands - Common data model for security findings
+**Context:** /flow:security commands - Common data model for security findings
 **Supersedes:** None
 **Amended by:** None
 
@@ -349,7 +349,7 @@ class SARIFExporter:
     Reference: https://docs.oasis-open.org/sarif/sarif/v2.1.0/
     """
 
-    tool_name: str = "specflow-security"
+    tool_name: str = "flowspec-security"
     tool_version: str = "1.0.0"
 
     def export(self, findings: list[Finding]) -> dict[str, Any]:
@@ -760,10 +760,10 @@ src/specify_cli/security/
 
 ### Related Documents
 
-- **Architecture:** `docs/architecture/specflow-security-architecture.md`
+- **Architecture:** `docs/architecture/flowspec-security-architecture.md`
 - **ADR-005:** Scanner Orchestration Pattern
 - **ADR-006:** AI Triage Engine Design
-- **PRD:** `docs/prd/specflow-security-commands.md`
+- **PRD:** `docs/prd/flowspec-security-commands.md`
 
 ### External References
 

@@ -322,26 +322,26 @@ Task description and notes go here.
 ### Current State
 
 **Existing jp-spec-kit Commands** (Unchanged):
-- `/specflow:specify` - Create feature specifications
-- `/specflow:plan` - Create implementation plans
-- `/specflow:research` - Execute research workflow
-- `/specflow:implement` - Execute implementation workflow
-- `/specflow:validate` - Execute validation workflow
-- `/specflow:operate` - Execute operations workflow
+- `/flow:specify` - Create feature specifications
+- `/flow:plan` - Create implementation plans
+- `/flow:research` - Execute research workflow
+- `/flow:implement` - Execute implementation workflow
+- `/flow:validate` - Execute validation workflow
+- `/flow:operate` - Execute operations workflow
 
 **NEW Integration Point**:
-- `/specflow:tasks` (to be enhanced) - Will generate Backlog.md tasks
+- `/flow:tasks` (to be enhanced) - Will generate Backlog.md tasks
 
 ### Planned Workflow
 
 ```
-1. Developer runs: /specflow:specify
+1. Developer runs: /flow:specify
    → Creates spec.md with user stories
 
-2. Developer runs: /specflow:plan
+2. Developer runs: /flow:plan
    → Creates plan.md with architecture
 
-3. Developer runs: /specflow:tasks --format backlog-md (NEW)
+3. Developer runs: /flow:tasks --format backlog-md (NEW)
    → Generates backlog/tasks/task-*.md files
    → Preserves user story labels (US1, US2, US3)
    → Sets dependencies based on phases
@@ -366,17 +366,17 @@ Task description and notes go here.
 
 1. **Create Spec**:
    ```
-   /specflow:specify Create user authentication feature
+   /flow:specify Create user authentication feature
    ```
 
 2. **Create Plan**:
    ```
-   /specflow:plan
+   /flow:plan
    ```
 
 3. **Generate Tasks** (future):
    ```
-   /specflow:tasks --format backlog-md
+   /flow:tasks --format backlog-md
    ```
 
 4. **View Tasks**:
@@ -474,7 +474,7 @@ backlog search "." # Triggers re-index
 ### Short Term (Implementation)
 - [ ] Implement task parser for jp-spec-kit format
 - [ ] Implement Backlog.md task generator
-- [ ] Enhance `/specflow:tasks` command
+- [ ] Enhance `/flow:tasks` command
 - [ ] Test end-to-end workflow
 
 ### Medium Term (Full Integration)

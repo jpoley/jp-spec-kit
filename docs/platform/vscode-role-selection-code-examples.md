@@ -7,9 +7,9 @@ This document provides concrete code examples for implementing role-based VS Cod
 
 ---
 
-## 1. specflow_workflow.yml Schema Extension
+## 1. flowspec_workflow.yml Schema Extension
 
-**File**: `/specflow_workflow.yml`
+**File**: `/flowspec_workflow.yml`
 
 ```yaml
 # JPSpec Workflow Configuration
@@ -37,9 +37,9 @@ vscode_roles:
         - "specify"
         - "research"
       agents:
-        - "specflow-assess"
-        - "specflow-specify"
-        - "specflow-research"
+        - "flowspec-assess"
+        - "flowspec-specify"
+        - "flowspec-research"
         - "speckit-analyze"
         - "speckit-clarify"
 
@@ -51,9 +51,9 @@ vscode_roles:
         - "implement"
         - "operate"
       agents:
-        - "specflow-plan"
-        - "specflow-implement"
-        - "specflow-operate"
+        - "flowspec-plan"
+        - "flowspec-implement"
+        - "flowspec-operate"
         - "speckit-implement"
         - "speckit-tasks"
 
@@ -68,12 +68,12 @@ vscode_roles:
         - "security_web"
         - "validate"
       agents:
-        - "specflow-security_workflow"
-        - "specflow-security_triage"
-        - "specflow-security_fix"
-        - "specflow-security_report"
-        - "specflow-security_web"
-        - "specflow-validate"  # Only security aspects
+        - "flowspec-security_workflow"
+        - "flowspec-security_triage"
+        - "flowspec-security_fix"
+        - "flowspec-security_report"
+        - "flowspec-security_web"
+        - "flowspec-validate"  # Only security aspects
         - "speckit-checklist"
 
     qa:
@@ -82,7 +82,7 @@ vscode_roles:
       workflows:
         - "validate"
       agents:
-        - "specflow-validate"
+        - "flowspec-validate"
         - "speckit-checklist"
         - "speckit-tasks"
 
@@ -113,7 +113,7 @@ metadata:
 ```bash
 #!/usr/bin/env bash
 # generate_vscode_settings.sh
-# Called by /specflow:init and /specflow:reset
+# Called by /flow:init and /flow:reset
 
 generate_vscode_settings() {
     local primary_role="$1"
@@ -128,7 +128,7 @@ generate_vscode_settings() {
         echo "{}" > "$settings_file"
     fi
 
-    # Merge Specflow role config using Python
+    # Merge Flowspec role config using Python
     python3 << PYTHON
 import json
 from pathlib import Path
@@ -136,8 +136,8 @@ from pathlib import Path
 settings_file = Path("$settings_file")
 settings = json.loads(settings_file.read_text())
 
-# Add Specflow role configuration
-settings["specflow.vscode.role"] = {
+# Add Flowspec role configuration
+settings["flowspec.vscode.role"] = {
     "primary": "$primary_role",
     "secondary": "$secondary_roles".split(",") if "$secondary_roles" else [],
     "visibility": "de-prioritize",  # "hide" | "de-prioritize" | "show-all"
@@ -146,15 +146,15 @@ settings["specflow.vscode.role"] = {
 
 # Add VS Code Copilot agent pinning based on role
 role_agents = {
-    "pm": ["specflow-assess", "specflow-specify", "specflow-research"],
-    "dev": ["specflow-plan", "specflow-implement", "specflow-operate"],
+    "pm": ["flowspec-assess", "flowspec-specify", "flowspec-research"],
+    "dev": ["flowspec-plan", "flowspec-implement", "flowspec-operate"],
     "sec": [
-        "specflow-security_workflow",
-        "specflow-security_triage",
-        "specflow-security_fix",
-        "specflow-validate"
+        "flowspec-security_workflow",
+        "flowspec-security_triage",
+        "flowspec-security_fix",
+        "flowspec-validate"
     ],
-    "qa": ["specflow-validate", "speckit-checklist", "speckit-tasks"],
+    "qa": ["flowspec-validate", "speckit-checklist", "speckit-tasks"],
     "all": []  # No pinning for all role
 }
 
@@ -178,7 +178,7 @@ generate_vscode_settings "dev" "qa,sec" "user"
 ```json
 {
   "chat.promptFiles": true,
-  "specflow.vscode.role": {
+  "flowspec.vscode.role": {
     "primary": "dev",
     "secondary": [
       "qa",
@@ -188,9 +188,9 @@ generate_vscode_settings "dev" "qa,sec" "user"
     "mode": "user"
   },
   "chat.agent.pinnedAgents": [
-    "specflow-plan",
-    "specflow-implement",
-    "specflow-operate"
+    "flowspec-plan",
+    "flowspec-implement",
+    "flowspec-operate"
   ]
 }
 ```
@@ -199,7 +199,7 @@ generate_vscode_settings "dev" "qa,sec" "user"
 
 ## 3. Role Selection Prompt (init.md)
 
-**File**: `templates/commands/specflow/init.md`
+**File**: `templates/commands/flowspec/init.md`
 
 ```markdown
 ### Step 6.5: VS Code Role Configuration (Optional)
@@ -225,23 +225,23 @@ if [[ "$VSCODE_DETECTED" == true ]] || [[ "$CONFIGURE_VSCODE" == true ]]; then
   echo ""
   echo "  1. Product Manager (PM)"
   echo "     Focus: Requirements, research, business validation"
-  echo "     Commands: /specflow:assess, /specflow:specify, /specflow:research"
+  echo "     Commands: /flow:assess, /flow:specify, /flow:research"
   echo ""
   echo "  2. Developer (Dev)"
   echo "     Focus: Architecture, implementation, deployment"
-  echo "     Commands: /specflow:plan, /specflow:implement, /specflow:operate"
+  echo "     Commands: /flow:plan, /flow:implement, /flow:operate"
   echo ""
   echo "  3. Security Engineer (Sec)"
   echo "     Focus: Security scanning, triage, vulnerability fixes"
-  echo "     Commands: /specflow:security_*, /specflow:validate (security only)"
+  echo "     Commands: /flow:security_*, /flow:validate (security only)"
   echo ""
   echo "  4. QA Engineer (QA)"
   echo "     Focus: Testing, documentation, quality validation"
-  echo "     Commands: /specflow:validate"
+  echo "     Commands: /flow:validate"
   echo ""
   echo "  5. Full Workflow (All) [default]"
   echo "     Focus: Complete SDD workflow (all phases)"
-  echo "     Commands: All /specflow and /speckit commands"
+  echo "     Commands: All /flowspec and /speckit commands"
   echo ""
   echo "  6. Skip - Don't configure role-based UI"
   echo "     (All agents remain equally visible)"
@@ -309,13 +309,13 @@ if [[ "$VSCODE_DETECTED" == true ]] || [[ "$CONFIGURE_VSCODE" == true ]]; then
     # Generate VS Code settings
     generate_vscode_settings "$PRIMARY_ROLE" "$SECONDARY_ROLES" "$CONFIG_MODE"
 
-    # If team mode, update specflow_workflow.yml
+    # If team mode, update flowspec_workflow.yml
     if [[ "$CONFIG_MODE" == "team" ]]; then
       python3 << PYTHON
 import yaml
 from pathlib import Path
 
-workflow_file = Path("specflow_workflow.yml")
+workflow_file = Path("flowspec_workflow.yml")
 config = yaml.safe_load(workflow_file.read_text())
 
 # Update default role
@@ -325,7 +325,7 @@ config["vscode_roles"]["default_role"] = "$PRIMARY_ROLE"
 
 workflow_file.write_text(yaml.dump(config, sort_keys=False))
 PYTHON
-      echo "✓ Updated specflow_workflow.yml with team default role"
+      echo "✓ Updated flowspec_workflow.yml with team default role"
     fi
 
     # Regenerate agents with role metadata
@@ -352,12 +352,12 @@ fi
 get_role_metadata() {
     local namespace="$1"
     local command="$2"
-    local config_file="${3:-specflow_workflow.yml}"
+    local config_file="${3:-flowspec_workflow.yml}"
 
     # Agent name
     local agent_name="${namespace}-${command}"
 
-    # Read role config from specflow_workflow.yml using Python
+    # Read role config from flowspec_workflow.yml using Python
     local role_data
     role_data=$(python3 << PYTHON
 import yaml
@@ -421,7 +421,7 @@ PYTHON
 }
 
 # Example usage
-get_role_metadata "specflow" "plan"
+get_role_metadata "flowspec" "plan"
 # Output:
 # roles:
 #   - "dev"
@@ -481,7 +481,7 @@ parse_args() {
                 shift 2
                 ;;
             --team-mode)
-                CONFIG_SOURCE="specflow_workflow.yml"
+                CONFIG_SOURCE="flowspec_workflow.yml"
                 shift
                 ;;
             --user-mode)
@@ -496,18 +496,18 @@ parse_args() {
 # Default values
 WITH_ROLES=true  # Add role metadata by default
 ROLE_FILTER="all"  # Generate all agents (or specific role with --role)
-CONFIG_SOURCE="specflow_workflow.yml"  # Team mode by default
+CONFIG_SOURCE="flowspec_workflow.yml"  # Team mode by default
 ```
 
 ---
 
 ## 5. Agent Frontmatter Example (Generated)
 
-**File**: `.github/agents/specflow-plan.agent.md`
+**File**: `.github/agents/flowspec-plan.agent.md`
 
 ```yaml
 ---
-name: "specflow-plan"
+name: "flowspec-plan"
 description: "Execute planning workflow using architect and platform engineer"
 target: "chat"
 tools:
@@ -526,7 +526,7 @@ roles:
 priority: 5
 handoffs:
   - label: "✓ Planning Complete → Begin Implementation"
-    agent: "specflow-implement"
+    agent: "flowspec-implement"
     prompt: "Planning is complete. Begin implementing the feature according to the technical design."
     send: false
 ---
@@ -552,7 +552,7 @@ name: Validate Team Roles
 on:
   pull_request:
     paths:
-      - 'specflow_workflow.yml'
+      - 'flowspec_workflow.yml'
       - '.vscode/settings.json'
 
 jobs:
@@ -570,13 +570,13 @@ jobs:
         run: |
           pip install pyyaml
 
-      - name: Validate specflow_workflow.yml role definitions
+      - name: Validate flowspec_workflow.yml role definitions
         run: |
           python3 << 'PYTHON'
           import yaml
           from pathlib import Path
 
-          config_file = Path("specflow_workflow.yml")
+          config_file = Path("flowspec_workflow.yml")
           config = yaml.safe_load(config_file.read_text())
 
           # Check vscode_roles section exists
@@ -600,7 +600,7 @@ jobs:
           import yaml
           from pathlib import Path
 
-          config = yaml.safe_load(Path("specflow_workflow.yml").read_text())
+          config = yaml.safe_load(Path("flowspec_workflow.yml").read_text())
           roles = config["vscode_roles"]["roles"]
 
           # Check all referenced agents exist
@@ -618,10 +618,10 @@ jobs:
 
       - name: Check .vscode/settings.json not committed in team mode
         run: |
-          # Read default_role from specflow_workflow.yml
+          # Read default_role from flowspec_workflow.yml
           DEFAULT_ROLE=$(python3 -c "
           import yaml
-          config = yaml.safe_load(open('specflow_workflow.yml'))
+          config = yaml.safe_load(open('flowspec_workflow.yml'))
           print(config.get('vscode_roles', {}).get('default_role', 'all'))
           ")
 
@@ -696,7 +696,7 @@ def track_role_event(event: RoleEvent, metadata: dict):
     }
 
     # Write to local telemetry file
-    telemetry_file = Path(".specflow/telemetry.jsonl")
+    telemetry_file = Path(".flowspec/telemetry.jsonl")
     telemetry_file.parent.mkdir(exist_ok=True)
 
     with telemetry_file.open("a") as f:
@@ -713,12 +713,12 @@ track_role_event(RoleEvent.ROLE_SELECTED, {
 })
 ```
 
-**Telemetry Output** (`.specflow/telemetry.jsonl`):
+**Telemetry Output** (`.flowspec/telemetry.jsonl`):
 
 ```jsonl
 {"timestamp": "2025-12-09T15:30:00Z", "event": "role.selected", "metadata": {"role_hash": "a1b2c3d4", "agent": null, "workflow": null, "mode": "team"}}
-{"timestamp": "2025-12-09T15:35:00Z", "event": "agent.invoked", "metadata": {"role_hash": "a1b2c3d4", "agent": "specflow-plan", "workflow": "plan", "mode": null}}
-{"timestamp": "2025-12-09T15:40:00Z", "event": "handoff.clicked", "metadata": {"role_hash": "a1b2c3d4", "agent": "specflow-implement", "workflow": "implement", "mode": null}}
+{"timestamp": "2025-12-09T15:35:00Z", "event": "agent.invoked", "metadata": {"role_hash": "a1b2c3d4", "agent": "flowspec-plan", "workflow": "plan", "mode": null}}
+{"timestamp": "2025-12-09T15:40:00Z", "event": "handoff.clicked", "metadata": {"role_hash": "a1b2c3d4", "agent": "flowspec-implement", "workflow": "implement", "mode": null}}
 ```
 
 ---
@@ -734,7 +734,7 @@ from collections import Counter, defaultdict
 def analyze_telemetry():
     """Analyze role usage patterns from telemetry data."""
 
-    telemetry_file = Path(".specflow/telemetry.jsonl")
+    telemetry_file = Path(".flowspec/telemetry.jsonl")
     if not telemetry_file.exists():
         print("No telemetry data found")
         return
@@ -788,11 +788,11 @@ Role Selection Frequency:
   i9j0k1l2: 3 times
 
 Most-Used Agents:
-  specflow-implement: 42 invocations
-  specflow-plan: 38 invocations
-  specflow-validate: 25 invocations
-  specflow-specify: 18 invocations
-  specflow-assess: 15 invocations
+  flowspec-implement: 42 invocations
+  flowspec-plan: 38 invocations
+  flowspec-validate: 25 invocations
+  flowspec-specify: 18 invocations
+  flowspec-assess: 15 invocations
 
 Handoff Click-Through Rate: 87.3%
 ```

@@ -158,25 +158,25 @@ The augmented coding patterns repository (lexler/augmented-coding-patterns) is s
 ```
 JP-SPEC-KIT WORKFLOW:
 ┌──────────────────────────────────────────────────┐
-│ /specflow:specify (PM Planner Agent)               │
+│ /flow:specify (PM Planner Agent)               │
 │ ↓ Creates PRD with task breakdown                │
 │ ✨ INTEGRATION POINT 1: Auto-create Backlog tasks│
 └──────────────────────────────────────────────────┘
                     ↓
 ┌──────────────────────────────────────────────────┐
-│ /specflow:plan (Architect + Platform Engineer)     │
+│ /flow:plan (Architect + Platform Engineer)     │
 │ ↓ Creates technical architecture                 │
 │ ✨ INTEGRATION POINT 2: Update task dependencies │
 └──────────────────────────────────────────────────┘
                     ↓
 ┌──────────────────────────────────────────────────┐
-│ /specflow:implement (Engineers + Code Review)      │
+│ /flow:implement (Engineers + Code Review)      │
 │ ↓ Implements features                            │
 │ ✨ INTEGRATION POINT 3: Track implementation     │
 └──────────────────────────────────────────────────┘
                     ↓
 ┌──────────────────────────────────────────────────┐
-│ /specflow:validate (QA + Security + Docs)          │
+│ /flow:validate (QA + Security + Docs)          │
 │ ↓ Validates implementation                       │
 │ ✨ INTEGRATION POINT 4: Update task status       │
 └──────────────────────────────────────────────────┘
@@ -323,7 +323,7 @@ jp-spec-kit/
 │       └── TASK-006-COMPLETION-REPORT.md
 ├── memory/                     # Agent memory
 │   └── constitution.md
-├── .claude/commands/specflow/    # Slash commands
+├── .claude/commands/flowspec/    # Slash commands
 │   ├── specify.md
 │   ├── plan.md
 │   ├── implement.md
@@ -334,22 +334,22 @@ jp-spec-kit/
 
 ### Current Workflow
 
-1. **Specification Phase** (`/specflow:specify`)
+1. **Specification Phase** (`/flow:specify`)
    - PM Planner agent creates PRD
    - Task breakdown in PRD (not tracked separately)
    - No programmatic task creation
 
-2. **Planning Phase** (`/specflow:plan`)
+2. **Planning Phase** (`/flow:plan`)
    - Architect creates technical design
    - Tasks mentioned but not formally tracked
    - No dependency modeling
 
-3. **Implementation Phase** (`/specflow:implement`)
+3. **Implementation Phase** (`/flow:implement`)
    - Engineers work on tasks
    - Progress tracked manually in TODO files
    - Inconsistent format across tasks
 
-4. **Validation Phase** (`/specflow:validate`)
+4. **Validation Phase** (`/flow:validate`)
    - QA validates implementation
    - Manual status updates
 
@@ -396,28 +396,28 @@ jp-spec-kit/
 │                    JP-SPEC-KIT                          │
 ├─────────────────────────────────────────────────────────┤
 │                                                         │
-│  /specflow:specify → Creates PRD                          │
+│  /flow:specify → Creates PRD                          │
 │        ↓                                                │
 │  [BACKLOG.MD INTEGRATION]                               │
 │  • Parse task breakdown from PRD                        │
 │  • Create tasks with backlog CLI                        │
 │  • Set priorities from DVF+V risk assessment            │
 │        ↓                                                │
-│  /specflow:plan → Architecture design                     │
+│  /flow:plan → Architecture design                     │
 │        ↓                                                │
 │  [BACKLOG.MD INTEGRATION]                               │
 │  • Update task dependencies                             │
 │  • Set technical complexity                             │
 │  • Assign to specialists (frontend/backend)             │
 │        ↓                                                │
-│  /specflow:implement → Code implementation                │
+│  /flow:implement → Code implementation                │
 │        ↓                                                │
 │  [BACKLOG.MD INTEGRATION]                               │
 │  • Track task progress (In Progress → Review)           │
 │  • Link PRs to tasks                                    │
 │  • Update implementation notes                          │
 │        ↓                                                │
-│  /specflow:validate → QA validation                       │
+│  /flow:validate → QA validation                       │
 │        ↓                                                │
 │  [BACKLOG.MD INTEGRATION]                               │
 │  • Mark tasks complete when tests pass                  │
@@ -429,12 +429,12 @@ jp-spec-kit/
 
 ### Integration Point 1: Specification → Task Creation
 
-**Trigger:** `/specflow:specify` completes PRD
+**Trigger:** `/flow:specify` completes PRD
 **Action:** Auto-create Backlog.md tasks from PRD task breakdown
 
 **Implementation:**
 ```bash
-# In /specflow:specify command (specify.md)
+# In /flow:specify command (specify.md)
 # After PRD creation, parse task breakdown and create tasks
 
 for task in prd_tasks:
@@ -454,7 +454,7 @@ for task in prd_tasks:
 
 ### Integration Point 2: Planning → Dependency Modeling
 
-**Trigger:** `/specflow:plan` completes architecture
+**Trigger:** `/flow:plan` completes architecture
 **Action:** Update task dependencies based on technical design
 
 **Implementation:**
@@ -475,7 +475,7 @@ backlog sequence                # Verify dependency chain
 
 ### Integration Point 3: Implementation → Progress Tracking
 
-**Trigger:** `/specflow:implement` starts work on task
+**Trigger:** `/flow:implement` starts work on task
 **Action:** Update task status and track progress
 
 **Implementation:**
@@ -501,7 +501,7 @@ backlog task edit task-5 --status "Done" \
 
 ### Integration Point 4: Validation → Completion
 
-**Trigger:** `/specflow:validate` passes all tests
+**Trigger:** `/flow:validate` passes all tests
 **Action:** Mark tasks complete and archive
 
 **Implementation:**
@@ -535,7 +535,7 @@ backlog cleanup --days 7    # Archive tasks completed >7 days ago
 
 **Agent Workflow:**
 ```
-1. Agent receives /specflow:specify command
+1. Agent receives /flow:specify command
 2. Creates PRD with task breakdown
 3. Calls backlog_create_task for each task via MCP
 4. Tasks are created programmatically
@@ -874,11 +874,11 @@ backlog/
 **Effort:** Low (1-2 hours)
 **Impact:** High (major workflow improvement)
 
-### Recommendation 2: Integrate with /specflow Commands ⭐ HIGH PRIORITY
+### Recommendation 2: Integrate with /flowspec Commands ⭐ HIGH PRIORITY
 
 **Modify Slash Commands to Use Backlog.md:**
 
-#### /specflow:specify (specify.md)
+#### /flow:specify (specify.md)
 **Current:** Creates PRD with task breakdown in document
 **Enhanced:** Creates PRD + auto-creates Backlog.md tasks
 
@@ -902,7 +902,7 @@ backlog task create "$TASK_TITLE" \
 Tasks created will be available at `backlog/tasks/`
 ```
 
-#### /specflow:plan (plan.md)
+#### /flow:plan (plan.md)
 **Current:** Creates architecture document
 **Enhanced:** Updates task dependencies based on architecture
 
@@ -921,7 +921,7 @@ backlog sequence
 ```
 ```
 
-#### /specflow:implement (implement.md)
+#### /flow:implement (implement.md)
 **Current:** Engineers implement features
 **Enhanced:** Track progress in Backlog.md
 
@@ -946,7 +946,7 @@ backlog task edit $TASK_ID --status "Done" --note "Merged to main"
 ```
 ```
 
-#### /specflow:validate (validate.md)
+#### /flow:validate (validate.md)
 **Current:** Runs validation
 **Enhanced:** Marks tasks complete when tests pass
 
@@ -1103,18 +1103,18 @@ View Kanban board:
 backlog board
 ```
 
-## Integration with /specflow Commands
+## Integration with /flowspec Commands
 
-### /specflow:specify → Task Creation
+### /flow:specify → Task Creation
 ...
 
-### /specflow:plan → Dependencies
+### /flow:plan → Dependencies
 ...
 
-### /specflow:implement → Progress
+### /flow:implement → Progress
 ...
 
-### /specflow:validate → Completion
+### /flow:validate → Completion
 ...
 
 ## MCP Integration for AI Agents
@@ -1321,13 +1321,13 @@ exit 0
 
 ### Phase 2: Slash Command Integration (Week 1-2) ⭐ HIGH PRIORITY
 
-**Goal:** Integrate backlog.md with /specflow commands
+**Goal:** Integrate backlog.md with /flowspec commands
 
 **Tasks:**
-1. ⬜ Update `/specflow:specify` to create tasks after PRD
-2. ⬜ Update `/specflow:plan` to set task dependencies
-3. ⬜ Update `/specflow:implement` to track progress
-4. ⬜ Update `/specflow:validate` to mark completion
+1. ⬜ Update `/flow:specify` to create tasks after PRD
+2. ⬜ Update `/flow:plan` to set task dependencies
+3. ⬜ Update `/flow:implement` to track progress
+4. ⬜ Update `/flow:validate` to mark completion
 5. ⬜ Test full workflow: specify → plan → implement → validate
 6. ⬜ Verify tasks are created/updated automatically
 
@@ -1545,7 +1545,7 @@ backlog/                        # ✅ Root directory
 
 2. **jp-spec-kit Can Benefit Significantly** 🚀
    - Replace ad-hoc TODO/ with structured backlog/
-   - Integrate with /specflow slash commands
+   - Integrate with /flowspec slash commands
    - Enable AI agent task management via MCP
    - Add Kanban visualization
    - Track dependencies and sequencing
@@ -1574,7 +1574,7 @@ backlog/                        # ✅ Root directory
 5. ⬜ Test task creation with AI agents
 
 **Short-term (Next 2 Weeks):**
-1. ⬜ Update all /specflow slash commands
+1. ⬜ Update all /flowspec slash commands
 2. ⬜ Update agent personas
 3. ⬜ Create task management documentation
 4. ⬜ Migrate all TODO/ tasks
@@ -1629,7 +1629,7 @@ This integration represents a significant upgrade to jp-spec-kit's task manageme
 - **Inner Loop:** docs/reference/inner-loop.md
 - **Outer Loop:** docs/reference/outer-loop.md
 - **Agent Classification:** docs/reference/agent-loop-classification.md
-- **Slash Commands:** .claude/commands/specflow/
+- **Slash Commands:** .claude/commands/flowspec/
 
 ### Related Concepts
 

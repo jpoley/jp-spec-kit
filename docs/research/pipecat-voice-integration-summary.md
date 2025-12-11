@@ -1,4 +1,4 @@
-# Pipecat Voice Integration Summary for JP Specflow
+# Pipecat Voice Integration Summary for JP Flowspec
 
 **Date**: 2025-11-28
 **Status**: Research Complete - Ready for Task Generation
@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-**Pipecat** is the recommended framework for adding real-time voice capabilities to JP Specflow. It is an open-source Python framework (BSD-2-Clause license) specifically designed for building voice and multimodal conversational AI agents with ultra-low latency (<800ms end-to-end).
+**Pipecat** is the recommended framework for adding real-time voice capabilities to JP Flowspec. It is an open-source Python framework (BSD-2-Clause license) specifically designed for building voice and multimodal conversational AI agents with ultra-low latency (<800ms end-to-end).
 
 ### Why Pipecat?
 
@@ -27,7 +27,7 @@
 
 ## Feature Complexity Assessment
 
-Based on the specflow assessment framework:
+Based on the flowspec assessment framework:
 
 | Dimension | Score | Rationale |
 |-----------|-------|-----------|
@@ -158,14 +158,14 @@ Manages pipeline execution, lifecycle, health monitoring, and cleanup.
 
 ---
 
-## Integration Strategy for JP Specflow
+## Integration Strategy for JP Flowspec
 
 ### Phase 1: Voice Assistant Foundation
 
-**Goal**: Add voice interface to interact with JP Specflow commands
+**Goal**: Add voice interface to interact with JP Flowspec commands
 
 ```
-User speaks → STT → LLM (with JP Specflow context) → TTS → User hears
+User speaks → STT → LLM (with JP Flowspec context) → TTS → User hears
 ```
 
 **Use Cases**:
@@ -217,7 +217,7 @@ Bot: Confirms with user verbally
 
 ### Function Calling Integration
 
-Pipecat's function calling will invoke JP Specflow operations:
+Pipecat's function calling will invoke JP Flowspec operations:
 
 ```python
 # Function definitions for LLM
@@ -276,9 +276,9 @@ Based on insights from the YouTube demo transcript, implement a JSON-based confi
 ```json
 {
   "assistant": {
-    "name": "JP Specflow Voice Assistant",
-    "system_prompt": "You are a helpful assistant for JP Specflow...",
-    "first_message": "Hello! I'm your JP Specflow assistant. How can I help?",
+    "name": "JP Flowspec Voice Assistant",
+    "system_prompt": "You are a helpful assistant for JP Flowspec...",
+    "first_message": "Hello! I'm your JP Flowspec assistant. How can I help?",
     "last_message": "Goodbye! Let me know if you need anything else.",
     "voice_settings": {
       "speed": 1.0,
@@ -338,7 +338,7 @@ src/specify_cli/
 │   ├── config.py               # Configuration loader
 │   ├── processors/             # Custom frame processors
 │   │   ├── __init__.py
-│   │   └── specflow_processor.py # JP Specflow integration
+│   │   └── flowspec_processor.py # JP Flowspec integration
 │   ├── services/               # Service wrappers
 │   │   ├── __init__.py
 │   │   ├── stt.py
@@ -371,13 +371,13 @@ voice = [
 | Add configuration system | JSON config loading | Config loads, validates, applies |
 | Add CLI command | `specify voice` command | Command starts voice bot |
 
-### Phase 2: JP Specflow Integration (Sprint 3-4)
+### Phase 2: JP Flowspec Integration (Sprint 3-4)
 
 #### 2.1 Function Calling Implementation
 
 | Task | Description | Acceptance Criteria |
 |------|-------------|---------------------|
-| Define tool schemas | Create OpenAI function schemas | All JP Specflow operations have schemas |
+| Define tool schemas | Create OpenAI function schemas | All JP Flowspec operations have schemas |
 | Implement specify tools | Handle /speckit:specify via voice | Voice command creates spec.md |
 | Implement backlog tools | Handle backlog operations | Voice can list/create/update tasks |
 | Implement plan tools | Handle /speckit:plan via voice | Voice command creates plan.md |
@@ -387,7 +387,7 @@ voice = [
 
 ```python
 SYSTEM_PROMPT = """
-You are the JP Specflow Voice Assistant, helping developers with Spec-Driven Development.
+You are the JP Flowspec Voice Assistant, helping developers with Spec-Driven Development.
 
 Your capabilities:
 1. Generate feature specifications from verbal descriptions
@@ -430,7 +430,7 @@ Keep responses concise for voice - avoid long lists or technical jargon.
 | Voice cloning | Custom voice for assistant | Low |
 | Telephony | Phone number integration (Twilio) | Low |
 | Multi-language | Support non-English | Low |
-| Wake word | "Hey JP Specflow" activation | Low |
+| Wake word | "Hey JP Flowspec" activation | Low |
 
 ---
 
@@ -490,7 +490,7 @@ Keep responses concise for voice - avoid long lists or technical jargon.
 
 ### MVP Success Criteria
 
-1. **Functionality**: Voice bot can execute all core JP Specflow operations
+1. **Functionality**: Voice bot can execute all core JP Flowspec operations
 2. **Latency**: End-to-end response < 2 seconds
 3. **Reliability**: 95%+ successful interactions
 4. **Usability**: Users can complete SDD workflow entirely by voice
@@ -556,7 +556,7 @@ Before implementation, complete these research spikes:
 
 ## Next Steps
 
-1. **Create backlog tasks** from this document using `/specflow:tasks`
+1. **Create backlog tasks** from this document using `/flow:tasks`
 2. **Execute research spikes** to validate assumptions
 3. **Begin Phase 1 implementation** after spike completion
 4. **Track progress** via backlog board
@@ -570,7 +570,7 @@ From the YouTube demo transcript, key learnings for our implementation:
 ### Context Management
 > "The missing piece is really the workflow that you build around them, which is where you teach it your own development processes."
 
-**Implication**: Our voice assistant needs deep context about JP Specflow's workflow.
+**Implication**: Our voice assistant needs deep context about JP Flowspec's workflow.
 
 ### Sub-Agent Pattern
 > "The sub agents aren't actually implementation sub agents. They are research sub agents. The idea is they're providing their recommendations to the main orchestrating agent."

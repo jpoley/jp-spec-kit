@@ -83,7 +83,7 @@ This document outlines the execution plan for the remaining kinsale-assigned tas
 - **Why**: HIGH priority, workflow foundation
 - **Deliverable**: Interactive init with validation config
 - **ACs**: 9 acceptance criteria
-- **Dependencies**: specflow_workflow.yml structure
+- **Dependencies**: flowspec_workflow.yml structure
 - **Risk**: Medium-High (UI complexity)
 
 **6. task-084 - Spec Quality Metrics Command**

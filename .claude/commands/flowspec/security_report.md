@@ -1,0 +1,1 @@
+../../../templates/commands/flowspec/security_report.md

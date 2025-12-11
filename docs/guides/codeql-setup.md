@@ -2,7 +2,7 @@
 
 ## Overview
 
-CodeQL is GitHub's semantic code analysis engine that provides deep dataflow analysis for detecting complex security vulnerabilities. This guide covers installation, database creation, query execution, and integration with Specflow.
+CodeQL is GitHub's semantic code analysis engine that provides deep dataflow analysis for detecting complex security vulnerabilities. This guide covers installation, database creation, query execution, and integration with Flowspec.
 
 **Prerequisites**:
 - Review [CodeQL Licensing](../legal/codeql-licensing-review.md) before proceeding
@@ -13,7 +13,7 @@ CodeQL is GitHub's semantic code analysis engine that provides deep dataflow ana
 
 ### Method 1: Automated Setup (Recommended)
 
-Specflow provides a setup script that handles CodeQL CLI installation:
+Flowspec provides a setup script that handles CodeQL CLI installation:
 
 ```bash
 # Download and install CodeQL CLI
@@ -281,11 +281,11 @@ codeql database analyze mydb --format=json --output=results.json
 codeql database analyze mydb --format=text
 ```
 
-## Integration with Specflow
+## Integration with Flowspec
 
 ### Using specify CLI
 
-Specflow integrates CodeQL through the `specify security scan` command:
+Flowspec integrates CodeQL through the `specify security scan` command:
 
 ```bash
 # Scan with CodeQL (requires --codeql flag)
@@ -300,7 +300,7 @@ specify security scan --scanner codeql --language python
 
 ### Configuration File
 
-Configure CodeQL in `.specflow/security-config.yml`:
+Configure CodeQL in `.flowspec/security-config.yml`:
 
 ```yaml
 scanners:
@@ -322,7 +322,7 @@ scanners:
 After verifying licensing compliance:
 
 ```yaml
-# .specflow/security-config.yml
+# .flowspec/security-config.yml
 scanners:
   codeql:
     enabled: true  # Enable after licensing review
@@ -332,7 +332,7 @@ scanners:
 
 ### Unified Finding Format (UFFormat)
 
-Specflow converts CodeQL SARIF output to UFFormat:
+Flowspec converts CodeQL SARIF output to UFFormat:
 
 ```python
 # CodeQL SARIF result
@@ -646,7 +646,7 @@ codeql database create db \
 - [Security Lab](https://securitylab.github.com/)
 - [CodeQL Slack](https://codeql.slack.com)
 
-### Specflow Resources
+### Flowspec Resources
 - [CodeQL Licensing Review](../legal/codeql-licensing-review.md)
 - [Security CI/CD Integration](./security-cicd-integration.md)
 - [Dataflow Analysis Patterns](../../memory/security/dataflow-analysis.md)
@@ -665,4 +665,4 @@ After setting up CodeQL:
 ---
 
 **Last Updated**: 2025-12-04
-**Maintained By**: Specflow Security Team
+**Maintained By**: Flowspec Security Team

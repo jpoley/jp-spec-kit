@@ -9,7 +9,7 @@
 
 ## Executive Summary
 
-This plan defines the devcontainer implementation for Specflow, enabling consistent, reproducible development environments across all machines (muckross, galway, kinsale, adare). The solution directly addresses CLAUDE.md's repeatability mandate by replacing manual environment setup with container-based automation.
+This plan defines the devcontainer implementation for Flowspec, enabling consistent, reproducible development environments across all machines (muckross, galway, kinsale, adare). The solution directly addresses CLAUDE.md's repeatability mandate by replacing manual environment setup with container-based automation.
 
 ### Key Benefits
 
@@ -81,7 +81,7 @@ This plan defines the devcontainer implementation for Specflow, enabling consist
 
 ```json
 {
-  "name": "Specflow Dev Environment",
+  "name": "Flowspec Dev Environment",
   "image": "mcr.microsoft.com/devcontainers/python:3.11-bullseye",
 
   "features": {
@@ -141,7 +141,7 @@ This plan defines the devcontainer implementation for Specflow, enabling consist
 set -e
 
 echo "========================================"
-echo "Specflow Devcontainer Setup"
+echo "Flowspec Devcontainer Setup"
 echo "========================================"
 
 export PATH="/root/.cargo/bin:$PATH"
@@ -298,7 +298,7 @@ Devcontainer replaces manual environment scripts:
 
 ## Next Steps
 
-1. **Implement** - Use `/specflow:implement` to create devcontainer files
+1. **Implement** - Use `/flow:implement` to create devcontainer files
 2. **Test** - Verify on all machines per CLAUDE.md requirements
 3. **Document** - Create usage documentation
 4. **Integrate** - Update CI/CD to use container

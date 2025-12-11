@@ -1,8 +1,8 @@
-# CI/CD Integration Guide: /specflow:security Commands
+# CI/CD Integration Guide: /flow:security Commands
 
 **Audience**: Platform Engineers, DevOps Engineers
 **Last Updated**: 2025-12-02
-**Related**: `specflow-security-platform.md`
+**Related**: `flowspec-security-platform.md`
 
 ---
 
@@ -32,7 +32,7 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install Specflow
+      - name: Install Flowspec
         run: |
           pip install uv
           uv tool install specify-cli
@@ -66,7 +66,7 @@ jobs:
 repos:
   - repo: local
     hooks:
-      - id: specflow-security-scan
+      - id: flowspec-security-scan
         name: Security Scan (Fast)
         entry: specify security scan --fast --changed-only --fail-on critical
         language: system
@@ -150,7 +150,7 @@ jobs:
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: security-results.sarif
-          category: specflow-security
+          category: flowspec-security
 
       - name: Comment PR
         if: github.event_name == 'pull_request'
@@ -292,7 +292,7 @@ jobs:
 - name: Cache Scan Results
   uses: actions/cache@v4
   with:
-    path: .specflow/cache/security
+    path: .flowspec/cache/security
     key: security-scan-${{ hashFiles('**/*.py', '**/*.ts', '**/*.go') }}
 ```
 
@@ -386,7 +386,7 @@ jobs:
 
 ### Policy-Based Gates
 
-Define policy in `.specflow/security-policy.yml`:
+Define policy in `.flowspec/security-policy.yml`:
 
 ```yaml
 gates:
@@ -404,7 +404,7 @@ gates:
 **Enforcement**:
 ```yaml
 - name: Security Scan with Policy
-  run: specify security scan --policy .specflow/security-policy.yml
+  run: specify security scan --policy .flowspec/security-policy.yml
 ```
 
 ---
@@ -451,7 +451,7 @@ git commit --no-verify -m "fix: critical production bug [security-bypass]"
   uses: github/codeql-action/upload-sarif@v3
   with:
     sarif_file: security-results.sarif
-    category: specflow-security  # Group results by tool
+    category: flowspec-security  # Group results by tool
 ```
 
 **Benefits**:
@@ -621,9 +621,9 @@ workflows:
 ```
 
 **Key Metrics**:
-- `specflow_security_scan_duration_seconds` - Scan performance
-- `specflow_security_findings_total` - Findings by severity
-- `specflow_security_gate_blocks_total` - Pipeline blocks
+- `flowspec_security_scan_duration_seconds` - Scan performance
+- `flowspec_security_findings_total` - Findings by severity
+- `flowspec_security_gate_blocks_total` - Pipeline blocks
 
 ---
 
@@ -778,7 +778,7 @@ jobs:
 
 ## Example Projects
 
-### 1. Specflow (Python)
+### 1. Flowspec (Python)
 
 **Workflow**: `.github/workflows/security.yml`
 ```yaml
@@ -833,8 +833,8 @@ jobs:
 
 ## References
 
-- **Platform Design**: `docs/platform/specflow-security-platform.md`
-- **PRD**: `docs/prd/specflow-security-commands.md`
+- **Platform Design**: `docs/platform/flowspec-security-platform.md`
+- **PRD**: `docs/prd/flowspec-security-commands.md`
 - **GitHub Actions Docs**: https://docs.github.com/en/actions
 - **SARIF Spec**: https://docs.oasis-open.org/sarif/sarif/v2.1.0/
 

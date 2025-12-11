@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Tests for post-slash-command-emit.py hook.
 
-Tests the auto-emit functionality for /specflow slash commands.
+Tests the auto-emit functionality for /flowspec slash commands.
 """
 
 import json
@@ -50,8 +50,8 @@ class TestPostSlashCommandEmit(unittest.TestCase):
         self.assertEqual(output["decision"], "allow")
         self.assertEqual(output["reason"], "Not a SlashCommand tool")
 
-    def test_non_specflow_command_allows(self):
-        """Non-specflow slash commands should be allowed without emission."""
+    def test_non_flowspec_command_allows(self):
+        """Non-flowspec slash commands should be allowed without emission."""
         exit_code, output = run_hook(
             {
                 "tool_name": "SlashCommand",
@@ -61,14 +61,14 @@ class TestPostSlashCommandEmit(unittest.TestCase):
 
         self.assertEqual(exit_code, 0)
         self.assertEqual(output["decision"], "allow")
-        self.assertEqual(output["reason"], "Not a /specflow command")
+        self.assertEqual(output["reason"], "Not a /flowspec command")
 
-    def test_specflow_assess_detected(self):
-        """Test /specflow:assess is detected and maps to workflow.assessed."""
+    def test_flowspec_assess_detected(self):
+        """Test /flow:assess is detected and maps to workflow.assessed."""
         exit_code, output = run_hook(
             {
                 "tool_name": "SlashCommand",
-                "tool_input": {"command": "/specflow:assess my-feature"},
+                "tool_input": {"command": "/flow:assess my-feature"},
             }
         )
 
@@ -76,13 +76,13 @@ class TestPostSlashCommandEmit(unittest.TestCase):
         self.assertEqual(output["decision"], "allow")
         self.assertIn("workflow.assessed", output.get("additionalContext", ""))
 
-    def test_specflow_specify_detected(self):
-        """Test /specflow:specify is detected and maps to spec.created."""
+    def test_flowspec_specify_detected(self):
+        """Test /flow:specify is detected and maps to spec.created."""
         exit_code, output = run_hook(
             {
                 "tool_name": "SlashCommand",
                 "tool_input": {
-                    "command": "/specflow:specify auth-feature --spec-id auth"
+                    "command": "/flow:specify auth-feature --spec-id auth"
                 },
             }
         )
@@ -92,12 +92,12 @@ class TestPostSlashCommandEmit(unittest.TestCase):
         self.assertIn("spec.created", output.get("additionalContext", ""))
         self.assertIn("Feature: auth", output.get("additionalContext", ""))
 
-    def test_specflow_implement_detected(self):
-        """Test /specflow:implement is detected and maps to implement.completed."""
+    def test_flowspec_implement_detected(self):
+        """Test /flow:implement is detected and maps to implement.completed."""
         exit_code, output = run_hook(
             {
                 "tool_name": "SlashCommand",
-                "tool_input": {"command": "/specflow:implement task-229"},
+                "tool_input": {"command": "/flow:implement task-229"},
             }
         )
 
@@ -106,12 +106,12 @@ class TestPostSlashCommandEmit(unittest.TestCase):
         self.assertIn("implement.completed", output.get("additionalContext", ""))
         self.assertIn("Task: task-229", output.get("additionalContext", ""))
 
-    def test_specflow_validate_detected(self):
-        """Test /specflow:validate is detected and maps to validate.completed."""
+    def test_flowspec_validate_detected(self):
+        """Test /flow:validate is detected and maps to validate.completed."""
         exit_code, output = run_hook(
             {
                 "tool_name": "SlashCommand",
-                "tool_input": {"command": "/specflow:validate"},
+                "tool_input": {"command": "/flow:validate"},
             }
         )
 
@@ -119,12 +119,12 @@ class TestPostSlashCommandEmit(unittest.TestCase):
         self.assertEqual(output["decision"], "allow")
         self.assertIn("validate.completed", output.get("additionalContext", ""))
 
-    def test_specflow_operate_detected(self):
-        """Test /specflow:operate is detected and maps to deploy.completed."""
+    def test_flowspec_operate_detected(self):
+        """Test /flow:operate is detected and maps to deploy.completed."""
         exit_code, output = run_hook(
             {
                 "tool_name": "SlashCommand",
-                "tool_input": {"command": "/specflow:operate production"},
+                "tool_input": {"command": "/flow:operate production"},
             }
         )
 
@@ -137,7 +137,7 @@ class TestPostSlashCommandEmit(unittest.TestCase):
         exit_code, output = run_hook(
             {
                 "tool_name": "SlashCommand",
-                "tool_input": {"command": "/specflow:implement --task-id task-123"},
+                "tool_input": {"command": "/flow:implement --task-id task-123"},
             }
         )
 
@@ -149,7 +149,7 @@ class TestPostSlashCommandEmit(unittest.TestCase):
         exit_code, output = run_hook(
             {
                 "tool_name": "SlashCommand",
-                "tool_input": {"command": "/specflow:specify"},
+                "tool_input": {"command": "/flow:specify"},
                 "tool_output": "Feature: user-authentication\nCreating specification...",
             }
         )
@@ -172,16 +172,16 @@ class TestPostSlashCommandEmit(unittest.TestCase):
         output = json.loads(result.stdout)
         self.assertEqual(output["decision"], "allow")
 
-    def test_all_specflow_commands_mapped(self):
-        """Verify all /specflow commands have event mappings."""
+    def test_all_flowspec_commands_mapped(self):
+        """Verify all /flowspec commands have event mappings."""
         commands = [
-            ("/specflow:assess", "workflow.assessed"),
-            ("/specflow:specify", "spec.created"),
-            ("/specflow:research", "research.completed"),
-            ("/specflow:plan", "plan.created"),
-            ("/specflow:implement", "implement.completed"),
-            ("/specflow:validate", "validate.completed"),
-            ("/specflow:operate", "deploy.completed"),
+            ("/flow:assess", "workflow.assessed"),
+            ("/flow:specify", "spec.created"),
+            ("/flow:research", "research.completed"),
+            ("/flow:plan", "plan.created"),
+            ("/flow:implement", "implement.completed"),
+            ("/flow:validate", "validate.completed"),
+            ("/flow:operate", "deploy.completed"),
         ]
 
         for command, expected_event in commands:

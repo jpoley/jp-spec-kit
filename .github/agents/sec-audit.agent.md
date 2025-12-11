@@ -21,32 +21,32 @@ visible_to_roles:
   - "sec"
   - "all"
 ---
-# /specflow:security - Security Workflow Integration
+# /flow:security - Security Workflow Integration
 
 Integrate comprehensive security scanning, vulnerability triage, and automated remediation task creation into your Spec-Driven Development workflow.
 
 ## Overview
 
-The `/specflow:security` command family integrates security assessment into your development workflow by:
+The `/flow:security` command family integrates security assessment into your development workflow by:
 
 1. **Scanning** - SAST, SCA, secrets detection on codebase
 2. **Triaging** - AI-powered vulnerability assessment and false positive detection
 3. **Reporting** - Comprehensive audit reports with OWASP Top 10 compliance
 4. **Task Creation** - Automatic backlog task creation for findings via `--create-tasks` flag
-5. **Workflow Integration** - Seamless integration with specflow_workflow.yml states
+5. **Workflow Integration** - Seamless integration with flowspec_workflow.yml states
 
 ## Command Family
 
 ```bash
 # Full workflow
-/specflow:security scan      # Run security scanners
-/specflow:security triage    # Triage findings with AI
-/specflow:security report    # Generate audit report
-/specflow:security fix       # Generate patches for findings
+/flow:security scan      # Run security scanners
+/flow:security triage    # Triage findings with AI
+/flow:security report    # Generate audit report
+/flow:security fix       # Generate patches for findings
 
 # Workflow integration features
-/specflow:security scan --create-tasks     # Auto-create backlog tasks for findings
-/specflow:security report --create-tasks   # Create tasks during reporting
+/flow:security scan --create-tasks     # Auto-create backlog tasks for findings
+/flow:security report --create-tasks   # Create tasks during reporting
 ```
 
 ## Workflow Integration Patterns
@@ -56,7 +56,7 @@ The `/specflow:security` command family integrates security assessment into your
 Add a dedicated security verification state for security-focused teams:
 
 ```yaml
-# specflow_workflow.yml additions
+# flowspec_workflow.yml additions
 
 states:
   - "To Do"
@@ -72,7 +72,7 @@ states:
 
 workflows:
   security:
-    command: "/specflow:security"
+    command: "/flow:security"
     description: "Execute security scans and create remediation tasks"
     agents:
       - name: "secure-by-design-engineer"
@@ -137,11 +137,11 @@ Implementation → Security Review → Validated → Deployed
 Integrate security into existing validate workflow for streamlined processes:
 
 ```yaml
-# specflow_workflow.yml - extend validate workflow
+# flowspec_workflow.yml - extend validate workflow
 
 workflows:
   validate:
-    command: "/specflow:validate"
+    command: "/flow:validate"
     description: "Execute validation using QA, security, and documentation agents"
     agents:
       - name: "quality-guardian"
@@ -209,13 +209,13 @@ The `--create-tasks` flag automatically creates backlog tasks for security findi
 
 ```bash
 # Create tasks during scan
-/specflow:security scan --create-tasks
+/flow:security scan --create-tasks
 
 # Create tasks during report generation
-/specflow:security report --create-tasks
+/flow:security report --create-tasks
 
 # Control which severities create tasks
-/specflow:security scan --create-tasks --severity critical,high
+/flow:security scan --create-tasks --severity critical,high
 ```
 
 ### Task Format
@@ -264,7 +264,7 @@ Security: [Vulnerability Type] in [Component]
 
 ---
 
-**Created by:** /specflow:security --create-tasks
+**Created by:** /flow:security --create-tasks
 **Audit Report:** docs/security/audit-report.md
 ```
 
@@ -654,9 +654,9 @@ bash scripts/security/pre-commit-scan.sh
 
 ## See Also
 
-- `/specflow:security scan` - Run security scanners
-- `/specflow:security triage` - Triage findings
-- `/specflow:security report` - Generate audit reports
-- `/specflow:security fix` - Generate fix patches
+- `/flow:security scan` - Run security scanners
+- `/flow:security triage` - Triage findings
+- `/flow:security report` - Generate audit reports
+- `/flow:security fix` - Generate fix patches
 - [Security Workflow Integration Guide](../../docs/guides/security-workflow-integration.md)
 - [CI/CD Integration Examples](../../docs/platform/security-cicd-examples.md)

@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document defines how Specflow hooks integrate with continuous integration and continuous deployment (CI/CD) pipelines, enabling automated testing, deployment triggers, and workflow orchestration across development, staging, and production environments.
+This document defines how Flowspec hooks integrate with continuous integration and continuous deployment (CI/CD) pipelines, enabling automated testing, deployment triggers, and workflow orchestration across development, staging, and production environments.
 
 ## Design Principles
 
@@ -294,7 +294,7 @@ gh workflow run integration-tests.yml \
 
 ```yaml
 # .github/workflows/jp-spec-kit-integration.yml
-name: Specflow Integration
+name: Flowspec Integration
 
 on:
   workflow_dispatch:
@@ -565,7 +565,7 @@ hooks:
 ```
 
 **Flow**:
-1. Developer runs `/specflow:implement authentication`
+1. Developer runs `/flow:implement authentication`
 2. Event `implement.completed` emitted
 3. Hook `run-local-tests` executes: `pytest tests/unit/ -v`
 4. If local tests pass, hook `trigger-integration-tests` triggers GitHub Actions
@@ -596,7 +596,7 @@ hooks:
 ```
 
 **Flow**:
-1. Developer runs `/specflow:validate authentication`
+1. Developer runs `/flow:validate authentication`
 2. Event `validate.completed` emitted
 3. Hook `validate-quality-gates` runs: tests, lint, coverage checks
 4. If all gates pass, hook `deploy-to-staging` triggers Jenkins deployment job
@@ -647,7 +647,7 @@ $(backlog task list -s Done --plain | head -10)
 - [x] Integration tests pass
 - [x] All acceptance criteria complete
 
-Generated with [Specflow](https://github.com/jpoley/jp-spec-kit)
+Generated with [Flowspec](https://github.com/jpoley/jp-spec-kit)
 EOF
 )" \
   --base "$BASE_BRANCH" \

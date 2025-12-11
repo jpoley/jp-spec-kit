@@ -15,7 +15,7 @@ priority: medium
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Add Prometheus metrics, structured logging, and dashboards for /specflow:security commands. Track scan performance, findings trends, AI triage accuracy, and pipeline impact.
+Add Prometheus metrics, structured logging, and dashboards for /flow:security commands. Track scan performance, findings trends, AI triage accuracy, and pipeline impact.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -34,7 +34,7 @@ Add Prometheus metrics, structured logging, and dashboards for /specflow:securit
 ## Implementation Plan: Security Scanning Observability
 
 ### Overview
-Add comprehensive observability for /specflow:security commands including Prometheus metrics, structured logging, Grafana dashboards, and compliance audit logging.
+Add comprehensive observability for /flow:security commands including Prometheus metrics, structured logging, Grafana dashboards, and compliance audit logging.
 
 ### Step-by-Step Implementation
 
@@ -46,26 +46,26 @@ Add comprehensive observability for /specflow:security commands including Promet
 2. Define metrics:
    ```python
    SCAN_DURATION = Histogram(
-       'specflow_security_scan_duration_seconds',
+       'flowspec_security_scan_duration_seconds',
        'Security scan execution time',
        ['tool', 'scan_type', 'outcome'],
        buckets=[1, 5, 10, 30, 60, 120, 300]
    )
    
    FINDINGS_TOTAL = Counter(
-       'specflow_security_findings_total',
+       'flowspec_security_findings_total',
        'Total security findings',
        ['severity', 'cwe_id', 'tool']
    )
    
    TRIAGE_ACCURACY = Gauge(
-       'specflow_security_triage_accuracy',
+       'flowspec_security_triage_accuracy',
        'AI triage accuracy vs expert review',
        ['model']
    )
    
    GATE_BLOCKS = Counter(
-       'specflow_security_gate_blocks_total',
+       'flowspec_security_gate_blocks_total',
        'Pipeline blocks by severity',
        ['severity', 'gate_type']
    )
@@ -115,22 +115,22 @@ Add comprehensive observability for /specflow:security commands including Promet
 1. **Panel 1: Security Posture Over Time**
    - Line chart of findings by severity
    - 7-day moving average
-   - PromQL: `avg_over_time(specflow_security_findings_total[7d])`
+   - PromQL: `avg_over_time(flowspec_security_findings_total[7d])`
 
 2. **Panel 2: Scan Performance**
    - Histogram of scan duration P50/P95/P99
    - By tool and scan type
-   - PromQL: `histogram_quantile(0.95, sum(rate(specflow_security_scan_duration_seconds_bucket[5m])) by (le, tool))`
+   - PromQL: `histogram_quantile(0.95, sum(rate(flowspec_security_scan_duration_seconds_bucket[5m])) by (le, tool))`
 
 3. **Panel 3: AI Triage Effectiveness**
    - Gauge of triage accuracy
    - Target line at 80%
-   - PromQL: `specflow_security_triage_accuracy`
+   - PromQL: `flowspec_security_triage_accuracy`
 
 4. **Panel 4: Fix Application Rate**
    - Bar chart of findings fixed within 48 hours
    - By severity
-   - PromQL: `(specflow_security_fix_application_rate / specflow_security_findings_total) * 100`
+   - PromQL: `(flowspec_security_fix_application_rate / flowspec_security_findings_total) * 100`
 
 5. **Panel 5: Pipeline Impact**
    - Counter of gate blocks

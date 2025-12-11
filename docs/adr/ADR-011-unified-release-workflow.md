@@ -6,7 +6,7 @@ Accepted
 
 ## Context
 
-The Specflow release system is **fundamentally broken** due to a GitHub Actions security limitation that was not understood when designing the current two-workflow release process.
+The Flowspec release system is **fundamentally broken** due to a GitHub Actions security limitation that was not understood when designing the current two-workflow release process.
 
 ### Current (Broken) Architecture
 
@@ -39,7 +39,7 @@ The v0.2.345 release PR merged, the tag was created by `release-on-merge.yml`, b
 
 ### Secondary Issues
 
-1. **Branding inconsistency**: Release titles show "Spec Kit Templates" instead of "Specflow"
+1. **Branding inconsistency**: Release titles show "Spec Kit Templates" instead of "Flowspec"
 2. **Unnecessary complexity**: Two workflows when one would suffice
 3. **Fragile handoff**: Any failure in the handoff leaves orphaned tags
 
@@ -75,7 +75,7 @@ The v0.2.345 release PR merged, the tag was created by `release-on-merge.yml`, b
 1. **Single Workflow**: No handoff between workflows = no GITHUB_TOKEN limitation
 2. **Atomic Execution**: Tag + Release + Artifacts created together or not at all
 3. **Pinned Commits**: Honor `.release-commit` file for race condition protection
-4. **Consistent Branding**: All user-facing text uses "Specflow"
+4. **Consistent Branding**: All user-facing text uses "Flowspec"
 5. **Backward Compatibility**: Keep `workflow_dispatch` trigger for manual releases
 
 ### Files to Change
@@ -84,7 +84,7 @@ The v0.2.345 release PR merged, the tag was created by `release-on-merge.yml`, b
 |------|--------|---------|
 | `.github/workflows/release.yml` | Rewrite | Unified workflow |
 | `.github/workflows/release-on-merge.yml` | Delete | No longer needed |
-| `.github/workflows/scripts/create-github-release.sh` | Update | Fix branding to "Specflow" |
+| `.github/workflows/scripts/create-github-release.sh` | Update | Fix branding to "Flowspec" |
 | `scripts/release.py` | Update | PR body references new workflow |
 
 ### Trigger Configuration
@@ -129,7 +129,7 @@ The workflow checks `github.event.pull_request.merged == true` and `startsWith(g
 2. Create test release v0.2.346 using `./scripts/release.py`
 3. Verify after PR merge:
    - Tag v0.2.346 exists
-   - GitHub Release v0.2.346 exists with title "Specflow - 0.2.346"
+   - GitHub Release v0.2.346 exists with title "Flowspec - 0.2.346"
    - All 26 artifact zip files attached
    - Source archives attached
 

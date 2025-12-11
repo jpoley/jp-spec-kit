@@ -42,5 +42,5 @@ gh release create "$VERSION" \
   .genreleases/spec-kit-template-codebuddy-ps-"$VERSION".zip \
   .genreleases/spec-kit-template-q-sh-"$VERSION".zip \
   .genreleases/spec-kit-template-q-ps-"$VERSION".zip \
-  --title "Specflow - $VERSION_NO_V" \
+  --title "Flowspec - $VERSION_NO_V" \
   --notes-file release_notes.md

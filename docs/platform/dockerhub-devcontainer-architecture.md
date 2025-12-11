@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the architecture for publishing the Specflow devcontainer to Docker Hub as `jpoley/specflow-agents`, enabling reuse across any project.
+This document describes the architecture for publishing the Flowspec devcontainer to Docker Hub as `jpoley/flowspec-agents`, enabling reuse across any project.
 
 ## Architecture Decision Records
 
@@ -12,7 +12,7 @@ This document describes the architecture for publishing the Specflow devcontaine
 
 **Context**: Need to distribute the devcontainer image for easy adoption by external projects.
 
-**Decision**: Use Docker Hub (`docker.io/jpoley/specflow-agents`) as the primary registry.
+**Decision**: Use Docker Hub (`docker.io/jpoley/flowspec-agents`) as the primary registry.
 
 **Consequences**:
 - Familiar pull experience for developers
@@ -79,7 +79,7 @@ This document describes the architecture for publishing the Specflow devcontaine
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    Docker Hub Registry                       │
-│                  jpoley/specflow-agents                      │
+│                  jpoley/flowspec-agents                      │
 ├─────────────────────────────────────────────────────────────┤
 │  Tags: latest, sha-<commit>, main                           │
 │  Platforms: linux/amd64, linux/arm64                        │
@@ -123,7 +123,7 @@ User Project                        Docker Hub
 devcontainer.json ─────────────────────►│
     │                     2. Pull image │
     │◄──────────────────────────────────│
-    │   jpoley/specflow-agents:latest   │
+    │   jpoley/flowspec-agents:latest   │
     │                                   │
     ▼                                   │
 Container starts with:                  │

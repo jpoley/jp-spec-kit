@@ -28,7 +28,7 @@ semgrep --validate --config .specify/security/rules/
 semgrep --test .specify/security/rules/
 ```
 
-### 3. Integrate with specflow
+### 3. Integrate with flowspec
 
 Add to your security configuration:
 

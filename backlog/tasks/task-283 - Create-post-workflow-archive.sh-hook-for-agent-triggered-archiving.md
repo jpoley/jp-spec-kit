@@ -26,7 +26,7 @@ Implement Claude Code hook that runs archive-tasks.sh in dry-run mode after work
 **Hook Location**: `.claude/hooks/post-workflow-archive.sh`
 
 **Hook Behavior**:
-- Triggered by: validate.completed event (end of /specflow:validate)
+- Triggered by: validate.completed event (end of /flow:validate)
 - Reads event from stdin (standard hook interface)
 - Parses event_type, feature, project_root from JSON
 - Runs archive-tasks.sh with --dry-run flag (preview only)

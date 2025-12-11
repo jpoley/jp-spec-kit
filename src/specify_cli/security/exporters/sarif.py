@@ -35,7 +35,7 @@ class SARIFExporter(BaseExporter):
 
     def __init__(
         self,
-        tool_name: str = "specflow-security",
+        tool_name: str = "flowspec-security",
         tool_version: str = "1.0.0",
     ) -> None:
         """Initialize SARIF exporter.

@@ -84,7 +84,7 @@ jobs:
           mv docs/docfx.json.tmp docs/docfx.json
 
           # Also update the footer to include version
-          jq --arg footer "Specflow v$VERSION - Specification-driven development for AI-augmented teams" \
+          jq --arg footer "Flowspec v$VERSION - Specification-driven development for AI-augmented teams" \
             '.build.globalMetadata._appFooter = $footer' docs/docfx.json > docs/docfx.json.tmp
           mv docs/docfx.json.tmp docs/docfx.json
 

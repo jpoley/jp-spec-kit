@@ -1,4 +1,4 @@
-# PRD: JP Specflow Architecture Enhancements
+# PRD: JP Flowspec Architecture Enhancements
 
 **Related Tasks**: task-079, task-081, task-083, task-084, task-086, task-182, task-243, task-244, task-245, task-246
 
@@ -23,13 +23,13 @@
 
 ## Executive Summary
 
-This PRD defines architecture enhancements to JP Specflow aimed at increasing adoption by 3x, reducing implementation rework by 30%, and improving user satisfaction to 4.5/5.
+This PRD defines architecture enhancements to JP Flowspec aimed at increasing adoption by 3x, reducing implementation rework by 30%, and improving user satisfaction to 4.5/5.
 
-**Problem**: JP Specflow's current architecture creates adoption barriers through excessive scaffolding, lack of quality enforcement before implementation, and limited distribution channels.
+**Problem**: JP Flowspec's current architecture creates adoption barriers through excessive scaffolding, lack of quality enforcement before implementation, and limited distribution channels.
 
 **Solution**: Four integrated architecture domains that reduce friction for new users while maintaining quality for complex projects.
 
-**Business Value**: Enable JP Specflow to scale from solo developers to 10+ person teams.
+**Business Value**: Enable JP Flowspec to scale from solo developers to 10+ person teams.
 
 ## Problem Statement
 
@@ -64,7 +64,7 @@ As a **solo developer**, I want **a light-weight SDD workflow** so that **I can 
 As a **product manager**, I want **automated quality gates before implementation** so that **engineering doesn't start coding with incomplete specs**.
 
 **Acceptance Criteria:**
-- [ ] `/specflow:implement` automatically runs 5 quality gates before proceeding
+- [ ] `/flow:implement` automatically runs 5 quality gates before proceeding
 - [ ] Gate 1 verifies spec completeness (no NEEDS CLARIFICATION markers)
 - [ ] Gate 2 validates required files exist (spec.md, plan.md, tasks.md)
 - [ ] Gate 3 checks constitutional compliance (test-first, task quality)
@@ -74,10 +74,10 @@ As a **product manager**, I want **automated quality gates before implementation
 
 ### US3: Marketplace Plugin Distribution (task-081)
 
-As an **end user**, I want **JP Specflow available as a Claude plugin** so that **I can easily discover, install, and update it through the marketplace**.
+As an **end user**, I want **JP Flowspec available as a Claude plugin** so that **I can easily discover, install, and update it through the marketplace**.
 
 **Acceptance Criteria:**
-- [ ] Plugin contains all slash commands (/specflow:*, /speckit:*)
+- [ ] Plugin contains all slash commands (/flow:*, /speckit:*)
 - [ ] Plugin includes agent configurations in agents/ directory
 - [ ] Plugin updates don't affect user project files
 - [ ] Documentation provides decision tree: when to use plugin vs UV CLI

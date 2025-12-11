@@ -10,7 +10,7 @@
 
 ## Executive Summary
 
-Specflow orchestrates software development through `/specflow` workflow commands (assess, specify, research, plan, implement, validate, operate). Currently, backlog.md tasks use simple statuses ("To Do", "In Progress", "Done") that don't reflect which workflow phase a task is in.
+Flowspec orchestrates software development through `/flowspec` workflow commands (assess, specify, research, plan, implement, validate, operate). Currently, backlog.md tasks use simple statuses ("To Do", "In Progress", "Done") that don't reflect which workflow phase a task is in.
 
 **Solution:** Hybrid two-level state model combining board statuses for visual organization with workflow step metadata for precise lifecycle tracking.
 
@@ -79,7 +79,7 @@ assignee: ["@backend-engineer"]
 
 ```bash
 # Developer runs workflow command
-/specflow:implement
+/flow:implement
 
 # System automatically updates task:
 # - workflow_step: Planned → In Implementation
@@ -95,7 +95,7 @@ assignee: ["@backend-engineer"]
 
 ```
 ┌─────────────────────────────────────┐
-│     /specflow Commands                │  User-facing workflows
+│     /flowspec Commands                │  User-facing workflows
 │  (assess, specify, plan, etc.)      │
 └──────────────┬──────────────────────┘
                │
@@ -116,7 +116,7 @@ assignee: ["@backend-engineer"]
                │
                ▼
 ┌─────────────────────────────────────┐
-│  specflow_workflow.yml                │  Single source of truth
+│  flowspec_workflow.yml                │  Single source of truth
 │  - States definition                │
 │  - Workflow definitions             │
 │  - Transition rules                 │
@@ -126,7 +126,7 @@ assignee: ["@backend-engineer"]
 ### Data Flow
 
 ```
-User Action (/specflow:plan)
+User Action (/flow:plan)
     ↓
 Validate current state (Specified ✓)
     ↓
@@ -157,7 +157,7 @@ Commit to Git (audit trail)
 
 ### Phase 2: Integration (v0.0.155)
 - Create WorkflowStateSynchronizer class
-- Integrate with all `/specflow` commands
+- Integrate with all `/flowspec` commands
 - Automatic workflow_step updates
 
 **Status:** Pending Phase 1
@@ -216,7 +216,7 @@ Commit to Git (audit trail)
 ### Gregor Hohpe's Principles
 
 1. **Levels of Abstraction** - Board status (simple) vs. workflow step (detailed)
-2. **Single Source of Truth** - specflow_workflow.yml defines all states
+2. **Single Source of Truth** - flowspec_workflow.yml defines all states
 3. **Composition over Configuration** - Layered approach (basic + optional)
 4. **Fail Fast** - Validate early, provide clear errors
 5. **Progressive Disclosure** - Simple stays simple, complexity available
@@ -272,14 +272,14 @@ Commit to Git (audit trail)
 
 ✓ **Zero Breaking Changes** - All existing tasks work
 ✓ **Performance** - <5ms TUI rendering overhead per 100 tasks
-✓ **Adoption** - 80%+ of `/specflow` tasks use workflow_step within 2 months
+✓ **Adoption** - 80%+ of `/flowspec` tasks use workflow_step within 2 months
 ✓ **Error Rate** - <5% invalid state transitions
 
 ### Subjective Measures
 
 ✓ **Developer Feedback** - Positive sentiment
 ✓ **Reduced Questions** - Fewer "where is this task?" questions
-✓ **Increased Usage** - More projects adopt full `/specflow` workflow
+✓ **Increased Usage** - More projects adopt full `/flowspec` workflow
 
 ---
 
@@ -291,7 +291,7 @@ Commit to Git (audit trail)
    - task-090: WorkflowConfig class (ALREADY DONE - needs status update)
    - task-091: Workflow validation logic
    - task-095: Documentation
-   - task-096: Update /specflow commands
+   - task-096: Update /flowspec commands
    - task-182: Transition validation modes
 4. **Create implementation tasks** for Phase 1
 5. **Schedule architecture review** - 2025-12-15
@@ -306,7 +306,7 @@ Commit to Git (audit trail)
 
 ### Q: What if I manually edit workflow_step?
 
-**A:** You can, but it's discouraged. The `/specflow` commands automatically update workflow_step. Use manual edits only for exceptional cases (debugging, rework scenarios).
+**A:** You can, but it's discouraged. The `/flowspec` commands automatically update workflow_step. Use manual edits only for exceptional cases (debugging, rework scenarios).
 
 ### Q: Can I customize the board columns?
 
@@ -320,7 +320,7 @@ Commit to Git (audit trail)
 
 **A:** Surprise! WorkflowConfig is already fully implemented in `src/specify_cli/workflow/config.py`. Task-090 just needs status update to Done.
 
-### Q: How does this integrate with existing /specflow commands?
+### Q: How does this integrate with existing /flowspec commands?
 
 **A:** Each command gets 3 lines of code added:
 ```python
@@ -338,7 +338,7 @@ sync.update_task_workflow_step(task_id, workflow, feature)
 ```bash
 backlog task edit task-042 --set-field workflow_step="Planned"
 ```
-System validates the transition is allowed per specflow_workflow.yml.
+System validates the transition is allowed per flowspec_workflow.yml.
 
 ---
 
@@ -361,7 +361,7 @@ ADR-002 Documentation Suite
 ├── workflow-step-implementation-guide.md
 │   └── Phase-by-phase implementation details
 │       ├── Phase 1: Foundation (schema, parsing)
-│       ├── Phase 2: Integration (/specflow commands)
+│       ├── Phase 2: Integration (/flowspec commands)
 │       ├── Phase 3: Validation (constraints)
 │       ├── Phase 4: Documentation
 │       └── Code examples for each component

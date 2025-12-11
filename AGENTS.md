@@ -159,7 +159,7 @@ Types:
 
 Examples:
   feat(cli): add support for Windsurf agent
-  fix(templates): correct specflow command paths
+  fix(templates): correct flowspec command paths
   docs(readme): update installation instructions
   test(cli): add tests for --force flag
 ```
@@ -200,9 +200,9 @@ jp-spec-kit/
 │   ├── bash/              # Bash automation scripts
 │   └── powershell/        # PowerShell equivalents
 ├── templates/             # Project templates
-│   └── commands/specflow/   # specflow workflow commands
+│   └── commands/flowspec/   # flowspec workflow commands
 ├── .claude/
-│   └── commands/specflow/   # Installed specflow commands
+│   └── commands/flowspec/   # Installed flowspec commands
 ├── .github/workflows/     # GitHub Actions CI/CD
 ├── docs/                  # Documentation
 │   └── reference/         # Technical reference docs
@@ -240,13 +240,13 @@ See `CONTRIBUTING-AGENTS.md` for detailed instructions. Key steps:
 
 Commands are in two locations:
 
-- **Templates**: `templates/commands/specflow/*.md` (for new projects)
-- **Installed**: `.claude/commands/specflow/*.md` (for this repo)
+- **Templates**: `templates/commands/flowspec/*.md` (for new projects)
+- **Installed**: `.claude/commands/flowspec/*.md` (for this repo)
 
 When modifying:
-1. Update template in `templates/commands/specflow/`
-2. Update installed version in `.claude/commands/specflow/`
-3. Test with `/specflow:<command>` in Claude Code
+1. Update template in `templates/commands/flowspec/`
+2. Update installed version in `.claude/commands/flowspec/`
+3. Test with `/flow:<command>` in Claude Code
 
 ### Adding New Scripts
 
@@ -374,7 +374,7 @@ This is a critical file. Changes here require:
 
 ### Agent-Specific Notes
 
-- **Claude Code**: Use `/specflow:*` commands for workflows
+- **Claude Code**: Use `/flow:*` commands for workflows
 - **GitHub Copilot**: Context from `.github/prompts/` (if exists)
 - **All Agents**: Follow this AGENTS.md for consistent development
 

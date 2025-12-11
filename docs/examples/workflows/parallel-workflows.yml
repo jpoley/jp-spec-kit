@@ -45,7 +45,7 @@ states:
 
 workflows:
   assess:
-    command: "/specflow:assess"
+    command: "/flow:assess"
     description: "Evaluate SDD workflow suitability"
     agents:
       - name: "workflow-assessor"
@@ -58,7 +58,7 @@ workflows:
     optional: false
 
   specify:
-    command: "/specflow:specify"
+    command: "/flow:specify"
     description: "Create feature specifications"
     agents:
       - name: "product-requirements-manager"
@@ -71,7 +71,7 @@ workflows:
     optional: false
 
   plan:
-    command: "/specflow:plan"
+    command: "/flow:plan"
     description: "Execute planning workflow"
     execution_mode: "parallel"
     agents:
@@ -92,7 +92,7 @@ workflows:
 
   # Frontend track workflows
   implement-frontend:
-    command: "/specflow:implement-frontend"
+    command: "/flow:implement-frontend"
     description: "Implement frontend components"
     agents:
       - name: "frontend-engineer"
@@ -113,7 +113,7 @@ workflows:
     optional: false
 
   validate-frontend:
-    command: "/specflow:validate-frontend"
+    command: "/flow:validate-frontend"
     description: "Validate frontend independently"
     agents:
       - name: "quality-guardian"
@@ -129,7 +129,7 @@ workflows:
 
   # Backend track workflows
   implement-backend:
-    command: "/specflow:implement-backend"
+    command: "/flow:implement-backend"
     description: "Implement backend services"
     agents:
       - name: "backend-engineer"
@@ -150,7 +150,7 @@ workflows:
     optional: false
 
   validate-backend:
-    command: "/specflow:validate-backend"
+    command: "/flow:validate-backend"
     description: "Validate backend independently"
     agents:
       - name: "quality-guardian"
@@ -171,7 +171,7 @@ workflows:
 
   # Integration workflow (combines tracks)
   integrate:
-    command: "/specflow:integrate"
+    command: "/flow:integrate"
     description: "Integrate frontend and backend"
     agents:
       - name: "frontend-engineer"
@@ -190,7 +190,7 @@ workflows:
     optional: false
 
   validate-integration:
-    command: "/specflow:validate-integration"
+    command: "/flow:validate-integration"
     description: "Validate end-to-end integration"
     agents:
       - name: "quality-guardian"
@@ -204,7 +204,7 @@ workflows:
     optional: false
 
   operate:
-    command: "/specflow:operate"
+    command: "/flow:operate"
     description: "Execute operations workflow"
     agents:
       - name: "sre-agent"

@@ -128,7 +128,7 @@ class SecurityConfig:
     This is the top-level configuration object that contains
     all security scanning settings.
 
-    Example config file (.specflow/security-config.yml):
+    Example config file (.flowspec/security-config.yml):
         scanners:
           semgrep:
             enabled: true

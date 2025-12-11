@@ -4,7 +4,7 @@ This directory contains GitHub Actions workflow templates for different tech sta
 
 ## Purpose
 
-When users run `/specflow:operate` with the SRE agent, these templates are used to generate CI/CD pipelines specific to their tech stack. Each template follows the outer-loop principles:
+When users run `/flow:operate` with the SRE agent, these templates are used to generate CI/CD pipelines specific to their tech stack. Each template follows the outer-loop principles:
 
 - **Build once** in dev/CI, promote everywhere else
 - **SBOM generation** for supply chain security
@@ -77,7 +77,7 @@ Each template follows this structure:
 
 ## Usage by SRE Agent
 
-The `sre-agent` (invoked via `/specflow:operate`) uses these templates to:
+The `sre-agent` (invoked via `/flow:operate`) uses these templates to:
 
 1. Detect the project's tech stack
 2. Select the appropriate template
@@ -135,11 +135,11 @@ To add a new stack:
 2. Follow the template structure above
 3. Include all outer-loop requirements
 4. Add to this README
-5. Update `sre-agent` detection logic in `.claude/commands/specflow/operate.md`
+5. Update `sre-agent` detection logic in `.claude/commands/flowspec/operate.md`
 
 ## References
 
 - [Outer Loop Principles](../../docs/reference/outer-loop.md)
 - [Inner Loop Principles](../../docs/reference/inner-loop.md)
 - [Agent Loop Classification](../../docs/reference/agent-loop-classification.md)
-- [SRE Agent Command](../../.claude/commands/specflow/operate.md)
+- [SRE Agent Command](../../.claude/commands/flowspec/operate.md)

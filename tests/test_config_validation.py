@@ -63,8 +63,8 @@ transitions:
 def initialized_project(
     tmp_path: Path, workflow_content: str, monkeypatch: pytest.MonkeyPatch
 ) -> Path:
-    """Create a temp directory with specflow_workflow.yml and chdir to it."""
-    workflow_file = tmp_path / "specflow_workflow.yml"
+    """Create a temp directory with flowspec_workflow.yml and chdir to it."""
+    workflow_file = tmp_path / "flowspec_workflow.yml"
     workflow_file.write_text(workflow_content)
     monkeypatch.chdir(tmp_path)
     return tmp_path
@@ -84,11 +84,11 @@ class TestConfigValidationShow:
     def test_show_no_workflow_file(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """Test error when no specflow_workflow.yml exists."""
+        """Test error when no flowspec_workflow.yml exists."""
         monkeypatch.chdir(tmp_path)
         result = runner.invoke(app, ["config", "validation", "--show"])
         assert result.exit_code == 1
-        assert "No specflow_workflow.yml" in result.output
+        assert "No flowspec_workflow.yml" in result.output
 
 
 class TestConfigValidationDefaultBehavior:
@@ -119,7 +119,7 @@ class TestConfigValidationSingleUpdate:
             ["config", "validation", "-t", "specify", "-m", "keyword", "-k", "LGTM"],
         )
         assert result.exit_code == 0
-        workflow = (initialized_project / "specflow_workflow.yml").read_text()
+        workflow = (initialized_project / "flowspec_workflow.yml").read_text()
         assert 'KEYWORD["LGTM"]' in workflow
 
     def test_update_single_transition_keyword_default(
@@ -130,7 +130,7 @@ class TestConfigValidationSingleUpdate:
             app, ["config", "validation", "-t", "specify", "-m", "keyword"]
         )
         assert result.exit_code == 0
-        workflow = (initialized_project / "specflow_workflow.yml").read_text()
+        workflow = (initialized_project / "flowspec_workflow.yml").read_text()
         assert 'KEYWORD["APPROVED"]' in workflow
 
     def test_update_single_transition_pull_request(
@@ -141,7 +141,7 @@ class TestConfigValidationSingleUpdate:
             app, ["config", "validation", "-t", "plan", "-m", "pull-request"]
         )
         assert result.exit_code == 0
-        workflow = (initialized_project / "specflow_workflow.yml").read_text()
+        workflow = (initialized_project / "flowspec_workflow.yml").read_text()
         assert "PULL_REQUEST" in workflow
 
     def test_update_invalid_transition(self, initialized_project: Path) -> None:
@@ -212,7 +212,7 @@ class TestConfigValidationPreservesOtherTransitions:
         runner.invoke(app, ["config", "validation", "-t", "plan", "-m", "pull-request"])
 
         # Verify plan changed
-        workflow = (initialized_project / "specflow_workflow.yml").read_text()
+        workflow = (initialized_project / "flowspec_workflow.yml").read_text()
         assert "validation: PULL_REQUEST" in workflow
 
         # Verify other transitions still NONE
@@ -227,6 +227,6 @@ class TestConfigValidationPreservesOtherTransitions:
             app, ["config", "validation", "-t", "specify", "-m", "keyword", "-k", "OK"]
         )
 
-        workflow = (initialized_project / "specflow_workflow.yml").read_text()
+        workflow = (initialized_project / "flowspec_workflow.yml").read_text()
         assert "PULL_REQUEST" in workflow
         assert 'KEYWORD["OK"]' in workflow

@@ -43,7 +43,7 @@ The `dogfood-cli` worktree (now referred to as `dev-setup`) contains valuable ar
 The worktree **deletes ~112,000 lines** including:
 
 1. **Security scanning module** - Actively developed with recent PRs (#373, #374, #378)
-2. **Workflow engine** - Required for /specflow command state management
+2. **Workflow engine** - Required for /flowspec command state management
 3. **Hooks system** - Required for quality gates and automation
 4. **Quality module** - Used for spec validation
 
@@ -101,16 +101,16 @@ Import tasks 259-279 from dogfood-cli:
 | 261 | Add dev-setup validation pre-commit hook |
 | 262 | Add dev-setup management Makefile commands |
 | 263 | Document dev-setup workflow for contributors |
-| 264 | Migrate specflow commands to templates |
-| 265 | Add specflow commands to specify init distribution |
+| 264 | Migrate flowspec commands to templates |
+| 265 | Add flowspec commands to specify init distribution |
 | 266 | Create dev-setup operational runbook |
 | 267 | ADR: Single Source of Truth for Commands |
 | 268 | ADR: Directory Structure Convention |
 | 269 | ADR: Shared Content Strategy |
 | 270 | Design Unified Command Template Structure |
-| 271 | Migrate specflow commands to templates |
+| 271 | Migrate flowspec commands to templates |
 | 272 | Migrate speckit commands to subdirectory |
-| 273 | Update dev-setup command for specflow symlinks |
+| 273 | Update dev-setup command for flowspec symlinks |
 | 274 | Replace source repo commands with symlinks |
 | 275 | Update init command for subdirectory structure |
 | 276 | Create command migration script for users |
@@ -173,7 +173,7 @@ The following changes in dogfood-cli are **intentionally excluded**:
 - ❌ Deletion of `src/specify_cli/hooks/` module
 - ❌ Deletion of `src/specify_cli/quality/` module
 - ❌ Deletion of associated test files
-- ❌ Removal of `specflow_workflow.yml` and schema
+- ❌ Removal of `flowspec_workflow.yml` and schema
 - ❌ Removal of memory/ directory files
 - ❌ The comprehensive "rename dogfood to dev-setup everywhere" commits (CLI name already changed)
 

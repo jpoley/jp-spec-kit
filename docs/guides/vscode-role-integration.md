@@ -2,14 +2,14 @@
 
 ## Overview
 
-Specflow integrates with VS Code Copilot to provide role-based agent suggestions and command visibility. By configuring your primary role, VS Code will prioritize agents and commands relevant to your work.
+Flowspec integrates with VS Code Copilot to provide role-based agent suggestions and command visibility. By configuring your primary role, VS Code will prioritize agents and commands relevant to your work.
 
 ## Quick Start
 
-1. **Ensure your role is configured** in `specflow_workflow.yml`:
+1. **Ensure your role is configured** in `flowspec_workflow.yml`:
    ```bash
    # View current role
-   grep "primary:" specflow_workflow.yml
+   grep "primary:" flowspec_workflow.yml
    ```
 
 2. **Generate VS Code settings**:
@@ -54,7 +54,7 @@ Generate `.vscode/settings.json` with role-appropriate configuration.
 **Examples**:
 
 ```bash
-# Generate for primary role (from specflow_workflow.yml)
+# Generate for primary role (from flowspec_workflow.yml)
 specify vscode generate
 
 # Generate for specific role
@@ -89,7 +89,7 @@ The generated settings file contains:
   "github.copilot.chat.promptFiles": {
     "enabled": true
   },
-  "specflow": {
+  "flowspec": {
     "primaryRole": "dev",
     "displayName": "Developer",
     "icon": "💻",
@@ -178,7 +178,7 @@ The generated settings file contains:
 By default, `specify vscode generate` **merges** with existing `.vscode/settings.json`:
 
 - Existing settings are preserved
-- Specflow settings are added/updated
+- Flowspec settings are added/updated
 - Extension recommendations are merged (not replaced)
 
 ### Force Overwrite
@@ -191,7 +191,7 @@ specify vscode generate --force --no-merge
 
 ### Selective Merge
 
-To preserve existing settings but regenerate Specflow config:
+To preserve existing settings but regenerate Flowspec config:
 
 ```bash
 specify vscode generate  # Default behavior
@@ -234,7 +234,7 @@ Cmd/Ctrl + Shift + P → "Developer: Reload Window"
 
 **Verify agent exists in workflow config**:
 ```bash
-grep -A5 "agents:" specflow_workflow.yml
+grep -A5 "agents:" flowspec_workflow.yml
 ```
 
 **Regenerate settings**:
@@ -246,7 +246,7 @@ specify vscode generate --force
 
 **Check primary role in workflow config**:
 ```bash
-grep "primary:" specflow_workflow.yml
+grep "primary:" flowspec_workflow.yml
 ```
 
 **Override with specific role**:
@@ -265,22 +265,22 @@ specify vscode generate  # Merges with existing
 
 ## Best Practices
 
-1. **Generate after role changes**: Re-run `specify vscode generate` when changing roles in `specflow_workflow.yml`
+1. **Generate after role changes**: Re-run `specify vscode generate` when changing roles in `flowspec_workflow.yml`
 
 2. **Commit to git**: Add `.vscode/settings.json` to version control for team consistency
 
 3. **Per-workspace override**: Users can override role per-session:
    ```bash
-   SPECFLOW_PRIMARY_ROLE=qa code .
+   FLOWSPEC_PRIMARY_ROLE=qa code .
    ```
 
 4. **Review pinned agents**: Run `specify vscode generate` to see which agents will be pinned
 
 5. **Update regularly**: Regenerate settings when agents are added/removed from workflow config
 
-## Integration with specflow_workflow.yml
+## Integration with flowspec_workflow.yml
 
-Settings generation reads from `specflow_workflow.yml`:
+Settings generation reads from `flowspec_workflow.yml`:
 
 ```yaml
 roles:
@@ -319,4 +319,4 @@ Planned features:
 
 - [VS Code Settings Reference](https://code.visualstudio.com/docs/getstarted/settings)
 - [GitHub Copilot Documentation](https://docs.github.com/en/copilot)
-- [Specflow Workflow Schema](../../schemas/specflow_workflow.schema.json)
+- [Flowspec Workflow Schema](../../schemas/flowspec_workflow.schema.json)

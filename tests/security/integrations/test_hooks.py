@@ -56,18 +56,18 @@ class TestPreCommitConfig:
         assert bandit_hook is not None
         assert "bandit" in bandit_hook["entry"]
 
-    def test_to_yaml_includes_specflow(self):
-        """Test YAML includes specflow security hook."""
+    def test_to_yaml_includes_flowspec(self):
+        """Test YAML includes flowspec security hook."""
         config = PreCommitConfig()
         yaml_str = config.to_yaml()
         data = yaml.safe_load(yaml_str)
 
         hooks = data["repos"][0]["hooks"]
-        specflow_hook = next((h for h in hooks if h["id"] == "specflow-security"), None)
+        flowspec_hook = next((h for h in hooks if h["id"] == "flowspec-security"), None)
 
-        assert specflow_hook is not None
-        assert "specify security scan" in specflow_hook["entry"]
-        assert "--fail-on high" in specflow_hook["entry"]
+        assert flowspec_hook is not None
+        assert "specify security scan" in flowspec_hook["entry"]
+        assert "--fail-on high" in flowspec_hook["entry"]
 
     def test_fail_on_severity_in_config(self):
         """Test fail_on severity is included."""
@@ -120,8 +120,8 @@ class TestGeneratePrecommitConfig:
         config = generate_precommit_config(scanners=["semgrep"])
 
         assert "semgrep" in config
-        # Should still have specflow-security
-        assert "specflow-security" in config
+        # Should still have flowspec-security
+        assert "flowspec-security" in config
 
     def test_custom_fail_on(self):
         """Test custom fail_on threshold."""

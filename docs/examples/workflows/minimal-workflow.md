@@ -31,9 +31,9 @@ This configuration provides the fastest possible SDD workflow with only essentia
 
 ```
 To Do
-  ↓ /specflow:specify
+  ↓ /flow:specify
 Specified
-  ↓ /specflow:implement
+  ↓ /flow:implement
 In Implementation
   ↓ manual
 Done
@@ -43,7 +43,7 @@ Done
 
 1. **Copy the configuration**:
    ```bash
-   cp docs/examples/workflows/minimal-workflow.yml specflow_workflow.yml
+   cp docs/examples/workflows/minimal-workflow.yml flowspec_workflow.yml
    ```
 
 2. **Validate**:
@@ -58,10 +58,10 @@ Done
 
 4. **Run the workflow**:
    ```bash
-   /specflow:specify
+   /flow:specify
    # Creates PRD at docs/prd/{feature}.md
 
-   /specflow:implement
+   /flow:implement
    # Engineers implement, reviewers review
 
    backlog task edit task-123 -s Done
@@ -92,7 +92,7 @@ states:
 
 workflows:
   validate:
-    command: "/specflow:validate"
+    command: "/flow:validate"
     agents:
       - name: "quality-guardian"
         # ...
@@ -124,7 +124,7 @@ states:
 
 workflows:
   plan:
-    command: "/specflow:plan"
+    command: "/flow:plan"
     agents:
       - name: "software-architect"
         # ...
@@ -172,7 +172,7 @@ As projects mature, gradually add phases:
 1. **Still write tests** - Even without formal validation phase
 2. **Document architecture decisions** - Even without ADRs
 3. **Run security scans** - Use pre-commit hooks
-4. **Automate deployment** - Use CI/CD even without /specflow:operate
+4. **Automate deployment** - Use CI/CD even without /flow:operate
 5. **Review regularly** - Code review is your quality gate
 
 ## When to Upgrade

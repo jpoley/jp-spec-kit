@@ -9,7 +9,7 @@ This example demonstrates how to:
 Requirements:
     - JP Spec Kit installed in each repository
     - MCP SDK installed: uv add mcp
-    - Each repo has .mcp.json configured with specflow-security server
+    - Each repo has .mcp.json configured with flowspec-security server
 
 Usage:
     python examples/mcp/security_dashboard.py --repos /path/to/repo1 /path/to/repo2

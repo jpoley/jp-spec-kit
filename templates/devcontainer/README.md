@@ -15,7 +15,7 @@ cp devcontainer.json .devcontainer/
 
 ## What's Included
 
-The `jpoley/specflow-agents` Docker image includes:
+The `jpoley/flowspec-agents` Docker image includes:
 
 ### AI Coding Assistants
 - **Claude Code** (`claude`) - Anthropic's AI coding assistant

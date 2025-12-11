@@ -1,4 +1,4 @@
-"""Tests for constitution enforcement in /specflow commands.
+"""Tests for constitution enforcement in /flowspec commands.
 
 Tests cover:
 - Constitution existence detection

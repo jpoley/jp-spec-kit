@@ -11,7 +11,7 @@
 
 ### Business Objectives
 
-JP Specflow currently suffers from **command namespace overload**: 18+ commands in flat namespaces (`/specflow:*`, `/speckit:*`) create discoverability challenges and cognitive burden for users. Security commands are scattered, and there's no logical grouping by role or persona.
+JP Flowspec currently suffers from **command namespace overload**: 18+ commands in flat namespaces (`/flow:*`, `/speckit:*`) create discoverability challenges and cognitive burden for users. Security commands are scattered, and there's no logical grouping by role or persona.
 
 **Investment Justification**:
 - **Reduce onboarding time**: From 2 hours to 30 minutes
@@ -67,42 +67,42 @@ Roles:
 #### Product Manager (`/pm`)
 | Old | New | Agent |
 |-----|-----|-------|
-| `/specflow:assess` | `/pm:assess` | @workflow-assessor |
-| `/specflow:specify` | `/pm:specify` | @pm-planner |
-| `/specflow:research` | `/pm:research` | @researcher |
+| `/flow:assess` | `/pm:assess` | @workflow-assessor |
+| `/flow:specify` | `/pm:specify` | @pm-planner |
+| `/flow:research` | `/pm:research` | @researcher |
 
 #### Developer (`/dev`)
 | Old | New | Agent |
 |-----|-----|-------|
-| `/specflow:plan` | `/dev:plan` | @software-architect |
-| `/specflow:implement` | `/dev:implement` | @frontend-engineer, @backend-engineer |
-| `/specflow:operate` | `/dev:operate` | @sre-agent |
-| `/specflow:init` | `/dev:init` | (system) |
-| `/specflow:reset` | `/dev:reset` | (system) |
-| `/specflow:prune-branch` | `/dev:prune-branch` | (system) |
+| `/flow:plan` | `/dev:plan` | @software-architect |
+| `/flow:implement` | `/dev:implement` | @frontend-engineer, @backend-engineer |
+| `/flow:operate` | `/dev:operate` | @sre-agent |
+| `/flow:init` | `/dev:init` | (system) |
+| `/flow:reset` | `/dev:reset` | (system) |
+| `/flow:prune-branch` | `/dev:prune-branch` | (system) |
 | `/speckit:implement` | `/dev:implement-light` | (lightweight) |
 | `/speckit:plan` | `/dev:plan-light` | (lightweight) |
 
 #### Security Engineer (`/sec`)
 | Old | New | Agent |
 |-----|-----|-------|
-| `/specflow:security_fix` | `/sec:fix` | @secure-by-design-engineer |
-| `/specflow:security_report` | `/sec:report` | @secure-by-design-engineer |
-| `/specflow:security_triage` | `/sec:triage` | @secure-by-design-engineer |
-| `/specflow:security_web` | `/sec:scan-web` | @secure-by-design-engineer |
-| `/specflow:security_workflow` | `/sec:workflow` | @secure-by-design-engineer |
+| `/flow:security_fix` | `/sec:fix` | @secure-by-design-engineer |
+| `/flow:security_report` | `/sec:report` | @secure-by-design-engineer |
+| `/flow:security_triage` | `/sec:triage` | @secure-by-design-engineer |
+| `/flow:security_web` | `/sec:scan-web` | @secure-by-design-engineer |
+| `/flow:security_workflow` | `/sec:workflow` | @secure-by-design-engineer |
 
 #### QA Engineer (`/qa`)
 | Old | New | Agent |
 |-----|-----|-------|
-| `/specflow:validate` | `/qa:validate` | @quality-guardian |
+| `/flow:validate` | `/qa:validate` | @quality-guardian |
 | `/speckit:checklist` | `/qa:checklist` | @quality-guardian |
 | `/speckit:analyze` | `/qa:analyze` | @quality-guardian |
 
 #### SRE/DevOps (`/ops`)
 | Old | New | Notes |
 |-----|-----|-------|
-| `/specflow:operate` | `/ops:deploy` | Deployment focus |
+| `/flow:operate` | `/ops:deploy` | Deployment focus |
 | - | `/ops:monitor` | New command |
 | - | `/ops:incident` | New command |
 | - | `/ops:runbook` | New command |
@@ -139,7 +139,7 @@ Roles:
 
 ### ADR-002: Role Selection Mechanism
 
-**Decision**: Store role selection in `specflow_workflow.yml` with environment variable override
+**Decision**: Store role selection in `flowspec_workflow.yml` with environment variable override
 
 **Rationale**:
 - Project-scoped (not global user config)
@@ -183,7 +183,7 @@ role_config:
 **Example Migration**:
 ```bash
 # Old (still works, shows warning)
-/specflow:assess feature-x
+/flow:assess feature-x
 ⚠️ Deprecated. Use /pm:assess instead.
 
 # New
@@ -219,8 +219,8 @@ role_config:
 - [ ] Implement alias system (include-based forwarding)
 
 ### Phase 2: Role Selection (Weeks 3-4)
-- [ ] Enhance `/specflow:init` with role selection prompt
-- [ ] Update `specflow_workflow.yml` schema
+- [ ] Enhance `/flow:init` with role selection prompt
+- [ ] Update `flowspec_workflow.yml` schema
 - [ ] Implement environment variable override
 - [ ] Update VS Code Copilot agent metadata
 
@@ -327,7 +327,7 @@ role_config:
    - Backwards compatibility strategy
 
 2. ✅ [ADR: Role Selection During Initialization](../adr/ADR-role-selection-during-initialization.md)
-   - Storage location decision (specflow_workflow.yml)
+   - Storage location decision (flowspec_workflow.yml)
    - Interactive prompt design
    - VS Code Copilot integration
    - Environment variable override
@@ -393,7 +393,7 @@ By applying Gregor Hohpe's principles—selling options rather than solutions, m
 - Gregor Hohpe, "Platform Strategy"
 - Gregor Hohpe, "Enterprise Integration Patterns"
 - [VS Code Copilot Agents Plan](../platform/vscode-copilot-agents-plan.md)
-- [Workflow Configuration](../../specflow_workflow.yml)
+- [Workflow Configuration](../../flowspec_workflow.yml)
 
 ---
 

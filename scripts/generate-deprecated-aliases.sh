@@ -8,19 +8,19 @@ TEMPLATES_DIR="$SCRIPT_DIR/../templates/commands"
 
 # Command mappings: old_command -> new_command
 declare -A COMMAND_MAP=(
-    ["specflow/assess.md"]="pm/assess.md"
-    ["specflow/specify.md"]="pm/define.md"
-    ["specflow/research.md"]="pm/discover.md"
-    ["specflow/plan.md"]="arch/design.md"
-    ["specflow/implement.md"]="dev/build.md"
-    ["specflow/validate.md"]="qa/verify.md"
-    ["specflow/operate.md"]="ops/deploy.md"
-    ["specflow/prune-branch.md"]="dev/cleanup.md"
-    ["specflow/security_web.md"]="sec/scan.md"
-    ["specflow/security_triage.md"]="sec/triage.md"
-    ["specflow/security_fix.md"]="sec/fix.md"
-    ["specflow/security_workflow.md"]="sec/audit.md"
-    ["specflow/security_report.md"]="sec/report.md"
+    ["flowspec/assess.md"]="pm/assess.md"
+    ["flowspec/specify.md"]="pm/define.md"
+    ["flowspec/research.md"]="pm/discover.md"
+    ["flowspec/plan.md"]="arch/design.md"
+    ["flowspec/implement.md"]="dev/build.md"
+    ["flowspec/validate.md"]="qa/verify.md"
+    ["flowspec/operate.md"]="ops/deploy.md"
+    ["flowspec/prune-branch.md"]="dev/cleanup.md"
+    ["flowspec/security_web.md"]="sec/scan.md"
+    ["flowspec/security_triage.md"]="sec/triage.md"
+    ["flowspec/security_fix.md"]="sec/fix.md"
+    ["flowspec/security_workflow.md"]="sec/audit.md"
+    ["flowspec/security_report.md"]="sec/report.md"
 )
 
 echo "Generating deprecated command aliases..."
@@ -59,7 +59,7 @@ Please use the new role-based command instead:
 
 ## Why the Change?
 
-Specflow has migrated to role-based command namespaces to improve discoverability and align commands with team roles. The \`/specflow\` namespace contained 18+ commands, making it difficult to find relevant commands.
+Flowspec has migrated to role-based command namespaces to improve discoverability and align commands with team roles. The \`/flowspec\` namespace contained 18+ commands, making it difficult to find relevant commands.
 
 ## Migration
 
@@ -106,7 +106,7 @@ echo "Deprecated aliases created successfully!"
 echo ""
 echo "Summary:"
 echo "  Total aliases: ${#COMMAND_MAP[@]}"
-echo "  Location: $TEMPLATES_DIR/specflow/_DEPRECATED_*.md"
+echo "  Location: $TEMPLATES_DIR/flowspec/_DEPRECATED_*.md"
 echo ""
 echo "Next steps:"
 echo "  1. Review generated files"

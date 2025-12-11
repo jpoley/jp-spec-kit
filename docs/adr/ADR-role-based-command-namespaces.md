@@ -4,13 +4,13 @@
 **Date**: 2025-12-09
 **Author**: Enterprise Software Architect
 **Related Tasks**: task-357, task-358, task-359, task-360
-**Product**: Specflow (formerly JP Spec Kit)
+**Product**: Flowspec (formerly JP Spec Kit)
 
 ---
 
 ## Context and Problem Statement
 
-Specflow currently has 18+ slash commands across two flat namespaces (`/specflow` and `/speckit`). This creates several user experience and discoverability challenges:
+Flowspec currently has 18+ slash commands across two flat namespaces (`/flowspec` and `/speckit`). This creates several user experience and discoverability challenges:
 
 ### Current Pain Points
 
@@ -48,7 +48,7 @@ From the **Engine Room perspective** (Technical Execution):
 ## Considered Options
 
 ### Option 1: Flat Namespace with Prefixes (Status Quo)
-Keep current structure but add prefixes: `/specflow-pm-*`, `/specflow-dev-*`, etc.
+Keep current structure but add prefixes: `/flowspec-pm-*`, `/flowspec-dev-*`, etc.
 
 **Pros**:
 - Zero breaking changes
@@ -148,9 +148,9 @@ Each role namespace uses **persona-appropriate verbs** that reflect how that rol
 
 | Current Command | New Command | Verb Rationale |
 |-----------------|-------------|----------------|
-| `/specflow:assess` | `/pm:assess` | PM assesses feature viability and complexity |
-| `/specflow:specify` | `/pm:define` | PM defines requirements (not "specifies" - too technical) |
-| `/specflow:research` | `/pm:discover` | PM discovers user needs and market gaps |
+| `/flow:assess` | `/pm:assess` | PM assesses feature viability and complexity |
+| `/flow:specify` | `/pm:define` | PM defines requirements (not "specifies" - too technical) |
+| `/flow:research` | `/pm:discover` | PM discovers user needs and market gaps |
 
 **Agent Assignment**: `@product-requirements-manager`, `@workflow-assessor`, `@researcher`, `@business-validator`
 
@@ -160,7 +160,7 @@ Each role namespace uses **persona-appropriate verbs** that reflect how that rol
 
 | Current Command | New Command | Verb Rationale |
 |-----------------|-------------|----------------|
-| `/specflow:plan` | `/arch:design` | Architect designs system architecture |
+| `/flow:plan` | `/arch:design` | Architect designs system architecture |
 | `/speckit:plan` | `/arch:design-light` | Lightweight design for simpler features |
 | *New* | `/arch:decide` | Create Architecture Decision Records (ADRs) |
 | *New* | `/arch:model` | Create data models, API contracts, diagrams |
@@ -173,9 +173,9 @@ Each role namespace uses **persona-appropriate verbs** that reflect how that rol
 
 | Current Command | New Command | Verb Rationale |
 |-----------------|-------------|----------------|
-| `/specflow:implement` | `/dev:build` | Developer builds features (action-oriented) |
+| `/flow:implement` | `/dev:build` | Developer builds features (action-oriented) |
 | `/speckit:implement` | `/dev:build-light` | Lightweight build for simpler features |
-| `/specflow:prune-branch` | `/dev:cleanup` | Developer cleans up branches |
+| `/flow:prune-branch` | `/dev:cleanup` | Developer cleans up branches |
 | *New* | `/dev:debug` | Debugging assistance |
 | *New* | `/dev:refactor` | Refactoring guidance |
 
@@ -187,11 +187,11 @@ Each role namespace uses **persona-appropriate verbs** that reflect how that rol
 
 | Current Command | New Command | Verb Rationale |
 |-----------------|-------------|----------------|
-| `/specflow:security_triage` | `/sec:triage` | Security triages findings by severity |
-| `/specflow:security_fix` | `/sec:fix` | Security fixes vulnerabilities |
-| `/specflow:security_report` | `/sec:report` | Security reports on posture |
-| `/specflow:security_web` | `/sec:scan` | Security scans for vulnerabilities |
-| `/specflow:security_workflow` | `/sec:audit` | Security audits the workflow |
+| `/flow:security_triage` | `/sec:triage` | Security triages findings by severity |
+| `/flow:security_fix` | `/sec:fix` | Security fixes vulnerabilities |
+| `/flow:security_report` | `/sec:report` | Security reports on posture |
+| `/flow:security_web` | `/sec:scan` | Security scans for vulnerabilities |
+| `/flow:security_workflow` | `/sec:audit` | Security audits the workflow |
 
 **Agent Assignment**: `@secure-by-design-engineer`
 
@@ -201,7 +201,7 @@ Each role namespace uses **persona-appropriate verbs** that reflect how that rol
 
 | Current Command | New Command | Verb Rationale |
 |-----------------|-------------|----------------|
-| `/specflow:validate` | `/qa:verify` | QA verifies implementation meets requirements |
+| `/flow:validate` | `/qa:verify` | QA verifies implementation meets requirements |
 | `/speckit:checklist` | `/qa:review` | QA reviews against checklist |
 | `/speckit:analyze` | `/qa:test` | QA tests code quality and coverage |
 
@@ -213,7 +213,7 @@ Each role namespace uses **persona-appropriate verbs** that reflect how that rol
 
 | Current Command | New Command | Verb Rationale |
 |-----------------|-------------|----------------|
-| `/specflow:operate` | `/ops:deploy` | Ops deploys to environments |
+| `/flow:operate` | `/ops:deploy` | Ops deploys to environments |
 | *New* | `/ops:monitor` | Ops monitors system health |
 | *New* | `/ops:respond` | Ops responds to incidents |
 | *New* | `/ops:scale` | Ops scales infrastructure |
@@ -226,8 +226,8 @@ Each role namespace uses **persona-appropriate verbs** that reflect how that rol
 
 | Current Command | New Command | Verb Rationale |
 |-----------------|-------------|----------------|
-| `/specflow:init` | `/speckit:init` | Initialize project (all roles) |
-| `/specflow:reset` | `/speckit:configure` | Configure workflow settings |
+| `/flow:init` | `/speckit:init` | Initialize project (all roles) |
+| `/flow:reset` | `/speckit:configure` | Configure workflow settings |
 | `/speckit:constitution` | `/speckit:constitution` | Manage project constitution |
 | `/speckit:tasks` | `/speckit:tasks` | Manage backlog tasks |
 | `/speckit:clarify` | `/speckit:clarify` | Clarify requirements |
@@ -266,8 +266,8 @@ Each role namespace uses **persona-appropriate verbs** that reflect how that rol
 - Old commands work via aliases to new commands
 - Issue deprecation warning when old command used:
   ```
-  ⚠️  /specflow:assess is deprecated. Use /pm:assess instead.
-  Documentation: https://specflow.dev/migration
+  ⚠️  /flow:assess is deprecated. Use /pm:assess instead.
+  Documentation: https://flowspec.dev/migration
   ```
 - All documentation updated to show new commands
 - Migration guide published
@@ -276,7 +276,7 @@ Each role namespace uses **persona-appropriate verbs** that reflect how that rol
 - Warnings become more prominent
 - Count down to removal date shown:
   ```
-  ⚠️  /specflow:assess will be removed in 3 months. Use /pm:assess instead.
+  ⚠️  /flow:assess will be removed in 3 months. Use /pm:assess instead.
   Auto-migration script: specify migrate-commands
   ```
 - Auto-migration tool available
@@ -290,8 +290,8 @@ Each role namespace uses **persona-appropriate verbs** that reflect how that rol
 - Old commands removed
 - Helpful error message with migration path:
   ```
-  ❌ Command /specflow:assess has been removed.
-  Use /pm:assess instead. See migration guide: https://specflow.dev/migration
+  ❌ Command /flow:assess has been removed.
+  Use /pm:assess instead. See migration guide: https://flowspec.dev/migration
   ```
 
 ### Alias Implementation
@@ -299,7 +299,7 @@ Each role namespace uses **persona-appropriate verbs** that reflect how that rol
 Create symbolic links and command wrappers:
 
 ```yaml
-# .claude/commands/specflow/assess.md (OLD)
+# .claude/commands/flowspec/assess.md (OLD)
 ---
 description: "[DEPRECATED] Use /pm:assess instead"
 deprecated: true
@@ -347,12 +347,12 @@ When users run `/speckit:init` or `/speckit:configure`, they will be prompted to
 Enter selection [1-7]:
 ```
 
-### Storage: specflow_workflow.yml
+### Storage: flowspec_workflow.yml
 
-Role selection is stored in `specflow_workflow.yml` (renamed from `specflow_workflow.yml`):
+Role selection is stored in `flowspec_workflow.yml` (renamed from `flowspec_workflow.yml`):
 
 ```yaml
-# Specflow Workflow Configuration
+# Flowspec Workflow Configuration
 version: "2.0"
 
 # Role-based configuration
@@ -414,7 +414,7 @@ roles:
 
 ### Future Extensibility: User-Customizable Workflows
 
-The `specflow_workflow.yml` is designed for **easy user customization**:
+The `flowspec_workflow.yml` is designed for **easy user customization**:
 
 1. **Edit Personas**: Users can modify `display_name`, `icon`, and descriptions
 2. **Change Commands**: Add/remove commands from each role's `commands` array
@@ -451,7 +451,7 @@ The role selection affects command visibility in VS Code:
 ```yaml
 name: "pm-assess"
 description: "Assess feature complexity and SDD workflow suitability"
-target: "specflow"
+target: "flowspec"
 tools: [...]
 role: "pm"  # NEW FIELD
 priority_for_roles: ["pm"]  # Show first for PMs
@@ -468,19 +468,19 @@ The architecture is designed so users can easily customize:
 
 | What | Where | How |
 |------|-------|-----|
-| **Roles** | `specflow_workflow.yml` | Add/edit role definitions |
-| **Commands per Role** | `specflow_workflow.yml` | Edit `commands` array |
-| **Agents per Role** | `specflow_workflow.yml` | Edit `agents` array |
-| **Tools per Agent** | `specflow_workflow.yml` | Edit `tools` array (future) |
-| **Squads** | `specflow_workflow.yml` | Define multi-agent teams (future) |
-| **Handoffs** | `specflow_workflow.yml` | Define workflow transitions |
+| **Roles** | `flowspec_workflow.yml` | Add/edit role definitions |
+| **Commands per Role** | `flowspec_workflow.yml` | Edit `commands` array |
+| **Agents per Role** | `flowspec_workflow.yml` | Edit `agents` array |
+| **Tools per Agent** | `flowspec_workflow.yml` | Edit `tools` array (future) |
+| **Squads** | `flowspec_workflow.yml` | Define multi-agent teams (future) |
+| **Handoffs** | `flowspec_workflow.yml` | Define workflow transitions |
 
 ### Adding New Roles
 
 To add a new role (e.g., `/data` for Data Engineers):
 
 1. **Create namespace directory**: `.claude/commands/data/`
-2. **Add to workflow config** (`specflow_workflow.yml`):
+2. **Add to workflow config** (`flowspec_workflow.yml`):
 ```yaml
 roles:
   definitions:
@@ -501,7 +501,7 @@ roles:
 ### Adding New Commands to Existing Role
 
 1. Create command file: `.claude/commands/{role}/{command}.md`
-2. Add to role's `commands` array in `specflow_workflow.yml`
+2. Add to role's `commands` array in `flowspec_workflow.yml`
 3. Generate Copilot agents: `scripts/bash/sync-copilot-agents.sh`
 
 ### Future: Squad Configuration
@@ -509,7 +509,7 @@ roles:
 Multi-agent "squads" can be defined for complex workflows:
 
 ```yaml
-# specflow_workflow.yml
+# flowspec_workflow.yml
 squads:
   full-stack:
     name: "Full Stack Development"
@@ -584,7 +584,7 @@ squads:
 
 ### Phase 2: Role Selection (Weeks 3-4)
 - [ ] Enhance `/speckit:init` with role selection prompt
-- [ ] Update `specflow_workflow.yml` schema
+- [ ] Update `flowspec_workflow.yml` schema
 - [ ] Store role preferences
 - [ ] Update VS Code Copilot agent metadata
 
@@ -626,7 +626,7 @@ squads:
 - [Design: Command Migration Path](./design-command-migration-path.md)
 - [For speckit.constitution: Role-Based Command Standards](./constitution-role-based-command-standards.md)
 - [VS Code Copilot Agents Plan](../platform/vscode-copilot-agents-plan.md)
-- [Workflow Configuration Reference](../../specflow_workflow.yml)
+- [Workflow Configuration Reference](../../flowspec_workflow.yml)
 
 ---
 
@@ -649,16 +649,16 @@ squads:
 
 | Old Command | New Command | Role |
 |-------------|-------------|------|
-| `/specflow:assess` | `/pm:assess` | PM |
-| `/specflow:specify` | `/pm:define` | PM |
-| `/specflow:research` | `/pm:discover` | PM |
-| `/specflow:plan` | `/arch:design` | Architect |
-| `/specflow:implement` | `/dev:build` | Developer |
-| `/specflow:validate` | `/qa:verify` | QA |
-| `/specflow:operate` | `/ops:deploy` | Ops |
-| `/specflow:security_*` | `/sec:*` | Security |
-| `/specflow:init` | `/speckit:init` | Utility |
-| `/specflow:reset` | `/speckit:configure` | Utility |
+| `/flow:assess` | `/pm:assess` | PM |
+| `/flow:specify` | `/pm:define` | PM |
+| `/flow:research` | `/pm:discover` | PM |
+| `/flow:plan` | `/arch:design` | Architect |
+| `/flow:implement` | `/dev:build` | Developer |
+| `/flow:validate` | `/qa:verify` | QA |
+| `/flow:operate` | `/ops:deploy` | Ops |
+| `/flow:security_*` | `/sec:*` | Security |
+| `/flow:init` | `/speckit:init` | Utility |
+| `/flow:reset` | `/speckit:configure` | Utility |
 
 ---
 

@@ -17,11 +17,11 @@ from pathlib import Path
 
 import pytest
 
-# Role-based command namespace directories (from specflow_workflow.yml)
+# Role-based command namespace directories (from flowspec_workflow.yml)
 # These are the expected subdirectories in .claude/commands/
-# NOTE: PM role removed - PM work is done via /specflow workflow commands
+# NOTE: PM role removed - PM work is done via /flowspec workflow commands
 EXPECTED_COMMAND_NAMESPACES = {
-    "specflow",
+    "flowspec",
     "speckit",
     "arch",
     "dev",
@@ -60,51 +60,51 @@ class TestDevSetupInitEquivalence:
     R6: dev-setup creates same file set as init would copy
     """
 
-    def test_specflow_symlinks_match_templates(
+    def test_flowspec_symlinks_match_templates(
         self, claude_commands_dir: Path, templates_dir: Path
     ) -> None:
-        """Test dev-setup creates specflow symlinks for all active specflow templates.
+        """Test dev-setup creates flowspec symlinks for all active flowspec templates.
 
         Note: Deprecated templates (_DEPRECATED_*.md) are excluded as they are
         documentation artifacts, not active commands.
 
         Supports two symlink strategies:
-        1. Directory-level symlink: .claude/commands/specflow -> templates/commands/specflow
+        1. Directory-level symlink: .claude/commands/flowspec -> templates/commands/flowspec
         2. File-level symlinks: individual files are symlinks to template files
         """
-        specflow_templates_dir = templates_dir / "specflow"
-        specflow_commands_dir = claude_commands_dir / "specflow"
+        flowspec_templates_dir = templates_dir / "flowspec"
+        flowspec_commands_dir = claude_commands_dir / "flowspec"
 
-        if not specflow_templates_dir.exists():
-            pytest.skip("No templates/commands/specflow directory")
-        if not specflow_commands_dir.exists():
-            pytest.skip("No .claude/commands/specflow directory")
+        if not flowspec_templates_dir.exists():
+            pytest.skip("No templates/commands/flowspec directory")
+        if not flowspec_commands_dir.exists():
+            pytest.skip("No .claude/commands/flowspec directory")
 
         # Only check active templates (exclude deprecated)
         template_files = {
             f.name
-            for f in specflow_templates_dir.glob("*.md")
+            for f in flowspec_templates_dir.glob("*.md")
             if f.is_file() and _is_active_template(f.name)
         }
 
         # Check if directory itself is a symlink (directory-level strategy)
-        if specflow_commands_dir.is_symlink():
+        if flowspec_commands_dir.is_symlink():
             # Directory-level symlink - files inside match templates
             command_files = {
                 f.name
-                for f in specflow_commands_dir.glob("*.md")
+                for f in flowspec_commands_dir.glob("*.md")
                 if f.is_file() and _is_active_template(f.name)
             }
         else:
             # File-level symlinks - check individual symlinks
             command_files = {
                 f.name
-                for f in specflow_commands_dir.glob("*.md")
+                for f in flowspec_commands_dir.glob("*.md")
                 if f.is_symlink() and _is_active_template(f.name)
             }
 
         assert template_files == command_files, (
-            f"Specflow symlink mismatch.\n"
+            f"Flowspec symlink mismatch.\n"
             f"Templates only: {sorted(template_files - command_files)}\n"
             f"Commands only: {sorted(command_files - template_files)}"
         )
@@ -164,16 +164,16 @@ class TestDevSetupInitEquivalence:
         init_files: set[str] = set()
 
         # Collect active dev-setup files (supports directory or file symlinks)
-        specflow_commands = claude_commands_dir / "specflow"
-        if specflow_commands.exists():
-            is_dir_symlink = specflow_commands.is_symlink()
-            for f in specflow_commands.glob("*.md"):
+        flowspec_commands = claude_commands_dir / "flowspec"
+        if flowspec_commands.exists():
+            is_dir_symlink = flowspec_commands.is_symlink()
+            for f in flowspec_commands.glob("*.md"):
                 # If directory is symlink, check is_file; otherwise check is_symlink
                 if is_dir_symlink:
                     if f.is_file() and _is_active_template(f.name):
-                        dev_setup_files.add(f"specflow/{f.name}")
+                        dev_setup_files.add(f"flowspec/{f.name}")
                 elif f.is_symlink() and _is_active_template(f.name):
-                    dev_setup_files.add(f"specflow/{f.name}")
+                    dev_setup_files.add(f"flowspec/{f.name}")
 
         speckit_commands = claude_commands_dir / "speckit"
         if speckit_commands.exists():
@@ -186,11 +186,11 @@ class TestDevSetupInitEquivalence:
                     dev_setup_files.add(f"speckit/{f.name}")
 
         # Collect active init templates (exclude deprecated)
-        specflow_templates = templates_dir / "specflow"
-        if specflow_templates.exists():
-            for template in specflow_templates.glob("*.md"):
+        flowspec_templates = templates_dir / "flowspec"
+        if flowspec_templates.exists():
+            for template in flowspec_templates.glob("*.md"):
                 if template.is_file() and _is_active_template(template.name):
-                    init_files.add(f"specflow/{template.name}")
+                    init_files.add(f"flowspec/{template.name}")
 
         speckit_templates = templates_dir / "speckit"
         if speckit_templates.exists():
@@ -209,14 +209,14 @@ class TestSubdirectoryStructure:
     """Verify subdirectory structure matches between dev-setup and init.
 
     R7: Subdirectory structure matches expected command namespaces
-    (specflow/, speckit/, and role-based namespaces: arch/, dev/, ops/, pm/, qa/, sec/)
+    (flowspec/, speckit/, and role-based namespaces: arch/, dev/, ops/, pm/, qa/, sec/)
     """
 
-    def test_specflow_subdirectory_exists(self, claude_commands_dir: Path) -> None:
-        """Test specflow subdirectory exists in .claude/commands/."""
-        specflow_dir = claude_commands_dir / "specflow"
-        assert specflow_dir.exists(), "specflow subdirectory does not exist"
-        assert specflow_dir.is_dir(), "specflow is not a directory"
+    def test_flowspec_subdirectory_exists(self, claude_commands_dir: Path) -> None:
+        """Test flowspec subdirectory exists in .claude/commands/."""
+        flowspec_dir = claude_commands_dir / "flowspec"
+        assert flowspec_dir.exists(), "flowspec subdirectory does not exist"
+        assert flowspec_dir.is_dir(), "flowspec is not a directory"
 
     def test_speckit_subdirectory_exists(self, claude_commands_dir: Path) -> None:
         """Test speckit subdirectory exists in .claude/commands/."""
@@ -227,8 +227,8 @@ class TestSubdirectoryStructure:
     def test_no_extra_subdirectories(self, claude_commands_dir: Path) -> None:
         """Test only expected command namespace subdirectories exist.
 
-        Expected namespaces include specflow, speckit, and role-based directories
-        (arch, dev, ops, qa, sec) as defined in specflow_workflow.yml.
+        Expected namespaces include flowspec, speckit, and role-based directories
+        (arch, dev, ops, qa, sec) as defined in flowspec_workflow.yml.
         """
         if not claude_commands_dir.exists():
             pytest.skip("No .claude/commands directory")
@@ -246,15 +246,15 @@ class TestSubdirectoryStructure:
     def test_templates_subdirectory_structure_matches(
         self, templates_dir: Path
     ) -> None:
-        """Test templates directory has matching specflow and speckit subdirectories."""
-        specflow_templates = templates_dir / "specflow"
-        assert specflow_templates.exists(), "templates/commands/specflow does not exist"
-        assert specflow_templates.is_dir(), (
-            "templates/commands/specflow is not a directory"
+        """Test templates directory has matching flowspec and speckit subdirectories."""
+        flowspec_templates = templates_dir / "flowspec"
+        assert flowspec_templates.exists(), "templates/commands/flowspec does not exist"
+        assert flowspec_templates.is_dir(), (
+            "templates/commands/flowspec is not a directory"
         )
 
-        specflow_files = list(specflow_templates.glob("*.md"))
-        assert len(specflow_files) > 0, "No specflow template files found"
+        flowspec_files = list(flowspec_templates.glob("*.md"))
+        assert len(flowspec_files) > 0, "No flowspec template files found"
 
         speckit_templates = templates_dir / "speckit"
         assert speckit_templates.exists(), "templates/commands/speckit does not exist"
@@ -286,27 +286,27 @@ class TestDevSetupSymlinkValidation:
     R3: All symlinks point to templates/commands/
     """
 
-    def test_specflow_contains_only_symlinks(self, claude_commands_dir: Path) -> None:
-        """Test specflow directory contains only symlinks, no direct files.
+    def test_flowspec_contains_only_symlinks(self, claude_commands_dir: Path) -> None:
+        """Test flowspec directory contains only symlinks, no direct files.
 
         Supports two strategies:
-        1. Directory-level symlink: .claude/commands/specflow -> templates/commands/specflow
+        1. Directory-level symlink: .claude/commands/flowspec -> templates/commands/flowspec
         2. File-level symlinks: individual files are symlinks to template files
         """
-        specflow_dir = claude_commands_dir / "specflow"
-        if not specflow_dir.exists():
-            pytest.skip("No .claude/commands/specflow directory")
+        flowspec_dir = claude_commands_dir / "flowspec"
+        if not flowspec_dir.exists():
+            pytest.skip("No .claude/commands/flowspec directory")
 
         # Directory-level symlink is valid
-        if specflow_dir.is_symlink():
+        if flowspec_dir.is_symlink():
             return  # Pass - directory itself is a symlink to templates
 
         # Otherwise, check for file-level symlinks
-        all_md_files = list(specflow_dir.glob("*.md"))
+        all_md_files = list(flowspec_dir.glob("*.md"))
         direct_files = [f for f in all_md_files if not f.is_symlink()]
 
         assert len(direct_files) == 0, (
-            f"Direct .md files found in specflow/:\n"
+            f"Direct .md files found in flowspec/:\n"
             f"{', '.join(f.name for f in direct_files)}"
         )
 
@@ -338,7 +338,7 @@ class TestDevSetupSymlinkValidation:
         """Test all symlinks resolve to existing files (R2)."""
         broken_symlinks: list[str] = []
 
-        for subdir in ["specflow", "speckit"]:
+        for subdir in ["flowspec", "speckit"]:
             subdir_path = claude_commands_dir / subdir
             if not subdir_path.exists():
                 continue
@@ -360,17 +360,17 @@ class TestDevSetupSymlinkValidation:
         """Test all symlinks point to templates/commands/ directory (R3)."""
         invalid_targets: list[str] = []
 
-        specflow_dir = claude_commands_dir / "specflow"
-        specflow_templates = templates_dir / "specflow"
-        if specflow_dir.exists():
-            for symlink in specflow_dir.glob("*.md"):
+        flowspec_dir = claude_commands_dir / "flowspec"
+        flowspec_templates = templates_dir / "flowspec"
+        if flowspec_dir.exists():
+            for symlink in flowspec_dir.glob("*.md"):
                 if symlink.is_symlink():
                     target = symlink.resolve()
                     try:
-                        target.relative_to(specflow_templates)
+                        target.relative_to(flowspec_templates)
                     except ValueError:
                         invalid_targets.append(
-                            f"specflow/{symlink.name} -> {target} (expected under {specflow_templates})"
+                            f"flowspec/{symlink.name} -> {target} (expected under {flowspec_templates})"
                         )
 
         speckit_dir = claude_commands_dir / "speckit"
@@ -401,19 +401,19 @@ class TestDevSetupIdempotency:
         1. Directory-level symlink: the directory itself is a symlink
         2. File-level symlinks: individual files are symlinks
         """
-        specflow_dir = claude_commands_dir / "specflow"
+        flowspec_dir = claude_commands_dir / "flowspec"
         speckit_dir = claude_commands_dir / "speckit"
 
-        if not specflow_dir.exists() or not speckit_dir.exists():
+        if not flowspec_dir.exists() or not speckit_dir.exists():
             pytest.skip("dev-setup not initialized")
 
         # For directory-level symlinks, check the directory is symlinked
         # For file-level symlinks, count individual file symlinks
-        if specflow_dir.is_symlink():
-            specflow_count = len(list(specflow_dir.glob("*.md")))
+        if flowspec_dir.is_symlink():
+            flowspec_count = len(list(flowspec_dir.glob("*.md")))
         else:
-            specflow_count = len(
-                [f for f in specflow_dir.glob("*.md") if f.is_symlink()]
+            flowspec_count = len(
+                [f for f in flowspec_dir.glob("*.md") if f.is_symlink()]
             )
 
         if speckit_dir.is_symlink():
@@ -421,12 +421,12 @@ class TestDevSetupIdempotency:
         else:
             speckit_count = len([f for f in speckit_dir.glob("*.md") if f.is_symlink()])
 
-        assert specflow_count > 0, "No specflow commands found"
+        assert flowspec_count > 0, "No flowspec commands found"
         assert speckit_count > 0, "No speckit commands found"
 
     def test_no_duplicate_symlinks(self, claude_commands_dir: Path) -> None:
         """Test no duplicate symlink names exist."""
-        for subdir in ["specflow", "speckit"]:
+        for subdir in ["flowspec", "speckit"]:
             subdir_path = claude_commands_dir / subdir
             if not subdir_path.exists():
                 continue
@@ -442,7 +442,7 @@ class TestDevSetupIdempotency:
         """Test symlinks use relative paths for portability."""
         absolute_symlinks: list[str] = []
 
-        for subdir in ["specflow", "speckit"]:
+        for subdir in ["flowspec", "speckit"]:
             subdir_path = claude_commands_dir / subdir
             if not subdir_path.exists():
                 continue
@@ -469,23 +469,23 @@ class TestTemplateCompleteness:
     documentation artifacts, not active commands.
     """
 
-    def test_all_specflow_templates_have_symlinks(
+    def test_all_flowspec_templates_have_symlinks(
         self, templates_dir: Path, claude_commands_dir: Path
     ) -> None:
-        """Test every active specflow template has a corresponding symlink (R4)."""
-        specflow_templates = templates_dir / "specflow"
-        specflow_commands = claude_commands_dir / "specflow"
+        """Test every active flowspec template has a corresponding symlink (R4)."""
+        flowspec_templates = templates_dir / "flowspec"
+        flowspec_commands = claude_commands_dir / "flowspec"
 
-        if not specflow_templates.exists() or not specflow_commands.exists():
-            pytest.skip("specflow directories not found")
+        if not flowspec_templates.exists() or not flowspec_commands.exists():
+            pytest.skip("flowspec directories not found")
 
         # Only check active templates (exclude deprecated)
         template_files = {
             f.name
-            for f in specflow_templates.glob("*.md")
+            for f in flowspec_templates.glob("*.md")
             if _is_active_template(f.name)
         }
-        symlink_files = {f.name for f in specflow_commands.glob("*.md")}
+        symlink_files = {f.name for f in flowspec_commands.glob("*.md")}
 
         orphan_templates = template_files - symlink_files
 
@@ -518,14 +518,14 @@ class TestTemplateCompleteness:
         """Test no symlinks exist without corresponding templates (R5)."""
         orphan_symlinks: list[str] = []
 
-        # Check specflow
-        specflow_templates = templates_dir / "specflow"
-        specflow_commands = claude_commands_dir / "specflow"
-        if specflow_templates.exists() and specflow_commands.exists():
-            template_files = {f.name for f in specflow_templates.glob("*.md")}
-            symlink_files = {f.name for f in specflow_commands.glob("*.md")}
+        # Check flowspec
+        flowspec_templates = templates_dir / "flowspec"
+        flowspec_commands = claude_commands_dir / "flowspec"
+        if flowspec_templates.exists() and flowspec_commands.exists():
+            template_files = {f.name for f in flowspec_templates.glob("*.md")}
+            symlink_files = {f.name for f in flowspec_commands.glob("*.md")}
             orphan_symlinks.extend(
-                f"specflow/{n}" for n in symlink_files - template_files
+                f"flowspec/{n}" for n in symlink_files - template_files
             )
 
         # Check speckit

@@ -39,7 +39,7 @@ class TestGuideExists:
 
 
 class TestConfigurationStructure:
-    """AC #2: Guide explains structure of specflow_workflow.yml in plain language"""
+    """AC #2: Guide explains structure of flowspec_workflow.yml in plain language"""
 
     def test_explains_states(self, guide_content):
         """Verify guide explains the states configuration."""
@@ -52,7 +52,7 @@ class TestConfigurationStructure:
     def test_explains_workflows(self, guide_content):
         """Verify guide explains the workflows configuration."""
         assert "workflows:" in guide_content
-        assert "/specflow" in guide_content
+        assert "/flowspec" in guide_content
 
     def test_explains_transitions(self, guide_content):
         """Verify guide explains the transitions configuration."""
@@ -67,7 +67,7 @@ class TestConfigurationStructure:
 
     def test_explains_file_location(self, guide_content):
         """Verify guide explains where the config file should be located."""
-        assert "specflow_workflow.yml" in guide_content
+        assert "flowspec_workflow.yml" in guide_content
         assert (
             "project-root" in guide_content or "project root" in guide_content.lower()
         )

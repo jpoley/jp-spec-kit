@@ -21,7 +21,7 @@ Add optional telemetry for role usage analytics. DEPENDS ON: All previous tasks.
 <!-- AC:BEGIN -->
 - [ ] #1 RoleEvent enum with event types (role.selected, agent.invoked, handoff.clicked)
 - [ ] #2 track_role_event() function with PII hashing
-- [ ] #3 JSONL telemetry file format (.specflow/telemetry.jsonl)
+- [ ] #3 JSONL telemetry file format (.flowspec/telemetry.jsonl)
 - [ ] #4 Opt-in telemetry via config (telemetry.enabled)
 - [ ] #5 Feedback prompt UI designed
 <!-- AC:END -->
@@ -53,7 +53,7 @@ Scoring:
 - Total: 13.0/30
 
 Recommendation: Full SDD (per user request)
-Next: /specflow:specify task-366
+Next: /flow:specify task-366
 
 ## PRD Complete (2025-12-10)
 

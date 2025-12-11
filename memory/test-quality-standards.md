@@ -418,7 +418,7 @@ When testing that content has specific patterns (like conditionals, function def
 
 ```python
 # WRONG - Weak assertion that doesn't validate structure
-assert ".specflow-light-mode" in content, "Missing light mode marker check"
+assert ".flowspec-light-mode" in content, "Missing light mode marker check"
 # This passes even if the string is in a comment or random text!
 ```
 
@@ -426,13 +426,13 @@ assert ".specflow-light-mode" in content, "Missing light mode marker check"
 # CORRECT - Regex validates actual conditional structure
 import re
 
-# Pattern matches: if [ -f ".specflow-light-mode" ] or similar conditional
+# Pattern matches: if [ -f ".flowspec-light-mode" ] or similar conditional
 light_mode_conditional = re.search(
-    r'if\s+\[.*\.specflow-light-mode.*\]', content
+    r'if\s+\[.*\.flowspec-light-mode.*\]', content
 )
 assert light_mode_conditional is not None, (
-    "Missing conditional check for .specflow-light-mode "
-    "(expected: if [ -f \".specflow-light-mode\" ])"
+    "Missing conditional check for .flowspec-light-mode "
+    "(expected: if [ -f \".flowspec-light-mode\" ])"
 )
 ```
 
@@ -447,7 +447,7 @@ Bash code examples should include both the if and else branches to show the comp
 
 ```bash
 # WRONG - Incomplete bash example missing else clause
-if [ -f ".specflow-light-mode" ]; then
+if [ -f ".flowspec-light-mode" ]; then
   echo "LIGHT MODE DETECTED"
 fi
 # What happens when NOT in light mode? Unclear!
@@ -455,7 +455,7 @@ fi
 
 ```bash
 # CORRECT - Complete bash example with both branches
-if [ -f ".specflow-light-mode" ]; then
+if [ -f ".flowspec-light-mode" ]; then
   echo "LIGHT MODE DETECTED"
   # Stop here - research is skipped in light mode
 else

@@ -27,7 +27,7 @@ Create Claude Code plugin distribution for jp-spec-kit alongside existing UV too
 - [ ] #1 Create .claude-plugin/plugin.json manifest
 - [ ] #2 Create .claude-plugin/marketplace.json for marketplace hosting
 - [ ] #3 Migrate /speckit.* commands to plugin format
-- [ ] #4 Migrate /specflow:* commands to plugin format
+- [ ] #4 Migrate /flow:* commands to plugin format
 - [ ] #5 Define agent configurations in agents/ directory
 - [ ] #6 Configure hooks in hooks.json
 - [ ] #7 Set up MCP servers in .mcp.json

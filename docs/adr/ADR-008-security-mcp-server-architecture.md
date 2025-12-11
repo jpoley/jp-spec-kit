@@ -3,7 +3,7 @@
 **Status:** Proposed
 **Date:** 2025-12-02
 **Author:** Enterprise Software Architect
-**Context:** /specflow:security commands - MCP server for tool composition (v2.0 feature)
+**Context:** /flow:security commands - MCP server for tool composition (v2.0 feature)
 **Supersedes:** None
 **Amended by:** None
 
@@ -47,7 +47,7 @@ Security scanning currently operates in **isolation**:
 
 **Option Value:**
 - **Composability Premium:** MCP enables exponential value (N agents × M tools = N×M integrations)
-- **Platform Play:** Security MCP server positions Specflow as security platform, not just CLI
+- **Platform Play:** Security MCP server positions Flowspec as security platform, not just CLI
 - **Competitive Moat:** First SDD toolkit with MCP-based security integration
 
 **Cost:**
@@ -786,11 +786,11 @@ src/specify_cli/security/
 
 ### Related Documents
 
-- **Architecture:** `docs/architecture/specflow-security-architecture.md`
+- **Architecture:** `docs/architecture/flowspec-security-architecture.md`
 - **ADR-005:** Scanner Orchestration Pattern
 - **ADR-006:** AI Triage Engine Design
 - **ADR-007:** Unified Security Finding Format
-- **PRD:** `docs/prd/specflow-security-commands.md`
+- **PRD:** `docs/prd/flowspec-security-commands.md`
 
 ### External References
 

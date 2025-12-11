@@ -28,7 +28,7 @@ You are an expert in Spec-Driven Development (SDD), a methodology for AI-assiste
 
 ## Workflow Phases
 
-### 1. Assess (`/specflow:assess`)
+### 1. Assess (`/flow:assess`)
 **Purpose**: Evaluate if SDD workflow is appropriate for a feature.
 
 **Outputs**:
@@ -42,7 +42,7 @@ You are an expert in Spec-Driven Development (SDD), a methodology for AI-assiste
 - Security implications
 - External integrations
 
-### 2. Specify (`/specflow:specify`)
+### 2. Specify (`/flow:specify`)
 **Purpose**: Create product requirements document.
 
 **Outputs**:
@@ -57,7 +57,7 @@ You are an expert in Spec-Driven Development (SDD), a methodology for AI-assiste
 - Define MVP scope
 - Identify risks and mitigations
 
-### 3. Research (`/specflow:research`)
+### 3. Research (`/flow:research`)
 **Purpose**: Technical research and business validation.
 
 **Outputs**:
@@ -72,7 +72,7 @@ You are an expert in Spec-Driven Development (SDD), a methodology for AI-assiste
 - Third-party evaluations
 - Competitive analysis
 
-### 4. Plan (`/specflow:plan`)
+### 4. Plan (`/flow:plan`)
 **Purpose**: Create architecture and implementation plan.
 
 **Outputs**:
@@ -86,7 +86,7 @@ You are an expert in Spec-Driven Development (SDD), a methodology for AI-assiste
 - Database schema
 - Infrastructure requirements
 
-### 5. Implement (`/specflow:implement`)
+### 5. Implement (`/flow:implement`)
 **Purpose**: Execute the implementation plan.
 
 **Process**:
@@ -102,7 +102,7 @@ You are an expert in Spec-Driven Development (SDD), a methodology for AI-assiste
 - Documentation updated
 - No new technical debt
 
-### 6. Validate (`/specflow:validate`)
+### 6. Validate (`/flow:validate`)
 **Purpose**: Quality assurance and security review.
 
 **Outputs**:
@@ -117,7 +117,7 @@ You are an expert in Spec-Driven Development (SDD), a methodology for AI-assiste
 - [ ] Performance benchmarks passed
 - [ ] Documentation complete
 
-### 7. Operate (`/specflow:operate`)
+### 7. Operate (`/flow:operate`)
 **Purpose**: Deploy and maintain in production.
 
 **Outputs**:
@@ -135,13 +135,13 @@ You are an expert in Spec-Driven Development (SDD), a methodology for AI-assiste
 
 | Current State | Valid Commands | Next State |
 |---------------|----------------|------------|
-| To Do | `/specflow:assess` | Assessed |
-| Assessed | `/specflow:specify` | Specified |
-| Specified | `/specflow:research`, `/specflow:plan` | Researched, Planned |
-| Researched | `/specflow:plan` | Planned |
-| Planned | `/specflow:implement` | In Implementation |
-| In Implementation | `/specflow:validate` | Validated |
-| Validated | `/specflow:operate` | Deployed |
+| To Do | `/flow:assess` | Assessed |
+| Assessed | `/flow:specify` | Specified |
+| Specified | `/flow:research`, `/flow:plan` | Researched, Planned |
+| Researched | `/flow:plan` | Planned |
+| Planned | `/flow:implement` | In Implementation |
+| In Implementation | `/flow:validate` | Validated |
+| Validated | `/flow:operate` | Deployed |
 
 ## SDD Principles
 
@@ -183,7 +183,7 @@ You are an expert in Spec-Driven Development (SDD), a methodology for AI-assiste
 
 ## Workflow Configuration
 
-SDD workflow is configured in `specflow_workflow.yml`:
+SDD workflow is configured in `flowspec_workflow.yml`:
 
 ```yaml
 states:
@@ -195,7 +195,7 @@ states:
 
 workflows:
   assess:
-    command: "/specflow:assess"
+    command: "/flow:assess"
     input_states: ["To Do"]
     output_state: "Assessed"
     agents: ["workflow-assessor"]

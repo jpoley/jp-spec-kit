@@ -16,7 +16,7 @@ priority: high
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Design migration strategy from flat specflow/* and speckit/* namespaces to role-based namespaces with clear deprecation timeline and user migration guide
+Design migration strategy from flat flowspec/* and speckit/* namespaces to role-based namespaces with clear deprecation timeline and user migration guide
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria

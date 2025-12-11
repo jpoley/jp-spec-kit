@@ -15,7 +15,7 @@ priority: high
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Configure GitHub Actions for security scanning integration with /specflow:security commands. Create reusable workflow that supports incremental scanning, SARIF upload, caching, and parallel execution for large codebases.
+Configure GitHub Actions for security scanning integration with /flow:security commands. Create reusable workflow that supports incremental scanning, SARIF upload, caching, and parallel execution for large codebases.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -34,7 +34,7 @@ Configure GitHub Actions for security scanning integration with /specflow:securi
 ## Implementation Plan: CI/CD Security Scanning Pipeline
 
 ### Overview
-Create a reusable GitHub Actions workflow that integrates /specflow:security commands into CI/CD pipelines with caching, parallel execution, and SARIF upload capabilities.
+Create a reusable GitHub Actions workflow that integrates /flow:security commands into CI/CD pipelines with caching, parallel execution, and SARIF upload capabilities.
 
 ### Step-by-Step Implementation
 
@@ -73,7 +73,7 @@ Create a reusable GitHub Actions workflow that integrates /specflow:security com
    - Set outputs for findings count
 6. **Upload SARIF**:
    - Use `github/codeql-action/upload-sarif@v3`
-   - Set category to `specflow-security`
+   - Set category to `flowspec-security`
    - Add permissions check (security-events: write)
 7. **Upload Artifacts**:
    - SARIF file
@@ -140,8 +140,8 @@ Create a reusable GitHub Actions workflow that integrates /specflow:security com
 3. Add fallback behaviors
 
 ### Dependencies
-- PRD complete (docs/prd/specflow-security-commands.md) ✓
-- Platform design complete (docs/platform/specflow-security-platform.md) ✓
+- PRD complete (docs/prd/flowspec-security-commands.md) ✓
+- Platform design complete (docs/platform/flowspec-security-platform.md) ✓
 - `specify security scan` command implementation (task-210)
 
 ### Testing Checklist

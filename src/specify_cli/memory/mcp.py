@@ -13,7 +13,7 @@ Example:
     from specify_cli.memory.mcp import register_memory_resources
     from mcp.server.fastmcp import FastMCP
 
-    mcp = FastMCP("specflow-backlog")
+    mcp = FastMCP("flowspec-backlog")
     register_memory_resources(mcp)
     ```
 """
@@ -187,6 +187,6 @@ def create_memory_mcp_server(base_path: Optional[Path] = None) -> Optional["Fast
     if not MCP_AVAILABLE:
         return None
 
-    server = FastMCP("specflow-memory")
+    server = FastMCP("flowspec-memory")
     register_memory_resources(server, base_path)
     return server

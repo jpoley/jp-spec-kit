@@ -37,9 +37,9 @@ class TestBatchValidationModeFlag:
         )
 
         assert result.exit_code == 0, f"Command failed: {result.output}"
-        assert "Generated specflow_workflow.yml" in result.output
+        assert "Generated flowspec_workflow.yml" in result.output
 
-        workflow_file = project_dir / "specflow_workflow.yml"
+        workflow_file = project_dir / "flowspec_workflow.yml"
         assert workflow_file.exists()
         content = workflow_file.read_text()
         # All transitions should be NONE
@@ -64,9 +64,9 @@ class TestBatchValidationModeFlag:
         )
 
         assert result.exit_code == 0, f"Command failed: {result.output}"
-        assert "Generated specflow_workflow.yml" in result.output
+        assert "Generated flowspec_workflow.yml" in result.output
 
-        workflow_file = project_dir / "specflow_workflow.yml"
+        workflow_file = project_dir / "flowspec_workflow.yml"
         assert workflow_file.exists()
         content = workflow_file.read_text()
         # All transitions should use KEYWORD with default "APPROVED"
@@ -91,9 +91,9 @@ class TestBatchValidationModeFlag:
         )
 
         assert result.exit_code == 0, f"Command failed: {result.output}"
-        assert "Generated specflow_workflow.yml" in result.output
+        assert "Generated flowspec_workflow.yml" in result.output
 
-        workflow_file = project_dir / "specflow_workflow.yml"
+        workflow_file = project_dir / "flowspec_workflow.yml"
         assert workflow_file.exists()
         content = workflow_file.read_text()
         # All transitions should be PULL_REQUEST
@@ -141,9 +141,9 @@ class TestBatchValidationModeFlag:
         )
 
         assert result.exit_code == 0, f"Command failed: {result.output}"
-        assert "Generated specflow_workflow.yml" in result.output
+        assert "Generated flowspec_workflow.yml" in result.output
 
-        workflow_file = project_dir / "specflow_workflow.yml"
+        workflow_file = project_dir / "flowspec_workflow.yml"
         assert workflow_file.exists()
         content = workflow_file.read_text()
 
@@ -173,7 +173,7 @@ class TestBatchValidationModeFlag:
 
         assert result.exit_code == 0, f"Command failed: {result.output}"
 
-        workflow_file = project_dir / "specflow_workflow.yml"
+        workflow_file = project_dir / "flowspec_workflow.yml"
         assert workflow_file.exists()
         content = workflow_file.read_text()
         # Should be all NONE due to --no-validation-prompts precedence
@@ -203,7 +203,7 @@ class TestValidationModeInWorkflowFile:
 
         assert result.exit_code == 0, f"Command failed: {result.output}"
 
-        workflow_file = project_dir / "specflow_workflow.yml"
+        workflow_file = project_dir / "flowspec_workflow.yml"
         content = workflow_file.read_text()
         assert 'version: "1.0"' in content
 
@@ -227,7 +227,7 @@ class TestValidationModeInWorkflowFile:
 
         assert result.exit_code == 0, f"Command failed: {result.output}"
 
-        workflow_file = project_dir / "specflow_workflow.yml"
+        workflow_file = project_dir / "flowspec_workflow.yml"
         content = workflow_file.read_text()
         assert "transitions:" in content
 
@@ -251,7 +251,7 @@ class TestValidationModeInWorkflowFile:
 
         assert result.exit_code == 0, f"Command failed: {result.output}"
 
-        workflow_file = project_dir / "specflow_workflow.yml"
+        workflow_file = project_dir / "flowspec_workflow.yml"
         content = workflow_file.read_text()
 
         expected_transitions = [

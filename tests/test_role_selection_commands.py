@@ -3,7 +3,7 @@
 This module tests that:
 - /speckit:init command includes role selection prompts
 - /speckit:configure command includes role selection prompts
-- Both commands document SPECFLOW_PRIMARY_ROLE environment variable
+- Both commands document FLOWSPEC_PRIMARY_ROLE environment variable
 - Both commands support --role flag for non-interactive use
 - Command templates have all 7 role options with correct icons
 """
@@ -122,32 +122,32 @@ class TestRoleSelectionCommandTemplates:
         )
 
     def test_init_documents_env_var(self, init_template_path: Path):
-        """Test that init.md documents SPECFLOW_PRIMARY_ROLE environment variable."""
+        """Test that init.md documents FLOWSPEC_PRIMARY_ROLE environment variable."""
         content = init_template_path.read_text()
 
-        assert "SPECFLOW_PRIMARY_ROLE" in content, (
-            "Missing SPECFLOW_PRIMARY_ROLE env var"
+        assert "FLOWSPEC_PRIMARY_ROLE" in content, (
+            "Missing FLOWSPEC_PRIMARY_ROLE env var"
         )
         assert "environment variable" in content.lower(), (
             "Missing env var documentation"
         )
 
     def test_configure_documents_env_var(self, configure_template_path: Path):
-        """Test that configure.md documents SPECFLOW_PRIMARY_ROLE environment variable."""
+        """Test that configure.md documents FLOWSPEC_PRIMARY_ROLE environment variable."""
         content = configure_template_path.read_text()
 
-        assert "SPECFLOW_PRIMARY_ROLE" in content, (
-            "Missing SPECFLOW_PRIMARY_ROLE env var"
+        assert "FLOWSPEC_PRIMARY_ROLE" in content, (
+            "Missing FLOWSPEC_PRIMARY_ROLE env var"
         )
         assert "environment variable" in content.lower(), (
             "Missing env var documentation"
         )
 
     def test_init_has_role_to_workflow_yml_update(self, init_template_path: Path):
-        """Test that init.md includes instructions to update specflow_workflow.yml."""
+        """Test that init.md includes instructions to update flowspec_workflow.yml."""
         content = init_template_path.read_text()
 
-        assert "specflow_workflow.yml" in content, (
+        assert "flowspec_workflow.yml" in content, (
             "Missing workflow config file reference"
         )
         assert "roles.primary" in content or "roles:" in content, (
@@ -157,10 +157,10 @@ class TestRoleSelectionCommandTemplates:
     def test_configure_has_role_to_workflow_yml_update(
         self, configure_template_path: Path
     ):
-        """Test that configure.md includes instructions to update specflow_workflow.yml."""
+        """Test that configure.md includes instructions to update flowspec_workflow.yml."""
         content = configure_template_path.read_text()
 
-        assert "specflow_workflow.yml" in content, (
+        assert "flowspec_workflow.yml" in content, (
             "Missing workflow config file reference"
         )
         assert "roles.primary" in content or "roles:" in content, (
@@ -277,13 +277,13 @@ class TestRoleSelectionCommandTemplates:
 class TestRoleSelectionIntegration:
     """Integration tests for role selection workflow."""
 
-    def test_all_role_ids_match_specflow_workflow_yml(self):
-        """Test that role IDs in commands match those in specflow_workflow.yml."""
+    def test_all_role_ids_match_flowspec_workflow_yml(self):
+        """Test that role IDs in commands match those in flowspec_workflow.yml."""
         project_root = Path(__file__).parent.parent
-        workflow_config = project_root / "specflow_workflow.yml"
+        workflow_config = project_root / "flowspec_workflow.yml"
 
         if not workflow_config.exists():
-            pytest.skip("specflow_workflow.yml not found (test environment)")
+            pytest.skip("flowspec_workflow.yml not found (test environment)")
 
         import yaml
 
@@ -294,7 +294,7 @@ class TestRoleSelectionIntegration:
         role_definitions = config.get("roles", {}).get("definitions", {})
         config_role_ids = set(role_definitions.keys())
 
-        # Expected role IDs (pm removed - PM work is done via /specflow workflow commands)
+        # Expected role IDs (pm removed - PM work is done via /flowspec workflow commands)
         expected_role_ids = {"arch", "dev", "sec", "qa", "ops", "all"}
 
         assert config_role_ids == expected_role_ids, (

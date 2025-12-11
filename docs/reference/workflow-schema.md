@@ -1,21 +1,21 @@
 # Workflow Schema Reference
 
-This document describes the JSON Schema used to validate `specflow_workflow.yml` configuration files.
+This document describes the JSON Schema used to validate `flowspec_workflow.yml` configuration files.
 
 ## Overview
 
-The workflow schema (`memory/specflow_workflow.schema.json`) validates the structure and content of workflow configuration files. It ensures that:
+The workflow schema (`memory/flowspec_workflow.schema.json`) validates the structure and content of workflow configuration files. It ensures that:
 
 - All required fields are present
 - Field types are correct
-- Command names follow the `/specflow:` pattern
+- Command names follow the `/flow:` pattern
 - Arrays have required minimum items
 - No typos via `additionalProperties: false`
 
 ## Schema Location
 
 ```
-memory/specflow_workflow.schema.json
+memory/flowspec_workflow.schema.json
 ```
 
 ## Top-Level Structure
@@ -95,7 +95,7 @@ Object mapping workflow names to their definitions.
 
 | Field | Type | Required | Default | Description |
 |-------|------|----------|---------|-------------|
-| `command` | string | Yes | - | The `/specflow:` command (pattern: `^/specflow:[a-z][a-z0-9_]*$`) |
+| `command` | string | Yes | - | The `/flow:` command (pattern: `^/flow:[a-z][a-z0-9_]*$`) |
 | `agents` | array | Yes | - | List of agent names (min 1, unique) |
 | `input_states` | array | Yes | - | Valid source states (min 1, unique) |
 | `output_state` | string | Yes | - | Destination state after completion |
@@ -106,7 +106,7 @@ Object mapping workflow names to their definitions.
 ```yaml
 workflows:
   specify:
-    command: "/specflow:specify"
+    command: "/flow:specify"
     agents:
       - "product-requirements-manager"
     input_states:
@@ -116,7 +116,7 @@ workflows:
     optional: false
 
   research:
-    command: "/specflow:research"
+    command: "/flow:research"
     agents:
       - "researcher"
       - "business-validator"
@@ -190,17 +190,17 @@ agent_loops:
 
 ### Command Pattern
 
-All workflow commands must match the pattern `/specflow:[a-z][a-z0-9_]*`:
+All workflow commands must match the pattern `/flow:[a-z][a-z0-9_]*`:
 
 | Pattern | Valid | Reason |
 |---------|-------|--------|
-| `/specflow:specify` | Yes | Correct format |
-| `/specflow:implement` | Yes | Correct format |
-| `/specflow:security_audit` | Yes | Underscores allowed |
-| `specflow:specify` | No | Missing leading slash |
+| `/flow:specify` | Yes | Correct format |
+| `/flow:implement` | Yes | Correct format |
+| `/flow:security_audit` | Yes | Underscores allowed |
+| `flowspec:specify` | No | Missing leading slash |
 | `/speckit:specify` | No | Wrong prefix |
-| `/specflow:Specify` | No | Uppercase not allowed |
-| `/specflow:` | No | Empty action |
+| `/flow:Specify` | No | Uppercase not allowed |
+| `/flow:` | No | Empty action |
 
 ### Uniqueness Constraints
 
@@ -220,7 +220,7 @@ All objects use `additionalProperties: false` to catch typos:
 # This will FAIL validation
 workflows:
   specify:
-    comand: "/specflow:specify"  # Typo: "comand" instead of "command"
+    comand: "/flow:specify"  # Typo: "comand" instead of "command"
     agents: ["pm"]
     input_states: ["To Do"]
     output_state: "Done"
@@ -248,7 +248,7 @@ states:
 
 workflows:
   specify:
-    command: "/specflow:specify"
+    command: "/flow:specify"
     agents:
       - "product-requirements-manager"
     input_states:
@@ -258,7 +258,7 @@ workflows:
     optional: false
 
   research:
-    command: "/specflow:research"
+    command: "/flow:research"
     agents:
       - "researcher"
       - "business-validator"
@@ -269,7 +269,7 @@ workflows:
     optional: false
 
   plan:
-    command: "/specflow:plan"
+    command: "/flow:plan"
     agents:
       - "software-architect"
       - "platform-engineer"
@@ -280,7 +280,7 @@ workflows:
     optional: false
 
   implement:
-    command: "/specflow:implement"
+    command: "/flow:implement"
     agents:
       - "frontend-engineer"
       - "backend-engineer"
@@ -292,7 +292,7 @@ workflows:
     optional: false
 
   validate:
-    command: "/specflow:validate"
+    command: "/flow:validate"
     agents:
       - "quality-guardian"
       - "secure-by-design-engineer"
@@ -305,7 +305,7 @@ workflows:
     optional: false
 
   operate:
-    command: "/specflow:operate"
+    command: "/flow:operate"
     agents:
       - "sre-agent"
     input_states:
@@ -375,9 +375,9 @@ Fix: Use format "X.Y" (e.g., "1.0")
 ### Invalid Command Pattern
 
 ```
-Error: 'specflow:specify' does not match '^/specflow:[a-z][a-z0-9_]*$'
+Error: 'flowspec:specify' does not match '^/flow:[a-z][a-z0-9_]*$'
 Path: workflows/specify/command
-Fix: Add leading slash: "/specflow:specify"
+Fix: Add leading slash: "/flow:specify"
 ```
 
 ### Extra Property (Typo)
@@ -406,11 +406,11 @@ import yaml
 from jsonschema import validate, ValidationError, Draft7Validator
 
 # Load schema
-with open("memory/specflow_workflow.schema.json") as f:
+with open("memory/flowspec_workflow.schema.json") as f:
     schema = json.load(f)
 
 # Load config
-with open("specflow_workflow.yml") as f:
+with open("flowspec_workflow.yml") as f:
     config = yaml.safe_load(f)
 
 # Simple validation (raises on first error)

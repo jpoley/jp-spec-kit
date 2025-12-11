@@ -66,27 +66,27 @@ This configuration demonstrates how to add organization-specific custom agents t
 
 ```
 To Do
-  ↓ /specflow:assess
+  ↓ /flow:assess
 Assessed
-  ↓ /specflow:specify (+ data-scientist)
+  ↓ /flow:specify (+ data-scientist)
 Specified
-  ↓ /specflow:legal-review (CUSTOM - legal-counsel, compliance-officer)
+  ↓ /flow:legal-review (CUSTOM - legal-counsel, compliance-officer)
 Legal Reviewed
-  ↓ /specflow:research (optional, + data-scientist)
+  ↓ /flow:research (optional, + data-scientist)
 Researched
-  ↓ /specflow:plan (+ ml-architect)
+  ↓ /flow:plan (+ ml-architect)
 Planned
-  ↓ /specflow:performance-design (CUSTOM - performance-engineer)
+  ↓ /flow:performance-design (CUSTOM - performance-engineer)
 Performance Designed
-  ↓ /specflow:implement (+ ml-engineer)
+  ↓ /flow:implement (+ ml-engineer)
 In Implementation
-  ↓ /specflow:accessibility-test (CUSTOM - accessibility-specialist)
+  ↓ /flow:accessibility-test (CUSTOM - accessibility-specialist)
 Accessibility Tested
-  ↓ /specflow:validate (+ performance-engineer)
+  ↓ /flow:validate (+ performance-engineer)
 Validated
-  ↓ /specflow:devrel-review (CUSTOM - developer-advocate)
+  ↓ /flow:devrel-review (CUSTOM - developer-advocate)
 Documentation Reviewed
-  ↓ /specflow:operate (+ ml-ops-engineer)
+  ↓ /flow:operate (+ ml-ops-engineer)
 Deployed
   ↓ manual
 Done
@@ -96,7 +96,7 @@ Done
 
 ### 1. Legal Review Workflow
 
-**Command**: `/specflow:legal-review`
+**Command**: `/flow:legal-review`
 
 **When**: After specification, before research/planning
 
@@ -150,7 +150,7 @@ All legal requirements identified and documented. Proceed with implementation.
 
 ### 2. Performance Design Workflow
 
-**Command**: `/specflow:performance-design`
+**Command**: `/flow:performance-design`
 
 **When**: After planning, before implementation
 
@@ -194,7 +194,7 @@ All legal requirements identified and documented. Proceed with implementation.
 
 ### 3. Accessibility Testing Workflow
 
-**Command**: `/specflow:accessibility-test`
+**Command**: `/flow:accessibility-test`
 
 **When**: After implementation, before validation
 
@@ -249,7 +249,7 @@ WCAG 2.1 AA compliant - Approved for production.
 
 ### 4. DevRel Review Workflow
 
-**Command**: `/specflow:devrel-review`
+**Command**: `/flow:devrel-review`
 
 **When**: After validation, before deployment
 
@@ -299,40 +299,40 @@ EOF
 ### 2. Copy Workflow Configuration
 
 ```bash
-cp docs/examples/workflows/custom-agents-workflow.yml specflow_workflow.yml
+cp docs/examples/workflows/custom-agents-workflow.yml flowspec_workflow.yml
 specify workflow validate
 ```
 
 ### 3. Run Custom Workflows
 
 ```bash
-/specflow:assess
-/specflow:specify
+/flow:assess
+/flow:specify
 # Includes data-scientist agent
 
-/specflow:legal-review
+/flow:legal-review
 # Review docs/legal/{feature}-legal-review.md
 # Type LEGAL_APPROVED to proceed
 
-/specflow:plan
+/flow:plan
 # Includes ml-architect agent
 
-/specflow:performance-design
+/flow:performance-design
 # Creates performance budget
 
-/specflow:implement
+/flow:implement
 # Includes ml-engineer agent
 
-/specflow:accessibility-test
+/flow:accessibility-test
 # WCAG compliance testing
 
-/specflow:validate
+/flow:validate
 # Includes performance-engineer for load testing
 
-/specflow:devrel-review
+/flow:devrel-review
 # Developer documentation review
 
-/specflow:operate
+/flow:operate
 # Includes ml-ops-engineer
 
 backlog task edit task-123 -s Done
@@ -408,7 +408,7 @@ Create `.agents/{agent-name}.md`:
 
 ### Step 3: Add to Workflow
 
-Edit `specflow_workflow.yml`:
+Edit `flowspec_workflow.yml`:
 
 ```yaml
 workflows:

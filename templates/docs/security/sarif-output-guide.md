@@ -1,6 +1,6 @@
 # SARIF Output Format Guide
 
-This guide explains the SARIF (Static Analysis Results Interchange Format) output format used by `/specflow:security` commands for GitHub Code Scanning integration.
+This guide explains the SARIF (Static Analysis Results Interchange Format) output format used by `/flow:security` commands for GitHub Code Scanning integration.
 
 ## Overview
 

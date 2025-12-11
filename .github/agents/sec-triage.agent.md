@@ -28,7 +28,7 @@ handoffs:
     send: false
     priority_for_roles: ["sec", "dev"]
 ---
-# /specflow:security_triage
+# /flow:security_triage
 
 Triage security scan findings using AI-powered analysis with persona-specific output.
 
@@ -43,8 +43,8 @@ This command analyzes security findings from scanners (Semgrep, CodeQL, Bandit) 
 
 ## Prerequisites
 
-- Security scan results available (from `/specflow:security scan`)
-- Configuration file at `.specflow/security-config.yml`
+- Security scan results available (from `/flow:security scan`)
+- Configuration file at `.flowspec/security-config.yml`
 - Findings to triage (JSON or SARIF format)
 
 ## Workflow
@@ -55,8 +55,8 @@ Read the security configuration to determine persona and settings:
 
 ```bash
 # Check if config exists
-if [ -f .specflow/security-config.yml ]; then
-    echo "Using configuration from .specflow/security-config.yml"
+if [ -f .flowspec/security-config.yml ]; then
+    echo "Using configuration from .flowspec/security-config.yml"
 else
     echo "No configuration found. Using defaults (expert persona)."
 fi
@@ -102,10 +102,10 @@ Load security findings from the most recent scan:
 
 ```bash
 # Find most recent scan results
-SCAN_RESULTS=$(ls -t .specflow/security-reports/*.json 2>/dev/null | head -1)
+SCAN_RESULTS=$(ls -t .flowspec/security-reports/*.json 2>/dev/null | head -1)
 
 if [ -z "$SCAN_RESULTS" ]; then
-    echo "ERROR: No scan results found. Run /specflow:security scan first."
+    echo "ERROR: No scan results found. Run /flow:security scan first."
     exit 1
 fi
 
@@ -195,7 +195,7 @@ Save report and display summary:
 
 ```bash
 # Save report
-REPORT_FILE=".specflow/security-reports/triage-$(date +%Y%m%d-%H%M%S).md"
+REPORT_FILE=".flowspec/security-reports/triage-$(date +%Y%m%d-%H%M%S).md"
 echo "Triage report saved to: $REPORT_FILE"
 
 # Display summary
@@ -393,7 +393,7 @@ for SQL injection vulnerabilities, inadequate SAST integration in CI/CD.
 ## Command Options
 
 ```bash
-/specflow:security_triage [OPTIONS]
+/flow:security_triage [OPTIONS]
 
 Options:
   --persona [beginner|expert|compliance]  Override config persona
@@ -426,7 +426,7 @@ backlog task edit [task-id] --notes "See triage report: [report-file]"
 
 ## Error Handling
 
-- **No scan results found:** Prompt to run `/specflow:security scan` first
+- **No scan results found:** Prompt to run `/flow:security scan` first
 - **Invalid configuration:** Use default settings, warn user
 - **Persona not recognized:** Default to `expert` persona
 - **LLM API errors:** Fall back to rule-based classification, warn user
@@ -449,9 +449,9 @@ backlog task edit [task-id] --notes "See triage report: [report-file]"
 
 ## Related Commands
 
-- `/specflow:security scan` - Run security scanners
-- `/specflow:security fix` - Apply automated fixes
-- `/specflow:security report` - Generate comprehensive security report
+- `/flow:security scan` - Run security scanners
+- `/flow:security fix` - Apply automated fixes
+- `/flow:security report` - Generate comprehensive security report
 
 ## References
 

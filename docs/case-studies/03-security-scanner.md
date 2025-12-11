@@ -12,7 +12,7 @@
 
 ### Project Description
 
-Integration of security scanning capabilities into JP Specflow, including Semgrep orchestration, unified finding format, AI-powered triage, and the `/specflow:security` command. Part of a larger security platform initiative.
+Integration of security scanning capabilities into JP Flowspec, including Semgrep orchestration, unified finding format, AI-powered triage, and the `/flow:security` command. Part of a larger security platform initiative.
 
 ### Key Technologies
 
@@ -129,7 +129,7 @@ Architecture Quality: 3 ADRs ensured consistent design
 
 ### Workflow Improvements Identified
 
-- Security scanning should be part of `/specflow:validate` (task-216)
+- Security scanning should be part of `/flow:validate` (task-216)
 - MCP server architecture enables broader integration (task-224)
 - CI/CD integration is essential for adoption (task-248)
 
@@ -142,8 +142,8 @@ Architecture Quality: 3 ADRs ensured consistent design
 | Task ID | Title | Status | Time |
 |---------|-------|--------|------|
 | task-211 | Implement Semgrep Scanner Orchestration | Done | 4h |
-| task-215 | Implement /specflow:security CLI Commands | Done | 3h |
-| task-247 | Plan /specflow:security Architecture | Done | 2h |
+| task-215 | Implement /flow:security CLI Commands | Done | 3h |
+| task-247 | Plan /flow:security Architecture | Done | 2h |
 | task-255 | Implement ADR-005: Scanner Orchestration | Done | 2h |
 | task-257 | Implement ADR-007: Unified Finding Format | Done | 2h |
 

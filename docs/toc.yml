@@ -36,9 +36,9 @@
         - name: Workflow Architecture
           href: guides/workflow-architecture.md
         - name: JP Spec Workflow Guide
-          href: guides/specflow-workflow-guide.md
+          href: guides/flowspec-workflow-guide.md
         - name: JP Spec + Backlog Integration
-          href: guides/specflow-backlog-workflow.md
+          href: guides/flowspec-backlog-workflow.md
         - name: Workflow State Mapping
           href: guides/workflow-state-mapping.md
     - name: Customization
@@ -116,7 +116,7 @@
     - name: Reference
       items:
         - name: Security Commands
-          href: reference/specflow-security-commands.md
+          href: reference/flowspec-security-commands.md
         - name: Privacy Policy
           href: reference/security-privacy-policy.md
         - name: Threat Model

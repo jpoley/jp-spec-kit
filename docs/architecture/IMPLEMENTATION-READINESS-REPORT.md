@@ -2,7 +2,7 @@
 
 **Report Date**: 2025-12-03
 **Architect**: Senior IT Strategy Architect (Claude Code)
-**Project**: JP Specflow - Command Architecture Redesign
+**Project**: JP Flowspec - Command Architecture Redesign
 **Status**: ✅ READY FOR IMPLEMENTATION
 
 ---
@@ -57,14 +57,14 @@ The comprehensive architecture for resolving the dev-setup command divergence pr
 **Key Designs**:
 ```
 templates/commands/          ← SINGLE SOURCE OF TRUTH
-├── specflow/
+├── flowspec/
 │   ├── implement.md (20KB enhanced)
 │   └── _backlog-instructions.md (6KB partial)
 └── speckit/
     └── implement.md
 
 .claude/commands/            ← SYMLINKS ONLY (dev-setup)
-├── specflow/ [symlinks]
+├── flowspec/ [symlinks]
 └── speckit/ [symlinks]
 ```
 
@@ -86,7 +86,7 @@ templates/commands/          ← SINGLE SOURCE OF TRUTH
 - **Location**: `/home/jpoley/ps/jp-spec-kit/docs/architecture/adr-002-directory-structure.md`
 - **Size**: 364 lines, 9.9KB
 - **Status**: Proposed
-- **Decision**: Use subdirectory structure (specflow/implement.md) over flat (specflow.implement.md)
+- **Decision**: Use subdirectory structure (flowspec/implement.md) over flat (flowspec.implement.md)
 - **Options Evaluated**: 4 (subdirectory, flat, both, hybrid)
 - **Rationale**: Better scalability, supports partials, cleaner organization
 - **Migration**: Script provided (`migrate-commands-to-subdirs.sh`)
@@ -118,7 +118,7 @@ templates/commands/          ← SINGLE SOURCE OF TRUTH
 
 **B. dev-setup Command** (`specify dev-setup`)
 - Pseudocode provided
-- Both speckit and specflow symlink creation
+- Both speckit and flowspec symlink creation
 - Error handling defined
 - Testing approach specified
 
@@ -148,7 +148,7 @@ templates/commands/          ← SINGLE SOURCE OF TRUTH
 |-------|----------|-------|------------|
 | 1. Preparation | 1 day | Architecture docs, tasks | Low |
 | 2. Template Migration | 2-3 days | Move files to templates | Medium |
-| 3. dev-setup Update | 1 day | Add specflow symlinks | Low |
+| 3. dev-setup Update | 1 day | Add flowspec symlinks | Low |
 | 4. Replace Commands | 30 min | Delete files, create symlinks | Low |
 | 5. Init Update | 2 days | Subdirectory structure, tests | Medium |
 | 6. CI Validation | 1 day | Workflow, hooks | Low |
@@ -195,9 +195,9 @@ backlog task list --plain | grep task-27[0-9]
 - task-268: ADR: Directory Structure Convention
 - task-269: ADR: Shared Content Strategy
 - task-270: Design: Unified Command Template Structure
-- task-271: Migrate specflow commands to templates
+- task-271: Migrate flowspec commands to templates
 - task-272: Migrate speckit commands to subdirectory
-- task-273: Update dev-setup command for specflow symlinks
+- task-273: Update dev-setup command for flowspec symlinks
 - task-274: Replace source repo commands with symlinks
 - task-275: Update init command for subdirectory structure
 - task-276: Create command migration script for users

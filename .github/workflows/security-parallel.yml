@@ -154,7 +154,7 @@ jobs:
           # Use component-specific category for parallel scans
           # Note: This workflow should only be triggered manually for large repos
           # Do not use for scheduled scans - use security.yml instead
-          category: specflow-security-${{ steps.scan.outputs.component_name }}
+          category: flowspec-security-${{ steps.scan.outputs.component_name }}
 
       - name: Upload Scan Artifacts
         if: always()

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate role-based command structure in specflow_workflow.yml.
+"""Validate role-based command structure in flowspec_workflow.yml.
 
 This script performs comprehensive validation of role-based command architecture:
 - Role definitions (all required roles present)
@@ -12,7 +12,7 @@ Usage:
     python scripts/validate-role-schema.py [workflow_file]
 
     If not specified:
-    - workflow_file defaults to: specflow_workflow.yml
+    - workflow_file defaults to: flowspec_workflow.yml
 
 Examples:
     # Validate default workflow config
@@ -36,7 +36,7 @@ import yaml
 class RoleValidator:
     """Validator for role-based command structure.
 
-    NOTE: PM role removed - PM work is done via /specflow workflow commands.
+    NOTE: PM role removed - PM work is done via /flowspec workflow commands.
     """
 
     REQUIRED_ROLES = {"arch", "dev", "sec", "qa", "ops", "all"}
@@ -262,7 +262,7 @@ def main() -> int:
         print(__doc__)
         return 0
 
-    workflow_file = args[0] if len(args) > 0 else "specflow_workflow.yml"
+    workflow_file = args[0] if len(args) > 0 else "flowspec_workflow.yml"
     workflow_path = Path(workflow_file)
 
     # Print validation info

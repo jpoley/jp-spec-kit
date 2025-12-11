@@ -216,7 +216,7 @@ The script automatically:
 
 **Example output:**
 ```
-🚀 Specflow Release Script
+🚀 Flowspec Release Script
 ==================================================
 
 📋 Current state:

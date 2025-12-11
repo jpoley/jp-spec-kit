@@ -168,24 +168,24 @@ As defined in task-004.md, the outer loop **MUST** include:
 
 ## Agent Usage in Workflows
 
-### /specflow:specify (Inner Loop)
+### /flow:specify (Inner Loop)
 Uses: `product-requirements-manager`
 
-### /specflow:plan (Inner Loop)
+### /flow:plan (Inner Loop)
 Uses: `software-architect-enhanced`, `platform-engineer-enhanced`
 
-### /specflow:research (Inner Loop)
+### /flow:research (Inner Loop)
 Uses: `researcher`, `business-validator`
 
-### /specflow:implement (Inner Loop)
+### /flow:implement (Inner Loop)
 Uses: `frontend-engineer`, `backend-engineer`, `ai-ml-engineer`, `frontend-code-reviewer`, `backend-code-reviewer`
 
-### /specflow:validate (Inner Loop with Outer Loop preparation)
+### /flow:validate (Inner Loop with Outer Loop preparation)
 Uses: `quality-guardian`, `secure-by-design-engineer`, `tech-writer`, `release-manager`
 
 Note: The validate workflow bridges inner and outer loops by preparing artifacts for outer loop deployment while still part of inner loop quality checks.
 
-### /specflow:operate (Outer Loop)
+### /flow:operate (Outer Loop)
 Uses: `sre-agent`
 
 ## Best Practices

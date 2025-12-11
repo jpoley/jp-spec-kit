@@ -53,7 +53,7 @@ echo ""
 
 # 2. Check expected subdirectories exist (R7)
 echo -e "${BLUE}2. Checking subdirectory structure...${NC}"
-EXPECTED_DIRS=("specflow" "speckit")
+EXPECTED_DIRS=("flowspec" "speckit")
 MISSING_DIRS=()
 
 for dir in "${EXPECTED_DIRS[@]}"; do
@@ -70,7 +70,7 @@ if [ ${#MISSING_DIRS[@]} -gt 0 ]; then
     echo -e "${RED}  Run: uv run specify dev-setup --force${NC}"
     STATUS=1
 else
-    echo -e "${GREEN}✓ All expected subdirectories exist (specflow/, speckit/)${NC}"
+    echo -e "${GREEN}✓ All expected subdirectories exist (flowspec/, speckit/)${NC}"
 fi
 echo ""
 

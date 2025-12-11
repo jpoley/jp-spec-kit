@@ -7,7 +7,7 @@ The `specify dev-setup` command has significant gaps compared to what `specify i
 1. **jp-spec-kit source repo** (dev-setup installation at `./jp-spec-kit`)
 2. **nanofuse project** (normal `specify init` installation at `./nanofuse`)
 
-**Critical Finding**: The dev-setup command only sets up `speckit` symlinks but completely ignores `specflow` commands and many other components that are installed during `specify init`.
+**Critical Finding**: The dev-setup command only sets up `speckit` symlinks but completely ignores `flowspec` commands and many other components that are installed during `specify init`.
 
 ---
 
@@ -24,7 +24,7 @@ The `specify dev-setup` command has significant gaps compared to what `specify i
 4. Verifies symlinks work
 
 **What it does NOT do:**
-- Does NOT create symlinks for `specflow` commands
+- Does NOT create symlinks for `flowspec` commands
 - Does NOT set up `.specify/` directory structure
 - Does NOT install memory files
 - Does NOT install scripts
@@ -35,12 +35,12 @@ The `specify dev-setup` command has significant gaps compared to what `specify i
 #### Nanofuse Installation (via `specify init`)
 ```
 .claude/commands/
-├── specflow.implement.md      (2933 bytes)
-├── specflow.operate.md        (2796 bytes)
-├── specflow.plan.md           (2266 bytes)
-├── specflow.research.md       (1491 bytes)
-├── specflow.specify.md        (1534 bytes)
-├── specflow.validate.md       (3017 bytes)
+├── flowspec.implement.md      (2933 bytes)
+├── flowspec.operate.md        (2796 bytes)
+├── flowspec.plan.md           (2266 bytes)
+├── flowspec.research.md       (1491 bytes)
+├── flowspec.specify.md        (1534 bytes)
+├── flowspec.validate.md       (3017 bytes)
 ├── speckit.analyze.md       (7135 bytes)
 ├── speckit.checklist.md     (16843 bytes)
 ├── speckit.clarify.md       (11202 bytes)
@@ -53,13 +53,13 @@ The `specify dev-setup` command has significant gaps compared to what `specify i
 ```
 
 - **15 command files total**
-- **Flat file structure** with dot notation (e.g., `specflow.implement.md`)
+- **Flat file structure** with dot notation (e.g., `flowspec.implement.md`)
 - All files are actual files, not symlinks
 
 #### JP-Spec-Kit dev-setup Installation
 ```
 .claude/commands/
-├── specflow/                          ← Subdirectory structure
+├── flowspec/                          ← Subdirectory structure
 │   ├── _backlog-instructions.md    (6444 bytes)  ← NOT IN TEMPLATES
 │   ├── assess.md                   (11671 bytes) ← NOT IN TEMPLATES
 │   ├── implement.md                (19960 bytes) ← 7x larger than template!
@@ -80,20 +80,20 @@ The `specify dev-setup` command has significant gaps compared to what `specify i
     └── tasks.md → ...
 ```
 
-- **17 command files** (8 speckit symlinks + 9 specflow real files)
+- **17 command files** (8 speckit symlinks + 9 flowspec real files)
 - **Subdirectory structure** (not flat with dot notation)
-- speckit files are symlinks; specflow files are NOT symlinks
-- specflow files are **heavily customized** with backlog integration
+- speckit files are symlinks; flowspec files are NOT symlinks
+- flowspec files are **heavily customized** with backlog integration
 
 ### Step 3: The Three Versions Problem
 
-There are **THREE different versions** of specflow commands:
+There are **THREE different versions** of flowspec commands:
 
 | Location | Files | Content |
 |----------|-------|---------|
-| `nanofuse/.claude/commands/specflow.*.md` | 6 files | From release package, small/simple |
-| `jp-spec-kit/templates/commands/specflow/` | 6 files | Templates for release, small/simple |
-| `jp-spec-kit/.claude/commands/specflow/` | 9 files | Enhanced for development, 3-7x larger |
+| `nanofuse/.claude/commands/flowspec.*.md` | 6 files | From release package, small/simple |
+| `jp-spec-kit/templates/commands/flowspec/` | 6 files | Templates for release, small/simple |
+| `jp-spec-kit/.claude/commands/flowspec/` | 9 files | Enhanced for development, 3-7x larger |
 
 **MD5 Hash Comparison (implement.md):**
 ```
@@ -102,7 +102,7 @@ templates:       94f6876d82379e85ce89ab1772f3c92a  (2945 bytes)
 .claude actual:  c20b339affedc24243167e0f0f552da4  (19960 bytes)
 ```
 
-All three are different! The version jp-spec-kit uses for development (`.claude/commands/specflow/`) is NOT what gets distributed.
+All three are different! The version jp-spec-kit uses for development (`.claude/commands/flowspec/`) is NOT what gets distributed.
 
 ### Step 4: Missing Files from dev-setup Setup
 
@@ -111,7 +111,7 @@ All three are different! The version jp-spec-kit uses for development (`.claude/
 - Creates GitHub issues from tasks.md
 - **Not part of dev-setup setup**
 
-#### Missing specflow Commands (in templates only, not dev-setup):
+#### Missing flowspec Commands (in templates only, not dev-setup):
 - `assess.md` - exists in .claude but NOT in templates
 - `_backlog-instructions.md` - exists in .claude but NOT in templates
 - `prune-branch.md` - exists in .claude but NOT in templates
@@ -127,8 +127,8 @@ All three are different! The version jp-spec-kit uses for development (`.claude/
 │   ├── code-standards.md
 │   ├── constitution.md
 │   ├── critical-rules.md
-│   ├── specflow_workflow.schema.json
-│   ├── specflow_workflow.yml
+│   ├── flowspec_workflow.schema.json
+│   ├── flowspec_workflow.yml
 │   ├── mcp-configuration.md
 │   ├── README.md
 │   └── WORKFLOW_DESIGN_SPEC.md
@@ -173,8 +173,8 @@ All three are different! The version jp-spec-kit uses for development (`.claude/
 - code-standards.md
 - constitution.md
 - critical-rules.md
-- specflow_workflow.schema.json
-- specflow_workflow.yml
+- flowspec_workflow.schema.json
+- flowspec_workflow.yml
 - mcp-configuration.md
 - README.md
 - WORKFLOW_DESIGN_SPEC.md
@@ -203,7 +203,7 @@ All three are different! The version jp-spec-kit uses for development (`.claude/
 ├── agents-config.json
 ├── AGENTS-INTEGRATION.md
 ├── commands/       (subdirectory structure)
-│   ├── specflow/    (9 files, NOT symlinks)
+│   ├── flowspec/    (9 files, NOT symlinks)
 │   └── speckit/   (8 symlinks)
 ├── INTEGRATION-COMPLETE.md
 ├── load-agent.py
@@ -221,7 +221,7 @@ All three are different! The version jp-spec-kit uses for development (`.claude/
 
 ### Issue 1: dev-setup Command is Incomplete (CRITICAL)
 
-**Problem**: The `specify dev-setup` command only creates symlinks for `speckit` commands, completely ignoring `specflow` commands.
+**Problem**: The `specify dev-setup` command only creates symlinks for `speckit` commands, completely ignoring `flowspec` commands.
 
 **Evidence**:
 ```python
@@ -230,11 +230,11 @@ speckit_commands_dir = project_path / ".claude" / "commands" / "speckit"
 speckit_commands_dir.mkdir(parents=True, exist_ok=True)
 ```
 
-**Impact**: The specflow commands in `.claude/commands/specflow/` are manually maintained separately and have diverged significantly from the templates.
+**Impact**: The flowspec commands in `.claude/commands/flowspec/` are manually maintained separately and have diverged significantly from the templates.
 
-### Issue 2: specflow Content Divergence (CRITICAL)
+### Issue 2: flowspec Content Divergence (CRITICAL)
 
-**Problem**: The specflow commands used for jp-spec-kit development are 3-7x larger than the template versions, with extensive backlog integration that is NOT distributed to end users.
+**Problem**: The flowspec commands used for jp-spec-kit development are 3-7x larger than the template versions, with extensive backlog integration that is NOT distributed to end users.
 
 **File Size Comparison:**
 | File | Templates | .claude | Ratio |
@@ -247,9 +247,9 @@ speckit_commands_dir.mkdir(parents=True, exist_ok=True)
 
 **Impact**: End users get a vastly inferior experience compared to what jp-spec-kit developers use.
 
-### Issue 3: Missing specflow Commands in Templates
+### Issue 3: Missing flowspec Commands in Templates
 
-**Problem**: Three specflow commands exist in `.claude/commands/specflow/` but NOT in templates:
+**Problem**: Three flowspec commands exist in `.claude/commands/flowspec/` but NOT in templates:
 - `assess.md`
 - `_backlog-instructions.md`
 - `prune-branch.md`
@@ -280,8 +280,8 @@ speckit_commands_dir.mkdir(parents=True, exist_ok=True)
 - claude-hooks.md
 - code-standards.md
 - critical-rules.md
-- specflow_workflow.schema.json
-- specflow_workflow.yml
+- flowspec_workflow.schema.json
+- flowspec_workflow.yml
 - mcp-configuration.md
 - README.md
 
@@ -296,7 +296,7 @@ The fundamental problem is that jp-spec-kit has **two parallel command systems**
 1. **Templates** (`templates/commands/`) - Simple, minimal versions for distribution
 2. **Actual** (`.claude/commands/`) - Enhanced versions with backlog integration
 
-The dev-setup command was designed to only link the `speckit` commands, assuming specflow was "already available" (per CONTRIBUTING.md). However, the specflow commands in `.claude/commands/specflow/` have evolved independently and are now completely different from the templates.
+The dev-setup command was designed to only link the `speckit` commands, assuming flowspec was "already available" (per CONTRIBUTING.md). However, the flowspec commands in `.claude/commands/flowspec/` have evolved independently and are now completely different from the templates.
 
 This creates a **dual-source-of-truth problem** where:
 - Developers working on jp-spec-kit get the enhanced commands
@@ -306,41 +306,41 @@ This creates a **dual-source-of-truth problem** where:
 
 ## Recommendations
 
-### Fix 1: Sync specflow Commands
+### Fix 1: Sync flowspec Commands
 
 Either:
-- **Option A**: Copy enhanced `.claude/commands/specflow/` files to `templates/commands/specflow/`
-- **Option B**: Make `.claude/commands/specflow/` use symlinks to templates (like speckit)
+- **Option A**: Copy enhanced `.claude/commands/flowspec/` files to `templates/commands/flowspec/`
+- **Option B**: Make `.claude/commands/flowspec/` use symlinks to templates (like speckit)
 
 Recommendation: **Option A** - The enhanced versions are clearly better.
 
 ### Fix 2: Update dev-setup Command
 
-Add specflow symlink creation:
+Add flowspec symlink creation:
 ```python
-# Create specflow symlinks as well
-specflow_commands_dir = project_path / ".claude" / "commands" / "specflow"
-specflow_commands_dir.mkdir(parents=True, exist_ok=True)
+# Create flowspec symlinks as well
+flowspec_commands_dir = project_path / ".claude" / "commands" / "flowspec"
+flowspec_commands_dir.mkdir(parents=True, exist_ok=True)
 
-specflow_templates_dir = project_path / "templates" / "commands" / "specflow"
-for template_file in specflow_templates_dir.glob("*.md"):
-    symlink_path = specflow_commands_dir / template_file.name
-    relative_target = Path("..") / ".." / ".." / "templates" / "commands" / "specflow" / template_file.name
+flowspec_templates_dir = project_path / "templates" / "commands" / "flowspec"
+for template_file in flowspec_templates_dir.glob("*.md"):
+    symlink_path = flowspec_commands_dir / template_file.name
+    relative_target = Path("..") / ".." / ".." / "templates" / "commands" / "flowspec" / template_file.name
     # ... symlink creation
 ```
 
 ### Fix 3: Add Missing Commands to Templates
 
-- Add `assess.md` to `templates/commands/specflow/`
-- Add `_backlog-instructions.md` to `templates/commands/specflow/`
-- Add `prune-branch.md` to `templates/commands/specflow/`
+- Add `assess.md` to `templates/commands/flowspec/`
+- Add `_backlog-instructions.md` to `templates/commands/flowspec/`
+- Add `prune-branch.md` to `templates/commands/flowspec/`
 - Add `taskstoissues.md` to `templates/commands/`
 
 ### Fix 4: Standardize Naming Convention
 
 Decide whether to use:
-- Subdirectory structure: `specflow/implement.md`
-- Dot notation: `specflow.implement.md`
+- Subdirectory structure: `flowspec/implement.md`
+- Dot notation: `flowspec.implement.md`
 
 Update both dev-setup and init commands to use the same convention.
 
@@ -350,8 +350,8 @@ Update jp-spec-kit `memory/` directory to include all files that get installed v
 - claude-hooks.md
 - code-standards.md
 - critical-rules.md
-- specflow_workflow.schema.json
-- specflow_workflow.yml
+- flowspec_workflow.schema.json
+- flowspec_workflow.yml
 - mcp-configuration.md
 - README.md
 
@@ -391,8 +391,8 @@ Update jp-spec-kit `memory/` directory to include all files that get installed v
 
 The dev-setup setup is fundamentally incomplete. It was designed as a quick workaround to enable speckit commands via symlinks, but it:
 
-1. Completely ignores specflow commands
-2. Has allowed specflow commands to diverge significantly between development and distribution
+1. Completely ignores flowspec commands
+2. Has allowed flowspec commands to diverge significantly between development and distribution
 3. Creates a different command structure than what end users get
 4. Missing several files and commands that are installed via `specify init`
 

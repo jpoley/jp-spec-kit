@@ -1,6 +1,6 @@
-# Backlog.md User Guide for Specflow
+# Backlog.md User Guide for Flowspec
 
-Comprehensive guide to using Backlog.md task management with Specflow's spec-driven development workflow.
+Comprehensive guide to using Backlog.md task management with Flowspec's spec-driven development workflow.
 
 ## Table of Contents
 
@@ -18,7 +18,7 @@ Comprehensive guide to using Backlog.md task management with Specflow's spec-dri
 
 ### What is Backlog.md Integration?
 
-Backlog.md integration enhances Specflow with a robust task lifecycle management layer that bridges the gap between specification and execution.
+Backlog.md integration enhances Flowspec with a robust task lifecycle management layer that bridges the gap between specification and execution.
 
 **The Integration Flow**:
 ```
@@ -46,10 +46,10 @@ Completed Feature
 
 ```
 ┌─────────────────────────────────────────┐
-│           Specflow Layer                │
-│  /specflow:specify → spec.md              │
-│  /specflow:plan → plan.md                 │
-│  /specflow:tasks → Generate Tasks         │
+│           Flowspec Layer                │
+│  /flow:specify → spec.md              │
+│  /flow:plan → plan.md                 │
+│  /flow:tasks → Generate Tasks         │
 └───────────────┬─────────────────────────┘
                 │
                 ▼
@@ -74,7 +74,7 @@ Completed Feature
 
 ### Prerequisites
 
-- Specflow installed: `uv tool install specify-cli --from git+https://github.com/jpoley/jp-spec-kit.git`
+- Flowspec installed: `uv tool install specify-cli --from git+https://github.com/jpoley/jp-spec-kit.git`
 - Node.js 18+ or npm/pnpm
 - Git repository initialized
 - Claude Code (optional, for AI integration)
@@ -99,7 +99,7 @@ backlog --version
 ### Step 2: Initialize Backlog in Your Project
 
 ```bash
-# Navigate to your Specflow project
+# Navigate to your Flowspec project
 cd your-project
 
 # Initialize Backlog.md
@@ -163,13 +163,13 @@ cat ~/.config/claude-code/.mcp.json
 
 1. **Create Spec and Plan**:
 ```bash
-/specflow:specify Build a user authentication system with login, signup, password reset
-/specflow:plan Use Node.js with Express, PostgreSQL, JWT tokens
+/flow:specify Build a user authentication system with login, signup, password reset
+/flow:plan Use Node.js with Express, PostgreSQL, JWT tokens
 ```
 
 2. **Generate tasks.md**:
 ```bash
-/specflow:tasks
+/flow:tasks
 ```
 
 3. **Manually Create Backlog Tasks** (from tasks.md):
@@ -199,7 +199,7 @@ specify tasks generate --format backlog-md
 
 ### Task Format Mapping
 
-Specflow tasks map to Backlog.md like this:
+Flowspec tasks map to Backlog.md like this:
 
 **tasks.md format**:
 ```markdown
@@ -233,7 +233,7 @@ Create User model in src/models/user.py
 
 ### Understanding Labels and Dependencies
 
-**Labels** encode the structure from Specflow:
+**Labels** encode the structure from Flowspec:
 
 - **User Story Labels**: `US1`, `US2`, `US3` (from `[US1]` markers)
 - **Phase Labels**: `setup`, `foundational`, `implementation`, `polish`
@@ -950,12 +950,12 @@ backlog board --filter US1  # Instead of viewing all tasks
 
 **Resources**:
 - [Backlog.md Documentation](https://github.com/MrLesk/Backlog.md)
-- [Specflow Issues](https://github.com/jpoley/jp-spec-kit/issues)
+- [Flowspec Issues](https://github.com/jpoley/jp-spec-kit/issues)
 - [MCP Protocol Docs](https://modelcontextprotocol.io)
 
 **Report Issues**:
 ```bash
-# For Specflow integration issues
+# For Flowspec integration issues
 # Open issue at: https://github.com/jpoley/jp-spec-kit/issues
 
 # For Backlog.md tool issues
@@ -964,28 +964,28 @@ backlog board --filter US1  # Instead of viewing all tasks
 
 ---
 
-## /specflow Command Integration
+## /flowspec Command Integration
 
-Backlog.md integrates seamlessly with the `/specflow` workflow commands. Each command creates, discovers, or updates tasks in your backlog.
+Backlog.md integrates seamlessly with the `/flowspec` workflow commands. Each command creates, discovers, or updates tasks in your backlog.
 
 ### Quick Reference
 
 | Command | Backlog Action | Task State Change |
 |---------|---------------|-------------------|
-| `/specflow:assess` | Labels with complexity | To Do → Assessed |
-| `/specflow:specify` | Creates implementation tasks | Assessed → Specified |
-| `/specflow:research` | Creates research + follow-up tasks | Specified → Researched |
-| `/specflow:plan` | Creates architecture/infra tasks | Researched → Planned |
-| `/specflow:implement` | Assigns and tracks existing tasks | Planned → In Implementation |
-| `/specflow:validate` | Validates task completion | In Implementation → Validated |
-| `/specflow:operate` | Creates operational tasks | Validated → Deployed |
+| `/flow:assess` | Labels with complexity | To Do → Assessed |
+| `/flow:specify` | Creates implementation tasks | Assessed → Specified |
+| `/flow:research` | Creates research + follow-up tasks | Specified → Researched |
+| `/flow:plan` | Creates architecture/infra tasks | Researched → Planned |
+| `/flow:implement` | Assigns and tracks existing tasks | Planned → In Implementation |
+| `/flow:validate` | Validates task completion | In Implementation → Validated |
+| `/flow:operate` | Creates operational tasks | Validated → Deployed |
 
 ### How Commands Use Backlog
 
 **Design commands** (specify, research, plan) create tasks:
 
 ```bash
-# /specflow:specify creates tasks with acceptance criteria
+# /flow:specify creates tasks with acceptance criteria
 backlog task create "Implement user login" \
   --ac "POST /auth/login returns JWT" \
   --ac "Invalid credentials return 401" \
@@ -995,7 +995,7 @@ backlog task create "Implement user login" \
 **Implementation commands** (implement, validate, operate) work from tasks:
 
 ```bash
-# /specflow:implement discovers and assigns tasks
+# /flow:implement discovers and assigns tasks
 backlog search "authentication" --plain
 backlog task edit task-42 -s "In Progress" -a @backend-engineer
 backlog task edit task-42 --check-ac 1  # Mark AC complete
@@ -1003,7 +1003,7 @@ backlog task edit task-42 --check-ac 1  # Mark AC complete
 
 ### Task Format Requirements
 
-For full `/specflow` compatibility, tasks should include:
+For full `/flowspec` compatibility, tasks should include:
 
 1. **Status field** - Valid workflow state (To Do, Specified, Planned, etc.)
 2. **Acceptance criteria** - Numbered checkboxes for tracking
@@ -1023,7 +1023,7 @@ labels: [backend, US1]
 
 ### Learn More
 
-See **[JP Spec + Backlog.md Integration Guide](specflow-backlog-workflow.md)** for:
+See **[JP Spec + Backlog.md Integration Guide](flowspec-backlog-workflow.md)** for:
 - Complete workflow state transitions
 - Task format specifications
 - Command integration details

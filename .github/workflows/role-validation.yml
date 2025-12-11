@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths:
       - 'templates/commands/**'
-      - 'specflow_workflow.yml'
+      - 'flowspec_workflow.yml'
       - 'schemas/**'
       - '.claude/commands/**'
       - '.github/agents/**'
@@ -15,7 +15,7 @@ on:
     branches: [main]
     paths:
       - 'templates/commands/**'
-      - 'specflow_workflow.yml'
+      - 'flowspec_workflow.yml'
       - 'schemas/**'
       - '.claude/commands/**'
       - '.github/agents/**'
@@ -41,16 +41,16 @@ jobs:
       - name: Install dependencies
         run: uv sync
 
-      - name: Validate specflow_workflow.yml against schema
+      - name: Validate flowspec_workflow.yml against schema
         run: |
-          echo "=== Validating specflow_workflow.yml against JSON schema ==="
-          uv run python scripts/validate-workflow-config.py specflow_workflow.yml schemas/specflow_workflow.schema.json
+          echo "=== Validating flowspec_workflow.yml against JSON schema ==="
+          uv run python scripts/validate-workflow-config.py flowspec_workflow.yml schemas/flowspec_workflow.schema.json
 
       - name: Check schema version compatibility
         run: |
           echo "=== Checking schema version compatibility ==="
-          WORKFLOW_VERSION=$(uv run python -c "import yaml; print(yaml.safe_load(open('specflow_workflow.yml'))['version'])")
-          SCHEMA_VERSION=$(uv run python -c "import json; print(json.load(open('schemas/specflow_workflow.schema.json'))['properties']['version']['examples'][0])")
+          WORKFLOW_VERSION=$(uv run python -c "import yaml; print(yaml.safe_load(open('flowspec_workflow.yml'))['version'])")
+          SCHEMA_VERSION=$(uv run python -c "import json; print(json.load(open('schemas/flowspec_workflow.schema.json'))['properties']['version']['examples'][0])")
           echo "Workflow version: $WORKFLOW_VERSION"
           echo "Schema version: $SCHEMA_VERSION"
 
@@ -87,7 +87,7 @@ jobs:
           from pathlib import Path
 
           # Load workflow config
-          with open('specflow_workflow.yml') as f:
+          with open('flowspec_workflow.yml') as f:
               config = yaml.safe_load(f)
 
           roles = config.get('roles', {}).get('definitions', {})
@@ -123,7 +123,7 @@ jobs:
           uv run python << 'PYTHON'
           import yaml
 
-          with open('specflow_workflow.yml') as f:
+          with open('flowspec_workflow.yml') as f:
               config = yaml.safe_load(f)
 
           # Extract all agents from workflows
@@ -218,7 +218,7 @@ jobs:
           echo "✓ No drift detected - agents are in sync"
 
   # Job 4: Dev role validation
-  # NOTE: PM role removed - PM work is done via /specflow workflow commands
+  # NOTE: PM role removed - PM work is done via /flowspec workflow commands
   validate-dev-role:
     runs-on: ubuntu-latest
     steps:
@@ -242,7 +242,7 @@ jobs:
           uv run python << 'PYTHON'
           import yaml
 
-          with open('specflow_workflow.yml') as f:
+          with open('flowspec_workflow.yml') as f:
               config = yaml.safe_load(f)
 
           dev_role = config['roles']['definitions']['dev']
@@ -319,7 +319,7 @@ jobs:
           uv run python << 'PYTHON'
           import yaml
 
-          with open('specflow_workflow.yml') as f:
+          with open('flowspec_workflow.yml') as f:
               config = yaml.safe_load(f)
 
           sec_role = config['roles']['definitions']['sec']
@@ -414,7 +414,7 @@ jobs:
           uv run python << 'PYTHON'
           import yaml
 
-          with open('specflow_workflow.yml') as f:
+          with open('flowspec_workflow.yml') as f:
               config = yaml.safe_load(f)
 
           qa_role = config['roles']['definitions']['qa']
@@ -574,7 +574,7 @@ jobs:
           uv run python << 'PYTHON'
           import yaml
 
-          with open('specflow_workflow.yml') as f:
+          with open('flowspec_workflow.yml') as f:
               config = yaml.safe_load(f)
 
           ops_role = config['roles']['definitions']['ops']

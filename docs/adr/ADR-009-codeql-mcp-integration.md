@@ -7,7 +7,7 @@
 
 ## Context
 
-Specflow currently integrates two SAST tools via MCP servers:
+Flowspec currently integrates two SAST tools via MCP servers:
 - **Semgrep** (`@returntocorp/semgrep-mcp`) - Fast pattern-based scanning
 - **Trivy** (`@aquasecurity/trivy-mcp`) - Container/IaC security and SBOM
 
@@ -36,7 +36,7 @@ Integrate CodeQL via MCP server using the existing [codeql-mcp](https://github.c
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                      Specflow Agents                          │
+│                      Flowspec Agents                          │
 ├─────────────────────────────────────────────────────────────────┤
 │  secure-by-design-engineer  │  backend-code-reviewer  │  ...    │
 │         ↓                   │           ↓             │         │
@@ -188,7 +188,7 @@ ADAPTERS = [
 
 #### Task 4.1: Add CodeQL to security scan command
 
-Update `/specflow:security scan` to include CodeQL:
+Update `/flow:security scan` to include CodeQL:
 
 ```python
 @app.command()

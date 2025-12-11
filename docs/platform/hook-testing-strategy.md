@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document defines the comprehensive testing strategy for the Specflow hook system, covering unit tests, integration tests, end-to-end tests, and security tests. The strategy ensures reliability, security, and maintainability of the hook infrastructure.
+This document defines the comprehensive testing strategy for the Flowspec hook system, covering unit tests, integration tests, end-to-end tests, and security tests. The strategy ensures reliability, security, and maintainability of the hook infrastructure.
 
 ## Testing Philosophy
 
@@ -297,7 +297,7 @@ tests/
 │   ├── test_hook_execution.py      # Hook runner → subprocess → audit log
 │   ├── test_security_boundaries.py # Security controls in realistic scenarios
 │   ├── test_backlog_integration.py # Backlog CLI → event emission
-│   └── test_workflow_integration.py # /specflow commands → event emission
+│   └── test_workflow_integration.py # /flowspec commands → event emission
 ```
 
 ### Key Test Modules
@@ -498,8 +498,8 @@ E2E tests validate full workflow scenarios with real hooks, scripts, and CLI com
 ```
 tests/
 ├── e2e/
-│   ├── test_implement_workflow.py   # /specflow:implement → run tests
-│   ├── test_spec_workflow.py        # /specflow:specify → update docs
+│   ├── test_implement_workflow.py   # /flow:implement → run tests
+│   ├── test_spec_workflow.py        # /flow:specify → update docs
 │   ├── test_task_workflow.py        # backlog task → notifications
 │   ├── test_security_enforcement.py # Security controls in real scenarios
 │   └── fixtures/
@@ -528,7 +528,7 @@ class TestImplementWorkflow:
     def test_implement_triggers_test_hook(self, project_root, monkeypatch):
         """
         GIVEN: hooks.yaml configured to run tests on implement.completed
-        WHEN: /specflow:implement is executed
+        WHEN: /flow:implement is executed
         THEN: Test suite runs and results are logged
         """
         # Setup hooks.yaml
@@ -565,8 +565,8 @@ def test_example():
         # Change to project root
         monkeypatch.chdir(project_root)
 
-        # Run /specflow:implement
-        result = main(["specflow:implement", "test-feature"])
+        # Run /flow:implement
+        result = main(["flowspec:implement", "test-feature"])
 
         # Verify hook was triggered
         audit_log = project_root / ".specify" / "hooks" / "audit.log"

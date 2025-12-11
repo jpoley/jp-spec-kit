@@ -73,7 +73,7 @@ Claude Code hooks provide workflow-triggered automation within agent sessions. T
 
 #### Hook Trigger Points
 
-Based on existing Specflow hook system:
+Based on existing Flowspec hook system:
 
 ```yaml
 # .claude/hooks/hooks.yaml (proposed v2)
@@ -93,7 +93,7 @@ hooks:
 #### Hook Event Flow
 
 ```
-/specflow:validate completed
+/flow:validate completed
        ↓
 Event: validate.completed emitted
        ↓
@@ -155,7 +155,7 @@ exit 0
 2. **Fail-open error handling**: Hook exits 0 even if script fails.
    - Rationale: Archiving is maintenance, not a quality gate. Workflow must proceed.
 
-3. **Event-driven trigger**: Hook responds to `validate.completed` event (end of /specflow:validate).
+3. **Event-driven trigger**: Hook responds to `validate.completed` event (end of /flow:validate).
    - Rationale: Validation is the final workflow step before PR creation; natural checkpoint for cleanup.
 
 ### Hook Testing

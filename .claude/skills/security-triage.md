@@ -6,7 +6,7 @@ This skill enables Claude Code to perform AI-powered vulnerability triage on sec
 
 ## When to Use This Skill
 
-- When invoked by `/specflow:security_triage` command
+- When invoked by `/flow:security_triage` command
 - When user asks to triage security findings
 - When analyzing scanner output (Semgrep, CodeQL, etc.)
 
@@ -236,7 +236,7 @@ Reference the following files for CWE patterns and triage guidelines:
 
 ```bash
 # User runs triage command
-/specflow:security_triage
+/flow:security_triage
 
 # You execute:
 1. Read docs/security/findings.json

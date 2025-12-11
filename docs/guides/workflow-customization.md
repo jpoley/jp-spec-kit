@@ -1,17 +1,17 @@
 # Workflow Customization Guide
 
-This guide explains how to customize the Specflow workflow by modifying `specflow_workflow.yml`.
+This guide explains how to customize the Flowspec workflow by modifying `flowspec_workflow.yml`.
 
 ## Overview
 
-The `specflow_workflow.yml` file is the single source of truth for your development workflow. It defines:
+The `flowspec_workflow.yml` file is the single source of truth for your development workflow. It defines:
 
 - **States**: Task progression stages (e.g., Specified, Planned, Validated)
-- **Workflows**: `/specflow` commands with agent assignments
+- **Workflows**: `/flowspec` commands with agent assignments
 - **Transitions**: Valid state changes between states
 - **Agent Loops**: Inner/outer loop classification for agents
 
-**Location**: `{project-root}/specflow_workflow.yml`
+**Location**: `{project-root}/flowspec_workflow.yml`
 
 By editing this file, you can customize your workflow without modifying any code.
 
@@ -30,7 +30,7 @@ states:
 # Workflow definitions (required)
 workflows:
   specify:
-    command: "/specflow:specify"
+    command: "/flow:specify"
     description: "Create feature specifications"
     agents:
       - name: "product-requirements-manager"
@@ -102,7 +102,7 @@ metadata:
      # ... existing workflows
 
      security-audit:
-       command: "/specflow:security-audit"
+       command: "/flow:security-audit"
        description: "Comprehensive security audit before deployment"
        agents:
          - name: "secure-by-design-engineer"
@@ -268,7 +268,7 @@ metadata:
 
 4. **Test the workflow**:
    ```bash
-   /specflow:validate
+   /flow:validate
    # Should now include compliance-officer agent
    ```
 
@@ -298,7 +298,7 @@ For workflows where agents can work in parallel:
 ```yaml
 workflows:
   plan:
-    command: "/specflow:plan"
+    command: "/flow:plan"
     execution_mode: "parallel"  # Agents execute concurrently
     agents:
       - name: "software-architect"
@@ -436,8 +436,8 @@ specify workflow validate
 
 2. **Run through the workflow**:
    ```bash
-   /specflow:assess
-   /specflow:specify
+   /flow:assess
+   /flow:specify
    # ... continue through your custom phases
    ```
 
@@ -463,7 +463,7 @@ For complete working examples, see:
 Run `specify workflow validate` after every change:
 
 ```bash
-vim specflow_workflow.yml
+vim flowspec_workflow.yml
 # ... make changes ...
 specify workflow validate
 ```
@@ -473,7 +473,7 @@ specify workflow validate
 Commit workflow changes with clear commit messages:
 
 ```bash
-git add specflow_workflow.yml
+git add flowspec_workflow.yml
 git commit -s -m "feat(workflow): add security audit phase
 
 - Add Security Audited state
@@ -490,7 +490,7 @@ workflows:
   security-audit:
     # Custom phase required for SOC2 compliance
     # Must complete before production deployment
-    command: "/specflow:security-audit"
+    command: "/flow:security-audit"
     # ...
 ```
 
@@ -537,7 +537,7 @@ Custom agents will generate warnings but won't block execution:
 [WARNING] UNKNOWN_AGENT: Workflow 'validate' references unknown agent 'compliance-officer'.
 ```
 
-This is by design - you can use custom agents without modifying Specflow code.
+This is by design - you can use custom agents without modifying Flowspec code.
 
 ### Breaking Changes
 
@@ -550,10 +550,10 @@ Removing states or workflows can break existing tasks:
 
 ### Schema Compatibility
 
-Check the `version` field in `specflow_workflow.yml`:
+Check the `version` field in `flowspec_workflow.yml`:
 
 ```yaml
-version: "1.1"  # Must match Specflow's expected schema version
+version: "1.1"  # Must match Flowspec's expected schema version
 ```
 
 Incompatible versions will cause validation errors.
@@ -642,7 +642,7 @@ transitions:
 
 | Issue | Symptom | Quick Fix |
 |-------|---------|-----------|
-| Config not found | `WorkflowConfigNotFoundError` | Create `specflow_workflow.yml` in project root |
+| Config not found | `WorkflowConfigNotFoundError` | Create `flowspec_workflow.yml` in project root |
 | State typo | `UNDEFINED_OUTPUT_STATE` | Check spelling matches `states:` list exactly |
 | Wrong workflow order | "Cannot execute from state X" | Check `input_states` for the workflow |
 | Circular dependency | `CYCLE_DETECTED` | Use `via: "rework"` for backward transitions |
@@ -658,13 +658,13 @@ Run these when troubleshooting:
 specify workflow validate
 
 # 2. Check YAML syntax
-python -c "import yaml; yaml.safe_load(open('specflow_workflow.yml'))"
+python -c "import yaml; yaml.safe_load(open('flowspec_workflow.yml'))"
 
 # 3. View current task state
 backlog task view task-123
 
 # 4. See valid workflows for a state
-grep -A 5 "input_states" specflow_workflow.yml
+grep -A 5 "input_states" flowspec_workflow.yml
 ```
 
 ## Rollback and Recovery
@@ -675,7 +675,7 @@ If customizations cause issues:
 
 1. **Restore from git**:
    ```bash
-   git checkout specflow_workflow.yml
+   git checkout flowspec_workflow.yml
    ```
 
 2. **Reload configuration**:
@@ -687,8 +687,8 @@ If customizations cause issues:
 ### Backup Before Editing
 
 ```bash
-cp specflow_workflow.yml specflow_workflow.yml.backup.$(date +%Y%m%d)
-vim specflow_workflow.yml
+cp flowspec_workflow.yml flowspec_workflow.yml.backup.$(date +%Y%m%d)
+vim flowspec_workflow.yml
 ```
 
 ### Emergency Defaults
@@ -696,8 +696,8 @@ vim specflow_workflow.yml
 If all else fails, restore the default configuration:
 
 ```bash
-# Copy from template (Specflow installation)
-cp ~/.local/share/specify-cli/templates/specflow_workflow.yml ./specflow_workflow.yml
+# Copy from template (Flowspec installation)
+cp ~/.local/share/specify-cli/templates/flowspec_workflow.yml ./flowspec_workflow.yml
 ```
 
 ## Related Documentation
@@ -710,7 +710,7 @@ cp ~/.local/share/specify-cli/templates/specflow_workflow.yml ./specflow_workflo
 
 ## Summary
 
-- `specflow_workflow.yml` is the single source of truth for workflow configuration
+- `flowspec_workflow.yml` is the single source of truth for workflow configuration
 - Customize by adding/removing/reordering states, workflows, and transitions
 - Always validate after changes: `specify workflow validate`
 - Test customizations on small tasks first

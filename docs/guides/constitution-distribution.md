@@ -8,7 +8,7 @@
 4. [LLM Customization](#llm-customization)
 5. [NEEDS_VALIDATION Markers](#needs_validation-markers)
 6. [Validation Workflow](#validation-workflow)
-7. [Enforcement in /specflow Commands](#enforcement-in-specflow-commands)
+7. [Enforcement in /flowspec Commands](#enforcement-in-flowspec-commands)
 8. [CLI Command Reference](#cli-command-reference)
 9. [Maintenance](#maintenance)
 10. [Troubleshooting](#troubleshooting)
@@ -31,7 +31,7 @@ The constitution lives at `memory/constitution.md` in your project and serves as
 
 ### Why Tier Selection Matters
 
-Specflow provides **three constitution tiers** to match different project needs:
+Flowspec provides **three constitution tiers** to match different project needs:
 
 | Tier | Best For | Enforcement Level | Key Characteristics |
 |------|----------|-------------------|---------------------|
@@ -56,7 +56,7 @@ Choosing the right tier ensures your constitution **helps** rather than **hinder
    └─> Update content and remove markers
 
 4. Work with Confidence
-   └─> /specflow commands enforce constitution rules
+   └─> /flowspec commands enforce constitution rules
    └─> Constitution guides team practices
 ```
 
@@ -98,7 +98,7 @@ Task Quality:
 ```
 
 **Enforcement:**
-- **Warnings only** - /specflow commands warn but never block
+- **Warnings only** - /flowspec commands warn but never block
 - You can proceed even with unvalidated constitution
 - `--skip-validation` flag available but not required
 
@@ -144,7 +144,7 @@ Task Quality:
 ```
 
 **Enforcement:**
-- **Warnings + confirmation prompts** - /specflow commands warn and ask for confirmation
+- **Warnings + confirmation prompts** - /flowspec commands warn and ask for confirmation
 - Can proceed after acknowledging warnings
 - Constitution validation recommended before starting work
 
@@ -200,7 +200,7 @@ Security:
 ```
 
 **Enforcement:**
-- **Hard blocks** - /specflow commands refuse to proceed with unvalidated constitution
+- **Hard blocks** - /flowspec commands refuse to proceed with unvalidated constitution
 - Constitution validation mandatory before implementation
 - `--skip-validation` requires special override (not recommended)
 
@@ -267,7 +267,7 @@ specify init --here --constitution heavy
 ```
 
 **Detection logic:**
-- Specflow detects existing project if any of these exist:
+- Flowspec detects existing project if any of these exist:
   - `.git/` directory
   - `package.json` (Node.js)
   - `pyproject.toml` (Python)
@@ -279,10 +279,10 @@ specify init --here --constitution heavy
 
 ### Project Upgrade
 
-Update existing Specflow installation:
+Update existing Flowspec installation:
 
 ```bash
-# Upgrade Specflow
+# Upgrade Flowspec
 specify upgrade
 
 # If constitution missing, you'll be prompted:
@@ -338,7 +338,7 @@ specify init my-project --constitution medium
 **When to use manual customization:**
 - After adding new languages/frameworks
 - When automatic detection failed
-- After upgrading Specflow
+- After upgrading Flowspec
 - To refresh constitution with latest repo state
 
 ### What Gets Detected
@@ -705,11 +705,11 @@ echo "✅ Constitution validated"
 
 ---
 
-## Enforcement in /specflow Commands
+## Enforcement in /flowspec Commands
 
 ### How Enforcement Works
 
-Before executing `/specflow` commands, Specflow checks:
+Before executing `/flowspec` commands, Flowspec checks:
 
 1. **Constitution exists** - Is `memory/constitution.md` present?
 2. **Constitution validated** - Are there NEEDS_VALIDATION markers?
@@ -720,12 +720,12 @@ Before executing `/specflow` commands, Specflow checks:
 #### Light Tier: Warnings Only
 
 ```bash
-$ /specflow:specify
+$ /flow:specify
 
 ⚠ Warning: Constitution has 2 unvalidated sections.
   Run 'specify constitution validate' to review.
 
-Proceeding with /specflow:specify...
+Proceeding with /flow:specify...
 ```
 
 **Behavior:**
@@ -741,7 +741,7 @@ Proceeding with /specflow:specify...
 #### Medium Tier: Warnings + Confirmation
 
 ```bash
-$ /specflow:specify
+$ /flow:specify
 
 ⚠ Warning: Constitution has 2 unvalidated sections.
   Run 'specify constitution validate' to review.
@@ -762,7 +762,7 @@ Do you want to proceed anyway? [y/N]:
 #### Heavy Tier: Hard Block
 
 ```bash
-$ /specflow:specify
+$ /flow:specify
 
 ❌ Error: Constitution validation required.
 
@@ -791,11 +791,11 @@ For emergencies only:
 
 ```bash
 # Use --skip-validation flag
-/specflow:specify --skip-validation
+/flow:specify --skip-validation
 
 ⚠ WARNING: Skipping constitution validation. This is NOT recommended for production.
 
-Proceeding with /specflow:specify...
+Proceeding with /flow:specify...
 ```
 
 **When to use:**
@@ -807,17 +807,17 @@ Proceeding with /specflow:specify...
 
 ### Which Commands Enforce?
 
-All `/specflow` workflow commands:
+All `/flowspec` workflow commands:
 
 | Command | Checks Constitution | Tier Enforcement |
 |---------|---------------------|------------------|
-| `/specflow:assess` | Yes | Light: warn, Medium: confirm, Heavy: block |
-| `/specflow:specify` | Yes | Light: warn, Medium: confirm, Heavy: block |
-| `/specflow:research` | Yes | Light: warn, Medium: confirm, Heavy: block |
-| `/specflow:plan` | Yes | Light: warn, Medium: confirm, Heavy: block |
-| `/specflow:implement` | Yes | Light: warn, Medium: confirm, Heavy: block |
-| `/specflow:validate` | Yes | Light: warn, Medium: confirm, Heavy: block |
-| `/specflow:operate` | Yes | Light: warn, Medium: confirm, Heavy: block |
+| `/flow:assess` | Yes | Light: warn, Medium: confirm, Heavy: block |
+| `/flow:specify` | Yes | Light: warn, Medium: confirm, Heavy: block |
+| `/flow:research` | Yes | Light: warn, Medium: confirm, Heavy: block |
+| `/flow:plan` | Yes | Light: warn, Medium: confirm, Heavy: block |
+| `/flow:implement` | Yes | Light: warn, Medium: confirm, Heavy: block |
+| `/flow:validate` | Yes | Light: warn, Medium: confirm, Heavy: block |
+| `/flow:operate` | Yes | Light: warn, Medium: confirm, Heavy: block |
 
 **Note:** Utility commands (`backlog`, `specify init`, etc.) do not enforce constitution.
 
@@ -907,11 +907,11 @@ specify constitution version
 
 ### `specify upgrade`
 
-Upgrade Specflow and handle constitution detection.
+Upgrade Flowspec and handle constitution detection.
 
 **Usage:**
 ```bash
-# Upgrade Specflow
+# Upgrade Flowspec
 specify upgrade
 
 # If constitution missing:
@@ -994,7 +994,7 @@ Constitution versions follow **semantic versioning**:
 
 ### Handling Upgrades
 
-When Specflow releases new constitution templates:
+When Flowspec releases new constitution templates:
 
 **Future feature:**
 ```bash
@@ -1105,9 +1105,9 @@ Leave marker in place, document why in a note:
 Pending legal review of applicable compliance frameworks.
 ```
 
-### /specflow Command Blocked by Unvalidated Constitution
+### /flowspec Command Blocked by Unvalidated Constitution
 
-**Problem:** Heavy tier blocks /specflow commands until validation complete.
+**Problem:** Heavy tier blocks /flowspec commands until validation complete.
 
 **Error:**
 ```
@@ -1127,7 +1127,7 @@ specify constitution validate  # Verify all clear
 **Solution Option 2** (Emergency only):
 Use skip flag:
 ```bash
-/specflow:specify --skip-validation
+/flow:specify --skip-validation
 ```
 
 **Note:** Document why you skipped validation in team chat/issue tracker.
@@ -1215,7 +1215,7 @@ Signed-off-by: Your Name <you@example.com>"
 ### Don't:
 - ❌ Choose Heavy tier "just to be safe" (creates unnecessary friction)
 - ❌ Remove NEEDS_VALIDATION markers without reviewing content
-- ❌ Ignore warnings from /specflow commands
+- ❌ Ignore warnings from /flowspec commands
 - ❌ Skip validation because "it's just a template"
 - ❌ Make constitution changes without team consensus (Medium/Heavy tiers)
 
@@ -1227,7 +1227,7 @@ Signed-off-by: Your Name <you@example.com>"
 - [Constitution Distribution PRD](../prd/constitution-distribution-prd.md) - Full feature specification
 - [Tiered Constitution Templates](../../templates/constitutions/) - Template source files
 - [Case Study: Constitution Templates](../case-studies/02-constitution-templates.md) - Implementation story
-- [Specflow CLI Reference](../reference/cli-commands.md) - All CLI commands
+- [Flowspec CLI Reference](../reference/cli-commands.md) - All CLI commands
 
 ---
 
@@ -1251,7 +1251,7 @@ specify constitution validate --json
 # Run LLM customization
 /speckit:constitution
 
-# Upgrade Specflow (detects missing constitutions)
+# Upgrade Flowspec (detects missing constitutions)
 specify upgrade
 ```
 

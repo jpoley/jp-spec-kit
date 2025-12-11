@@ -49,7 +49,7 @@ Check if this project is in light mode:
 
 ```bash
 # Check for light mode marker
-if [ -f ".specflow-light-mode" ]; then
+if [ -f ".flowspec-light-mode" ]; then
   echo "LIGHT MODE DETECTED - Using streamlined specification"
   # Use spec-light-template.md for output
 else
@@ -58,7 +58,7 @@ else
 fi
 ```
 
-**If `.specflow-light-mode` exists**, use light mode specification:
+**If `.flowspec-light-mode` exists**, use light mode specification:
 
 | Aspect | Full Mode | Light Mode |
 |--------|-----------|------------|
@@ -249,9 +249,9 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
-{{INCLUDE:.claude/commands/specflow/_constitution-check.md}}
+{{INCLUDE:.claude/commands/flowspec/_constitution-check.md}}
 
-{{INCLUDE:.claude/commands/specflow/_workflow-state.md}}
+{{INCLUDE:.claude/commands/flowspec/_workflow-state.md}}
 
 ## Execution Instructions
 
@@ -280,17 +280,17 @@ First, check if this project is in light mode:
 
 ```bash
 # Check for light mode marker
-if [ -f ".specflow-light-mode" ]; then
+if [ -f ".flowspec-light-mode" ]; then
   echo "Project is in LIGHT MODE (~60% faster workflow)"
 fi
 ```
 
 **Light Mode Behavior**:
-- `/specflow:research` → **SKIPPED** (inform user and suggest `/specflow:plan` instead)
-- `/specflow:plan` → Uses `plan-light.md` template (high-level only)
-- `/specflow:specify` → Uses `spec-light.md` template (combined stories + AC)
+- `/flow:research` → **SKIPPED** (inform user and suggest `/flow:plan` instead)
+- `/flow:plan` → Uses `plan-light.md` template (high-level only)
+- `/flow:specify` → Uses `spec-light.md` template (combined stories + AC)
 
-If in light mode and the current command is `/specflow:research`, inform the user:
+If in light mode and the current command is `/flow:research`, inform the user:
 ```text
 ℹ️ This project is in Light Mode
 
@@ -298,8 +298,8 @@ Light mode skips the research phase for faster iteration.
 Current state: workflow:Specified
 
 Suggestions:
-  - Run /specflow:plan to proceed directly to planning
-  - To enable research, delete .specflow-light-mode and use full mode
+  - Run /flow:plan to proceed directly to planning
+  - To enable research, delete .flowspec-light-mode and use full mode
   - See docs/guides/when-to-use-light-mode.md for details
 ```
 
@@ -322,20 +322,20 @@ Extract the `workflow:*` label from the task. The state must match one of the **
 
 | Command | Required Input States | Output State |
 |---------|----------------------|--------------|
-| /specflow:assess | workflow:To Do, (no workflow label) | workflow:Assessed |
-| /specflow:specify | workflow:Assessed | workflow:Specified |
-| /specflow:research | workflow:Specified | workflow:Researched |
-| /specflow:plan | workflow:Specified, workflow:Researched | workflow:Planned |
-| /specflow:implement | workflow:Planned | workflow:In Implementation |
-| /specflow:validate | workflow:In Implementation | workflow:Validated |
-| /specflow:operate | workflow:Validated | workflow:Deployed |
+| /flow:assess | workflow:To Do, (no workflow label) | workflow:Assessed |
+| /flow:specify | workflow:Assessed | workflow:Specified |
+| /flow:research | workflow:Specified | workflow:Researched |
+| /flow:plan | workflow:Specified, workflow:Researched | workflow:Planned |
+| /flow:implement | workflow:Planned | workflow:In Implementation |
+| /flow:validate | workflow:In Implementation | workflow:Validated |
+| /flow:operate | workflow:Validated | workflow:Deployed |
 
 ### 3. Handle Invalid State
 
 If the task's workflow state doesn't match the required input states:
 
 ```text
-⚠️ Cannot run /specflow:<command>
+⚠️ Cannot run /flow:<command>
 
 Current state: "<current-workflow-label>"
 Required states: <list-of-valid-input-states>
@@ -363,13 +363,13 @@ backlog task edit "$TASK_ID" -l "workflow:<output-state>"
 
 Tasks use labels with the `workflow:` prefix to track their current workflow state:
 
-- `workflow:Assessed` - SDD suitability evaluated (/specflow:assess complete)
-- `workflow:Specified` - Requirements captured (/specflow:specify complete)
-- `workflow:Researched` - Technical research completed (/specflow:research complete)
-- `workflow:Planned` - Architecture planned (/specflow:plan complete)
-- `workflow:In Implementation` - Code being written (/specflow:implement in progress)
-- `workflow:Validated` - QA and security validated (/specflow:validate complete)
-- `workflow:Deployed` - Released to production (/specflow:operate complete)
+- `workflow:Assessed` - SDD suitability evaluated (/flow:assess complete)
+- `workflow:Specified` - Requirements captured (/flow:specify complete)
+- `workflow:Researched` - Technical research completed (/flow:research complete)
+- `workflow:Planned` - Architecture planned (/flow:plan complete)
+- `workflow:In Implementation` - Code being written (/flow:implement in progress)
+- `workflow:Validated` - QA and security validated (/flow:validate complete)
+- `workflow:Deployed` - Released to production (/flow:operate complete)
 
 ## Programmatic State Checking
 
@@ -387,7 +387,7 @@ if not can_proceed:
 
 # Get valid commands for a state
 valid_commands = get_valid_workflows("Specified")
-# Returns: ['/specflow:research', '/specflow:plan']
+# Returns: ['/flow:research', '/flow:plan']
 ```
 
 ## Bypassing State Checks (Power Users Only)

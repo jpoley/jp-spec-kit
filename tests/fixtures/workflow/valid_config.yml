@@ -11,7 +11,7 @@ states:
 
 workflows:
   specify:
-    command: "/specflow:specify"
+    command: "/flow:specify"
     agents:
       - "product-requirements-manager"
     input_states:
@@ -21,7 +21,7 @@ workflows:
     optional: false
 
   plan:
-    command: "/specflow:plan"
+    command: "/flow:plan"
     agents:
       - "software-architect"
       - "platform-engineer"
@@ -32,7 +32,7 @@ workflows:
     optional: false
 
   implement:
-    command: "/specflow:implement"
+    command: "/flow:implement"
     agents:
       - "frontend-engineer"
       - "backend-engineer"

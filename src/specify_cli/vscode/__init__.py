@@ -1,6 +1,6 @@
-"""VS Code integration module for Specflow.
+"""VS Code integration module for Flowspec.
 
-This module provides utilities for integrating Specflow with VS Code Copilot,
+This module provides utilities for integrating Flowspec with VS Code Copilot,
 including:
 - Settings generation for agent pinning
 - Role-based agent prioritization

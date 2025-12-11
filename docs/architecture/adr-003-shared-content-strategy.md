@@ -4,11 +4,11 @@
 
 **Date**: 2025-12-03
 
-**Deciders**: JP Specflow Development Team
+**Deciders**: JP Flowspec Development Team
 
 **Context and Problem Statement**:
 
-The `_backlog-instructions.md` file contains 6KB of common task management instructions that are relevant to multiple specflow commands (implement, research, validate, plan, specify, operate). Currently, this content exists only in `.claude/commands/specflow/_backlog-instructions.md` and is NOT in templates.
+The `_backlog-instructions.md` file contains 6KB of common task management instructions that are relevant to multiple flowspec commands (implement, research, validate, plan, specify, operate). Currently, this content exists only in `.claude/commands/flowspec/_backlog-instructions.md` and is NOT in templates.
 
 **The Duplication Problem**:
 
@@ -42,7 +42,7 @@ backlog task edit <id> -s "In Progress" -a @<your-agent-name>
 (continues for 229 lines)
 ```
 
-This content is valuable for ALL specflow agent commands, not just one.
+This content is valuable for ALL flowspec agent commands, not just one.
 
 ---
 
@@ -61,7 +61,7 @@ This content is valuable for ALL specflow agent commands, not just one.
 
 ### Option 1: Inline in Each Command
 
-**Description**: Copy `_backlog-instructions.md` content into every specflow command file.
+**Description**: Copy `_backlog-instructions.md` content into every flowspec command file.
 
 **Implementation**:
 ```markdown
@@ -155,11 +155,11 @@ NEVER edit task files directly...
 **Implementation**:
 
 ```markdown
-<!-- templates/commands/specflow/_backlog-instructions.md -->
+<!-- templates/commands/flowspec/_backlog-instructions.md -->
 # Backlog.md Task Management Instructions
 (full 6KB of content)
 
-<!-- templates/commands/specflow/implement.md -->
+<!-- templates/commands/flowspec/implement.md -->
 ## Backlog Task Management (REQUIRED)
 
 **⚠️ IMPORTANT**: Full task management workflow documented in `_backlog-instructions.md`
@@ -178,7 +178,7 @@ See `_backlog-instructions.md` for complete workflow, examples, and best practic
 - Clear semantic: "This is included/referenced elsewhere"
 
 **Distribution**:
-- dev-setup: Creates symlink `.claude/commands/specflow/_backlog-instructions.md → templates/commands/specflow/_backlog-instructions.md`
+- dev-setup: Creates symlink `.claude/commands/flowspec/_backlog-instructions.md → templates/commands/flowspec/_backlog-instructions.md`
 - Init: Copies `_backlog-instructions.md` to user project
 
 **Pros**:
@@ -221,7 +221,7 @@ See `_backlog-instructions.md` for complete workflow, examples, and best practic
 
 **File Structure**:
 ```
-templates/commands/specflow/
+templates/commands/flowspec/
 ├── implement.md          (references _backlog-instructions.md)
 ├── research.md           (references _backlog-instructions.md)
 ├── validate.md           (references _backlog-instructions.md)
@@ -254,8 +254,8 @@ Quick commands:
 **dev-setup Behavior**:
 ```python
 # Create symlink for partial
-symlink_path = ".claude/commands/specflow/_backlog-instructions.md"
-target = "templates/commands/specflow/_backlog-instructions.md"
+symlink_path = ".claude/commands/flowspec/_backlog-instructions.md"
+target = "templates/commands/flowspec/_backlog-instructions.md"
 symlink_path.symlink_to(relative_path_to(target))
 ```
 
@@ -263,8 +263,8 @@ symlink_path.symlink_to(relative_path_to(target))
 ```python
 # Copy partial along with commands
 shutil.copy2(
-    "templates/commands/specflow/_backlog-instructions.md",
-    ".claude/commands/specflow/_backlog-instructions.md"
+    "templates/commands/flowspec/_backlog-instructions.md",
+    ".claude/commands/flowspec/_backlog-instructions.md"
 )
 ```
 
@@ -328,7 +328,7 @@ shutil.copy2(
 ### Near Term (Next 3-6 months):
 - Add more shared content files as needed (e.g., `_code-standards.md`)
 - Monitor user feedback on reference pattern
-- Consider adding command to view shared files: `/specflow:help/backlog`
+- Consider adding command to view shared files: `/flow:help/backlog`
 
 ### Medium Term (6-12 months):
 - If many partials emerge, evaluate build-time preprocessing
@@ -368,7 +368,7 @@ The decision will be validated by:
 - Main Architecture: `docs/architecture/dev-setup-single-source-of-truth.md`
 - ADR-001: Single Source of Truth for Commands
 - ADR-002: Directory Structure Convention
-- Shared Content: `templates/commands/specflow/_backlog-instructions.md`
+- Shared Content: `templates/commands/flowspec/_backlog-instructions.md`
 
 ---
 

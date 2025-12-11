@@ -205,7 +205,7 @@ Use Git's native notes feature for task metadata.
 
 - [Gregor Hohpe - Architecture as Selling Options](https://architectelevator.com/architecture/architecture-options/)
 - [Task Memory System Architecture](../architecture/task-memory-system.md)
-- [Specflow Constitution](../../memory/constitution.md)
+- [Flowspec Constitution](../../memory/constitution.md)
 - [Backlog.md Specification](https://github.com/jpoley/backlog.md)
 
 ## Notes

@@ -40,7 +40,7 @@ class TestLightModeDetection:
 
     def test_light_mode_marker_created_with_init_light(self, tmp_path: Path) -> None:
         """Light mode marker should be created when using --light flag."""
-        marker_file = tmp_path / ".specflow-light-mode"
+        marker_file = tmp_path / ".flowspec-light-mode"
 
         # Simulate light mode init creating the marker
         marker_content = (
@@ -69,14 +69,14 @@ class TestLightModeDetection:
             """
             if not project_path.is_dir():
                 return False
-            marker = project_path / ".specflow-light-mode"
+            marker = project_path / ".flowspec-light-mode"
             return marker.exists() and marker.is_file()
 
         # No marker = not light mode
         assert not is_light_mode(tmp_path), "Should not be light mode without marker"
 
         # With marker = light mode
-        (tmp_path / ".specflow-light-mode").touch()
+        (tmp_path / ".flowspec-light-mode").touch()
         assert is_light_mode(tmp_path), "Should be light mode with marker"
 
         # Non-existent path should return False, not raise
@@ -85,7 +85,7 @@ class TestLightModeDetection:
 
     def test_light_mode_marker_content(self, tmp_path: Path) -> None:
         """Light mode marker should contain helpful information."""
-        marker_file = tmp_path / ".specflow-light-mode"
+        marker_file = tmp_path / ".flowspec-light-mode"
         expected_content = (
             "# Light mode enabled - ~60% faster workflow (example: 135 min → 50 min)\n"
             "# See docs/guides/when-to-use-light-mode.md for details\n"
@@ -216,18 +216,18 @@ class TestLightModeWorkflow:
 
     @pytest.fixture
     def commands_path(self) -> Path:
-        """Get the path to specflow commands directory."""
+        """Get the path to flowspec commands directory."""
         project_root = get_project_root()
         # Check both locations: .claude/commands and templates/commands
-        primary_path = project_root / ".claude" / "commands" / "specflow"
-        template_path = project_root / "templates" / "commands" / "specflow"
+        primary_path = project_root / ".claude" / "commands" / "flowspec"
+        template_path = project_root / "templates" / "commands" / "flowspec"
 
         if primary_path.is_dir():
             return primary_path
         elif template_path.is_dir():
             return template_path
         else:
-            pytest.skip("specflow commands directory not found")
+            pytest.skip("flowspec commands directory not found")
             return primary_path  # Unreachable but satisfies type checker
 
     def test_research_command_has_light_mode_check(self, commands_path: Path) -> None:
@@ -240,12 +240,12 @@ class TestLightModeWorkflow:
         assert content is not None, f"Could not read {research_cmd}"
 
         # Should have light mode detection with actual conditional check
-        # Pattern matches: if [ -f ".specflow-light-mode" ] or similar conditional
+        # Pattern matches: if [ -f ".flowspec-light-mode" ] or similar conditional
         light_mode_conditional = re.search(
-            r"if\s+\[.*\.specflow-light-mode.*\]", content
+            r"if\s+\[.*\.flowspec-light-mode.*\]", content
         )
         assert light_mode_conditional is not None, (
-            'Missing conditional check for .specflow-light-mode (expected: if [ -f ".specflow-light-mode" ])'
+            'Missing conditional check for .flowspec-light-mode (expected: if [ -f ".flowspec-light-mode" ])'
         )
         assert "LIGHT MODE" in content or "Light Mode" in content, (
             "Missing light mode text"
@@ -266,10 +266,10 @@ class TestLightModeWorkflow:
 
         # Should have light mode detection with actual conditional check
         light_mode_conditional = re.search(
-            r"if\s+\[.*\.specflow-light-mode.*\]", content
+            r"if\s+\[.*\.flowspec-light-mode.*\]", content
         )
         assert light_mode_conditional is not None, (
-            'Missing conditional check for .specflow-light-mode (expected: if [ -f ".specflow-light-mode" ])'
+            'Missing conditional check for .flowspec-light-mode (expected: if [ -f ".flowspec-light-mode" ])'
         )
         assert "LIGHT MODE" in content or "Light Mode" in content, (
             "Missing light mode text"
@@ -289,10 +289,10 @@ class TestLightModeWorkflow:
 
         # Should have light mode detection with actual conditional check
         light_mode_conditional = re.search(
-            r"if\s+\[.*\.specflow-light-mode.*\]", content
+            r"if\s+\[.*\.flowspec-light-mode.*\]", content
         )
         assert light_mode_conditional is not None, (
-            'Missing conditional check for .specflow-light-mode (expected: if [ -f ".specflow-light-mode" ])'
+            'Missing conditional check for .flowspec-light-mode (expected: if [ -f ".flowspec-light-mode" ])'
         )
         assert "LIGHT MODE" in content or "Light Mode" in content, (
             "Missing light mode text"
@@ -314,7 +314,7 @@ class TestLightModeWorkflow:
 
         # Should have light mode section
         assert "Light Mode" in content, "Missing Light Mode section"
-        assert ".specflow-light-mode" in content, "Missing light mode marker reference"
+        assert ".flowspec-light-mode" in content, "Missing light mode marker reference"
 
 
 class TestLightModeDocumentation:

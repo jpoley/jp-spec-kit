@@ -55,7 +55,7 @@ specify vscode generate -o custom.json
   "github.copilot.chat.promptFiles": {
     "enabled": true
   },
-  "specflow": {
+  "flowspec": {
     "primaryRole": "dev",
     "displayName": "Developer",
     "icon": "💻",
@@ -195,7 +195,7 @@ While agents are prioritized by role, users can:
 
 ## Integration Points
 
-### With specflow_workflow.yml
+### With flowspec_workflow.yml
 
 Settings generation reads from `roles` section:
 - `roles.primary`: Default role for generation
@@ -214,7 +214,7 @@ Generated settings configure:
 ### With Development Workflow
 
 1. User selects role during `specify init`
-2. Role stored in `specflow_workflow.yml`
+2. Role stored in `flowspec_workflow.yml`
 3. User runs `specify vscode generate`
 4. VS Code settings generated with role-appropriate config
 5. VS Code reloaded to apply settings

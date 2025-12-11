@@ -1,6 +1,6 @@
 # Product Requirements Document: VS Code Copilot Slash Commands Support
 
-**Feature**: Enable specflow and speckit slash commands in VS Code Copilot Chat
+**Feature**: Enable flowspec and speckit slash commands in VS Code Copilot Chat
 **Status**: Draft
 **Created**: 2025-12-07
 **Author**: PM Planner Agent
@@ -11,9 +11,9 @@
 
 ### Problem Statement
 
-JP Specflow provides 23 custom slash commands for Spec-Driven Development workflows via the `.claude/commands/` directory structure. These commands work perfectly in Claude Code CLI but are **completely invisible** in VS Code and VS Code Insiders when using the GitHub Copilot extension.
+JP Flowspec provides 23 custom slash commands for Spec-Driven Development workflows via the `.claude/commands/` directory structure. These commands work perfectly in Claude Code CLI but are **completely invisible** in VS Code and VS Code Insiders when using the GitHub Copilot extension.
 
-This creates a significant usability gap: developers working in VS Code cannot access critical workflow commands (`/specflow:specify`, `/specflow:implement`, `/speckit:plan`, etc.) directly in their IDE, forcing them to context-switch to the CLI or manually copy prompts.
+This creates a significant usability gap: developers working in VS Code cannot access critical workflow commands (`/flow:specify`, `/flow:implement`, `/speckit:plan`, etc.) directly in their IDE, forcing them to context-switch to the CLI or manually copy prompts.
 
 **Root Cause**: VS Code Copilot uses a completely different agent system from Claude Code:
 
@@ -26,8 +26,8 @@ This creates a significant usability gap: developers working in VS Code cannot a
 
 Create a dual-agent system that supports both Claude Code CLI and VS Code Copilot by:
 
-1. **Mirroring commands** from `.claude/commands/specflow/*.md` and `.claude/commands/speckit/*.md` to `.github/agents/specflow.*.md` and `.github/agents/speckit.*.md`
-2. **Transforming frontmatter** from `mode: agent` to `mode: specflow.<name>` or `mode: speckit.<name>`
+1. **Mirroring commands** from `.claude/commands/flowspec/*.md` and `.claude/commands/speckit/*.md` to `.github/agents/flowspec.*.md` and `.github/agents/speckit.*.md`
+2. **Transforming frontmatter** from `mode: agent` to `mode: flowspec.<name>` or `mode: speckit.<name>`
 3. **Automating synchronization** via a conversion script (manual or pre-commit hook)
 4. **Testing in both IDEs** to ensure commands appear and execute correctly
 
@@ -43,9 +43,9 @@ Create a dual-agent system that supports both Claude Code CLI and VS Code Copilo
 ### Business Value
 
 - **Velocity**: Developers can invoke SDD workflows directly in their IDE, eliminating context-switching overhead
-- **Adoption**: Lowers barrier to entry for JP Specflow - developers don't need to learn a separate CLI tool
+- **Adoption**: Lowers barrier to entry for JP Flowspec - developers don't need to learn a separate CLI tool
 - **Consistency**: Ensures identical workflow experience across Claude Code CLI and VS Code environments
-- **Strategic Alignment**: Positions JP Specflow as IDE-agnostic, supporting both Claude AI and GitHub Copilot ecosystems
+- **Strategic Alignment**: Positions JP Flowspec as IDE-agnostic, supporting both Claude AI and GitHub Copilot ecosystems
 
 ---
 
@@ -56,20 +56,20 @@ Create a dual-agent system that supports both Claude Code CLI and VS Code Copilo
 **Persona 1: Full-Stack Engineer (React + Python)**
 - **Name**: Alex Chen
 - **Environment**: VS Code with GitHub Copilot
-- **Workflow**: Uses `/specflow:specify` to create PRDs, `/specflow:implement` to generate code
-- **Pain Point**: Cannot access specflow commands in Copilot Chat - must switch to terminal
+- **Workflow**: Uses `/flow:specify` to create PRDs, `/flow:implement` to generate code
+- **Pain Point**: Cannot access flowspec commands in Copilot Chat - must switch to terminal
 
 **Persona 2: Platform Engineer**
 - **Name**: Jordan Martinez
 - **Environment**: VS Code Insiders (testing pre-release features)
-- **Workflow**: Uses `/specflow:plan` for architecture design, `/specflow:operate` for SRE tasks
+- **Workflow**: Uses `/flow:plan` for architecture design, `/flow:operate` for SRE tasks
 - **Pain Point**: Commands work in stable VS Code but break in Insiders due to directory structure assumptions
 
 **Persona 3: Product Manager (Non-Technical)**
 - **Name**: Sam Taylor
 - **Environment**: VS Code with Copilot (no Python/CLI tools installed)
 - **Workflow**: Uses `/speckit:specify` to create feature specifications collaboratively with engineers
-- **Pain Point**: Cannot use specflow commands without installing CLI tools - wants IDE-only experience
+- **Pain Point**: Cannot use flowspec commands without installing CLI tools - wants IDE-only experience
 
 ### User Journey Maps
 
@@ -79,14 +79,14 @@ Create a dual-agent system that supports both Claude Code CLI and VS Code Copilo
 Current State (Broken):
 1. Alex opens VS Code Copilot Chat
 2. Types "/" to see available commands
-3. No specflow commands appear ❌
+3. No flowspec commands appear ❌
 4. Alex switches to terminal, runs `specify` CLI
 5. Copies output back to VS Code
 
 Desired State (Fixed):
 1. Alex opens VS Code Copilot Chat
-2. Types "/specflow:" and sees autocomplete list ✅
-3. Selects /specflow:specify, provides feature description
+2. Types "/flow:" and sees autocomplete list ✅
+3. Selects /flow:specify, provides feature description
 4. Command executes in chat, creates PRD
 5. Alex continues working in IDE without context switch
 ```
@@ -102,7 +102,7 @@ Current State:
 
 Desired State:
 1. Jordan works in VS Code Insiders
-2. All specflow commands available via Copilot Chat
+2. All flowspec commands available via Copilot Chat
 3. Commands work identically to VS Code stable
 4. No environment-specific configuration required
 ```
@@ -112,39 +112,39 @@ Desired State:
 **US-1: Command Discovery in Copilot Chat**
 ```
 As a developer using VS Code with GitHub Copilot,
-I want to see all specflow and speckit slash commands in the Copilot Chat command picker,
+I want to see all flowspec and speckit slash commands in the Copilot Chat command picker,
 So that I can discover and use SDD workflows without leaving my IDE.
 
 Acceptance Criteria:
-- When I type "/" in Copilot Chat, I see commands grouped by prefix (specflow, speckit)
+- When I type "/" in Copilot Chat, I see commands grouped by prefix (flowspec, speckit)
 - Each command shows a brief description (from frontmatter)
-- Commands are filtered as I type (e.g., "/specflow:sp" filters to specify, speckit.specify)
+- Commands are filtered as I type (e.g., "/flow:sp" filters to specify, speckit.specify)
 - Commands work identically in VS Code and VS Code Insiders
 ```
 
 **US-2: Command Execution in VS Code**
 ```
 As a developer,
-I want specflow commands to execute correctly when invoked in Copilot Chat,
+I want flowspec commands to execute correctly when invoked in Copilot Chat,
 So that I can create specs, generate code, and validate work without CLI tools.
 
 Acceptance Criteria:
-- /specflow:specify creates a PRD in docs/prd/ with proper frontmatter
-- /specflow:implement generates implementation code with tests
+- /flow:specify creates a PRD in docs/prd/ with proper frontmatter
+- /flow:implement generates implementation code with tests
 - /speckit:plan creates architecture decision records in docs/adr/
-- All commands respect specflow_workflow.yml state transitions
+- All commands respect flowspec_workflow.yml state transitions
 - Error messages are displayed if workflow state is invalid
 ```
 
 **US-3: Automated Command Synchronization**
 ```
-As a maintainer of JP Specflow,
+As a maintainer of JP Flowspec,
 I want changes to .claude/commands/ to automatically sync to .github/agents/,
 So that I don't need to manually maintain two copies of every command.
 
 Acceptance Criteria:
 - Running `scripts/bash/sync-copilot-agents.sh` converts all commands
-- Script transforms frontmatter: mode: agent → mode: specflow.<name>
+- Script transforms frontmatter: mode: agent → mode: flowspec.<name>
 - Script preserves all prompt content and includes
 - Script runs in < 1 second for 23 commands
 - Optional: Pre-commit hook calls script automatically
@@ -166,12 +166,12 @@ Acceptance Criteria:
 ### Edge Cases and Error Scenarios
 
 **Edge Case 1: Command Name Conflicts**
-- **Scenario**: VS Code has native slash commands that conflict with specflow
-- **Handling**: Use namespaced format (`specflow:specify` not just `specify`)
+- **Scenario**: VS Code has native slash commands that conflict with flowspec
+- **Handling**: Use namespaced format (`flowspec:specify` not just `specify`)
 - **Validation**: Check VS Code Copilot docs for reserved command names
 
 **Edge Case 2: Frontmatter Include Directives**
-- **Scenario**: Commands use `{{INCLUDE:.claude/commands/specflow/_backlog-instructions.md}}`
+- **Scenario**: Commands use `{{INCLUDE:.claude/commands/flowspec/_backlog-instructions.md}}`
 - **Handling**: Sync script must resolve includes and embed content in .github/agents/ files
 - **Validation**: Test that included content appears in Copilot command execution
 
@@ -185,7 +185,7 @@ Acceptance Criteria:
 - **Recovery**: Script automatically creates directory and converts commands
 
 **Error Scenario 2: Invalid Frontmatter Format**
-- **Error Message**: "Invalid frontmatter in .github/agents/specflow.specify.md: mode must be 'specflow.specify', found 'agent'"
+- **Error Message**: "Invalid frontmatter in .github/agents/flowspec.specify.md: mode must be 'flowspec.specify', found 'agent'"
 - **Recovery**: Validation script identifies incorrectly formatted files and shows fix command
 
 ---
@@ -194,33 +194,33 @@ Acceptance Criteria:
 
 ### Value Risk (Desirability)
 
-**Question**: Will developers actually use specflow commands in VS Code Copilot, or do they prefer the CLI?
+**Question**: Will developers actually use flowspec commands in VS Code Copilot, or do they prefer the CLI?
 
 **Risk Level**: LOW
 
 **Validation Plan**:
 - **Concierge Test**: Manually convert 3 commands (specify, implement, plan) for early testing
-- **Prototype**: Create .github/agents/ for specflow.specify only, share with 5 beta users
+- **Prototype**: Create .github/agents/ for flowspec.specify only, share with 5 beta users
 - **Success Criteria**: 3 out of 5 users prefer VS Code Copilot over CLI for spec creation
 
 **Mitigation**:
-- Survey current specflow users: "Would you use specflow commands in VS Code Copilot if available?"
+- Survey current flowspec users: "Would you use flowspec commands in VS Code Copilot if available?"
 - Hypothesis: Developers already using Copilot Chat prefer in-IDE workflows over CLI
 
 ### Usability Risk (Experience)
 
-**Question**: Can users figure out how to discover and invoke specflow commands in Copilot Chat?
+**Question**: Can users figure out how to discover and invoke flowspec commands in Copilot Chat?
 
 **Risk Level**: LOW
 
 **Validation Plan**:
-- **Usability Test**: Ask 3 developers to "create a feature spec using specflow" without instructions
+- **Usability Test**: Ask 3 developers to "create a feature spec using flowspec" without instructions
 - **Metrics**: Time to discover command, number of failed attempts, need for documentation
-- **Success Criteria**: All 3 users find and execute `/specflow:specify` in < 2 minutes
+- **Success Criteria**: All 3 users find and execute `/flow:specify` in < 2 minutes
 
 **Mitigation**:
-- Add README section: "Using specflow with VS Code Copilot"
-- Include screenshot of Copilot Chat command picker showing specflow commands
+- Add README section: "Using flowspec with VS Code Copilot"
+- Include screenshot of Copilot Chat command picker showing flowspec commands
 - Hypothesis: Command picker autocomplete makes discovery intuitive
 
 ### Feasibility Risk (Technical)
@@ -234,12 +234,12 @@ Acceptance Criteria:
 - **Technical Constraints**:
   - Frontmatter format differences (mode: agent vs mode: <command-name>)
   - Include directives (`{{INCLUDE:...}}`) need resolution
-  - File naming conventions (specflow/specify.md vs specflow.specify.md)
+  - File naming conventions (flowspec/specify.md vs flowspec.specify.md)
 - **Success Criteria**: Sync script converts all 23 commands without manual edits
 
 **Mitigation**:
 - **Risk**: Include directives fail in Copilot → Solution: Pre-process includes during sync
-- **Risk**: Command naming conflicts → Solution: Use namespaced prefixes (specflow:, speckit:)
+- **Risk**: Command naming conflicts → Solution: Use namespaced prefixes (flowspec:, speckit:)
 - **Risk**: VS Code Insiders breaks compatibility → Solution: Monitor release notes, maintain test suite
 
 ### Business Viability Risk (Organizational)
@@ -270,21 +270,21 @@ Acceptance Criteria:
 ```
 .github/
 └── agents/
-    ├── specflow.assess.md
-    ├── specflow.specify.md
-    ├── specflow.research.md
-    ├── specflow.plan.md
-    ├── specflow.implement.md
-    ├── specflow.validate.md
-    ├── specflow.operate.md
-    ├── specflow.prune-branch.md
-    ├── specflow.init.md
-    ├── specflow.reset.md
-    ├── specflow.security_fix.md
-    ├── specflow.security_report.md
-    ├── specflow.security_triage.md
-    ├── specflow.security_web.md
-    ├── specflow.security_workflow.md
+    ├── flowspec.assess.md
+    ├── flowspec.specify.md
+    ├── flowspec.research.md
+    ├── flowspec.plan.md
+    ├── flowspec.implement.md
+    ├── flowspec.validate.md
+    ├── flowspec.operate.md
+    ├── flowspec.prune-branch.md
+    ├── flowspec.init.md
+    ├── flowspec.reset.md
+    ├── flowspec.security_fix.md
+    ├── flowspec.security_report.md
+    ├── flowspec.security_triage.md
+    ├── flowspec.security_web.md
+    ├── flowspec.security_workflow.md
     ├── speckit.specify.md
     ├── speckit.plan.md
     ├── speckit.tasks.md
@@ -308,7 +308,7 @@ Acceptance Criteria:
 
 **Details**:
 
-**Input** (Claude Code format - `.claude/commands/specflow/specify.md`):
+**Input** (Claude Code format - `.claude/commands/flowspec/specify.md`):
 ```yaml
 ---
 description: Create or update feature specifications using PM planner agent
@@ -316,16 +316,16 @@ mode: agent
 ---
 ```
 
-**Output** (GitHub Copilot format - `.github/agents/specflow.specify.md`):
+**Output** (GitHub Copilot format - `.github/agents/flowspec.specify.md`):
 ```yaml
 ---
 description: Create or update feature specifications using PM planner agent
-mode: specflow.specify
+mode: flowspec.specify
 ---
 ```
 
 **Transformation Rules**:
-1. `mode: agent` → `mode: <namespace>.<command>` (namespace = specflow or speckit)
+1. `mode: agent` → `mode: <namespace>.<command>` (namespace = flowspec or speckit)
 2. `description:` field preserved verbatim
 3. `scripts:` field (if present) removed (not supported by Copilot)
 4. All other frontmatter fields preserved
@@ -343,31 +343,31 @@ mode: specflow.specify
 
 **Details**:
 
-Many specflow commands include shared prompt fragments:
+Many flowspec commands include shared prompt fragments:
 ```markdown
-{{INCLUDE:.claude/commands/specflow/_constitution-check.md}}
-{{INCLUDE:.claude/commands/specflow/_workflow-state.md}}
-{{INCLUDE:.claude/commands/specflow/_backlog-instructions.md}}
+{{INCLUDE:.claude/commands/flowspec/_constitution-check.md}}
+{{INCLUDE:.claude/commands/flowspec/_workflow-state.md}}
+{{INCLUDE:.claude/commands/flowspec/_backlog-instructions.md}}
 ```
 
 **Sync script must**:
 1. Detect `{{INCLUDE:<path>}}` patterns in command file
-2. Read referenced file content (relative to `.claude/commands/specflow/`)
+2. Read referenced file content (relative to `.claude/commands/flowspec/`)
 3. Replace directive with file content inline
 4. Preserve markdown formatting and indentation
 
 **Example**:
 
-**Source** (`.claude/commands/specflow/specify.md`):
+**Source** (`.claude/commands/flowspec/specify.md`):
 ```markdown
 ## Execution Instructions
 
-{{INCLUDE:.claude/commands/specflow/_constitution-check.md}}
+{{INCLUDE:.claude/commands/flowspec/_constitution-check.md}}
 
 Your task is...
 ```
 
-**Output** (`.github/agents/specflow.specify.md`):
+**Output** (`.github/agents/flowspec.specify.md`):
 ```markdown
 ## Execution Instructions
 
@@ -394,7 +394,7 @@ Your task is...
 **Script Behavior**:
 ```bash
 #!/usr/bin/env bash
-# Converts .claude/commands/specflow/*.md and .claude/commands/speckit/*.md
+# Converts .claude/commands/flowspec/*.md and .claude/commands/speckit/*.md
 # to .github/agents/<namespace>.<command>.md with Copilot-compatible frontmatter
 
 # Usage:
@@ -405,13 +405,13 @@ Your task is...
 
 **Processing Steps**:
 1. Create `.github/agents/` directory if not exists
-2. For each `.claude/commands/specflow/*.md` (excluding `_*.md` fragments):
+2. For each `.claude/commands/flowspec/*.md` (excluding `_*.md` fragments):
    - Read frontmatter and content
-   - Transform frontmatter (mode: agent → mode: specflow.<name>)
+   - Transform frontmatter (mode: agent → mode: flowspec.<name>)
    - Resolve all `{{INCLUDE:...}}` directives
-   - Write to `.github/agents/specflow.<name>.md`
+   - Write to `.github/agents/flowspec.<name>.md`
 3. Repeat for `.claude/commands/speckit/*.md`
-4. Output summary: "Converted 23 commands (15 specflow, 8 speckit)"
+4. Output summary: "Converted 23 commands (15 flowspec, 8 speckit)"
 
 **Flags**:
 - `--dry-run`: Show files that would be created/updated without writing
@@ -446,20 +446,20 @@ hooks:
 ```
 
 **User Workflow**:
-1. Developer edits `.claude/commands/specflow/specify.md`
-2. Runs `git add .claude/commands/specflow/specify.md`
+1. Developer edits `.claude/commands/flowspec/specify.md`
+2. Runs `git add .claude/commands/flowspec/specify.md`
 3. Runs `git commit -m "Update specify command"`
 4. Pre-commit hook:
    - Detects change to .claude/commands/
    - Runs sync script
-   - Auto-stages .github/agents/specflow.specify.md
+   - Auto-stages .github/agents/flowspec.specify.md
    - Commit proceeds with both files
 
 **Acceptance Criteria**:
 - Hook triggers only when .claude/commands/ files are staged
 - Hook auto-stages generated .github/agents/ files
 - Hook can be bypassed with `git commit --no-verify` if needed
-- Hook shows clear output: "Synced specflow.specify.md to .github/agents/"
+- Hook shows clear output: "Synced flowspec.specify.md to .github/agents/"
 
 ---
 
@@ -479,9 +479,9 @@ hooks:
 **Compatibility Checks**:
 1. Commands appear in Copilot Chat command picker (type "/" to list)
 2. Commands execute without errors when invoked
-3. Command output matches expected behavior (e.g., /specflow:specify creates PRD)
+3. Command output matches expected behavior (e.g., /flow:specify creates PRD)
 4. Include directives are resolved (no `{{INCLUDE:...}}` in output)
-5. Workflow state transitions work (specflow_workflow.yml integration)
+5. Workflow state transitions work (flowspec_workflow.yml integration)
 
 **Acceptance Criteria**:
 - All 23 commands pass smoke tests in both VS Code and Insiders
@@ -498,20 +498,20 @@ hooks:
 
 **README.md Updates**:
 ```markdown
-## Using specflow with VS Code Copilot
+## Using flowspec with VS Code Copilot
 
-JP Specflow commands are available in **both** Claude Code CLI and VS Code Copilot Chat:
+JP Flowspec commands are available in **both** Claude Code CLI and VS Code Copilot Chat:
 
 ### In Claude Code CLI
 ```bash
 specify --help
-# Use /specflow:specify, /specflow:implement, etc.
+# Use /flow:specify, /flow:implement, etc.
 ```
 
 ### In VS Code Copilot Chat
 1. Open Copilot Chat panel (Cmd+Shift+I or Ctrl+Shift+I)
 2. Type "/" to see available commands
-3. Select /specflow:specify (or any other command)
+3. Select /flow:specify (or any other command)
 4. Provide feature description and press Enter
 
 ### Command Availability
@@ -532,7 +532,7 @@ git commit -m "Sync Copilot agents"
 ```markdown
 ## Copilot Agent Synchronization
 
-JP Specflow maintains two agent systems:
+JP Flowspec maintains two agent systems:
 - `.claude/commands/` for Claude Code CLI
 - `.github/agents/` for VS Code Copilot
 
@@ -620,7 +620,7 @@ The following backlog tasks have been created for this implementation:
 **All 8 tasks have been created in backlog.md:**
 
 - **task-316**: Create .github/agents/ directory structure (Priority: High, Labels: implement,infrastructure)
-- **task-317**: Convert specflow commands to Copilot format (Priority: High, Labels: implement,copilot)
+- **task-317**: Convert flowspec commands to Copilot format (Priority: High, Labels: implement,copilot)
 - **task-318**: Convert speckit commands to Copilot format (Priority: High, Labels: implement,copilot)
 - **task-319**: Build sync-copilot-agents.sh automation script (Priority: High, Labels: implement,tooling)
 - **task-320**: Test commands in VS Code and VS Code Insiders (Priority: High, Labels: test,copilot)
@@ -641,11 +641,11 @@ backlog task create "Create .github/agents/ directory structure" \
   -l implement,infrastructure \
   --priority high
 
-# Task 2: Convert specflow commands to Copilot format
-backlog task create "Convert specflow commands to Copilot format" \
-  -d "Convert all 15 specflow.* commands from .claude/commands/specflow/ to .github/agents/ with correct mode: frontmatter and resolved includes" \
-  --ac "All 15 specflow.* files exist in .github/agents/ with correct naming" \
-  --ac "Each file has mode: specflow.<name> frontmatter (not mode: agent)" \
+# Task 2: Convert flowspec commands to Copilot format
+backlog task create "Convert flowspec commands to Copilot format" \
+  -d "Convert all 15 flowspec.* commands from .claude/commands/flowspec/ to .github/agents/ with correct mode: frontmatter and resolved includes" \
+  --ac "All 15 flowspec.* files exist in .github/agents/ with correct naming" \
+  --ac "Each file has mode: flowspec.<name> frontmatter (not mode: agent)" \
   --ac "All {{INCLUDE:...}} directives are resolved and embedded" \
   --ac "Commands appear in VS Code Copilot Chat command picker" \
   --ac "Commands appear in VS Code Insiders Copilot Chat command picker" \
@@ -669,7 +669,7 @@ backlog task create "Convert speckit commands to Copilot format" \
 backlog task create "Build sync-copilot-agents.sh automation script" \
   -d "Create Bash script to automate conversion of .claude/commands/ to .github/agents/ with frontmatter transformation and include resolution" \
   --ac "Script located at scripts/bash/sync-copilot-agents.sh with execute permissions" \
-  --ac "Script converts all 23 commands (specflow + speckit) without manual edits" \
+  --ac "Script converts all 23 commands (flowspec + speckit) without manual edits" \
   --ac "Script supports --dry-run, --validate, and --force flags" \
   --ac "Script resolves {{INCLUDE:...}} directives correctly (max depth 3)" \
   --ac "Script completes in under 2 seconds for 23 commands" \
@@ -681,8 +681,8 @@ backlog task create "Build sync-copilot-agents.sh automation script" \
 # Task 5: Test commands in VS Code and VS Code Insiders
 backlog task create "Test commands in VS Code and VS Code Insiders" \
   -d "Verify all 23 slash commands work correctly in both VS Code stable and Insiders editions with comprehensive smoke tests" \
-  --ac "Test /specflow:specify in VS Code - command appears in picker and executes correctly" \
-  --ac "Test /specflow:specify in VS Code Insiders - command appears and executes correctly" \
+  --ac "Test /flow:specify in VS Code - command appears in picker and executes correctly" \
+  --ac "Test /flow:specify in VS Code Insiders - command appears and executes correctly" \
   --ac "Smoke test all 23 commands in both IDEs (invoke with sample input)" \
   --ac "Document any behavioral differences between VS Code and Insiders" \
   --ac "Create test report: docs/testing/copilot-compatibility-report.md" \
@@ -740,7 +740,7 @@ backlog task create "Update documentation for VS Code Copilot support" \
 ┌─────────┐      ┌─────────┐
 │ Task 2: │      │ Task 3: │
 │ Convert │      │ Convert │
-│ specflow  │      │ speckit │
+│ flowspec  │      │ speckit │
 └────┬────┘      └────┬────┘
      │                │
      └────────┬───────┘
@@ -779,7 +779,7 @@ backlog task create "Update documentation for VS Code Copilot support" \
 | Task | Priority | Complexity | Estimated Time |
 |------|----------|-----------|----------------|
 | Task 1: Directory structure | High | Small | 30 min |
-| Task 2: Convert specflow | High | Medium | 2 hours |
+| Task 2: Convert flowspec | High | Medium | 2 hours |
 | Task 3: Convert speckit | High | Medium | 1 hour |
 | Task 4: Sync script | High | Large | 4 hours |
 | Task 5: Testing | High | Medium | 3 hours |
@@ -797,7 +797,7 @@ backlog task create "Update documentation for VS Code Copilot support" \
 **Hypothesis 1: Developers prefer in-IDE workflows over CLI tools**
 - **Learning Goal**: Measure adoption rate of VS Code Copilot commands vs CLI usage
 - **Validation**: Track command invocation metrics (CLI vs Copilot) for 2 weeks post-launch
-- **Success Criteria**: 60%+ of specflow command invocations come from Copilot Chat
+- **Success Criteria**: 60%+ of flowspec command invocations come from Copilot Chat
 
 **Hypothesis 2: Include directive resolution is reliable**
 - **Learning Goal**: Verify sync script correctly resolves all nested includes without errors
@@ -819,7 +819,7 @@ backlog task create "Update documentation for VS Code Copilot support" \
 
 **Experiment 2: Prototype Sync Script**
 - **Purpose**: Validate technical feasibility of automated conversion
-- **Method**: Build minimal viable sync script for specflow.specify only
+- **Method**: Build minimal viable sync script for flowspec.specify only
 - **Duration**: 2 days
 - **Success Criteria**: Script converts 1 command correctly in < 5 seconds
 
@@ -827,7 +827,7 @@ backlog task create "Update documentation for VS Code Copilot support" \
 - **Purpose**: Validate discoverability and usability of Copilot commands
 - **Method**: Give 5 users access to converted commands, observe first usage
 - **Duration**: 1 week
-- **Success Criteria**: All 5 users discover and use /specflow:specify without documentation
+- **Success Criteria**: All 5 users discover and use /flow:specify without documentation
 
 ### Go/No-Go Decision Points
 
@@ -854,7 +854,7 @@ backlog task create "Update documentation for VS Code Copilot support" \
 
 The feature is considered complete when:
 
-1. All 23 commands (15 specflow + 8 speckit) exist in `.github/agents/` with correct frontmatter
+1. All 23 commands (15 flowspec + 8 speckit) exist in `.github/agents/` with correct frontmatter
 2. Commands appear in VS Code and VS Code Insiders Copilot Chat command picker
 3. Smoke tests pass for all commands in both IDEs (invoke with sample input, verify output)
 4. Sync script completes successfully in < 2 seconds
@@ -869,14 +869,14 @@ The feature is considered complete when:
 ```gherkin
 Given I am using VS Code with GitHub Copilot extension
 When I open Copilot Chat and type "/"
-Then I see all 23 specflow and speckit commands in the autocomplete list
+Then I see all 23 flowspec and speckit commands in the autocomplete list
 And each command shows its description from frontmatter
 ```
 
-**Scenario 2: Command Execution (specflow:specify)**
+**Scenario 2: Command Execution (flowspec:specify)**
 ```gherkin
-Given I have a project with specflow_workflow.yml configured
-When I invoke /specflow:specify with "Add user authentication feature"
+Given I have a project with flowspec_workflow.yml configured
+When I invoke /flow:specify with "Add user authentication feature"
 Then the PM Planner agent creates a PRD at docs/prd/user-auth-spec.md
 And the PRD includes all 10 required sections
 And backlog tasks are created with proper labels and assignments
@@ -884,24 +884,24 @@ And backlog tasks are created with proper labels and assignments
 
 **Scenario 3: Sync Script Dry Run**
 ```gherkin
-Given I have modified .claude/commands/specflow/specify.md
+Given I have modified .claude/commands/flowspec/specify.md
 When I run ./scripts/bash/sync-copilot-agents.sh --dry-run
-Then I see output: "Would update: .github/agents/specflow.specify.md"
+Then I see output: "Would update: .github/agents/flowspec.specify.md"
 And no files are actually modified
 ```
 
 **Scenario 4: Include Directive Resolution**
 ```gherkin
-Given .claude/commands/specflow/specify.md contains {{INCLUDE:_backlog-instructions.md}}
+Given .claude/commands/flowspec/specify.md contains {{INCLUDE:_backlog-instructions.md}}
 When I run the sync script
-Then .github/agents/specflow.specify.md contains the full content of _backlog-instructions.md
+Then .github/agents/flowspec.specify.md contains the full content of _backlog-instructions.md
 And no {{INCLUDE:...}} directives remain in the output file
 ```
 
 **Scenario 5: VS Code Insiders Compatibility**
 ```gherkin
 Given I am using VS Code Insiders (pre-release build)
-When I invoke /specflow:implement with a task ID
+When I invoke /flow:implement with a task ID
 Then the command executes identically to VS Code stable
 And no Insiders-specific errors occur
 ```
@@ -963,7 +963,7 @@ And no Insiders-specific errors occur
 
 **Internal Dependencies**:
 - Existing `.claude/commands/` command structure
-- `specflow_workflow.yml` for state transitions
+- `flowspec_workflow.yml` for state transitions
 - Backlog.md CLI for task management integration
 
 **Breaking Changes**:
@@ -988,7 +988,7 @@ And no Insiders-specific errors occur
 - Week 2: Tasks 5-8 (testing, CI, hooks, documentation)
 
 **Minimum Viable Product (MVP)**: 1 week
-- Convert only specflow.* commands (skip speckit for MVP)
+- Convert only flowspec.* commands (skip speckit for MVP)
 - Manual sync (skip pre-commit hook and CI)
 - Test in VS Code stable only (defer Insiders testing)
 
@@ -1032,19 +1032,19 @@ And no Insiders-specific errors occur
 ### North Star Metric
 
 **Command Invocation Rate in VS Code Copilot**
-- **Definition**: Percentage of specflow command invocations that occur via VS Code Copilot (vs CLI)
+- **Definition**: Percentage of flowspec command invocations that occur via VS Code Copilot (vs CLI)
 - **Target**: 60% of command invocations from Copilot within 4 weeks post-launch
 - **Measurement**: Telemetry (optional - privacy-respecting analytics) or user survey
 
 ### Leading Indicators (Early Signals)
 
 **Metric 1: Command Discovery Rate**
-- **Definition**: Percentage of VS Code users who discover specflow commands via Copilot Chat picker
+- **Definition**: Percentage of VS Code users who discover flowspec commands via Copilot Chat picker
 - **Target**: 90%+ discovery rate within 1 week of feature announcement
-- **Measurement**: User survey: "How did you first discover specflow commands?" (options: Copilot picker, docs, word-of-mouth)
+- **Measurement**: User survey: "How did you first discover flowspec commands?" (options: Copilot picker, docs, word-of-mouth)
 
 **Metric 2: First-Time Execution Success Rate**
-- **Definition**: Percentage of users who successfully execute a specflow command on first attempt
+- **Definition**: Percentage of users who successfully execute a flowspec command on first attempt
 - **Target**: 80%+ success rate
 - **Measurement**: Error logs (track failed command invocations), user survey
 
@@ -1058,15 +1058,15 @@ And no Insiders-specific errors occur
 **Metric 1: Developer Productivity Gain**
 - **Definition**: Time saved by using in-IDE commands vs context-switching to CLI
 - **Target**: 5-10 minutes saved per command invocation (average)
-- **Measurement**: User survey: "How much time does in-IDE specflow save you per day?"
+- **Measurement**: User survey: "How much time does in-IDE flowspec save you per day?"
 
-**Metric 2: specflow Adoption Rate**
-- **Definition**: Percentage of VS Code users who use specflow commands at least weekly
+**Metric 2: flowspec Adoption Rate**
+- **Definition**: Percentage of VS Code users who use flowspec commands at least weekly
 - **Target**: 50%+ weekly active users (up from 30% CLI-only baseline)
 - **Measurement**: Telemetry or user survey
 
 **Metric 3: Support Burden Reduction**
-- **Definition**: Number of support requests related to "specflow commands don't work in VS Code"
+- **Definition**: Number of support requests related to "flowspec commands don't work in VS Code"
 - **Target**: Zero support requests after documentation update
 - **Measurement**: GitHub Issues, Slack support channel
 
@@ -1108,22 +1108,22 @@ And no Insiders-specific errors occur
 
 ### Appendix A: Command Inventory
 
-**specflow Commands** (15 total):
-1. specflow.assess
-2. specflow.specify
-3. specflow.research
-4. specflow.plan
-5. specflow.implement
-6. specflow.validate
-7. specflow.operate
-8. specflow.prune-branch
-9. specflow.init
-10. specflow.reset
-11. specflow.security_fix
-12. specflow.security_report
-13. specflow.security_triage
-14. specflow.security_web
-15. specflow.security_workflow
+**flowspec Commands** (15 total):
+1. flowspec.assess
+2. flowspec.specify
+3. flowspec.research
+4. flowspec.plan
+5. flowspec.implement
+6. flowspec.validate
+7. flowspec.operate
+8. flowspec.prune-branch
+9. flowspec.init
+10. flowspec.reset
+11. flowspec.security_fix
+12. flowspec.security_report
+13. flowspec.security_triage
+14. flowspec.security_web
+15. flowspec.security_workflow
 
 **speckit Commands** (8 total):
 1. speckit.specify
@@ -1139,7 +1139,7 @@ And no Insiders-specific errors occur
 
 ### Appendix B: Frontmatter Format Reference
 
-**Claude Code Format** (`.claude/commands/specflow/specify.md`):
+**Claude Code Format** (`.claude/commands/flowspec/specify.md`):
 ```yaml
 ---
 description: Create or update feature specifications using PM planner agent
@@ -1147,11 +1147,11 @@ mode: agent
 ---
 ```
 
-**GitHub Copilot Format** (`.github/agents/specflow.specify.md`):
+**GitHub Copilot Format** (`.github/agents/flowspec.specify.md`):
 ```yaml
 ---
 description: Create or update feature specifications using PM planner agent
-mode: specflow.specify
+mode: flowspec.specify
 ---
 ```
 
@@ -1161,16 +1161,16 @@ mode: specflow.specify
 
 **Simple Include**:
 ```markdown
-{{INCLUDE:.claude/commands/specflow/_constitution-check.md}}
+{{INCLUDE:.claude/commands/flowspec/_constitution-check.md}}
 ```
 
 **Nested Include** (_constitution-check.md contains another include):
 ```markdown
-{{INCLUDE:.claude/commands/specflow/_workflow-base.md}}
+{{INCLUDE:.claude/commands/flowspec/_workflow-base.md}}
 ```
 
 **Relative Path Resolution**:
-- Include paths are relative to `.claude/commands/specflow/`
+- Include paths are relative to `.claude/commands/flowspec/`
 - Sync script must resolve paths correctly from root directory
 
 ### Appendix D: Testing Checklist
@@ -1178,8 +1178,8 @@ mode: specflow.specify
 **Manual Testing Checklist** (before release):
 - [ ] Test command discovery in VS Code stable (type "/" in Copilot Chat)
 - [ ] Test command discovery in VS Code Insiders
-- [ ] Execute /specflow:specify in VS Code - verify PRD creation
-- [ ] Execute /specflow:implement in VS Code - verify code generation
+- [ ] Execute /flow:specify in VS Code - verify PRD creation
+- [ ] Execute /flow:implement in VS Code - verify code generation
 - [ ] Execute /speckit:plan in VS Code - verify ADR creation
 - [ ] Run sync script on macOS - verify output
 - [ ] Run sync script on Linux - verify output
@@ -1224,5 +1224,5 @@ If VS Code Copilot integration fails or introduces critical bugs:
 **Next Steps**:
 1. Review PRD with engineering team (estimate: 1 hour)
 2. Prioritize backlog tasks (see section 6 for task IDs)
-3. Run `/specflow:plan` to create architecture design
-4. Execute `/specflow:implement` to begin development
+3. Run `/flow:plan` to create architecture design
+4. Execute `/flow:implement` to begin development

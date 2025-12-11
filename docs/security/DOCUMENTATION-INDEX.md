@@ -26,7 +26,7 @@ This document provides a complete index of all security-related documentation an
 
 ### AC #2: Command Reference ✅
 
-**File**: `docs/reference/specflow-security-commands.md` (12 KB)
+**File**: `docs/reference/flowspec-security-commands.md` (12 KB)
 
 **Contents**:
 - Complete `specify security scan` documentation
@@ -95,7 +95,7 @@ This document provides a complete index of all security-related documentation an
 
 **Contents**:
 - Scope definition
-  - What /specflow:security protects against
+  - What /flow:security protects against
   - What it does NOT protect against
 - Trust boundaries diagram
 - Detailed threat analysis:
@@ -180,7 +180,7 @@ This document provides a complete index of all security-related documentation an
   3. Detect missing security headers
   4. Detect hardcoded credentials
   5. Detect SQL injection (framework-specific)
-- Integration with specflow workflow
+- Integration with flowspec workflow
 - Rule metadata standards
 - Best practices:
   1. Start specific, then generalize
@@ -200,7 +200,7 @@ This document provides a complete index of all security-related documentation an
 **File**: `docs/guides/security-workflow-integration.md` (24 KB)
 
 Comprehensive guide covering:
-- Integration with `/specflow` workflow commands
+- Integration with `/flowspec` workflow commands
 - Task-based security workflow
 - Backlog integration
 - Pre-commit hooks
@@ -222,7 +222,7 @@ MCP server documentation:
 | Document | Lines | Size | Last Updated | Completeness |
 |----------|-------|------|--------------|--------------|
 | security-quickstart.md | 352 | 8.9 KB | 2025-12-05 | ✅ Complete |
-| specflow-security-commands.md | 465 | 12 KB | 2025-12-05 | ✅ Complete |
+| flowspec-security-commands.md | 465 | 12 KB | 2025-12-05 | ✅ Complete |
 | security-cicd-integration.md | 781 | 19 KB | 2025-12-05 | ✅ Complete |
 | security-threat-model.md | 248 | 9.5 KB | 2025-12-05 | ✅ Complete |
 | security-privacy-policy.md | 273 | 6.3 KB | 2025-12-05 | ✅ Complete |

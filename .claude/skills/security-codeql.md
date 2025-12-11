@@ -7,7 +7,7 @@ This skill enables Claude Code to interpret CodeQL SARIF output, understand comp
 ## When to Use This Skill
 
 - When analyzing CodeQL SARIF output files
-- When user runs `/specflow:security_scan --scanner codeql`
+- When user runs `/flow:security_scan --scanner codeql`
 - When interpreting dataflow analysis results
 - When providing deep semantic analysis of vulnerabilities
 - When validating complex taint tracking across functions

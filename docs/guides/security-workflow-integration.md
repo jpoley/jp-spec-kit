@@ -1,6 +1,6 @@
 # Security Workflow Integration Guide
 
-This guide shows how to integrate `/specflow:security` commands into your Spec-Driven Development workflow, including automatic task creation, CI/CD integration, and SARIF output for GitHub Security.
+This guide shows how to integrate `/flow:security` commands into your Spec-Driven Development workflow, including automatic task creation, CI/CD integration, and SARIF output for GitHub Security.
 
 ## Table of Contents
 
@@ -14,18 +14,18 @@ This guide shows how to integrate `/specflow:security` commands into your Spec-D
 
 ## Overview
 
-The `/specflow:security` command family provides comprehensive security scanning and remediation tracking for your SDD workflow:
+The `/flow:security` command family provides comprehensive security scanning and remediation tracking for your SDD workflow:
 
 ```bash
-/specflow:security scan      # Run SAST, SCA, secrets detection
-/specflow:security triage    # AI-powered vulnerability assessment
-/specflow:security report    # Generate audit reports
-/specflow:security fix       # Generate patches for findings
+/flow:security scan      # Run SAST, SCA, secrets detection
+/flow:security triage    # AI-powered vulnerability assessment
+/flow:security report    # Generate audit reports
+/flow:security fix       # Generate patches for findings
 ```
 
 **Key Integration Features:**
 
-1. **Workflow States** - Add security to your `specflow_workflow.yml`
+1. **Workflow States** - Add security to your `flowspec_workflow.yml`
 2. **Automatic Tasks** - Create backlog tasks with `--create-tasks` flag
 3. **CI/CD Integration** - GitHub Actions, GitLab CI examples
 4. **SARIF Output** - GitHub Security tab integration
@@ -40,7 +40,7 @@ The `/specflow:security` command family provides comprehensive security scanning
 Add a dedicated "Security Review" state to your workflow:
 
 ```yaml
-# specflow_workflow.yml
+# flowspec_workflow.yml
 
 states:
   - "To Do"
@@ -60,7 +60,7 @@ states:
 ```yaml
 workflows:
   security:
-    command: "/specflow:security"
+    command: "/flow:security"
     description: "Execute security scans and create remediation tasks"
     agents:
       - name: "secure-by-design-engineer"
@@ -116,7 +116,7 @@ transitions:
 **Workflow sequence:**
 
 ```
-Implementation → /specflow:security → Security Review → /specflow:validate → Validated → Deployed
+Implementation → /flow:security → Security Review → /flow:validate → Validated → Deployed
 ```
 
 **When to use:**
@@ -132,11 +132,11 @@ Implementation → /specflow:security → Security Review → /specflow:validate
 Extend the existing validate workflow to include security:
 
 ```yaml
-# specflow_workflow.yml
+# flowspec_workflow.yml
 
 workflows:
   validate:
-    command: "/specflow:validate"
+    command: "/flow:validate"
     description: "Execute validation using QA, security, and documentation agents"
     agents:
       - name: "quality-guardian"
@@ -190,7 +190,7 @@ transitions:
 **Workflow sequence:**
 
 ```
-Implementation → /specflow:validate (includes security) → Validated → Deployed
+Implementation → /flow:validate (includes security) → Validated → Deployed
 ```
 
 **When to use:**
@@ -209,13 +209,13 @@ The `--create-tasks` flag automatically creates backlog tasks for security findi
 
 ```bash
 # Create tasks during scan
-/specflow:security scan --create-tasks
+/flow:security scan --create-tasks
 
 # Create tasks during report generation
-/specflow:security report --create-tasks
+/flow:security report --create-tasks
 
 # Control which severities create tasks
-/specflow:security scan --create-tasks --severity critical,high
+/flow:security scan --create-tasks --severity critical,high
 ```
 
 ### Task Format
@@ -276,7 +276,7 @@ An attacker could:
 
 ---
 
-**Created by:** /specflow:security --create-tasks
+**Created by:** /flow:security --create-tasks
 **Audit Report:** docs/security/audit-report.md
 ```
 
@@ -303,13 +303,13 @@ Control which findings create tasks:
 
 ```bash
 # Only critical and high (recommended for most teams)
-/specflow:security scan --create-tasks --severity critical,high
+/flow:security scan --create-tasks --severity critical,high
 
 # All severities (may create noise)
-/specflow:security scan --create-tasks --severity critical,high,medium,low
+/flow:security scan --create-tasks --severity critical,high,medium,low
 
 # Critical only (for very high-velocity teams)
-/specflow:security scan --create-tasks --severity critical
+/flow:security scan --create-tasks --severity critical
 ```
 
 ### Priority Mapping
@@ -712,7 +712,7 @@ specify security scan --format sarif --output security-results.sarif
     {
       "tool": {
         "driver": {
-          "name": "Specflow Security Scanner",
+          "name": "Flowspec Security Scanner",
           "version": "1.0.0",
           "informationUri": "https://github.com/jpoley/jp-spec-kit",
           "rules": [
@@ -907,7 +907,7 @@ cat .specify/hooks/hooks.yaml
 
 - [CI/CD Integration Examples](../platform/security-cicd-examples.md) - Complete CI/CD configurations
 - [SARIF Output Guide](../../templates/docs/security/sarif-output-guide.md) - SARIF format specification
-- `/specflow:security scan --help` - Security scan command reference
+- `/flow:security scan --help` - Security scan command reference
 - [Security Commands Documentation](../reference/security-commands.md) - Complete command reference
 
 ## See Also

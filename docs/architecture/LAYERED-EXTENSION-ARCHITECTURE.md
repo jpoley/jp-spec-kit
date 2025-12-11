@@ -1,8 +1,8 @@
-# JP Specflow - Layered Extension Architecture
+# JP Flowspec - Layered Extension Architecture
 
 ## Overview
 
-JP Specflow has been transformed from a fork into a **layered extension** of GitHub's spec-kit. This architecture allows you to:
+JP Flowspec has been transformed from a fork into a **layered extension** of GitHub's spec-kit. This architecture allows you to:
 
 - ✅ **Stay current** with upstream spec-kit features
 - ✅ **Add custom** agents, stacks, and workflows  
@@ -18,14 +18,14 @@ JP Specflow has been transformed from a fork into a **layered extension** of Git
 ┌─────────────────────────────────────────┐
 │  Your Project                           │
 │  ┌───────────────────────────────────┐  │
-│  │ JP Specflow Extension (Layer 2)  │  │  ← Custom specflow commands
-│  │ • specflow:* commands               │  │  ← Multi-language support  
+│  │ JP Flowspec Extension (Layer 2)  │  │  ← Custom flowspec commands
+│  │ • flowspec:* commands               │  │  ← Multi-language support  
 │  │ • .languages/ expertise           │  │  ← Expert personas
 │  │ • Multi-agent workflows           │  │  ← Advanced orchestration
 │  └───────────────────────────────────┘  │
 │           ↓ Overlays on top of ↓        │
 │  ┌───────────────────────────────────┐  │
-│  │ Base Specflow (Layer 1)          │  │  ← Core /speckit.* commands
+│  │ Base Flowspec (Layer 1)          │  │  ← Core /speckit.* commands
 │  │ • /speckit.* commands             │  │  ← Standard templates
 │  │ • Core templates                  │  │  ← Setup scripts
 │  │ • Setup scripts                   │  │
@@ -150,12 +150,12 @@ extends:
 
 provides:
   commands:
-    - specflow:specify
-    - specflow:plan
-    - specflow:research
-    - specflow:implement
-    - specflow:validate
-    - specflow:operate
+    - flowspec:specify
+    - flowspec:plan
+    - flowspec:research
+    - flowspec:implement
+    - flowspec:validate
+    - flowspec:operate
   
   languages:
     - python, go, rust, java, kotlin, c, cpp, csharp, typescript, javascript, web, mobile, systems
@@ -252,7 +252,7 @@ specify init my-project --ai claude
 # Result:
 # - Base spec-kit templates from github/spec-kit
 # - JP spec-kit extension overlay from jpoley/jp-spec-kit
-# - Both /speckit.* and /specflow:* commands available
+# - Both /speckit.* and /flow:* commands available
 ```
 
 ### Keeping Up with Upstream
@@ -309,7 +309,7 @@ Plugin manifest declaring what jp-spec-kit provides.
 
 **Purpose**:
 - Declarative extension metadata
-- Command namespace (`specflow:*`)
+- Command namespace (`flowspec:*`)
 - Language support list
 - Merge strategy rules
 
@@ -335,7 +335,7 @@ specify upgrade
 specify upgrade --base-version 0.0.20 --extension-version 0.0.20
 ```
 
-### If You're New to JP Specflow
+### If You're New to JP Flowspec
 
 Just use the standard workflow:
 ```bash
@@ -374,7 +374,7 @@ shutil.copy2(item, dest_path)  # Overwrites base
 
 **Examples**:
 - Base has `.specify/plan-template.md`
-- Extension has `.specify/specflow-plan-template.md`
+- Extension has `.specify/flowspec-plan-template.md`
 - Result: Both files present (extension adds, doesn't replace)
 
 - Base has `.claude/commands/plan.md`
@@ -455,7 +455,7 @@ base: github/spec-kit@0.0.20
 extensions:
   - jpoley/jp-spec-kit@0.0.20
     features:
-      - specflow-commands
+      - flowspec-commands
       - multi-language
       exclude:
         - stacks  # Don't need stack templates
@@ -530,7 +530,7 @@ specify upgrade --debug
 
 ## Summary
 
-JP Specflow is now a **true layered extension** that:
+JP Flowspec is now a **true layered extension** that:
 
 1. ✅ Downloads base spec-kit from `github/spec-kit`
 2. ✅ Overlays jp-spec-kit extensions from `jpoley/jp-spec-kit`
@@ -549,6 +549,6 @@ This architecture enables you to:
 **Next Steps**:
 
 1. Try it: `specify init test-project --ai claude`
-2. Explore specflow commands: `/specflow:plan`, `/specflow:implement`
+2. Explore flowspec commands: `/flow:plan`, `/flow:implement`
 3. Upgrade regularly: `specify upgrade`
 4. Report issues: https://github.com/jpoley/jp-spec-kit/issues

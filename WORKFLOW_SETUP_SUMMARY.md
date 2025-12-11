@@ -10,15 +10,15 @@
 
 **Problem Analyzed**:
 - Two distinct workflows need synchronization:
-  - Agent Loop Workflow (`/specflow` commands)
+  - Agent Loop Workflow (`/flowspec` commands)
   - Task State Workflow (backlog.md)
 - Users need customizable workflows without code changes
 - State transitions must be validated
 
 **Solution Designed**:
 - Configuration-driven approach using declarative YAML
-- Single source of truth: `specflow_workflow.yml`
-- State-based validation enforced by /specflow commands
+- Single source of truth: `flowspec_workflow.yml`
+- State-based validation enforced by /flowspec commands
 - User-customizable without code modifications
 - Comprehensive validation at schema and semantic levels
 
@@ -53,9 +53,9 @@
   - Validates structure, types, references
   - Provides validation examples
 
-- **task-118**: Default specflow_workflow.yml configuration
+- **task-118**: Default flowspec_workflow.yml configuration
   - 8 detailed acceptance criteria
-  - All 6 /specflow phases (specify, research, plan, implement, validate, operate)
+  - All 6 /flowspec phases (specify, research, plan, implement, validate, operate)
   - Valid state DAG with no cycles
   - Complete agent assignments
 
@@ -81,7 +81,7 @@
   - State creation instructions
   - Transition rules documentation
 
-- **task-122**: Update /specflow commands
+- **task-122**: Update /flowspec commands
   - 8 detailed acceptance criteria
   - State constraint enforcement
   - Error messages with suggestions
@@ -115,7 +115,7 @@
   - Query method tests
   - >90% coverage target
 
-- **task-127**: Integration tests for /specflow
+- **task-127**: Integration tests for /flowspec
   - 10 detailed acceptance criteria
   - All 6 state transitions tested
   - Invalid transition error handling
@@ -126,7 +126,7 @@
 - **task-128**: Update CLAUDE.md
   - 8 detailed acceptance criteria
   - Workflow configuration section
-  - /specflow workflow reference table
+  - /flowspec workflow reference table
   - Links to guides
 
 - **task-129**: Troubleshooting guide
@@ -153,12 +153,12 @@
 - Alternative rejected: Hardcoded Python logic (not customizable)
 
 **Decision 2: Single Source of Truth**
-- ✅ specflow_workflow.yml in project root
+- ✅ flowspec_workflow.yml in project root
 - Why: Visible, easy to find, version controlled
 - Alternative rejected: Multiple config files (harder to maintain)
 
 **Decision 3: State-Based Transitions**
-- ✅ Task state determines valid /specflow commands
+- ✅ Task state determines valid /flowspec commands
 - Why: Prevents out-of-order execution, clear progression
 - Alternative rejected: Time-based or event-based (less predictable)
 
@@ -189,7 +189,7 @@ Each example is complete, validated, and includes explanation.
 
 ```
 ┌─────────────────────────────────────────────────┐
-│         specflow_workflow.yml (config)            │
+│         flowspec_workflow.yml (config)            │
 │                                                 │
 │  - states: [To Do, Specified, Researched, ...]│
 │  - workflows: [specify, research, plan, ...]  │
@@ -216,10 +216,10 @@ Each example is complete, validated, and includes explanation.
 
 ```
 jp-spec-kit/
-├── specflow_workflow.yml                    ← To be created (task-118)
+├── flowspec_workflow.yml                    ← To be created (task-118)
 ├── memory/
 │   ├── WORKFLOW_DESIGN_SPEC.md           ✅ Created
-│   └── specflow_workflow.schema.json       ← To be created (task-117)
+│   └── flowspec_workflow.schema.json       ← To be created (task-117)
 ├── src/specify_cli/
 │   └── workflow/                         ← To be created (tasks 90-91)
 │       ├── __init__.py
@@ -238,7 +238,7 @@ jp-spec-kit/
 │       └── custom-agents-workflow.yml
 └── tests/
     ├── test_workflow_config.py           ← To be created (task-126)
-    └── test_specflow_workflow_integration.py ← To be created (task-127)
+    └── test_flowspec_workflow_integration.py ← To be created (task-127)
 ```
 
 ## Ready for Implementation
@@ -263,7 +263,7 @@ Each phase depends on previous phases but tasks within a phase can be parallel.
 
 ## Key Success Metrics
 
-- ✅ All /specflow commands enforce state constraints
+- ✅ All /flowspec commands enforce state constraints
 - ✅ Workflow states prevent out-of-order execution
 - ✅ Users can customize workflows via config edits
 - ✅ Configuration validated against schema

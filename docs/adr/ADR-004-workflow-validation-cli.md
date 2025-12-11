@@ -9,15 +9,15 @@
 
 ## Context and Problem Statement
 
-Specflow's workflow configuration (`specflow_workflow.yml`) is a critical file that defines:
+Flowspec's workflow configuration (`flowspec_workflow.yml`) is a critical file that defines:
 - Task lifecycle states (To Do, Specified, Planned, etc.)
-- Workflow commands (`/specflow:specify`, `/specflow:implement`, etc.)
+- Workflow commands (`/flow:specify`, `/flow:implement`, etc.)
 - State transitions and their valid paths
 - Agent assignments for each workflow phase
 
 **Problems**:
 - Configuration errors are discovered at runtime during workflow execution
-- Invalid state references cause cryptic errors when executing `/specflow` commands
+- Invalid state references cause cryptic errors when executing `/flowspec` commands
 - Circular dependencies in state transitions can create infinite loops
 - Unreachable states indicate dead code in workflow configuration
 - No early validation catches schema violations before deployment
@@ -43,7 +43,7 @@ Specflow's workflow configuration (`specflow_workflow.yml`) is a critical file t
 Implement `specify workflow validate` CLI command with:
 
 ### Schema Validation (Structural)
-- Validate against JSON schema (`memory/specflow_workflow.schema.json`)
+- Validate against JSON schema (`memory/flowspec_workflow.schema.json`)
 - Check required fields (version, states, workflows, transitions)
 - Verify field types and value constraints
 - Graceful degradation if `jsonschema` library not installed
@@ -155,7 +155,7 @@ Output (human-readable or JSON) + Exit code
 ```json
 {
   "valid": true,
-  "config_file": "/path/to/specflow_workflow.yml",
+  "config_file": "/path/to/flowspec_workflow.yml",
   "schema_validation": {
     "passed": true,
     "error": null
@@ -247,7 +247,7 @@ Output (human-readable or JSON) + Exit code
    - Verbose mode output
 
 3. **Manual Testing**:
-   - Real `specflow_workflow.yml` validation
+   - Real `flowspec_workflow.yml` validation
    - Custom config files
    - CI/CD integration (exit codes, JSON parsing)
 
@@ -264,7 +264,7 @@ Follows POSIX conventions:
 ### JSON Schema Compliance
 - Uses Draft 7 JSON Schema
 - Optional `jsonschema` library (graceful degradation)
-- Schema stored at `memory/specflow_workflow.schema.json`
+- Schema stored at `memory/flowspec_workflow.schema.json`
 
 ### Defensive Coding
 - Type checking with `isinstance()`

@@ -9,7 +9,7 @@
 
 ## Executive Summary
 
-The Agent Hooks system transforms JP Specflow from a **linear, synchronous workflow engine** into an **event-driven automation platform**. It enables automated quality gates, workflow orchestration, and third-party integrations without modifying core workflow commands.
+The Agent Hooks system transforms JP Flowspec from a **linear, synchronous workflow engine** into an **event-driven automation platform**. It enables automated quality gates, workflow orchestration, and third-party integrations without modifying core workflow commands.
 
 **Core Design Principles**:
 1. **Tool-Agnostic**: Works with Claude Code, Gemini, Copilot, or headless automation
@@ -30,9 +30,9 @@ The Agent Hooks system transforms JP Specflow from a **linear, synchronous workf
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│                         JP Specflow CLI                              │
+│                         JP Flowspec CLI                              │
 │  ┌────────────────┐  ┌────────────────┐  ┌────────────────┐        │
-│  │ /specflow:specify│  │/specflow:implement│  │ backlog task   │        │
+│  │ /flow:specify│  │/flow:implement│  │ backlog task   │        │
 │  │                │  │                 │  │   operations   │        │
 │  └────────┬───────┘  └────────┬────────┘  └────────┬───────┘        │
 │           │                   │                     │                │
@@ -323,12 +323,12 @@ result = subprocess.run(
 
 **Step 1**: User runs workflow command
 ```bash
-/specflow:implement authentication
+/flow:implement authentication
 ```
 
 **Step 2**: Implementation completes, event emitted
 ```python
-# In /specflow:implement command handler
+# In /flow:implement command handler
 event_emitter.emit(
     event_type="implement.completed",
     feature="authentication",
@@ -404,13 +404,13 @@ if result.exit_code != 0 and hook.fail_mode == "stop":
 
 ## Integration Patterns
 
-### 1. /specflow Command Integration
+### 1. /flowspec Command Integration
 
 **All workflow commands emit events**:
 ```python
-# src/specify_cli/commands/specflow.py
+# src/specify_cli/commands/flowspec.py
 
-@cli.command("specflow:implement")
+@cli.command("flowspec:implement")
 def implement_command(feature: str):
     """Execute implementation workflow."""
 
@@ -468,9 +468,9 @@ def task_edit(task_id: str, status: str):
 
 ### 3. Claude Code Hook Complementarity
 
-**JP Specflow Hooks** (this system):
+**JP Flowspec Hooks** (this system):
 - **Scope**: Workflow-level events (spec.created, task.completed)
-- **Trigger**: /specflow commands, backlog operations
+- **Trigger**: /flowspec commands, backlog operations
 - **Use Cases**: Automated testing, documentation updates, CI/CD integration
 
 **Claude Code Hooks** (separate system):
@@ -479,7 +479,7 @@ def task_edit(task_id: str, status: str):
 - **Use Cases**: Permission requests, safety checks, session lifecycle
 
 **Relationship**: Complementary, not overlapping
-- JP Specflow hooks can create/modify Claude Code hooks as artifacts
+- JP Flowspec hooks can create/modify Claude Code hooks as artifacts
 - Example: `project.initialized` event creates `.claude/hooks/stop-quality-gate.py`
 
 ---
@@ -780,7 +780,7 @@ specify hooks update slack-notifier
 ### Integration Tests
 
 **End-to-End Workflows**:
-- /specflow:implement → event → hook execution
+- /flow:implement → event → hook execution
 - Backlog task edit → event → hook execution
 - Multi-hook execution (sequential)
 
@@ -797,7 +797,7 @@ specify hooks update slack-notifier
 ### Performance Tests
 
 **Event Emission Overhead**:
-- Benchmark: /specflow:implement with/without events
+- Benchmark: /flow:implement with/without events
 - Target: <50ms delta
 
 **Hook Dispatch Latency**:
@@ -821,7 +821,7 @@ specify hooks update slack-notifier
 - Audit logger
 
 **Phase 2**: Integration
-- Event emission from /specflow commands
+- Event emission from /flowspec commands
 - Event emission from backlog operations
 - Security framework
 
@@ -858,7 +858,7 @@ specify hooks update slack-notifier
 **Related Systems**:
 - Claude Code Hooks: `.claude/hooks/` (complementary)
 - Backlog.md: Task state machine (emits task events)
-- Workflow Engine: /specflow commands (emits workflow events)
+- Workflow Engine: /flowspec commands (emits workflow events)
 
 ---
 

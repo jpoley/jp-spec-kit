@@ -108,7 +108,7 @@ def hooks_emit(
     """Emit an event and trigger matching hooks.
 
     This command allows manual emission of workflow events, which is useful for:
-    - Testing hooks before integrating them into /specflow commands
+    - Testing hooks before integrating them into /flowspec commands
     - Manual triggering of quality gates
     - Integration with external tools and scripts
     - Multi-machine agent progress tracking

@@ -37,7 +37,7 @@
 
 - **Spec-Light Mode for Medium-Complexity Features**: Streamlined SDD workflow with `--light` flag
   - Add `specify init --light` flag for medium-complexity features (complexity score 4-6/10)
-  - Creates `.specflow-light-mode` marker file in project root
+  - Creates `.flowspec-light-mode` marker file in project root
   - New templates: `spec-light-template.md` (combined user stories + acceptance criteria) and `plan-light-template.md` (high-level approach only)
   - Skips research and analyze phases for faster iteration (~60% faster workflow; see docs/guides/when-to-use-light-mode.md for example metrics)
   - Maintains constitutional compliance requirements (security, test-first, PR workflow)
@@ -145,7 +145,7 @@ JP Spec Kit is now a **layered extension** of GitHub's spec-kit, not a fork!
 #### Documentation
 
 - Updated README with layered extension architecture diagram
-- Added comprehensive specflow command documentation
+- Added comprehensive flowspec command documentation
 - Created `LAYERED-EXTENSION-ARCHITECTURE.md` with implementation details
 - Updated installation and upgrade workflows
 

@@ -48,7 +48,7 @@
     "instructions": [
       "Add marketplace: /plugin marketplace add jpoley/jp-spec-kit",
       "Install plugin: /plugin install jp-spec-kit",
-      "Verify installation: /specflow:specify --help"
+      "Verify installation: /flow:specify --help"
     ],
     "alternativeMethods": [
       "Direct from GitHub: /plugin install jpoley/jp-spec-kit",

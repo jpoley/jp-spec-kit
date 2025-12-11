@@ -13,7 +13,7 @@ A comprehensive GitHub Actions workflow with 9 validation jobs that run automati
 
 **Triggers**:
 - Changes to `templates/commands/**`
-- Changes to `specflow_workflow.yml`
+- Changes to `flowspec_workflow.yml`
 - Changes to `schemas/**`
 - Changes to `.claude/commands/**`
 - Changes to `.github/agents/**`
@@ -22,7 +22,7 @@ A comprehensive GitHub Actions workflow with 9 validation jobs that run automati
 ### 2. Validation Jobs
 
 #### Job 1: Schema Validation
-- Validates `specflow_workflow.yml` against JSON schema
+- Validates `flowspec_workflow.yml` against JSON schema
 - Checks version format compatibility
 - Uses existing `scripts/validate-workflow-config.py`
 
@@ -253,7 +253,7 @@ Status: Pushed to remote
 ### AC 1: Role-based CI workflow detects changed role artifacts ✓
 - Workflow triggers on changes to:
   - `templates/commands/**`
-  - `specflow_workflow.yml`
+  - `flowspec_workflow.yml`
   - `schemas/**`
   - `.claude/commands/**`
   - `.github/agents/**`
@@ -310,7 +310,7 @@ Status: Pushed to remote
 - Team mode guide: `docs/guides/team-mode-workflow.md`
 - CI/CD guide: `docs/guides/ci-cd-role-validation.md`
 - Related: `scripts/bash/sync-copilot-agents.sh --validate`
-- Schema: `schemas/specflow_workflow.schema.json`
+- Schema: `schemas/flowspec_workflow.schema.json`
 - ADR: Role-Based Command Namespaces (if exists)
 
 ## Commit Details

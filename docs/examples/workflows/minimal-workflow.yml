@@ -31,7 +31,7 @@ states:
 
 workflows:
   specify:
-    command: "/specflow:specify"
+    command: "/flow:specify"
     description: "Create feature specification"
     agents:
       - name: "product-requirements-manager"
@@ -45,7 +45,7 @@ workflows:
     optional: false
 
   implement:
-    command: "/specflow:implement"
+    command: "/flow:implement"
     description: "Implement feature with code review"
     agents:
       - name: "frontend-engineer"

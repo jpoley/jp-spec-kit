@@ -113,4 +113,4 @@ Path patterns support glob-style wildcards:
 
 - [Workflow Artifact Flow](./workflow-artifact-flow.md)
 - [TransitionSchema API](../api/workflow/transition.md)
-- [specflow_workflow.yml Configuration](../configuration/workflow-config.md)
+- [flowspec_workflow.yml Configuration](../configuration/workflow-config.md)

@@ -26,7 +26,7 @@ This command allows users to reconfigure project settings including role selecti
 The `/speckit:configure` command:
 1. Re-prompts for role selection (optional)
 2. Re-prompts for validation mode on each workflow transition (optional)
-3. Regenerates or updates `specflow_workflow.yml` with new settings
+3. Regenerates or updates `flowspec_workflow.yml` with new settings
 4. Optionally reconfigures constitution tier (with `--constitution` flag)
 5. Preserves all existing project files and structure
 
@@ -43,7 +43,7 @@ Parse `$ARGUMENTS` for optional flags:
 | `--no-prompts` | Use defaults for all options (role: current, validation: NONE) |
 
 Environment variable override:
-- `SPECFLOW_PRIMARY_ROLE`: Override role selection (e.g., `export SPECFLOW_PRIMARY_ROLE=dev`)
+- `FLOWSPEC_PRIMARY_ROLE`: Override role selection (e.g., `export FLOWSPEC_PRIMARY_ROLE=dev`)
 
 ### Step 1: Verify Project Context
 
@@ -51,7 +51,7 @@ Before proceeding, verify this is a valid jp-spec-kit project:
 
 ```bash
 # Check for project markers
-if [ ! -f "specflow_workflow.yml" ] && [ ! -f "specflow_workflow.yml" ] && [ ! -d ".claude" ]; then
+if [ ! -f "flowspec_workflow.yml" ] && [ ! -f "flowspec_workflow.yml" ] && [ ! -d ".claude" ]; then
   echo "Error: This doesn't appear to be a jp-spec-kit project"
   echo "Run '/speckit:init' first to initialize the project"
   exit 1
@@ -85,7 +85,7 @@ To view role-specific commands, see:
 
 📋 WORKFLOW VALIDATION MODES
 
-{List current validation modes if specflow_workflow.yml exists}
+{List current validation modes if flowspec_workflow.yml exists}
 {Or: "Not yet configured" if no workflow file}
 ```
 
@@ -94,7 +94,7 @@ To view role-specific commands, see:
 If `--role` flag is NOT provided and `--no-prompts` is NOT set:
 
 **Precedence order**:
-1. `SPECFLOW_PRIMARY_ROLE` environment variable (highest priority)
+1. `FLOWSPEC_PRIMARY_ROLE` environment variable (highest priority)
 2. `--role` flag from command line
 3. Interactive prompt
 4. Current role (no change)
@@ -162,10 +162,10 @@ Enter selection [1-8] (default: 8): _
 Validate input is in range 1-8. If invalid, reprompt.
 
 **Environment Variable Detection**:
-If `SPECFLOW_PRIMARY_ROLE` is set, show:
+If `FLOWSPEC_PRIMARY_ROLE` is set, show:
 ```
 Role auto-selected from environment variable:
-  SPECFLOW_PRIMARY_ROLE={role}
+  FLOWSPEC_PRIMARY_ROLE={role}
   New Role: {icon} {display_name}
 
 (Override with --role flag if needed)
@@ -185,9 +185,9 @@ Keeping current role (--no-prompts specified):
   Current: {icon} {display_name}
 ```
 
-### Step 4: Update specflow_workflow.yml with New Role
+### Step 4: Update flowspec_workflow.yml with New Role
 
-Update the `roles.primary` field in `specflow_workflow.yml`:
+Update the `roles.primary` field in `flowspec_workflow.yml`:
 
 ```yaml
 roles:
@@ -200,8 +200,8 @@ roles:
 **IMPORTANT**:
 - Preserve all other fields in the file
 - Only update `roles.primary`
-- If `specflow_workflow.yml` doesn't exist, create it with default structure
-- If legacy `specflow_workflow.yml` exists, migrate to `specflow_workflow.yml` v2.0 format
+- If `flowspec_workflow.yml` doesn't exist, create it with default structure
+- If legacy `flowspec_workflow.yml` exists, migrate to `flowspec_workflow.yml` v2.0 format
 
 ### Step 5: Workflow Validation Mode Configuration (Optional)
 
@@ -219,43 +219,43 @@ For each workflow transition, choose a validation mode:
   - KEYWORD: Require user to type approval keyword
   - PULL_REQUEST: Require PR to be merged
 
-1. To Do → Assessed (after /specflow:assess)
+1. To Do → Assessed (after /flow:assess)
    [1] NONE (default)
    [2] KEYWORD
    [3] PULL_REQUEST
    > _
 
-2. Assessed → Specified (after /specflow:specify, produces PRD)
+2. Assessed → Specified (after /flow:specify, produces PRD)
    [1] NONE (default)
    [2] KEYWORD
    [3] PULL_REQUEST
    > _
 
-3. Specified → Researched (after /specflow:research)
+3. Specified → Researched (after /flow:research)
    [1] NONE (default)
    [2] KEYWORD
    [3] PULL_REQUEST
    > _
 
-4. Researched → Planned (after /specflow:plan, produces ADRs)
+4. Researched → Planned (after /flow:plan, produces ADRs)
    [1] NONE (default)
    [2] KEYWORD
    [3] PULL_REQUEST
    > _
 
-5. Planned → In Implementation (after /specflow:implement)
+5. Planned → In Implementation (after /flow:implement)
    [1] NONE (default)
    [2] KEYWORD
    [3] PULL_REQUEST
    > _
 
-6. In Implementation → Validated (after /specflow:validate)
+6. In Implementation → Validated (after /flow:validate)
    [1] NONE (default)
    [2] KEYWORD
    [3] PULL_REQUEST
    > _
 
-7. Validated → Deployed (after /specflow:operate)
+7. Validated → Deployed (after /flow:operate)
    [1] NONE (default)
    [2] KEYWORD
    [3] PULL_REQUEST
@@ -340,17 +340,17 @@ operate                  {MODE}
 
 📁 FILES UPDATED
 
-  ✓ specflow_workflow.yml (role updated)
-  {✓ specflow_workflow.yml (validation modes) - if configured}
+  ✓ flowspec_workflow.yml (role updated)
+  {✓ flowspec_workflow.yml (validation modes) - if configured}
   {✓ memory/constitution.md (if --constitution)}
 
 🎯 NEXT STEPS
 
 1. Review the updated configuration:
-   cat specflow_workflow.yml
+   cat flowspec_workflow.yml
 
 2. Commit the configuration changes:
-   git add specflow_workflow.yml
+   git add flowspec_workflow.yml
    git commit -s -m "chore: update role to {role_display_name}"
 
 3. Start using role-specific commands:
@@ -364,8 +364,8 @@ operate                  {MODE}
 
 💡 TIPS
 
-• Override role per session: export SPECFLOW_PRIMARY_ROLE=<role>
-• See all commands: Set show_all_commands: true in specflow_workflow.yml
+• Override role per session: export FLOWSPEC_PRIMARY_ROLE=<role>
+• See all commands: Set show_all_commands: true in flowspec_workflow.yml
 • Reconfigure anytime: /speckit:configure
 • Change just role: /speckit:configure --role <new_role>
 • Reset validation modes: /speckit:configure --all
@@ -404,23 +404,23 @@ operate                  {MODE}
 - **Invalid validation mode**: Show valid options (none, keyword, pull-request)
 - **Invalid constitution tier**: Show valid options (light, medium, heavy)
 - **User cancels**: Exit gracefully with message
-- **No specflow_workflow.yml**: Create new one with selected role
-- **Invalid SPECFLOW_PRIMARY_ROLE env var**: Show warning and fall back to prompt
+- **No flowspec_workflow.yml**: Create new one with selected role
+- **Invalid FLOWSPEC_PRIMARY_ROLE env var**: Show warning and fall back to prompt
 
-### Migration from specflow_workflow.yml
+### Migration from flowspec_workflow.yml
 
-If project has `specflow_workflow.yml` but not `specflow_workflow.yml`:
+If project has `flowspec_workflow.yml` but not `flowspec_workflow.yml`:
 
 ```
-Detected legacy specflow_workflow.yml (v1.x)
+Detected legacy flowspec_workflow.yml (v1.x)
 
-This command will migrate to specflow_workflow.yml v2.0 with roles support.
+This command will migrate to flowspec_workflow.yml v2.0 with roles support.
 
 Migration will:
-  ✓ Create specflow_workflow.yml with v2.0 schema
+  ✓ Create flowspec_workflow.yml with v2.0 schema
   ✓ Preserve all workflow definitions and states
   ✓ Add roles section with your selected role
-  ✓ Keep specflow_workflow.yml as backup
+  ✓ Keep flowspec_workflow.yml as backup
 
 Continue? [Y/n]: _
 ```
@@ -430,7 +430,7 @@ If user confirms, perform migration and keep old file.
 ### Quality Checks
 
 Before completing:
-- [ ] specflow_workflow.yml exists with v2.0 schema
+- [ ] flowspec_workflow.yml exists with v2.0 schema
 - [ ] roles.primary is set to valid role value
 - [ ] If validation modes configured, all 7 transitions have valid modes
 - [ ] Validation modes are one of: NONE, KEYWORD["..."], PULL_REQUEST
@@ -445,6 +445,6 @@ Before completing:
 3. **Git-safe**: Previous config preserved in git history
 4. **Idempotent**: Can be run multiple times safely
 5. **Quick role change**: Use `--role` flag for instant role switching
-6. **Environment override**: `SPECFLOW_PRIMARY_ROLE` env var takes precedence
-7. **Backwards compatible**: Migrates legacy specflow_workflow.yml to specflow_workflow.yml
+6. **Environment override**: `FLOWSPEC_PRIMARY_ROLE` env var takes precedence
+7. **Backwards compatible**: Migrates legacy flowspec_workflow.yml to flowspec_workflow.yml
 8. **No network requests**: All operations are local and fast
