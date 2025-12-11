@@ -124,12 +124,8 @@ while IFS= read -r file; do
         if [ "$CURRENT_ACS" != "$PREV_ACS" ]; then
             # Count checked boxes in current and previous
             # Note: grep -c returns the count (0 if no match), but exits 1 when no match; '|| true' ensures the script continues.
-            CURRENT_CHECKED=$(echo "$CURRENT_ACS" | grep -c '^- \[x\]' 2>/dev/null || true)
-            PREV_CHECKED=$(echo "$PREV_ACS" | grep -c '^- \[x\]' 2>/dev/null || true)
-            # Ensure we have valid integers (empty becomes 0)
-            CURRENT_CHECKED=${CURRENT_CHECKED:-0}
-            PREV_CHECKED=${PREV_CHECKED:-0}
-
+            CURRENT_CHECKED=$(echo "$CURRENT_ACS" | grep -c '^- \[x\]' 2>/dev/null || echo "0")
+            PREV_CHECKED=$(echo "$PREV_ACS" | grep -c '^- \[x\]' 2>/dev/null || echo "0")
             if [ "$CURRENT_CHECKED" -gt "$PREV_CHECKED" ]; then
                 # AC was checked
                 echo -e "${GREEN}[post-commit-backlog-events] AC checked for $TASK_ID${NC}" >&2
