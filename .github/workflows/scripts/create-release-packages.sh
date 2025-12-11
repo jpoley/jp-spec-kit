@@ -116,19 +116,19 @@ generate_commands() {
       [[ -f "$template" ]] || continue
       local name description script_command agent_script_command body
       name=$(basename "$template" .md)
-      
+
       # Normalize line endings
       file_content=$(tr -d '\r' < "$template")
-      
+
       # Extract description and script command from YAML frontmatter
       description=$(printf '%s\n' "$file_content" | awk '/^description:/ {sub(/^description:[[:space:]]*/, ""); print; exit}')
       script_command=$(printf '%s\n' "$file_content" | awk -v sv="$script_variant" '/^[[:space:]]*'"$script_variant"':[[:space:]]*/ {sub(/^[[:space:]]*'"$script_variant"':[[:space:]]*/, ""); print; exit}')
-      
+
       if [[ -z $script_command ]]; then
         echo "Warning: no script command found for $script_variant in specflow/$template" >&2
         script_command="(Missing script command for $script_variant)"
       fi
-      
+
       # Extract agent_script command from YAML frontmatter if present
       agent_script_command=$(printf '%s\n' "$file_content" | awk '
         /^agent_scripts:$/ { in_agent_scripts=1; next }
@@ -139,15 +139,15 @@ generate_commands() {
         }
         in_agent_scripts && /^[a-zA-Z]/ { in_agent_scripts=0 }
       ')
-      
+
       # Replace {SCRIPT} placeholder with the script command
       body=$(printf '%s\n' "$file_content" | sed "s|{SCRIPT}|${script_command}|g")
-      
+
       # Replace {AGENT_SCRIPT} placeholder with the agent script command if found
       if [[ -n $agent_script_command ]]; then
         body=$(printf '%s\n' "$body" | sed "s|{AGENT_SCRIPT}|${agent_script_command}|g")
       fi
-      
+
       # Remove the scripts: and agent_scripts: sections from frontmatter while preserving YAML structure
       body=$(printf '%s\n' "$body" | awk '
         /^---$/ { print; if (++dash_count == 1) in_frontmatter=1; else in_frontmatter=0; next }
@@ -157,10 +157,10 @@ generate_commands() {
         in_frontmatter && skip_scripts && /^[[:space:]]/ { next }
         { print }
       ')
-      
+
       # Apply other substitutions
       body=$(printf '%s\n' "$body" | sed "s/{ARGS}/$arg_format/g" | sed "s/__AGENT__/$agent/g" | rewrite_paths)
-      
+
       # For md-based agents (Claude, Cursor, etc.), use subdirectory structure for colon-namespacing
       # e.g., .claude/commands/specflow/init.md -> /specflow:init
       # For toml-based agents (Gemini, Qwen), use dot notation in filename
@@ -179,6 +179,47 @@ generate_commands() {
       esac
     done
   fi
+
+  # Process utility role commands (dev, sec, qa, ops, arch)
+  # These are role-based utility commands for specialized workflows
+  local utility_roles=(dev sec qa ops arch)
+  for role in "${utility_roles[@]}"; do
+    if [[ -d "templates/commands/$role" ]]; then
+      echo "Processing $role commands for $agent..."
+      for template in "templates/commands/$role"/*.md; do
+        [[ -f "$template" ]] || continue
+        local name description body
+        name=$(basename "$template" .md)
+
+        # Normalize line endings
+        file_content=$(tr -d '\r' < "$template")
+
+        # Extract description from YAML frontmatter
+        description=$(printf '%s\n' "$file_content" | awk '/^description:/ {sub(/^description:[[:space:]]*/, ""); print; exit}')
+
+        # For utility commands, the body is the file content with substitutions applied
+        # Replace {ARGS} placeholder with the arg format
+        body=$(printf '%s\n' "$file_content" | sed "s/{ARGS}/$arg_format/g" | sed "s/__AGENT__/$agent/g" | rewrite_paths)
+
+        # For md-based agents (Claude, Cursor, etc.), use subdirectory structure for colon-namespacing
+        # e.g., .claude/commands/dev/cleanup.md -> /dev:cleanup
+        # For toml-based agents (Gemini, Qwen), use dot notation in filename
+        # e.g., .gemini/commands/dev.cleanup.toml -> /dev.cleanup
+        case $ext in
+          toml)
+            body=$(printf '%s\n' "$body" | sed 's/\\/\\\\/g')
+            { echo "description = \"$description\""; echo; echo "prompt = \"\"\""; echo "$body"; echo "\"\"\""; } > "$output_dir/$role.$name.$ext" ;;
+          md)
+            # Create role subdirectory for colon-namespaced commands
+            mkdir -p "$output_dir/$role"
+            echo "$body" > "$output_dir/$role/$name.$ext" ;;
+          prompt.md)
+            # GitHub Copilot uses dot notation in filenames
+            echo "$body" > "$output_dir/$role.$name.$ext" ;;
+        esac
+      done
+    fi
+  done
 }
 
 build_variant() {
