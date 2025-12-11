@@ -63,7 +63,7 @@
     "globalMetadata": {
       "_appTitle": "Flowspec Documentation",
       "_appName": "Flowspec",
-      "_appLogoPath": "media/flowspec.png",
+      "_appFaviconPath": "media/flowspec.png",
       "_appFooter": "Flowspec - Specification-driven development for AI-augmented teams",
       "_enableSearch": true,
       "_disableContribution": false,
