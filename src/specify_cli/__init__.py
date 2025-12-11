@@ -590,23 +590,23 @@ def has_constitution(path: Path) -> bool:
 CLAUDE_LOCAL_PATH = Path.home() / ".claude" / "local" / "claude"
 
 BANNER = """
-███████╗██████╗ ███████╗ ██████╗██╗███████╗██╗   ██╗
-██╔════╝██╔══██╗██╔════╝██╔════╝██║██╔════╝╚██╗ ██╔╝
-███████╗██████╔╝█████╗  ██║     ██║█████╗   ╚████╔╝ 
-╚════██║██╔═══╝ ██╔══╝  ██║     ██║██╔══╝    ╚██╔╝  
-███████║██║     ███████╗╚██████╗██║██║        ██║   
-╚══════╝╚═╝     ╚══════╝ ╚═════╝╚═╝╚═╝        ╚═╝   
+███████╗██╗      ██████╗ ██╗    ██╗███████╗██████╗ ███████╗ ██████╗
+██╔════╝██║     ██╔═══██╗██║    ██║██╔════╝██╔══██╗██╔════╝██╔════╝
+█████╗  ██║     ██║   ██║██║ █╗ ██║███████╗██████╔╝█████╗  ██║
+██╔══╝  ██║     ██║   ██║██║███╗██║╚════██║██╔═══╝ ██╔══╝  ██║
+██║     ███████╗╚██████╔╝╚███╔███╔╝███████║██║     ███████╗╚██████╗
+╚═╝     ╚══════╝ ╚═════╝  ╚══╝╚══╝ ╚══════╝╚═╝     ╚══════╝ ╚═════╝
 """
 
 # Version - keep in sync with pyproject.toml
+
 __version__ = "0.2.354"
+
 
 # Constitution template version
 CONSTITUTION_VERSION = "1.0.0"
 
-TAGLINE = (
-    f"(jp extension v{__version__}) GitHub Spec Kit - Spec-Driven Development Toolkit"
-)
+TAGLINE = f"(flowspec v{__version__}) built on spec-kit & backlog.md - Spec-Driven Development with a Backlog"
 
 # Repository configuration for two-stage download
 BASE_REPO_OWNER = "github"
