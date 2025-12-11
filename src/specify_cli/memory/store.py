@@ -68,7 +68,9 @@ class TaskMemoryStore:
                 "Must start with 'task-' followed by alphanumeric characters and hyphens"
             )
 
-        # Additional paranoid checks for path traversal
+        # Defense-in-depth: Explicit check for path traversal characters.
+        # While the regex above already blocks these, this provides an extra safety layer
+        # in case the pattern is accidentally modified, and makes the security intent explicit.
         if ".." in task_id or "/" in task_id or "\\" in task_id:
             raise ValueError(f"Invalid characters in task ID: {task_id!r}")
 

@@ -34,10 +34,15 @@ if [[ -z "$TASK_ID" ]] || [[ -z "$OLD_STATUS" ]] || [[ -z "$NEW_STATUS" ]]; then
 fi
 
 # Validate and normalize task ID to task-XXX format
-# Security: Only allow task-NNN or NNN format to prevent injection
-if [[ "$TASK_ID" =~ ^task-[0-9]+$ ]]; then
-    : # Already in correct format
+# Security: Allow alphanumeric task IDs (matching Python TaskMemoryStore validation)
+# Pattern: task-<identifier> where identifier starts with alphanumeric, followed by alphanumeric/hyphens
+if [[ "$TASK_ID" =~ ^task-[a-zA-Z0-9][-a-zA-Z0-9]*$ ]]; then
+    : # Already in correct format (e.g., task-42, task-abc, task-feature-123)
 elif [[ "$TASK_ID" =~ ^[0-9]+$ ]]; then
+    # Numeric-only input: normalize to task-NNN format
+    TASK_ID="task-$TASK_ID"
+elif [[ "$TASK_ID" =~ ^[a-zA-Z0-9][-a-zA-Z0-9]*$ ]]; then
+    # Alphanumeric without prefix: normalize to task-XXX format
     TASK_ID="task-$TASK_ID"
 else
     echo "[task-memory] ERROR: Invalid task ID format: $TASK_ID" >&2
@@ -47,10 +52,12 @@ fi
 # Get task title for memory creation
 TASK_TITLE=""
 if command -v backlog &>/dev/null; then
-    # Extract numeric ID for backlog command
-    NUMERIC_ID="${TASK_ID#task-}"
-    TASK_TITLE=$(backlog task "$NUMERIC_ID" --plain 2>/dev/null | \
-                 grep -oP "Task task-\d+ - \K.*" | head -1 || echo "")
+    # Extract task identifier (numeric or alphanumeric) for backlog command
+    # The backlog CLI accepts both "42" and "task-42" formats
+    TASK_IDENTIFIER="${TASK_ID#task-}"
+    # Try to get task title; handles both numeric and alphanumeric task IDs
+    TASK_TITLE=$(backlog task "$TASK_IDENTIFIER" --plain 2>/dev/null | \
+                 grep -oP "Task task-[a-zA-Z0-9][-a-zA-Z0-9]* - \K.*" | head -1 || echo "")
 fi
 
 # Log hook execution

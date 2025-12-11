@@ -207,6 +207,73 @@ class TestBashHook:
         # The heredoc should be quoted with 'PYTHON_SCRIPT' to prevent expansion
         assert "<< 'PYTHON_SCRIPT'" in hook_content
 
+    def test_shell_injection_resistance_with_malicious_payloads(
+        self, integration_project
+    ):
+        """Test that malicious payloads in task IDs/statuses are safely handled.
+
+        This test verifies that shell metacharacters in inputs don't execute
+        arbitrary commands due to the environment variable + quoted heredoc design.
+        """
+        hook_path = (
+            Path(__file__).parent.parent.parent
+            / ".backlog"
+            / "hooks"
+            / "post-task-update.sh"
+        )
+
+        # Malicious payloads that would execute commands if shell injection existed
+        malicious_payloads = [
+            # Command injection attempts in task ID
+            ("task-1; rm -rf /", "To Do", "In Progress"),
+            ("task-1$(whoami)", "To Do", "In Progress"),
+            ("task-1`id`", "To Do", "In Progress"),
+            ('task-1" && echo INJECTED', "To Do", "In Progress"),
+            # Command injection attempts in status
+            ("task-42", 'To Do"; rm -rf /', "In Progress"),
+            ("task-42", "To Do", "$(cat /etc/passwd)"),
+            ("task-42", "To Do", "`id`"),
+        ]
+
+        for task_id, old_status, new_status in malicious_payloads:
+            # Run the hook with malicious inputs
+            result = subprocess.run(
+                ["bash", str(hook_path), task_id, old_status, new_status],
+                capture_output=True,
+                text=True,
+                timeout=10,
+                cwd=str(integration_project),
+                check=False,
+            )
+
+            # Hook should exit 0 (fail open) - it either rejects invalid input
+            # or processes it safely without command execution
+            assert result.returncode == 0, (
+                f"Hook crashed with payload: {task_id!r}, {old_status!r}, {new_status!r}\n"
+                f"stderr: {result.stderr}"
+            )
+
+            # Verify no evidence of command execution in stdout
+            # These strings would appear if injection succeeded and a command ran
+            # Note: stderr may contain the malicious input as part of error messages,
+            # which is fine - we're checking stdout for actual command output
+            dangerous_outputs = ["root:", "uid=", "INJECTED", "/bin/bash"]
+            for danger in dangerous_outputs:
+                assert danger not in result.stdout, (
+                    f"Possible injection with payload: {task_id!r}\n"
+                    f"stdout: {result.stdout}"
+                )
+
+            # For stderr, check that dangerous patterns appear ONLY in error messages
+            # that echo the input, not as standalone command output
+            if "uid=" in result.stderr:
+                # uid= should only appear if the `id` command was executed
+                # The error message format is "[task-memory] ERROR: ..." so uid=
+                # appearing outside that context indicates injection
+                assert "Invalid task ID format" in result.stderr or result.stderr == "", (
+                    f"Possible injection - uid= found outside error message: {result.stderr}"
+                )
+
 
 class TestConfigFile:
     """Tests for .backlog/config.yml."""
