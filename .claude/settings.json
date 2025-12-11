@@ -1,23 +1,4 @@
 {
-  "description": "Claude Code settings for Flowspec project",
-  "projectName": "Flowspec",
-  "allowedTools": [
-    "Read",
-    "Write",
-    "Edit",
-    "Glob",
-    "Grep",
-    "Bash",
-    "WebFetch",
-    "WebSearch",
-    "Task",
-    "TodoWrite"
-  ],
-  "preferences": {
-    "codeStyle": "ruff",
-    "testFramework": "pytest",
-    "packageManager": "uv"
-  },
   "statusLine": {
     "type": "command",
     "command": ".claude/scripts/statusline.sh"
@@ -25,9 +6,14 @@
   "hooks": {
     "SessionStart": [
       {
-        "type": "command",
-        "command": "bash .claude/hooks/session-start.sh",
-        "timeout": 60
+        "matcher": "startup|resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/session-start.sh",
+            "timeout": 60
+          }
+        ]
       }
     ],
     "PreToolUse": [
@@ -91,9 +77,13 @@
     ],
     "Stop": [
       {
-        "type": "command",
-        "command": "python .claude/hooks/stop-quality-gate.py",
-        "timeout": 5
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python .claude/hooks/stop-quality-gate.py",
+            "timeout": 5
+          }
+        ]
       }
     ]
   }
