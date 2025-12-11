@@ -206,6 +206,24 @@ Every task memory follows this standard structure:
 | `backlog memory search "<query>"` | Search across all memories | `backlog memory search "authentication"` |
 | `backlog memory search "<query>" --archived` | Include archived memories | `backlog memory search "API" --archived` |
 
+### Import/Export Commands
+
+| Command | Description | Example |
+|---------|-------------|---------|
+| `specify memory import <task-id> --from-pr <num>` | Import from PR description | `specify memory import task-42 --from-pr 780` |
+| `specify memory import <task-id> --from-file <path>` | Import from file | `specify memory import task-42 --from-file docs/spec.md` |
+| `specify memory export <task-id>` | Export to stdout | `specify memory export task-42` |
+| `specify memory export <task-id> --output <path>` | Export to file | `specify memory export task-42 --output memory.md` |
+| `specify memory export <task-id> --format json` | Export as JSON | `specify memory export task-42 --format json` |
+
+### Template Commands
+
+| Command | Description | Example |
+|---------|-------------|---------|
+| `specify memory template list` | List available templates | `specify memory template list` |
+| `specify memory template show <name>` | Preview template | `specify memory template show feature` |
+| `specify memory template apply <name> --task <id>` | Apply template | `specify memory template apply bugfix --task task-42` |
+
 ### Maintenance Commands
 
 | Command | Description | Example |
@@ -576,6 +594,115 @@ cat backlog/memory/task-42.md
 
 ## Advanced Usage
 
+### Import Context from Pull Requests
+
+When starting work on a task that has a related PR, import the PR description for context:
+
+```bash
+# Import PR description into task memory
+specify memory import task-42 --from-pr 780
+
+# Append PR context to existing memory
+specify memory import task-42 --from-pr 780 --append
+```
+
+Import from a file (spec, ADR, or other documentation):
+
+```bash
+# Import from a spec file
+specify memory import task-42 --from-file docs/prd/feature-x.md
+
+# Import from ADR
+specify memory import task-42 --from-file docs/adr/ADR-015.md --append
+```
+
+### Export Memory Content
+
+Export task memory for sharing, analysis, or backup:
+
+```bash
+# Export as markdown (default)
+specify memory export task-42 --output task-42-memory.md
+
+# Export as JSON for scripting
+specify memory export task-42 --format json
+
+# Export without metadata
+specify memory export task-42 --no-metadata
+
+# Export archived memory
+specify memory export task-42 --archived --format json
+```
+
+### Use Memory Templates
+
+Templates provide task-type-specific structures:
+
+```bash
+# List available templates
+specify memory template list
+
+# Output:
+# ┏━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┓
+# ┃ Name     ┃ Description                                 ┃ Location  ┃
+# ┡━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━┩
+# │ default  │ Standard task memory template               │ ✓ builtin │
+# │ feature  │ Feature with user stories and requirements  │ ✓ builtin │
+# │ bugfix   │ Bug fix with root cause analysis            │ ✓ builtin │
+# │ research │ Research spike with findings                │ ✓ builtin │
+# └──────────┴─────────────────────────────────────────────┴───────────┘
+
+# Preview a template
+specify memory template show feature
+
+# Apply template to a task
+specify memory template apply feature --task task-42
+```
+
+**Creating Custom Templates**:
+
+Place custom templates in `.specify/templates/memory/`:
+
+```bash
+# Create custom template directory
+mkdir -p .specify/templates/memory
+
+# Create your template
+cat > .specify/templates/memory/api-endpoint.md << 'EOF'
+---
+task_id: {task_id}
+created: {created_date}
+updated: {updated_date}
+template: api-endpoint
+---
+# Task Memory: {task_id}
+
+{task_title}
+
+## Endpoint Specification
+
+**Method**:
+**Path**:
+**Authentication**:
+
+### Request
+
+### Response
+
+## Implementation Notes
+
+## Testing Checklist
+
+- [ ] Unit tests
+- [ ] Integration tests
+- [ ] Load testing
+
+## Progress
+
+## Open Questions
+EOF
+```
+
 ### Search Across All Memories
 
 Find patterns across active and archived tasks:
@@ -675,4 +802,4 @@ Found an issue or have a suggestion? Open an issue or contribute to the document
 
 ---
 
-**Version**: 1.0 | **Last Updated**: 2025-12-09
+**Version**: 1.1 | **Last Updated**: 2025-12-11

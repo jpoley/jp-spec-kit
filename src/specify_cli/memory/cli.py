@@ -794,5 +794,398 @@ def _format_bytes(size: float) -> str:
         return f"{size / (1024 * 1024):.1f}MB"
 
 
+@memory_app.command("import")
+def import_memory(
+    task_id: str = typer.Argument(..., help="Task ID (e.g., task-389)"),
+    from_pr: Optional[int] = typer.Option(
+        None, "--from-pr", help="Import from PR number"
+    ),
+    from_file: Optional[str] = typer.Option(
+        None, "--from-file", help="Import from file path"
+    ),
+    append_mode: bool = typer.Option(
+        False, "--append", help="Append to existing memory instead of replacing"
+    ),
+    project_root: Optional[str] = typer.Option(
+        None, "--project-root", help="Project root directory"
+    ),
+):
+    """Import context into task memory.
+
+    Import content from PR descriptions or files into task memory.
+    Useful for capturing PR context when starting implementation.
+
+    Examples:
+        # Import from PR description
+        specify memory import task-389 --from-pr 780
+
+        # Import from file
+        specify memory import task-389 --from-file docs/spec.md
+
+        # Append to existing memory
+        specify memory import task-389 --from-pr 780 --append
+    """
+    import subprocess
+
+    workspace_root = Path(project_root) if project_root else Path.cwd()
+    store = TaskMemoryStore(base_path=workspace_root)
+
+    # Validate input
+    if not from_pr and not from_file:
+        console.print("[red]Error:[/red] Specify --from-pr or --from-file")
+        raise typer.Exit(1)
+
+    if from_pr and from_file:
+        console.print("[red]Error:[/red] Cannot use both --from-pr and --from-file")
+        raise typer.Exit(1)
+
+    # Fetch content
+    content = ""
+    source = ""
+
+    if from_pr:
+        try:
+            # Use gh CLI to fetch PR description
+            result = subprocess.run(
+                ["gh", "pr", "view", str(from_pr), "--json", "title,body"],
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+
+            if result.returncode != 0:
+                console.print(
+                    f"[red]Error fetching PR #{from_pr}:[/red] {result.stderr}"
+                )
+                raise typer.Exit(1)
+
+            pr_data = json.loads(result.stdout)
+            title = pr_data.get("title", "")
+            body = pr_data.get("body", "")
+
+            content = f"## PR #{from_pr}: {title}\n\n{body}"
+            source = f"PR #{from_pr}"
+
+        except subprocess.TimeoutExpired:
+            console.print("[red]Error:[/red] Timeout fetching PR")
+            raise typer.Exit(1)
+        except FileNotFoundError:
+            console.print(
+                "[red]Error:[/red] gh CLI not found. Install from https://cli.github.com"
+            )
+            raise typer.Exit(1)
+        except json.JSONDecodeError as e:
+            console.print(f"[red]Error parsing PR response:[/red] {e}")
+            raise typer.Exit(1)
+
+    elif from_file:
+        file_path = Path(from_file)
+        if not file_path.exists():
+            console.print(f"[red]File not found:[/red] {from_file}")
+            raise typer.Exit(1)
+
+        try:
+            content = file_path.read_text()
+            source = str(file_path)
+        except Exception as e:
+            console.print(f"[red]Error reading file:[/red] {e}")
+            raise typer.Exit(1)
+
+    # Import content to memory
+    if append_mode:
+        # Append to existing memory
+        if not store.exists(task_id):
+            console.print(f"[red]Task memory not found:[/red] {task_id}")
+            console.print("[dim]Create memory first or omit --append[/dim]")
+            raise typer.Exit(1)
+
+        store.append(task_id, f"\n---\n*Imported from {source}*\n\n{content}")
+        console.print(f"[green]✓[/green] Appended content from {source} to {task_id}")
+
+    else:
+        # Create or replace memory
+        if store.exists(task_id):
+            store.delete(task_id)
+
+        # Create memory with imported content
+        memory_path = store.create(task_id, task_title="")
+
+        # Append the imported content
+        store.append(task_id, f"\n---\n*Imported from {source}*\n\n{content}")
+        console.print(f"[green]✓[/green] Imported content from {source} to {task_id}")
+        console.print(f"[dim]Memory: {memory_path}[/dim]")
+
+
+@memory_app.command("export")
+def export_memory(
+    task_id: str = typer.Argument(..., help="Task ID (e.g., task-389)"),
+    output: Optional[str] = typer.Option(
+        None, "--output", "-o", help="Output file path (default: stdout)"
+    ),
+    format_type: str = typer.Option(
+        "md", "--format", "-f", help="Output format: md, json, yaml"
+    ),
+    include_metadata: bool = typer.Option(
+        True, "--metadata/--no-metadata", help="Include YAML frontmatter"
+    ),
+    archived: bool = typer.Option(False, "--archived", help="Export from archive"),
+    project_root: Optional[str] = typer.Option(
+        None, "--project-root", help="Project root directory"
+    ),
+):
+    """Export task memory to file.
+
+    Export memory content to various formats for sharing or archival.
+
+    Examples:
+        # Export to stdout
+        specify memory export task-389
+
+        # Export to file
+        specify memory export task-389 --output memory.md
+
+        # Export as JSON
+        specify memory export task-389 --format json
+
+        # Export without metadata
+        specify memory export task-389 --no-metadata
+    """
+    import yaml
+
+    workspace_root = Path(project_root) if project_root else Path.cwd()
+    store = TaskMemoryStore(base_path=workspace_root)
+
+    # Determine source path
+    if archived:
+        memory_path = store.archive_dir / f"{task_id}.md"
+        if not memory_path.exists():
+            console.print(f"[red]Archived memory not found:[/red] {task_id}")
+            raise typer.Exit(1)
+    else:
+        if not store.exists(task_id):
+            console.print(f"[red]Task memory not found:[/red] {task_id}")
+            raise typer.Exit(1)
+        memory_path = store.get_path(task_id)
+
+    # Read content
+    content = memory_path.read_text()
+
+    # Parse metadata if present
+    metadata = {}
+    body = content
+
+    if content.startswith("---"):
+        parts = content.split("---", 2)
+        if len(parts) >= 3:
+            try:
+                metadata = yaml.safe_load(parts[1]) or {}
+                body = parts[2].strip()
+            except yaml.YAMLError:
+                pass
+
+    # Convert datetime objects to strings for JSON serialization
+    def serialize_metadata(meta: dict) -> dict:
+        result = {}
+        for k, v in meta.items():
+            if hasattr(v, "isoformat"):
+                result[k] = v.isoformat()
+            else:
+                result[k] = v
+        return result
+
+    # Format output
+    if format_type == "json":
+        output_data = {
+            "task_id": task_id,
+            "metadata": serialize_metadata(metadata) if include_metadata else {},
+            "content": body,
+        }
+        formatted = json.dumps(output_data, indent=2)
+
+    elif format_type == "yaml":
+        output_data = {
+            "task_id": task_id,
+            "metadata": metadata if include_metadata else {},
+            "content": body,
+        }
+        formatted = yaml.dump(output_data, default_flow_style=False)
+
+    else:  # md
+        if include_metadata and metadata:
+            formatted = (
+                f"---\n{yaml.dump(metadata, default_flow_style=False)}---\n\n{body}"
+            )
+        else:
+            formatted = body
+
+    # Output
+    if output:
+        output_path = Path(output)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_text(formatted)
+        console.print(f"[green]✓[/green] Exported {task_id} to {output_path}")
+    else:
+        print(formatted)
+
+
+@memory_app.command("template")
+def template_cmd(
+    action: str = typer.Argument(..., help="Action: list, show, apply"),
+    template_name: Optional[str] = typer.Argument(
+        None, help="Template name (for show/apply)"
+    ),
+    task_id: Optional[str] = typer.Option(
+        None, "--task", "-t", help="Task ID to apply template to"
+    ),
+    project_root: Optional[str] = typer.Option(
+        None, "--project-root", help="Project root directory"
+    ),
+):
+    """Manage memory templates.
+
+    Templates provide task-type-specific structures for memory files.
+
+    Examples:
+        # List available templates
+        specify memory template list
+
+        # Show template content
+        specify memory template show feature
+
+        # Apply template to task
+        specify memory template apply feature --task task-389
+    """
+    workspace_root = Path(project_root) if project_root else Path.cwd()
+
+    # Template directory locations
+    builtin_templates = (
+        Path(__file__).parent.parent.parent.parent / "templates" / "memory"
+    )
+    project_templates = workspace_root / ".specify" / "templates" / "memory"
+
+    # Built-in template definitions
+    templates = {
+        "default": {
+            "description": "Standard task memory template",
+            "path": builtin_templates / "default.md",
+        },
+        "feature": {
+            "description": "Feature implementation with user stories and requirements",
+            "path": builtin_templates / "feature.md",
+        },
+        "bugfix": {
+            "description": "Bug fix with root cause analysis",
+            "path": builtin_templates / "bugfix.md",
+        },
+        "research": {
+            "description": "Research spike with findings and recommendations",
+            "path": builtin_templates / "research.md",
+        },
+    }
+
+    # Add project-specific templates
+    if project_templates.exists():
+        for tmpl_path in project_templates.glob("*.md"):
+            name = tmpl_path.stem
+            if name not in templates:
+                templates[name] = {
+                    "description": f"Project template: {name}",
+                    "path": tmpl_path,
+                }
+
+    if action == "list":
+        console.print("\n[cyan]Available Memory Templates[/cyan]\n")
+
+        table = Table()
+        table.add_column("Name", style="cyan")
+        table.add_column("Description")
+        table.add_column("Location")
+
+        for name, info in templates.items():
+            location = (
+                "builtin" if "templates/memory" in str(info["path"]) else "project"
+            )
+            exists = "[green]✓[/green]" if info["path"].exists() else "[red]×[/red]"
+            table.add_row(name, info["description"], f"{exists} {location}")
+
+        console.print(table)
+        console.print(f"\n[dim]Project templates: {project_templates}[/dim]")
+
+    elif action == "show":
+        if not template_name:
+            console.print("[red]Error:[/red] Specify template name")
+            raise typer.Exit(1)
+
+        if template_name not in templates:
+            console.print(f"[red]Unknown template:[/red] {template_name}")
+            console.print(f"[dim]Available: {', '.join(templates.keys())}[/dim]")
+            raise typer.Exit(1)
+
+        tmpl_path = templates[template_name]["path"]
+        if not tmpl_path.exists():
+            console.print(f"[red]Template file not found:[/red] {tmpl_path}")
+            raise typer.Exit(1)
+
+        content = tmpl_path.read_text()
+        console.print(f"\n[cyan]Template:[/cyan] {template_name}")
+        console.print(f"[dim]{templates[template_name]['description']}[/dim]\n")
+        md = Markdown(content)
+        console.print(md)
+
+    elif action == "apply":
+        if not template_name:
+            console.print("[red]Error:[/red] Specify template name")
+            raise typer.Exit(1)
+
+        if not task_id:
+            console.print("[red]Error:[/red] Specify --task")
+            raise typer.Exit(1)
+
+        if template_name not in templates:
+            console.print(f"[red]Unknown template:[/red] {template_name}")
+            raise typer.Exit(1)
+
+        tmpl_path = templates[template_name]["path"]
+        if not tmpl_path.exists():
+            console.print(f"[red]Template file not found:[/red] {tmpl_path}")
+            raise typer.Exit(1)
+
+        store = TaskMemoryStore(base_path=workspace_root)
+
+        # Check if memory exists
+        if store.exists(task_id):
+            if not typer.confirm(f"Memory exists for {task_id}. Overwrite?"):
+                console.print("[dim]Cancelled[/dim]")
+                raise typer.Exit(0)
+            store.delete(task_id)
+
+        # Read template and apply
+        template_content = tmpl_path.read_text()
+
+        # Create memory with template
+        now = datetime.now().strftime("%Y-%m-%d %H:%M")
+        content = template_content.format(
+            task_id=task_id,
+            task_title="",
+            created_date=now,
+            updated_date=now,
+        )
+
+        # Write directly to memory path
+        memory_path = store.get_path(task_id)
+        memory_path.parent.mkdir(parents=True, exist_ok=True)
+        memory_path.write_text(content)
+
+        console.print(
+            f"[green]✓[/green] Applied template '{template_name}' to {task_id}"
+        )
+        console.print(f"[dim]Memory: {memory_path}[/dim]")
+
+    else:
+        console.print(f"[red]Unknown action:[/red] {action}")
+        console.print("[dim]Available: list, show, apply[/dim]")
+        raise typer.Exit(1)
+
+
 # Export for main CLI integration
 __all__ = ["memory_app"]
