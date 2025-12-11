@@ -126,7 +126,7 @@ if $STAGED || $UNSTAGED || $UNTRACKED; then
 fi
 
 info "Committing: $MESSAGE"
-git commit -m "$MESSAGE"
+git commit -s -m "$MESSAGE"
 
 info "Pushing to origin"
 git push -u origin "$BRANCH"
