@@ -75,10 +75,19 @@ def mock_git_repo(tmp_path: Path) -> Path:
     )
     mock_specify.chmod(0o755)
 
-    # Install hook
+    # Install hook wrapper that sets up PATH for mock specify
+    # The hook needs PATH set at the script level, not from git's env
     git_hooks_dir = repo_root / ".git" / "hooks"
     post_commit_hook = git_hooks_dir / "post-commit"
-    post_commit_hook.symlink_to("../../scripts/hooks/post-commit-backlog-events.sh")
+    post_commit_hook.write_text(
+        dedent(f"""\
+        #!/bin/bash
+        # Wrapper hook that sets up PATH for mock specify
+        export PATH="{bin_dir}:$PATH"
+        exec "{hook_script_dst}"
+    """)
+    )
+    post_commit_hook.chmod(0o755)
 
     # Initial commit (empty)
     (repo_root / "README.md").write_text("# Test Repo\n")
@@ -118,30 +127,29 @@ def create_task_file(
         for num, checked in acs
     )
 
-    task_content = dedent(f"""\
-        ---
-        id: {task_id}
-        title: Test Task {task_id}
-        status: {status}
-        assignee:
-          - '@test'
-        created_date: '2025-12-11 00:00'
-        updated_date: '2025-12-11 00:00'
-        labels:
-          - test
-        dependencies: []
-        priority: medium
-        ---
+    task_content = f"""---
+id: {task_id}
+title: Test Task {task_id}
+status: {status}
+assignee:
+  - '@test'
+created_date: '2025-12-11 00:00'
+updated_date: '2025-12-11 00:00'
+labels:
+  - test
+dependencies: []
+priority: medium
+---
 
-        ## Description
+## Description
 
-        Test task for integration testing.
+Test task for integration testing.
 
-        ## Acceptance Criteria
-        <!-- AC:BEGIN -->
-        {ac_lines}
-        <!-- AC:END -->
-    """)
+## Acceptance Criteria
+<!-- AC:BEGIN -->
+{ac_lines}
+<!-- AC:END -->
+"""
 
     task_file = repo_root / "backlog" / "tasks" / f"{task_id} - Test-Task.md"
     task_file.write_text(task_content)
