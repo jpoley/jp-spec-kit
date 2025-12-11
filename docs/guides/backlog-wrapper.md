@@ -280,7 +280,7 @@ Hooks system executes matching hooks
 
 The wrapper parses command-line arguments to detect:
 
-1. **Task create**: Extracts task ID from output regex `Created task task-(\d+)`
+1. **Task create**: Extracts task ID from output regex `Created task task-([0-9]+)`
 2. **Status changes**: Looks for `-s` or `--status` flags
 3. **AC operations**: Looks for `--check-ac` or `--uncheck-ac` flags
 
