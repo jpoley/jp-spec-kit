@@ -406,7 +406,7 @@ def test_hook_handles_multiple_tasks_in_one_commit(mock_git_repo: Path) -> None:
     )
 
 
-def test_hook_parses_task_id_with_dashes(mock_git_repo: Path) -> None:
+def test_hook_parses_task_id_with_dots(mock_git_repo: Path) -> None:
     """Hook should correctly parse task IDs with dots like task-204.01."""
     # Create task with dotted ID
     task_file = create_task_file(mock_git_repo, "task-204.01", status="To Do")
