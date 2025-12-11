@@ -1,6 +1,6 @@
 ---
 name: "flow-security_web"
-description: "flowspec security_web workflow command"
+description: "flow security_web workflow command"
 target: "chat"
 tools:
   - "Read"

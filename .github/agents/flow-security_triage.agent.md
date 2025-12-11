@@ -1,6 +1,6 @@
 ---
 name: "flow-security_triage"
-description: "flowspec security_triage workflow command"
+description: "flow security_triage workflow command"
 target: "chat"
 tools:
   - "Read"
