@@ -1,6 +1,6 @@
-# Backlog.md Command Reference for Specflow
+# Backlog.md Command Reference for Flowspec
 
-Complete reference for all Backlog.md commands available in Specflow projects.
+Complete reference for all Backlog.md commands available in Flowspec projects.
 
 ## Table of Contents
 

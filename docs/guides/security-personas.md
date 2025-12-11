@@ -2,7 +2,7 @@
 
 ## Overview
 
-Specflow includes four specialized security expert personas that provide on-demand expertise for vulnerability analysis, fix validation, dynamic testing, and exploit research. These personas follow the progressive disclosure pattern - they are only loaded when needed, minimizing token usage while providing deep specialized knowledge.
+Flowspec includes four specialized security expert personas that provide on-demand expertise for vulnerability analysis, fix validation, dynamic testing, and exploit research. These personas follow the progressive disclosure pattern - they are only loaded when needed, minimizing token usage while providing deep specialized knowledge.
 
 ## Available Personas
 
@@ -646,4 +646,4 @@ gh pr create
 
 **Version:** 1.0.0
 **Last Updated:** 2025-12-05
-**Maintained By:** Specflow Security Team
+**Maintained By:** Flowspec Security Team
