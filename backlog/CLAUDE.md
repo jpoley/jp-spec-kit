@@ -101,4 +101,4 @@ Tasks with labels `design`, `research`, `spike`, `architecture`:
 
 ## Active Task Context
 
-@import ../memory/task-383.md
+@import ../memory/task-42.md
