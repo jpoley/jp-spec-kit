@@ -265,7 +265,7 @@ flowspec/
 ├── scripts/bash/           # Automation scripts
 ├── backlog/                # Task management
 ├── .claude/commands/       # Slash command implementations
-└── .claude/skills/         # Model-invoked skills (5 core SDD skills)
+└── .claude/skills/         # Model-invoked skills (17 skills: 5 core workflow + 12 security)
 ```
 
 @import memory/code-standards.md

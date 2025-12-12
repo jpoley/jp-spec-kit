@@ -1,11 +1,11 @@
 ---
 id: task-465
 title: 'claude-improves: Restructure standalone skill files to directory format'
-status: In Progress
+status: Done
 assignee:
   - '@claude-agent-2'
 created_date: '2025-12-12 01:15'
-updated_date: '2025-12-12 01:41'
+updated_date: '2025-12-12 01:43'
 labels:
   - claude-improves
   - source-repo
@@ -37,7 +37,7 @@ Expected format: skill-name/SKILL.md for consistency with other skills.
 - [x] #1 Each standalone .md file converted to skill-name/SKILL.md directory structure
 - [x] #2 All 8 skills properly restructured
 - [x] #3 Skills remain functional after restructure
-- [ ] #4 Update CLAUDE.md to document all skills
+- [x] #4 Update CLAUDE.md to document all skills
 <!-- AC:END -->
 
 ## Implementation Notes
