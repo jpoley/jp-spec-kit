@@ -269,6 +269,8 @@ jobs:
           PYTHON
 
       - name: Run unit tests
+        env:
+          GITHUB_FLOWSPEC: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "=== Running unit tests ==="
           uv run pytest tests/ -v --cov=src/specify_cli --cov-report=term-missing -k "not integration and not git_sync"

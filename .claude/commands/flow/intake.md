@@ -1,0 +1,1 @@
+../../../templates/commands/flow/intake.md
