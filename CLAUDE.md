@@ -44,6 +44,8 @@ backlog task edit 42 -s Done     # Complete task
 /flow:generate-prp  # Generate PRP context bundle from task artifacts
 
 # Utility Commands (stateless, run anytime)
+/flow:map-codebase  # Generate bounded directory tree listings for codebase areas
+
 /dev:debug          # Debugging assistance
 /dev:refactor       # Refactoring guidance
 /dev:cleanup        # Prune merged branches
