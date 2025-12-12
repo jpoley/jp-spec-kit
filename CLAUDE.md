@@ -268,6 +268,16 @@ flowspec/
 └── .claude/skills/         # Model-invoked skills (17 skills: 5 core workflow + 12 security)
 ```
 
+### Template Files in memory/
+
+The `memory/constitution.md` file is a **template** for project-specific constitutions. It contains placeholder tokens like `[PROJECT_NAME]`, `[PRINCIPLE_1_NAME]`, etc. that are intentionally left unfilled.
+
+**Purpose**: When users run `specify init` in a new project, they can customize this template with their project-specific values.
+
+**Placeholders are intentional** and should NOT be replaced with "Flowspec" values. The flowspec repository itself does not need a filled constitution - it provides the template for other projects.
+
+See `memory/README.md` for details on all modular components in the memory directory.
+
 @import memory/code-standards.md
 
 @import memory/test-quality-standards.md
