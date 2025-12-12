@@ -41,6 +41,7 @@ backlog task edit 42 -s Done     # Complete task
 /flow:init      # Initialize constitution (greenfield/brownfield)
 /flow:reset     # Re-run workflow configuration prompts
 /flow:intake    # Process INITIAL docs to create backlog tasks with context
+/flow:generate-prp  # Generate PRP context bundle from task artifacts
 
 # Utility Commands (stateless, run anytime)
 /dev:debug          # Debugging assistance
