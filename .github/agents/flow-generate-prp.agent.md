@@ -12,12 +12,6 @@ tools:
   - "mcp__backlog__*"
   - "mcp__serena__*"
   - "Skill"
-
-handoffs:
-  - label: "Implement Feature"
-    agent: "flow-implement"
-    prompt: "The PRP has been generated. Use this context to implement the feature."
-    send: false
 ---
 ## User Input
 

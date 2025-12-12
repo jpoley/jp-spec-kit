@@ -12,12 +12,6 @@ tools:
   - "mcp__backlog__*"
   - "mcp__serena__*"
   - "Skill"
-
-handoffs:
-  - label: "Assess Feature"
-    agent: "flow-assess"
-    prompt: "The feature intake is complete. Assess whether this feature requires full SDD workflow."
-    send: false
 ---
 ## User Input
 
