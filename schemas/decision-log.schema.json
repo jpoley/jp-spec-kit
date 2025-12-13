@@ -1,0 +1,235 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://flowspec.dev/schemas/decision-log.schema.json",
+  "title": "Decision Log Entry",
+  "description": "Schema for tracking architectural, technical, and process decisions in spec-driven development projects",
+  "type": "object",
+  "required": ["timestamp", "decision_id", "category", "decision", "rationale", "outcome"],
+  "properties": {
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when the decision was made"
+    },
+    "decision_id": {
+      "type": "string",
+      "pattern": "^[A-Z]{0,4}[0-9]{3,6}$",
+      "description": "Unique identifier for the decision (e.g., '001', 'ARCH001', 'SEC042')"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "analysis",
+        "design",
+        "architecture",
+        "technology",
+        "integration",
+        "migration",
+        "security",
+        "performance",
+        "process",
+        "organizational",
+        "recommendations",
+        "completion",
+        "rollback"
+      ],
+      "description": "Classification of the decision type"
+    },
+    "decision": {
+      "type": "string",
+      "minLength": 5,
+      "maxLength": 200,
+      "description": "Concise statement of what was decided"
+    },
+    "rationale": {
+      "type": "string",
+      "minLength": 10,
+      "description": "Why this decision was made - context, constraints, trade-offs considered"
+    },
+    "outcome": {
+      "type": "string",
+      "description": "Expected or actual result of the decision"
+    },
+    "reversibility": {
+      "type": "object",
+      "description": "Assessment of how easily this decision can be changed",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["one-way-door", "two-way-door", "partially-reversible"],
+          "description": "One-way-door: difficult/costly to reverse. Two-way-door: easily reversible. Partially-reversible: some aspects can be undone."
+        },
+        "lock_in_factors": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Specific factors that create lock-in (e.g., 'vendor contract', 'data migration', 'API exposure', 'team training')"
+        },
+        "reversal_cost": {
+          "type": "string",
+          "enum": ["trivial", "low", "medium", "high", "prohibitive"],
+          "description": "Estimated effort/cost to reverse this decision"
+        },
+        "reversal_window": {
+          "type": "string",
+          "description": "Time period during which reversal is still feasible (e.g., 'before launch', '30 days', 'indefinite')"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Additional context about reversibility implications"
+        }
+      }
+    },
+    "implications": {
+      "type": "object",
+      "description": "Downstream effects and dependencies of this decision",
+      "properties": {
+        "affected_components": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Systems, modules, or components impacted by this decision"
+        },
+        "dependencies_created": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "New dependencies introduced by this decision"
+        },
+        "constraints_imposed": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Limitations or constraints this decision places on future choices"
+        },
+        "follow_up_decisions": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Subsequent decisions that must be made as a result"
+        }
+      }
+    },
+    "alternatives_considered": {
+      "type": "array",
+      "description": "Other options that were evaluated before this decision",
+      "items": {
+        "type": "object",
+        "required": ["option", "rejected_reason"],
+        "properties": {
+          "option": {
+            "type": "string",
+            "description": "Brief description of the alternative"
+          },
+          "rejected_reason": {
+            "type": "string",
+            "description": "Why this alternative was not chosen"
+          }
+        }
+      }
+    },
+    "supporting_material": {
+      "type": "object",
+      "description": "External references, documentation, and evidence supporting this decision",
+      "properties": {
+        "links": {
+          "type": "array",
+          "description": "URLs to external resources",
+          "items": {
+            "type": "object",
+            "required": ["url", "title"],
+            "properties": {
+              "url": {
+                "type": "string",
+                "format": "uri",
+                "description": "URL to the resource"
+              },
+              "title": {
+                "type": "string",
+                "description": "Human-readable title for the link"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["documentation", "blog", "paper", "benchmark", "discussion", "issue", "pr", "adr", "other"],
+                "description": "Classification of the resource type"
+              }
+            }
+          }
+        },
+        "internal_refs": {
+          "type": "array",
+          "description": "References to internal project files or documents",
+          "items": {
+            "type": "string"
+          }
+        },
+        "related_decisions": {
+          "type": "array",
+          "description": "IDs of related decisions in this log",
+          "items": {
+            "type": "string"
+          }
+        },
+        "attachments": {
+          "type": "array",
+          "description": "Paths to attached files (diagrams, benchmarks, etc.)",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "stakeholders": {
+      "type": "array",
+      "description": "People or roles involved in or affected by this decision",
+      "items": { "type": "string" }
+    },
+    "status": {
+      "type": "string",
+      "enum": ["proposed", "accepted", "implemented", "deprecated", "superseded"],
+      "default": "accepted",
+      "description": "Current status of the decision"
+    },
+    "superseded_by": {
+      "type": "string",
+      "description": "Decision ID that replaces this decision (if status is 'superseded')"
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Freeform tags for filtering and grouping decisions"
+    }
+  },
+  "examples": [
+    {
+      "timestamp": "2024-12-13T14:30:00Z",
+      "decision_id": "ARCH001",
+      "category": "architecture",
+      "decision": "Use PostgreSQL as primary database",
+      "rationale": "Need ACID compliance, JSON support, and mature ecosystem. Team has existing expertise.",
+      "outcome": "All application data will be stored in PostgreSQL with JSONB columns for flexible schemas",
+      "reversibility": {
+        "type": "one-way-door",
+        "lock_in_factors": ["schema design", "query patterns", "ORM integration", "data migration effort"],
+        "reversal_cost": "high",
+        "reversal_window": "before production data",
+        "notes": "Switching databases after launch would require significant migration effort"
+      },
+      "implications": {
+        "affected_components": ["api-server", "worker-service", "analytics"],
+        "dependencies_created": ["pg driver", "migration tooling"],
+        "constraints_imposed": ["must handle connection pooling", "need backup strategy"],
+        "follow_up_decisions": ["connection pool sizing", "replication strategy"]
+      },
+      "alternatives_considered": [
+        {"option": "MySQL", "rejected_reason": "Weaker JSON support, less familiar to team"},
+        {"option": "MongoDB", "rejected_reason": "ACID requirements not met for financial data"}
+      ],
+      "supporting_material": {
+        "links": [
+          {"url": "https://www.postgresql.org/docs/current/datatype-json.html", "title": "PostgreSQL JSON Types", "type": "documentation"}
+        ],
+        "internal_refs": ["specs/data-model.md", "adrs/ADR-003-database.md"],
+        "related_decisions": ["002", "005"]
+      },
+      "stakeholders": ["backend-team", "dba", "security"],
+      "status": "implemented",
+      "tags": ["database", "infrastructure", "critical-path"]
+    }
+  ]
+}
