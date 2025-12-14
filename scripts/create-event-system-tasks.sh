@@ -348,7 +348,7 @@ backlog task create "Implement Container Resource Monitoring" \
   -d "Monitor container resource usage and emit events on limit hits." \
   --ac "Monitoring script monitor-containers.sh" \
   --ac "Runs in background checks every 30s" \
-  --ac "Emits container.resource_limit_hit when over 90 percent" \
+  --ac "Emits container.resource_limit_hit when >90%" \
   --ac "Logs resource usage to metrics file" \
   --ac "Graceful shutdown on persistent limit hits" \
   -l "agent-event-system,phase-5,infrastructure,observability,container" \
