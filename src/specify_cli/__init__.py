@@ -3255,12 +3255,12 @@ def init(
                     if no_hooks:
                         tracker.complete(
                             "hooks",
-                            f"created {len(created_files)} hook files (all disabled via --no-hooks)",
+                            f"created {len(created_files)} hook files (all disabled, use --no-hooks)",
                         )
                     else:
                         tracker.complete(
                             "hooks",
-                            f"created {len(created_files)} hook files (run-tests, lint-code, quality-gate enabled)",
+                            f"created {len(created_files)} hook files (3 enabled by default)",
                         )
                 else:
                     tracker.complete("hooks", "hooks already configured")
