@@ -49,8 +49,9 @@ class ShimResult:
         stderr: Stderr from the backlog CLI.
         task_id: Task ID (extracted from output for create operations, or passed in).
         event_emitted: Whether an event was successfully emitted.
-        event_type: Type of event that was emitted (if any).
+        events_emitted: List of event types that were emitted (e.g., ['task.completed', 'task.ac_checked']).
         error: Error message if operation failed.
+        metadata: Additional operation metadata (e.g., status, labels, priority).
     """
 
     success: bool
@@ -59,7 +60,7 @@ class ShimResult:
     stderr: str
     task_id: str | None = None
     event_emitted: bool = False
-    event_type: str | None = None
+    events_emitted: list[str] = field(default_factory=list)
     error: str | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
 
@@ -263,7 +264,7 @@ def task_create(
         stderr=stderr,
         task_id=task_id,
         event_emitted=event_emitted,
-        event_type="task.created" if event_emitted else None,
+        events_emitted=["task.created"] if event_emitted else [],
         metadata={
             "title": title,
             "priority": priority,
@@ -278,7 +279,7 @@ def task_edit(
     title: str | None = None,
     priority: str | None = None,
     labels: list[str] | None = None,
-    assignee: list[str] | None = None,
+    assignees: list[str] | None = None,
     check_ac: list[int] | None = None,
     uncheck_ac: list[int] | None = None,
     plan: str | None = None,
@@ -301,7 +302,7 @@ def task_edit(
         title: New title.
         priority: New priority.
         labels: New labels (replaces existing).
-        assignee: New assignees (replaces existing).
+        assignees: New assignees (replaces existing).
         check_ac: Acceptance criteria indices to check (1-based).
         uncheck_ac: Acceptance criteria indices to uncheck (1-based).
         plan: Implementation plan content.
@@ -335,9 +336,9 @@ def task_edit(
     if labels:
         for label in labels:
             args.extend(["-l", label])
-    if assignee:
-        for a in assignee:
-            args.extend(["-a", a])
+    if assignees:
+        for assignee_name in assignees:
+            args.extend(["-a", assignee_name])
     if check_ac:
         for ac_num in check_ac:
             args.extend(["--check-ac", str(ac_num)])
@@ -363,45 +364,37 @@ def task_edit(
         )
 
     # Determine which event(s) to emit
-    event_emitted = False
-    event_type = None
+    events_emitted: list[str] = []
 
     # Status change events
     if status:
         if status.lower() == "done":
-            event_emitted = _emit_event(
+            if _emit_event(
                 event_type="task.completed",
                 task_id=task_id,
                 workspace_root=workspace_root,
                 status_to="Done",
-            )
-            event_type = "task.completed"
+            ):
+                events_emitted.append("task.completed")
         else:
-            event_emitted = _emit_event(
+            if _emit_event(
                 event_type="task.status_changed",
                 task_id=task_id,
                 workspace_root=workspace_root,
                 status_to=status,
-            )
-            event_type = "task.status_changed"
+            ):
+                events_emitted.append("task.status_changed")
 
     # AC check/uncheck events
     if check_ac or uncheck_ac:
-        ac_event_emitted = _emit_event(
+        if _emit_event(
             event_type="task.ac_checked",
             task_id=task_id,
             workspace_root=workspace_root,
             checked=check_ac or [],
             unchecked=uncheck_ac or [],
-        )
-        if ac_event_emitted:
-            event_emitted = True
-            # If we already emitted a status event, note that we emitted multiple
-            event_type = (
-                "task.ac_checked"
-                if event_type is None
-                else f"{event_type},task.ac_checked"
-            )
+        ):
+            events_emitted.append("task.ac_checked")
 
     return ShimResult(
         success=True,
@@ -409,8 +402,8 @@ def task_edit(
         output=stdout,
         stderr=stderr,
         task_id=task_id,
-        event_emitted=event_emitted,
-        event_type=event_type,
+        event_emitted=len(events_emitted) > 0,
+        events_emitted=events_emitted,
         metadata={
             "status": status,
             "check_ac": check_ac,
@@ -579,7 +572,7 @@ def task_archive(
         stderr=stderr,
         task_id=task_id,
         event_emitted=event_emitted,
-        event_type="task.archived" if event_emitted else None,
+        events_emitted=["task.archived"] if event_emitted else [],
     )
 
 
@@ -644,28 +637,27 @@ def complete_task(
 
 def start_task(
     task_id: str,
-    assignee: str | None = None,
+    assignees: list[str] | None = None,
     workspace_root: Path | None = None,
 ) -> ShimResult:
     """Start a task by setting status to In Progress (convenience wrapper).
 
     Args:
         task_id: Task ID to start.
-        assignee: Assignee to add.
+        assignees: List of assignees to add.
         workspace_root: Project root directory.
 
     Returns:
         ShimResult with operation details.
 
     Example:
-        >>> result = start_task("task-123", assignee="@backend-engineer")
-        >>> # Equivalent to: task_edit("task-123", status="In Progress", assignee=["@backend-engineer"])
+        >>> result = start_task("task-123", assignees=["@backend-engineer"])
+        >>> # Equivalent to: task_edit("task-123", status="In Progress", assignees=["@backend-engineer"])
     """
-    assignees = [assignee] if assignee else None
     return task_edit(
         task_id=task_id,
         status="In Progress",
-        assignee=assignees,
+        assignees=assignees,
         workspace_root=workspace_root,
     )
 

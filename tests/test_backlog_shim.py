@@ -56,7 +56,7 @@ class TestShimResult:
         assert result.stderr == ""
         assert result.task_id is None
         assert result.event_emitted is False
-        assert result.event_type is None
+        assert result.events_emitted == []
         assert result.error is None
         assert result.metadata == {}
 
@@ -69,11 +69,11 @@ class TestShimResult:
             stderr="",
             task_id="task-123",
             event_emitted=True,
-            event_type="task.created",
+            events_emitted=["task.created"],
         )
         assert result.task_id == "task-123"
         assert result.event_emitted is True
-        assert result.event_type == "task.created"
+        assert result.events_emitted == ["task.created"]
 
 
 class TestExtractTaskId:
@@ -191,7 +191,7 @@ class TestTaskCreate:
         assert result.success is True
         assert result.task_id == "task-100"
         assert result.event_emitted is True
-        assert result.event_type == "task.created"
+        assert result.events_emitted == ["task.created"]
 
         # Verify backlog command called correctly
         call_args = mock_run.call_args[0][0]
@@ -277,7 +277,7 @@ class TestTaskEdit:
 
         assert result.success is True
         assert result.event_emitted is True
-        assert result.event_type == "task.completed"
+        assert result.events_emitted == ["task.completed"]
 
         # Verify event type passed to emit
         call_args = mock_emit.call_args
@@ -300,7 +300,7 @@ class TestTaskEdit:
 
         assert result.success is True
         assert result.event_emitted is True
-        assert result.event_type == "task.status_changed"
+        assert result.events_emitted == ["task.status_changed"]
 
     @patch("specify_cli.backlog.shim._emit_event")
     @patch("specify_cli.backlog.shim._run_backlog_command")
@@ -319,7 +319,7 @@ class TestTaskEdit:
 
         assert result.success is True
         assert result.event_emitted is True
-        assert result.event_type == "task.ac_checked"
+        assert result.events_emitted == ["task.ac_checked"]
 
         # Verify command includes check-ac flags
         call_args = mock_run.call_args[0][0]
@@ -342,7 +342,7 @@ class TestTaskEdit:
 
         assert result.success is True
         assert result.event_emitted is True
-        assert "task.ac_checked" in result.event_type
+        assert "task.ac_checked" in result.events_emitted
 
     @patch("specify_cli.backlog.shim._emit_event")
     @patch("specify_cli.backlog.shim._run_backlog_command")
@@ -363,8 +363,8 @@ class TestTaskEdit:
         assert result.success is True
         assert result.event_emitted is True
         # Should contain both event types
-        assert "task.completed" in result.event_type
-        assert "task.ac_checked" in result.event_type
+        assert "task.completed" in result.events_emitted
+        assert "task.ac_checked" in result.events_emitted
 
     @patch("specify_cli.backlog.shim._run_backlog_command")
     def test_edit_failure(self, mock_run, workspace_root: Path):
@@ -461,7 +461,7 @@ class TestTaskArchive:
 
         assert result.success is True
         assert result.event_emitted is True
-        assert result.event_type == "task.archived"
+        assert result.events_emitted == ["task.archived"]
 
 
 class TestConvenienceWrappers:
@@ -477,7 +477,7 @@ class TestConvenienceWrappers:
         result = complete_task("task-123", workspace_root=workspace_root)
 
         assert result.success is True
-        assert result.event_type == "task.completed"
+        assert result.events_emitted == ["task.completed"]
 
         # Verify status was set to Done
         call_args = mock_run.call_args[0][0]
@@ -493,12 +493,12 @@ class TestConvenienceWrappers:
 
         result = start_task(
             "task-123",
-            assignee="@backend-engineer",
+            assignees=["@backend-engineer"],
             workspace_root=workspace_root,
         )
 
         assert result.success is True
-        assert result.event_type == "task.status_changed"
+        assert result.events_emitted == ["task.status_changed"]
 
         # Verify status was set to In Progress
         call_args = mock_run.call_args[0][0]
@@ -521,7 +521,7 @@ class TestConvenienceWrappers:
         )
 
         assert result.success is True
-        assert result.event_type == "task.ac_checked"
+        assert result.events_emitted == ["task.ac_checked"]
 
         # Verify check-ac flags
         call_args = mock_run.call_args[0][0]
