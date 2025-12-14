@@ -1,0 +1,196 @@
+name: Backlog Archive
+
+on:
+  # Manual trigger with options
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Archive mode'
+        required: true
+        default: 'done'
+        type: choice
+        options:
+          - done      # Archive Done tasks only (default)
+          - all       # Archive ALL tasks regardless of status
+          - date      # Archive Done tasks by date
+      done_by_date:
+        description: 'Date filter (YYYY-MM-DD) - only used when mode=date'
+        required: false
+        type: string
+      dry_run:
+        description: 'Dry run (preview only, no changes)'
+        required: false
+        default: false
+        type: boolean
+
+  # Weekly scheduled run (Sundays at midnight UTC)
+  schedule:
+    - cron: '0 0 * * 0'
+
+  # Commit keyword trigger
+  push:
+    branches: [main]
+
+jobs:
+  archive-backlog:
+    runs-on: ubuntu-latest
+
+    # For push events, only run if commit message contains archive-backlog keyword
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'schedule' ||
+      (github.event_name == 'push' && (
+        contains(github.event.head_commit.message, 'archive-backlog') ||
+        contains(github.event.head_commit.message, 'Archive Backlog') ||
+        contains(github.event.head_commit.message, 'ARCHIVE-BACKLOG')
+      ))
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install backlog.md CLI
+        run: npm install -g backlog.md
+
+      - name: Verify backlog CLI installation
+        run: backlog --version
+
+      - name: Determine archive parameters
+        id: params
+        run: |
+          # Default values
+          MODE="done"
+          DRY_RUN="false"
+          DONE_BY_DATE=""
+          TRIGGER_SOURCE=""
+
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            MODE="${{ inputs.mode }}"
+            DRY_RUN="${{ inputs.dry_run }}"
+            DONE_BY_DATE="${{ inputs.done_by_date }}"
+            TRIGGER_SOURCE="manual dispatch by ${{ github.actor }}"
+          elif [ "${{ github.event_name }}" == "schedule" ]; then
+            MODE="done"
+            DRY_RUN="false"
+            TRIGGER_SOURCE="scheduled (weekly Sunday)"
+          elif [ "${{ github.event_name }}" == "push" ]; then
+            MODE="done"
+            DRY_RUN="false"
+            TRIGGER_SOURCE="commit keyword (${{ github.sha }})"
+          fi
+
+          echo "mode=$MODE" >> $GITHUB_OUTPUT
+          echo "dry_run=$DRY_RUN" >> $GITHUB_OUTPUT
+          echo "done_by_date=$DONE_BY_DATE" >> $GITHUB_OUTPUT
+          echo "trigger_source=$TRIGGER_SOURCE" >> $GITHUB_OUTPUT
+
+          # Log the determined parameters
+          echo "Archive Mode: $MODE"
+          echo "Dry Run: $DRY_RUN"
+          echo "Done By Date: $DONE_BY_DATE"
+          echo "Trigger Source: $TRIGGER_SOURCE"
+
+      - name: Run archive-tasks script
+        id: archive
+        env:
+          TRIGGER_SOURCE: ${{ steps.params.outputs.trigger_source }}
+        run: |
+          chmod +x scripts/bash/archive-tasks.sh
+
+          # Build command arguments
+          ARGS=""
+
+          if [ "${{ steps.params.outputs.mode }}" == "all" ]; then
+            ARGS="--all"
+          elif [ "${{ steps.params.outputs.mode }}" == "date" ] && [ -n "${{ steps.params.outputs.done_by_date }}" ]; then
+            ARGS="--done-by ${{ steps.params.outputs.done_by_date }}"
+          fi
+          # mode=done uses default (no args needed)
+
+          if [ "${{ steps.params.outputs.dry_run }}" == "true" ]; then
+            ARGS="$ARGS --dry-run"
+          fi
+
+          echo "Running: ./scripts/bash/archive-tasks.sh $ARGS"
+
+          # Run the archive script and capture exit code
+          set +e
+          ./scripts/bash/archive-tasks.sh $ARGS 2>&1 | tee archive-output.txt
+          exit_code=${PIPESTATUS[0]}
+          set -e
+
+          # Handle exit codes:
+          # 0 = success (tasks archived)
+          # 2 = no tasks to archive (still success for workflow)
+          # 1, 3 = actual errors
+          if [ "$exit_code" -eq 0 ]; then
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "message=Tasks archived successfully" >> $GITHUB_OUTPUT
+          elif [ "$exit_code" -eq 2 ]; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "message=No tasks to archive" >> $GITHUB_OUTPUT
+          elif [ "$exit_code" -eq 3 ]; then
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "status=partial" >> $GITHUB_OUTPUT
+            echo "message=Some tasks failed to archive" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "status=error" >> $GITHUB_OUTPUT
+            echo "message=Archive failed with exit code $exit_code" >> $GITHUB_OUTPUT
+            exit $exit_code
+          fi
+
+      - name: Commit and push changes
+        if: steps.archive.outputs.has_changes == 'true' && steps.params.outputs.dry_run != 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Check if there are changes to commit
+          if git diff --quiet && git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git add -A
+            git commit -m "chore(backlog): archive tasks [${{ steps.params.outputs.trigger_source }}]
+
+          Triggered by: ${{ steps.params.outputs.trigger_source }}
+          Mode: ${{ steps.params.outputs.mode }}
+          Status: ${{ steps.archive.outputs.status }}"
+            git push origin main
+          fi
+
+      - name: Generate job summary
+        run: |
+          {
+            echo "## Backlog Archive Results"
+            echo ""
+            echo "| Parameter | Value |"
+            echo "|-----------|-------|"
+            echo "| Trigger | ${{ steps.params.outputs.trigger_source }} |"
+            echo "| Mode | ${{ steps.params.outputs.mode }} |"
+            echo "| Dry Run | ${{ steps.params.outputs.dry_run }} |"
+            if [ -n "${{ steps.params.outputs.done_by_date }}" ]; then
+              echo "| Done By Date | ${{ steps.params.outputs.done_by_date }} |"
+            fi
+            echo "| Status | ${{ steps.archive.outputs.status }} |"
+            echo "| Has Changes | ${{ steps.archive.outputs.has_changes }} |"
+            echo ""
+            echo "### Archive Output"
+            echo ""
+            echo '```'
+            cat archive-output.txt || echo "No output captured"
+            echo '```'
+          } >> $GITHUB_STEP_SUMMARY
