@@ -70,7 +70,7 @@ This command requires:
 ```bash
 # Check if triage results exist
 if [ ! -f "docs/security/triage-results.json" ]; then
-  echo "❌ Error: Triage results not found at docs/security/triage-results.json"
+  echo "[X] Error: Triage results not found at docs/security/triage-results.json"
   echo "Run /flow:security triage first to generate triage results."
   exit 1
 fi
@@ -274,7 +274,7 @@ git apply docs/security/patches/{finding.id}.patch
 if [ $? -eq 0 ]; then
   echo "✅ Applied: {finding.id}.patch"
 else
-  echo "❌ Failed: {finding.id}.patch (conflicts or errors)"
+  echo "[X] Failed: {finding.id}.patch (conflicts or errors)"
 fi
 ```
 
@@ -440,7 +440,7 @@ Next Steps:
 ### No Triage Results
 
 ```
-❌ Error: Triage results not found
+[X] Error: Triage results not found
 
 Required file: docs/security/triage-results.json
 
@@ -464,7 +464,7 @@ Triage results: docs/security/triage-results.json
 ### Patch Generation Failed
 
 ```
-❌ Error: Failed to generate patch for {finding.id}
+[X] Error: Failed to generate patch for {finding.id}
 
 Finding details:
 - File: {file}

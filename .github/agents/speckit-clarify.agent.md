@@ -140,14 +140,14 @@ Execution steps:
     - For the first integrated answer in this session:
        * Ensure a `## Clarifications` section exists (create it just after the highest-level contextual/overview section per the spec template if missing).
        * Under it, create (if not present) a `### Session YYYY-MM-DD` subheading for today.
-    - Append a bullet line immediately after acceptance: `- Q: <question> → A: <final answer>`.
+    - Append a bullet line immediately after acceptance: `- Q: <question> -> A: <final answer>`.
     - Then immediately apply the clarification to the most appropriate section(s):
-       * Functional ambiguity → Update or add a bullet in Functional Requirements.
-       * User interaction / actor distinction → Update User Stories or Actors subsection (if present) with clarified role, constraint, or scenario.
-       * Data shape / entities → Update Data Model (add fields, types, relationships) preserving ordering; note added constraints succinctly.
-       * Non-functional constraint → Add/modify measurable criteria in Non-Functional / Quality Attributes section (convert vague adjective to metric or explicit target).
-       * Edge case / negative flow → Add a new bullet under Edge Cases / Error Handling (or create such subsection if template provides placeholder for it).
-       * Terminology conflict → Normalize term across spec; retain original only if necessary by adding `(formerly referred to as "X")` once.
+       * Functional ambiguity -> Update or add a bullet in Functional Requirements.
+       * User interaction / actor distinction -> Update User Stories or Actors subsection (if present) with clarified role, constraint, or scenario.
+       * Data shape / entities -> Update Data Model (add fields, types, relationships) preserving ordering; note added constraints succinctly.
+       * Non-functional constraint -> Add/modify measurable criteria in Non-Functional / Quality Attributes section (convert vague adjective to metric or explicit target).
+       * Edge case / negative flow -> Add a new bullet under Edge Cases / Error Handling (or create such subsection if template provides placeholder for it).
+       * Terminology conflict -> Normalize term across spec; retain original only if necessary by adding `(formerly referred to as "X")` once.
     - If the clarification invalidates an earlier ambiguous statement, replace that statement instead of duplicating; leave no obsolete contradictory text.
     - Save the spec file AFTER each integration to minimize risk of context loss (atomic overwrite).
     - Preserve formatting: do not reorder unrelated sections; keep heading hierarchy intact.

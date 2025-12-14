@@ -68,6 +68,14 @@ jobs:
 
       - name: Determine archive parameters
         id: params
+        env:
+          # Use environment variables to avoid shell injection (CWE-78)
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_MODE: ${{ inputs.mode }}
+          INPUT_DRY_RUN: ${{ inputs.dry_run }}
+          INPUT_DONE_BY_DATE: ${{ inputs.done_by_date }}
+          ACTOR: ${{ github.actor }}
+          SHA: ${{ github.sha }}
         run: |
           # Default values
           MODE="done"
@@ -75,19 +83,19 @@ jobs:
           DONE_BY_DATE=""
           TRIGGER_SOURCE=""
 
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            MODE="${{ inputs.mode }}"
-            DRY_RUN="${{ inputs.dry_run }}"
-            DONE_BY_DATE="${{ inputs.done_by_date }}"
-            TRIGGER_SOURCE="manual dispatch by ${{ github.actor }}"
-          elif [ "${{ github.event_name }}" == "schedule" ]; then
+          if [ "$EVENT_NAME" == "workflow_dispatch" ]; then
+            MODE="$INPUT_MODE"
+            DRY_RUN="$INPUT_DRY_RUN"
+            DONE_BY_DATE="$INPUT_DONE_BY_DATE"
+            TRIGGER_SOURCE="manual dispatch by $ACTOR"
+          elif [ "$EVENT_NAME" == "schedule" ]; then
             MODE="done"
             DRY_RUN="false"
             TRIGGER_SOURCE="scheduled (weekly Sunday)"
-          elif [ "${{ github.event_name }}" == "push" ]; then
+          elif [ "$EVENT_NAME" == "push" ]; then
             MODE="done"
             DRY_RUN="false"
-            TRIGGER_SOURCE="commit keyword (${{ github.sha }})"
+            TRIGGER_SOURCE="commit keyword ($SHA)"
           fi
 
           echo "mode=$MODE" >> $GITHUB_OUTPUT
@@ -105,20 +113,23 @@ jobs:
         id: archive
         env:
           TRIGGER_SOURCE: ${{ steps.params.outputs.trigger_source }}
+          ARCHIVE_MODE: ${{ steps.params.outputs.mode }}
+          ARCHIVE_DRY_RUN: ${{ steps.params.outputs.dry_run }}
+          ARCHIVE_DONE_BY_DATE: ${{ steps.params.outputs.done_by_date }}
         run: |
           chmod +x scripts/bash/archive-tasks.sh
 
           # Build command arguments
           ARGS=""
 
-          if [ "${{ steps.params.outputs.mode }}" == "all" ]; then
+          if [ "$ARCHIVE_MODE" == "all" ]; then
             ARGS="--all"
-          elif [ "${{ steps.params.outputs.mode }}" == "date" ] && [ -n "${{ steps.params.outputs.done_by_date }}" ]; then
-            ARGS="--done-by ${{ steps.params.outputs.done_by_date }}"
+          elif [ "$ARCHIVE_MODE" == "date" ] && [ -n "$ARCHIVE_DONE_BY_DATE" ]; then
+            ARGS="--done-by $ARCHIVE_DONE_BY_DATE"
           fi
           # mode=done uses default (no args needed)
 
-          if [ "${{ steps.params.outputs.dry_run }}" == "true" ]; then
+          if [ "$ARCHIVE_DRY_RUN" == "true" ]; then
             ARGS="$ARGS --dry-run"
           fi
 
@@ -155,6 +166,10 @@ jobs:
 
       - name: Commit and push changes
         if: steps.archive.outputs.has_changes == 'true' && steps.params.outputs.dry_run != 'true'
+        env:
+          TRIGGER_SOURCE: ${{ steps.params.outputs.trigger_source }}
+          ARCHIVE_MODE: ${{ steps.params.outputs.mode }}
+          ARCHIVE_STATUS: ${{ steps.archive.outputs.status }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -164,29 +179,36 @@ jobs:
             echo "No changes to commit"
           else
             git add -A
-            git commit -s -m "chore(backlog): archive tasks [${{ steps.params.outputs.trigger_source }}]
+            git commit -s -m "chore(backlog): archive tasks [$TRIGGER_SOURCE]
 
-          Triggered by: ${{ steps.params.outputs.trigger_source }}
-          Mode: ${{ steps.params.outputs.mode }}
-          Status: ${{ steps.archive.outputs.status }}"
+          Triggered by: $TRIGGER_SOURCE
+          Mode: $ARCHIVE_MODE
+          Status: $ARCHIVE_STATUS"
             git push origin main
           fi
 
       - name: Generate job summary
+        env:
+          TRIGGER_SOURCE: ${{ steps.params.outputs.trigger_source }}
+          ARCHIVE_MODE: ${{ steps.params.outputs.mode }}
+          ARCHIVE_DRY_RUN: ${{ steps.params.outputs.dry_run }}
+          ARCHIVE_DONE_BY_DATE: ${{ steps.params.outputs.done_by_date }}
+          ARCHIVE_STATUS: ${{ steps.archive.outputs.status }}
+          ARCHIVE_HAS_CHANGES: ${{ steps.archive.outputs.has_changes }}
         run: |
           {
             echo "## Backlog Archive Results"
             echo ""
             echo "| Parameter | Value |"
             echo "|-----------|-------|"
-            echo "| Trigger | ${{ steps.params.outputs.trigger_source }} |"
-            echo "| Mode | ${{ steps.params.outputs.mode }} |"
-            echo "| Dry Run | ${{ steps.params.outputs.dry_run }} |"
-            if [ -n "${{ steps.params.outputs.done_by_date }}" ]; then
-              echo "| Done By Date | ${{ steps.params.outputs.done_by_date }} |"
+            echo "| Trigger | $TRIGGER_SOURCE |"
+            echo "| Mode | $ARCHIVE_MODE |"
+            echo "| Dry Run | $ARCHIVE_DRY_RUN |"
+            if [ -n "$ARCHIVE_DONE_BY_DATE" ]; then
+              echo "| Done By Date | $ARCHIVE_DONE_BY_DATE |"
             fi
-            echo "| Status | ${{ steps.archive.outputs.status }} |"
-            echo "| Has Changes | ${{ steps.archive.outputs.has_changes }} |"
+            echo "| Status | $ARCHIVE_STATUS |"
+            echo "| Has Changes | $ARCHIVE_HAS_CHANGES |"
             echo ""
             echo "### Archive Output"
             echo ""

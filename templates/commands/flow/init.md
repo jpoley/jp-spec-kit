@@ -57,10 +57,10 @@ Project Analysis
 
 Project Type: {Greenfield | Brownfield}
 Detected Markers:
-  {✓ | ✗} Git repository with history
-  {✓ | ✗} Package manifest (pyproject.toml, package.json, etc.)
-  {✓ | ✗} Source code directories
-  {✓ | ✗} CI/CD configuration
+  {[Y] | [N]} Git repository with history
+  {[Y] | [N]} Package manifest (pyproject.toml, package.json, etc.)
+  {[Y] | [N]} Source code directories
+  {[Y] | [N]} CI/CD configuration
 ```
 
 ### Step 2: Check Existing Constitution
@@ -255,27 +255,27 @@ Project Type: Brownfield (existing codebase)
 Complexity Score: 8/14
 
 Languages:
-  ✓ Python 3.11+ (primary)
-  ✓ TypeScript (secondary)
+  [Y] Python 3.11+ (primary)
+  [Y] TypeScript (secondary)
 
 Frameworks:
-  ✓ FastAPI 0.104+
-  ✓ React 18
+  [Y] FastAPI 0.104+
+  [Y] React 18
 
 Build Tools:
-  ✓ uv (Python package manager)
-  ✓ pnpm (Node.js package manager)
+  [Y] uv (Python package manager)
+  [Y] pnpm (Node.js package manager)
 
 Testing:
-  ✓ pytest (test framework)
-  ✓ pytest-cov (coverage)
+  [Y] pytest (test framework)
+  [Y] pytest-cov (coverage)
 
 Code Quality:
-  ✓ ruff (linting + formatting)
-  ✓ mypy (type checking)
+  [Y] ruff (linting + formatting)
+  [Y] mypy (type checking)
 
 CI/CD:
-  ✓ GitHub Actions
+  [Y] GitHub Actions
 
 🏛️ CONSTITUTION TIER
 
@@ -284,9 +284,9 @@ Rationale: Complexity score 8/14 suggests standard business project controls
 
 📝 FILES CREATED
 
-  ✓ memory/repo-facts.md (tech stack analysis)
-  ✓ memory/constitution.md (governance document)
-  {✓ flowspec_workflow.yml (if --configure-workflow)}
+  [Y] memory/repo-facts.md (tech stack analysis)
+  [Y] memory/constitution.md (governance document)
+  {[Y] flowspec_workflow.yml (if --configure-workflow)}
 
 📋 VALIDATION CHECKLIST
 

@@ -31,7 +31,7 @@ The assess command:
 1. Analyzes feature complexity, risk, and architectural impact
 2. Generates a detailed assessment report
 3. Recommends workflow path (Full SDD, Spec-Light, or Skip SDD)
-4. Transitions workflow state from "To Do" → "Assessed"
+4. Transitions workflow state from "To Do" -> "Assessed"
 5. Provides specific next-step commands
 
 ### Step 1: Feature Analysis
@@ -264,7 +264,7 @@ For Skip SDD:
 
 ### Implementation Notes
 
-1. **State Transition**: This command transitions from "To Do" → "Assessed"
+1. **State Transition**: This command transitions from "To Do" -> "Assessed"
 2. **Artifact**: Produces `./docs/assess/{feature}-assessment.md`
 3. **Validation Mode**: NONE (automatic transition)
 4. **Override Support**: `--mode {full|light|skip}` flag bypasses scoring

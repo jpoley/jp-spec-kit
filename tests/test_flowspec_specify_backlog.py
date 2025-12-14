@@ -83,11 +83,11 @@ class TestBacklogInstructionsIntegration:
 
 
 class TestDesignImplementWorkflow:
-    """Tests for design→implement workflow compliance."""
+    """Tests for design->implement workflow compliance."""
 
     def test_has_design_implement_section(self, specify_command_content):
-        """Verify design→implement workflow section exists."""
-        assert "Design→Implement Workflow" in specify_command_content
+        """Verify design->implement workflow section exists."""
+        assert "Design->Implement Workflow" in specify_command_content
 
     def test_verification_command_included(self, specify_command_content):
         """Verify task creation verification is documented."""

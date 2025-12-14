@@ -423,7 +423,7 @@ After both agents complete:
    # Update workflow state label to "Planned"
    backlog task edit "$CURRENT_TASK" -l workflow:Planned
 
-   echo "✓ Workflow state updated to: Planned"
+   echo "[Y] Workflow state updated to: Planned"
    echo "  Next step: /flow:implement"
    ```
 

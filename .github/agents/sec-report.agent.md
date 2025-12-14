@@ -50,12 +50,12 @@ TRIAGE_RESULTS="docs/security/triage-results.json"
 PATCHES_DIR="docs/security/patches/"
 
 if [ ! -f "$SCAN_RESULTS" ]; then
-    echo "❌ Error: scan-results.json not found. Run /flow:security scan first to generate scan results."
+    echo "[X] Error: scan-results.json not found. Run /flow:security scan first to generate scan results."
     exit 1
 fi
 
 if [ ! -f "$TRIAGE_RESULTS" ]; then
-    echo "❌ Error: triage-results.json not found. Run /flow:security triage first."
+    echo "[X] Error: triage-results.json not found. Run /flow:security triage first."
     exit 1
 fi
 ```

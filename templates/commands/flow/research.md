@@ -38,7 +38,7 @@ Your options:
   2. To enable research, delete .flowspec-light-mode and use full mode
      (See docs/guides/when-to-use-light-mode.md for upgrade instructions)
 
-Current workflow path: Specified → Planned (skipping Researched)
+Current workflow path: Specified -> Planned (skipping Researched)
 ```
 
 **If NOT in light mode**, continue with the standard research workflow below.
@@ -395,7 +395,7 @@ Deliver a structured validation report with:
 
 Consolidate both reports into a comprehensive research and validation package that enables informed decision-making.
 
-### ⚠️ MANDATORY: Design→Implement Workflow
+### ⚠️ MANDATORY: Design->Implement Workflow
 
 **This is a DESIGN command. Research tasks MUST create implementation tasks before completion.**
 

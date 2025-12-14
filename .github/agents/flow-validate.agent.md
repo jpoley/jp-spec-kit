@@ -44,7 +44,7 @@ Before executing this workflow command, validate the project's constitution:
 ```bash
 # Look for constitution file
 if [ -f "memory/constitution.md" ]; then
-  echo "✓ Constitution found"
+  echo "[Y] Constitution found"
 else
   echo "⚠️ No constitution found"
   echo ""
@@ -116,8 +116,8 @@ Continue without validation? [y/N]: _
 ```
 
 Wait for user response:
-- If user responds `y` or `yes` → Continue with command
-- If user responds `n`, `no`, or empty/Enter → Stop and show:
+- If user responds `y` or `yes` -> Continue with command
+- If user responds `n`, `no`, or empty/Enter -> Stop and show:
   ```text
   Command cancelled. Run /speckit:constitution to customize your constitution.
   ```
@@ -127,7 +127,7 @@ Wait for user response:
 If `TIER = Heavy` and `MARKER_COUNT > 0`:
 
 ```text
-❌ Constitution Validation Required
+[X] Constitution Validation Required
 
 Your constitution has N unvalidated sections:
 $SECTIONS
@@ -170,7 +170,7 @@ When skip flag is present:
 If `MARKER_COUNT = 0`:
 
 ```text
-✓ Constitution validated
+[Y] Constitution validated
 ```
 
 Continue with command normally.
@@ -179,12 +179,12 @@ Continue with command normally.
 
 | Tier | Unvalidated Sections | Action |
 |------|---------------------|--------|
-| Light | 0 | ✓ Continue |
+| Light | 0 | [Y] Continue |
 | Light | >0 | ⚠️ Warn, continue |
-| Medium | 0 | ✓ Continue |
+| Medium | 0 | [Y] Continue |
 | Medium | >0 | ⚠️ Warn, ask confirmation, respect user choice |
-| Heavy | 0 | ✓ Continue |
-| Heavy | >0 | ❌ Block, require validation |
+| Heavy | 0 | [Y] Continue |
+| Heavy | >0 | [X] Block, require validation |
 | Any | >0 + `--skip-validation` | ⚠️ Warn, continue |
 
 ## Integration Example
@@ -239,9 +239,9 @@ fi
 ```
 
 **Light Mode Behavior**:
-- `/flow:research` → **SKIPPED** (inform user and suggest `/flow:plan` instead)
-- `/flow:plan` → Uses `plan-light.md` template (high-level only)
-- `/flow:specify` → Uses `spec-light.md` template (combined stories + AC)
+- `/flow:research` -> **SKIPPED** (inform user and suggest `/flow:plan` instead)
+- `/flow:plan` -> Uses `plan-light.md` template (high-level only)
+- `/flow:specify` -> Uses `spec-light.md` template (combined stories + AC)
 
 If in light mode and the current command is `/flow:research`, inform the user:
 ```text
@@ -415,8 +415,8 @@ fi
 - If no "In Progress" tasks: Error and halt
 
 **Error Handling**:
-- If task ID not found: "❌ Phase 0 Failed: Task {task-id} does not exist."
-- If no in-progress tasks: "❌ Phase 0 Failed: No tasks in 'In Progress' status. Please specify a task ID."
+- If task ID not found: "[X] Phase 0 Failed: Task {task-id} does not exist."
+- If no in-progress tasks: "[X] Phase 0 Failed: No tasks in 'In Progress' status. Please specify a task ID."
 - If multiple in-progress tasks: List them and ask user to specify which one
 
 #### Step 2: Load Full Task Details
@@ -500,9 +500,9 @@ npm run typecheck  # or tsc --noEmit
 - Type checks pass (if applicable)
 
 **Error Handling**:
-- If tests fail: "❌ Phase 1 Failed: {N} test(s) failed. Fix tests before continuing."
+- If tests fail: "[X] Phase 1 Failed: {N} test(s) failed. Fix tests before continuing."
 - If linting fails: "⚠️  Phase 1 Warning: Linting issues detected. Review before continuing."
-- If type checks fail: "❌ Phase 1 Failed: Type check errors found."
+- If type checks fail: "[X] Phase 1 Failed: Type check errors found."
 
 #### Step 4: Document Skipped Tests
 
@@ -571,7 +571,7 @@ You are the Quality Guardian, a vigilant protector of system integrity, user tru
 ## Analysis Framework
 1. **Failure Imagination Exercise**: List failure modes, assess impact/likelihood, plan detection/recovery
 2. **Edge Case Exploration**: Test at zero, infinity, malformed input, extreme load, hostile users
-3. **Three-Layer Critique**: Acknowledge value → Identify risk → Suggest mitigation
+3. **Three-Layer Critique**: Acknowledge value -> Identify risk -> Suggest mitigation
 4. **Risk Classification**: Critical, High, Medium, Low
 
 ## Risk Dimensions
@@ -914,7 +914,7 @@ backlog task <task-id> --plain
 **Success criteria**: All ACs must have `"checked": true`
 
 **Error Handling**:
-- If any AC unchecked: "❌ Phase 4 Failed: {N} acceptance criteria not yet verified. Cannot proceed to completion."
+- If any AC unchecked: "[X] Phase 4 Failed: {N} acceptance criteria not yet verified. Cannot proceed to completion."
 - List unchecked ACs by index and text
 
 **Phase 4 Success**: Print summary:
@@ -1033,7 +1033,7 @@ uv run ruff check --select F401,F841 .
 
 **If ANY check fails**:
 ```
-❌ Pre-PR Gate Failed: Validation checks must pass before PR creation.
+[X] Pre-PR Gate Failed: Validation checks must pass before PR creation.
 
 Failures:
 - [List failed checks]
@@ -1066,12 +1066,12 @@ git merge-tree $(git merge-base HEAD origin/main) HEAD origin/main | grep -q "^<
 Please push your branch first:
   git push -u origin $(git branch --show-current)
 
-❌ Phase 6 Failed: Branch not pushed to remote
+[X] Phase 6 Failed: Branch not pushed to remote
 ```
 
 **If merge conflicts exist** (MANDATORY - NO EXCEPTIONS):
 ```
-❌ Phase 6 Failed: Merge conflicts detected with main branch.
+[X] Phase 6 Failed: Merge conflicts detected with main branch.
 
 You MUST resolve conflicts before creating a PR:
   git fetch origin main
@@ -1112,7 +1112,7 @@ Completes task: task-094
 ## Acceptance Criteria
 
 1. [x] Command accepts optional task-id argument; defaults to current in-progress task if not provided
-2. [x] Executes phases in order: 0 (load) → 1 (test) → 2 (agents, parallel) → 3 (docs) → 4 (verify) → 5 (complete) → 6 (PR)
+2. [x] Executes phases in order: 0 (load) -> 1 (test) -> 2 (agents, parallel) -> 3 (docs) -> 4 (verify) -> 5 (complete) -> 6 (PR)
 3. [x] Each phase reports progress to user before execution
 4. [x] Phase failures halt workflow with clear error message
 5. [x] Command can be re-run after fixing issues
@@ -1178,7 +1178,7 @@ Create this pull request? [y/N]:
 
 **If cancelled**:
 ```
-❌ Phase 6 Cancelled: PR creation cancelled by user
+[X] Phase 6 Cancelled: PR creation cancelled by user
 
 Next steps:
 - Review PR preview above
@@ -1195,7 +1195,7 @@ gh pr create --title "<pr-title>" --body "<pr-body>"
 ```
 
 **Error Handling**:
-- If `gh` not found: "❌ Phase 6 Failed: GitHub CLI not installed. Install from https://cli.github.com/"
+- If `gh` not found: "[X] Phase 6 Failed: GitHub CLI not installed. Install from https://cli.github.com/"
 - If `gh pr create` fails: Display gh error message and halt
 - If PR already exists for branch: Display existing PR URL
 
@@ -1260,7 +1260,7 @@ If any phase fails, the workflow halts with a clear error message. To recover:
 **Example error recovery**:
 ```bash
 # Phase 1 failed due to test failures
-❌ Phase 1 Failed: 3 test(s) failed. Fix tests before continuing.
+[X] Phase 1 Failed: 3 test(s) failed. Fix tests before continuing.
 
 # Developer fixes tests
 # Re-run validate command

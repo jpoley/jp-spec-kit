@@ -393,11 +393,11 @@ Read the tier-appropriate template file:
 
 Auto-detect project name from common sources (in priority order):
 
-1. **Node.js**: `package.json` → `name` field
-2. **Python**: `pyproject.toml` → `[project].name` or `[tool.poetry].name`
-3. **Go**: `go.mod` → module name (last path segment)
-4. **Rust**: `Cargo.toml` → `[package].name`
-5. **Java**: `pom.xml` → `<artifactId>` or `build.gradle` → `rootProject.name`
+1. **Node.js**: `package.json` -> `name` field
+2. **Python**: `pyproject.toml` -> `[project].name` or `[tool.poetry].name`
+3. **Go**: `go.mod` -> module name (last path segment)
+4. **Rust**: `Cargo.toml` -> `[package].name`
+5. **Java**: `pom.xml` -> `<artifactId>` or `build.gradle` -> `rootProject.name`
 6. **Git**: Repository directory name as fallback
 
 **Sanitize and validate the detected project name:**
@@ -445,11 +445,11 @@ Create formatted tech stack content replacing `[LANGUAGES_AND_FRAMEWORKS]`:
 
 Replace these placeholders in the template:
 
-1. `[PROJECT_NAME]` → Detected project name (from Step 4.2)
-2. `[LANGUAGES_AND_FRAMEWORKS]` → Formatted tech stack (from Step 4.3)
-3. `[LINTING_TOOLS]` → Linting tools list (medium/heavy only)
-4. `[CI_CD_TOOLS]` → CI/CD platform details (medium/heavy only)
-5. `[DATE]` → Current date in YYYY-MM-DD format
+1. `[PROJECT_NAME]` -> Detected project name (from Step 4.2)
+2. `[LANGUAGES_AND_FRAMEWORKS]` -> Formatted tech stack (from Step 4.3)
+3. `[LINTING_TOOLS]` -> Linting tools list (medium/heavy only)
+4. `[CI_CD_TOOLS]` -> CI/CD platform details (medium/heavy only)
+5. `[DATE]` -> Current date in YYYY-MM-DD format
 
 **IMPORTANT**: For heavy tier, the following placeholders must remain as NEEDS_VALIDATION and should NOT be replaced:
 - `[COMPLIANCE_FRAMEWORKS]`
@@ -484,31 +484,31 @@ Output a comprehensive summary to the user with tier information and validation 
 📊 DETECTED TECHNOLOGIES
 
 Languages:
-  ✓ Python 3.11+ (primary)
-  ✓ TypeScript (secondary)
+  [Y] Python 3.11+ (primary)
+  [Y] TypeScript (secondary)
 
 Frameworks:
-  ✓ FastAPI 0.104+
-  ✓ React 18
+  [Y] FastAPI 0.104+
+  [Y] React 18
 
 Build Tools:
-  ✓ uv (Python package manager)
-  ✓ pnpm (Node.js package manager)
+  [Y] uv (Python package manager)
+  [Y] pnpm (Node.js package manager)
 
 Testing:
-  ✓ pytest (test framework)
-  ✓ pytest-cov (coverage)
+  [Y] pytest (test framework)
+  [Y] pytest-cov (coverage)
 
 Code Quality:
-  ✓ ruff (linting + formatting)
-  ✓ mypy (type checking)
+  [Y] ruff (linting + formatting)
+  [Y] mypy (type checking)
 
 Security:
-  ✓ Dependabot
-  ✓ bandit (SAST)
+  [Y] Dependabot
+  [Y] bandit (SAST)
 
 CI/CD:
-  ✓ GitHub Actions (.github/workflows/)
+  [Y] GitHub Actions (.github/workflows/)
 
 🏛️ CONSTITUTION TIER
 
@@ -523,8 +523,8 @@ Template: templates/constitutions/constitution-[tier].md
 📝 OUTPUT
 
 Files Created:
-  ✓ memory/repo-facts.md
-  ✓ memory/constitution.md
+  [Y] memory/repo-facts.md
+  [Y] memory/constitution.md
 
 📋 VALIDATION CHECKLIST
 
