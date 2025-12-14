@@ -98,7 +98,9 @@ def enable_command(
 
     if not yes:
         # Show privacy notice
-        console.print(Panel(PRIVACY_NOTICE, title="Privacy Notice", border_style="blue"))
+        console.print(
+            Panel(PRIVACY_NOTICE, title="Privacy Notice", border_style="blue")
+        )
         console.print()
 
         # Ask for confirmation
@@ -110,7 +112,9 @@ def enable_command(
     # Enable telemetry
     if enable_telemetry(root):
         console.print("[green]✓ Telemetry enabled.[/green]")
-        console.print("[dim]You can disable it anytime with: specify telemetry disable[/dim]")
+        console.print(
+            "[dim]You can disable it anytime with: specify telemetry disable[/dim]"
+        )
     else:
         console.print("[red]Failed to enable telemetry.[/red]")
         raise typer.Exit(1)
@@ -138,7 +142,9 @@ def disable_command(
 
     if disable_telemetry(root):
         console.print("[green]✓ Telemetry disabled.[/green]")
-        console.print("[dim]Use 'specify telemetry clear' to delete existing data.[/dim]")
+        console.print(
+            "[dim]Use 'specify telemetry clear' to delete existing data.[/dim]"
+        )
     else:
         console.print("[red]Failed to disable telemetry.[/red]")
         raise typer.Exit(1)
@@ -174,7 +180,9 @@ def status_command(
     table.add_column("Setting", style="cyan")
     table.add_column("Value")
 
-    enabled_str = "[green]Enabled[/green]" if config.enabled else "[yellow]Disabled[/yellow]"
+    enabled_str = (
+        "[green]Enabled[/green]" if config.enabled else "[yellow]Disabled[/yellow]"
+    )
     table.add_row("Status", enabled_str)
 
     if config.consent_given_at:
@@ -225,7 +233,9 @@ def stats_command(
                     timestamp_str = event.get("timestamp", "")
                     if timestamp_str:
                         # Parse timestamp and filter by date
-                        ts = datetime.fromisoformat(timestamp_str.replace("Z", "+00:00"))
+                        ts = datetime.fromisoformat(
+                            timestamp_str.replace("Z", "+00:00")
+                        )
                         if ts >= cutoff:
                             events.append(event)
                 except (json.JSONDecodeError, ValueError):
@@ -401,7 +411,9 @@ def clear_command(
         pass
 
     if not yes:
-        console.print(f"[yellow]This will permanently delete {event_count} events.[/yellow]")
+        console.print(
+            f"[yellow]This will permanently delete {event_count} events.[/yellow]"
+        )
         confirm = typer.confirm("Are you sure?", default=False)
         if not confirm:
             console.print("[dim]Cancelled.[/dim]")

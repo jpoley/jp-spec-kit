@@ -217,9 +217,7 @@ class TestTelemetryWriter:
     def test_write_event(self, temp_telemetry_file: Path):
         """Test writing a single event."""
         writer = TelemetryWriter(temp_telemetry_file)
-        event = TelemetryEvent.create(
-            RoleEvent.ROLE_SELECTED, role="dev"
-        )
+        event = TelemetryEvent.create(RoleEvent.ROLE_SELECTED, role="dev")
 
         result = writer.write_event(event)
 
