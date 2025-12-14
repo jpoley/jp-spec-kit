@@ -2829,6 +2829,11 @@ def init(
         "--constitution",
         help="Constitution tier: light (startup), medium (business), heavy (enterprise). Omit to be prompted.",
     ),
+    no_hooks: bool = typer.Option(
+        False,
+        "--no-hooks",
+        help="Disable all hooks by default. Hooks can be enabled individually in .specify/hooks/hooks.yaml",
+    ),
 ):
     """
     Initialize a new Specify project from the latest template.
@@ -3243,11 +3248,18 @@ def init(
             try:
                 from .hooks.scaffold import scaffold_hooks
 
-                created_files = scaffold_hooks(project_path)
+                created_files = scaffold_hooks(project_path, no_hooks=no_hooks)
                 if created_files:
-                    tracker.complete(
-                        "hooks", f"created {len(created_files)} example hook files"
-                    )
+                    if no_hooks:
+                        tracker.complete(
+                            "hooks",
+                            f"created {len(created_files)} hook files (all disabled via --no-hooks)",
+                        )
+                    else:
+                        tracker.complete(
+                            "hooks",
+                            f"created {len(created_files)} hook files (run-tests, lint-code, quality-gate enabled)",
+                        )
                 else:
                     tracker.complete("hooks", "hooks already configured")
             except Exception as hook_error:
