@@ -19,15 +19,15 @@ defaults:
   fail_mode: continue
 
 hooks:
-  # Example: Run tests after implementation
+  # Run tests after implementation (enabled by default)
   - name: run-tests
     events:
       - type: implement.completed
     script: run-tests.sh
     description: Run test suite after implementation
-    enabled: false  # Enable when ready
+    enabled: true
 
-  # Example: Update changelog on spec creation
+  # Update changelog on spec creation (opt-in, disabled by default)
   - name: update-changelog
     events:
       - type: spec.created
@@ -35,7 +35,55 @@ hooks:
     description: Auto-update CHANGELOG.md
     enabled: false
 
-  # Example: Run linter on task completion
+  # Run linter on task completion (enabled by default)
+  - name: lint-code
+    events:
+      - type: task.completed
+    script: lint-code.sh
+    description: Run code linter and formatter
+    enabled: true
+    timeout: 60
+
+  # Quality gate before validation (enabled by default)
+  - name: quality-gate
+    events:
+      - type: validate.started
+    script: quality-gate.sh
+    description: Check code quality metrics before validation
+    enabled: true
+    fail_mode: stop
+"""
+
+# Disabled hooks configuration for --no-hooks flag
+DISABLED_HOOKS_YAML = """# Flowspec Hooks Configuration
+# Documentation: https://github.com/jpoley/flowspec/docs/guides/hooks.md
+# Note: All hooks disabled via --no-hooks flag. Enable individually as needed.
+
+version: "1.0"
+
+# Global defaults applied to all hooks
+defaults:
+  timeout: 30
+  fail_mode: continue
+
+hooks:
+  # Run tests after implementation
+  - name: run-tests
+    events:
+      - type: implement.completed
+    script: run-tests.sh
+    description: Run test suite after implementation
+    enabled: false
+
+  # Update changelog on spec creation
+  - name: update-changelog
+    events:
+      - type: spec.created
+    script: update-changelog.sh
+    description: Auto-update CHANGELOG.md
+    enabled: false
+
+  # Run linter on task completion
   - name: lint-code
     events:
       - type: task.completed
@@ -44,7 +92,7 @@ hooks:
     enabled: false
     timeout: 60
 
-  # Example: Quality gate before validation
+  # Quality gate before validation
   - name: quality-gate
     events:
       - type: validate.started
@@ -163,11 +211,25 @@ This directory contains custom hooks for the Flowspec workflow.
 - `*.sh` - Hook scripts (must be executable)
 - `audit.log` - Execution audit log (auto-created)
 
+## Enabled by Default
+
+The following hooks are **enabled by default** for code quality:
+
+| Hook | Event | Description |
+|------|-------|-------------|
+| `run-tests` | `implement.completed` | Runs test suite after implementation |
+| `lint-code` | `task.completed` | Runs linter and formatter on task completion |
+| `quality-gate` | `validate.started` | Checks code quality before validation |
+
+The `update-changelog` hook is opt-in (disabled by default).
+
+To disable all hooks during init, use: `specify init --no-hooks`
+
 ## Getting Started
 
-1. **Review example hooks** in `hooks.yaml`
-2. **Enable a hook** by setting `enabled: true`
-3. **Test the hook**:
+1. **Review configured hooks** in `hooks.yaml`
+2. **Customize scripts** for your project's tooling
+3. **Test a hook**:
    ```bash
    specify hooks test run-tests implement.completed
    ```
@@ -217,11 +279,12 @@ Full documentation: https://github.com/jpoley/flowspec/blob/main/docs/guides/hoo
 """
 
 
-def scaffold_hooks(project_root: Path) -> list[Path]:
+def scaffold_hooks(project_root: Path, no_hooks: bool = False) -> list[Path]:
     """Create hooks directory structure with examples.
 
     Args:
         project_root: Root directory of the project
+        no_hooks: If True, create hooks.yaml with all hooks disabled
 
     Returns:
         List of paths to created files
@@ -231,10 +294,13 @@ def scaffold_hooks(project_root: Path) -> list[Path]:
 
     created = []
 
+    # Select hooks configuration based on --no-hooks flag
+    hooks_config = DISABLED_HOOKS_YAML if no_hooks else EXAMPLE_HOOKS_YAML
+
     # Create hooks.yaml
     hooks_yaml = hooks_dir / "hooks.yaml"
     if not hooks_yaml.exists():
-        hooks_yaml.write_text(EXAMPLE_HOOKS_YAML)
+        hooks_yaml.write_text(hooks_config)
         created.append(hooks_yaml)
 
     # Create example scripts
