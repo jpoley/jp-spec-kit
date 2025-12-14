@@ -9,8 +9,6 @@ from pathlib import Path
 import pytest
 
 from specify_cli.telemetry import (
-    RoleEvent,
-    TelemetryWriter,
     is_telemetry_enabled,
     reset_writer,
     track_agent_invocation,
@@ -182,7 +180,7 @@ class TestAgentInvocationTracking:
             command="/flow:implement",
             project_root=tmp_path,
         ):
-            result = "done"
+            pass  # Context manager handles start/complete events
 
         events = self._read_events(tmp_path)
         assert len(events) == 2
