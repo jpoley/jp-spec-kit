@@ -352,7 +352,7 @@ Infrastructure and system events.
 
 ## Complete Event Type Reference
 
-### Summary Table (46 Event Types)
+### Summary Table (50 Event Types)
 
 | Namespace | Event Type | Status Equivalent | Description |
 |-----------|------------|-------------------|-------------|
