@@ -1,11 +1,11 @@
 ---
 id: task-473
 title: 'claude-improves: Enable hooks by default in specify init'
-status: To Do
+status: Done
 assignee:
   - '@muckross'
 created_date: '2025-12-12 01:15'
-updated_date: '2025-12-14 17:48'
+updated_date: '2025-12-14 17:59'
 labels:
   - claude-improves
   - cli
@@ -30,10 +30,10 @@ Critical hooks should be enabled by default or user should be prompted during in
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 run-tests hook enabled by default
-- [ ] #2 lint-code hook enabled by default
-- [ ] #3 quality-gate hook enabled by default
-- [ ] #4 update-changelog remains opt-in (disabled by default)
-- [ ] #5 Add --no-hooks flag to disable all hooks
-- [ ] #6 Document enabled hooks in init output summary
+- [x] #1 run-tests hook enabled by default
+- [x] #2 lint-code hook enabled by default
+- [x] #3 quality-gate hook enabled by default
+- [x] #4 update-changelog remains opt-in (disabled by default)
+- [x] #5 Add --no-hooks flag to disable all hooks
+- [x] #6 Document enabled hooks in init output summary
 <!-- AC:END -->
