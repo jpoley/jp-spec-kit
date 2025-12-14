@@ -4,7 +4,10 @@ title: Implement Core Event Schema v1.1.0
 status: To Do
 assignee: []
 created_date: '2025-12-14 02:40'
+updated_date: '2025-12-14 03:04'
 labels:
+  - agent-event-system
+  - phase-1
   - architecture
   - infrastructure
   - foundation
