@@ -1,11 +1,11 @@
 ---
 id: task-284
 title: Create comprehensive documentation for archive-tasks.sh and integrations
-status: To Do
+status: Done
 assignee:
-  - '@galway'
+  - '@muckross'
 created_date: '2025-12-04 03:32'
-updated_date: '2025-12-04 04:01'
+updated_date: '2025-12-14 20:20'
 labels:
   - documentation
 dependencies:
@@ -59,10 +59,34 @@ Write user and developer documentation for archive script, GitHub Actions workfl
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 User guide exists at docs/guides/backlog-archive.md
-- [ ] #2 Workflow guide exists at docs/guides/backlog-archive-workflow.md
-- [ ] #3 Hook guide exists at docs/guides/backlog-archive-hook.md
-- [ ] #4 Troubleshooting runbook exists at docs/runbooks/backlog-archive-troubleshooting.md
-- [ ] #5 All guides have examples and command-line usage
-- [ ] #6 CLAUDE.md updated with script reference
+- [x] #1 User guide exists at docs/guides/backlog-archive.md
+- [x] #2 Workflow guide exists at docs/guides/backlog-archive-workflow.md
+- [x] #3 Hook guide exists at docs/guides/backlog-archive-hook.md
+- [x] #4 Troubleshooting runbook exists at docs/runbooks/backlog-archive-troubleshooting.md
+- [x] #5 All guides have examples and command-line usage
+- [x] #6 CLAUDE.md updated with script reference
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+## Implementation Complete (2025-12-14)
+
+Created comprehensive documentation for archive-tasks.sh:
+
+1. **User Guide** (AC#1): `docs/guides/backlog-archive.md`
+   - Script usage, options, examples, exit codes
+
+2. **Workflow Guide** (AC#2): `docs/guides/backlog-archive-workflow.md`
+   - GitHub Actions triggers, customization, troubleshooting
+
+3. **Hook Guide** (AC#3): `docs/guides/backlog-archive-hook.md`
+   - Claude Code hook configuration, fail-open design
+
+4. **Troubleshooting Runbook** (AC#4): `docs/runbooks/backlog-archive-troubleshooting.md`
+   - Common errors, recovery procedures, escalation
+
+5. **Examples** (AC#5): All guides include command-line examples
+
+6. **scripts/CLAUDE.md** (AC#6): Added archive-tasks.sh to scripts reference
+<!-- SECTION:NOTES:END -->

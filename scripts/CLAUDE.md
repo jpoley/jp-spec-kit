@@ -5,6 +5,7 @@
 ### bash/
 | Script | Purpose |
 |--------|---------|
+| `archive-tasks.sh` | Archive backlog tasks with flexible filtering |
 | `check-mcp-servers.sh` | Test MCP server connectivity and health |
 | `run-local-ci.sh` | Run full CI simulation locally |
 | `flush-backlog.sh` | Archive Done tasks with summary report |
@@ -84,6 +85,32 @@ Troubleshooting:
 ```
 
 **Design rationale:** See `docs/adr/ADR-003-mcp-health-check-design.md`
+
+## archive-tasks.sh
+
+Archives backlog tasks with flexible filtering options.
+
+```bash
+# Preview what would be archived (dry run)
+./scripts/bash/archive-tasks.sh --dry-run
+
+# Archive all Done tasks
+./scripts/bash/archive-tasks.sh
+
+# Archive ALL tasks regardless of status
+./scripts/bash/archive-tasks.sh --all
+
+# Archive Done tasks updated on or before a date
+./scripts/bash/archive-tasks.sh --done-by 2025-12-01
+```
+
+**Exit codes:**
+- 0: Success (tasks archived)
+- 1: Validation error (CLI missing, invalid args)
+- 2: No tasks to archive (informational)
+- 3: Partial failure (some tasks failed)
+
+**Documentation:** See `docs/guides/backlog-archive.md`
 
 ## flush-backlog.sh
 
