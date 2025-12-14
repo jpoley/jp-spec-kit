@@ -1005,3 +1005,30 @@ specify hooks emit validate.completed \
 Replace `$FEATURE_ID` with the feature name/identifier and `$TASK_ID` with the backlog task ID if available.
 
 This triggers any configured hooks in `.specify/hooks/hooks.yaml` (e.g., notifications, deployment triggers).
+
+## Telemetry: Track Agent Invocations
+
+After validation completes, track the agents that were invoked for analytics (if telemetry is enabled):
+
+```bash
+# Track each agent that was invoked during this command (silently, will be no-op if disabled)
+
+# Track the command execution with user's role
+specify telemetry track-role "$CURRENT_ROLE" --command /flow:validate -q
+
+# QA Guardian agent was invoked in Phase 2:
+specify telemetry track-agent quality-guardian --command /flow:validate -q
+
+# Security Engineer agent was invoked in Phase 2:
+specify telemetry track-agent secure-by-design-engineer --command /flow:validate -q
+
+# Technical Writer agent was invoked in Phase 3:
+specify telemetry track-agent technical-writer --command /flow:validate -q
+```
+
+Replace `$CURRENT_ROLE` with the user's current role (dev, pm, qa, etc.).
+
+This enables workflow analytics for understanding agent usage patterns. The tracking is:
+- **Opt-in only**: Only recorded if user has enabled telemetry via `specify telemetry enable`
+- **Privacy-first**: Project names are hashed, no PII collected
+- **Fail-safe**: Commands will not fail if telemetry is unavailable

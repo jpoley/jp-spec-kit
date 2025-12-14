@@ -9,8 +9,7 @@ from pathlib import Path
 import pytest
 
 from specify_cli.telemetry import (
-    RoleEvent,
-    TelemetryWriter,
+    enable_telemetry,
     is_telemetry_enabled,
     reset_writer,
     track_agent_invocation,
@@ -26,32 +25,41 @@ from specify_cli.telemetry import (
 class TestTelemetryConsent:
     """Tests for telemetry consent checking."""
 
-    def test_telemetry_enabled_by_default(self):
-        """Test that telemetry is enabled by default."""
+    def test_telemetry_disabled_by_default(self, tmp_path: Path):
+        """Test that telemetry is disabled by default (opt-in required)."""
         os.environ.pop("FLOWSPEC_TELEMETRY_DISABLED", None)
-        assert is_telemetry_enabled() is True
+        assert is_telemetry_enabled(tmp_path) is False
 
-    def test_telemetry_disabled_with_1(self):
-        """Test that telemetry is disabled with '1'."""
+    def test_telemetry_enabled_via_config(self, tmp_path: Path):
+        """Test that telemetry can be enabled via config."""
+        os.environ.pop("FLOWSPEC_TELEMETRY_DISABLED", None)
+        enable_telemetry(tmp_path)
+        assert is_telemetry_enabled(tmp_path) is True
+
+    def test_telemetry_disabled_with_1(self, tmp_path: Path):
+        """Test that telemetry is disabled with '1' env var."""
+        enable_telemetry(tmp_path)  # Enable first
         os.environ["FLOWSPEC_TELEMETRY_DISABLED"] = "1"
         try:
-            assert is_telemetry_enabled() is False
+            assert is_telemetry_enabled(tmp_path) is False
         finally:
             os.environ.pop("FLOWSPEC_TELEMETRY_DISABLED", None)
 
-    def test_telemetry_disabled_with_true(self):
-        """Test that telemetry is disabled with 'true'."""
+    def test_telemetry_disabled_with_true(self, tmp_path: Path):
+        """Test that telemetry is disabled with 'true' env var."""
+        enable_telemetry(tmp_path)
         os.environ["FLOWSPEC_TELEMETRY_DISABLED"] = "true"
         try:
-            assert is_telemetry_enabled() is False
+            assert is_telemetry_enabled(tmp_path) is False
         finally:
             os.environ.pop("FLOWSPEC_TELEMETRY_DISABLED", None)
 
-    def test_telemetry_disabled_with_yes(self):
-        """Test that telemetry is disabled with 'yes'."""
+    def test_telemetry_disabled_with_yes(self, tmp_path: Path):
+        """Test that telemetry is disabled with 'yes' env var."""
+        enable_telemetry(tmp_path)
         os.environ["FLOWSPEC_TELEMETRY_DISABLED"] = "yes"
         try:
-            assert is_telemetry_enabled() is False
+            assert is_telemetry_enabled(tmp_path) is False
         finally:
             os.environ.pop("FLOWSPEC_TELEMETRY_DISABLED", None)
 
@@ -64,6 +72,7 @@ class TestRoleSelectionTracking:
         """Setup for each test."""
         reset_writer()
         os.environ.pop("FLOWSPEC_TELEMETRY_DISABLED", None)
+        enable_telemetry(tmp_path)  # Enable telemetry for tests
         self.telemetry_path = tmp_path / ".flowspec" / "telemetry.jsonl"
         yield
         reset_writer()
@@ -130,6 +139,7 @@ class TestAgentInvocationTracking:
         """Setup for each test."""
         reset_writer()
         os.environ.pop("FLOWSPEC_TELEMETRY_DISABLED", None)
+        enable_telemetry(tmp_path)  # Enable telemetry for tests
         yield
         reset_writer()
 
@@ -182,7 +192,7 @@ class TestAgentInvocationTracking:
             command="/flow:implement",
             project_root=tmp_path,
         ):
-            result = "done"
+            pass  # Agent work
 
         events = self._read_events(tmp_path)
         assert len(events) == 2
@@ -209,6 +219,7 @@ class TestHandoffTracking:
         """Setup for each test."""
         reset_writer()
         os.environ.pop("FLOWSPEC_TELEMETRY_DISABLED", None)
+        enable_telemetry(tmp_path)  # Enable telemetry for tests
         yield
         reset_writer()
 
@@ -248,6 +259,7 @@ class TestCommandTracking:
         """Setup for each test."""
         reset_writer()
         os.environ.pop("FLOWSPEC_TELEMETRY_DISABLED", None)
+        enable_telemetry(tmp_path)  # Enable telemetry for tests
         yield
         reset_writer()
 
@@ -287,6 +299,7 @@ class TestWorkflowTracking:
         """Setup for each test."""
         reset_writer()
         os.environ.pop("FLOWSPEC_TELEMETRY_DISABLED", None)
+        enable_telemetry(tmp_path)  # Enable telemetry for tests
         yield
         reset_writer()
 
@@ -341,6 +354,7 @@ class TestEndToEndIntegration:
         """Setup for each test."""
         reset_writer()
         os.environ.pop("FLOWSPEC_TELEMETRY_DISABLED", None)
+        enable_telemetry(tmp_path)  # Enable telemetry for tests
         yield
         reset_writer()
 
