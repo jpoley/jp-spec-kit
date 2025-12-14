@@ -6168,6 +6168,11 @@ vscode_app = typer.Typer(
 )
 app.add_typer(vscode_app, name="vscode")
 
+# Telemetry sub-app
+from specify_cli.telemetry.cli import telemetry_app
+
+app.add_typer(telemetry_app, name="telemetry")
+
 
 @vscode_app.command("generate")
 def vscode_generate(

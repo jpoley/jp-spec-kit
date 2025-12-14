@@ -822,3 +822,34 @@ specify hooks emit implement.completed \
 Replace `$FEATURE_ID` with the feature name/identifier and `$TASK_ID` with the backlog task ID if available.
 
 This triggers any configured hooks in `.specify/hooks/hooks.yaml` (e.g., running tests, quality gates, notifications).
+
+## Telemetry: Track Agent Invocations
+
+After implementation completes, track the agents that were invoked for analytics (if telemetry is enabled):
+
+```bash
+# Track each agent that was invoked during this command (silently, will be no-op if disabled)
+
+# Track the command execution
+specify telemetry track-role "$CURRENT_ROLE" --command /flow:implement -q
+
+# If frontend work was done:
+specify telemetry track-agent frontend-engineer --command /flow:implement -q
+
+# If backend work was done:
+specify telemetry track-agent backend-engineer --command /flow:implement -q
+
+# If AI/ML work was done:
+specify telemetry track-agent ai-ml-engineer --command /flow:implement -q
+
+# If code reviews were performed:
+specify telemetry track-agent frontend-code-reviewer --command /flow:implement -q
+specify telemetry track-agent backend-code-reviewer --command /flow:implement -q
+```
+
+Replace `$CURRENT_ROLE` with the user's current role (dev, pm, qa, etc.).
+
+This enables workflow analytics for understanding agent usage patterns. The tracking is:
+- **Opt-in only**: Only recorded if user has enabled telemetry via `specify telemetry enable`
+- **Privacy-first**: Project names are hashed, no PII collected
+- **Fail-safe**: Commands will not fail if telemetry is unavailable

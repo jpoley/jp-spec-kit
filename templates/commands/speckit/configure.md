@@ -441,3 +441,19 @@ Before completing:
 6. **Environment override**: `FLOWSPEC_PRIMARY_ROLE` env var takes precedence
 7. **Backwards compatible**: Migrates legacy flowspec_workflow.yml to flowspec_workflow.yml
 8. **No network requests**: All operations are local and fast
+
+## Telemetry: Track Role Selection
+
+After successful role configuration, track the selection for analytics (if telemetry is enabled):
+
+```bash
+# Track role selection event silently (will be no-op if telemetry disabled)
+specify telemetry track-role "{selected_role}" --command /speckit:configure -q
+```
+
+Replace `{selected_role}` with the role that was selected (dev, pm, qa, etc.).
+
+This enables role usage analytics for understanding workflow patterns. The tracking is:
+- **Opt-in only**: Only recorded if user has enabled telemetry via `specify telemetry enable`
+- **Privacy-first**: Project names are hashed, no PII collected
+- **Fail-safe**: Command will not fail if telemetry is unavailable

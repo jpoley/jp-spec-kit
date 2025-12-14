@@ -4,6 +4,7 @@ This module provides telemetry collection with PII protection:
 - RoleEvent enum for event types
 - track_role_event() for logging events
 - JSONL writer for persistent storage
+- Configuration with opt-in consent
 
 All PII (project names, paths, usernames) is automatically hashed.
 
@@ -30,9 +31,16 @@ Environment Variables:
     FLOWSPEC_TELEMETRY_DEBUG: Set to "1" for debug output on errors
 """
 
+from .config import (
+    TelemetryConfig,
+    disable_telemetry,
+    enable_telemetry,
+    is_telemetry_enabled,
+    load_telemetry_config,
+    save_telemetry_config,
+)
 from .events import RoleEvent, TelemetryEvent
 from .integration import (
-    is_telemetry_enabled,
     track_agent_invocation,
     track_agent_invocation_decorator,
     track_command_execution,
@@ -54,6 +62,13 @@ __all__ = [
     # Events
     "RoleEvent",
     "TelemetryEvent",
+    # Config
+    "TelemetryConfig",
+    "is_telemetry_enabled",
+    "enable_telemetry",
+    "disable_telemetry",
+    "load_telemetry_config",
+    "save_telemetry_config",
     # Tracking
     "track_role_event",
     "hash_pii",
@@ -61,7 +76,6 @@ __all__ = [
     "sanitize_value",
     "reset_writer",
     # Integration helpers
-    "is_telemetry_enabled",
     "track_role_selection",
     "track_role_change",
     "track_agent_invocation",

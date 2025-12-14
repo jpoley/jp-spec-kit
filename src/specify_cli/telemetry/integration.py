@@ -38,28 +38,16 @@ Example:
 from __future__ import annotations
 
 import functools
-import os
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Callable, Generator, ParamSpec, TypeVar
 
+from .config import is_telemetry_enabled
 from .events import RoleEvent
-from .tracker import reset_writer, track_role_event
+from .tracker import track_role_event
 
 P = ParamSpec("P")
 R = TypeVar("R")
-
-
-def is_telemetry_enabled() -> bool:
-    """Check if telemetry is enabled.
-
-    Returns True unless FLOWSPEC_TELEMETRY_DISABLED is set.
-    """
-    return os.environ.get("FLOWSPEC_TELEMETRY_DISABLED", "").lower() not in (
-        "1",
-        "true",
-        "yes",
-    )
 
 
 def track_role_selection(
@@ -79,7 +67,7 @@ def track_role_selection(
         context: Additional context
         project_root: Project root directory
     """
-    if not is_telemetry_enabled():
+    if not is_telemetry_enabled(project_root):
         return
 
     track_role_event(
@@ -110,7 +98,7 @@ def track_role_change(
         context: Additional context
         project_root: Project root directory
     """
-    if not is_telemetry_enabled():
+    if not is_telemetry_enabled(project_root):
         return
 
     ctx = context or {}
@@ -151,7 +139,7 @@ def track_agent_invocation(
             # Agent work here
             pass
     """
-    if not is_telemetry_enabled():
+    if not is_telemetry_enabled(project_root):
         yield
         return
 
@@ -241,7 +229,7 @@ def track_handoff(
         context: Additional context
         project_root: Project root directory
     """
-    if not is_telemetry_enabled():
+    if not is_telemetry_enabled(project_root):
         return
 
     ctx = context or {}
@@ -275,7 +263,7 @@ def track_command_execution(
         context: Additional context
         project_root: Project root directory
     """
-    if not is_telemetry_enabled():
+    if not is_telemetry_enabled(project_root):
         return
 
     track_role_event(
@@ -307,7 +295,7 @@ def track_workflow(
         context: Additional context
         project_root: Project root directory
     """
-    if not is_telemetry_enabled():
+    if not is_telemetry_enabled(project_root):
         yield
         return
 
@@ -346,7 +334,6 @@ def track_workflow(
 
 
 __all__ = [
-    "is_telemetry_enabled",
     "track_role_selection",
     "track_role_change",
     "track_agent_invocation",
