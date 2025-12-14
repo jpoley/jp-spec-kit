@@ -1,11 +1,11 @@
 ---
 id: task-366
 title: 'Telemetry: Role Usage Analytics Framework'
-status: In Progress
+status: Done
 assignee:
   - '@muckross'
 created_date: '2025-12-09 15:14'
-updated_date: '2025-12-14 17:48'
+updated_date: '2025-12-14 20:32'
 labels:
   - 'workflow:Specified'
 dependencies: []
@@ -20,11 +20,11 @@ Add optional telemetry for role usage analytics. DEPENDS ON: All previous tasks.
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 RoleEvent enum with event types (role.selected, agent.invoked, handoff.clicked)
-- [ ] #2 track_role_event() function with PII hashing
-- [ ] #3 JSONL telemetry file format (.flowspec/telemetry.jsonl)
-- [ ] #4 Opt-in telemetry via config (telemetry.enabled)
-- [ ] #5 Feedback prompt UI designed
+- [x] #1 RoleEvent enum with event types (role.selected, agent.invoked, handoff.clicked)
+- [x] #2 track_role_event() function with PII hashing
+- [x] #3 JSONL telemetry file format (.flowspec/telemetry.jsonl)
+- [x] #4 Opt-in telemetry via config (telemetry.enabled)
+- [x] #5 Feedback prompt UI designed
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -99,4 +99,17 @@ Comprehensive PRD created: docs/prd/task-366-telemetry-spec.md
 3. Execute tasks in dependency order (see section 6 of PRD)
 4. Conduct privacy audit after completion (section 7)
 5. Measure opt-in rate and product value (section 10)
+
+## Implementation Complete (2025-12-14)
+
+All telemetry sub-tasks completed:
+- task-403: Core telemetry module (Done)
+- task-404: Configuration system (Done)
+- task-405: Event integration (Done)
+- task-406: CLI feedback prompt (Done)
+- task-407: CLI viewer (Done)
+- task-408: Privacy utilities (Done)
+- task-409: Test suite (Done)
+
+69 tests passing.
 <!-- SECTION:NOTES:END -->

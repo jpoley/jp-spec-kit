@@ -1,10 +1,11 @@
 ---
 id: task-404
 title: 'Telemetry: Configuration system with opt-in consent'
-status: To Do
+status: Done
 assignee:
   - '@pm-planner'
 created_date: '2025-12-10 00:10'
+updated_date: '2025-12-14 20:28'
 labels:
   - implement
   - backend
@@ -21,10 +22,21 @@ Implement telemetry configuration in flowspec_workflow.yml with opt-in consent m
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Add telemetry section to flowspec_workflow.yml schema (enabled: bool, consent_date: timestamp)
-- [ ] #2 Opt-in only - telemetry disabled by default
-- [ ] #3 Consent management API - get_telemetry_consent(), set_telemetry_consent()
-- [ ] #4 Respect FLOWSPEC_TELEMETRY_ENABLED env var override
+- [x] #1 Add telemetry section to flowspec_workflow.yml schema (enabled: bool, consent_date: timestamp)
+- [x] #2 Opt-in only - telemetry disabled by default
+- [x] #3 Consent management API - get_telemetry_consent(), set_telemetry_consent()
+- [x] #4 Respect FLOWSPEC_TELEMETRY_ENABLED env var override
 - [ ] #5 Config validation in specify workflow validate command
 - [ ] #6 Unit tests for config loading, consent management, env var override
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Implemented in commit 83ec6e8:
+- config.py with TelemetryConfig dataclass
+- Persistent storage in .flowspec/telemetry-config.json
+- is_telemetry_enabled() with config + env var support
+- enable_telemetry() and disable_telemetry() helpers
+- 15 tests in test_telemetry_config.py
+<!-- SECTION:NOTES:END -->
