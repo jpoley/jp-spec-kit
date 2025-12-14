@@ -53,6 +53,8 @@ from rich.text import Text
 from rich.tree import Tree
 from typer.core import TyperGroup
 
+from specify_cli.telemetry.cli import telemetry_app
+
 # Module-level logger
 logger = logging.getLogger(__name__)
 
@@ -6169,8 +6171,6 @@ vscode_app = typer.Typer(
 app.add_typer(vscode_app, name="vscode")
 
 # Telemetry sub-app
-from specify_cli.telemetry.cli import telemetry_app
-
 app.add_typer(telemetry_app, name="telemetry")
 
 
