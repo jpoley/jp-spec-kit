@@ -263,7 +263,7 @@ Git operations and workflow events. **New in v1.1.0.**
 
 **Example - Commit with GPG Signing:**
 ```json
-{"version":"1.1.0","event_type":"git.commit","timestamp":"2025-12-13T21:00:00.000Z","agent_id":"@backend-engineer","message":"feat: add user authentication","context":{"task_id":"task-123","branch_name":"task-123-auth"},"git":{"operation":"commit","sha":"abc123def456","branch_name":"task-123-auth","gpg_key_id":"ABCD1234EF56","signer_agent_id":"@backend-engineer","message":"feat: add user authentication","files_changed":5,"insertions":120,"deletions":30}}
+{"version":"1.1.0","event_type":"git.commit","timestamp":"2025-12-13T21:00:00.000Z","agent_id":"@backend-engineer","context":{"task_id":"task-123","branch_name":"task-123-auth"},"git":{"operation":"commit","sha":"abc123def456","branch_name":"task-123-auth","gpg_key_id":"ABCD1234EF56","signer_agent_id":"@backend-engineer","message":"feat: add user authentication","files_changed":5,"insertions":120,"deletions":30}}
 ```
 
 **Example - Local PR Approval:**
