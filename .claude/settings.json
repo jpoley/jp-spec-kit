@@ -1,6 +1,30 @@
 {
   "description": "Claude Code settings for Flowspec project",
   "projectName": "Flowspec",
+  "permissions": {
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Edit(./.env)",
+      "Edit(./.env.*)",
+      "Read(./secrets/**)",
+      "Edit(./secrets/**)",
+      "Edit(./CLAUDE.md)",
+      "Edit(./memory/constitution.md)",
+      "Edit(./uv.lock)",
+      "Edit(./package-lock.json)",
+      "Edit(./yarn.lock)",
+      "Edit(./pnpm-lock.yaml)",
+      "Bash(sudo:*)",
+      "Bash(rm -rf:*)",
+      "Bash(rm -r /:*)",
+      "Bash(chmod 777:*)",
+      "Bash(curl | sh:*)",
+      "Bash(curl | bash:*)",
+      "Bash(wget | sh:*)",
+      "Bash(wget | bash:*)"
+    ]
+  },
   "allowedTools": [
     "Read",
     "Write",

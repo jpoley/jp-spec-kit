@@ -313,6 +313,36 @@ Additional context loaded when working in specific directories:
 | `GITHUB_FLOWSPEC` | GitHub token for API requests |
 | `SPECIFY_FEATURE` | Override feature detection for non-Git repos |
 
+## Security Permissions
+
+The `.claude/settings.json` file defines permission rules that protect sensitive files and prevent dangerous operations.
+
+### Protected Files (Read/Write Denied)
+
+| Pattern | Protection |
+|---------|------------|
+| `.env`, `.env.*` | Environment variables with secrets |
+| `secrets/**` | Entire secrets directory |
+
+### Protected Files (Write Denied, Read Allowed)
+
+| Pattern | Protection |
+|---------|------------|
+| `CLAUDE.md` | Project configuration file |
+| `memory/constitution.md` | Constitution/principles file |
+| `uv.lock`, `package-lock.json` | Lock files (auto-generated) |
+
+### Blocked Bash Commands
+
+| Command Pattern | Reason |
+|-----------------|--------|
+| `sudo:*` | Privilege escalation |
+| `rm -rf:*` | Recursive force delete |
+| `chmod 777:*` | Insecure permissions |
+| `curl \| sh:*`, `wget \| bash:*` | Remote code execution |
+
+**Note**: Bash rules use prefix matching. Commands can still be run with different argument ordering.
+
 @import memory/claude-hooks.md
 
 @import memory/claude-checkpoints.md
