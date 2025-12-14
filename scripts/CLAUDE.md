@@ -10,6 +10,7 @@
 | `flush-backlog.sh` | Archive Done tasks with summary report |
 | `install-act.sh` | Install act for local GitHub Actions testing |
 | `pre-commit-dev-setup.sh` | Validate dev-setup symlink structure |
+| `pre-commit-agent-sync.sh` | Auto-sync Claude commands to Copilot agents |
 | `migrate-commands-to-subdirs.sh` | Migrate flat command structure to subdirectories |
 | `prune-releases.sh` | Delete old GitHub releases below a version threshold |
 
@@ -182,6 +183,52 @@ repos:
 ```
 
 **Design rationale:** See `docs/architecture/command-single-source-of-truth.md`
+
+## pre-commit-agent-sync.sh
+
+Auto-syncs Claude commands to VS Code Copilot agents when command files change.
+
+```bash
+# Automatically run by pre-commit framework
+# Or run manually:
+./scripts/bash/pre-commit-agent-sync.sh
+```
+
+**What it does:**
+1. Detects staged `.claude/commands/**/*.md` or `templates/commands/**/*.md` files
+2. Runs `sync-copilot-agents.sh --force` to regenerate agents
+3. Auto-stages generated `.github/agents/` files
+4. Shows summary of synced files
+
+**Exit codes:**
+- 0: Success (sync completed or nothing to do)
+- 1: Sync failed
+
+**Pre-commit integration** (already configured in `.pre-commit-config.yaml`):
+```yaml
+- id: sync-copilot-agents
+  name: Sync Copilot agents
+  entry: scripts/bash/pre-commit-agent-sync.sh
+  language: script
+  files: ^\.claude/commands/.*\.md$|^templates/commands/.*\.md$
+  pass_filenames: false
+```
+
+**Bypass:** Use `git commit --no-verify` to skip this hook for emergency commits.
+
+**Example output:**
+```
+[agent-sync] Detected staged command files, syncing agents...
+[agent-sync] Staged command files:
+  .claude/commands/flow/implement.md
+OK: Created: flow-implement.agent.md
+[agent-sync] Auto-staged .github/agents/ files
+[agent-sync] Synced 1 agent files:
+  .github/agents/flow-implement.agent.md
+[agent-sync] Agent sync complete
+```
+
+**Design rationale:** See `build-docs/design/git-hook-agent-sync-design.md`
 
 ## migrate-commands-to-subdirs.sh
 

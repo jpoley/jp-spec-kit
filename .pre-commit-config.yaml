@@ -17,6 +17,16 @@ repos:
         pass_filenames: false
         description: Validate .claude/commands/ symlink structure
 
+      # Sync Claude commands to Copilot agents
+      # Auto-syncs .claude/commands/ to .github/agents/ when commands change
+      - id: sync-copilot-agents
+        name: Sync Copilot agents
+        entry: scripts/bash/pre-commit-agent-sync.sh
+        language: script
+        files: ^\.claude/commands/.*\.md$|^templates/commands/.*\.md$
+        pass_filenames: false
+        description: Auto-sync Claude commands to VS Code Copilot agents
+
   # Standard Python hooks
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.8.2
