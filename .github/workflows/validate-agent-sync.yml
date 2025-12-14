@@ -1,0 +1,77 @@
+name: Validate Agent Sync
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.claude/commands/**'
+      - 'templates/commands/**'
+      - '.github/agents/**'
+      - 'flowspec_workflow.yml'
+
+jobs:
+  validate-sync:
+    name: Check Agent Sync Drift
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Validate agent sync (no drift)
+        shell: bash
+        run: |
+          echo "=== Validating agent sync ==="
+          echo "Platform: ${{ matrix.os }}"
+          echo ""
+
+          # Run validation
+          START_TIME=$(date +%s)
+          ./scripts/bash/sync-copilot-agents.sh --validate
+          EXIT_CODE=$?
+          END_TIME=$(date +%s)
+          DURATION=$((END_TIME - START_TIME))
+
+          echo ""
+          echo "=== Results ==="
+          echo "Duration: ${DURATION}s"
+
+          # Performance check (should complete in under 30 seconds)
+          if [ $DURATION -gt 30 ]; then
+            echo "::warning::Validation took ${DURATION}s (> 30s threshold)"
+          fi
+
+          exit $EXIT_CODE
+
+      - name: Generate job summary
+        if: always()
+        run: |
+          {
+            echo "## Agent Sync Validation"
+            echo ""
+            echo "| Metric | Value |"
+            echo "|--------|-------|"
+            echo "| Platform | ${{ matrix.os }} |"
+            echo "| Status | ${{ job.status }} |"
+            echo ""
+            if [ "${{ job.status }}" == "failure" ]; then
+              echo "### Fix Required"
+              echo ""
+              echo "Run \`./scripts/bash/sync-copilot-agents.sh --force\` to regenerate agents."
+            fi
+          } >> $GITHUB_STEP_SUMMARY
