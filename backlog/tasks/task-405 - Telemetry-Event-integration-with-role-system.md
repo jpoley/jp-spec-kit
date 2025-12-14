@@ -1,11 +1,11 @@
 ---
 id: task-405
 title: 'Telemetry: Event integration with role system'
-status: To Do
+status: Done
 assignee:
   - '@muckross'
 created_date: '2025-12-10 00:11'
-updated_date: '2025-12-14 17:48'
+updated_date: '2025-12-14 20:29'
 labels:
   - implement
   - backend
@@ -22,9 +22,19 @@ Integrate telemetry tracking into role selection, agent invocation, and handoff 
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Hook role selection events in init/configure commands
-- [ ] #2 Hook agent invocation events in /flow:implement, /flow:validate, etc.
-- [ ] #3 Hook handoff click events in VS Code Copilot agent handoffs
-- [ ] #4 Check telemetry consent before tracking (fail-safe if disabled)
-- [ ] #5 Integration tests verifying events are tracked for role/agent/handoff interactions
+- [x] #1 Hook role selection events in init/configure commands
+- [x] #2 Hook agent invocation events in /flow:implement, /flow:validate, etc.
+- [x] #3 Hook handoff click events in VS Code Copilot agent handoffs
+- [x] #4 Check telemetry consent before tracking (fail-safe if disabled)
+- [x] #5 Integration tests verifying events are tracked for role/agent/handoff interactions
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Implemented in commit 83ec6e8:
+- CLI track commands: track-role, track-agent, track-handoff
+- Hooks added to /flow:implement, /flow:validate, /speckit:configure
+- integration.py updated to use config-based consent
+- All tracking uses fail-safe consent checks
+<!-- SECTION:NOTES:END -->
