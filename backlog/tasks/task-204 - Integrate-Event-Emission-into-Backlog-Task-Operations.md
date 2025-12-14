@@ -3,9 +3,9 @@ id: task-204
 title: Integrate Event Emission into Backlog Task Operations
 status: To Do
 assignee:
-  - '@galway'
+  - '@muckross'
 created_date: '2025-12-03 00:41'
-updated_date: '2025-12-04 04:01'
+updated_date: '2025-12-14 17:48'
 labels:
   - implement
   - integration

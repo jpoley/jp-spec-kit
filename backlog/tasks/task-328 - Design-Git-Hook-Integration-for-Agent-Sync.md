@@ -2,8 +2,10 @@
 id: task-328
 title: 'Design: Git Hook Integration for Agent Sync'
 status: To Do
-assignee: []
+assignee:
+  - '@muckross'
 created_date: '2025-12-08 22:22'
+updated_date: '2025-12-14 17:48'
 labels:
   - infrastructure
   - tooling

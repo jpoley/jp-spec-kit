@@ -2,8 +2,10 @@
 id: task-334
 title: Create pre-commit hook for agent sync
 status: To Do
-assignee: []
+assignee:
+  - '@muckross'
 created_date: '2025-12-08 22:28'
+updated_date: '2025-12-14 17:48'
 labels:
   - implement
   - tooling

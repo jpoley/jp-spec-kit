@@ -3,8 +3,9 @@ id: task-403
 title: 'Telemetry: Core telemetry module with event tracking'
 status: To Do
 assignee:
-  - '@pm-planner'
+  - '@muckross'
 created_date: '2025-12-10 00:10'
+updated_date: '2025-12-14 17:48'
 labels:
   - implement
   - backend

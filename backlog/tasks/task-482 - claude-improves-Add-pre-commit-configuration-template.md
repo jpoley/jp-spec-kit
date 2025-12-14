@@ -1,9 +1,11 @@
 ---
 id: task-482
-title: "claude-improves: Add pre-commit configuration template"
-status: To Do
-assignee: []
+title: 'claude-improves: Add pre-commit configuration template'
+status: Done
+assignee:
+  - '@muckross'
 created_date: '2025-12-12 01:15'
+updated_date: '2025-12-14 17:51'
 labels:
   - claude-improves
   - templates
@@ -24,10 +26,10 @@ Should provide template with common hooks based on project type.
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 .pre-commit-config.yaml template created
-- [ ] #2 Python projects get: ruff, ruff-format, mypy, bandit
-- [ ] #3 Node projects get: prettier, eslint, tsc
-- [ ] #4 All projects get: trailing-whitespace, end-of-file-fixer, check-yaml
-- [ ] #5 Template includes commented-out advanced hooks
-- [ ] #6 Documentation explains how to enable/customize
+- [x] #1 .pre-commit-config.yaml template created
+- [x] #2 Python projects get: ruff, ruff-format, mypy, bandit
+- [x] #3 Node projects get: prettier, eslint, tsc
+- [x] #4 All projects get: trailing-whitespace, end-of-file-fixer, check-yaml
+- [x] #5 Template includes commented-out advanced hooks
+- [x] #6 Documentation explains how to enable/customize
 <!-- AC:END -->

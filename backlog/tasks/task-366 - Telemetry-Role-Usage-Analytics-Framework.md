@@ -2,9 +2,10 @@
 id: task-366
 title: 'Telemetry: Role Usage Analytics Framework'
 status: In Progress
-assignee: []
+assignee:
+  - '@muckross'
 created_date: '2025-12-09 15:14'
-updated_date: '2025-12-10 00:17'
+updated_date: '2025-12-14 17:48'
 labels:
   - 'workflow:Specified'
 dependencies: []
