@@ -24,7 +24,7 @@ echo ""
 # =============================================================================
 echo "Creating Phase 1: Foundation tasks..."
 
-# Note: task-485 and task-486 already created manually
+# Note: Phase 1.1 (task-485) and Phase 1.2 (task-486) already created manually
 # Skipping to avoid duplicates
 
 # Phase 1.3: Event Router
