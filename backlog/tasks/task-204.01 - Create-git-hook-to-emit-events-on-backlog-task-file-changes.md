@@ -1,11 +1,11 @@
 ---
 id: task-204.01
 title: Create git hook to emit events on backlog task file changes
-status: To Do
+status: Done
 assignee:
   - '@muckross'
 created_date: '2025-12-03 02:19'
-updated_date: '2025-12-14 17:48'
+updated_date: '2025-12-14 18:31'
 labels:
   - hooks
   - git
@@ -62,12 +62,38 @@ Hook emits: specify hooks emit task.completed --task-id task-123
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Git hook script created at scripts/hooks/post-commit-backlog-events.sh
-- [ ] #2 Hook detects new task files and emits task.created
-- [ ] #3 Hook detects status changes and emits task.status_changed
-- [ ] #4 Hook detects Done status and emits task.completed
-- [ ] #5 Hook detects AC checkbox changes and emits task.ac_checked
-- [ ] #6 Hook is idempotent (safe to run multiple times)
-- [ ] #7 Documentation explains setup and limitations
-- [ ] #8 Integration test with mock git repo
+- [x] #1 Git hook script created at scripts/hooks/post-commit-backlog-events.sh
+- [x] #2 Hook detects new task files and emits task.created
+- [x] #3 Hook detects status changes and emits task.status_changed
+- [x] #4 Hook detects Done status and emits task.completed
+- [x] #5 Hook detects AC checkbox changes and emits task.ac_checked
+- [x] #6 Hook is idempotent (safe to run multiple times)
+- [x] #7 Documentation explains setup and limitations
+- [x] #8 Integration test with mock git repo
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Implementation complete:
+
+1. Created scripts/hooks/post-commit-backlog-events.sh
+   - Detects changes to backlog/tasks/*.md files
+   - Emits task.created, task.status_changed, task.completed, task.ac_checked
+   - Supports --dry-run and --verbose modes
+   - Graceful degradation when specify CLI unavailable
+
+2. Updated scripts/hooks/install-hooks.sh
+   - Added installation for post-commit hook
+
+3. Created docs/guides/backlog-git-hooks.md
+   - Installation instructions
+   - Usage examples
+   - Troubleshooting guide
+
+4. Created tests/integration/test_post_commit_backlog_events.sh
+   - 6 integration tests covering all event types
+   - All tests pass
+
+Commit: 0c641eb
+<!-- SECTION:NOTES:END -->
