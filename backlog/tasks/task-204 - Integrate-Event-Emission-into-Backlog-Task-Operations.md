@@ -1,11 +1,11 @@
 ---
 id: task-204
 title: Integrate Event Emission into Backlog Task Operations
-status: In Progress
+status: Done
 assignee:
   - '@muckross'
 created_date: '2025-12-03 00:41'
-updated_date: '2025-12-14 19:20'
+updated_date: '2025-12-14 20:03'
 labels:
   - implement
   - integration
@@ -85,4 +85,21 @@ backlog task edit 123 -s Done && specify hooks emit task.completed --task-id tas
 
 ### Note:
 Task remains In Progress as task-204.03 requires external action (GitHub issue on upstream repo).
+
+## Completed via Shim Module (2025-12-14)
+
+Task completed with the addition of `src/specify_cli/backlog/shim.py` from main (commit c927297).
+
+### Shim Module Features:
+- `task_create()` - emits task.created
+- `task_edit()` - emits task.status_changed, task.completed, task.ac_checked
+- `task_archive()` - emits task.archived
+- Convenience wrappers: complete_task(), start_task(), check_acceptance_criteria()
+
+### Implementation Approaches Completed:
+1. **Git hook approach** (task-204.01) - post-commit event detection
+2. **Shim wrapper approach** - programmatic event emission
+3. **Upstream proposal** (task-204.03) - proposal document ready
+
+All acceptance criteria satisfied via shim module with 33 tests.
 <!-- SECTION:NOTES:END -->
