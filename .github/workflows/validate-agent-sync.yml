@@ -35,6 +35,9 @@ jobs:
 
       - name: Validate agent sync (no drift)
         shell: bash
+        env:
+          # Force UTF-8 for Windows (charmap can't handle Unicode like ✓, →, ❌)
+          PYTHONIOENCODING: utf-8
         run: |
           echo "=== Validating agent sync ==="
           echo "Platform: ${{ matrix.os }}"

@@ -30,6 +30,10 @@ TEMPLATES_COMMANDS_DIR="$PROJECT_ROOT/templates/commands"
 AGENTS_DIR="$PROJECT_ROOT/.github/agents"
 WORKFLOW_CONFIG="$PROJECT_ROOT/flowspec_workflow.yml"
 
+# Force UTF-8 encoding for Python (Windows compatibility)
+# Windows uses charmap/cp1252 by default which can't handle Unicode like ✓, →, ❌
+export PYTHONIOENCODING=utf-8
+
 # Determine Python command - prefer uv venv if available (for CI compatibility)
 # This handles CI environments where yaml is only in the uv-managed venv
 if [[ -f "$PROJECT_ROOT/.venv/bin/python" ]]; then
