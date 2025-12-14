@@ -1,11 +1,11 @@
 ---
 id: task-204.03
 title: Contribute hooks/events feature to upstream backlog.md
-status: To Do
+status: In Progress
 assignee:
   - '@muckross'
 created_date: '2025-12-03 02:19'
-updated_date: '2025-12-14 17:48'
+updated_date: '2025-12-14 19:20'
 labels:
   - hooks
   - backlog
@@ -62,11 +62,44 @@ hooks:
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Review backlog.md codebase for hook extension points
-- [ ] #2 Draft feature proposal document
+- [x] #1 Review backlog.md codebase for hook extension points
+- [x] #2 Draft feature proposal document
 - [ ] #3 Open GitHub issue on MrLesk/Backlog.md repo
 - [ ] #4 Engage with maintainer on design
 - [ ] #5 If accepted: implement hooks feature in backlog.md
 - [ ] #6 If accepted: submit PR to upstream
 - [ ] #7 Document outcome (accepted/rejected/forked)
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+## Proposal Complete (2025-12-14)
+
+### Codebase Review Summary:
+- Backlog.md is written in TypeScript
+- Already has `onStatusChange` hook in config.yml
+- Uses Husky for git hooks
+- MIT licensed, open to contributions
+- Has MCP server integration for AI tools
+
+### Proposal Document:
+Created: `docs/proposals/backlog-md-hooks-proposal.md`
+
+**Proposed Approach**: Hybrid shell + TypeScript hook system
+
+**Key Features**:
+- Extended lifecycle hooks (create, edit, delete, archive)
+- Acceptance criteria hooks (check/uncheck)
+- JSON event payload on stdin
+- Backwards compatible with existing onStatusChange
+
+### Next Steps:
+1. Open GitHub issue on MrLesk/Backlog.md
+2. Link to proposal document
+3. Engage with maintainer on design decisions
+
+### Remaining ACs:
+- AC3: Open GitHub issue (requires manual action)
+- AC4-7: Depend on maintainer response
+<!-- SECTION:NOTES:END -->
