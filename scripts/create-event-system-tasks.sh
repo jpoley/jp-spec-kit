@@ -229,7 +229,7 @@ backlog task create "Implement Pre-Commit Quality Gate - Lint" \
   -d "Create lint quality gate running configured linters before commit." \
   --ac "Pre-commit hook calls quality-gates/lint.sh" \
   --ac "Supports ruff eslint golangci-lint" \
-  --ac "Emits quality_gate events started and passed or failed" \
+  --ac "Emits quality_gate.started and quality_gate.passed or quality_gate.failed events" \
   --ac "Configurable skip with git commit no-verify" \
   --ac "Exit code 1 blocks commit on failure" \
   -l "agent-event-system,phase-4,infrastructure,quality,cicd,git-workflow" \
