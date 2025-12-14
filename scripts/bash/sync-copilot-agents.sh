@@ -53,10 +53,8 @@ TOTAL_FILES=0
 PROCESSED_FILES=0
 ERRORS=0
 
-# Cache for role metadata
-declare -A ROLE_AGENTS
-declare -A AGENT_ROLES
-declare -A COMMAND_ROLES
+# Cache for role metadata (using temp files for bash 3.2 compatibility - no associative arrays)
+ROLE_METADATA_DIR=""
 ROLE_METADATA_LOADED=false
 
 # Colors (disabled on non-tty)
@@ -158,10 +156,17 @@ parse_args() {
 }
 
 # Load role metadata from flowspec_workflow.yml
+# Uses temp files for bash 3.2 compatibility (macOS) instead of associative arrays
 get_role_metadata() {
     if [[ "$ROLE_METADATA_LOADED" == true ]]; then
         return 0
     fi
+
+    # Create temp directory for metadata files
+    ROLE_METADATA_DIR=$(mktemp -d)
+    mkdir -p "$ROLE_METADATA_DIR/command_roles"
+    mkdir -p "$ROLE_METADATA_DIR/agent_roles"
+    mkdir -p "$ROLE_METADATA_DIR/role_agents"
 
     if [[ ! -f "$WORKFLOW_CONFIG" ]]; then
         log_warn "Workflow config not found: $WORKFLOW_CONFIG"
@@ -172,22 +177,9 @@ get_role_metadata() {
     log_verbose "Loading role metadata from $WORKFLOW_CONFIG"
 
     # Use Python to parse YAML and process metadata
-    while IFS=: read -r type key value; do
-        case "$type" in
-            COMMAND_ROLE)
-                COMMAND_ROLES["$key"]="$value"
-                log_verbose "Command '$key' -> role '$value'"
-                ;;
-            ROLE_AGENT)
-                ROLE_AGENTS["$key"]+="$value "
-                log_verbose "Role '$key' -> agent '$value'"
-                ;;
-            AGENT_ROLE)
-                AGENT_ROLES["$key"]="$value"
-                log_verbose "Agent '$key' -> role '$value'"
-                ;;
-        esac
-    done < <(WORKFLOW_CONFIG="$WORKFLOW_CONFIG" $PYTHON_CMD << 'PYTHON_METADATA'
+    # Explicit UTF-8 encoding for Windows compatibility
+    local metadata_output
+    if ! metadata_output=$(WORKFLOW_CONFIG="$WORKFLOW_CONFIG" $PYTHON_CMD << 'PYTHON_METADATA'
 import yaml
 import sys
 import os
@@ -195,7 +187,8 @@ from pathlib import Path
 
 try:
     config_path = Path(os.environ.get('WORKFLOW_CONFIG', ''))
-    with open(config_path, 'r') as f:
+    # Explicit UTF-8 encoding for Windows compatibility
+    with open(config_path, 'r', encoding='utf-8') as f:
         config = yaml.safe_load(f)
 
     roles = config.get('roles', {}).get('definitions', {})
@@ -222,23 +215,63 @@ except Exception as e:
     print(f"ERROR: Failed to parse YAML: {e}", file=sys.stderr)
     sys.exit(1)
 PYTHON_METADATA
-)
+2>&1); then
+        log_error "Failed to load role metadata: $metadata_output"
+        ROLE_METADATA_LOADED=true
+        return 1
+    fi
+
+    # Parse metadata and store in temp files
+    local cmd_count=0
+    local agent_count=0
+    while IFS=: read -r type key value; do
+        case "$type" in
+            COMMAND_ROLE)
+                echo "$value" > "$ROLE_METADATA_DIR/command_roles/$key"
+                cmd_count=$((cmd_count + 1))
+                log_verbose "Command '$key' -> role '$value'"
+                ;;
+            ROLE_AGENT)
+                echo "$value" >> "$ROLE_METADATA_DIR/role_agents/$key"
+                log_verbose "Role '$key' -> agent '$value'"
+                ;;
+            AGENT_ROLE)
+                echo "$value" > "$ROLE_METADATA_DIR/agent_roles/$key"
+                agent_count=$((agent_count + 1))
+                log_verbose "Agent '$key' -> role '$value'"
+                ;;
+        esac
+    done <<< "$metadata_output"
 
     ROLE_METADATA_LOADED=true
-    log_verbose "Role metadata loaded: ${#COMMAND_ROLES[@]} commands, ${#AGENT_ROLES[@]} agents"
+    log_verbose "Role metadata loaded: $cmd_count commands, $agent_count agents"
 }
 
-# Get role for a command
+# Get role for a command (reads from temp file)
 get_command_role() {
     local command="$1"
-    echo "${COMMAND_ROLES[$command]:-}"
+    local file="$ROLE_METADATA_DIR/command_roles/$command"
+    if [[ -f "$file" ]]; then
+        cat "$file"
+    fi
 }
 
-# Get role for an agent
+# Get role for an agent (reads from temp file)
 get_agent_role() {
     local agent="$1"
-    echo "${AGENT_ROLES[$agent]:-}"
+    local file="$ROLE_METADATA_DIR/agent_roles/$agent"
+    if [[ -f "$file" ]]; then
+        cat "$file"
+    fi
 }
+
+# Cleanup temp files on exit
+cleanup_metadata() {
+    if [[ -n "$ROLE_METADATA_DIR" && -d "$ROLE_METADATA_DIR" ]]; then
+        rm -rf "$ROLE_METADATA_DIR"
+    fi
+}
+trap cleanup_metadata EXIT
 
 # Check if command should be processed based on role filter
 should_process_command() {
@@ -340,7 +373,8 @@ def resolve_includes(content, project_root, depth=0, max_depth=10):
                         raise ValueError(f"Include path escapes project root: {include_path}")
                 if not resolved_path.exists():
                     raise FileNotFoundError(f"Include not found: {include_path}")
-                included_content = resolved_path.read_text()
+                # Explicit UTF-8 encoding for Windows compatibility
+                included_content = resolved_path.read_text(encoding='utf-8')
                 # Recursively resolve includes in the included content
                 return resolve_includes(included_content, project_root, depth + 1, max_depth)
 
@@ -358,7 +392,8 @@ try:
     if input_file.is_symlink():
         input_file = input_file.resolve()
 
-    content = input_file.read_text()
+    # Explicit UTF-8 encoding for Windows compatibility
+    content = input_file.read_text(encoding='utf-8')
     resolved = resolve_includes(content, project_root, 0, 10)
     print(resolved, end='')
 except Exception as e:

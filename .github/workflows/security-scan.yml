@@ -17,6 +17,10 @@
 
 name: Security Scan (Reusable)
 
+# Top-level permissions for security scanners (TokenPermissionsID compliance)
+permissions:
+  contents: read
+
 on:
   workflow_call:
     inputs:
