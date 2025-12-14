@@ -169,7 +169,11 @@ def track_role_event(
         return None
 
     # Check environment variable for telemetry opt-out
-    if os.environ.get("FLOWSPEC_TELEMETRY_DISABLED", "").lower() in ("1", "true", "yes"):
+    if os.environ.get("FLOWSPEC_TELEMETRY_DISABLED", "").lower() in (
+        "1",
+        "true",
+        "yes",
+    ):
         return None
 
     # Sanitize context and metadata
@@ -177,7 +181,9 @@ def track_role_event(
     sanitized_metadata = sanitize_value(metadata) if metadata else {}
 
     # Add system metadata
-    sanitized_metadata["hostname_hash"] = hash_pii(os.environ.get("HOSTNAME", "unknown"))
+    sanitized_metadata["hostname_hash"] = hash_pii(
+        os.environ.get("HOSTNAME", "unknown")
+    )
 
     # Create the event
     event = TelemetryEvent.create(

@@ -64,7 +64,9 @@ class TelemetryEvent:
     """
 
     event_type: RoleEvent
-    timestamp: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    timestamp: str = field(
+        default_factory=lambda: datetime.now(timezone.utc).isoformat()
+    )
     role: str | None = None
     command: str | None = None
     agent: str | None = None
