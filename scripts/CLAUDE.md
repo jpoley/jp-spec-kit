@@ -11,6 +11,8 @@
 | `install-act.sh` | Install act for local GitHub Actions testing |
 | `pre-commit-dev-setup.sh` | Validate dev-setup symlink structure |
 | `pre-commit-agent-sync.sh` | Auto-sync Claude commands to Copilot agents |
+| `pre-commit-security-scan.sh` | Fast security scan on staged files |
+| `setup-security-hooks.sh` | Install/configure security pre-commit hooks |
 | `migrate-commands-to-subdirs.sh` | Migrate flat command structure to subdirectories |
 | `prune-releases.sh` | Delete old GitHub releases below a version threshold |
 
@@ -229,6 +231,83 @@ OK: Created: flow-implement.agent.md
 ```
 
 **Design rationale:** See `build-docs/design/git-hook-agent-sync-design.md`
+
+## pre-commit-security-scan.sh
+
+Fast security scan on staged files before commit.
+
+```bash
+# Automatically run by pre-commit framework
+# Or run manually:
+./scripts/bash/pre-commit-security-scan.sh
+```
+
+**What it does:**
+1. Scans staged files matching scannable patterns (.py, .js, .ts, etc.)
+2. Runs fast security scan (uses bandit for Python if specify not available)
+3. Blocks commits with critical vulnerabilities
+4. Logs bypasses for audit trail
+
+**Environment variables:**
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `FLOWSPEC_SECURITY_FAIL_ON` | `critical` | Severity threshold to block commit |
+| `FLOWSPEC_SECURITY_TIMEOUT` | `30` | Scan timeout in seconds |
+| `FLOWSPEC_SECURITY_BYPASS` | (unset) | Set to "1" to skip scanning (logged) |
+
+**Exit codes:**
+- 0: Success (no critical issues)
+- 1: Critical vulnerabilities found
+- 2: Script error
+
+**Bypass audit logging:**
+
+All bypasses are logged to `.flowspec/security-bypass.log` for audit:
+```
+2025-12-14T19:15:56Z|jpoley|env_bypass|WIP: experimental feature
+```
+
+**Pre-commit integration** (already configured in `.pre-commit-config.yaml`):
+```yaml
+- id: flowspec-security-scan
+  name: Flowspec Security Scan
+  entry: scripts/bash/pre-commit-security-scan.sh
+  language: script
+  pass_filenames: false
+  stages: [commit]
+  files: \.(py|js|ts|tsx|jsx|go|rs|java|rb|php)$
+```
+
+**Bypass:** Use `git commit --no-verify` or `FLOWSPEC_SECURITY_BYPASS=1 git commit`.
+
+**Documentation:** See `docs/guides/pre-commit-security-hooks.md`
+
+## setup-security-hooks.sh
+
+Install and configure security pre-commit hooks.
+
+```bash
+# Install security hooks
+./scripts/bash/setup-security-hooks.sh
+
+# Check installation status
+./scripts/bash/setup-security-hooks.sh --check
+
+# Remove security hooks
+./scripts/bash/setup-security-hooks.sh --uninstall
+
+# Force reinstall
+./scripts/bash/setup-security-hooks.sh --force
+```
+
+**What it does:**
+1. Installs pre-commit if not present
+2. Adds security hook to `.pre-commit-config.yaml`
+3. Runs `pre-commit install` to set up git hooks
+
+**Exit codes:**
+- 0: Success
+- 1: Error during setup
 
 ## migrate-commands-to-subdirs.sh
 

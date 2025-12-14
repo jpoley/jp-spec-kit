@@ -27,6 +27,17 @@ repos:
         pass_filenames: false
         description: Auto-sync Claude commands to VS Code Copilot agents
 
+      # Security scanning
+      # Fast security scan on staged files before commit
+      - id: flowspec-security-scan
+        name: Flowspec Security Scan
+        entry: scripts/bash/pre-commit-security-scan.sh
+        language: script
+        pass_filenames: false
+        stages: [commit]
+        files: \.(py|js|ts|tsx|jsx|go|rs|java|rb|php)$
+        description: Fast security scan blocking critical vulnerabilities
+
   # Standard Python hooks
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.8.2
