@@ -337,7 +337,7 @@ Workflow:
             "src/specify_cli/__init__.py",
         ]
     )
-    run(["git", "commit", "-m", f"chore: release v{new_version}"])
+    run(["git", "commit", "-s", "-m", f"chore: release v{new_version}"])
 
     # Push branch
     print(f"\n Pushing branch: {release_branch}")

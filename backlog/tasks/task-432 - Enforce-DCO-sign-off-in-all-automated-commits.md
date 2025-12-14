@@ -1,9 +1,11 @@
 ---
 id: task-432
 title: Enforce DCO sign-off in all automated commits
-status: To Do
-assignee: []
+status: Done
+assignee:
+  - '@muckross'
 created_date: '2025-12-10 22:17'
+updated_date: '2025-12-14 20:14'
 labels:
   - compliance
   - ci-cd
@@ -32,8 +34,28 @@ The sign-off certifies that the contributor has the right to submit the code und
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 All Claude Code commits include Signed-off-by line
-- [ ] #2 release.py commits include Signed-off-by line
-- [ ] #3 CI fails if DCO sign-off is missing (add probot/dco or similar check)
-- [ ] #4 Document DCO requirement in CONTRIBUTING.md or CLAUDE.md
+- [x] #1 All Claude Code commits include Signed-off-by line
+- [x] #2 release.py commits include Signed-off-by line
+- [x] #3 CI fails if DCO sign-off is missing (add probot/dco or similar check)
+- [x] #4 Document DCO requirement in CONTRIBUTING.md or CLAUDE.md
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+## Implementation Complete (2025-12-14)
+
+1. **DCO Documentation** (AC#4): Added DCO section to CONTRIBUTING.md explaining:
+   - How to sign commits (`git commit -s`)
+   - Format for AI-assisted commits
+   - CI enforcement notice
+
+2. **release.py** (AC#2): Added `-s` flag to git commit command
+
+3. **CI Check** (AC#3): Created `.github/workflows/dco-check.yml` that:
+   - Checks all PR commits for Signed-off-by line
+   - Exempts bot commits (github-actions[bot], dependabot[bot], renovate[bot])
+   - Fails with helpful message if sign-off missing
+
+4. **Workflow Updates**: Added `-s` to backlog-archive.yml commit
+<!-- SECTION:NOTES:END -->

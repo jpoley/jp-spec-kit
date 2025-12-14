@@ -1,0 +1,79 @@
+name: DCO Check
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+jobs:
+  dco-check:
+    name: Verify DCO Sign-off
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Check DCO sign-off on all commits
+        run: |
+          echo "=== Checking DCO sign-off on PR commits ==="
+
+          # Get the base commit (merge base with target branch)
+          BASE_SHA=$(git merge-base origin/${{ github.event.pull_request.base.ref }} HEAD)
+
+          # Get all commits in this PR
+          COMMITS=$(git rev-list --reverse $BASE_SHA..HEAD)
+          COMMIT_COUNT=$(echo "$COMMITS" | wc -w)
+
+          echo "Checking $COMMIT_COUNT commits..."
+          echo ""
+
+          MISSING_SIGNOFF=0
+          CHECKED=0
+
+          # Allowed bot authors (DCO exemption)
+          ALLOWED_BOTS="github-actions\[bot\]|dependabot\[bot\]|renovate\[bot\]"
+
+          for COMMIT in $COMMITS; do
+            CHECKED=$((CHECKED + 1))
+            SHORT_SHA=$(git rev-parse --short $COMMIT)
+            SUBJECT=$(git log -1 --format='%s' $COMMIT)
+            AUTHOR=$(git log -1 --format='%an' $COMMIT)
+
+            # Check if author is an allowed bot (exempt from DCO)
+            if echo "$AUTHOR" | grep -qE "$ALLOWED_BOTS"; then
+              echo "[$CHECKED/$COMMIT_COUNT] ⊘ $SHORT_SHA: $SUBJECT (bot: $AUTHOR)"
+              continue
+            fi
+
+            # Check if commit has Signed-off-by line
+            if git log -1 --format='%B' $COMMIT | grep -qE '^Signed-off-by: .+ <.+>$'; then
+              echo "[$CHECKED/$COMMIT_COUNT] ✓ $SHORT_SHA: $SUBJECT"
+            else
+              echo "[$CHECKED/$COMMIT_COUNT] ✗ $SHORT_SHA: $SUBJECT"
+              echo "  Missing: Signed-off-by: Name <email>"
+              MISSING_SIGNOFF=$((MISSING_SIGNOFF + 1))
+            fi
+          done
+
+          echo ""
+          echo "=== Summary ==="
+          echo "Commits checked: $COMMIT_COUNT"
+          echo "Missing sign-off: $MISSING_SIGNOFF"
+
+          if [ $MISSING_SIGNOFF -gt 0 ]; then
+            echo ""
+            echo "::error::$MISSING_SIGNOFF commit(s) missing DCO sign-off"
+            echo ""
+            echo "To fix, amend your commits with: git commit --amend -s"
+            echo "Or add 'Signed-off-by: Your Name <your.email@example.com>' to commit messages"
+            echo ""
+            echo "See CONTRIBUTING.md for DCO requirements."
+            exit 1
+          fi
+
+          echo ""
+          echo "✓ All commits have valid DCO sign-off"

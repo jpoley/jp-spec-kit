@@ -34,7 +34,46 @@ Here are a few things you can do that will increase the likelihood of your pull 
 - Update documentation (`README.md`, `spec-driven.md`) if your changes affect user-facing features.
 - Keep your change as focused as possible. If there are multiple changes you would like to make that are not dependent upon each other, consider submitting them as separate pull requests.
 - Write a [good commit message](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html).
+- **Sign off your commits** with the DCO (see below).
 - Test your changes with the Spec-Driven Development workflow to ensure compatibility.
+
+## Developer Certificate of Origin (DCO)
+
+This project requires all commits to be signed off with the [Developer Certificate of Origin](https://developercertificate.org/) (DCO). The DCO certifies that you have the right to submit the code under the project's open source license.
+
+### How to Sign Off
+
+Add a `Signed-off-by` line to your commit messages:
+
+```
+git commit -s -m "Your commit message"
+```
+
+Or manually add the line to your commit message:
+
+```
+Your commit message
+
+Signed-off-by: Your Name <your.email@example.com>
+```
+
+### For AI-Assisted Commits
+
+When using AI coding assistants (Claude Code, GitHub Copilot, etc.), ensure commits include:
+
+```
+Your commit message
+
+Signed-off-by: Your Name <your.email@example.com>
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+```
+
+### CI Enforcement
+
+All pull requests are checked for DCO sign-off. PRs without proper sign-off will fail CI checks.
 
 ## Development workflow
 

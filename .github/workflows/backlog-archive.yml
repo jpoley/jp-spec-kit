@@ -164,7 +164,7 @@ jobs:
             echo "No changes to commit"
           else
             git add -A
-            git commit -m "chore(backlog): archive tasks [${{ steps.params.outputs.trigger_source }}]
+            git commit -s -m "chore(backlog): archive tasks [${{ steps.params.outputs.trigger_source }}]
 
           Triggered by: ${{ steps.params.outputs.trigger_source }}
           Mode: ${{ steps.params.outputs.mode }}
