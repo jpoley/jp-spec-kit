@@ -476,7 +476,7 @@ backlog task create "Create Event System Integration Tests" \
   --ac "Test git workflow state machine transitions" \
   --ac "Test container lifecycle with event emission" \
   --ac "Test decision tracking workflow" \
-  --ac "Coverage target 80 percent for event modules" \
+  --ac "Coverage target 80% for event modules" \
   -l "agent-event-system,phase-8,testing,quality" \
   --priority high --plain
 
