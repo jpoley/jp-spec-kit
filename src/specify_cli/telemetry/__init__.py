@@ -31,6 +31,16 @@ Environment Variables:
 """
 
 from .events import RoleEvent, TelemetryEvent
+from .integration import (
+    is_telemetry_enabled,
+    track_agent_invocation,
+    track_agent_invocation_decorator,
+    track_command_execution,
+    track_handoff,
+    track_role_change,
+    track_role_selection,
+    track_workflow,
+)
 from .tracker import (
     hash_pii,
     reset_writer,
@@ -50,6 +60,15 @@ __all__ = [
     "sanitize_path",
     "sanitize_value",
     "reset_writer",
+    # Integration helpers
+    "is_telemetry_enabled",
+    "track_role_selection",
+    "track_role_change",
+    "track_agent_invocation",
+    "track_agent_invocation_decorator",
+    "track_handoff",
+    "track_command_execution",
+    "track_workflow",
     # Writer
     "TelemetryWriter",
 ]
