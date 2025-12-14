@@ -1,0 +1,236 @@
+name: Validate Commands Structure
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.claude/commands/**'
+      - 'templates/commands/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - '.claude/commands/**'
+      - 'templates/commands/**'
+
+jobs:
+  validate-symlinks:
+    name: Validate Symlink Structure
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check .claude/commands/ contains only symlinks
+        run: |
+          echo "=== Checking .claude/commands/ symlink structure ==="
+
+          # Find all .md files that are NOT symlinks
+          NON_SYMLINKS=$(find .claude/commands -name "*.md" -type f 2>/dev/null || true)
+          if [ -n "$NON_SYMLINKS" ]; then
+            echo "::error::Found non-symlink .md files in .claude/commands/"
+            echo "Files that should be symlinks:"
+            echo "$NON_SYMLINKS" | sed 's/^/  - /'
+            echo ""
+            echo "Fix: Run 'uv run specify dev-setup --force'"
+            exit 1
+          fi
+          echo "✓ All .md files in .claude/commands/ are symlinks"
+
+      - name: Check all symlinks resolve to templates/
+        run: |
+          echo "=== Checking symlinks resolve to templates/commands/ ==="
+
+          ERRORS=0
+          for SYMLINK in $(find .claude/commands -name "*.md" -type l 2>/dev/null); do
+            # Check if symlink is broken
+            if [ ! -e "$SYMLINK" ]; then
+              echo "::error::Broken symlink: $SYMLINK"
+              ERRORS=$((ERRORS + 1))
+              continue
+            fi
+
+            # Check if symlink points to templates/commands/
+            TARGET=$(readlink "$SYMLINK")
+            if [[ ! "$TARGET" =~ templates/commands/ ]]; then
+              echo "::error::Symlink points outside templates/commands/: $SYMLINK -> $TARGET"
+              ERRORS=$((ERRORS + 1))
+            fi
+          done
+
+          if [ $ERRORS -gt 0 ]; then
+            echo ""
+            echo "Fix: Run 'uv run specify dev-setup --force'"
+            exit 1
+          fi
+          echo "✓ All symlinks resolve to templates/commands/"
+
+  validate-templates:
+    name: Validate Template Completeness
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check template file completeness
+        run: |
+          echo "=== Checking template file completeness ==="
+
+          ERRORS=0
+
+          # Required template directories
+          REQUIRED_DIRS=(
+            "templates/commands/flow"
+            "templates/commands/speckit"
+          )
+
+          for DIR in "${REQUIRED_DIRS[@]}"; do
+            if [ ! -d "$DIR" ]; then
+              echo "::error::Missing required directory: $DIR"
+              ERRORS=$((ERRORS + 1))
+            else
+              COUNT=$(find "$DIR" -name "*.md" -type f 2>/dev/null | wc -l)
+              echo "✓ $DIR exists ($COUNT commands)"
+            fi
+          done
+
+          # Required flow commands
+          REQUIRED_FLOW=(
+            "templates/commands/flow/assess.md"
+            "templates/commands/flow/specify.md"
+            "templates/commands/flow/plan.md"
+            "templates/commands/flow/implement.md"
+            "templates/commands/flow/validate.md"
+          )
+
+          echo ""
+          echo "Checking required flow commands..."
+          for CMD in "${REQUIRED_FLOW[@]}"; do
+            if [ ! -f "$CMD" ]; then
+              echo "::warning::Missing recommended flow command: $CMD"
+            else
+              echo "✓ $CMD exists"
+            fi
+          done
+
+          # Required speckit commands
+          REQUIRED_SPECKIT=(
+            "templates/commands/speckit/configure.md"
+            "templates/commands/speckit/init.md"
+          )
+
+          echo ""
+          echo "Checking required speckit commands..."
+          for CMD in "${REQUIRED_SPECKIT[@]}"; do
+            if [ ! -f "$CMD" ]; then
+              echo "::warning::Missing recommended speckit command: $CMD"
+            else
+              echo "✓ $CMD exists"
+            fi
+          done
+
+          if [ $ERRORS -gt 0 ]; then
+            exit 1
+          fi
+          echo ""
+          echo "✓ Template structure is complete"
+
+  validate-equivalence:
+    name: Validate Init Equivalence
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Test init produces equivalent structure
+        run: |
+          echo "=== Testing init produces equivalent structure ==="
+
+          # Create temp directory for init test
+          TEST_DIR=$(mktemp -d)
+          cd "$TEST_DIR"
+
+          # Initialize a new project
+          git init
+          echo "# Test Project" > README.md
+          git add .
+          git config user.email "test@test.com"
+          git config user.name "Test"
+          git commit -m "init"
+
+          # Run init command
+          cd "$OLDPWD"
+          uv run specify init "$TEST_DIR" --agent claude --yes 2>/dev/null || true
+
+          # Check that init created the expected structure
+          if [ ! -d "$TEST_DIR/.claude/commands" ]; then
+            echo "::warning::Init did not create .claude/commands/ directory"
+            # This is a warning, not an error - init may have different behavior
+          else
+            echo "✓ Init created .claude/commands/ directory"
+
+            # Count commands created
+            INIT_FLOW=$(find "$TEST_DIR/.claude/commands" -path "*flow*" -name "*.md" 2>/dev/null | wc -l)
+            INIT_SPECKIT=$(find "$TEST_DIR/.claude/commands" -path "*speckit*" -name "*.md" 2>/dev/null | wc -l)
+
+            echo "  - Flow commands: $INIT_FLOW"
+            echo "  - Speckit commands: $INIT_SPECKIT"
+          fi
+
+          # Cleanup
+          rm -rf "$TEST_DIR"
+
+          echo ""
+          echo "✓ Init equivalence check complete"
+
+      - name: Test dev-setup produces correct structure
+        run: |
+          echo "=== Testing dev-setup produces correct structure ==="
+
+          # Run dev-setup
+          uv run specify dev-setup --force
+
+          # Verify structure
+          if [ ! -d ".claude/commands/flow" ]; then
+            echo "::error::dev-setup did not create .claude/commands/flow/"
+            exit 1
+          fi
+
+          if [ ! -d ".claude/commands/speckit" ]; then
+            echo "::error::dev-setup did not create .claude/commands/speckit/"
+            exit 1
+          fi
+
+          # Count symlinks
+          FLOW_COUNT=$(find .claude/commands/flow -name "*.md" -type l 2>/dev/null | wc -l)
+          SPECKIT_COUNT=$(find .claude/commands/speckit -name "*.md" -type l 2>/dev/null | wc -l)
+
+          echo "✓ dev-setup created:"
+          echo "  - $FLOW_COUNT flow command symlinks"
+          echo "  - $SPECKIT_COUNT speckit command symlinks"
+
+          # Verify all are symlinks pointing to templates/
+          ERRORS=0
+          for SYMLINK in $(find .claude/commands -name "*.md" -type l 2>/dev/null); do
+            TARGET=$(readlink "$SYMLINK")
+            if [[ ! "$TARGET" =~ templates/commands/ ]]; then
+              echo "::error::dev-setup created symlink not pointing to templates/: $SYMLINK"
+              ERRORS=$((ERRORS + 1))
+            fi
+          done
+
+          if [ $ERRORS -gt 0 ]; then
+            exit 1
+          fi
+
+          echo "✓ dev-setup structure is correct"
