@@ -1,11 +1,11 @@
 ---
 id: task-283
 title: Create post-workflow-archive.sh hook for agent-triggered archiving
-status: To Do
+status: Done
 assignee:
   - '@muckross'
 created_date: '2025-12-04 03:32'
-updated_date: '2025-12-14 17:48'
+updated_date: '2025-12-14 18:55'
 labels:
   - infrastructure
   - agent-hooks
@@ -54,11 +54,39 @@ Implement Claude Code hook that runs archive-tasks.sh in dry-run mode after work
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Hook script exists at .claude/hooks/post-workflow-archive.sh
-- [ ] #2 Hook reads event from stdin (standard hook interface)
-- [ ] #3 Hook parses event_type, feature, project_root from JSON
-- [ ] #4 Hook runs archive-tasks.sh with --dry-run flag
-- [ ] #5 Hook exits 0 (fail-open) even if script fails
-- [ ] #6 Hook logs execution to stdout for debugging
-- [ ] #7 Hook is executable and passes shellcheck
+- [x] #1 Hook script exists at .claude/hooks/post-workflow-archive.sh
+- [x] #2 Hook reads event from stdin (standard hook interface)
+- [x] #3 Hook parses event_type, feature, project_root from JSON
+- [x] #4 Hook runs archive-tasks.sh with --dry-run flag
+- [x] #5 Hook exits 0 (fail-open) even if script fails
+- [x] #6 Hook logs execution to stdout for debugging
+- [x] #7 Hook is executable and passes shellcheck
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Implementation complete:
+
+1. Created .claude/hooks/post-workflow-archive.sh
+   - Triggered by validate.completed event
+   - Reads event from stdin (standard hook interface)
+   - Parses event_type, feature, project_root from JSON using Python
+   - Runs archive-tasks.sh with --dry-run flag
+   - Exits 0 (fail-open) on all paths
+   - Logs all execution to stdout
+
+2. Tested scenarios:
+   - Valid validate.completed event: Runs archive preview
+   - Empty input: Logs and exits 0
+   - Wrong event type: Skips and exits 0
+   - Missing script: Logs and exits 0
+
+3. Shell compatibility:
+   - Uses bash with pipefail
+   - Python3 for JSON parsing (avoids jq dependency)
+   - 30 second timeout for archive script
+   - Executable permissions set
+
+Commit: e226163
+<!-- SECTION:NOTES:END -->
