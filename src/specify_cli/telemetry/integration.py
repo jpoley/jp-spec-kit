@@ -44,7 +44,7 @@ from pathlib import Path
 from typing import Any, Callable, Generator, ParamSpec, TypeVar
 
 from .events import RoleEvent
-from .tracker import reset_writer, track_role_event
+from .tracker import track_role_event
 
 P = ParamSpec("P")
 R = TypeVar("R")
