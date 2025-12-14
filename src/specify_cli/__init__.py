@@ -2834,7 +2834,7 @@ def init(
     no_hooks: bool = typer.Option(
         False,
         "--no-hooks",
-        help="Disable all hooks by default. Hooks can be enabled individually in .specify/hooks/hooks.yaml",
+        help="Generate hooks.yaml with all hooks disabled. Does not affect init process itself. Hooks can be enabled individually in .specify/hooks/hooks.yaml after init.",
     ),
 ):
     """

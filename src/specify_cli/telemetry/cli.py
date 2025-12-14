@@ -71,6 +71,70 @@ Purpose:
 """
 
 
+def _count_telemetry_events(telemetry_path: Path) -> int:
+    """Count the number of events in a telemetry file.
+
+    Args:
+        telemetry_path: Path to the telemetry JSONL file.
+
+    Returns:
+        Number of events in the file, or 0 if file doesn't exist or is unreadable.
+    """
+    if not telemetry_path.exists():
+        return 0
+    try:
+        with telemetry_path.open("r") as f:
+            return sum(1 for line in f if line.strip())
+    except OSError:
+        return 0
+
+
+def _read_telemetry_events(
+    telemetry_path: Path,
+    filter_days: int | None = None,
+) -> list[dict]:
+    """Read and parse telemetry events from a JSONL file.
+
+    Args:
+        telemetry_path: Path to the telemetry JSONL file.
+        filter_days: If provided, only return events from the last N days.
+
+    Returns:
+        List of parsed event dictionaries.
+    """
+    if not telemetry_path.exists():
+        return []
+
+    events: list[dict] = []
+    cutoff = None
+    if filter_days is not None:
+        cutoff = datetime.now(timezone.utc) - timedelta(days=filter_days)
+
+    try:
+        with telemetry_path.open("r") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    event = json.loads(line)
+                    if cutoff is not None:
+                        timestamp_str = event.get("timestamp", "")
+                        if timestamp_str:
+                            ts = datetime.fromisoformat(
+                                timestamp_str.replace("Z", "+00:00")
+                            )
+                            if ts < cutoff:
+                                continue
+                    events.append(event)
+                except (json.JSONDecodeError, ValueError):
+                    continue
+    except OSError:
+        return []
+
+    return events
+
+
 @telemetry_app.command("enable")
 def enable_command(
     yes: bool = typer.Option(
@@ -166,14 +230,8 @@ def status_command(
     config_path = get_config_path(root)
     telemetry_path = root / DEFAULT_TELEMETRY_DIR / DEFAULT_TELEMETRY_FILE
 
-    # Count events if file exists
-    event_count = 0
-    if telemetry_path.exists():
-        try:
-            with telemetry_path.open("r") as f:
-                event_count = sum(1 for line in f if line.strip())
-        except OSError:
-            pass
+    # Count events using helper function
+    event_count = _count_telemetry_events(telemetry_path)
 
     # Build status table
     table = Table(title="Telemetry Status", show_header=False, box=None)
@@ -219,30 +277,8 @@ def stats_command(
         console.print("[yellow]No telemetry data found.[/yellow]")
         return
 
-    # Read and parse events
-    events = []
-    cutoff = datetime.now(timezone.utc) - timedelta(days=days)
-
-    try:
-        with telemetry_path.open("r") as f:
-            for line in f:
-                if not line.strip():
-                    continue
-                try:
-                    event = json.loads(line)
-                    timestamp_str = event.get("timestamp", "")
-                    if timestamp_str:
-                        # Parse timestamp and filter by date
-                        ts = datetime.fromisoformat(
-                            timestamp_str.replace("Z", "+00:00")
-                        )
-                        if ts >= cutoff:
-                            events.append(event)
-                except (json.JSONDecodeError, ValueError):
-                    continue
-    except OSError as e:
-        console.print(f"[red]Error reading telemetry data: {e}[/red]")
-        return
+    # Read and parse events using helper function
+    events = _read_telemetry_events(telemetry_path, filter_days=days)
 
     if not events:
         console.print(f"[yellow]No events in the last {days} days.[/yellow]")
@@ -334,20 +370,8 @@ def view_command(
         console.print("[yellow]No telemetry data found.[/yellow]")
         return
 
-    # Read all events
-    events = []
-    try:
-        with telemetry_path.open("r") as f:
-            for line in f:
-                if not line.strip():
-                    continue
-                try:
-                    events.append(json.loads(line))
-                except json.JSONDecodeError:
-                    continue
-    except OSError as e:
-        console.print(f"[red]Error reading telemetry data: {e}[/red]")
-        return
+    # Read all events using helper function
+    events = _read_telemetry_events(telemetry_path)
 
     if not events:
         console.print("[yellow]No events recorded.[/yellow]")
@@ -402,13 +426,8 @@ def clear_command(
         console.print("[yellow]No telemetry data to clear.[/yellow]")
         return
 
-    # Count events
-    event_count = 0
-    try:
-        with telemetry_path.open("r") as f:
-            event_count = sum(1 for line in f if line.strip())
-    except OSError:
-        pass
+    # Count events using helper function
+    event_count = _count_telemetry_events(telemetry_path)
 
     if not yes:
         console.print(
@@ -453,20 +472,12 @@ def export_command(
         console.print("[yellow]No telemetry data to export.[/yellow]")
         return
 
-    # Read all events
-    events = []
-    try:
-        with telemetry_path.open("r") as f:
-            for line in f:
-                if not line.strip():
-                    continue
-                try:
-                    events.append(json.loads(line))
-                except json.JSONDecodeError:
-                    continue
-    except OSError as e:
-        console.print(f"[red]Error reading telemetry data: {e}[/red]")
-        raise typer.Exit(1)
+    # Read all events using helper function
+    events = _read_telemetry_events(telemetry_path)
+
+    if not events:
+        console.print("[yellow]No events to export.[/yellow]")
+        return
 
     # Format as JSON
     json_output = json.dumps(events, indent=2)

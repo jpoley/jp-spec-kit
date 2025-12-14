@@ -188,8 +188,8 @@ main() {
     while IFS=$'\t' read -r status file; do
         [[ -z "$file" ]] && continue
 
-        # Only process task files (task-*.md)
-        if [[ ! "$file" =~ task-[0-9]+.*\.md$ ]]; then
+        # Only process task files (task-*.md, including decimal IDs like task-204.01)
+        if [[ ! "$file" =~ task-[0-9.]+.*\.md$ ]]; then
             log_debug "Skipping non-task file: $file"
             continue
         fi
