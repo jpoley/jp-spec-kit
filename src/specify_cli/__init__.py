@@ -3233,7 +3233,7 @@ def init(
             if light:
                 light_marker = project_path / ".flowspec-light-mode"
                 light_marker.write_text(
-                    "# Light mode enabled - ~60% faster workflow (example: 135 min → 50 min)\n# See docs/guides/when-to-use-light-mode.md for details\n"
+                    "# Light mode enabled - ~60% faster workflow (example: 135 min → 50 min)\n# See user-docs/user-guides/when-to-use-light-mode.md for details\n"
                 )
                 tracker.add("light-mode", "Light mode enabled")
                 tracker.complete("light-mode", "marker created")

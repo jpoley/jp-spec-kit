@@ -44,9 +44,9 @@ def case_studies_dir() -> Path:
     """Get the case studies directory path.
 
     Returns:
-        Path to docs/case-studies directory.
+        Path to build-docs/case-studies directory.
     """
-    return get_project_root() / "docs" / "case-studies"
+    return get_project_root() / "build-docs" / "case-studies"
 
 
 # =============================================================================
@@ -123,7 +123,7 @@ class TestCaseStudyStructure:
     """Tests for case study directory and file structure."""
 
     def test_case_studies_directory_exists(self, case_studies_dir: Path) -> None:
-        """Case studies directory should exist at docs/case-studies."""
+        """Case studies directory should exist at build-docs/case-studies."""
         assert case_studies_dir.exists(), (
             f"Case studies directory not found at {case_studies_dir}"
         )
@@ -318,7 +318,7 @@ class TestCaseStudyTemplate:
         Returns:
             Path to _template.md file.
         """
-        return get_project_root() / "docs" / "case-studies" / "_template.md"
+        return get_project_root() / "build-docs" / "case-studies" / "_template.md"
 
     def test_template_has_all_required_sections(self, template_path: Path) -> None:
         """Template should have all required sections as a guide."""

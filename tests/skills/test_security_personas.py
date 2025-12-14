@@ -294,13 +294,13 @@ class TestDocumentation:
 
     def test_persona_guide_exists(self):
         """Test that security personas guide exists."""
-        docs_path = Path(__file__).parent.parent.parent / "docs" / "guides"
+        docs_path = Path(__file__).parent.parent.parent / "user-docs" / "user-guides"
         guide_path = docs_path / "security-personas.md"
         assert guide_path.exists(), "Security personas guide not found"
 
     def test_guide_documents_all_personas(self):
         """Test that guide documents all personas."""
-        docs_path = Path(__file__).parent.parent.parent / "docs" / "guides"
+        docs_path = Path(__file__).parent.parent.parent / "user-docs" / "user-guides"
         guide_content = (docs_path / "security-personas.md").read_text()
 
         for persona_file in PERSONAS:
@@ -311,7 +311,7 @@ class TestDocumentation:
 
     def test_guide_has_usage_examples(self):
         """Test that guide includes usage examples."""
-        docs_path = Path(__file__).parent.parent.parent / "docs" / "guides"
+        docs_path = Path(__file__).parent.parent.parent / "user-docs" / "user-guides"
         guide_content = (docs_path / "security-personas.md").read_text()
 
         assert "## Examples" in guide_content

@@ -45,7 +45,7 @@ class TestLightModeDetection:
         # Simulate light mode init creating the marker
         marker_content = (
             "# Light mode enabled - ~60% faster workflow (example: 135 min → 50 min)\n"
-            "# See docs/guides/when-to-use-light-mode.md for details\n"
+            "# See user-docs/user-guides/when-to-use-light-mode.md for details\n"
         )
         marker_file.write_text(marker_content, encoding="utf-8")
 
@@ -88,13 +88,13 @@ class TestLightModeDetection:
         marker_file = tmp_path / ".flowspec-light-mode"
         expected_content = (
             "# Light mode enabled - ~60% faster workflow (example: 135 min → 50 min)\n"
-            "# See docs/guides/when-to-use-light-mode.md for details\n"
+            "# See user-docs/user-guides/when-to-use-light-mode.md for details\n"
         )
         marker_file.write_text(expected_content, encoding="utf-8")
 
         content = safe_read_file(marker_file)
         assert content is not None, "Should be able to read marker file"
-        assert "docs/guides/when-to-use-light-mode.md" in content
+        assert "user-docs/user-guides/when-to-use-light-mode.md" in content
 
 
 class TestLightModeTemplates:
@@ -322,21 +322,21 @@ class TestLightModeDocumentation:
 
     @pytest.fixture
     def docs_path(self) -> Path:
-        """Get the path to docs directory."""
+        """Get the path to user-docs directory."""
         project_root = get_project_root()
-        docs = project_root / "docs"
-        assert docs.is_dir(), f"Docs directory not found: {docs}"
+        docs = project_root / "user-docs"
+        assert docs.is_dir(), f"User docs directory not found: {docs}"
         return docs
 
     def test_when_to_use_light_mode_guide_exists(self, docs_path: Path) -> None:
         """Guide for when to use light mode should exist."""
-        guide = docs_path / "guides" / "when-to-use-light-mode.md"
+        guide = docs_path / "user-guides" / "when-to-use-light-mode.md"
         assert guide.exists(), f"Expected {guide} to exist"
         assert guide.is_file(), f"Expected {guide} to be a file"
 
     def test_guide_explains_criteria(self, docs_path: Path) -> None:
         """Guide should explain when to use light vs full mode."""
-        guide = docs_path / "guides" / "when-to-use-light-mode.md"
+        guide = docs_path / "user-guides" / "when-to-use-light-mode.md"
         if not guide.exists():
             pytest.skip(f"Guide not found at {guide}")
 
@@ -360,7 +360,7 @@ class TestLightModeDocumentation:
 
     def test_guide_has_time_savings(self, docs_path: Path) -> None:
         """Guide should document time savings."""
-        guide = docs_path / "guides" / "when-to-use-light-mode.md"
+        guide = docs_path / "user-guides" / "when-to-use-light-mode.md"
         if not guide.exists():
             pytest.skip(f"Guide not found at {guide}")
 
