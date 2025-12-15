@@ -1,0 +1,1 @@
+../../templates/commands/flow/security_workflow.md

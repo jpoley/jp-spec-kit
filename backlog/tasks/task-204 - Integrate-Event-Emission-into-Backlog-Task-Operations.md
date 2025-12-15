@@ -1,11 +1,11 @@
 ---
 id: task-204
 title: Integrate Event Emission into Backlog Task Operations
-status: To Do
+status: Done
 assignee:
   - '@muckross'
 created_date: '2025-12-03 00:41'
-updated_date: '2025-12-14 17:48'
+updated_date: '2025-12-14 19:42'
 labels:
   - implement
   - integration
@@ -31,11 +31,11 @@ See sub-tasks for implementation details.
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Emit task.created when new task created via backlog CLI
-- [ ] #2 Emit task.status_changed when status transitions occur
-- [ ] #3 Emit task.completed when task marked as Done
-- [ ] #4 Emit task.ac_checked when acceptance criterion checked/unchecked
-- [ ] #5 Integration tests for each event type
+- [x] #1 Emit task.created when new task created via backlog CLI
+- [x] #2 Emit task.status_changed when status transitions occur
+- [x] #3 Emit task.completed when task marked as Done
+- [x] #4 Emit task.ac_checked when acceptance criterion checked/unchecked
+- [x] #5 Integration tests for each event type
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -59,4 +59,15 @@ Users can already emit events manually:
 ```bash
 backlog task edit 123 -s Done && specify hooks emit task.completed --task-id task-123
 ```
+
+## Completed via PR #829
+
+Implemented Python shim module (`src/specify_cli/backlog/shim.py`) that provides:
+- `task_create()` → emits task.created
+- `task_edit(status='Done')` → emits task.completed
+- `task_edit(status=X)` → emits task.status_changed
+- `task_edit(check_ac=[...])` → emits task.ac_checked
+- 33 integration tests covering all event types
+
+Shim wraps backlog CLI and emits events after successful operations.
 <!-- SECTION:NOTES:END -->
