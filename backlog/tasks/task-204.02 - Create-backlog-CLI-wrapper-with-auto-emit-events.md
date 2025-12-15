@@ -3,9 +3,9 @@ id: task-204.02
 title: Create backlog CLI wrapper with auto-emit events
 status: Done
 assignee:
-  - '@backend-engineer'
+  - '@chamonix'
 created_date: '2025-12-03 02:19'
-updated_date: '2025-12-11 20:52'
+updated_date: '2025-12-15 02:17'
 labels:
   - hooks
   - cli

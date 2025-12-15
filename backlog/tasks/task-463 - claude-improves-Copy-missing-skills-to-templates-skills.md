@@ -3,9 +3,9 @@ id: task-463
 title: 'claude-improves: Copy missing skills to templates/skills/'
 status: Done
 assignee:
-  - '@claude'
+  - '@kinsale'
 created_date: '2025-12-12 01:15'
-updated_date: '2025-12-12 01:19'
+updated_date: '2025-12-15 02:18'
 labels:
   - claude-improves
   - source-repo

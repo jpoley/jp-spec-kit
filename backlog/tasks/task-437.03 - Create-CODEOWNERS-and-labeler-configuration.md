@@ -3,9 +3,9 @@ id: task-437.03
 title: Create CODEOWNERS and labeler configuration
 status: Done
 assignee:
-  - '@myself'
+  - '@adare'
 created_date: '2025-12-11 03:28'
-updated_date: '2025-12-11 03:49'
+updated_date: '2025-12-15 02:18'
 labels:
   - infrastructure
   - github

@@ -3,9 +3,9 @@ id: task-401
 title: 'Task Memory: Architecture Decision Record (ADR)'
 status: Done
 assignee:
-  - '@architect'
+  - '@galway'
 created_date: '2025-12-09 15:58'
-updated_date: '2025-12-09 16:24'
+updated_date: '2025-12-15 02:18'
 labels:
   - architecture
   - documentation

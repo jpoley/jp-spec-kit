@@ -3,9 +3,9 @@ id: task-310.01
 title: Fix version detection after upgrade install
 status: To Do
 assignee:
-  - '@galway'
+  - '@adare'
 created_date: '2025-12-08 01:41'
-updated_date: '2025-12-08 02:31'
+updated_date: '2025-12-15 02:17'
 labels:
   - bug
   - cli

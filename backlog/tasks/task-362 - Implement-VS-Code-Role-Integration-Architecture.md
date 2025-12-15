@@ -3,9 +3,9 @@ id: task-362
 title: 'Implement: VS Code Role Integration Architecture'
 status: Done
 assignee:
-  - '@backend-engineer'
+  - '@adare'
 created_date: '2025-12-09 15:14'
-updated_date: '2025-12-09 19:37'
+updated_date: '2025-12-15 02:17'
 labels:
   - infrastructure
   - vscode

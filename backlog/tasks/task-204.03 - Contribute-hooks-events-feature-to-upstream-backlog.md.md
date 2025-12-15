@@ -3,9 +3,9 @@ id: task-204.03
 title: Contribute hooks/events feature to upstream backlog.md
 status: To Do
 assignee:
-  - '@muckross'
+  - '@chamonix'
 created_date: '2025-12-03 02:19'
-updated_date: '2025-12-14 17:48'
+updated_date: '2025-12-15 02:17'
 labels:
   - hooks
   - backlog

@@ -3,9 +3,9 @@ id: task-473
 title: 'claude-improves: Enable hooks by default in specify init'
 status: Done
 assignee:
-  - '@muckross'
+  - '@kinsale'
 created_date: '2025-12-12 01:15'
-updated_date: '2025-12-14 17:59'
+updated_date: '2025-12-15 02:18'
 labels:
   - claude-improves
   - cli

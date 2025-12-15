@@ -3,9 +3,9 @@ id: task-392
 title: Implement Memory CLI - Clear Command
 status: Done
 assignee:
-  - '@backend-engineer'
+  - '@adare'
 created_date: '2025-12-09 15:58'
-updated_date: '2025-12-09 17:00'
+updated_date: '2025-12-15 02:17'
 labels:
   - backend
   - task-memory

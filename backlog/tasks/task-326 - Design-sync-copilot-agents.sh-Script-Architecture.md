@@ -3,9 +3,9 @@ id: task-326
 title: 'Design: sync-copilot-agents.sh Script Architecture'
 status: To Do
 assignee:
-  - '@adare'
+  - '@muckross'
 created_date: '2025-12-08 22:22'
-updated_date: '2025-12-15 01:48'
+updated_date: '2025-12-15 02:17'
 labels:
   - infrastructure
   - design

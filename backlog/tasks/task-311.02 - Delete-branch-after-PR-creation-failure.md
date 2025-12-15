@@ -3,9 +3,9 @@ id: task-311.02
 title: Delete branch after PR creation failure
 status: To Do
 assignee:
-  - '@adare'
+  - '@galway'
 created_date: '2025-12-08 01:43'
-updated_date: '2025-12-15 01:48'
+updated_date: '2025-12-15 02:17'
 labels:
   - bug
   - ci

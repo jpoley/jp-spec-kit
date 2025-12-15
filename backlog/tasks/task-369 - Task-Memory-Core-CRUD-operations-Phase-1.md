@@ -3,9 +3,9 @@ id: task-369
 title: 'Task Memory: Core CRUD operations (Phase 1)'
 status: Done
 assignee:
-  - '@backend-engineer'
+  - '@adare'
 created_date: '2025-12-09 15:56'
-updated_date: '2025-12-11 08:24'
+updated_date: '2025-12-15 02:17'
 labels:
   - infrastructure
   - cli

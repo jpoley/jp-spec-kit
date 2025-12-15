@@ -3,9 +3,9 @@ id: task-440
 title: Migrate devcontainer.json to Bookworm
 status: Done
 assignee:
-  - '@myself'
+  - '@muckross'
 created_date: '2025-12-11 04:14'
-updated_date: '2025-12-11 04:37'
+updated_date: '2025-12-15 02:18'
 labels:
   - infrastructure
   - devcontainer

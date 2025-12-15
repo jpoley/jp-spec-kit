@@ -3,9 +3,9 @@ id: task-437.06
 title: 'Create governance files (CONTRIBUTING, CODE_OF_CONDUCT, SECURITY, SUPPORT)'
 status: Done
 assignee:
-  - '@myself'
+  - '@galway'
 created_date: '2025-12-11 03:28'
-updated_date: '2025-12-11 03:54'
+updated_date: '2025-12-15 02:18'
 labels:
   - documentation
   - github

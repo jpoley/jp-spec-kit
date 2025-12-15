@@ -3,9 +3,9 @@ id: task-311.04
 title: Add scheduled workflow to cleanup stale version-bump branches
 status: To Do
 assignee:
-  - '@adare'
+  - '@galway'
 created_date: '2025-12-08 01:43'
-updated_date: '2025-12-15 01:48'
+updated_date: '2025-12-15 02:17'
 labels:
   - ci
   - github-actions

@@ -3,9 +3,9 @@ id: task-409
 title: 'Telemetry: Comprehensive test suite and privacy verification'
 status: Done
 assignee:
-  - '@pm-planner'
+  - '@galway'
 created_date: '2025-12-10 00:11'
-updated_date: '2025-12-14 20:31'
+updated_date: '2025-12-15 02:18'
 labels:
   - implement
   - backend

@@ -3,9 +3,9 @@ id: task-330
 title: Convert flowspec commands to Copilot format
 status: To Do
 assignee:
-  - '@adare'
+  - '@muckross'
 created_date: '2025-12-08 22:28'
-updated_date: '2025-12-15 01:48'
+updated_date: '2025-12-15 02:17'
 labels:
   - implement
   - copilot

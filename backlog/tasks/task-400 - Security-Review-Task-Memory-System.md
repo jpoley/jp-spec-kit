@@ -3,9 +3,9 @@ id: task-400
 title: 'Security Review: Task Memory System'
 status: Done
 assignee:
-  - '@qa-engineer'
+  - '@adare'
 created_date: '2025-12-09 15:58'
-updated_date: '2025-12-09 17:57'
+updated_date: '2025-12-15 02:18'
 labels:
   - security
   - task-memory

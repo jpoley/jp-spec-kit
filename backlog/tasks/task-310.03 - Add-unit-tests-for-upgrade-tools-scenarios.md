@@ -3,9 +3,9 @@ id: task-310.03
 title: Add unit tests for upgrade-tools scenarios
 status: To Do
 assignee:
-  - '@adare'
+  - '@galway'
 created_date: '2025-12-08 01:41'
-updated_date: '2025-12-15 01:48'
+updated_date: '2025-12-15 02:17'
 labels:
   - test
   - cli

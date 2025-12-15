@@ -3,9 +3,9 @@ id: task-405
 title: 'Telemetry: Event integration with role system'
 status: Done
 assignee:
-  - '@muckross'
+  - '@adare'
 created_date: '2025-12-10 00:11'
-updated_date: '2025-12-14 20:29'
+updated_date: '2025-12-15 02:18'
 labels:
   - implement
   - backend

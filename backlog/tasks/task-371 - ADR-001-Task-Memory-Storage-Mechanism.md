@@ -3,9 +3,9 @@ id: task-371
 title: 'ADR-001: Task Memory Storage Mechanism'
 status: Done
 assignee:
-  - '@architect'
+  - '@adare'
 created_date: '2025-12-09 15:56'
-updated_date: '2025-12-09 16:24'
+updated_date: '2025-12-15 02:17'
 labels:
   - architecture
   - adr

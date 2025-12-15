@@ -3,9 +3,9 @@ id: task-309
 title: Sync .agents/ and .claude/agents/ directories
 status: To Do
 assignee:
-  - '@adare'
+  - '@galway'
 created_date: '2025-12-08 01:25'
-updated_date: '2025-12-15 01:48'
+updated_date: '2025-12-15 02:17'
 labels:
   - technical-debt
   - agents

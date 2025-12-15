@@ -3,9 +3,9 @@ id: task-389
 title: Implement Memory CLI - Append Command
 status: Done
 assignee:
-  - '@backend-engineer'
+  - '@adare'
 created_date: '2025-12-09 15:58'
-updated_date: '2025-12-09 16:59'
+updated_date: '2025-12-15 02:17'
 labels:
   - backend
   - task-memory

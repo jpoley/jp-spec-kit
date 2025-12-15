@@ -3,9 +3,9 @@ id: task-283
 title: Create post-workflow-archive.sh hook for agent-triggered archiving
 status: To Do
 assignee:
-  - '@muckross'
+  - '@adare'
 created_date: '2025-12-04 03:32'
-updated_date: '2025-12-14 17:48'
+updated_date: '2025-12-15 02:17'
 labels:
   - infrastructure
   - agent-hooks

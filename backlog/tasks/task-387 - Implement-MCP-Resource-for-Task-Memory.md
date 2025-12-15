@@ -3,9 +3,9 @@ id: task-387
 title: Implement MCP Resource for Task Memory
 status: In Progress
 assignee:
-  - '@backend-engineer'
+  - '@adare'
 created_date: '2025-12-09 15:57'
-updated_date: '2025-12-09 17:02'
+updated_date: '2025-12-15 02:17'
 labels:
   - backend
   - task-memory

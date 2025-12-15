@@ -3,9 +3,9 @@ id: task-258
 title: 'Implement ADR-008: Security MCP Server Architecture'
 status: Done
 assignee:
-  - '@backend-engineer'
+  - '@muckross'
 created_date: '2025-12-03 02:32'
-updated_date: '2025-12-06 02:21'
+updated_date: '2025-12-15 02:17'
 labels:
   - 'workflow:Planned'
 dependencies: []

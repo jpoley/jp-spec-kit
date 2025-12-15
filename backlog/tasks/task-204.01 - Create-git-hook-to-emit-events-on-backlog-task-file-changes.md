@@ -3,9 +3,9 @@ id: task-204.01
 title: Create git hook to emit events on backlog task file changes
 status: Done
 assignee:
-  - '@muckross'
+  - '@chamonix'
 created_date: '2025-12-03 02:19'
-updated_date: '2025-12-14 18:31'
+updated_date: '2025-12-15 02:17'
 labels:
   - hooks
   - git

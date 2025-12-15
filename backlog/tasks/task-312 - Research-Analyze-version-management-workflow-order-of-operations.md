@@ -3,9 +3,9 @@ id: task-312
 title: 'Research: Analyze version management workflow order of operations'
 status: Done
 assignee:
-  - '@researcher'
+  - '@galway'
 created_date: '2025-12-08 02:05'
-updated_date: '2025-12-08 02:51'
+updated_date: '2025-12-15 02:17'
 labels:
   - research
   - ci

@@ -3,9 +3,9 @@ id: task-300
 title: Add file-friendly timestamp to specify-backup directory path
 status: Done
 assignee:
-  - '@pm-planner'
+  - '@adare'
 created_date: '2025-12-07 22:28'
-updated_date: '2025-12-11 03:03'
+updated_date: '2025-12-15 02:17'
 labels:
   - backend
   - implement

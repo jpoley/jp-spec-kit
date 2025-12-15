@@ -3,9 +3,9 @@ id: task-357
 title: 'ADR: Role-Based Command Namespace Design'
 status: Done
 assignee:
-  - '@software-architect'
+  - '@adare'
 created_date: '2025-12-09 15:10'
-updated_date: '2025-12-09 15:16'
+updated_date: '2025-12-15 02:17'
 labels:
   - architecture
   - adr

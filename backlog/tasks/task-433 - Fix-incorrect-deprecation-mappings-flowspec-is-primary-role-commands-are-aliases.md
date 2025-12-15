@@ -5,9 +5,9 @@ title: >-
   aliases
 status: Done
 assignee:
-  - '@claude'
+  - '@adare'
 created_date: '2025-12-10 22:20'
-updated_date: '2025-12-10 22:58'
+updated_date: '2025-12-15 02:18'
 labels:
   - bug
   - commands
