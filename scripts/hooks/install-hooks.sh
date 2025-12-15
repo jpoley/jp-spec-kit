@@ -27,9 +27,19 @@ else
     echo "  ⚠ pre-push hook not found (optional)"
 fi
 
+# Install post-commit hook for backlog events
+if [ -f "$SCRIPT_DIR/post-commit-backlog-events.sh" ]; then
+    cp "$SCRIPT_DIR/post-commit-backlog-events.sh" "$HOOKS_DIR/post-commit"
+    chmod +x "$HOOKS_DIR/post-commit"
+    echo "  ✓ post-commit hook installed (backlog events)"
+else
+    echo "  ⚠ post-commit-backlog-events.sh not found (optional)"
+fi
+
 echo ""
 echo "Git hooks installed successfully!"
 echo ""
 echo "Hooks installed:"
 echo "  - pre-commit: Validates task files have acceptance criteria"
 echo "  - pre-push: Runs security scan before pushing (requires semgrep)"
+echo "  - post-commit: Emits flowspec events on backlog task changes"

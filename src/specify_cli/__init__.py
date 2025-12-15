@@ -53,6 +53,8 @@ from rich.text import Text
 from rich.tree import Tree
 from typer.core import TyperGroup
 
+from specify_cli.telemetry.cli import telemetry_app
+
 # Module-level logger
 logger = logging.getLogger(__name__)
 
@@ -2829,6 +2831,11 @@ def init(
         "--constitution",
         help="Constitution tier: light (startup), medium (business), heavy (enterprise). Omit to be prompted.",
     ),
+    no_hooks: bool = typer.Option(
+        False,
+        "--no-hooks",
+        help="Initialize with all hooks disabled. Hooks can be enabled later in .specify/hooks/hooks.yaml",
+    ),
 ):
     """
     Initialize a new Specify project from the latest template.
@@ -3243,11 +3250,18 @@ def init(
             try:
                 from .hooks.scaffold import scaffold_hooks
 
-                created_files = scaffold_hooks(project_path)
+                created_files = scaffold_hooks(project_path, no_hooks=no_hooks)
                 if created_files:
-                    tracker.complete(
-                        "hooks", f"created {len(created_files)} example hook files"
-                    )
+                    if no_hooks:
+                        tracker.complete(
+                            "hooks",
+                            f"created {len(created_files)} hook files (all disabled via --no-hooks)",
+                        )
+                    else:
+                        tracker.complete(
+                            "hooks",
+                            f"created {len(created_files)} hook files (3 enabled by default)",
+                        )
                 else:
                     tracker.complete("hooks", "hooks already configured")
             except Exception as hook_error:
@@ -6155,6 +6169,9 @@ vscode_app = typer.Typer(
     add_completion=False,
 )
 app.add_typer(vscode_app, name="vscode")
+
+# Telemetry sub-app
+app.add_typer(telemetry_app, name="telemetry")
 
 
 @vscode_app.command("generate")
