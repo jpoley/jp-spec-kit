@@ -825,8 +825,12 @@ ${body}"
         # Compare with existing file
         if [[ -f "$output_file" ]]; then
             local existing
-            existing=$(cat "$output_file")
-            if [[ "$existing" != "$output" ]]; then
+            # Normalize line endings and trailing whitespace for cross-platform comparison
+            # Windows bash can introduce CRLF differences even with gitattributes eol=lf
+            existing=$(cat "$output_file" | tr -d '\r')
+            local normalized_output
+            normalized_output=$(printf '%s' "$output" | tr -d '\r')
+            if [[ "$existing" != "$normalized_output" ]]; then
                 log_error "Drift detected: ${role}-${command}.agent.md"
                 ERRORS=$((ERRORS + 1))
                 return 1
@@ -838,9 +842,9 @@ ${body}"
             return 1
         fi
     else
-        # Write output
+        # Write output with normalized LF line endings for cross-platform consistency
         mkdir -p "$(dirname "$output_file")"
-        echo "$output" > "$output_file"
+        printf '%s\n' "$output" | tr -d '\r' > "$output_file"
         log_success "Created: ${role}-${command}.agent.md"
     fi
 
