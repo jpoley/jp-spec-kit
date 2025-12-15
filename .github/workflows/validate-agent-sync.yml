@@ -36,6 +36,7 @@ jobs:
         run: uv sync
 
       - name: Check for agent drift
+        shell: bash
         run: |
           echo "=== Checking for agent drift between commands and generated agents ==="
           bash scripts/bash/sync-copilot-agents.sh --validate
