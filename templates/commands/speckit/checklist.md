@@ -11,10 +11,10 @@ scripts:
 **CRITICAL CONCEPT**: Checklists are **UNIT TESTS FOR REQUIREMENTS WRITING** - they validate the quality, clarity, and completeness of requirements in a given domain.
 
 **NOT for verification/testing**:
-- ❌ NOT "Verify the button clicks correctly"
-- ❌ NOT "Test error handling works"
-- ❌ NOT "Confirm the API returns 200"
-- ❌ NOT checking if code/implementation matches the spec
+- [X] NOT "Verify the button clicks correctly"
+- [X] NOT "Test error handling works"
+- [X] NOT "Confirm the API returns 200"
+- [X] NOT checking if code/implementation matches the spec
 
 **FOR requirements quality validation**:
 - ✅ "Are visual hierarchy requirements defined for all card types?" (completeness)
@@ -118,7 +118,7 @@ You **MUST** consider the user input before proceeding (if not empty).
    
    **HOW TO WRITE CHECKLIST ITEMS - "Unit Tests for English"**:
    
-   ❌ **WRONG** (Testing implementation):
+   [X] **WRONG** (Testing implementation):
    - "Verify landing page displays 3 episode cards"
    - "Test hover states work on desktop"
    - "Confirm logo click navigates home"
@@ -190,12 +190,12 @@ You **MUST** consider the user input before proceeding (if not empty).
    - If >5 low-impact edge cases, create one item: "Are edge cases X, Y, Z addressed in requirements? [Coverage]"
 
    **🚫 ABSOLUTELY PROHIBITED** - These make it an implementation test, not a requirements test:
-   - ❌ Any item starting with "Verify", "Test", "Confirm", "Check" + implementation behavior
-   - ❌ References to code execution, user actions, system behavior
-   - ❌ "Displays correctly", "works properly", "functions as expected"
-   - ❌ "Click", "navigate", "render", "load", "execute"
-   - ❌ Test cases, test plans, QA procedures
-   - ❌ Implementation details (frameworks, APIs, algorithms)
+   - [X] Any item starting with "Verify", "Test", "Confirm", "Check" + implementation behavior
+   - [X] References to code execution, user actions, system behavior
+   - [X] "Displays correctly", "works properly", "functions as expected"
+   - [X] "Click", "navigate", "render", "load", "execute"
+   - [X] Test cases, test plans, QA procedures
+   - [X] Implementation details (frameworks, APIs, algorithms)
    
    **✅ REQUIRED PATTERNS** - These test requirements quality:
    - ✅ "Are [requirement type] defined/specified/documented for [scenario]?"
@@ -262,7 +262,7 @@ Sample items:
 
 ## Anti-Examples: What NOT To Do
 
-**❌ WRONG - These test implementation, not requirements:**
+**[X] WRONG - These test implementation, not requirements:**
 
 ```markdown
 - [ ] CHK001 - Verify landing page displays 3 episode cards [Spec §FR-001]

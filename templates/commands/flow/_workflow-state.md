@@ -16,9 +16,9 @@ fi
 ```
 
 **Light Mode Behavior**:
-- `/flow:research` → **SKIPPED** (inform user and suggest `/flow:plan` instead)
-- `/flow:plan` → Uses `plan-light.md` template (high-level only)
-- `/flow:specify` → Uses `spec-light.md` template (combined stories + AC)
+- `/flow:research` -> **SKIPPED** (inform user and suggest `/flow:plan` instead)
+- `/flow:plan` -> Uses `plan-light.md` template (high-level only)
+- `/flow:specify` -> Uses `spec-light.md` template (combined stories + AC)
 
 If in light mode and the current command is `/flow:research`, inform the user:
 ```text

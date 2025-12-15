@@ -110,7 +110,7 @@ transitions:
 
 **Workflow sequence:**
 ```
-Implementation → Security Review → Validated → Deployed
+Implementation -> Security Review -> Validated -> Deployed
 ```
 
 ### Pattern 2: Extend Validate Workflow
@@ -177,7 +177,7 @@ transitions:
 
 **Workflow sequence:**
 ```
-Implementation → Validated (includes security) → Deployed
+Implementation -> Validated (includes security) -> Deployed
 ```
 
 ## Automatic Task Creation with --create-tasks
@@ -261,15 +261,15 @@ Security: [Vulnerability Type] in [Component]
 - Type: `injection`, `crypto`, `auth`, `dependency`
 
 **Priority:**
-- Critical findings → `critical` priority
-- High findings → `high` priority
-- Medium findings → `medium` priority
-- Low findings → `low` priority
+- Critical findings -> `critical` priority
+- High findings -> `high` priority
+- Medium findings -> `medium` priority
+- Low findings -> `low` priority
 
 **Assignment:**
-- Backend vulnerabilities → `@backend-engineer`
-- Frontend vulnerabilities → `@frontend-engineer`
-- Infrastructure issues → `@platform-engineer`
+- Backend vulnerabilities -> `@backend-engineer`
+- Frontend vulnerabilities -> `@frontend-engineer`
+- Infrastructure issues -> `@platform-engineer`
 
 ### Example Task Creation
 
@@ -342,7 +342,7 @@ jobs:
         run: |
           CRITICAL_COUNT=$(jq '[.findings[] | select(.severity == "critical")] | length' docs/security/triage-results.json)
           if [ "$CRITICAL_COUNT" -gt 0 ]; then
-            echo "❌ Found $CRITICAL_COUNT critical vulnerabilities"
+            echo "[X] Found $CRITICAL_COUNT critical vulnerabilities"
             exit 1
           fi
 ```
@@ -422,7 +422,7 @@ specify security scan --staged-only --output docs/security/pre-commit-scan.json
 CRITICAL_COUNT=$(jq '[.findings[] | select(.severity == "critical")] | length' docs/security/pre-commit-scan.json)
 
 if [ "$CRITICAL_COUNT" -gt 0 ]; then
-  echo "❌ Found $CRITICAL_COUNT critical security issues in staged files"
+  echo "[X] Found $CRITICAL_COUNT critical security issues in staged files"
   echo "   Run 'specify security triage' to review findings"
   exit 1
 fi

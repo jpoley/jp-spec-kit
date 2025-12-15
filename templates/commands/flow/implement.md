@@ -86,7 +86,7 @@ backlog task list --plain 2>/dev/null | grep -i "prd\|spec\|adr"
 
 The artifact progression is:
 ```
-PRD → Functional Spec → Technical Spec → ADR → Implementation
+PRD -> Functional Spec -> Technical Spec -> ADR -> Implementation
 ```
 
 | Document | What It Tells You |
@@ -102,10 +102,10 @@ PRD → Functional Spec → Technical Spec → ADR → Implementation
 ⚠️ Missing design documents for: [FEATURE NAME]
 
 Found:
-- PRD: [✓/✗]
-- Functional Spec: [✓/✗]
-- Technical Spec: [✓/✗]
-- ADRs: [✓/✗]
+- PRD: [[Y]/[N]]
+- Functional Spec: [[Y]/[N]]
+- Technical Spec: [[Y]/[N]]
+- ADRs: [[Y]/[N]]
 
 Recommendation:
 - Run /flow:specify to create PRD and Functional Spec
@@ -158,7 +158,7 @@ Proceeding with implementation...
 
 **If gate FAILS (exit code 1):**
 ```
-❌ Quality gate failed: Spec quality is X/100 (minimum: 70)
+[X] Quality gate failed: Spec quality is X/100 (minimum: 70)
 
 Recommendations:
   • Add missing section: ## Description

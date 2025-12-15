@@ -45,25 +45,25 @@ Based on the `persona` configuration, invoke the appropriate triage skill:
 ```markdown
 **Persona Selection Logic:**
 
-- If `persona: beginner` → Use **security-triage-beginner** skill
+- If `persona: beginner` -> Use **security-triage-beginner** skill
   - Simple, non-technical explanations
   - Step-by-step fixes with code examples
   - Learning resources and tutorials
   - Explanations under 100 words
 
-- If `persona: expert` → Use **security-triage-expert** skill
+- If `persona: expert` -> Use **security-triage-expert** skill
   - Technical depth with CWE/CVE references
   - Advanced exploitation scenarios
   - Performance and edge case considerations
   - Defense in depth strategies
 
-- If `persona: compliance` → Use **security-triage-compliance** skill
+- If `persona: compliance` -> Use **security-triage-compliance** skill
   - Regulatory mapping (PCI-DSS, SOC2, HIPAA, ISO 27001)
   - Audit evidence format
   - Compliance status assessment
   - Remediation timeframes per policy
 
-- If no persona specified → Default to **expert**
+- If no persona specified -> Default to **expert**
 ```
 
 ### 3. Load Findings
@@ -235,7 +235,7 @@ An attacker could:
 
 ### Technical Description
 String concatenation in SQL query construction allows second-order SQL injection.
-User input flows through `request.form['username']` → `build_query()` → `cursor.execute()`
+User input flows through `request.form['username']` -> `build_query()` -> `cursor.execute()`
 without sanitization or parameterization. No WAF or input validation present.
 
 ### Exploitation Analysis

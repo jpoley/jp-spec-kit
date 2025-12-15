@@ -150,14 +150,14 @@ Enter selection [1-8] (default: 8): _
 ```
 
 **Role Mapping**:
-- Input 1 → "pm"
-- Input 2 → "arch"
-- Input 3 → "dev"
-- Input 4 → "sec"
-- Input 5 → "qa"
-- Input 6 → "ops"
-- Input 7 → "all"
-- Input 8 → Keep current role (no change)
+- Input 1 -> "pm"
+- Input 2 -> "arch"
+- Input 3 -> "dev"
+- Input 4 -> "sec"
+- Input 5 -> "qa"
+- Input 6 -> "ops"
+- Input 7 -> "all"
+- Input 8 -> Keep current role (no change)
 
 Validate input is in range 1-8. If invalid, reprompt.
 
@@ -219,43 +219,43 @@ For each workflow transition, choose a validation mode:
   - KEYWORD: Require user to type approval keyword
   - PULL_REQUEST: Require PR to be merged
 
-1. To Do → Assessed (after /flow:assess)
+1. To Do -> Assessed (after /flow:assess)
    [1] NONE (default)
    [2] KEYWORD
    [3] PULL_REQUEST
    > _
 
-2. Assessed → Specified (after /flow:specify, produces PRD)
+2. Assessed -> Specified (after /flow:specify, produces PRD)
    [1] NONE (default)
    [2] KEYWORD
    [3] PULL_REQUEST
    > _
 
-3. Specified → Researched (after /flow:research)
+3. Specified -> Researched (after /flow:research)
    [1] NONE (default)
    [2] KEYWORD
    [3] PULL_REQUEST
    > _
 
-4. Researched → Planned (after /flow:plan, produces ADRs)
+4. Researched -> Planned (after /flow:plan, produces ADRs)
    [1] NONE (default)
    [2] KEYWORD
    [3] PULL_REQUEST
    > _
 
-5. Planned → In Implementation (after /flow:implement)
+5. Planned -> In Implementation (after /flow:implement)
    [1] NONE (default)
    [2] KEYWORD
    [3] PULL_REQUEST
    > _
 
-6. In Implementation → Validated (after /flow:validate)
+6. In Implementation -> Validated (after /flow:validate)
    [1] NONE (default)
    [2] KEYWORD
    [3] PULL_REQUEST
    > _
 
-7. Validated → Deployed (after /flow:operate)
+7. Validated -> Deployed (after /flow:operate)
    [1] NONE (default)
    [2] KEYWORD
    [3] PULL_REQUEST
@@ -340,9 +340,9 @@ operate                  {MODE}
 
 📁 FILES UPDATED
 
-  ✓ flowspec_workflow.yml (role updated)
-  {✓ flowspec_workflow.yml (validation modes) - if configured}
-  {✓ memory/constitution.md (if --constitution)}
+  [Y] flowspec_workflow.yml (role updated)
+  {[Y] flowspec_workflow.yml (validation modes) - if configured}
+  {[Y] memory/constitution.md (if --constitution)}
 
 🎯 NEXT STEPS
 
@@ -417,10 +417,10 @@ Detected legacy flowspec_workflow.yml (v1.x)
 This command will migrate to flowspec_workflow.yml v2.0 with roles support.
 
 Migration will:
-  ✓ Create flowspec_workflow.yml with v2.0 schema
-  ✓ Preserve all workflow definitions and states
-  ✓ Add roles section with your selected role
-  ✓ Keep flowspec_workflow.yml as backup
+  [Y] Create flowspec_workflow.yml with v2.0 schema
+  [Y] Preserve all workflow definitions and states
+  [Y] Add roles section with your selected role
+  [Y] Keep flowspec_workflow.yml as backup
 
 Continue? [Y/n]: _
 ```

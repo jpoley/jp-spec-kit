@@ -264,7 +264,7 @@ Please ensure the PRD is:
 - Risk-aware through DVF+V validation
 - Clear and unambiguous
 - Complete and actionable
-- Traceable (requirements → tasks → tests → outcomes)
+- Traceable (requirements -> tasks -> tests -> outcomes)
 - Aligned with business objectives
 - Ready for engineering implementation
 ```
@@ -276,7 +276,7 @@ The agent will produce:
 2. **Actual backlog tasks** created via CLI (task IDs listed in section 6)
 3. PRD references task IDs for full traceability
 
-### ⚠️ MANDATORY: Design→Implement Workflow
+### ⚠️ MANDATORY: Design->Implement Workflow
 
 **This is a DESIGN command. The agent creates implementation tasks as part of section 6.**
 

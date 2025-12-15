@@ -155,7 +155,7 @@ class TestWorkflowIntegration:
     def test_state_transition_documented(self, assess_command_content):
         """Verify state transition is documented."""
         assert "State Transition" in assess_command_content
-        assert '"To Do" → "Assessed"' in assess_command_content
+        assert '"To Do" -> "Assessed"' in assess_command_content
 
     def test_artifact_path_documented(self, assess_command_content):
         """Verify artifact output path is documented."""
