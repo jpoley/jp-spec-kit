@@ -1,0 +1,79 @@
+name: Validate Agent Sync
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/agents/**'
+      - 'templates/commands/**'
+      - 'scripts/bash/sync-copilot-agents.sh'
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/agents/**'
+      - 'templates/commands/**'
+      - 'scripts/bash/sync-copilot-agents.sh'
+
+jobs:
+  validate-agent-sync:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Check for agent drift
+        run: |
+          echo "=== Checking for agent drift between commands and generated agents ==="
+          bash scripts/bash/sync-copilot-agents.sh --validate
+          EXIT_CODE=$?
+
+          if [ $EXIT_CODE -eq 2 ]; then
+            echo ""
+            echo "❌ Drift detected!"
+            echo "Generated agents in .github/agents/ are out of sync with commands."
+            echo ""
+            echo "Fix: Run 'bash scripts/bash/sync-copilot-agents.sh' to regenerate agents"
+            exit 1
+          elif [ $EXIT_CODE -ne 0 ]; then
+            echo ""
+            echo "❌ Agent sync validation failed with exit code $EXIT_CODE"
+            exit $EXIT_CODE
+          fi
+
+          echo "✓ No drift detected - agents are in sync"
+
+      - name: Generate job summary
+        if: always()
+        shell: bash
+        env:
+          MATRIX_OS: ${{ matrix.os }}
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          {
+            echo "## Agent Sync Validation"
+            echo ""
+            echo "| Metric | Value |"
+            echo "|--------|-------|"
+            echo "| Platform | $MATRIX_OS |"
+            echo "| Status | $JOB_STATUS |"
+            echo ""
+            if [ "$JOB_STATUS" == "failure" ]; then
+              echo "### Fix Required"
+              echo ""
+              echo "Run \`./scripts/bash/sync-copilot-agents.sh --force\` to regenerate agents."
+            fi
+          } >> $GITHUB_STEP_SUMMARY
