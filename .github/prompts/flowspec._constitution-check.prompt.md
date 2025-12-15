@@ -1,0 +1,1 @@
+../../templates/commands/flow/_constitution-check.md
