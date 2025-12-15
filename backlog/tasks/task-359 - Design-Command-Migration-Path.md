@@ -3,9 +3,9 @@ id: task-359
 title: 'Design: Command Migration Path'
 status: Done
 assignee:
-  - '@software-architect'
+  - '@adare'
 created_date: '2025-12-09 15:10'
-updated_date: '2025-12-09 15:17'
+updated_date: '2025-12-15 02:17'
 labels:
   - architecture
   - design

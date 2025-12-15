@@ -3,9 +3,9 @@ id: task-393
 title: Implement CleanupManager Component
 status: Done
 assignee:
-  - '@backend-engineer'
+  - '@adare'
 created_date: '2025-12-09 15:58'
-updated_date: '2025-12-09 17:07'
+updated_date: '2025-12-15 02:18'
 labels:
   - backend
   - task-memory

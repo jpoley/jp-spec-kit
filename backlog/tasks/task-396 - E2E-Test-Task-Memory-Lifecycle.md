@@ -3,9 +3,9 @@ id: task-396
 title: 'E2E Test: Task Memory Lifecycle'
 status: Done
 assignee:
-  - '@qa-engineer'
+  - '@adare'
 created_date: '2025-12-09 15:58'
-updated_date: '2025-12-09 17:49'
+updated_date: '2025-12-15 02:18'
 labels:
   - testing
   - task-memory

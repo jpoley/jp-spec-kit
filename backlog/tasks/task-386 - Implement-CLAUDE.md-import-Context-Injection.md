@@ -1,11 +1,11 @@
 ---
 id: task-386
 title: Implement CLAUDE.md @import Context Injection
-status: Done
+status: In Progress
 assignee:
-  - '@backend-engineer'
+  - '@adare'
 created_date: '2025-12-09 15:57'
-updated_date: '2025-12-11 08:21'
+updated_date: '2025-12-15 02:17'
 labels:
   - backend
   - task-memory
@@ -25,38 +25,25 @@ Update backlog/CLAUDE.md to dynamically include active task memory via @import d
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [x] #1 Add Active Task Context section to backlog/CLAUDE.md
-- [x] #2 Implement dynamic @import update in LifecycleManager
-- [x] #3 Test @import with Claude Code (verify memory loads automatically)
+- [ ] #2 Implement dynamic @import update in LifecycleManager
+- [ ] #3 Test @import with Claude Code (verify memory loads automatically)
 - [x] #4 Handle no active task scenario gracefully
 - [x] #5 Add section replacement logic with regex
 - [x] #6 Test with multiple rapid state transitions
-- [x] #7 Document @import mechanism in docs/reference/
+- [ ] #7 Document @import mechanism in docs/reference/
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-Integrated ContextInjector with LifecycleManager for @import directive management:
+Implemented ContextInjector with full @import management:
 
-**Implementation Changes:**
-- Refactored LifecycleManager to use ContextInjector for CLAUDE.md updates
-- Added ContextInjector instance to LifecycleManager.__init__()
-- Replaced manual @import management with delegation to ContextInjector
-- Maintained backward compatibility with update_active_task_import() public API
+- Created src/specify_cli/memory/injector.py with ContextInjector class
+- Supports update_active_task(), clear_active_task(), get_active_task_id()
+- Handles Active Task Context section in CLAUDE.md with regex replacement
+- Gracefully handles missing CLAUDE.md, no active task, and rapid transitions
+- 12/12 tests pass covering all scenarios
+- Session-start hook updated to inject first active task memory
 
-**Testing:**
-- All 120 lifecycle/injection/E2E tests pass
-- Updated test expectations to use ../memory/task-XXX.md path format
-- Verified integration with existing Claude Code E2E tests
-
-**Documentation:**
-- Created docs/reference/task-memory-import.md
-- Documented @import mechanism, architecture, API, edge cases, and troubleshooting
-- Added examples for both ContextInjector and LifecycleManager usage
-
-**Files Changed:**
-- src/specify_cli/memory/lifecycle.py (integrated ContextInjector)
-- tests/test_memory_lifecycle.py (updated path format)
-- tests/e2e/test_memory_lifecycle_e2e.py (updated path format)
-- docs/reference/task-memory-import.md (new documentation)
+Note: AC#2 refers to LifecycleManager which doesn't exist yet - integration will happen when task lifecycle management is implemented. AC#3 and AC#7 are manual/documentation tasks to complete separately.
 <!-- SECTION:NOTES:END -->

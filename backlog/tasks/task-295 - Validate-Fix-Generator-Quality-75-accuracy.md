@@ -3,9 +3,9 @@ id: task-295
 title: Validate Fix Generator Quality (>75% accuracy)
 status: To Do
 assignee:
-  - '@adare'
+  - '@galway'
 created_date: '2025-12-05 23:14'
-updated_date: '2025-12-15 01:48'
+updated_date: '2025-12-15 02:17'
 labels:
   - security
   - qa

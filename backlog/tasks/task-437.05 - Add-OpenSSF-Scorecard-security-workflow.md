@@ -3,9 +3,9 @@ id: task-437.05
 title: Add OpenSSF Scorecard security workflow
 status: Done
 assignee:
-  - '@myself'
+  - '@muckross'
 created_date: '2025-12-11 03:28'
-updated_date: '2025-12-11 03:52'
+updated_date: '2025-12-15 02:18'
 labels:
   - infrastructure
   - security

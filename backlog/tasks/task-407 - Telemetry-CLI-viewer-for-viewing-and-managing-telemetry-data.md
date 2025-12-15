@@ -3,9 +3,9 @@ id: task-407
 title: 'Telemetry: CLI viewer for viewing and managing telemetry data'
 status: Done
 assignee:
-  - '@pm-planner'
+  - '@adare'
 created_date: '2025-12-10 00:11'
-updated_date: '2025-12-14 20:30'
+updated_date: '2025-12-15 02:18'
 labels:
   - implement
   - backend

@@ -3,9 +3,9 @@ id: task-465
 title: 'claude-improves: Restructure standalone skill files to directory format'
 status: Done
 assignee:
-  - '@claude-agent-2'
+  - '@kinsale'
 created_date: '2025-12-12 01:15'
-updated_date: '2025-12-12 22:07'
+updated_date: '2025-12-15 02:18'
 labels:
   - claude-improves
   - source-repo

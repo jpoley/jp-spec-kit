@@ -3,9 +3,9 @@ id: task-366
 title: 'Telemetry: Role Usage Analytics Framework'
 status: Done
 assignee:
-  - '@muckross'
+  - '@kinsale'
 created_date: '2025-12-09 15:14'
-updated_date: '2025-12-14 20:32'
+updated_date: '2025-12-15 02:17'
 labels:
   - 'workflow:Specified'
 dependencies: []

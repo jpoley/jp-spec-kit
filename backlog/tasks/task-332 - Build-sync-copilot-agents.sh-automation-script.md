@@ -3,9 +3,9 @@ id: task-332
 title: Build sync-copilot-agents.sh automation script
 status: To Do
 assignee:
-  - '@adare'
+  - '@muckross'
 created_date: '2025-12-08 22:28'
-updated_date: '2025-12-15 01:48'
+updated_date: '2025-12-15 02:17'
 labels:
   - implement
   - tooling

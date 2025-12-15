@@ -1,11 +1,11 @@
 ---
 id: task-278
 title: Add CI validation for command structure
-status: To Do
+status: Done
 assignee:
   - '@galway'
 created_date: '2025-12-03 14:01'
-updated_date: '2025-12-04 04:01'
+updated_date: '2025-12-15 13:43'
 labels:
   - ci
   - validation

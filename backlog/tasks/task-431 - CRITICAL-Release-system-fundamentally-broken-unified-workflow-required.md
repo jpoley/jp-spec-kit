@@ -3,9 +3,9 @@ id: task-431
 title: 'CRITICAL: Release system fundamentally broken - unified workflow required'
 status: Done
 assignee:
-  - '@myself'
+  - '@adare'
 created_date: '2025-12-10 21:39'
-updated_date: '2025-12-11 03:03'
+updated_date: '2025-12-15 02:18'
 labels:
   - release
   - critical

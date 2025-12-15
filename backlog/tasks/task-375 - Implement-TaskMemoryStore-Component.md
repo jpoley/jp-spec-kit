@@ -3,9 +3,9 @@ id: task-375
 title: Implement TaskMemoryStore Component
 status: Done
 assignee:
-  - '@backend-engineer'
+  - '@adare'
 created_date: '2025-12-09 15:56'
-updated_date: '2025-12-09 16:18'
+updated_date: '2025-12-15 02:17'
 labels:
   - backend
   - task-memory

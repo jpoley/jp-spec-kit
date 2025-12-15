@@ -3,9 +3,9 @@ id: task-404
 title: 'Telemetry: Configuration system with opt-in consent'
 status: Done
 assignee:
-  - '@pm-planner'
+  - '@adare'
 created_date: '2025-12-10 00:10'
-updated_date: '2025-12-14 20:28'
+updated_date: '2025-12-15 02:18'
 labels:
   - implement
   - backend

@@ -3,9 +3,9 @@ id: task-385
 title: Integrate Lifecycle Hooks into Backlog CLI
 status: Done
 assignee:
-  - '@backend-engineer'
+  - '@adare'
 created_date: '2025-12-09 15:57'
-updated_date: '2025-12-09 17:05'
+updated_date: '2025-12-15 02:17'
 labels:
   - backend
   - task-memory

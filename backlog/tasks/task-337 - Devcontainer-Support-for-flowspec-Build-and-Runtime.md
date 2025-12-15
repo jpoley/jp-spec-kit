@@ -3,9 +3,9 @@ id: task-337
 title: Devcontainer Support for flowspec Build and Runtime
 status: Done
 assignee:
-  - '@backend-engineer'
+  - '@adare'
 created_date: '2025-12-08 22:36'
-updated_date: '2025-12-08 22:54'
+updated_date: '2025-12-15 02:17'
 labels:
   - infrastructure
   - devcontainer

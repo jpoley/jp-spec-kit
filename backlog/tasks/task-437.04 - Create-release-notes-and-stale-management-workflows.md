@@ -3,9 +3,9 @@ id: task-437.04
 title: Create release notes and stale management workflows
 status: Done
 assignee:
-  - '@myself'
+  - '@adare'
 created_date: '2025-12-11 03:28'
-updated_date: '2025-12-11 03:51'
+updated_date: '2025-12-15 02:18'
 labels:
   - infrastructure
   - github

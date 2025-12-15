@@ -3,9 +3,9 @@ id: task-285
 title: Add optional CI check for stale Done tasks
 status: To Do
 assignee:
-  - '@galway'
+  - '@adare'
 created_date: '2025-12-04 03:32'
-updated_date: '2025-12-04 04:01'
+updated_date: '2025-12-15 02:17'
 labels:
   - infrastructure
   - ci-cd

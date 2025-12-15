@@ -3,9 +3,9 @@ id: task-437.01
 title: Create Issue Templates for flowspec
 status: Done
 assignee:
-  - '@myself'
+  - '@adare'
 created_date: '2025-12-11 03:28'
-updated_date: '2025-12-11 03:48'
+updated_date: '2025-12-15 02:18'
 labels:
   - infrastructure
   - github

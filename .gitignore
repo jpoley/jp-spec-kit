@@ -45,3 +45,10 @@ env/
 *.zip
 sdd-*/
 .coverage
+
+# Git worktrees (local development - never commit)
+*-worktree/
+task-*-worktree
+
+# Backup files from specify
+.specify/backups/

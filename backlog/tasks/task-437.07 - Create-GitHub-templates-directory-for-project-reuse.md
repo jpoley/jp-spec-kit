@@ -3,9 +3,9 @@ id: task-437.07
 title: Create GitHub templates directory for project reuse
 status: Done
 assignee:
-  - '@myself'
+  - '@kinsale'
 created_date: '2025-12-11 03:28'
-updated_date: '2025-12-11 03:56'
+updated_date: '2025-12-15 02:18'
 labels:
   - enhancement
   - templates

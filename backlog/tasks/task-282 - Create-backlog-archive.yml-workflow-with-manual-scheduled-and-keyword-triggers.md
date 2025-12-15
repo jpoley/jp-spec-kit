@@ -3,11 +3,11 @@ id: task-282
 title: >-
   Create backlog-archive.yml workflow with manual, scheduled, and keyword
   triggers
-status: To Do
+status: Done
 assignee:
   - '@galway'
 created_date: '2025-12-04 03:32'
-updated_date: '2025-12-04 04:01'
+updated_date: '2025-12-15 13:43'
 labels:
   - infrastructure
   - ci-cd

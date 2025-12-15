@@ -3,9 +3,9 @@ id: task-378
 title: Add Task Memory Principles to Constitution
 status: Done
 assignee:
-  - '@tech-writer'
+  - '@adare'
 created_date: '2025-12-09 15:56'
-updated_date: '2025-12-09 16:15'
+updated_date: '2025-12-15 02:17'
 labels:
   - documentation
   - task-memory
