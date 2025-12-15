@@ -8,8 +8,8 @@ This document provides shared instructions for all flowspec agents to interact w
 
 - ✅ DO: `backlog task edit <id> --check-ac 1`
 - ✅ DO: `backlog task list --plain`
-- ❌ DON'T: Edit markdown files directly
-- ❌ DON'T: Manually change checkboxes in files
+- [X] DON'T: Edit markdown files directly
+- [X] DON'T: Manually change checkboxes in files
 
 Additional requirements:
 1. **Use `--plain` flag** when viewing/listing tasks for clean AI-readable output

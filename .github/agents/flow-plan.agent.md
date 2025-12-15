@@ -72,7 +72,7 @@ Before executing this workflow command, validate the project's constitution:
 ```bash
 # Look for constitution file
 if [ -f "memory/constitution.md" ]; then
-  echo "✓ Constitution found"
+  echo "[Y] Constitution found"
 else
   echo "⚠️ No constitution found"
   echo ""
@@ -144,8 +144,8 @@ Continue without validation? [y/N]: _
 ```
 
 Wait for user response:
-- If user responds `y` or `yes` → Continue with command
-- If user responds `n`, `no`, or empty/Enter → Stop and show:
+- If user responds `y` or `yes` -> Continue with command
+- If user responds `n`, `no`, or empty/Enter -> Stop and show:
   ```text
   Command cancelled. Run /speckit:constitution to customize your constitution.
   ```
@@ -155,7 +155,7 @@ Wait for user response:
 If `TIER = Heavy` and `MARKER_COUNT > 0`:
 
 ```text
-❌ Constitution Validation Required
+[X] Constitution Validation Required
 
 Your constitution has N unvalidated sections:
 $SECTIONS
@@ -198,7 +198,7 @@ When skip flag is present:
 If `MARKER_COUNT = 0`:
 
 ```text
-✓ Constitution validated
+[Y] Constitution validated
 ```
 
 Continue with command normally.
@@ -207,12 +207,12 @@ Continue with command normally.
 
 | Tier | Unvalidated Sections | Action |
 |------|---------------------|--------|
-| Light | 0 | ✓ Continue |
+| Light | 0 | [Y] Continue |
 | Light | >0 | ⚠️ Warn, continue |
-| Medium | 0 | ✓ Continue |
+| Medium | 0 | [Y] Continue |
 | Medium | >0 | ⚠️ Warn, ask confirmation, respect user choice |
-| Heavy | 0 | ✓ Continue |
-| Heavy | >0 | ❌ Block, require validation |
+| Heavy | 0 | [Y] Continue |
+| Heavy | >0 | [X] Block, require validation |
 | Any | >0 + `--skip-validation` | ⚠️ Warn, continue |
 
 ## Integration Example
@@ -267,9 +267,9 @@ fi
 ```
 
 **Light Mode Behavior**:
-- `/flow:research` → **SKIPPED** (inform user and suggest `/flow:plan` instead)
-- `/flow:plan` → Uses `plan-light.md` template (high-level only)
-- `/flow:specify` → Uses `spec-light.md` template (combined stories + AC)
+- `/flow:research` -> **SKIPPED** (inform user and suggest `/flow:plan` instead)
+- `/flow:plan` -> Uses `plan-light.md` template (high-level only)
+- `/flow:specify` -> Uses `spec-light.md` template (combined stories + AC)
 
 If in light mode and the current command is `/flow:research`, inform the user:
 ```text
@@ -760,7 +760,7 @@ After both agents complete:
    # Update workflow state label to "Planned"
    backlog task edit "$CURRENT_TASK" -l workflow:Planned
 
-   echo "✓ Workflow state updated to: Planned"
+   echo "[Y] Workflow state updated to: Planned"
    echo "  Next step: /flow:implement"
    ```
 

@@ -62,10 +62,10 @@ Project Analysis
 
 Project Type: {Greenfield | Brownfield}
 Detected Markers:
-  {✓ | ✗} Git repository with history
-  {✓ | ✗} Package manifest (pyproject.toml, package.json, etc.)
-  {✓ | ✗} Source code directories
-  {✓ | ✗} CI/CD configuration
+  {[Y] | [N]} Git repository with history
+  {[Y] | [N]} Package manifest (pyproject.toml, package.json, etc.)
+  {[Y] | [N]} Source code directories
+  {[Y] | [N]} CI/CD configuration
 ```
 
 ### Step 2: Check Existing Constitution
@@ -146,13 +146,13 @@ Enter selection [1-7] (default: 3): _
 ```
 
 **Role Mapping**:
-- Input 1 → "pm"
-- Input 2 → "arch"
-- Input 3 → "dev" (default)
-- Input 4 → "sec"
-- Input 5 → "qa"
-- Input 6 → "ops"
-- Input 7 → "all"
+- Input 1 -> "pm"
+- Input 2 -> "arch"
+- Input 3 -> "dev" (default)
+- Input 4 -> "sec"
+- Input 5 -> "qa"
+- Input 6 -> "ops"
+- Input 7 -> "all"
 
 Validate input is in range 1-7. If invalid, reprompt.
 
@@ -373,28 +373,28 @@ Project Type: {Brownfield | Greenfield}
 Complexity Score: {score}/14
 
 Languages:
-  ✓ {Language1} (primary)
-  {✓ Language2 (secondary)}
+  [Y] {Language1} (primary)
+  {[Y] Language2 (secondary)}
 
 Frameworks:
-  ✓ {Framework1}
-  {✓ Framework2}
+  [Y] {Framework1}
+  {[Y] Framework2}
 
 Build Tools:
-  ✓ {tool1}
-  {✓ tool2}
+  [Y] {tool1}
+  {[Y] tool2}
 
 Testing:
-  ✓ {test framework}
-  {✓ coverage tool}
+  [Y] {test framework}
+  {[Y] coverage tool}
 
 Code Quality:
-  ✓ {linter}
-  {✓ formatter}
-  {✓ type checker}
+  [Y] {linter}
+  {[Y] formatter}
+  {[Y] type checker}
 
 CI/CD:
-  {✓ | ✗} {platform}
+  {[Y] | [N]} {platform}
 
 🏛️ CONSTITUTION TIER
 
@@ -403,10 +403,10 @@ Rationale: {reason based on complexity score and project type}
 
 📝 FILES CREATED/UPDATED
 
-  ✓ memory/repo-facts.md (tech stack analysis)
-  ✓ memory/constitution.md (governance document)
-  ✓ flowspec_workflow.yml (role configuration updated)
-  {✓ flowspec_workflow.yml (workflow validation modes) - if --configure-workflow}
+  [Y] memory/repo-facts.md (tech stack analysis)
+  [Y] memory/constitution.md (governance document)
+  [Y] flowspec_workflow.yml (role configuration updated)
+  {[Y] flowspec_workflow.yml (workflow validation modes) - if --configure-workflow}
 
 📋 VALIDATION CHECKLIST
 

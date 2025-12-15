@@ -74,43 +74,43 @@ For each workflow transition, choose a validation mode:
   - KEYWORD: Require user to type approval keyword
   - PULL_REQUEST: Require PR to be merged
 
-1. To Do → Assessed (after /flow:assess)
+1. To Do -> Assessed (after /flow:assess)
    [1] NONE (default)
    [2] KEYWORD
    [3] PULL_REQUEST
    > _
 
-2. Assessed → Specified (after /flow:specify, produces PRD)
+2. Assessed -> Specified (after /flow:specify, produces PRD)
    [1] NONE (default)
    [2] KEYWORD
    [3] PULL_REQUEST
    > _
 
-3. Specified → Researched (after /flow:research)
+3. Specified -> Researched (after /flow:research)
    [1] NONE (default)
    [2] KEYWORD
    [3] PULL_REQUEST
    > _
 
-4. Researched → Planned (after /flow:plan, produces ADRs)
+4. Researched -> Planned (after /flow:plan, produces ADRs)
    [1] NONE (default)
    [2] KEYWORD
    [3] PULL_REQUEST
    > _
 
-5. Planned → In Implementation (after /flow:implement)
+5. Planned -> In Implementation (after /flow:implement)
    [1] NONE (default)
    [2] KEYWORD
    [3] PULL_REQUEST
    > _
 
-6. In Implementation → Validated (after /flow:validate)
+6. In Implementation -> Validated (after /flow:validate)
    [1] NONE (default)
    [2] KEYWORD
    [3] PULL_REQUEST
    > _
 
-7. Validated → Deployed (after /flow:operate)
+7. Validated -> Deployed (after /flow:operate)
    [1] NONE (default)
    [2] KEYWORD
    [3] PULL_REQUEST
@@ -232,8 +232,8 @@ operate                  NONE
 
 📁 FILES UPDATED
 
-  ✓ flowspec_workflow.yml (regenerated)
-  {✓ memory/constitution.md (if --constitution)}
+  [Y] flowspec_workflow.yml (regenerated)
+  {[Y] memory/constitution.md (if --constitution)}
 
 🎯 NEXT STEPS
 
