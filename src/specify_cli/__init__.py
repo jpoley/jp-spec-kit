@@ -6156,6 +6156,11 @@ from specify_cli.hooks.cli import hooks_app  # noqa: E402
 
 app.add_typer(hooks_app, name="hooks")
 
+# Events app (JSONL event log management)
+from specify_cli.events.cli import events_app  # noqa: E402
+
+app.add_typer(events_app, name="events")
+
 # Memory CLI (task memory management)
 from specify_cli.memory.cli import memory_app  # noqa: E402
 

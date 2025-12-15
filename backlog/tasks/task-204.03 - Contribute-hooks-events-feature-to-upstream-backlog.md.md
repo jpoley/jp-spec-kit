@@ -5,12 +5,13 @@ status: To Do
 assignee:
   - '@chamonix'
 created_date: '2025-12-03 02:19'
-updated_date: '2025-12-15 02:17'
+updated_date: '2025-12-15 06:13'
 labels:
   - hooks
   - backlog
   - upstream
   - open-source
+  - on-hold
 dependencies: []
 parent_task_id: task-204
 priority: low
@@ -70,3 +71,19 @@ hooks:
 - [ ] #6 If accepted: submit PR to upstream
 - [ ] #7 Document outcome (accepted/rejected/forked)
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+## Status Update (2025-12-15)
+
+**Priority lowered**: Current wrapper + shim implementation is sufficient.
+
+Upstream contribution is nice-to-have, not blocking. The Python shim and `bk` wrapper fully satisfy event emission requirements without modifying backlog.md.
+
+This task can be pursued opportunistically when bandwidth permits.
+
+## On Hold (2025-12-15)
+
+Placed on hold - current wrapper + shim implementation fully satisfies requirements. Will revisit if upstream interest emerges.
+<!-- SECTION:NOTES:END -->

@@ -1,0 +1,495 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://flowspec.dev/schemas/agent-event-v1.1.0.json",
+  "title": "Agent Event",
+  "version": "1.1.0",
+  "description": "Unified JSONL event schema for agents, tasks, git, and containers. Version 1.1.0 adds comprehensive namespace support for git, task, container, decision, action, and security events. Migration from v1.0: (1) Add 11 namespaces (lifecycle, activity, coordination, hook, git, task, container, decision, system, action, security). (2) Namespace objects are optional - only include when relevant. (3) Legacy 'status' field preserved for backward compatibility. (4) New context object enables cross-referencing across tasks, branches, containers. (5) Correlation object supports distributed tracing.",
+  "type": "object",
+  "required": ["version", "event_type", "timestamp", "agent_id"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Schema version (semver)"
+    },
+    "event_type": {
+      "type": "string",
+      "pattern": "^(lifecycle|activity|coordination|hook|git|task|container|decision|system|action|security)\\.[a-z_]+$",
+      "description": "Namespaced event type. Must be one of 11 supported namespaces followed by dot and event name."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp with timezone"
+    },
+    "agent_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Unique agent identifier"
+    },
+    "event_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "UUID for this event"
+    },
+    "session_id": {
+      "type": "string",
+      "description": "Session grouping identifier"
+    },
+    "source": {
+      "type": "string",
+      "enum": ["mcp", "hook", "cli", "system"],
+      "description": "Event origin"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["started", "thinking", "tool_use", "progress", "waiting", "blocked", "completed", "error"],
+      "description": "Legacy status value for backward compatibility with v1.0. Prefer using event_type for new code."
+    },
+    "message": {
+      "type": "string",
+      "maxLength": 2000,
+      "description": "Human-readable description"
+    },
+    "progress": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Completion percentage (0.0-1.0)"
+    },
+    "context": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "task_id": {
+          "type": "string",
+          "description": "Task identifier for cross-referencing"
+        },
+        "branch_name": {
+          "type": "string",
+          "description": "Git branch name"
+        },
+        "worktree_path": {
+          "type": "string",
+          "description": "Git worktree path"
+        },
+        "container_id": {
+          "type": "string",
+          "description": "Container identifier"
+        },
+        "pr_number": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Pull request number"
+        },
+        "decision_id": {
+          "type": "string",
+          "description": "Decision identifier (e.g., ARCH-001)"
+        }
+      },
+      "description": "Cross-reference context for unified tracking across dimensions"
+    },
+    "tool": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "tool_name": {
+          "type": "string",
+          "description": "Name of tool being executed"
+        },
+        "tool_input": {
+          "type": "object",
+          "description": "Tool input parameters"
+        },
+        "tool_output": {
+          "type": "object",
+          "description": "Tool output result"
+        },
+        "duration_ms": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Tool execution duration in milliseconds"
+        }
+      },
+      "description": "Tool execution details"
+    },
+    "hook": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "hook_name": {
+          "type": "string",
+          "description": "Hook name (e.g., PreToolUse, SessionStart)"
+        },
+        "hook_type": {
+          "type": "string",
+          "description": "Hook type (alias for hook_name, for backward compatibility)"
+        },
+        "hook_event": {
+          "type": "string",
+          "description": "Hook event type"
+        },
+        "prompt_length": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Length of user prompt in characters"
+        },
+        "session_duration_ms": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Session duration in milliseconds"
+        }
+      },
+      "description": "Hook-specific payload for Claude Code hooks"
+    },
+    "git": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "operation": {
+          "type": "string",
+          "description": "Git operation type (commit, merge, push, etc.)"
+        },
+        "sha": {
+          "type": "string",
+          "minLength": 6,
+          "maxLength": 40,
+          "description": "Git commit SHA (short or full, minimum 6 characters)"
+        },
+        "branch_name": {
+          "type": "string",
+          "description": "Branch name"
+        },
+        "from_branch": {
+          "type": "string",
+          "description": "Source branch for merges"
+        },
+        "gpg_key_id": {
+          "type": "string",
+          "description": "GPG key ID used for signing"
+        },
+        "gpg_fingerprint": {
+          "type": "string",
+          "description": "GPG key fingerprint"
+        },
+        "signer_agent_id": {
+          "type": "string",
+          "description": "Agent ID that signed the commit"
+        },
+        "message": {
+          "type": "string",
+          "description": "Commit message"
+        },
+        "files_changed": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of files changed"
+        },
+        "insertions": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of lines inserted"
+        },
+        "deletions": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of lines deleted"
+        },
+        "merge_method": {
+          "type": "string",
+          "enum": ["merge", "squash", "rebase"],
+          "description": "Merge method used"
+        }
+      },
+      "description": "Git operation details"
+    },
+    "task": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "task_id": {
+          "type": "string",
+          "description": "Task identifier"
+        },
+        "title": {
+          "type": "string",
+          "description": "Task title"
+        },
+        "from_state": {
+          "type": "string",
+          "description": "Previous state"
+        },
+        "to_state": {
+          "type": "string",
+          "description": "New state"
+        },
+        "assigned_to": {
+          "type": "string",
+          "description": "Agent assigned to task"
+        },
+        "labels": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Task labels"
+        },
+        "ac_index": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Acceptance criterion index"
+        },
+        "ac_text": {
+          "type": "string",
+          "description": "Acceptance criterion text"
+        }
+      },
+      "description": "Task operation details"
+    },
+    "container": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "container_id": {
+          "type": "string",
+          "description": "Container identifier"
+        },
+        "image": {
+          "type": "string",
+          "description": "Container image name"
+        },
+        "network_mode": {
+          "type": "string",
+          "description": "Network mode (isolated, host, bridge)"
+        },
+        "resource_limits": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "memory_mb": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Memory limit in megabytes"
+            },
+            "cpu_cores": {
+              "type": "number",
+              "minimum": 0,
+              "description": "CPU cores limit"
+            }
+          },
+          "description": "Resource limits for container"
+        },
+        "secrets_injected": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Names of secrets injected (not values)"
+        },
+        "exit_code": {
+          "type": "integer",
+          "description": "Container exit code"
+        }
+      },
+      "description": "Container details"
+    },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "decision_id": {
+          "type": "string",
+          "description": "Decision identifier (e.g., ARCH-001)"
+        },
+        "category": {
+          "type": "string",
+          "description": "Decision category (architecture, technology, etc.)"
+        },
+        "reversibility": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["one-way-door", "two-way-door"],
+              "description": "Decision reversibility type"
+            },
+            "lock_in_factors": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Factors that prevent reversal"
+            },
+            "reversal_cost": {
+              "type": "string",
+              "enum": ["trivial", "low", "medium", "high", "prohibitive"],
+              "description": "Cost to reverse decision"
+            },
+            "reversal_window": {
+              "type": "string",
+              "description": "Time window for safe reversal"
+            },
+            "notes": {
+              "type": "string",
+              "description": "Additional notes on reversibility"
+            }
+          },
+          "description": "Decision reversibility analysis"
+        },
+        "alternatives_considered": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "option": {
+                "type": "string",
+                "description": "Alternative option name"
+              },
+              "rejected_reason": {
+                "type": "string",
+                "description": "Reason for rejecting this option"
+              }
+            },
+            "required": ["option", "rejected_reason"]
+          },
+          "description": "Alternative options considered and rejected"
+        }
+      },
+      "description": "Decision details"
+    },
+    "action": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "verb": {
+          "type": "string",
+          "description": "Action verb from action-system vocabulary"
+        },
+        "domain": {
+          "type": "string",
+          "description": "Action domain"
+        },
+        "category": {
+          "type": "string",
+          "description": "Action category"
+        },
+        "input": {
+          "type": "object",
+          "description": "Action input parameters"
+        },
+        "output": {
+          "type": "object",
+          "description": "Action output values"
+        },
+        "duration_ms": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Action execution duration in milliseconds"
+        },
+        "error": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "description": "Error code"
+            },
+            "message": {
+              "type": "string",
+              "description": "Error message"
+            },
+            "issues": {
+              "type": "array",
+              "description": "Array of specific issues"
+            }
+          },
+          "description": "Error details if action failed"
+        }
+      },
+      "description": "Action invocation details"
+    },
+    "security": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "artifact": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "type": "string",
+              "description": "Artifact type (container, binary, etc.)"
+            },
+            "ref": {
+              "type": "string",
+              "description": "Artifact reference (URL, path, etc.)"
+            }
+          },
+          "description": "Artifact being secured"
+        },
+        "signature": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "algorithm": {
+              "type": "string",
+              "description": "Signature algorithm (cosign, gpg, etc.)"
+            },
+            "key_id": {
+              "type": "string",
+              "description": "Key identifier used for signing"
+            },
+            "signature_ref": {
+              "type": "string",
+              "description": "Signature reference or location"
+            }
+          },
+          "description": "Signature details"
+        },
+        "attestation": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "type": "string",
+              "description": "Attestation type (in-toto, slsa, etc.)"
+            },
+            "predicate": {
+              "type": "string",
+              "description": "Attestation predicate"
+            }
+          },
+          "description": "Attestation details"
+        }
+      },
+      "description": "Security operation details"
+    },
+    "correlation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "trace_id": {
+          "type": "string",
+          "description": "Distributed trace identifier"
+        },
+        "span_id": {
+          "type": "string",
+          "description": "Span identifier"
+        },
+        "parent_span_id": {
+          "type": "string",
+          "description": "Parent span identifier"
+        }
+      },
+      "description": "Distributed tracing context (OpenTelemetry-compatible)"
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Arbitrary extensible data for custom fields"
+    }
+  }
+}

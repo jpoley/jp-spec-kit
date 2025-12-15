@@ -5,7 +5,7 @@ status: Done
 assignee:
   - '@chamonix'
 created_date: '2025-12-03 02:19'
-updated_date: '2025-12-15 02:17'
+updated_date: '2025-12-15 06:08'
 labels:
   - hooks
   - git
@@ -96,4 +96,20 @@ Implementation complete:
    - All tests pass
 
 Commit: 0c641eb
+
+## Closed: Git Hook Not Needed
+
+**Decision (2025-12-15)**: Git hook approach for event emission is NOT needed.
+
+**Rationale**:
+- The `bk` shell wrapper (task-204.02) provides immediate event emission
+- The Python shim (`src/specify_cli/backlog/shim.py`) provides programmatic API
+- Git hooks will be used for other purposes, not backlog event emission
+- Git hook approach violates DORA Lead Time (delayed until commit)
+
+**Status**: Implementation exists but is optional/deprecated. Use wrapper or shim instead.
+
+**Files to archive** (not delete - may be useful reference):
+- `scripts/hooks/post-commit-backlog-events.sh`
+- `tests/integration/test_post_commit_backlog_events.sh`
 <!-- SECTION:NOTES:END -->

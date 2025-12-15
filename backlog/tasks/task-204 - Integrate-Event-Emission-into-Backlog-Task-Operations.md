@@ -1,11 +1,11 @@
 ---
 id: task-204
 title: Integrate Event Emission into Backlog Task Operations
-status: To Do
+status: Done
 assignee:
   - '@chamonix'
 created_date: '2025-12-03 00:41'
-updated_date: '2025-12-15 02:17'
+updated_date: '2025-12-15 06:08'
 labels:
   - implement
   - integration
@@ -31,11 +31,11 @@ See sub-tasks for implementation details.
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Emit task.created when new task created via backlog CLI
-- [ ] #2 Emit task.status_changed when status transitions occur
-- [ ] #3 Emit task.completed when task marked as Done
-- [ ] #4 Emit task.ac_checked when acceptance criterion checked/unchecked
-- [ ] #5 Integration tests for each event type
+- [x] #1 Emit task.created when new task created via backlog CLI
+- [x] #2 Emit task.status_changed when status transitions occur
+- [x] #3 Emit task.completed when task marked as Done
+- [x] #4 Emit task.ac_checked when acceptance criterion checked/unchecked
+- [x] #5 Integration tests for each event type
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -59,4 +59,36 @@ Users can already emit events manually:
 ```bash
 backlog task edit 123 -s Done && specify hooks emit task.completed --task-id task-123
 ```
+
+## Completed: Simplified Design (2025-12-15)
+
+### Final Architecture
+
+Two approaches implemented (git hook deprecated):
+
+1. **Shell Wrapper (`bk`)** - For human CLI users
+   - Location: `scripts/bin/bk`
+   - Docs: `user-docs/user-guides/backlog-wrapper.md`
+   - Status: ✅ Production ready
+
+2. **Python Shim** - For agents/workflows
+   - Location: `src/specify_cli/backlog/shim.py`
+   - Tests: `tests/test_backlog_shim.py`
+   - Status: ✅ Production ready
+   - API: `from specify_cli.backlog import task_create, task_edit, complete_task`
+
+### Git Hook (Deprecated)
+- task-204.01 closed - git hooks reserved for other purposes
+- Event emission should be immediate (wrapper/shim), not commit-delayed
+
+### Golden Paths
+| Use Case | Approach |
+|----------|----------|
+| Agents/workflows | Python shim |
+| Human CLI | `bk` wrapper |
+| CI/CD pipelines | Python shim |
+
+### Downstream Tasks Unblocked
+- task-508: Can leverage existing Python shim
+- task-402/204.03: Upstream contribution remains low priority
 <!-- SECTION:NOTES:END -->
