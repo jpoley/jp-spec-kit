@@ -19,7 +19,7 @@ from pathlib import Path
 from typing import Optional
 import yaml
 
-from specify_cli.workflow.state_guard import (
+from flowspec_cli.workflow.state_guard import (
     WorkflowStateGuard,
     StateCheckResult,
 )

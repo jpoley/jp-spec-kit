@@ -6,8 +6,8 @@ concurrent operations, and CLAUDE.md integration.
 """
 
 import pytest
-from specify_cli.memory import TaskMemoryStore, LifecycleManager
-from specify_cli.memory.injector import ContextInjector
+from flowspec_cli.memory import TaskMemoryStore, LifecycleManager
+from flowspec_cli.memory.injector import ContextInjector
 import shutil
 
 

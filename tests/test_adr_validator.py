@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from specify_cli.workflow.adr_validator import (
+from flowspec_cli.workflow.adr_validator import (
     ADR_FILENAME_PATTERN,
     ADRValidationResult,
     ADRValidator,

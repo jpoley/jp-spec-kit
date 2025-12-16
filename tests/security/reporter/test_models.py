@@ -4,7 +4,7 @@ from datetime import datetime
 
 import pytest
 
-from specify_cli.security.reporter.models import (
+from flowspec_cli.security.reporter.models import (
     SecurityPosture,
     ComplianceStatus,
     OWASPCategory,

@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from specify_cli.security.fixer.models import (
+from flowspec_cli.security.fixer.models import (
     FixResult,
     FixStatus,
     Patch,

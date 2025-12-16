@@ -3,7 +3,7 @@
 import yaml
 
 
-from specify_cli.security.integrations.hooks import (
+from flowspec_cli.security.integrations.hooks import (
     PreCommitConfig,
     generate_precommit_config,
     generate_husky_config,

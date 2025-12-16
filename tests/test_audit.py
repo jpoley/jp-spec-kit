@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from specify_cli.satellite.audit import (
+from flowspec_cli.satellite.audit import (
     AuditEvent,
     AuditEventType,
     AuditLogger,

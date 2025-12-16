@@ -1,6 +1,6 @@
 """Tests for multi-agent installation support."""
 
-from specify_cli import parse_agent_list, AGENT_CONFIG
+from flowspec_cli import parse_agent_list, AGENT_CONFIG
 
 
 class TestParseAgentList:

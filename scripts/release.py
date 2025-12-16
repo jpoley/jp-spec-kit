@@ -14,7 +14,7 @@ Usage:
 This script:
 1. Determines the new version (auto-increment or specified)
 2. Creates a release branch (release/vX.Y.Z)
-3. Updates pyproject.toml and src/specify_cli/__init__.py
+3. Updates pyproject.toml and src/flowspec_cli/__init__.py
 4. Commits the version bump
 5. Pushes the release branch
 6. Creates a PR to main (with confirmation)
@@ -107,7 +107,7 @@ def update_version_files(new_version: str, dry_run: bool = False) -> None:
     files = [
         ("pyproject.toml", r'^version\s*=\s*"[^"]+"', f'version = "{new_version}"'),
         (
-            "src/specify_cli/__init__.py",
+            "src/flowspec_cli/__init__.py",
             r'__version__\s*=\s*"[^"]+"',
             f'__version__ = "{new_version}"',
         ),
@@ -334,7 +334,7 @@ Workflow:
             "git",
             "add",
             "pyproject.toml",
-            "src/specify_cli/__init__.py",
+            "src/flowspec_cli/__init__.py",
         ]
     )
     run(["git", "commit", "-m", f"chore: release v{new_version}"])

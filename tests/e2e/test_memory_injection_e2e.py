@@ -16,9 +16,9 @@ import json
 import pytest
 from unittest.mock import MagicMock
 
-from specify_cli.memory import TaskMemoryStore
-from specify_cli.memory.injector import ContextInjector
-from specify_cli.memory.mcp import register_memory_resources, MCP_AVAILABLE
+from flowspec_cli.memory import TaskMemoryStore
+from flowspec_cli.memory.injector import ContextInjector
+from flowspec_cli.memory.mcp import register_memory_resources, MCP_AVAILABLE
 
 
 @pytest.fixture
@@ -199,7 +199,7 @@ class TestMCPResourceAccess:
     @pytest.mark.asyncio
     async def test_mcp_get_task_memory(self, injection_project, store_with_tasks):
         """Test MCP resource returns task memory content."""
-        from specify_cli.memory.mcp import register_memory_resources
+        from flowspec_cli.memory.mcp import register_memory_resources
 
         # Create mock server that captures the handler
         handlers = {}
@@ -229,7 +229,7 @@ class TestMCPResourceAccess:
     @pytest.mark.asyncio
     async def test_mcp_get_active_memory(self, injection_project, store_with_tasks):
         """Test MCP resource returns active task memory."""
-        from specify_cli.memory.mcp import register_memory_resources
+        from flowspec_cli.memory.mcp import register_memory_resources
 
         # Set active task
         injector = ContextInjector(base_path=injection_project)
@@ -262,7 +262,7 @@ class TestMCPResourceAccess:
     @pytest.mark.asyncio
     async def test_mcp_task_not_found(self, injection_project):
         """Test MCP resource returns error for non-existent task."""
-        from specify_cli.memory.mcp import register_memory_resources
+        from flowspec_cli.memory.mcp import register_memory_resources
 
         handlers = {}
 
@@ -289,7 +289,7 @@ class TestMCPResourceAccess:
     @pytest.mark.asyncio
     async def test_mcp_invalid_task_id(self, injection_project):
         """Test MCP resource validates task ID format."""
-        from specify_cli.memory.mcp import register_memory_resources
+        from flowspec_cli.memory.mcp import register_memory_resources
 
         handlers = {}
 
@@ -316,7 +316,7 @@ class TestMCPResourceAccess:
     @pytest.mark.asyncio
     async def test_mcp_no_active_task(self, injection_project):
         """Test MCP resource handles no active task gracefully."""
-        from specify_cli.memory.mcp import register_memory_resources
+        from flowspec_cli.memory.mcp import register_memory_resources
 
         handlers = {}
 

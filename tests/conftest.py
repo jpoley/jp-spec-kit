@@ -14,7 +14,7 @@ from textwrap import dedent
 def mock_github_releases(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
     """Mock the download_and_extract functions to avoid GitHub API calls.
 
-    This fixture mocks the high-level download functions in specify_cli
+    This fixture mocks the high-level download functions in flowspec_cli
     to create a minimal project structure without hitting the network.
     """
 
@@ -75,10 +75,10 @@ def mock_github_releases(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
         return result
 
     monkeypatch.setattr(
-        "specify_cli.download_and_extract_two_stage", mock_download_two_stage
+        "flowspec_cli.download_and_extract_two_stage", mock_download_two_stage
     )
     monkeypatch.setattr(
-        "specify_cli.download_and_extract_template", mock_download_single
+        "flowspec_cli.download_and_extract_template", mock_download_single
     )
 
 

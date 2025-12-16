@@ -6,13 +6,13 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from specify_cli.security.tools.manager import (
+from flowspec_cli.security.tools.manager import (
     DANGEROUS_PATH_CHARS,
     ToolManager,
     VERSION_PATTERN,
     VERSION_SEARCH_PATTERN,
 )
-from specify_cli.security.tools.models import (
+from flowspec_cli.security.tools.models import (
     InstallMethod,
     ToolConfig,
     ToolStatus,
@@ -487,7 +487,7 @@ class TestDownloadFile:
         manager = ToolManager(cache_dir=tmp_path)
         dest = tmp_path / "download.zip"
 
-        with patch("specify_cli.security.tools.manager.urlopen") as mock_urlopen:
+        with patch("flowspec_cli.security.tools.manager.urlopen") as mock_urlopen:
             mock_response = MagicMock()
             mock_response.read.side_effect = [b"data", b""]
             mock_response.__enter__ = MagicMock(return_value=mock_response)
@@ -509,7 +509,7 @@ class TestDownloadFile:
         dest = tmp_path / "download.zip"
 
         with patch(
-            "specify_cli.security.tools.manager.urlopen",
+            "flowspec_cli.security.tools.manager.urlopen",
             side_effect=URLError("Connection refused"),
         ):
             with pytest.raises(RuntimeError, match="Download failed"):
@@ -520,7 +520,7 @@ class TestDownloadFile:
         manager = ToolManager(cache_dir=tmp_path)
         dest = tmp_path / "download.zip"
 
-        with patch("specify_cli.security.tools.manager.urlopen") as mock_urlopen:
+        with patch("flowspec_cli.security.tools.manager.urlopen") as mock_urlopen:
             mock_response = MagicMock()
             # Simulate 2MB response with 1MB limit (each chunk is 1MB)
             mock_response.read.side_effect = [
@@ -647,7 +647,7 @@ class TestSecurityProtections:
         manager = ToolManager(cache_dir=tmp_path)
         dest = tmp_path / "download.zip"
 
-        with patch("specify_cli.security.tools.manager.urlopen") as mock_urlopen:
+        with patch("flowspec_cli.security.tools.manager.urlopen") as mock_urlopen:
             mock_response = MagicMock()
             mock_response.read.side_effect = [b"data", b""]
             mock_response.__enter__ = MagicMock(return_value=mock_response)

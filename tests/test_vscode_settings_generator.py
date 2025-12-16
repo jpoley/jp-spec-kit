@@ -7,9 +7,9 @@ from pathlib import Path
 
 import pytest
 
-from specify_cli.vscode.settings_generator import VSCodeSettingsGenerator
-from specify_cli.workflow.config import WorkflowConfig
-from specify_cli.workflow.exceptions import WorkflowConfigError
+from flowspec_cli.vscode.settings_generator import VSCodeSettingsGenerator
+from flowspec_cli.workflow.config import WorkflowConfig
+from flowspec_cli.workflow.exceptions import WorkflowConfigError
 
 
 @pytest.fixture

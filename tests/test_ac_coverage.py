@@ -13,7 +13,7 @@ from textwrap import dedent
 
 import pytest
 
-from specify_cli.workflow.ac_coverage import (
+from flowspec_cli.workflow.ac_coverage import (
     ACCoverageReport,
     ACTestScanner,
     AcceptanceCriterion,

@@ -3,8 +3,8 @@
 import pytest
 from datetime import datetime, timedelta
 from pathlib import Path
-from specify_cli.memory import TaskMemoryStore
-from specify_cli.memory.cleanup import CleanupManager
+from flowspec_cli.memory import TaskMemoryStore
+from flowspec_cli.memory.cleanup import CleanupManager
 
 
 @pytest.fixture

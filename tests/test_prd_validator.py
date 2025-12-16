@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from specify_cli.workflow.prd_validator import (
+from flowspec_cli.workflow.prd_validator import (
     PRD_FILENAME_PATTERN,
     PRDValidationResult,
     PRDValidator,

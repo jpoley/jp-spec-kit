@@ -4,8 +4,8 @@ from dataclasses import dataclass
 from enum import Enum
 
 
-from specify_cli.security.reporter.models import ComplianceStatus
-from specify_cli.security.reporter.owasp import (
+from flowspec_cli.security.reporter.models import ComplianceStatus
+from flowspec_cli.security.reporter.owasp import (
     OWASP_TOP_10,
     get_owasp_category,
     check_owasp_compliance,

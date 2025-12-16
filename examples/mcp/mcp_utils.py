@@ -78,7 +78,7 @@ def create_safe_env(project_root: Path | None = None) -> dict[str, str]:
 
     Note:
         PYTHONPATH is included because the MCP server subprocess needs it to
-        locate the specify_cli package when running from development installs.
+        locate the flowspec_cli package when running from development installs.
         This is safe because we control the subprocess being spawned (the MCP
         server), not arbitrary user commands.
     """
@@ -86,7 +86,7 @@ def create_safe_env(project_root: Path | None = None) -> dict[str, str]:
         "PATH": os.environ.get("PATH", ""),
         "HOME": os.environ.get("HOME", ""),
         "USER": os.environ.get("USER", ""),
-        # PYTHONPATH needed for dev installs to locate specify_cli package
+        # PYTHONPATH needed for dev installs to locate flowspec_cli package
         "PYTHONPATH": os.environ.get("PYTHONPATH", ""),
     }
 
@@ -243,7 +243,7 @@ async def connect_to_security_mcp(
 
     server_params = StdioServerParameters(
         command=python_exe,
-        args=["-m", "specify_cli.security.mcp_server"],
+        args=["-m", "flowspec_cli.security.mcp_server"],
         env=safe_env,
     )
 

@@ -14,7 +14,7 @@ from pathlib import Path
 
 import pytest
 
-from specify_cli.telemetry.config import (
+from flowspec_cli.telemetry.config import (
     ENV_TELEMETRY_DISABLED,
     TelemetryConfig,
     disable_telemetry,

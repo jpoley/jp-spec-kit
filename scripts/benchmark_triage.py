@@ -22,8 +22,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from specify_cli.security.models import Confidence, Finding, Location, Severity
-from specify_cli.security.triage.engine import TriageEngine
+from flowspec_cli.security.models import Confidence, Finding, Location, Severity
+from flowspec_cli.security.triage.engine import TriageEngine
 
 
 @dataclass

@@ -306,7 +306,7 @@ class TestTaskMemoryStoreValidation:
 
     def test_valid_task_id_accepted(self, integration_project):
         """Test that valid task IDs are accepted."""
-        from specify_cli.memory import TaskMemoryStore
+        from flowspec_cli.memory import TaskMemoryStore
 
         store = TaskMemoryStore(base_path=integration_project)
 
@@ -326,7 +326,7 @@ class TestTaskMemoryStoreValidation:
 
     def test_invalid_task_id_rejected(self, integration_project):
         """Test that invalid task IDs are rejected."""
-        from specify_cli.memory import TaskMemoryStore
+        from flowspec_cli.memory import TaskMemoryStore
 
         store = TaskMemoryStore(base_path=integration_project)
 
@@ -347,7 +347,7 @@ class TestTaskMemoryStoreValidation:
 
     def test_path_traversal_blocked(self, integration_project):
         """Test that path traversal attempts are blocked."""
-        from specify_cli.memory import TaskMemoryStore
+        from flowspec_cli.memory import TaskMemoryStore
 
         store = TaskMemoryStore(base_path=integration_project)
 
@@ -366,13 +366,13 @@ class TestLifecycleIntegration:
 
     def test_lifecycle_manager_import(self, integration_project):
         """Test that lifecycle manager can be imported."""
-        from specify_cli.memory.lifecycle import LifecycleManager
+        from flowspec_cli.memory.lifecycle import LifecycleManager
 
         assert LifecycleManager is not None
 
     def test_state_change_to_in_progress(self, integration_project):
         """Test memory creation on transition to In Progress."""
-        from specify_cli.memory import LifecycleManager, TaskMemoryStore
+        from flowspec_cli.memory import LifecycleManager, TaskMemoryStore
 
         store = TaskMemoryStore(base_path=integration_project)
         manager = LifecycleManager(store=store)
@@ -392,7 +392,7 @@ class TestLifecycleIntegration:
 
     def test_state_change_to_done(self, integration_project):
         """Test memory archival on transition to Done."""
-        from specify_cli.memory import LifecycleManager, TaskMemoryStore
+        from flowspec_cli.memory import LifecycleManager, TaskMemoryStore
 
         store = TaskMemoryStore(base_path=integration_project)
         manager = LifecycleManager(store=store)
@@ -412,7 +412,7 @@ class TestLifecycleIntegration:
 
     def test_state_change_restore(self, integration_project):
         """Test memory restoration on Done to In Progress."""
-        from specify_cli.memory import LifecycleManager, TaskMemoryStore
+        from flowspec_cli.memory import LifecycleManager, TaskMemoryStore
 
         store = TaskMemoryStore(base_path=integration_project)
         manager = LifecycleManager(store=store)

@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import pytest
 
-from specify_cli.workflow.assessor import (
+from flowspec_cli.workflow.assessor import (
     CategoryScore,
     Confidence,
     DimensionScore,

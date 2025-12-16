@@ -7,8 +7,8 @@ from unittest.mock import MagicMock, patch
 import pytest
 from typer.testing import CliRunner
 
-from specify_cli import app
-from specify_cli.security.models import (
+from flowspec_cli import app
+from flowspec_cli.security.models import (
     Confidence,
     Finding,
     Location,
@@ -73,8 +73,8 @@ def sample_findings():
 class TestSecurityScan:
     """Test security scan command."""
 
-    @patch("specify_cli.security.adapters.semgrep.SemgrepAdapter")
-    @patch("specify_cli.security.orchestrator.ScannerOrchestrator")
+    @patch("flowspec_cli.security.adapters.semgrep.SemgrepAdapter")
+    @patch("flowspec_cli.security.orchestrator.ScannerOrchestrator")
     def test_scan_command_success(
         self, mock_orchestrator_class, mock_adapter_class, sample_findings
     ):
@@ -97,8 +97,8 @@ class TestSecurityScan:
         assert result.exit_code == 0  # No critical findings
         assert "3 findings" in result.stdout or "Total: 3" in result.stdout
 
-    @patch("specify_cli.security.adapters.semgrep.SemgrepAdapter")
-    @patch("specify_cli.security.orchestrator.ScannerOrchestrator")
+    @patch("flowspec_cli.security.adapters.semgrep.SemgrepAdapter")
+    @patch("flowspec_cli.security.orchestrator.ScannerOrchestrator")
     def test_scan_command_fails_on_threshold(
         self, mock_orchestrator_class, mock_adapter_class, sample_findings
     ):
@@ -121,8 +121,8 @@ class TestSecurityScan:
         assert result.exit_code == 1
         assert "findings at or above high" in result.stdout
 
-    @patch("specify_cli.security.adapters.semgrep.SemgrepAdapter")
-    @patch("specify_cli.security.orchestrator.ScannerOrchestrator")
+    @patch("flowspec_cli.security.adapters.semgrep.SemgrepAdapter")
+    @patch("flowspec_cli.security.orchestrator.ScannerOrchestrator")
     def test_scan_command_no_findings(
         self, mock_orchestrator_class, mock_adapter_class
     ):
@@ -145,8 +145,8 @@ class TestSecurityScan:
         assert result.exit_code == 0
         assert "No security issues found" in result.stdout
 
-    @patch("specify_cli.security.adapters.semgrep.SemgrepAdapter")
-    @patch("specify_cli.security.orchestrator.ScannerOrchestrator")
+    @patch("flowspec_cli.security.adapters.semgrep.SemgrepAdapter")
+    @patch("flowspec_cli.security.orchestrator.ScannerOrchestrator")
     def test_scan_command_json_output(
         self, mock_orchestrator_class, mock_adapter_class, sample_findings, tmp_path
     ):
@@ -178,8 +178,8 @@ class TestSecurityScan:
         assert "findings" in data
         assert len(data["findings"]) == 3
 
-    @patch("specify_cli.security.adapters.semgrep.SemgrepAdapter")
-    @patch("specify_cli.security.orchestrator.ScannerOrchestrator")
+    @patch("flowspec_cli.security.adapters.semgrep.SemgrepAdapter")
+    @patch("flowspec_cli.security.orchestrator.ScannerOrchestrator")
     def test_scan_command_sarif_output(
         self, mock_orchestrator_class, mock_adapter_class, sample_findings, tmp_path
     ):
@@ -220,7 +220,7 @@ class TestSecurityScan:
         assert result.exit_code == 2
         assert "Invalid severity level" in result.stdout
 
-    @patch("specify_cli.security.adapters.semgrep.SemgrepAdapter")
+    @patch("flowspec_cli.security.adapters.semgrep.SemgrepAdapter")
     def test_scan_command_tool_not_available(self, mock_adapter_class):
         """Test scan when tool is not available."""
         # Arrange
@@ -286,8 +286,8 @@ class TestSecurityAudit:
 class TestExitCodes:
     """Test exit code behavior."""
 
-    @patch("specify_cli.security.adapters.semgrep.SemgrepAdapter")
-    @patch("specify_cli.security.orchestrator.ScannerOrchestrator")
+    @patch("flowspec_cli.security.adapters.semgrep.SemgrepAdapter")
+    @patch("flowspec_cli.security.orchestrator.ScannerOrchestrator")
     def test_exit_code_0_no_findings(self, mock_orchestrator_class, mock_adapter_class):
         """Test exit code 0 when no findings."""
         # Arrange
@@ -307,8 +307,8 @@ class TestExitCodes:
         # Assert
         assert result.exit_code == 0
 
-    @patch("specify_cli.security.adapters.semgrep.SemgrepAdapter")
-    @patch("specify_cli.security.orchestrator.ScannerOrchestrator")
+    @patch("flowspec_cli.security.adapters.semgrep.SemgrepAdapter")
+    @patch("flowspec_cli.security.orchestrator.ScannerOrchestrator")
     def test_exit_code_1_findings_above_threshold(
         self, mock_orchestrator_class, mock_adapter_class, sample_findings
     ):

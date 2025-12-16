@@ -2,8 +2,8 @@
 
 import pytest
 
-from specify_cli.backlog.dependency_graph import DependencyGraphBuilder
-from specify_cli.backlog.parser import Task
+from flowspec_cli.backlog.dependency_graph import DependencyGraphBuilder
+from flowspec_cli.backlog.parser import Task
 
 
 class TestDependencyGraphBuilder:

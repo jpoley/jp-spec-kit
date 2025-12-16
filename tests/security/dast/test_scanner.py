@@ -2,8 +2,8 @@
 
 import pytest
 
-from specify_cli.security.dast.scanner import DASTScanner, DASTScanResult
-from specify_cli.security.models import Confidence, Finding, Severity
+from flowspec_cli.security.dast.scanner import DASTScanner, DASTScanResult
+from flowspec_cli.security.models import Confidence, Finding, Severity
 
 
 class TestDASTScanResult:
@@ -90,7 +90,7 @@ class TestDASTScanner:
 
     def test_convert_to_findings(self) -> None:
         """Test conversion of vulnerabilities to UFFormat findings."""
-        from specify_cli.security.dast.vulnerabilities import VulnerabilityResult
+        from flowspec_cli.security.dast.vulnerabilities import VulnerabilityResult
 
         scanner = DASTScanner(base_url="https://example.com")
 
@@ -127,7 +127,7 @@ class TestDASTScanner:
 
     def test_convert_to_findings_severity_mapping(self) -> None:
         """Test severity string to Severity enum mapping."""
-        from specify_cli.security.dast.vulnerabilities import VulnerabilityResult
+        from flowspec_cli.security.dast.vulnerabilities import VulnerabilityResult
 
         scanner = DASTScanner(base_url="https://example.com")
 
@@ -155,7 +155,7 @@ class TestDASTScanner:
 
     def test_convert_to_findings_confidence_mapping(self) -> None:
         """Test confidence float to Confidence enum mapping."""
-        from specify_cli.security.dast.vulnerabilities import VulnerabilityResult
+        from flowspec_cli.security.dast.vulnerabilities import VulnerabilityResult
 
         scanner = DASTScanner(base_url="https://example.com")
 
@@ -182,7 +182,7 @@ class TestDASTScanner:
 
     def test_convert_to_findings_cwe_mapping(self) -> None:
         """Test vulnerability type to CWE mapping."""
-        from specify_cli.security.dast.vulnerabilities import VulnerabilityResult
+        from flowspec_cli.security.dast.vulnerabilities import VulnerabilityResult
 
         scanner = DASTScanner(base_url="https://example.com")
 

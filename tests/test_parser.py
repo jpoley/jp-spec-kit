@@ -3,7 +3,7 @@
 import pytest
 from textwrap import dedent
 
-from specify_cli.backlog.parser import TaskParser, Task, parse_tasks
+from flowspec_cli.backlog.parser import TaskParser, Task, parse_tasks
 
 
 class TestTaskParser:

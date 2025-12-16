@@ -17,7 +17,7 @@ from typing import Optional
 import pytest
 import yaml
 
-from specify_cli.workflow.state_guard import (
+from flowspec_cli.workflow.state_guard import (
     StateCheckResult,
     TaskSystem,
     WorkflowStateGuard,

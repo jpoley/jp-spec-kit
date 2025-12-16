@@ -13,7 +13,7 @@ from unittest.mock import MagicMock, patch
 
 from typer.testing import CliRunner
 
-from specify_cli import (
+from flowspec_cli import (
     UPGRADE_TOOLS_COMPONENTS,
     _get_installed_jp_spec_kit_version,
     _upgrade_backlog_md,
@@ -83,8 +83,8 @@ class TestUpgradeFlowspecKit:
 
     def test_already_at_latest_version(self):
         """Returns success when already at latest version."""
-        with patch("specify_cli.__version__", "1.0.0"):
-            with patch("specify_cli.get_github_latest_release", return_value="1.0.0"):
+        with patch("flowspec_cli.__version__", "1.0.0"):
+            with patch("flowspec_cli.get_github_latest_release", return_value="1.0.0"):
                 success, message = _upgrade_jp_spec_kit(dry_run=False)
                 assert success is True
                 # Code returns "Already at version X" when current == target
@@ -92,8 +92,8 @@ class TestUpgradeFlowspecKit:
 
     def test_dry_run_shows_would_upgrade(self):
         """Dry run shows what would be upgraded."""
-        with patch("specify_cli.__version__", "1.0.0"):
-            with patch("specify_cli.get_github_latest_release", return_value="2.0.0"):
+        with patch("flowspec_cli.__version__", "1.0.0"):
+            with patch("flowspec_cli.get_github_latest_release", return_value="2.0.0"):
                 success, message = _upgrade_jp_spec_kit(dry_run=True)
                 assert success is True
                 # Code returns "Would install version X (current: Y)"
@@ -103,22 +103,22 @@ class TestUpgradeFlowspecKit:
 
     def test_handles_no_available_version(self):
         """Returns failure when available version cannot be determined."""
-        with patch("specify_cli.__version__", "1.0.0"):
-            with patch("specify_cli.get_github_latest_release", return_value=None):
+        with patch("flowspec_cli.__version__", "1.0.0"):
+            with patch("flowspec_cli.get_github_latest_release", return_value=None):
                 success, message = _upgrade_jp_spec_kit(dry_run=False)
                 assert success is False
                 assert "Could not determine latest version" in message
 
     def test_uv_upgrade_success_with_verification(self):
         """Successful uv tool upgrade verifies version changed."""
-        with patch("specify_cli.__version__", "1.0.0"):
-            with patch("specify_cli.get_github_latest_release", return_value="2.0.0"):
+        with patch("flowspec_cli.__version__", "1.0.0"):
+            with patch("flowspec_cli.get_github_latest_release", return_value="2.0.0"):
                 mock_result = MagicMock()
                 mock_result.returncode = 0
                 with patch("subprocess.run", return_value=mock_result):
                     # Mock version verification to return new version
                     with patch(
-                        "specify_cli._get_installed_jp_spec_kit_version",
+                        "flowspec_cli._get_installed_jp_spec_kit_version",
                         return_value="2.0.0",
                     ):
                         success, message = _upgrade_jp_spec_kit(dry_run=False)
@@ -128,8 +128,8 @@ class TestUpgradeFlowspecKit:
 
     def test_uv_upgrade_fallback_when_version_unchanged(self):
         """Falls back to git reinstall when uv upgrade returns 0 but version unchanged."""
-        with patch("specify_cli.__version__", "1.0.0"):
-            with patch("specify_cli.get_github_latest_release", return_value="2.0.0"):
+        with patch("flowspec_cli.__version__", "1.0.0"):
+            with patch("flowspec_cli.get_github_latest_release", return_value="2.0.0"):
                 call_count = [0]
 
                 def mock_subprocess_run(cmd, **kwargs):
@@ -149,7 +149,7 @@ class TestUpgradeFlowspecKit:
                         return "2.0.0"  # After git reinstall
 
                     with patch(
-                        "specify_cli._get_installed_jp_spec_kit_version",
+                        "flowspec_cli._get_installed_jp_spec_kit_version",
                         side_effect=mock_get_version,
                     ):
                         success, message = _upgrade_jp_spec_kit(dry_run=False)
@@ -159,8 +159,8 @@ class TestUpgradeFlowspecKit:
 
     def test_uv_not_found_fallback(self):
         """Falls back to reinstall when uv upgrade fails."""
-        with patch("specify_cli.__version__", "1.0.0"):
-            with patch("specify_cli.get_github_latest_release", return_value="2.0.0"):
+        with patch("flowspec_cli.__version__", "1.0.0"):
+            with patch("flowspec_cli.get_github_latest_release", return_value="2.0.0"):
                 # First call (uv tool upgrade) raises FileNotFoundError
                 # Second call (uv tool install) succeeds
                 def mock_subprocess_run(cmd, **kwargs):
@@ -172,7 +172,7 @@ class TestUpgradeFlowspecKit:
 
                 with patch("subprocess.run", side_effect=mock_subprocess_run):
                     with patch(
-                        "specify_cli._get_installed_jp_spec_kit_version",
+                        "flowspec_cli._get_installed_jp_spec_kit_version",
                         return_value="2.0.0",
                     ):
                         success, message = _upgrade_jp_spec_kit(dry_run=False)
@@ -186,49 +186,49 @@ class TestUpgradeBacklogMd:
 
     def test_not_installed(self):
         """Returns failure when backlog-md not installed."""
-        with patch("specify_cli.check_backlog_installed_version", return_value=None):
+        with patch("flowspec_cli.check_backlog_installed_version", return_value=None):
             success, message = _upgrade_backlog_md(dry_run=False)
             assert success is False
             assert "not installed" in message
 
     def test_already_at_latest_version(self):
         """Returns success when already at latest version."""
-        with patch("specify_cli.check_backlog_installed_version", return_value="1.0.0"):
-            with patch("specify_cli.get_npm_latest_version", return_value="1.0.0"):
+        with patch("flowspec_cli.check_backlog_installed_version", return_value="1.0.0"):
+            with patch("flowspec_cli.get_npm_latest_version", return_value="1.0.0"):
                 success, message = _upgrade_backlog_md(dry_run=False)
                 assert success is True
                 assert "Already at latest version" in message
 
     def test_dry_run_shows_would_upgrade(self):
         """Dry run shows what would be upgraded."""
-        with patch("specify_cli.check_backlog_installed_version", return_value="1.0.0"):
-            with patch("specify_cli.get_npm_latest_version", return_value="2.0.0"):
+        with patch("flowspec_cli.check_backlog_installed_version", return_value="1.0.0"):
+            with patch("flowspec_cli.get_npm_latest_version", return_value="2.0.0"):
                 success, message = _upgrade_backlog_md(dry_run=True)
                 assert success is True
                 assert "Would upgrade" in message
 
     def test_handles_no_available_version(self):
         """Returns failure when available version cannot be determined."""
-        with patch("specify_cli.check_backlog_installed_version", return_value="1.0.0"):
-            with patch("specify_cli.get_npm_latest_version", return_value=None):
+        with patch("flowspec_cli.check_backlog_installed_version", return_value="1.0.0"):
+            with patch("flowspec_cli.get_npm_latest_version", return_value=None):
                 success, message = _upgrade_backlog_md(dry_run=False)
                 assert success is False
                 assert "Could not determine latest version" in message
 
     def test_no_package_manager(self):
         """Returns failure when no package manager found."""
-        with patch("specify_cli.check_backlog_installed_version", return_value="1.0.0"):
-            with patch("specify_cli.get_npm_latest_version", return_value="2.0.0"):
-                with patch("specify_cli.detect_package_manager", return_value=None):
+        with patch("flowspec_cli.check_backlog_installed_version", return_value="1.0.0"):
+            with patch("flowspec_cli.get_npm_latest_version", return_value="2.0.0"):
+                with patch("flowspec_cli.detect_package_manager", return_value=None):
                     success, message = _upgrade_backlog_md(dry_run=False)
                     assert success is False
                     assert "No Node.js package manager" in message
 
     def test_package_manager_binary_removed(self):
         """Gracefully handles package manager binary removal after detection."""
-        with patch("specify_cli.check_backlog_installed_version", return_value="1.0.0"):
-            with patch("specify_cli.get_npm_latest_version", return_value="2.0.0"):
-                with patch("specify_cli.detect_package_manager", return_value="npm"):
+        with patch("flowspec_cli.check_backlog_installed_version", return_value="1.0.0"):
+            with patch("flowspec_cli.get_npm_latest_version", return_value="2.0.0"):
+                with patch("flowspec_cli.detect_package_manager", return_value="npm"):
                     with patch("subprocess.run", side_effect=FileNotFoundError()):
                         success, message = _upgrade_backlog_md(dry_run=False)
                         assert success is False
@@ -237,9 +237,9 @@ class TestUpgradeBacklogMd:
 
     def test_uses_correct_package_name_npm(self):
         """Verifies npm install uses 'backlog.md' (with period, not hyphen)."""
-        with patch("specify_cli.check_backlog_installed_version", return_value="1.0.0"):
-            with patch("specify_cli.get_npm_latest_version", return_value="2.0.0"):
-                with patch("specify_cli.detect_package_manager", return_value="npm"):
+        with patch("flowspec_cli.check_backlog_installed_version", return_value="1.0.0"):
+            with patch("flowspec_cli.get_npm_latest_version", return_value="2.0.0"):
+                with patch("flowspec_cli.detect_package_manager", return_value="npm"):
                     captured_cmd = []
 
                     def capture_cmd(cmd, **kwargs):
@@ -257,9 +257,9 @@ class TestUpgradeBacklogMd:
 
     def test_uses_correct_package_name_pnpm(self):
         """Verifies pnpm add uses 'backlog.md' (with period, not hyphen)."""
-        with patch("specify_cli.check_backlog_installed_version", return_value="1.0.0"):
-            with patch("specify_cli.get_npm_latest_version", return_value="2.0.0"):
-                with patch("specify_cli.detect_package_manager", return_value="pnpm"):
+        with patch("flowspec_cli.check_backlog_installed_version", return_value="1.0.0"):
+            with patch("flowspec_cli.get_npm_latest_version", return_value="2.0.0"):
+                with patch("flowspec_cli.detect_package_manager", return_value="pnpm"):
                     captured_cmd = []
 
                     def capture_cmd(cmd, **kwargs):
@@ -281,16 +281,16 @@ class TestUpgradeSpecKit:
 
     def test_already_at_latest_version(self):
         """Returns success when already at latest version."""
-        with patch("specify_cli.get_spec_kit_installed_version", return_value="1.0.0"):
-            with patch("specify_cli.get_github_latest_release", return_value="1.0.0"):
+        with patch("flowspec_cli.get_spec_kit_installed_version", return_value="1.0.0"):
+            with patch("flowspec_cli.get_github_latest_release", return_value="1.0.0"):
                 success, message = _upgrade_spec_kit(dry_run=False)
                 assert success is True
                 assert "Already at latest version" in message
 
     def test_dry_run_shows_would_upgrade(self):
         """Dry run shows what would be upgraded."""
-        with patch("specify_cli.get_spec_kit_installed_version", return_value="1.0.0"):
-            with patch("specify_cli.get_github_latest_release", return_value="2.0.0"):
+        with patch("flowspec_cli.get_spec_kit_installed_version", return_value="1.0.0"):
+            with patch("flowspec_cli.get_github_latest_release", return_value="2.0.0"):
                 success, message = _upgrade_spec_kit(dry_run=True)
                 assert success is True
                 assert "Would upgrade" in message
@@ -299,18 +299,18 @@ class TestUpgradeSpecKit:
 
     def test_handles_no_available_version(self):
         """Returns failure when available version cannot be determined."""
-        with patch("specify_cli.get_spec_kit_installed_version", return_value="1.0.0"):
-            with patch("specify_cli.get_github_latest_release", return_value=None):
+        with patch("flowspec_cli.get_spec_kit_installed_version", return_value="1.0.0"):
+            with patch("flowspec_cli.get_github_latest_release", return_value=None):
                 success, message = _upgrade_spec_kit(dry_run=False)
                 assert success is False
                 assert "Could not determine latest spec-kit version" in message
 
     def test_reinstall_from_git_success(self):
         """Successful spec-kit upgrade via flowspec reinstall."""
-        with patch("specify_cli.get_spec_kit_installed_version") as mock_installed:
+        with patch("flowspec_cli.get_spec_kit_installed_version") as mock_installed:
             # Return old version first, then new version after install
             mock_installed.side_effect = ["1.0.0", "2.0.0"]
-            with patch("specify_cli.get_github_latest_release", return_value="2.0.0"):
+            with patch("flowspec_cli.get_github_latest_release", return_value="2.0.0"):
                 mock_result = MagicMock()
                 mock_result.returncode = 0
                 with patch("subprocess.run", return_value=mock_result):
@@ -320,8 +320,8 @@ class TestUpgradeSpecKit:
 
     def test_uv_not_found(self):
         """Returns failure when uv tool is not installed."""
-        with patch("specify_cli.get_spec_kit_installed_version", return_value="1.0.0"):
-            with patch("specify_cli.get_github_latest_release", return_value="2.0.0"):
+        with patch("flowspec_cli.get_spec_kit_installed_version", return_value="1.0.0"):
+            with patch("flowspec_cli.get_github_latest_release", return_value="2.0.0"):
                 with patch("subprocess.run", side_effect=FileNotFoundError()):
                     success, message = _upgrade_spec_kit(dry_run=False)
                     assert success is False
@@ -342,30 +342,30 @@ class TestUpgradeToolsCommand:
 
     def test_invalid_component_rejected(self):
         """Invalid component name is rejected."""
-        with patch("specify_cli.show_banner"):
+        with patch("flowspec_cli.show_banner"):
             result = runner.invoke(app, ["upgrade-tools", "-c", "invalid"])
             assert result.exit_code == 1
             assert "Unknown component" in result.output
 
     def test_dry_run_mode(self):
         """Dry run mode shows preview without making changes."""
-        with patch("specify_cli.show_banner"):
-            with patch("specify_cli.get_all_component_versions") as mock_versions:
+        with patch("flowspec_cli.show_banner"):
+            with patch("flowspec_cli.get_all_component_versions") as mock_versions:
                 mock_versions.return_value = {
                     "jp_spec_kit": {"installed": "1.0.0", "available": "2.0.0"},
                     "spec_kit": {"installed": "1.0.0", "available": "2.0.0"},
                     "backlog_md": {"installed": "1.0.0", "available": "2.0.0"},
                 }
                 with patch(
-                    "specify_cli._upgrade_jp_spec_kit",
+                    "flowspec_cli._upgrade_jp_spec_kit",
                     return_value=(True, "Would upgrade"),
                 ):
                     with patch(
-                        "specify_cli._upgrade_spec_kit",
+                        "flowspec_cli._upgrade_spec_kit",
                         return_value=(True, "Would upgrade"),
                     ):
                         with patch(
-                            "specify_cli._upgrade_backlog_md",
+                            "flowspec_cli._upgrade_backlog_md",
                             return_value=(True, "Would upgrade"),
                         ):
                             result = runner.invoke(app, ["upgrade-tools", "--dry-run"])
@@ -374,19 +374,19 @@ class TestUpgradeToolsCommand:
 
     def test_single_component_upgrade(self):
         """Can upgrade a single component with -c flag."""
-        with patch("specify_cli.show_banner"):
-            with patch("specify_cli.get_all_component_versions") as mock_versions:
+        with patch("flowspec_cli.show_banner"):
+            with patch("flowspec_cli.get_all_component_versions") as mock_versions:
                 mock_versions.return_value = {
                     "jp_spec_kit": {"installed": "1.0.0", "available": "2.0.0"},
                     "spec_kit": {"installed": "1.0.0", "available": "2.0.0"},
                     "backlog_md": {"installed": "1.0.0", "available": "2.0.0"},
                 }
                 with patch(
-                    "specify_cli._upgrade_jp_spec_kit",
+                    "flowspec_cli._upgrade_jp_spec_kit",
                     return_value=(True, "Already at latest"),
                 ) as mock_jp:
-                    with patch("specify_cli._upgrade_spec_kit") as mock_sk:
-                        with patch("specify_cli._upgrade_backlog_md") as mock_bl:
+                    with patch("flowspec_cli._upgrade_spec_kit") as mock_sk:
+                        with patch("flowspec_cli._upgrade_backlog_md") as mock_bl:
                             result = runner.invoke(
                                 app, ["upgrade-tools", "-c", "flowspec"]
                             )
@@ -397,19 +397,19 @@ class TestUpgradeToolsCommand:
 
     def test_spec_kit_component_upgrade(self):
         """Can upgrade spec-kit component with -c flag."""
-        with patch("specify_cli.show_banner"):
-            with patch("specify_cli.get_all_component_versions") as mock_versions:
+        with patch("flowspec_cli.show_banner"):
+            with patch("flowspec_cli.get_all_component_versions") as mock_versions:
                 mock_versions.return_value = {
                     "jp_spec_kit": {"installed": "1.0.0", "available": "2.0.0"},
                     "spec_kit": {"installed": "1.0.0", "available": "2.0.0"},
                     "backlog_md": {"installed": "1.0.0", "available": "2.0.0"},
                 }
-                with patch("specify_cli._upgrade_jp_spec_kit") as mock_jp:
+                with patch("flowspec_cli._upgrade_jp_spec_kit") as mock_jp:
                     with patch(
-                        "specify_cli._upgrade_spec_kit",
+                        "flowspec_cli._upgrade_spec_kit",
                         return_value=(True, "Upgraded"),
                     ) as mock_sk:
-                        with patch("specify_cli._upgrade_backlog_md") as mock_bl:
+                        with patch("flowspec_cli._upgrade_backlog_md") as mock_bl:
                             result = runner.invoke(
                                 app, ["upgrade-tools", "-c", "spec-kit"]
                             )
@@ -443,7 +443,7 @@ class TestUpgradeRepoCommand:
             old_cwd = os.getcwd()
             try:
                 os.chdir(tmpdir)
-                with patch("specify_cli.show_banner"):
+                with patch("flowspec_cli.show_banner"):
                     result = runner.invoke(app, ["upgrade-repo"])
                     assert result.exit_code == 1
                     assert "Source Repository Detected" in result.output
@@ -466,25 +466,25 @@ class TestUpgradeCommand:
 
     def test_tools_flag_delegates(self):
         """--tools flag delegates to upgrade-tools."""
-        with patch("specify_cli.show_banner"):
-            with patch("specify_cli._run_upgrade_tools") as mock_run:
+        with patch("flowspec_cli.show_banner"):
+            with patch("flowspec_cli._run_upgrade_tools") as mock_run:
                 result = runner.invoke(app, ["upgrade", "--tools"])
                 assert result.exit_code == 0
                 mock_run.assert_called_once_with(dry_run=False)
 
     def test_repo_flag_delegates(self):
         """--repo flag delegates to upgrade-repo info."""
-        with patch("specify_cli.show_banner"):
-            with patch("specify_cli._run_upgrade_repo") as mock_run:
+        with patch("flowspec_cli.show_banner"):
+            with patch("flowspec_cli._run_upgrade_repo") as mock_run:
                 result = runner.invoke(app, ["upgrade", "--repo"])
                 assert result.exit_code == 0
                 mock_run.assert_called_once_with(dry_run=False)
 
     def test_all_flag_calls_both(self):
         """--all flag calls both upgrade-tools and upgrade-repo."""
-        with patch("specify_cli.show_banner"):
-            with patch("specify_cli._run_upgrade_tools") as mock_tools:
-                with patch("specify_cli._run_upgrade_repo") as mock_repo:
+        with patch("flowspec_cli.show_banner"):
+            with patch("flowspec_cli._run_upgrade_tools") as mock_tools:
+                with patch("flowspec_cli._run_upgrade_repo") as mock_repo:
                     result = runner.invoke(app, ["upgrade", "--all"])
                     assert result.exit_code == 0
                     mock_tools.assert_called_once()
@@ -492,7 +492,7 @@ class TestUpgradeCommand:
 
     def test_non_interactive_requires_flag(self):
         """Non-interactive mode requires explicit flag."""
-        with patch("specify_cli.show_banner"):
+        with patch("flowspec_cli.show_banner"):
             with patch("sys.stdin") as mock_stdin:
                 mock_stdin.isatty.return_value = False
                 result = runner.invoke(app, ["upgrade"])
@@ -505,7 +505,7 @@ class TestVersionHint:
 
     def test_version_hint_says_upgrade_tools(self):
         """Version hint points to upgrade-tools command."""
-        with patch("specify_cli.get_all_component_versions") as mock_versions:
+        with patch("flowspec_cli.get_all_component_versions") as mock_versions:
             mock_versions.return_value = {
                 "jp_spec_kit": {"installed": "1.0.0", "available": "2.0.0"},
                 "spec_kit": {"installed": "1.0.0", "available": "2.0.0"},

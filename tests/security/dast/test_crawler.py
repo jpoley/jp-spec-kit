@@ -2,7 +2,7 @@
 
 import pytest
 
-from specify_cli.security.dast.crawler import CrawlConfig, PlaywrightCrawler
+from flowspec_cli.security.dast.crawler import CrawlConfig, PlaywrightCrawler
 
 
 class TestCrawlConfig:

@@ -10,7 +10,7 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from specify_cli import app
+from flowspec_cli import app
 
 runner = CliRunner()
 

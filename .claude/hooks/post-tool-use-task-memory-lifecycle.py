@@ -27,7 +27,7 @@ from typing import Any, Dict, Optional
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root / "src"))
 
-from specify_cli.memory.lifecycle import LifecycleManager  # noqa: E402
+from flowspec_cli.memory.lifecycle import LifecycleManager  # noqa: E402
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -223,8 +223,8 @@ def main() -> None:
         logger.info(f"Detected status change for {task_id} → {new_status}")
 
         # Check if memory exists to infer old status
-        # Import here to avoid issues if specify_cli not installed
-        from specify_cli.memory.store import TaskMemoryStore
+        # Import here to avoid issues if flowspec_cli not installed
+        from flowspec_cli.memory.store import TaskMemoryStore
 
         store = TaskMemoryStore()
         memory_exists = store.exists(task_id)

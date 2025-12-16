@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from specify_cli.telemetry import (
+from flowspec_cli.telemetry import (
     enable_telemetry,
     is_telemetry_enabled,
     reset_writer,

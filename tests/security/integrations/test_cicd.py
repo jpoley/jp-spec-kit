@@ -4,7 +4,7 @@ import yaml
 
 import pytest
 
-from specify_cli.security.integrations.cicd import (
+from flowspec_cli.security.integrations.cicd import (
     CICDIntegration,
     generate_github_action,
     generate_gitlab_ci,

@@ -4,20 +4,20 @@ from pathlib import Path
 from unittest.mock import Mock
 
 
-from specify_cli.security.models import Finding, Location, Severity
-from specify_cli.security.triage.models import Classification
-from specify_cli.security.triage.classifiers.default import DefaultClassifier
-from specify_cli.security.triage.classifiers.sql_injection import (
+from flowspec_cli.security.models import Finding, Location, Severity
+from flowspec_cli.security.triage.models import Classification
+from flowspec_cli.security.triage.classifiers.default import DefaultClassifier
+from flowspec_cli.security.triage.classifiers.sql_injection import (
     SQLInjectionClassifier,
 )
-from specify_cli.security.triage.classifiers.xss import XSSClassifier
-from specify_cli.security.triage.classifiers.path_traversal import (
+from flowspec_cli.security.triage.classifiers.xss import XSSClassifier
+from flowspec_cli.security.triage.classifiers.path_traversal import (
     PathTraversalClassifier,
 )
-from specify_cli.security.triage.classifiers.hardcoded_secrets import (
+from flowspec_cli.security.triage.classifiers.hardcoded_secrets import (
     HardcodedSecretsClassifier,
 )
-from specify_cli.security.triage.classifiers.weak_crypto import WeakCryptoClassifier
+from flowspec_cli.security.triage.classifiers.weak_crypto import WeakCryptoClassifier
 
 
 def make_finding(

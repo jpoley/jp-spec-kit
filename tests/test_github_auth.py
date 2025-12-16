@@ -12,7 +12,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from specify_cli import (
+from flowspec_cli import (
     _github_headers,
     _github_token,
 )
@@ -155,7 +155,7 @@ class TestGitHubAuthRetry:
 
     def test_success_without_token_no_retry_needed(self, temp_dir):
         """Public repo without token should succeed on first try."""
-        from specify_cli import download_template_from_github
+        from flowspec_cli import download_template_from_github
 
         mock_response = MagicMock()
         mock_response.status_code = 200
@@ -192,7 +192,7 @@ class TestGitHubAuthRetry:
 
     def test_401_with_token_triggers_retry_without_auth(self, temp_dir):
         """401 with invalid token should retry without authentication."""
-        from specify_cli import download_template_from_github
+        from flowspec_cli import download_template_from_github
 
         # First call returns 401, second call (without auth) returns 200
         mock_response_401 = MagicMock()
@@ -253,7 +253,7 @@ class TestGitHubAuthRetry:
         """401 without token should not retry (nothing to retry without)."""
         from click.exceptions import Exit as ClickExit
 
-        from specify_cli import download_template_from_github
+        from flowspec_cli import download_template_from_github
 
         mock_response_401 = MagicMock()
         mock_response_401.status_code = 401
@@ -282,7 +282,7 @@ class TestGitHubAuthRetry:
         """If retry without auth also returns 401, should exit gracefully."""
         from click.exceptions import Exit as ClickExit
 
-        from specify_cli import download_template_from_github
+        from flowspec_cli import download_template_from_github
 
         mock_response_401 = MagicMock()
         mock_response_401.status_code = 401
@@ -310,7 +310,7 @@ class TestGitHubAuthRetry:
         """403 should trigger retry-without-auth for public repos (bad token can cause 403)."""
         from click.exceptions import Exit as ClickExit
 
-        from specify_cli import download_template_from_github
+        from flowspec_cli import download_template_from_github
 
         mock_response_403 = MagicMock()
         mock_response_403.status_code = 403
@@ -341,7 +341,7 @@ class TestGitHubAuthRetry:
 
     def test_success_with_valid_token(self, temp_dir):
         """Valid token should work on first try without retry."""
-        from specify_cli import download_template_from_github
+        from flowspec_cli import download_template_from_github
 
         mock_response = MagicMock()
         mock_response.status_code = 200

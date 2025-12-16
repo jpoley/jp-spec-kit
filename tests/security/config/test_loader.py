@@ -5,12 +5,12 @@ from tempfile import TemporaryDirectory
 
 import pytest
 
-from specify_cli.security.config.loader import (
+from flowspec_cli.security.config.loader import (
     ConfigLoader,
     ConfigLoadError,
     load_config,
 )
-from specify_cli.security.config.models import (
+from flowspec_cli.security.config.models import (
     SecurityConfig,
     FailOnSeverity,
     ScannerType,

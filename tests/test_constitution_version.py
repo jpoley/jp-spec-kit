@@ -3,7 +3,7 @@
 import pytest
 from pathlib import Path
 from typer.testing import CliRunner
-from specify_cli import app, CONSTITUTION_VERSION
+from flowspec_cli import app, CONSTITUTION_VERSION
 
 runner = CliRunner()
 

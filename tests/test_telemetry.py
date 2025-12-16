@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pytest
 
-from specify_cli.telemetry import (
+from flowspec_cli.telemetry import (
     RoleEvent,
     TelemetryEvent,
     TelemetryWriter,

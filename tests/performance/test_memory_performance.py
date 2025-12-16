@@ -9,8 +9,8 @@ This module benchmarks task memory operations at scale:
 
 import pytest
 import time
-from specify_cli.memory import TaskMemoryStore, LifecycleManager
-from specify_cli.memory.injector import ContextInjector
+from flowspec_cli.memory import TaskMemoryStore, LifecycleManager
+from flowspec_cli.memory.injector import ContextInjector
 import statistics
 
 

@@ -12,12 +12,12 @@ Run with: python examples/ufformat_demo.py
 import json
 from pathlib import Path
 
-from specify_cli.security.exporters import (
+from flowspec_cli.security.exporters import (
     JSONExporter,
     MarkdownExporter,
     SARIFExporter,
 )
-from specify_cli.security.models import Confidence, Finding, Location, Severity
+from flowspec_cli.security.models import Confidence, Finding, Location, Severity
 
 
 def create_sample_findings() -> list[Finding]:

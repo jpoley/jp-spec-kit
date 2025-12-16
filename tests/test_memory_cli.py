@@ -19,8 +19,8 @@ import time
 import pytest
 from typer.testing import CliRunner
 
-from specify_cli.memory.cli import memory_app
-from specify_cli.memory.store import TaskMemoryStore
+from flowspec_cli.memory.cli import memory_app
+from flowspec_cli.memory.store import TaskMemoryStore
 
 # Create CLI runner
 runner = CliRunner()

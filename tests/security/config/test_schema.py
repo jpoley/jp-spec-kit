@@ -2,7 +2,7 @@
 
 import pytest
 
-from specify_cli.security.config.schema import (
+from flowspec_cli.security.config.schema import (
     ConfigSchema,
     SchemaErrorType,
 )

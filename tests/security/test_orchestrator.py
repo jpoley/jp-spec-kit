@@ -11,9 +11,9 @@ from pathlib import Path
 
 import pytest
 
-from specify_cli.security.adapters.base import ScannerAdapter
-from specify_cli.security.models import Confidence, Finding, Location, Severity
-from specify_cli.security.orchestrator import ScannerOrchestrator
+from flowspec_cli.security.adapters.base import ScannerAdapter
+from flowspec_cli.security.models import Confidence, Finding, Location, Severity
+from flowspec_cli.security.orchestrator import ScannerOrchestrator
 
 
 class MockAdapter(ScannerAdapter):

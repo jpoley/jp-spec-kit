@@ -8,7 +8,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from specify_cli.workflow.completion import (
+from flowspec_cli.workflow.completion import (
     TaskCompletionError,
     TaskCompletionHandler,
     TaskCompletionReport,
@@ -85,7 +85,7 @@ class TestTaskCompletionHandler:
         assert handler.task_id == task_id
         assert handler._command_log == []
 
-    @patch("specify_cli.workflow.completion.subprocess.run")
+    @patch("flowspec_cli.workflow.completion.subprocess.run")
     def test_complete_success(self, mock_run, task_id, mock_task_data_complete):
         """Test successful task completion with all ACs checked."""
         # Mock subprocess calls
@@ -129,7 +129,7 @@ class TestTaskCompletionHandler:
         assert log[1][0][:5] == ["backlog", "task", "edit", task_id, "--notes"]
         assert log[2][0] == ["backlog", "task", "edit", task_id, "-s", "Done"]
 
-    @patch("specify_cli.workflow.completion.subprocess.run")
+    @patch("flowspec_cli.workflow.completion.subprocess.run")
     def test_complete_with_incomplete_acs(
         self, mock_run, task_id, mock_task_data_incomplete
     ):
@@ -157,7 +157,7 @@ class TestTaskCompletionHandler:
         # Should only have called subprocess once (to get task data)
         assert mock_run.call_count == 1
 
-    @patch("specify_cli.workflow.completion.subprocess.run")
+    @patch("flowspec_cli.workflow.completion.subprocess.run")
     def test_complete_idempotent_already_done(
         self, mock_run, task_id, mock_task_data_done
     ):
@@ -182,7 +182,7 @@ class TestTaskCompletionHandler:
         # Should only have called subprocess once (to get task data)
         assert mock_run.call_count == 1
 
-    @patch("specify_cli.workflow.completion.subprocess.run")
+    @patch("flowspec_cli.workflow.completion.subprocess.run")
     def test_complete_no_acs(self, mock_run, task_id, mock_task_data_no_acs):
         """Test completion succeeds when task has no ACs."""
         # Mock subprocess calls
@@ -209,7 +209,7 @@ class TestTaskCompletionHandler:
         assert report.ac_summary["all_complete"] is True
         assert report.ac_summary["total_acs"] == 0
 
-    @patch("specify_cli.workflow.completion.subprocess.run")
+    @patch("flowspec_cli.workflow.completion.subprocess.run")
     def test_verify_acceptance_criteria_legacy_format(self, mock_run, task_id):
         """Test AC verification with legacy string format."""
         # Legacy format: plain strings (considered unchecked)
@@ -236,7 +236,7 @@ class TestTaskCompletionHandler:
         error_msg = str(exc_info.value)
         assert "3 acceptance criteria still need verification" in error_msg
 
-    @patch("specify_cli.workflow.completion.subprocess.run")
+    @patch("flowspec_cli.workflow.completion.subprocess.run")
     def test_cli_command_failure(self, mock_run, task_id):
         """Test handling of CLI command failures."""
         # Mock subprocess failure
@@ -255,7 +255,7 @@ class TestTaskCompletionHandler:
 
         assert "Backlog CLI command failed" in str(exc_info.value)
 
-    @patch("specify_cli.workflow.completion.subprocess.run")
+    @patch("flowspec_cli.workflow.completion.subprocess.run")
     def test_json_parse_error(self, mock_run, task_id):
         """Test handling of invalid JSON from CLI."""
         # Mock subprocess with invalid JSON
@@ -303,7 +303,7 @@ class TestTaskCompletionHandler:
         assert "## Implementation Summary" in notes
         assert "### Key Decisions" not in notes
 
-    @patch("specify_cli.workflow.completion.subprocess.run")
+    @patch("flowspec_cli.workflow.completion.subprocess.run")
     def test_command_log_audit_trail(self, mock_run, task_id, mock_task_data_complete):
         """Test that all CLI commands are logged for audit trail."""
         # Mock subprocess calls
@@ -333,7 +333,7 @@ class TestTaskCompletionHandler:
         assert isinstance(log[0][0], list)
         assert isinstance(log[0][1], str)
 
-    @patch("specify_cli.workflow.completion.subprocess.run")
+    @patch("flowspec_cli.workflow.completion.subprocess.run")
     def test_complete_with_validation_results(
         self, mock_run, task_id, mock_task_data_complete
     ):

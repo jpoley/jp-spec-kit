@@ -15,7 +15,7 @@ from pathlib import Path
 
 import pytest
 
-from specify_cli.hooks.security import (
+from flowspec_cli.hooks.security import (
     AuditLogger,
     SecurityConfig,
     SecurityValidator,

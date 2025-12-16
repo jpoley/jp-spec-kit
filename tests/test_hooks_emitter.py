@@ -5,15 +5,15 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from specify_cli.hooks import Event, EventType
-from specify_cli.hooks.emitter import (
+from flowspec_cli.hooks import Event, EventType
+from flowspec_cli.hooks.emitter import (
     EventEmitter,
     emit_event,
     emit_implement_completed,
     emit_spec_created,
     emit_task_completed,
 )
-from specify_cli.hooks.schema import EventMatcher, HookDefinition, HooksConfig
+from flowspec_cli.hooks.schema import EventMatcher, HookDefinition, HooksConfig
 
 
 @pytest.fixture
@@ -255,7 +255,7 @@ class TestEventEmitter:
         assert results[0].success is False
         assert results[0].error is not None
 
-    @patch("specify_cli.hooks.emitter.threading.Thread")
+    @patch("flowspec_cli.hooks.emitter.threading.Thread")
     def test_emit_async(
         self,
         mock_thread: MagicMock,
@@ -280,7 +280,7 @@ class TestEventEmitter:
 class TestConvenienceFunctions:
     """Test convenience functions for common events."""
 
-    @patch("specify_cli.hooks.emitter.EventEmitter")
+    @patch("flowspec_cli.hooks.emitter.EventEmitter")
     def test_emit_event(self, mock_emitter_class: MagicMock, workspace_root: Path):
         """Test emit_event convenience function."""
         mock_emitter = MagicMock()
@@ -295,7 +295,7 @@ class TestConvenienceFunctions:
         mock_emitter.emit.assert_called_once_with(event)
         assert results == []
 
-    @patch("specify_cli.hooks.emitter.EventEmitter")
+    @patch("flowspec_cli.hooks.emitter.EventEmitter")
     def test_emit_spec_created(
         self, mock_emitter_class: MagicMock, workspace_root: Path
     ):
@@ -321,7 +321,7 @@ class TestConvenienceFunctions:
         assert event.feature == "test-feature"
         assert event.context["agent"] == "pm-planner"
 
-    @patch("specify_cli.hooks.emitter.EventEmitter")
+    @patch("flowspec_cli.hooks.emitter.EventEmitter")
     def test_emit_task_completed(
         self, mock_emitter_class: MagicMock, workspace_root: Path
     ):
@@ -349,7 +349,7 @@ class TestConvenienceFunctions:
         assert event.context["priority"] == "high"
         assert event.context["labels"] == ["backend", "security"]
 
-    @patch("specify_cli.hooks.emitter.EventEmitter")
+    @patch("flowspec_cli.hooks.emitter.EventEmitter")
     def test_emit_implement_completed(
         self, mock_emitter_class: MagicMock, workspace_root: Path
     ):

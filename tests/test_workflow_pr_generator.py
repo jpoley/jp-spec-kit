@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from specify_cli.workflow.pr_generator import (
+from flowspec_cli.workflow.pr_generator import (
     PRGenerator,
 )
 
@@ -167,8 +167,8 @@ class TestPRGenerator:
         assert "✅ Pass" in body
         assert "❌ Fail" in body
 
-    @patch("specify_cli.workflow.pr_generator.subprocess.run")
-    @patch("specify_cli.workflow.pr_generator.input")
+    @patch("flowspec_cli.workflow.pr_generator.subprocess.run")
+    @patch("flowspec_cli.workflow.pr_generator.input")
     def test_generate_success(
         self, mock_input, mock_run, task_id, acceptance_criteria, test_plan
     ):
@@ -204,7 +204,7 @@ class TestPRGenerator:
         assert result.pr_url == "https://github.com/user/repo/pull/123"
         assert result.error_message is None
 
-    @patch("specify_cli.workflow.pr_generator.input")
+    @patch("flowspec_cli.workflow.pr_generator.input")
     def test_generate_user_cancels(
         self, mock_input, task_id, acceptance_criteria, test_plan
     ):
@@ -223,8 +223,8 @@ class TestPRGenerator:
         assert result.pr_url is None
         assert "cancelled by user" in result.error_message
 
-    @patch("specify_cli.workflow.pr_generator.subprocess.run")
-    @patch("specify_cli.workflow.pr_generator.input")
+    @patch("flowspec_cli.workflow.pr_generator.subprocess.run")
+    @patch("flowspec_cli.workflow.pr_generator.input")
     def test_generate_branch_not_pushed(
         self, mock_input, mock_run, task_id, acceptance_criteria, test_plan
     ):
@@ -246,8 +246,8 @@ class TestPRGenerator:
         assert result.pr_url is None
         assert "not pushed to remote" in result.error_message
 
-    @patch("specify_cli.workflow.pr_generator.subprocess.run")
-    @patch("specify_cli.workflow.pr_generator.input")
+    @patch("flowspec_cli.workflow.pr_generator.subprocess.run")
+    @patch("flowspec_cli.workflow.pr_generator.input")
     def test_generate_branch_ahead(
         self, mock_input, mock_run, task_id, acceptance_criteria, test_plan
     ):
@@ -277,8 +277,8 @@ class TestPRGenerator:
         assert result.success is False
         assert "not pushed to remote" in result.error_message
 
-    @patch("specify_cli.workflow.pr_generator.subprocess.run")
-    @patch("specify_cli.workflow.pr_generator.input")
+    @patch("flowspec_cli.workflow.pr_generator.subprocess.run")
+    @patch("flowspec_cli.workflow.pr_generator.input")
     def test_generate_gh_cli_not_found(
         self, mock_input, mock_run, task_id, acceptance_criteria, test_plan
     ):
@@ -308,8 +308,8 @@ class TestPRGenerator:
         assert result.pr_url is None
         assert "gh CLI not found" in result.error_message
 
-    @patch("specify_cli.workflow.pr_generator.subprocess.run")
-    @patch("specify_cli.workflow.pr_generator.input")
+    @patch("flowspec_cli.workflow.pr_generator.subprocess.run")
+    @patch("flowspec_cli.workflow.pr_generator.input")
     def test_generate_gh_cli_fails(
         self, mock_input, mock_run, task_id, acceptance_criteria, test_plan
     ):
@@ -341,7 +341,7 @@ class TestPRGenerator:
         assert result.pr_url is None
         assert "Failed to create PR" in result.error_message
 
-    @patch("specify_cli.workflow.pr_generator.subprocess.run")
+    @patch("flowspec_cli.workflow.pr_generator.subprocess.run")
     def test_generate_skip_approval(
         self, mock_run, task_id, acceptance_criteria, test_plan
     ):
@@ -375,26 +375,26 @@ class TestPRGenerator:
         """Test approval with 'yes' response."""
         generator = PRGenerator(task_id)
 
-        with patch("specify_cli.workflow.pr_generator.input", return_value="y"):
+        with patch("flowspec_cli.workflow.pr_generator.input", return_value="y"):
             assert generator._request_approval() is True
 
-        with patch("specify_cli.workflow.pr_generator.input", return_value="yes"):
+        with patch("flowspec_cli.workflow.pr_generator.input", return_value="yes"):
             assert generator._request_approval() is True
 
     def test_request_approval_no(self, task_id):
         """Test rejection with 'no' response."""
         generator = PRGenerator(task_id)
 
-        with patch("specify_cli.workflow.pr_generator.input", return_value="n"):
+        with patch("flowspec_cli.workflow.pr_generator.input", return_value="n"):
             assert generator._request_approval() is False
 
-        with patch("specify_cli.workflow.pr_generator.input", return_value="no"):
+        with patch("flowspec_cli.workflow.pr_generator.input", return_value="no"):
             assert generator._request_approval() is False
 
-        with patch("specify_cli.workflow.pr_generator.input", return_value=""):
+        with patch("flowspec_cli.workflow.pr_generator.input", return_value=""):
             assert generator._request_approval() is False
 
-    @patch("specify_cli.workflow.pr_generator.subprocess.run")
+    @patch("flowspec_cli.workflow.pr_generator.subprocess.run")
     def test_is_branch_pushed_true(self, mock_run, task_id):
         """Test branch push detection when branch is pushed."""
         mock_run.side_effect = [
@@ -407,7 +407,7 @@ class TestPRGenerator:
         generator = PRGenerator(task_id)
         assert generator._is_branch_pushed() is True
 
-    @patch("specify_cli.workflow.pr_generator.subprocess.run")
+    @patch("flowspec_cli.workflow.pr_generator.subprocess.run")
     def test_is_branch_pushed_no_upstream(self, mock_run, task_id):
         """Test branch push detection when no upstream is configured."""
         mock_run.return_value = MagicMock(returncode=1, stdout="", stderr="")
@@ -415,7 +415,7 @@ class TestPRGenerator:
         generator = PRGenerator(task_id)
         assert generator._is_branch_pushed() is False
 
-    @patch("specify_cli.workflow.pr_generator.subprocess.run")
+    @patch("flowspec_cli.workflow.pr_generator.subprocess.run")
     def test_create_pr_extracts_url(self, mock_run, task_id):
         """Test PR URL extraction from gh CLI output."""
         # Mock gh CLI with extra text

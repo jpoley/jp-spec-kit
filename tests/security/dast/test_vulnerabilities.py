@@ -2,7 +2,7 @@
 
 import pytest
 
-from specify_cli.security.dast.vulnerabilities import (
+from flowspec_cli.security.dast.vulnerabilities import (
     CSRFDetector,
     SecurityHeadersTester,
     SessionTester,

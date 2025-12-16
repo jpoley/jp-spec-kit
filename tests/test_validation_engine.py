@@ -7,12 +7,12 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from specify_cli.workflow.transition import (
+from flowspec_cli.workflow.transition import (
     Artifact,
     TransitionSchema,
     ValidationMode,
 )
-from specify_cli.workflow.validation_engine import (
+from flowspec_cli.workflow.validation_engine import (
     TransitionValidator,
     TransitionValidationResult,
 )

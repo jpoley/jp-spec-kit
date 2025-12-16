@@ -3,8 +3,8 @@
 import pytest
 from datetime import datetime
 
-from specify_cli.backlog.writer import BacklogWriter
-from specify_cli.backlog.parser import Task
+from flowspec_cli.backlog.writer import BacklogWriter
+from flowspec_cli.backlog.parser import Task
 
 
 class TestBacklogWriter:

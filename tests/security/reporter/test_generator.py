@@ -8,8 +8,8 @@ from tempfile import TemporaryDirectory
 
 import pytest
 
-from specify_cli.security.reporter.generator import ReportConfig, ReportGenerator
-from specify_cli.security.reporter.models import SecurityPosture
+from flowspec_cli.security.reporter.generator import ReportConfig, ReportGenerator
+from flowspec_cli.security.reporter.models import SecurityPosture
 
 
 class MockSeverity(Enum):

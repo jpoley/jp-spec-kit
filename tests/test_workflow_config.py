@@ -17,7 +17,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-from specify_cli.workflow import (
+from flowspec_cli.workflow import (
     WorkflowConfig,
     WorkflowConfigError,
     WorkflowConfigNotFoundError,

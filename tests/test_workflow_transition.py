@@ -10,7 +10,7 @@ Tests cover:
 
 import pytest
 
-from specify_cli.workflow.transition import (
+from flowspec_cli.workflow.transition import (
     WORKFLOW_TRANSITIONS,
     Artifact,
     KeywordValidation,

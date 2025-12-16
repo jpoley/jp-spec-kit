@@ -24,7 +24,7 @@ CI testing: pytest tests/e2e/test_memory_sync_e2e.py -m "not git_sync"
 import subprocess
 
 import pytest
-from specify_cli.memory import TaskMemoryStore
+from flowspec_cli.memory import TaskMemoryStore
 
 
 @pytest.fixture

@@ -2,7 +2,7 @@
 
 import pytest
 
-from specify_cli.satellite.migration import migrate_tasks_cli
+from flowspec_cli.satellite.migration import migrate_tasks_cli
 
 
 @pytest.fixture

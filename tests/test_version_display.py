@@ -14,7 +14,7 @@ from unittest.mock import MagicMock, patch
 
 from typer.testing import CliRunner
 
-from specify_cli import (
+from flowspec_cli import (
     _has_upgrade,
     app,
     get_all_component_versions,
@@ -36,7 +36,7 @@ class TestGetGithubLatestRelease:
         mock_response.status_code = 200
         mock_response.json.return_value = {"tag_name": "v1.2.3"}
 
-        with patch("specify_cli.client.get", return_value=mock_response):
+        with patch("flowspec_cli.client.get", return_value=mock_response):
             result = get_github_latest_release("owner", "repo")
             assert result == "1.2.3"
 
@@ -46,7 +46,7 @@ class TestGetGithubLatestRelease:
         mock_response.status_code = 200
         mock_response.json.return_value = {"tag_name": "v0.0.311"}
 
-        with patch("specify_cli.client.get", return_value=mock_response):
+        with patch("flowspec_cli.client.get", return_value=mock_response):
             result = get_github_latest_release("jpoley", "flowspec")
             assert result == "0.0.311"
 
@@ -56,7 +56,7 @@ class TestGetGithubLatestRelease:
         mock_response.status_code = 200
         mock_response.json.return_value = {"tag_name": "1.0.0"}
 
-        with patch("specify_cli.client.get", return_value=mock_response):
+        with patch("flowspec_cli.client.get", return_value=mock_response):
             result = get_github_latest_release("owner", "repo")
             assert result == "1.0.0"
 
@@ -65,7 +65,7 @@ class TestGetGithubLatestRelease:
         mock_response = MagicMock()
         mock_response.status_code = 404
 
-        with patch("specify_cli.client.get", return_value=mock_response):
+        with patch("flowspec_cli.client.get", return_value=mock_response):
             result = get_github_latest_release("owner", "no-releases")
             assert result is None
 
@@ -73,7 +73,7 @@ class TestGetGithubLatestRelease:
         """Returns None on timeout without raising."""
         import httpx
 
-        with patch("specify_cli.client.get", side_effect=httpx.TimeoutException("")):
+        with patch("flowspec_cli.client.get", side_effect=httpx.TimeoutException("")):
             result = get_github_latest_release("owner", "repo")
             assert result is None
 
@@ -82,7 +82,7 @@ class TestGetGithubLatestRelease:
         import httpx
 
         with patch(
-            "specify_cli.client.get", side_effect=httpx.HTTPError("Network error")
+            "flowspec_cli.client.get", side_effect=httpx.HTTPError("Network error")
         ):
             result = get_github_latest_release("owner", "repo")
             assert result is None
@@ -93,7 +93,7 @@ class TestGetGithubLatestRelease:
         mock_response.status_code = 200
         mock_response.json.return_value = {}
 
-        with patch("specify_cli.client.get", return_value=mock_response):
+        with patch("flowspec_cli.client.get", return_value=mock_response):
             result = get_github_latest_release("owner", "repo")
             assert result is None
 
@@ -103,7 +103,7 @@ class TestGetGithubLatestRelease:
         mock_response.status_code = 200
         mock_response.json.side_effect = json.JSONDecodeError("Invalid", "", 0)
 
-        with patch("specify_cli.client.get", return_value=mock_response):
+        with patch("flowspec_cli.client.get", return_value=mock_response):
             result = get_github_latest_release("owner", "repo")
             assert result is None
 
@@ -117,7 +117,7 @@ class TestGetNpmLatestVersion:
         mock_response.status_code = 200
         mock_response.json.return_value = {"version": "1.26.4"}
 
-        with patch("specify_cli.client.get", return_value=mock_response):
+        with patch("flowspec_cli.client.get", return_value=mock_response):
             result = get_npm_latest_version("backlog.md")
             assert result == "1.26.4"
 
@@ -126,7 +126,7 @@ class TestGetNpmLatestVersion:
         mock_response = MagicMock()
         mock_response.status_code = 404
 
-        with patch("specify_cli.client.get", return_value=mock_response):
+        with patch("flowspec_cli.client.get", return_value=mock_response):
             result = get_npm_latest_version("nonexistent-package")
             assert result is None
 
@@ -134,7 +134,7 @@ class TestGetNpmLatestVersion:
         """Returns None on timeout without raising."""
         import httpx
 
-        with patch("specify_cli.client.get", side_effect=httpx.TimeoutException("")):
+        with patch("flowspec_cli.client.get", side_effect=httpx.TimeoutException("")):
             result = get_npm_latest_version("backlog.md")
             assert result is None
 
@@ -144,7 +144,7 @@ class TestGetNpmLatestVersion:
         mock_response.status_code = 200
         mock_response.json.return_value = {"name": "package"}
 
-        with patch("specify_cli.client.get", return_value=mock_response):
+        with patch("flowspec_cli.client.get", return_value=mock_response):
             result = get_npm_latest_version("package")
             assert result is None
 
@@ -154,7 +154,7 @@ class TestGetNpmLatestVersion:
         mock_response.status_code = 200
         mock_response.json.side_effect = json.JSONDecodeError("Invalid", "", 0)
 
-        with patch("specify_cli.client.get", return_value=mock_response):
+        with patch("flowspec_cli.client.get", return_value=mock_response):
             result = get_npm_latest_version("backlog.md")
             assert result is None
 
@@ -181,7 +181,7 @@ flowspec:
         monkeypatch.chdir(tmp_path)
 
         # Mock load_compatibility_matrix to return empty
-        with patch("specify_cli.load_compatibility_matrix", return_value={}):
+        with patch("flowspec_cli.load_compatibility_matrix", return_value={}):
             result = get_spec_kit_installed_version()
             # Default fallback version (updated from 0.0.20 to 0.0.90)
             assert result == "0.0.90"
@@ -190,7 +190,7 @@ flowspec:
         """Always returns a string, never None."""
         monkeypatch.chdir(tmp_path)
 
-        with patch("specify_cli.load_compatibility_matrix", return_value={}):
+        with patch("flowspec_cli.load_compatibility_matrix", return_value={}):
             result = get_spec_kit_installed_version()
             assert isinstance(result, str)
 
@@ -237,15 +237,15 @@ class TestGetAllComponentVersions:
         """Returns dict with all three component versions."""
         with (
             patch(
-                "specify_cli.get_github_latest_release",
+                "flowspec_cli.get_github_latest_release",
                 side_effect=[
                     "0.0.311",
                     "0.0.90",
                 ],
             ),
-            patch("specify_cli.get_npm_latest_version", return_value="1.26.4"),
-            patch("specify_cli.get_spec_kit_installed_version", return_value="0.0.20"),
-            patch("specify_cli.check_backlog_installed_version", return_value="1.23.0"),
+            patch("flowspec_cli.get_npm_latest_version", return_value="1.26.4"),
+            patch("flowspec_cli.get_spec_kit_installed_version", return_value="0.0.20"),
+            patch("flowspec_cli.check_backlog_installed_version", return_value="1.23.0"),
         ):
             result = get_all_component_versions()
 
@@ -259,10 +259,10 @@ class TestGetAllComponentVersions:
     def test_handles_missing_backlog(self):
         """Handles case when backlog is not installed."""
         with (
-            patch("specify_cli.get_github_latest_release", return_value="1.0.0"),
-            patch("specify_cli.get_npm_latest_version", return_value="1.26.4"),
-            patch("specify_cli.get_spec_kit_installed_version", return_value="0.0.20"),
-            patch("specify_cli.check_backlog_installed_version", return_value=None),
+            patch("flowspec_cli.get_github_latest_release", return_value="1.0.0"),
+            patch("flowspec_cli.get_npm_latest_version", return_value="1.26.4"),
+            patch("flowspec_cli.get_spec_kit_installed_version", return_value="0.0.20"),
+            patch("flowspec_cli.check_backlog_installed_version", return_value=None),
         ):
             result = get_all_component_versions()
             assert result["backlog_md"]["installed"] is None
@@ -274,10 +274,10 @@ class TestVersionCliCommand:
     def test_version_command_shows_table(self):
         """'specify version' shows detailed version table."""
         with (
-            patch("specify_cli.get_github_latest_release", return_value="1.0.0"),
-            patch("specify_cli.get_npm_latest_version", return_value="1.26.4"),
-            patch("specify_cli.get_spec_kit_installed_version", return_value="0.0.20"),
-            patch("specify_cli.check_backlog_installed_version", return_value="1.23.0"),
+            patch("flowspec_cli.get_github_latest_release", return_value="1.0.0"),
+            patch("flowspec_cli.get_npm_latest_version", return_value="1.26.4"),
+            patch("flowspec_cli.get_spec_kit_installed_version", return_value="0.0.20"),
+            patch("flowspec_cli.check_backlog_installed_version", return_value="1.23.0"),
         ):
             result = runner.invoke(app, ["version"])
 
@@ -308,12 +308,12 @@ class TestVersionUpgradeIndicators:
         """Shows ↑ indicator when upgrade available."""
         with (
             patch(
-                "specify_cli.get_github_latest_release",
+                "flowspec_cli.get_github_latest_release",
                 side_effect=["99.0.0", "99.0.0"],
             ),
-            patch("specify_cli.get_npm_latest_version", return_value="99.0.0"),
-            patch("specify_cli.get_spec_kit_installed_version", return_value="0.0.20"),
-            patch("specify_cli.check_backlog_installed_version", return_value="1.23.0"),
+            patch("flowspec_cli.get_npm_latest_version", return_value="99.0.0"),
+            patch("flowspec_cli.get_spec_kit_installed_version", return_value="0.0.20"),
+            patch("flowspec_cli.check_backlog_installed_version", return_value="1.23.0"),
         ):
             show_version_info(detailed=True)
             captured = capsys.readouterr()
@@ -323,12 +323,12 @@ class TestVersionUpgradeIndicators:
         """Shows upgrade hint when updates available."""
         with (
             patch(
-                "specify_cli.get_github_latest_release",
+                "flowspec_cli.get_github_latest_release",
                 side_effect=["99.0.0", "99.0.0"],
             ),
-            patch("specify_cli.get_npm_latest_version", return_value="99.0.0"),
-            patch("specify_cli.get_spec_kit_installed_version", return_value="0.0.20"),
-            patch("specify_cli.check_backlog_installed_version", return_value="1.23.0"),
+            patch("flowspec_cli.get_npm_latest_version", return_value="99.0.0"),
+            patch("flowspec_cli.get_spec_kit_installed_version", return_value="0.0.20"),
+            patch("flowspec_cli.check_backlog_installed_version", return_value="1.23.0"),
         ):
             show_version_info(detailed=True)
             captured = capsys.readouterr()
@@ -337,10 +337,10 @@ class TestVersionUpgradeIndicators:
     def test_no_upgrade_hint_when_current(self, capsys):
         """No upgrade hint when all versions current."""
         with (
-            patch("specify_cli.get_github_latest_release", return_value=None),
-            patch("specify_cli.get_npm_latest_version", return_value=None),
-            patch("specify_cli.get_spec_kit_installed_version", return_value="0.0.20"),
-            patch("specify_cli.check_backlog_installed_version", return_value="1.23.0"),
+            patch("flowspec_cli.get_github_latest_release", return_value=None),
+            patch("flowspec_cli.get_npm_latest_version", return_value=None),
+            patch("flowspec_cli.get_spec_kit_installed_version", return_value="0.0.20"),
+            patch("flowspec_cli.check_backlog_installed_version", return_value="1.23.0"),
         ):
             show_version_info(detailed=True)
             captured = capsys.readouterr()

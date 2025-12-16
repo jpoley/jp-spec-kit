@@ -15,8 +15,8 @@ from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
-from specify_cli.security.adapters.semgrep import SemgrepAdapter
-from specify_cli.security.models import Confidence, Severity
+from flowspec_cli.security.adapters.semgrep import SemgrepAdapter
+from flowspec_cli.security.models import Confidence, Severity
 
 
 # Sample Semgrep JSON output for testing
@@ -83,7 +83,7 @@ class TestSemgrepAdapterAvailability:
         adapter = SemgrepAdapter()
         assert adapter.name == "semgrep"
 
-    @patch("specify_cli.security.adapters.semgrep.ToolDiscovery")
+    @patch("flowspec_cli.security.adapters.semgrep.ToolDiscovery")
     def test_is_available_true(self, mock_discovery_class):
         """Test is_available returns True when Semgrep is installed."""
         mock_discovery = MagicMock()
@@ -94,7 +94,7 @@ class TestSemgrepAdapterAvailability:
         assert adapter.is_available() is True
         mock_discovery.is_available.assert_called_with("semgrep")
 
-    @patch("specify_cli.security.adapters.semgrep.ToolDiscovery")
+    @patch("flowspec_cli.security.adapters.semgrep.ToolDiscovery")
     def test_is_available_false(self, mock_discovery_class):
         """Test is_available returns False when Semgrep is not installed."""
         mock_discovery = MagicMock()
@@ -104,8 +104,8 @@ class TestSemgrepAdapterAvailability:
         adapter = SemgrepAdapter()
         assert adapter.is_available() is False
 
-    @patch("specify_cli.security.adapters.semgrep.subprocess.run")
-    @patch("specify_cli.security.adapters.semgrep.ToolDiscovery")
+    @patch("flowspec_cli.security.adapters.semgrep.subprocess.run")
+    @patch("flowspec_cli.security.adapters.semgrep.ToolDiscovery")
     def test_version_property(self, mock_discovery_class, mock_run):
         """Test version property returns Semgrep version."""
         mock_discovery = MagicMock()
@@ -118,7 +118,7 @@ class TestSemgrepAdapterAvailability:
         adapter = SemgrepAdapter()
         assert adapter.version == "1.50.0"
 
-    @patch("specify_cli.security.adapters.semgrep.ToolDiscovery")
+    @patch("flowspec_cli.security.adapters.semgrep.ToolDiscovery")
     def test_version_not_available_raises(self, mock_discovery_class):
         """Test version raises when Semgrep not available."""
         mock_discovery = MagicMock()
@@ -144,7 +144,7 @@ class TestSemgrepAdapterScanning:
     @pytest.fixture
     def mock_adapter(self):
         """Create adapter with mocked discovery."""
-        with patch("specify_cli.security.adapters.semgrep.ToolDiscovery") as mock_class:
+        with patch("flowspec_cli.security.adapters.semgrep.ToolDiscovery") as mock_class:
             mock_discovery = MagicMock()
             mock_discovery.is_available.return_value = True
             mock_discovery.find_tool.return_value = Path("/usr/bin/semgrep")
@@ -160,7 +160,7 @@ class TestSemgrepAdapterScanning:
         test_file.write_text("print('hello')")
         return tmp_path
 
-    @patch("specify_cli.security.adapters.semgrep.subprocess.run")
+    @patch("flowspec_cli.security.adapters.semgrep.subprocess.run")
     def test_scan_basic(self, mock_run, mock_adapter, temp_dir):
         """Test basic scan execution and result parsing."""
         mock_run.return_value = Mock(
@@ -175,7 +175,7 @@ class TestSemgrepAdapterScanning:
         assert findings[0].scanner == "semgrep"
         mock_run.assert_called_once()
 
-    @patch("specify_cli.security.adapters.semgrep.subprocess.run")
+    @patch("flowspec_cli.security.adapters.semgrep.subprocess.run")
     def test_scan_no_findings(self, mock_run, mock_adapter, temp_dir):
         """Test scan with no findings returns empty list."""
         mock_run.return_value = Mock(
@@ -188,7 +188,7 @@ class TestSemgrepAdapterScanning:
 
         assert len(findings) == 0
 
-    @patch("specify_cli.security.adapters.semgrep.subprocess.run")
+    @patch("flowspec_cli.security.adapters.semgrep.subprocess.run")
     def test_scan_converts_to_unified_format(self, mock_run, mock_adapter, temp_dir):
         """Test findings are converted to UFFormat correctly."""
         mock_run.return_value = Mock(
@@ -209,13 +209,13 @@ class TestSemgrepAdapterScanning:
         assert sql_finding.confidence == Confidence.HIGH
         assert "parameterized" in (sql_finding.remediation or "").lower()
 
-    @patch("specify_cli.security.adapters.semgrep.subprocess.run")
+    @patch("flowspec_cli.security.adapters.semgrep.subprocess.run")
     def test_scan_target_not_exists(self, mock_run, mock_adapter):
         """Test scan with nonexistent target raises error."""
         with pytest.raises(ValueError, match="does not exist"):
             mock_adapter.scan(Path("/nonexistent/path"))
 
-    @patch("specify_cli.security.adapters.semgrep.ToolDiscovery")
+    @patch("flowspec_cli.security.adapters.semgrep.ToolDiscovery")
     def test_scan_not_available_raises(self, mock_discovery_class, tmp_path):
         """Test scan raises when Semgrep not available."""
         mock_discovery = MagicMock()
@@ -229,7 +229,7 @@ class TestSemgrepAdapterScanning:
         with pytest.raises(RuntimeError, match="not available"):
             adapter.scan(tmp_path)
 
-    @patch("specify_cli.security.adapters.semgrep.subprocess.run")
+    @patch("flowspec_cli.security.adapters.semgrep.subprocess.run")
     def test_scan_error_exit_code(self, mock_run, mock_adapter, temp_dir):
         """Test scan handles error exit codes."""
         mock_run.return_value = Mock(
@@ -241,7 +241,7 @@ class TestSemgrepAdapterScanning:
         with pytest.raises(RuntimeError, match="scan failed"):
             mock_adapter.scan(temp_dir)
 
-    @patch("specify_cli.security.adapters.semgrep.subprocess.run")
+    @patch("flowspec_cli.security.adapters.semgrep.subprocess.run")
     def test_scan_timeout(self, mock_run, mock_adapter, temp_dir):
         """Test scan handles timeout."""
         import subprocess
@@ -251,7 +251,7 @@ class TestSemgrepAdapterScanning:
         with pytest.raises(RuntimeError, match="timed out"):
             mock_adapter.scan(temp_dir)
 
-    @patch("specify_cli.security.adapters.semgrep.subprocess.run")
+    @patch("flowspec_cli.security.adapters.semgrep.subprocess.run")
     def test_scan_invalid_json(self, mock_run, mock_adapter, temp_dir):
         """Test scan handles invalid JSON output."""
         mock_run.return_value = Mock(
@@ -263,7 +263,7 @@ class TestSemgrepAdapterScanning:
         with pytest.raises(RuntimeError, match="parse.*output"):
             mock_adapter.scan(temp_dir)
 
-    @patch("specify_cli.security.adapters.semgrep.subprocess.run")
+    @patch("flowspec_cli.security.adapters.semgrep.subprocess.run")
     def test_scan_with_config(self, mock_run, mock_adapter, temp_dir):
         """Test scan passes configuration options."""
         mock_run.return_value = Mock(
@@ -300,7 +300,7 @@ class TestSeverityMapping:
 
     @pytest.fixture
     def adapter(self):
-        with patch("specify_cli.security.adapters.semgrep.ToolDiscovery") as mock_class:
+        with patch("flowspec_cli.security.adapters.semgrep.ToolDiscovery") as mock_class:
             mock_discovery = MagicMock()
             mock_discovery.is_available.return_value = True
             mock_class.return_value = mock_discovery
@@ -335,7 +335,7 @@ class TestCWEExtraction:
 
     @pytest.fixture
     def adapter(self):
-        with patch("specify_cli.security.adapters.semgrep.ToolDiscovery") as mock_class:
+        with patch("flowspec_cli.security.adapters.semgrep.ToolDiscovery") as mock_class:
             mock_discovery = MagicMock()
             mock_class.return_value = mock_discovery
             yield SemgrepAdapter()
@@ -403,7 +403,7 @@ class TestReferenceExtraction:
 
     @pytest.fixture
     def adapter(self):
-        with patch("specify_cli.security.adapters.semgrep.ToolDiscovery") as mock_class:
+        with patch("flowspec_cli.security.adapters.semgrep.ToolDiscovery") as mock_class:
             mock_discovery = MagicMock()
             mock_class.return_value = mock_discovery
             yield SemgrepAdapter()
@@ -453,7 +453,7 @@ class TestFindingConversion:
 
     @pytest.fixture
     def adapter(self):
-        with patch("specify_cli.security.adapters.semgrep.ToolDiscovery") as mock_class:
+        with patch("flowspec_cli.security.adapters.semgrep.ToolDiscovery") as mock_class:
             mock_discovery = MagicMock()
             mock_class.return_value = mock_discovery
             yield SemgrepAdapter()

@@ -3,7 +3,7 @@
 import pytest
 from pathlib import Path
 
-from specify_cli.satellite.migration import TaskMigrator, MigrationError
+from flowspec_cli.satellite.migration import TaskMigrator, MigrationError
 
 
 @pytest.fixture
@@ -380,7 +380,7 @@ Body
 
     def test_cleanup_backups(self, tmp_path):
         """Test cleanup of backup files."""
-        from specify_cli.satellite.migration import cleanup_backups
+        from flowspec_cli.satellite.migration import cleanup_backups
 
         # Create some backup files
         for i in range(1, 4):

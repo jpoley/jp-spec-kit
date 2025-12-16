@@ -5,8 +5,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from specify_cli.satellite import ProviderType
-from specify_cli.satellite.secrets import (
+from flowspec_cli.satellite import ProviderType
+from flowspec_cli.satellite.secrets import (
     ENV_VAR_NAMES,
     TOKEN_PATTERNS,
     SecretManager,
@@ -274,8 +274,8 @@ class TestSecretManagerGhCli:
 class TestSecretManagerKeychain:
     """Tests for keychain operations."""
 
-    @patch("specify_cli.satellite.secrets.KEYRING_AVAILABLE", True)
-    @patch("specify_cli.satellite.secrets.keyring")
+    @patch("flowspec_cli.satellite.secrets.KEYRING_AVAILABLE", True)
+    @patch("flowspec_cli.satellite.secrets.keyring")
     def test_get_token_from_keychain(self, mock_keyring):
         """Should retrieve token from keychain."""
         mock_keyring.get_keyring.return_value = MagicMock()
@@ -290,8 +290,8 @@ class TestSecretManagerKeychain:
             "backlog-satellite", "github-token"
         )
 
-    @patch("specify_cli.satellite.secrets.KEYRING_AVAILABLE", True)
-    @patch("specify_cli.satellite.secrets.keyring")
+    @patch("flowspec_cli.satellite.secrets.KEYRING_AVAILABLE", True)
+    @patch("flowspec_cli.satellite.secrets.keyring")
     def test_store_token_in_keychain(self, mock_keyring):
         """Should store token in keychain."""
         mock_keyring.get_keyring.return_value = MagicMock()
@@ -305,8 +305,8 @@ class TestSecretManagerKeychain:
             "backlog-satellite", "github-token", "new_token"
         )
 
-    @patch("specify_cli.satellite.secrets.KEYRING_AVAILABLE", True)
-    @patch("specify_cli.satellite.secrets.keyring")
+    @patch("flowspec_cli.satellite.secrets.KEYRING_AVAILABLE", True)
+    @patch("flowspec_cli.satellite.secrets.keyring")
     def test_delete_token_from_keychain(self, mock_keyring):
         """Should delete token from keychain."""
         mock_keyring.get_keyring.return_value = MagicMock()
@@ -326,7 +326,7 @@ class TestSecretManagerKeychain:
         manager = SecretManager()
         manager._keychain_available = False
 
-        from specify_cli.satellite.errors import SecretStorageUnavailableError
+        from flowspec_cli.satellite.errors import SecretStorageUnavailableError
 
         with pytest.raises(SecretStorageUnavailableError):
             manager.store_token(ProviderType.GITHUB, "token")
@@ -335,8 +335,8 @@ class TestSecretManagerKeychain:
 class TestSecretManagerFallbackChain:
     """Tests for the credential resolution fallback chain."""
 
-    @patch("specify_cli.satellite.secrets.KEYRING_AVAILABLE", True)
-    @patch("specify_cli.satellite.secrets.keyring")
+    @patch("flowspec_cli.satellite.secrets.KEYRING_AVAILABLE", True)
+    @patch("flowspec_cli.satellite.secrets.keyring")
     def test_fallback_chain_keychain_first(self, mock_keyring, monkeypatch):
         """Keychain should take priority over env vars."""
         mock_keyring.get_keyring.return_value = MagicMock()
@@ -349,8 +349,8 @@ class TestSecretManagerFallbackChain:
         result = manager.get_token(ProviderType.GITHUB)
         assert result == "keychain_token"
 
-    @patch("specify_cli.satellite.secrets.KEYRING_AVAILABLE", True)
-    @patch("specify_cli.satellite.secrets.keyring")
+    @patch("flowspec_cli.satellite.secrets.KEYRING_AVAILABLE", True)
+    @patch("flowspec_cli.satellite.secrets.keyring")
     def test_fallback_to_env_when_keychain_empty(self, mock_keyring, monkeypatch):
         """Should fall back to env var when keychain returns None."""
         mock_keyring.get_keyring.return_value = MagicMock()
@@ -394,8 +394,8 @@ class TestSecretManagerFallbackChain:
 class TestSecretManagerTokenSource:
     """Tests for get_token_source method."""
 
-    @patch("specify_cli.satellite.secrets.KEYRING_AVAILABLE", True)
-    @patch("specify_cli.satellite.secrets.keyring")
+    @patch("flowspec_cli.satellite.secrets.KEYRING_AVAILABLE", True)
+    @patch("flowspec_cli.satellite.secrets.keyring")
     def test_token_source_keychain(self, mock_keyring):
         """Should identify keychain as source."""
         mock_keyring.get_keyring.return_value = MagicMock()

@@ -3,7 +3,7 @@
 import pytest
 from pathlib import Path
 
-from specify_cli.security.adapters.dast import DASTAdapter, DASTAdapterAsync
+from flowspec_cli.security.adapters.dast import DASTAdapter, DASTAdapterAsync
 
 
 class TestDASTAdapter:

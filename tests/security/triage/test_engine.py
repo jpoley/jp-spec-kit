@@ -4,9 +4,9 @@ from pathlib import Path
 from unittest.mock import Mock
 
 
-from specify_cli.security.models import Finding, Location, Severity
-from specify_cli.security.triage.models import Classification, ClusterType
-from specify_cli.security.triage.engine import TriageEngine, TriageConfig
+from flowspec_cli.security.models import Finding, Location, Severity
+from flowspec_cli.security.triage.models import Classification, ClusterType
+from flowspec_cli.security.triage.engine import TriageEngine, TriageConfig
 
 
 def make_finding(

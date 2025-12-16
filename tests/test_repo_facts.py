@@ -1,4 +1,4 @@
-"""Tests for write_repo_facts() function in specify_cli.
+"""Tests for write_repo_facts() function in flowspec_cli.
 
 Tests cover:
 - Language detection for each supported language
@@ -10,7 +10,7 @@ Tests cover:
 - Handling of multiple languages and CI/CD systems
 """
 
-from specify_cli import write_repo_facts
+from flowspec_cli import write_repo_facts
 
 
 class TestLanguageDetection:

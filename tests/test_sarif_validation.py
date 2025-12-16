@@ -11,8 +11,8 @@ Reference: https://docs.oasis-open.org/sarif/sarif/v2.1.0/
 
 from pathlib import Path
 
-from specify_cli.security.exporters import SARIFExporter
-from specify_cli.security.models import Confidence, Finding, Location, Severity
+from flowspec_cli.security.exporters import SARIFExporter
+from flowspec_cli.security.models import Confidence, Finding, Location, Severity
 
 
 class TestSARIFValidation:

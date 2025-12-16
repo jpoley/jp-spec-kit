@@ -14,11 +14,11 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from specify_cli.security.adapters.base import ScannerAdapter
-from specify_cli.security.adapters.discovery import ToolDiscovery
-from specify_cli.security.adapters.semgrep import SemgrepAdapter
-from specify_cli.security.models import Finding, Location, Severity
-from specify_cli.security.orchestrator import ScannerOrchestrator
+from flowspec_cli.security.adapters.base import ScannerAdapter
+from flowspec_cli.security.adapters.discovery import ToolDiscovery
+from flowspec_cli.security.adapters.semgrep import SemgrepAdapter
+from flowspec_cli.security.models import Finding, Location, Severity
+from flowspec_cli.security.orchestrator import ScannerOrchestrator
 
 
 # --- Fixtures ---

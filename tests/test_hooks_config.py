@@ -7,15 +7,15 @@ from textwrap import dedent
 
 import pytest
 
-from specify_cli.hooks.config import (
+from flowspec_cli.hooks.config import (
     HooksConfigError,
     HooksConfigValidationError,
     HooksSecurityError,
     load_hooks_config,
     validate_hooks_config_file,
 )
-from specify_cli.hooks.events import Event
-from specify_cli.hooks.schema import EventMatcher, HookDefinition, HooksConfig
+from flowspec_cli.hooks.events import Event
+from flowspec_cli.hooks.schema import EventMatcher, HookDefinition, HooksConfig
 
 
 class TestLoadHooksConfig:

@@ -5,7 +5,7 @@ Tests for test_executor module.
 import subprocess
 from unittest.mock import Mock, patch
 
-from specify_cli.test_executor import (
+from flowspec_cli.test_executor import (
     ACMapper,
     LintExecutor,
     TestExecutor,

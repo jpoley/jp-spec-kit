@@ -12,7 +12,7 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from specify_cli import CONSTITUTION_TIER_CHOICES, app
+from flowspec_cli import CONSTITUTION_TIER_CHOICES, app
 
 runner = CliRunner()
 

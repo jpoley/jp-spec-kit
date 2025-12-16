@@ -2,8 +2,8 @@
 
 from textwrap import dedent
 
-from specify_cli.backlog.mapper import TaskMapper, generate_backlog_tasks
-from specify_cli.backlog.parser import Task
+from flowspec_cli.backlog.mapper import TaskMapper, generate_backlog_tasks
+from flowspec_cli.backlog.parser import Task
 
 
 class TestTaskMapper:
@@ -90,7 +90,7 @@ class TestTaskMapper:
         invalid_file.write_text(invalid_content)
 
         # Parse and add invalid dependency
-        from specify_cli.backlog.parser import TaskParser
+        from flowspec_cli.backlog.parser import TaskParser
 
         parser = TaskParser()
         tasks = parser.parse_tasks_content(invalid_content)
@@ -100,7 +100,7 @@ class TestTaskMapper:
             tasks[0].dependencies = ["T999"]
 
         # Create graph - should fail validation
-        from specify_cli.backlog.dependency_graph import DependencyGraphBuilder
+        from flowspec_cli.backlog.dependency_graph import DependencyGraphBuilder
 
         graph = DependencyGraphBuilder(tasks)
         is_valid, errors = graph.validate()

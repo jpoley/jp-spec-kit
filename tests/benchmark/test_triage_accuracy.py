@@ -19,7 +19,7 @@ from scripts.benchmark_triage import (
     load_benchmark_dataset,
     run_benchmark,
 )
-from specify_cli.security.models import Severity
+from flowspec_cli.security.models import Severity
 
 
 class TestBenchmarkDataset:

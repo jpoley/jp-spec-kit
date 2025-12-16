@@ -16,7 +16,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from typer.testing import CliRunner
 
-from specify_cli import (
+from flowspec_cli import (
     WORKFLOW_TRANSITIONS,
     display_validation_summary,
     prompt_validation_modes,
@@ -29,7 +29,7 @@ runner = CliRunner()
 def mock_github_releases(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
     """Mock the download_and_extract functions to avoid GitHub API calls.
 
-    This fixture mocks the high-level download functions in specify_cli
+    This fixture mocks the high-level download functions in flowspec_cli
     to create a minimal project structure without hitting the network.
     """
 
@@ -90,10 +90,10 @@ def mock_github_releases(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
         return result
 
     monkeypatch.setattr(
-        "specify_cli.download_and_extract_two_stage", mock_download_two_stage
+        "flowspec_cli.download_and_extract_two_stage", mock_download_two_stage
     )
     monkeypatch.setattr(
-        "specify_cli.download_and_extract_template", mock_download_single
+        "flowspec_cli.download_and_extract_template", mock_download_single
     )
 
 
@@ -106,7 +106,7 @@ class TestPromptValidationModes:
         """Test that pressing Enter for all prompts returns all NONE modes."""
         # Mock typer.prompt to return default "1" for mode and empty for keyword
         mock_prompt = MagicMock(side_effect=["1"] * 7)
-        monkeypatch.setattr("specify_cli.typer.prompt", mock_prompt)
+        monkeypatch.setattr("flowspec_cli.typer.prompt", mock_prompt)
 
         result = prompt_validation_modes()
 
@@ -146,7 +146,7 @@ class TestPromptValidationModes:
                 return prompt_responses[idx]
             return default
 
-        monkeypatch.setattr("specify_cli.typer.prompt", mock_prompt)
+        monkeypatch.setattr("flowspec_cli.typer.prompt", mock_prompt)
 
         result = prompt_validation_modes()
 
@@ -165,7 +165,7 @@ class TestPromptValidationModes:
                 return "3"  # PULL_REQUEST
             return "1"  # NONE for others
 
-        monkeypatch.setattr("specify_cli.typer.prompt", mock_prompt)
+        monkeypatch.setattr("flowspec_cli.typer.prompt", mock_prompt)
 
         result = prompt_validation_modes()
 
@@ -185,7 +185,7 @@ class TestPromptValidationModes:
                 return "invalid"
             return "1"
 
-        monkeypatch.setattr("specify_cli.typer.prompt", mock_prompt)
+        monkeypatch.setattr("flowspec_cli.typer.prompt", mock_prompt)
 
         result = prompt_validation_modes()
 
@@ -204,7 +204,7 @@ class TestPromptValidationModes:
                 return ""  # Empty keyword
             return "1"
 
-        monkeypatch.setattr("specify_cli.typer.prompt", mock_prompt)
+        monkeypatch.setattr("flowspec_cli.typer.prompt", mock_prompt)
 
         result = prompt_validation_modes()
 
@@ -217,7 +217,7 @@ class TestPromptValidationModes:
         def mock_prompt(message: str, default: str = "") -> str:
             raise KeyboardInterrupt()
 
-        monkeypatch.setattr("specify_cli.typer.prompt", mock_prompt)
+        monkeypatch.setattr("flowspec_cli.typer.prompt", mock_prompt)
 
         with pytest.raises(typer.Exit):
             prompt_validation_modes()
@@ -225,7 +225,7 @@ class TestPromptValidationModes:
     def test_all_transitions_covered(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """Test that all 7 standard transitions are covered."""
         mock_prompt = MagicMock(return_value="1")
-        monkeypatch.setattr("specify_cli.typer.prompt", mock_prompt)
+        monkeypatch.setattr("flowspec_cli.typer.prompt", mock_prompt)
 
         result = prompt_validation_modes()
 
@@ -240,7 +240,7 @@ class TestDisplayValidationSummary:
         self, capsys: pytest.CaptureFixture
     ) -> None:
         """Test that empty modes dict shows default message."""
-        with patch("specify_cli.console.print") as mock_print:
+        with patch("flowspec_cli.console.print") as mock_print:
             display_validation_summary({})
 
             # Verify the default message was printed
@@ -257,7 +257,7 @@ class TestDisplayValidationSummary:
             "plan": "none",
         }
 
-        with patch("specify_cli.console.print") as mock_print:
+        with patch("flowspec_cli.console.print") as mock_print:
             display_validation_summary(modes)
 
             printed_calls = [str(call) for call in mock_print.call_args_list]
@@ -273,7 +273,7 @@ class TestDisplayValidationSummary:
             "plan": "pull-request",
         }
 
-        with patch("specify_cli.console.print") as mock_print:
+        with patch("flowspec_cli.console.print") as mock_print:
             display_validation_summary(modes)
 
             printed_calls = [str(call) for call in mock_print.call_args_list]
@@ -286,7 +286,7 @@ class TestDisplayValidationSummary:
         """Test that KEYWORD modes are displayed in uppercase."""
         modes = {"specify": 'keyword["test"]'}
 
-        with patch("specify_cli.console.print") as mock_print:
+        with patch("flowspec_cli.console.print") as mock_print:
             display_validation_summary(modes)
 
             printed_calls = [str(call) for call in mock_print.call_args_list]
@@ -297,7 +297,7 @@ class TestDisplayValidationSummary:
         """Test that pull-request mode is displayed as PULL_REQUEST."""
         modes = {"plan": "pull-request"}
 
-        with patch("specify_cli.console.print") as mock_print:
+        with patch("flowspec_cli.console.print") as mock_print:
             display_validation_summary(modes)
 
             printed_calls = [str(call) for call in mock_print.call_args_list]
@@ -312,7 +312,7 @@ class TestInitInteractivePrompts:
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, mock_github_releases
     ) -> None:
         """Test that non-interactive mode (no TTY) skips validation prompts."""
-        from specify_cli import app
+        from flowspec_cli import app
 
         # Mock stdin.isatty to return False
         monkeypatch.setattr("sys.stdin.isatty", lambda: False)
@@ -344,7 +344,7 @@ class TestInitInteractivePrompts:
         self, tmp_path: Path, mock_github_releases
     ) -> None:
         """Test that --no-validation-prompts skips interactive prompts."""
-        from specify_cli import app
+        from flowspec_cli import app
 
         project_dir = tmp_path / "test-project"
         result = runner.invoke(

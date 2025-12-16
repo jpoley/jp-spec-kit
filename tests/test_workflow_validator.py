@@ -10,7 +10,7 @@ Tests cover:
 - Edge cases (empty lists, self-loops, etc.)
 """
 
-from specify_cli.workflow.validator import (
+from flowspec_cli.workflow.validator import (
     ValidationIssue,
     ValidationResult,
     ValidationSeverity,

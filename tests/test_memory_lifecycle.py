@@ -1,8 +1,8 @@
 """Tests for LifecycleManager component."""
 
 import pytest
-from specify_cli.memory import TaskMemoryStore
-from specify_cli.memory.lifecycle import LifecycleManager
+from flowspec_cli.memory import TaskMemoryStore
+from flowspec_cli.memory.lifecycle import LifecycleManager
 
 
 @pytest.fixture

@@ -15,8 +15,8 @@ import json
 import pytest
 from typer.testing import CliRunner
 
-from specify_cli.hooks.cli import hooks_app
-from specify_cli.hooks.security import AuditLogger
+from flowspec_cli.hooks.cli import hooks_app
+from flowspec_cli.hooks.security import AuditLogger
 
 # Create CLI runner
 runner = CliRunner()

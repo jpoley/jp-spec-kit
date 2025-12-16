@@ -2,7 +2,7 @@
 
 import pytest
 
-from specify_cli.security.triage.models import (
+from flowspec_cli.security.triage.models import (
     Classification,
     ClusterType,
     Explanation,

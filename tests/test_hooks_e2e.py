@@ -21,7 +21,7 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from specify_cli.hooks.cli import hooks_app
+from flowspec_cli.hooks.cli import hooks_app
 
 runner = CliRunner()
 

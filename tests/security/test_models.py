@@ -11,7 +11,7 @@ from pathlib import Path
 
 import pytest
 
-from specify_cli.security.models import Confidence, Finding, Location, Severity
+from flowspec_cli.security.models import Confidence, Finding, Location, Severity
 
 
 class TestSeverity:

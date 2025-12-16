@@ -1,6 +1,6 @@
 """Tests for individual quality assessors."""
 
-from specify_cli.quality.assessors import (
+from flowspec_cli.quality.assessors import (
     assess_completeness,
     assess_clarity,
     assess_traceability,

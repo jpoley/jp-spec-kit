@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from specify_cli.security.tools.models import (
+from flowspec_cli.security.tools.models import (
     DEFAULT_TOOL_CONFIGS,
     CacheInfo,
     InstallMethod,

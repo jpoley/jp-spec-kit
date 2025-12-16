@@ -18,8 +18,8 @@ try:
 except ImportError:
     MCP_AVAILABLE = False
 
-from specify_cli.memory.store import TaskMemoryStore
-from specify_cli.memory.injector import ContextInjector
+from flowspec_cli.memory.store import TaskMemoryStore
+from flowspec_cli.memory.injector import ContextInjector
 
 # Skip all tests if MCP not available
 pytestmark = pytest.mark.skipif(not MCP_AVAILABLE, reason="MCP not installed")
@@ -71,7 +71,7 @@ Example content.
 
 def test_register_memory_resources(tmp_project: Path) -> None:
     """Test that memory resources can be registered with MCP server."""
-    from specify_cli.memory.mcp import register_memory_resources
+    from flowspec_cli.memory.mcp import register_memory_resources
 
     server = FastMCP("flowspec-test")
     register_memory_resources(server, tmp_project)
@@ -87,7 +87,7 @@ def test_register_memory_resources(tmp_project: Path) -> None:
 
 def test_create_memory_mcp_server(tmp_project: Path) -> None:
     """Test creation of standalone memory MCP server."""
-    from specify_cli.memory.mcp import create_memory_mcp_server
+    from flowspec_cli.memory.mcp import create_memory_mcp_server
 
     server = create_memory_mcp_server(tmp_project)
 

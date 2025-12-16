@@ -5,14 +5,14 @@ from unittest.mock import patch as mock_patch, MagicMock
 
 import pytest
 
-from specify_cli.security.fixer.applicator import (
+from flowspec_cli.security.fixer.applicator import (
     ApplyResult,
     ApplyStatus,
     BatchApplyResult,
     PatchApplicator,
     PatchApplicatorConfig,
 )
-from specify_cli.security.fixer.models import FixResult, FixStatus, Patch
+from flowspec_cli.security.fixer.models import FixResult, FixStatus, Patch
 
 
 @pytest.fixture

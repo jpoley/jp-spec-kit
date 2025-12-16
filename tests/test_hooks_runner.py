@@ -7,9 +7,9 @@ from pathlib import Path
 
 import pytest
 
-from specify_cli.hooks import Event, EventType
-from specify_cli.hooks.runner import HookResult, HookRunner
-from specify_cli.hooks.schema import EventMatcher, HookDefinition
+from flowspec_cli.hooks import Event, EventType
+from flowspec_cli.hooks.runner import HookResult, HookRunner
+from flowspec_cli.hooks.schema import EventMatcher, HookDefinition
 
 
 @pytest.fixture

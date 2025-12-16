@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 
-from specify_cli.validation_agents import (
+from flowspec_cli.validation_agents import (
     QAAgentDispatcher,
     QAReport,
     SecurityAgentDispatcher,

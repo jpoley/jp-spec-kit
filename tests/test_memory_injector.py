@@ -2,7 +2,7 @@
 
 import pytest
 from pathlib import Path
-from specify_cli.memory.injector import ContextInjector
+from flowspec_cli.memory.injector import ContextInjector
 
 
 @pytest.fixture

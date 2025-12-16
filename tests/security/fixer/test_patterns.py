@@ -2,7 +2,7 @@
 
 import pytest
 
-from specify_cli.security.fixer.patterns import (
+from flowspec_cli.security.fixer.patterns import (
     FixPatternLibrary,
     DEFAULT_PATTERN_LIBRARY,
 )
@@ -39,7 +39,7 @@ class TestFixPatternLibrary:
 
     def test_add_pattern(self):
         """Test adding a custom pattern."""
-        from specify_cli.security.fixer.models import FixPattern
+        from flowspec_cli.security.fixer.models import FixPattern
 
         library = FixPatternLibrary()
         custom = FixPattern(

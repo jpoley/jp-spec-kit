@@ -2,7 +2,7 @@
 
 import pytest
 
-from specify_cli.satellite.migration import TaskMigrator
+from flowspec_cli.satellite.migration import TaskMigrator
 
 
 @pytest.fixture

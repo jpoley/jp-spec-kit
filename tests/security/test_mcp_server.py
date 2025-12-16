@@ -15,11 +15,11 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from specify_cli.security.models import Confidence, Finding, Location, Severity
+from flowspec_cli.security.models import Confidence, Finding, Location, Severity
 
 
 # Import MCP server module
-import specify_cli.security.mcp_server as mcp_server
+import flowspec_cli.security.mcp_server as mcp_server
 
 
 @pytest.fixture
@@ -421,7 +421,7 @@ class TestNoLLMCalls:
 
         # Mock ANY potential LLM client imports
         with patch(
-            "specify_cli.security.triage.classifiers.base.LLMClient"
+            "flowspec_cli.security.triage.classifiers.base.LLMClient"
         ) as mock_llm:
             # Test scan tool
             await mcp_server.security_scan(target=".")
@@ -439,7 +439,7 @@ class TestNoLLMCalls:
     async def test_all_resources_no_llm_calls(self):
         """Test that ALL resources make ZERO LLM API calls."""
         with patch(
-            "specify_cli.security.triage.classifiers.base.LLMClient"
+            "flowspec_cli.security.triage.classifiers.base.LLMClient"
         ) as mock_llm:
             # Test findings list
             await mcp_server.list_findings()

@@ -9,7 +9,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from specify_cli.backlog.shim import (
+from flowspec_cli.backlog.shim import (
     ShimResult,
     _extract_task_id_from_create_output,
     _run_backlog_command,
@@ -175,8 +175,8 @@ class TestRunBacklogCommand:
 class TestTaskCreate:
     """Test task_create function."""
 
-    @patch("specify_cli.backlog.shim._emit_event")
-    @patch("specify_cli.backlog.shim._run_backlog_command")
+    @patch("flowspec_cli.backlog.shim._emit_event")
+    @patch("flowspec_cli.backlog.shim._run_backlog_command")
     def test_create_task_success(self, mock_run, mock_emit, workspace_root: Path):
         """Test successful task creation with event emission."""
         mock_run.return_value = (0, "Created task task-100", "")
@@ -204,7 +204,7 @@ class TestTaskCreate:
         # Verify event emitted
         mock_emit.assert_called_once()
 
-    @patch("specify_cli.backlog.shim._run_backlog_command")
+    @patch("flowspec_cli.backlog.shim._run_backlog_command")
     def test_create_task_failure(self, mock_run, workspace_root: Path):
         """Test task creation failure."""
         mock_run.return_value = (1, "", "Error: invalid priority")
@@ -220,8 +220,8 @@ class TestTaskCreate:
         assert result.error is not None
         assert result.event_emitted is False
 
-    @patch("specify_cli.backlog.shim._emit_event")
-    @patch("specify_cli.backlog.shim._run_backlog_command")
+    @patch("flowspec_cli.backlog.shim._emit_event")
+    @patch("flowspec_cli.backlog.shim._run_backlog_command")
     def test_create_task_with_labels(self, mock_run, mock_emit, workspace_root: Path):
         """Test task creation with labels."""
         mock_run.return_value = (0, "Created task task-101", "")
@@ -239,8 +239,8 @@ class TestTaskCreate:
         assert "backend" in call_args
         assert "feature" in call_args
 
-    @patch("specify_cli.backlog.shim._emit_event")
-    @patch("specify_cli.backlog.shim._run_backlog_command")
+    @patch("flowspec_cli.backlog.shim._emit_event")
+    @patch("flowspec_cli.backlog.shim._run_backlog_command")
     def test_create_task_with_acceptance_criteria(
         self, mock_run, mock_emit, workspace_root: Path
     ):
@@ -262,8 +262,8 @@ class TestTaskCreate:
 class TestTaskEdit:
     """Test task_edit function."""
 
-    @patch("specify_cli.backlog.shim._emit_event")
-    @patch("specify_cli.backlog.shim._run_backlog_command")
+    @patch("flowspec_cli.backlog.shim._emit_event")
+    @patch("flowspec_cli.backlog.shim._run_backlog_command")
     def test_edit_status_to_done(self, mock_run, mock_emit, workspace_root: Path):
         """Test editing task status to Done emits task.completed."""
         mock_run.return_value = (0, "Task updated", "")
@@ -283,8 +283,8 @@ class TestTaskEdit:
         call_args = mock_emit.call_args
         assert call_args[1]["event_type"] == "task.completed"
 
-    @patch("specify_cli.backlog.shim._emit_event")
-    @patch("specify_cli.backlog.shim._run_backlog_command")
+    @patch("flowspec_cli.backlog.shim._emit_event")
+    @patch("flowspec_cli.backlog.shim._run_backlog_command")
     def test_edit_status_to_in_progress(
         self, mock_run, mock_emit, workspace_root: Path
     ):
@@ -302,8 +302,8 @@ class TestTaskEdit:
         assert result.event_emitted is True
         assert result.events_emitted == ["task.status_changed"]
 
-    @patch("specify_cli.backlog.shim._emit_event")
-    @patch("specify_cli.backlog.shim._run_backlog_command")
+    @patch("flowspec_cli.backlog.shim._emit_event")
+    @patch("flowspec_cli.backlog.shim._run_backlog_command")
     def test_edit_check_acceptance_criteria(
         self, mock_run, mock_emit, workspace_root: Path
     ):
@@ -325,8 +325,8 @@ class TestTaskEdit:
         call_args = mock_run.call_args[0][0]
         assert call_args.count("--check-ac") == 2
 
-    @patch("specify_cli.backlog.shim._emit_event")
-    @patch("specify_cli.backlog.shim._run_backlog_command")
+    @patch("flowspec_cli.backlog.shim._emit_event")
+    @patch("flowspec_cli.backlog.shim._run_backlog_command")
     def test_edit_uncheck_acceptance_criteria(
         self, mock_run, mock_emit, workspace_root: Path
     ):
@@ -344,8 +344,8 @@ class TestTaskEdit:
         assert result.event_emitted is True
         assert "task.ac_checked" in result.events_emitted
 
-    @patch("specify_cli.backlog.shim._emit_event")
-    @patch("specify_cli.backlog.shim._run_backlog_command")
+    @patch("flowspec_cli.backlog.shim._emit_event")
+    @patch("flowspec_cli.backlog.shim._run_backlog_command")
     def test_edit_status_and_ac_emits_multiple_events(
         self, mock_run, mock_emit, workspace_root: Path
     ):
@@ -366,7 +366,7 @@ class TestTaskEdit:
         assert "task.completed" in result.events_emitted
         assert "task.ac_checked" in result.events_emitted
 
-    @patch("specify_cli.backlog.shim._run_backlog_command")
+    @patch("flowspec_cli.backlog.shim._run_backlog_command")
     def test_edit_failure(self, mock_run, workspace_root: Path):
         """Test edit failure."""
         mock_run.return_value = (1, "", "Error: task not found")
@@ -384,7 +384,7 @@ class TestTaskEdit:
 class TestTaskView:
     """Test task_view function."""
 
-    @patch("specify_cli.backlog.shim._run_backlog_command")
+    @patch("flowspec_cli.backlog.shim._run_backlog_command")
     def test_view_task(self, mock_run):
         """Test viewing a task (read-only, no event)."""
         mock_run.return_value = (0, "Task details...", "")
@@ -395,7 +395,7 @@ class TestTaskView:
         assert result.task_id == "task-123"
         assert result.event_emitted is False  # Read-only, no event
 
-    @patch("specify_cli.backlog.shim._run_backlog_command")
+    @patch("flowspec_cli.backlog.shim._run_backlog_command")
     def test_view_task_plain(self, mock_run):
         """Test viewing task with plain flag."""
         mock_run.return_value = (0, "Task details...", "")
@@ -409,7 +409,7 @@ class TestTaskView:
 class TestTaskList:
     """Test task_list function."""
 
-    @patch("specify_cli.backlog.shim._run_backlog_command")
+    @patch("flowspec_cli.backlog.shim._run_backlog_command")
     def test_list_tasks(self, mock_run):
         """Test listing tasks (read-only, no event)."""
         mock_run.return_value = (0, "task-1, task-2, task-3", "")
@@ -419,7 +419,7 @@ class TestTaskList:
         assert result.success is True
         assert result.event_emitted is False  # Read-only, no event
 
-    @patch("specify_cli.backlog.shim._run_backlog_command")
+    @patch("flowspec_cli.backlog.shim._run_backlog_command")
     def test_list_tasks_with_filters(self, mock_run):
         """Test listing tasks with filters."""
         mock_run.return_value = (0, "task-1", "")
@@ -436,7 +436,7 @@ class TestTaskList:
 class TestTaskSearch:
     """Test task_search function."""
 
-    @patch("specify_cli.backlog.shim._run_backlog_command")
+    @patch("flowspec_cli.backlog.shim._run_backlog_command")
     def test_search_tasks(self, mock_run):
         """Test searching tasks (read-only, no event)."""
         mock_run.return_value = (0, "task-1: matching task", "")
@@ -450,8 +450,8 @@ class TestTaskSearch:
 class TestTaskArchive:
     """Test task_archive function."""
 
-    @patch("specify_cli.backlog.shim._emit_event")
-    @patch("specify_cli.backlog.shim._run_backlog_command")
+    @patch("flowspec_cli.backlog.shim._emit_event")
+    @patch("flowspec_cli.backlog.shim._run_backlog_command")
     def test_archive_task(self, mock_run, mock_emit, workspace_root: Path):
         """Test archiving task emits task.archived."""
         mock_run.return_value = (0, "Task archived", "")
@@ -467,8 +467,8 @@ class TestTaskArchive:
 class TestConvenienceWrappers:
     """Test convenience wrapper functions."""
 
-    @patch("specify_cli.backlog.shim._emit_event")
-    @patch("specify_cli.backlog.shim._run_backlog_command")
+    @patch("flowspec_cli.backlog.shim._emit_event")
+    @patch("flowspec_cli.backlog.shim._run_backlog_command")
     def test_complete_task(self, mock_run, mock_emit, workspace_root: Path):
         """Test complete_task convenience wrapper."""
         mock_run.return_value = (0, "Task updated", "")
@@ -484,8 +484,8 @@ class TestConvenienceWrappers:
         assert "-s" in call_args
         assert "Done" in call_args
 
-    @patch("specify_cli.backlog.shim._emit_event")
-    @patch("specify_cli.backlog.shim._run_backlog_command")
+    @patch("flowspec_cli.backlog.shim._emit_event")
+    @patch("flowspec_cli.backlog.shim._run_backlog_command")
     def test_start_task(self, mock_run, mock_emit, workspace_root: Path):
         """Test start_task convenience wrapper."""
         mock_run.return_value = (0, "Task updated", "")
@@ -507,8 +507,8 @@ class TestConvenienceWrappers:
         assert "-a" in call_args
         assert "@backend-engineer" in call_args
 
-    @patch("specify_cli.backlog.shim._emit_event")
-    @patch("specify_cli.backlog.shim._run_backlog_command")
+    @patch("flowspec_cli.backlog.shim._emit_event")
+    @patch("flowspec_cli.backlog.shim._run_backlog_command")
     def test_check_acceptance_criteria(self, mock_run, mock_emit, workspace_root: Path):
         """Test check_acceptance_criteria convenience wrapper."""
         mock_run.return_value = (0, "Task updated", "")
@@ -531,8 +531,8 @@ class TestConvenienceWrappers:
 class TestEventEmissionFailure:
     """Test graceful handling of event emission failures."""
 
-    @patch("specify_cli.backlog.shim._emit_event")
-    @patch("specify_cli.backlog.shim._run_backlog_command")
+    @patch("flowspec_cli.backlog.shim._emit_event")
+    @patch("flowspec_cli.backlog.shim._run_backlog_command")
     def test_event_emission_failure_doesnt_fail_operation(
         self, mock_run, mock_emit, workspace_root: Path
     ):
@@ -557,7 +557,7 @@ class TestBacklogModuleImports:
 
     def test_import_from_backlog_module(self):
         """Test importing shim functions from backlog module."""
-        from specify_cli.backlog import (
+        from flowspec_cli.backlog import (
             ShimResult,
             check_acceptance_criteria,
             complete_task,

@@ -4,7 +4,7 @@ import pytest
 from textwrap import dedent
 from unittest.mock import patch, MagicMock
 
-from specify_cli.task_context import (
+from flowspec_cli.task_context import (
     AcceptanceCriterion,
     TaskContext,
     load_task_context,
@@ -289,10 +289,10 @@ class TestFindRelatedFiles:
 
     def test_find_standalone_paths(self):
         """Test finding standalone paths."""
-        description = "The implementation is in src/specify_cli/task_context.py"
+        description = "The implementation is in src/flowspec_cli/task_context.py"
         files = find_related_files(description, "")
 
-        assert "src/specify_cli/task_context.py" in files
+        assert "src/flowspec_cli/task_context.py" in files
 
     def test_find_in_notes(self):
         """Test finding files in implementation notes."""
@@ -475,7 +475,7 @@ class TestBuildValidationPlan:
 class TestLoadTaskContext:
     """Test complete task context loading."""
 
-    @patch("specify_cli.task_context.subprocess.run")
+    @patch("flowspec_cli.task_context.subprocess.run")
     def test_load_task_by_id(self, mock_run):
         """Test loading task context by ID."""
         # Mock backlog CLI output
@@ -510,7 +510,7 @@ class TestLoadTaskContext:
         assert len(context.acceptance_criteria) == 2
         assert "src/test.py" in context.related_files
 
-    @patch("specify_cli.task_context.subprocess.run")
+    @patch("flowspec_cli.task_context.subprocess.run")
     def test_load_task_not_found(self, mock_run):
         """Test error when task not found."""
         mock_run.side_effect = Exception("Task not found")
@@ -528,7 +528,7 @@ class TestLoadTaskContext:
         with pytest.raises(TaskNotFoundError):
             load_task_context("999")
 
-    @patch("specify_cli.task_context.subprocess.run")
+    @patch("flowspec_cli.task_context.subprocess.run")
     def test_load_in_progress_task(self, mock_run):
         """Test loading current in-progress task."""
         # First call: list in-progress tasks
@@ -560,7 +560,7 @@ class TestLoadTaskContext:
         assert context.task_id == "task-88"
         assert context.status == "In Progress"
 
-    @patch("specify_cli.task_context.subprocess.run")
+    @patch("flowspec_cli.task_context.subprocess.run")
     def test_load_no_in_progress_task(self, mock_run):
         """Test error when no in-progress task exists."""
         mock_run.return_value = MagicMock(stdout="", returncode=0)
@@ -568,7 +568,7 @@ class TestLoadTaskContext:
         with pytest.raises(NoInProgressTaskError):
             load_task_context(None)
 
-    @patch("specify_cli.task_context.subprocess.run")
+    @patch("flowspec_cli.task_context.subprocess.run")
     def test_load_task_with_notes(self, mock_run):
         """Test loading task with implementation notes."""
         mock_output = dedent("""
@@ -605,7 +605,7 @@ class TestLoadTaskContext:
 class TestIntegration:
     """Integration tests with full workflow."""
 
-    @patch("specify_cli.task_context.subprocess.run")
+    @patch("flowspec_cli.task_context.subprocess.run")
     def test_full_validation_workflow(self, mock_run):
         """Test complete validation workflow from load to plan."""
         mock_output = dedent("""
@@ -619,7 +619,7 @@ class TestIntegration:
             Description:
             --------------------------------------------------
             Implement task context loader for AC validation.
-            Create module at `src/specify_cli/task_context.py`
+            Create module at `src/flowspec_cli/task_context.py`
             and tests at `tests/test_task_context.py`
 
             Acceptance Criteria:
@@ -647,7 +647,7 @@ class TestIntegration:
         assert all(not ac.checked for ac in context.acceptance_criteria)
 
         # Verify files found
-        assert "src/specify_cli/task_context.py" in context.related_files
+        assert "src/flowspec_cli/task_context.py" in context.related_files
         assert "tests/test_task_context.py" in context.related_files
 
         # Verify validation plan generated
