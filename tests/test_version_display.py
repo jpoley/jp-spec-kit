@@ -234,13 +234,14 @@ class TestGetAllComponentVersions:
     """Tests for component version aggregation."""
 
     def test_returns_all_components(self):
-        """Returns dict with all three component versions."""
+        """Returns dict with all four component versions."""
         with (
             patch(
                 "flowspec_cli.get_github_latest_release",
                 side_effect=[
                     "0.0.311",
                     "0.0.90",
+                    "0.29.0",
                 ],
             ),
             patch("flowspec_cli.get_npm_latest_version", return_value="1.26.4"),
@@ -248,12 +249,14 @@ class TestGetAllComponentVersions:
             patch(
                 "flowspec_cli.check_backlog_installed_version", return_value="1.23.0"
             ),
+            patch("flowspec_cli.check_beads_installed_version", return_value="0.29.0"),
         ):
             result = get_all_component_versions()
 
             assert "jp_spec_kit" in result
             assert "spec_kit" in result
             assert "backlog_md" in result
+            assert "beads" in result
 
             assert "installed" in result["jp_spec_kit"]
             assert "available" in result["jp_spec_kit"]
@@ -264,6 +267,7 @@ class TestGetAllComponentVersions:
             patch("flowspec_cli.get_github_latest_release", return_value="1.0.0"),
             patch("flowspec_cli.get_npm_latest_version", return_value="1.26.4"),
             patch("flowspec_cli.get_spec_kit_installed_version", return_value="0.0.20"),
+            patch("flowspec_cli.check_beads_installed_version", return_value=None),
             patch("flowspec_cli.check_backlog_installed_version", return_value=None),
         ):
             result = get_all_component_versions()
@@ -282,13 +286,14 @@ class TestVersionCliCommand:
             patch(
                 "flowspec_cli.check_backlog_installed_version", return_value="1.23.0"
             ),
+            patch("flowspec_cli.check_beads_installed_version", return_value="0.29.0"),
         ):
             result = runner.invoke(app, ["version"])
 
             assert result.exit_code == 0
             assert "flowspec" in result.stdout
-            assert "spec-kit" in result.stdout
             assert "backlog.md" in result.stdout
+            assert "beads" in result.stdout
 
     def test_version_flag_shows_simple_version(self):
         """'flowspec --version' shows simple version string."""
@@ -313,13 +318,14 @@ class TestVersionUpgradeIndicators:
         with (
             patch(
                 "flowspec_cli.get_github_latest_release",
-                side_effect=["99.0.0", "99.0.0"],
+                side_effect=["99.0.0", "99.0.0", "99.0.0"],
             ),
             patch("flowspec_cli.get_npm_latest_version", return_value="99.0.0"),
             patch("flowspec_cli.get_spec_kit_installed_version", return_value="0.0.20"),
             patch(
                 "flowspec_cli.check_backlog_installed_version", return_value="1.23.0"
             ),
+            patch("flowspec_cli.check_beads_installed_version", return_value="0.29.0"),
         ):
             show_version_info(detailed=True)
             captured = capsys.readouterr()
@@ -330,13 +336,14 @@ class TestVersionUpgradeIndicators:
         with (
             patch(
                 "flowspec_cli.get_github_latest_release",
-                side_effect=["99.0.0", "99.0.0"],
+                side_effect=["99.0.0", "99.0.0", "99.0.0"],
             ),
             patch("flowspec_cli.get_npm_latest_version", return_value="99.0.0"),
             patch("flowspec_cli.get_spec_kit_installed_version", return_value="0.0.20"),
             patch(
                 "flowspec_cli.check_backlog_installed_version", return_value="1.23.0"
             ),
+            patch("flowspec_cli.check_beads_installed_version", return_value="0.29.0"),
         ):
             show_version_info(detailed=True)
             captured = capsys.readouterr()
@@ -351,6 +358,7 @@ class TestVersionUpgradeIndicators:
             patch(
                 "flowspec_cli.check_backlog_installed_version", return_value="1.23.0"
             ),
+            patch("flowspec_cli.check_beads_installed_version", return_value="0.29.0"),
         ):
             show_version_info(detailed=True)
             captured = capsys.readouterr()

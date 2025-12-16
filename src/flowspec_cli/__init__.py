@@ -608,7 +608,7 @@ __version__ = "0.2.360"
 # Constitution template version
 CONSTITUTION_VERSION = "1.0.0"
 
-TAGLINE = f"(flowspec v{__version__}) built on spec-kit & backlog.md - Spec-Driven Development with a Backlog"
+TAGLINE = f"(flowspec v{__version__}) with backlog.md & beads - Spec-Driven Development"
 
 # Repository configuration for two-stage download
 BASE_REPO_OWNER = "github"
@@ -618,6 +618,9 @@ BASE_REPO_DEFAULT_VERSION = "latest"  # or specific version like "0.0.20"
 EXTENSION_REPO_OWNER = "jpoley"
 EXTENSION_REPO_NAME = "flowspec"
 EXTENSION_REPO_DEFAULT_VERSION = "latest"
+
+BEADS_REPO_OWNER = "jpoley"
+BEADS_REPO_NAME = "beads"
 
 # Marker file that identifies the flowspec source repository
 # When present, flowspec init/upgrade will skip to avoid clobbering source files
@@ -687,6 +690,32 @@ def check_backlog_installed_version() -> Optional[str]:
             # Validate it looks like a version (digits and dots)
             if output and all(c.isdigit() or c == "." for c in output):
                 return output
+    except FileNotFoundError:
+        pass
+    return None
+
+
+def check_beads_installed_version() -> Optional[str]:
+    """Check the currently installed beads version.
+
+    Returns:
+        Version string (e.g., "0.29.0") or None if not installed
+    """
+    try:
+        result = subprocess.run(
+            ["bd", "--version"], capture_output=True, text=True, check=False
+        )
+        if result.returncode == 0:
+            # bd --version outputs "bd version 0.29.0 (c9eeecf0)"
+            output = result.stdout.strip()
+            # Extract version number from "bd version X.Y.Z (hash)"
+            if output.startswith("bd version "):
+                parts = output.split()
+                if len(parts) >= 3:
+                    version = parts[2]
+                    # Validate it looks like a version (digits and dots)
+                    if version and all(c.isdigit() or c == "." for c in version):
+                        return version
     except FileNotFoundError:
         pass
     return None
@@ -908,7 +937,8 @@ def get_all_component_versions() -> dict:
         {
             "jp_spec_kit": {"installed": str, "available": str | None},
             "spec_kit": {"installed": str, "available": str | None},
-            "backlog_md": {"installed": str | None, "available": str | None}
+            "backlog_md": {"installed": str | None, "available": str | None},
+            "beads": {"installed": str | None, "available": str | None}
         }
     """
     return {
@@ -925,6 +955,10 @@ def get_all_component_versions() -> dict:
         "backlog_md": {
             "installed": check_backlog_installed_version(),
             "available": get_npm_latest_version("backlog.md"),
+        },
+        "beads": {
+            "installed": check_beads_installed_version(),
+            "available": get_npm_latest_version("@beads/bd"),
         },
     }
 
@@ -994,11 +1028,13 @@ def show_version_info(detailed: bool = False, centered: bool = False) -> None:
             _add_version_row(table, "flowspec", versions["jp_spec_kit"])
         )
         upgrades_available.append(
-            _add_version_row(table, "spec-kit", versions["spec_kit"])
+            _add_version_row(
+                table, "backlog.md", versions["backlog_md"], "[dim]not installed[/dim]"
+            )
         )
         upgrades_available.append(
             _add_version_row(
-                table, "backlog.md", versions["backlog_md"], "[dim]not installed[/dim]"
+                table, "beads", versions["beads"], "[dim]not installed[/dim]"
             )
         )
 
@@ -3463,6 +3499,50 @@ def init(
         console.print(
             f"[dim]To change version: flowspec backlog upgrade --version {backlog_version}[/dim]"
         )
+
+    # Check for beads and offer to install if missing
+    current_beads_version = check_beads_installed_version()
+    if not current_beads_version:
+        console.print()
+        install_beads = typer.confirm(
+            "[cyan]beads[/cyan] is not installed. Would you like to install it for issue tracking?",
+            default=True,
+        )
+        if install_beads:
+            pkg_manager = detect_package_manager()
+            if pkg_manager:
+                console.print("\n[cyan]Installing @beads/bd...[/cyan]")
+                try:
+                    if pkg_manager == "pnpm":
+                        cmd = ["pnpm", "add", "-g", "@beads/bd"]
+                    else:
+                        cmd = ["npm", "install", "-g", "@beads/bd"]
+
+                    subprocess.run(cmd, check=True, capture_output=True, text=True)
+
+                    installed_version = check_beads_installed_version()
+                    if installed_version:
+                        console.print(
+                            f"[green]beads {installed_version} installed successfully![/green]"
+                        )
+                    else:
+                        console.print(
+                            "[yellow]Installation completed but verification failed[/yellow]"
+                        )
+                except subprocess.CalledProcessError as e:
+                    console.print(f"[yellow]Installation failed:[/yellow] {e.stderr}")
+                    console.print(
+                        "[dim]You can install it manually: npm install -g @beads/bd[/dim]"
+                    )
+            else:
+                console.print(
+                    "[yellow]No Node.js package manager found (pnpm or npm required)[/yellow]"
+                )
+                console.print("[dim]Install beads manually: npm install -g @beads/bd[/dim]")
+        else:
+            console.print(
+                "[dim]You can install beads later: npm install -g @beads/bd[/dim]"
+            )
 
     # Generate workflow configuration file with per-transition validation modes
     # Priority order:
