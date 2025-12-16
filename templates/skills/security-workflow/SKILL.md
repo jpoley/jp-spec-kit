@@ -327,7 +327,7 @@ workflows:
 
 ### Hook Configuration
 
-Create `.specify/hooks/hooks.yaml`:
+Create `.flowspec/hooks/hooks.yaml`:
 
 ```yaml
 version: "1.0"
@@ -376,7 +376,7 @@ HIGH_COUNT=$(jq '[.findings[] | select(.severity == "high")] | length' docs/secu
 
 if [ "$CRITICAL_COUNT" -gt 0 ]; then
   echo "❌ Found $CRITICAL_COUNT critical security issues in staged files"
-  echo "   Run 'specify security triage' to review findings"
+  echo "   Run 'flowspec security triage' to review findings"
   exit 1
 fi
 
@@ -436,12 +436,12 @@ jobs:
 
       - name: Triage findings
         run: |
-          specify security triage --input security-results.sarif
+          flowspec security triage --input security-results.sarif
 
       - name: Create backlog tasks for findings
         if: github.event_name == 'pull_request'
         run: |
-          specify security report --create-tasks
+          flowspec security report --create-tasks
 
       - name: Comment on PR
         if: github.event_name == 'pull_request'
@@ -473,8 +473,8 @@ security-scan:
 
   script:
     - flowspec security scan --format sarif --output gl-sast-report.json
-    - specify security triage --input gl-sast-report.json
-    - specify security report --create-tasks
+    - flowspec security triage --input gl-sast-report.json
+    - flowspec security report --create-tasks
 
   artifacts:
     reports:

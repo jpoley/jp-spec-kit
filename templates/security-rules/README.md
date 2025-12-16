@@ -8,24 +8,24 @@ This directory contains example Semgrep rules for detecting security vulnerabili
 
 ```bash
 # Create custom rules directory
-mkdir -p .specify/security/rules
+mkdir -p .flowspec/security/rules
 
 # Copy example rules
-cp templates/security-rules/python/*.yml .specify/security/rules/
-cp templates/security-rules/javascript/*.yml .specify/security/rules/
+cp templates/security-rules/python/*.yml .flowspec/security/rules/
+cp templates/security-rules/javascript/*.yml .flowspec/security/rules/
 ```
 
 ### 2. Test the Rules
 
 ```bash
 # Test against your codebase
-semgrep --config .specify/security/rules/ src/
+semgrep --config .flowspec/security/rules/ src/
 
 # Validate rule syntax
-semgrep --validate --config .specify/security/rules/
+semgrep --validate --config .flowspec/security/rules/
 
 # Run rule tests
-semgrep --test .specify/security/rules/
+semgrep --test .flowspec/security/rules/
 ```
 
 ### 3. Integrate with flowspec
@@ -33,13 +33,13 @@ semgrep --test .specify/security/rules/
 Add to your security configuration:
 
 ```yaml
-# .specify/security.yml
+# .flowspec/security.yml
 scanners:
   semgrep:
     enabled: true
     config:
       - auto  # OWASP Top 10 rules
-      - .specify/security/rules/  # Your custom rules
+      - .flowspec/security/rules/  # Your custom rules
 ```
 
 ## Available Templates
@@ -187,23 +187,23 @@ safe_code_here()
 
 ```bash
 # Run all tests in rules directory
-semgrep --test .specify/security/rules/
+semgrep --test .flowspec/security/rules/
 
 # Test specific rule
-semgrep --test .specify/security/rules/my-rule.yml
+semgrep --test .flowspec/security/rules/my-rule.yml
 
 # Verbose output
-semgrep --test .specify/security/rules/ --verbose
+semgrep --test .flowspec/security/rules/ --verbose
 ```
 
 ### Validate Rules
 
 ```bash
 # Check syntax
-semgrep --validate --config .specify/security/rules/
+semgrep --validate --config .flowspec/security/rules/
 
 # Test against real code
-semgrep --config .specify/security/rules/ src/ --verbose
+semgrep --config .flowspec/security/rules/ src/ --verbose
 ```
 
 ## Best Practices
@@ -262,7 +262,7 @@ metadata:
 ### By Language
 
 ```
-.specify/security/rules/
+.flowspec/security/rules/
 ├── python/
 │   ├── sql-injection.yml
 │   ├── command-injection.yml
@@ -279,7 +279,7 @@ metadata:
 ### By Vulnerability Type
 
 ```
-.specify/security/rules/
+.flowspec/security/rules/
 ├── injection/
 │   ├── sql-injection.yml
 │   ├── command-injection.yml
@@ -371,7 +371,7 @@ semgrep --validate --config rule.yml
 - name: Security Scan
   run: |
     semgrep --config auto \
-            --config .specify/security/rules/ \
+            --config .flowspec/security/rules/ \
             --sarif -o semgrep.sarif
 
 - name: Upload Results
@@ -391,7 +391,7 @@ repos:
       - id: semgrep
         args:
           - --config=auto
-          - --config=.specify/security/rules/
+          - --config=.flowspec/security/rules/
           - --error
 ```
 

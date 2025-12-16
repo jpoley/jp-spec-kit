@@ -88,7 +88,7 @@ Medium tier projects should validate their constitution before workflow commands
 Options:
   1. Continue anyway (y/N)
   2. Run /speckit:constitution to customize
-  3. Run specify constitution validate to check status
+  3. Run flowspec constitution validate to check status
 
 Continue without validation? [y/N]: _
 ```
@@ -113,7 +113,7 @@ Heavy tier constitutions require full validation before workflow commands.
 
 To resolve:
   1. Run /speckit:constitution to customize your constitution
-  2. Run specify constitution validate to verify
+  2. Run flowspec constitution validate to verify
   3. Remove all NEEDS_VALIDATION markers
 
 Or use --skip-validation to bypass (not recommended).
@@ -225,7 +225,7 @@ Heavy tier constitutions require full validation before workflow commands.
 
 To resolve:
   1. Run /speckit:constitution to customize your constitution
-  2. Run specify constitution validate to verify
+  2. Run flowspec constitution validate to verify
   3. Remove all NEEDS_VALIDATION markers
 
 Or use --skip-validation to bypass (not recommended).
@@ -251,15 +251,15 @@ Guide users to these commands for resolution:
 |---------|---------|
 | `flowspec init --here` | Initialize constitution if missing |
 | `/speckit:constitution` | Interactive constitution customization |
-| `specify constitution validate` | Check validation status |
-| `specify constitution show` | Display current constitution |
+| `flowspec constitution validate` | Check validation status |
+| `flowspec constitution show` | Display current constitution |
 
 ## Programmatic Validation
 
 For Python integration:
 
 ```python
-from specify_cli.constitution import (
+from flowspec_cli.constitution import (
     check_constitution_exists,
     detect_tier,
     count_validation_markers,

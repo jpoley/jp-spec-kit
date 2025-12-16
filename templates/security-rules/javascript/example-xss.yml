@@ -5,10 +5,10 @@
 # your own custom rules.
 #
 # To use this rule:
-# 1. Copy to your project's .specify/security/rules/ directory
+# 1. Copy to your project's .flowspec/security/rules/ directory
 # 2. Customize the patterns for your specific framework
-# 3. Test with: semgrep --config .specify/security/rules/ src/
-# 4. Add to .specify/security.yml config
+# 3. Test with: semgrep --config .flowspec/security/rules/ src/
+# 4. Add to .flowspec/security.yml config
 
 rules:
   - id: javascript-dom-xss-innerhtml

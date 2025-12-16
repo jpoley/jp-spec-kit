@@ -21,7 +21,7 @@ SARIF is a standard JSON format for static analysis tool output. GitHub Code Sca
 
 ```bash
 # Generate SARIF during security scan
-specify security scan --format sarif --output security-results.sarif
+flowspec security scan --format sarif --output security-results.sarif
 
 # Upload to GitHub (via GitHub Actions)
 - name: Upload SARIF to GitHub Security

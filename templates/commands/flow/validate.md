@@ -132,7 +132,7 @@ fi
 **For Python projects**:
 ```bash
 # Run pytest with coverage
-pytest tests/ -v --cov=src/specify_cli --cov-report=term-missing
+pytest tests/ -v --cov=src/flowspec_cli --cov-report=term-missing
 
 # Run linting
 ruff check . --output-format=concise
@@ -1004,7 +1004,7 @@ flowspec hooks emit validate.completed \
 
 Replace `$FEATURE_ID` with the feature name/identifier and `$TASK_ID` with the backlog task ID if available.
 
-This triggers any configured hooks in `.specify/hooks/hooks.yaml` (e.g., notifications, deployment triggers).
+This triggers any configured hooks in `.flowspec/hooks/hooks.yaml` (e.g., notifications, deployment triggers).
 
 ## Telemetry: Track Agent Invocations
 

@@ -168,7 +168,7 @@ Recommendations:
 
 Action Required:
 1. Improve spec quality using recommendations
-2. Re-run: specify quality .specify/spec.md
+2. Re-run: flowspec quality .flowspec/spec.md
 3. When quality ≥70, re-run: /flow:implement
 
 OR (not recommended without user approval):
@@ -821,7 +821,7 @@ flowspec hooks emit implement.completed \
 
 Replace `$FEATURE_ID` with the feature name/identifier and `$TASK_ID` with the backlog task ID if available.
 
-This triggers any configured hooks in `.specify/hooks/hooks.yaml` (e.g., running tests, quality gates, notifications).
+This triggers any configured hooks in `.flowspec/hooks/hooks.yaml` (e.g., running tests, quality gates, notifications).
 
 ## Telemetry: Track Agent Invocations
 
