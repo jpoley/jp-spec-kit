@@ -103,7 +103,7 @@ The devcontainer automatically forwards these to the container.
 
 ### Python Environment
 
-- **Python 3.11** (from base image)
+- **Python 3.13** (Alpine-based image with zero base vulnerabilities)
 - **uv** - Fast Python package manager
 - **ruff** - Linter and formatter
 - **pytest** - Test framework
@@ -243,7 +243,7 @@ flowspec --version
 **Solution**:
 ```bash
 # Check Python version
-python --version  # Should be 3.11.x
+python --version  # Should be 3.13.x
 
 # Force dependency sync
 uv sync --force
@@ -349,11 +349,11 @@ jobs:
 ┌─────────────────────────────────────────────────────────────┐
 │                    Devcontainer                              │
 │  ┌─────────────────────────────────────────────────────────┐│
-│  │ Base: mcr.microsoft.com/devcontainers/python:3.11      ││
+│  │ Base: python:3.13-alpine (zero base vulnerabilities)    ││
 │  └─────────────────────────────────────────────────────────┘│
 │                                                              │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
-│  │ Python 3.11  │  │ Node.js 20   │  │ GitHub CLI   │      │
+│  │ Python 3.13  │  │ Node.js 24   │  │ GitHub CLI   │      │
 │  │ + uv         │  │ + pnpm       │  │              │      │
 │  └──────────────┘  └──────────────┘  └──────────────┘      │
 │                                                              │

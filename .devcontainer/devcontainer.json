@@ -1,14 +1,17 @@
 {
   "name": "Flowspec Dev Environment",
-  "image": "mcr.microsoft.com/devcontainers/python:3.11-bookworm",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
 
   "features": {
-    "ghcr.io/devcontainers/features/node:1": {
-      "version": "20",
-      "pnpmVersion": "latest"
-    },
-    "ghcr.io/devcontainers/features/github-cli:1": {
-      "version": "latest"
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": true,
+      "installOhMyZsh": true,
+      "configureZshAsDefaultShell": true,
+      "username": "vscode",
+      "userUid": "1000",
+      "userGid": "1000"
     }
   },
 
@@ -56,24 +59,7 @@
   },
 
   "mounts": [
-    "source=${localWorkspaceFolder}/backlog,target=/workspaces/flowspec/backlog,type=bind,consistency=cached",
-    // Mount .gitconfig for Linux
-    "source=${localEnv:HOME}/.gitconfig,target=/home/vscode/.gitconfig-host,type=bind,readonly,platform=linux",
-    // Mount .gitconfig for Windows
-    "source=${localEnv:USERPROFILE}/.gitconfig,target=/home/vscode/.gitconfig-host,type=bind,readonly,platform=win32",
-    // Mount .ssh for Linux
-    "source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,readonly,platform=linux",
-    // Mount .ssh for Windows
-    "source=${localEnv:USERPROFILE}/.ssh,target=/home/vscode/.ssh,type=bind,readonly,platform=win32",
-    // Mount .claude for Linux
-    "source=${localEnv:HOME}/.claude,target=/home/vscode/.claude,type=bind,consistency=cached,platform=linux",
-    // Mount .claude for Windows
-    "source=${localEnv:USERPROFILE}/.claude,target=/home/vscode/.claude,type=bind,consistency=cached,platform=win32",
-    // Mount github-copilot config for Linux
-    "source=${localEnv:HOME}/.config/github-copilot,target=/home/vscode/.config/github-copilot,type=bind,consistency=cached,platform=linux",
-    // Mount github-copilot config for Windows
-    "source=${localEnv:USERPROFILE}/.config/github-copilot,target=/home/vscode/.config/github-copilot,type=bind,consistency=cached,platform=win32",
-    "source=flowspec-vscode-extensions,target=/home/vscode/.vscode-server/extensions,type=volume"
+    "source=${localWorkspaceFolder}/backlog,target=/workspaces/flowspec/backlog,type=bind,consistency=cached"
   ],
 
   "remoteEnv": {
@@ -83,13 +69,11 @@
     "PYTHONUNBUFFERED": "1",
     "UV_SYSTEM_PYTHON": "1",
     "VIRTUAL_ENV": "/workspaces/flowspec/.venv",
-    "PATH": "/workspaces/flowspec/.venv/bin:/home/vscode/.local/share/pnpm:/home/vscode/.cargo/bin:/home/vscode/.local/bin:${containerEnv:PATH}"
+    "PATH": "/workspaces/flowspec/.venv/bin:/home/vscode/.local/share/pnpm:/home/vscode/.local/bin:${containerEnv:PATH}"
   },
 
-  "initializeCommand": "pwsh -Command \"New-Item -ItemType Directory -Force -Path '${localEnv:HOME}/.claude','${localEnv:HOME}/.config/github-copilot'\"",
-  "onCreateCommand": "curl -LsSf https://astral.sh/uv/install.sh | sh",
   "postCreateCommand": "bash .devcontainer/post-create.sh",
-  "postStartCommand": "cp /home/vscode/.gitconfig-host /home/vscode/.gitconfig 2>/dev/null || true; git config --global --add safe.directory ${containerWorkspaceFolder}",
+  "postStartCommand": "git config --global --add safe.directory ${containerWorkspaceFolder}",
   "postAttachCommand": "echo '--- Flowspec Dev Environment Ready ---' && uv --version && python --version",
 
   "forwardPorts": [],

@@ -3428,7 +3428,7 @@ def init(
         constitution_panel = Panel(
             "Constitution template created at [cyan]memory/constitution.md[/cyan]\n\n"
             "[yellow]Next step:[/yellow] Customize it for your repository using:\n"
-            "[green]/spec:constitution[/green]\n\n"
+            "[green]/flow:init[/green]\n\n"
             "This will tailor the constitution to your project's specific needs.",
             title="[green]Constitution Created[/green]",
             border_style="green",
@@ -3483,7 +3483,7 @@ def init(
     if not current_backlog_version and not no_validation_prompts and sys.stdin.isatty():
         console.print()
         install_backlog = typer.confirm(
-            "[cyan]backlog-md[/cyan] is not installed. Would you like to install it for task management?",
+            "backlog-md is not installed. Would you like to install it for task management?",
             default=True,
         )
         if install_backlog:
@@ -3556,7 +3556,7 @@ def init(
     if not current_beads_version and not no_validation_prompts and sys.stdin.isatty():
         console.print()
         install_beads = typer.confirm(
-            "[cyan]beads[/cyan] is not installed. Would you like to install it for issue tracking?",
+            "beads is not installed. Would you like to install it for issue tracking?",
             default=True,
         )
         if install_beads:
@@ -3867,7 +3867,7 @@ def upgrade_repo(
                 constitution_panel = Panel(
                     "Constitution template created at [cyan]memory/constitution.md[/cyan]\n\n"
                     "[yellow]Next step:[/yellow] Customize it for your repository using:\n"
-                    "[green]/spec:constitution[/green]\n\n"
+                    "[green]/flow:init[/green]\n\n"
                     "This will tailor the constitution to your project's specific needs.",
                     title="[green]Constitution Created[/green]",
                     border_style="green",

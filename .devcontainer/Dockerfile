@@ -2,7 +2,7 @@
 # Published to Docker Hub: jpoley/flowspec-agents
 #
 # This Dockerfile builds a pre-configured development environment with:
-# - Python 3.11 + uv package manager
+# - Python 3.13 + uv package manager (Alpine-based, zero vulnerabilities)
 # - Node.js 20 + pnpm
 # - AI coding assistant CLIs (Claude Code, Codex, Gemini, GitHub Copilot)
 # - Task management (backlog.md)
@@ -12,23 +12,45 @@
 #   docker pull jpoley/flowspec-agents:latest
 #   Or reference in devcontainer.json: "image": "jpoley/flowspec-agents:latest"
 
-FROM mcr.microsoft.com/devcontainers/python:3.11-bookworm
+FROM python:3.13-alpine
 
-# Install Node.js 20 and pnpm
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs \
-    && npm install -g pnpm \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+# Install system dependencies
+# - bash: required for scripts and shell compatibility
+# - git: version control
+# - curl: downloads and health checks
+# - nodejs/npm: for AI CLI tools
+# - build-base: compilation tools for native extensions
+# - linux-headers: kernel headers for some Python packages
+# - libffi-dev: for cffi (used by many Python packages)
+# - openssl-dev: for cryptography packages
+# - zsh: developer-friendly shell
+# - shadow: for usermod/groupmod
+# - sudo: for privilege escalation
+RUN apk add --no-cache \
+    bash \
+    git \
+    curl \
+    nodejs \
+    npm \
+    build-base \
+    linux-headers \
+    libffi-dev \
+    openssl-dev \
+    zsh \
+    shadow \
+    sudo
+
+# Install pnpm globally
+RUN npm install -g pnpm
 
 # Install GitHub CLI
-RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
-    && chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
-    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
-    && apt-get update \
-    && apt-get install -y gh \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache github-cli
+
+# Create vscode user (matching devcontainer convention)
+RUN addgroup -g 1000 vscode \
+    && adduser -u 1000 -G vscode -h /home/vscode -s /bin/zsh -D vscode \
+    && echo "vscode ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/vscode \
+    && chmod 0440 /etc/sudoers.d/vscode
 
 # Switch to vscode user for remaining setup
 USER vscode
@@ -38,11 +60,11 @@ WORKDIR /home/vscode
 ENV PNPM_HOME="/home/vscode/.local/share/pnpm"
 ENV PATH="/home/vscode/.local/bin:${PNPM_HOME}:${PATH}"
 
-# Install uv (installs to ~/.local/bin, NOT ~/.cargo/bin)
+# Install uv (installs to ~/.local/bin)
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # Configure pnpm global bin directory
-RUN pnpm config set global-bin-dir "$PNPM_HOME"
+RUN mkdir -p "$PNPM_HOME" && pnpm config set global-bin-dir "$PNPM_HOME"
 
 # Install AI coding assistant CLIs
 # Note: These are best-effort installs; some may not be available in all regions
@@ -64,8 +86,9 @@ RUN mkdir -p /home/vscode/.config/claude \
     && echo 'export PNPM_HOME="/home/vscode/.local/share/pnpm"' >> /home/vscode/.zshenv \
     && echo 'export PATH="/home/vscode/.local/bin:$PNPM_HOME:$PATH"' >> /home/vscode/.zshenv
 
-# Add YOLO aliases (commented out by default for safety)
-RUN echo '' >> /home/vscode/.zshrc \
+# Create .zshrc with YOLO aliases (commented out by default for safety)
+RUN touch /home/vscode/.zshrc \
+    && echo '' >> /home/vscode/.zshrc \
     && echo '# AI coding agent YOLO aliases (uncomment at your own risk)' >> /home/vscode/.zshrc \
     && echo '# alias claude-yolo="claude --dangerously-skip-permissions"' >> /home/vscode/.zshrc \
     && echo '# alias codex-yolo="codex --dangerously-bypass-approvals-and-sandbox"' >> /home/vscode/.zshrc \
@@ -80,6 +103,7 @@ LABEL org.opencontainers.image.licenses="MIT"
 
 # Verify installations
 RUN echo "=== Installation Verification ===" \
+    && echo "Python: $(python --version)" \
     && echo "Node: $(node --version)" \
     && echo "pnpm: $(pnpm --version)" \
     && echo "uv: $(/home/vscode/.local/bin/uv --version)" \
