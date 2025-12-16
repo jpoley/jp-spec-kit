@@ -3,7 +3,7 @@
 ## Project Overview
 
 **Flowspec** is a toolkit for Spec-Driven Development (SDD):
-- **Specify CLI**: Command-line tool to bootstrap projects (`specify-cli` package)
+- **Specify CLI**: Command-line tool to bootstrap projects (`flowspec-cli` package)
 - **Templates**: SDD templates for multiple AI agents
 - **Documentation**: Comprehensive guides in `docs/`
 

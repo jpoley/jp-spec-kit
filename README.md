@@ -48,7 +48,7 @@ Open in VS Code → "Reopen in Container". The image includes:
 
 ```bash
 # Specify CLI (project initialization)
-uv tool install specify-cli --from git+https://github.com/jpoley/flowspec.git
+uv tool install flowspec-cli --from git+https://github.com/jpoley/flowspec.git
 
 # Backlog.md (task management)
 pnpm i -g backlog.md

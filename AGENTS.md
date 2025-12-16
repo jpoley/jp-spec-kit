@@ -269,7 +269,7 @@ Always provide both bash and PowerShell versions for cross-platform support.
 
 ```bash
 # Reinstall
-uv tool uninstall specify-cli
+uv tool uninstall flowspec-cli
 uv tool install . --force
 
 # Check installation

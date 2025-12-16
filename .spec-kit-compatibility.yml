@@ -55,7 +55,7 @@ flowspec:
   # Installation methods
   installation:
     uv:
-      method: "uv tool install specify-cli --from git+https://github.com/jpoley/flowspec.git"
+      method: "uv tool install flowspec-cli --from git+https://github.com/jpoley/flowspec.git"
       supports_upgrade: true
     
     git:

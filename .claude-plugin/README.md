@@ -243,9 +243,9 @@ Pre-commit hook is included but disabled by default. To enable:
 
 **CLI Installation**:
 ```bash
-pip install specify-cli
+pip install flowspec-cli
 # or
-uvx specify-cli init my-project
+uvx flowspec-cli init my-project
 ```
 
 Both distributions provide the same core functionality!
