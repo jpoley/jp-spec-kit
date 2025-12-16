@@ -3,10 +3,15 @@
 #
 # This Dockerfile builds a pre-configured development environment with:
 # - Python 3.13 + uv package manager (Alpine-based)
-# - Node.js 20 + pnpm
-# - AI coding assistant CLIs (Claude Code, Codex, Gemini, GitHub Copilot)
+# - Node.js 20 + pnpm (npm removed from final image)
+# - AI coding assistant CLIs (Claude Code, Codex, Gemini)
 # - Task management (backlog.md)
 # - Common development tools
+#
+# Security Notes:
+# - npm is used only during build, then removed to eliminate CVE-2025-64756 (glob)
+# - @githubnext/github-copilot-cli removed to eliminate CVE-2022-25883 (semver)
+# - gh CLI has CVE-2025-66564 - awaiting upstream fix (PR cli/cli#12299)
 #
 # Usage:
 #   docker pull jpoley/flowspec-agents:latest
@@ -20,7 +25,7 @@ FROM python:3.13-alpine@sha256:51b5354ed44df6e1a3b3faf6d3a3d40da129621046b6d5a70
 # - bash: required for scripts and shell compatibility
 # - git: version control
 # - curl: downloads and health checks
-# - nodejs/npm: for AI CLI tools
+# - nodejs: for AI CLI tools (npm installed temporarily, removed later)
 # - build-base: compilation tools for native extensions
 # - linux-headers: kernel headers for some Python packages
 # - libffi-dev: for cffi (used by many Python packages)
@@ -47,19 +52,14 @@ RUN apk add --no-cache \
     tar \
     gzip
 
-# Upgrade npm to latest version to fix vulnerabilities in npm's internal dependencies
-# - CVE-2025-64756: glob@11.0.3 -> 11.1.0 (command injection in npm's bundled glob)
-# This upgrades npm itself, not just global packages
-RUN npm install -g npm@latest \
-    && npm cache clean --force
-
-# Install pnpm globally (after npm upgrade to use patched npm)
+# Install pnpm globally using npm (npm will be removed later)
 RUN npm install -g pnpm
 
-# Install GitHub CLI from official releases (not Alpine package)
-# Alpine's github-cli package has outdated dependencies including:
-# - CVE-2025-66564: sigstore/timestamp-authority@1.2.9 -> 2.0.3 (memory exhaustion)
-# Download latest release directly from GitHub for security updates
+# Install GitHub CLI from official releases
+# NOTE: gh v2.83.2 has CVE-2025-66564 (sigstore/timestamp-authority@1.2.9)
+# Upstream fix: PR cli/cli#12299 updates sigstore-go to 1.1.4
+# Risk acceptance: Memory exhaustion vuln requires attacker-controlled timestamp server
+# Low exploitability in dev container context. Will update when gh releases fix.
 ARG GH_VERSION=2.83.2
 ARG TARGETARCH
 RUN case "${TARGETARCH}" in \
@@ -94,21 +94,17 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 # Configure pnpm global bin directory
 RUN mkdir -p "$PNPM_HOME" && pnpm config set global-bin-dir "$PNPM_HOME"
 
-# Install AI coding assistant CLIs
-# Note: These are best-effort installs; some may not be available in all regions
+# Install AI coding assistant CLIs using pnpm
+# NOTE: @githubnext/github-copilot-cli INTENTIONALLY EXCLUDED
+# Reason: CVE-2022-25883 - ships semver@7.0.0 via simple-update-notifier
+# Upstream issue: https://github.com/alexbrazier/simple-update-notifier/issues/30
+# Maintainer unresponsive since Sep 2024. Package removed to eliminate vulnerability.
 RUN pnpm install -g @anthropic-ai/claude-code || echo "claude-code install skipped" \
-    && pnpm install -g @githubnext/github-copilot-cli || echo "copilot-cli install skipped" \
     && pnpm install -g @openai/codex || echo "codex install skipped" \
     && pnpm install -g @google/gemini-cli || echo "gemini-cli install skipped"
 
 # Install task management tools
 RUN pnpm install -g backlog.md || echo "backlog.md install skipped"
-
-# Fix pnpm package vulnerabilities by forcing semver upgrade
-# - CVE-2022-25883: semver@7.0.0 -> 7.5.4 (ReDoS vulnerability)
-# This updates semver in pnpm's global store for all installed packages
-RUN cd "${PNPM_HOME}" && pnpm update semver --latest 2>/dev/null || echo "pnpm semver update skipped" \
-    && pnpm store prune 2>/dev/null || true
 
 # Install Python development tools via uv
 RUN /home/vscode/.local/bin/uv tool install ruff \
@@ -128,9 +124,21 @@ RUN touch /home/vscode/.zshrc \
     && echo '# alias codex-yolo="codex --dangerously-bypass-approvals-and-sandbox"' >> /home/vscode/.zshrc \
     && echo '# alias gemini-yolo="gemini --yolo"' >> /home/vscode/.zshrc
 
+# Switch back to root to remove npm
+USER root
+
+# SECURITY FIX: Remove npm from final image
+# This eliminates CVE-2025-64756 (glob@11.0.3 bundled in npm)
+# pnpm is standalone and does not require npm at runtime
+RUN apk del npm \
+    && rm -rf /root/.npm /tmp/npm* 2>/dev/null || true
+
+# Switch back to vscode user
+USER vscode
+
 # Labels for Docker Hub
 LABEL org.opencontainers.image.title="flowspec Agents"
-LABEL org.opencontainers.image.description="Development container with AI coding assistants (Claude Code, Codex, Gemini, GitHub Copilot) and task management tools"
+LABEL org.opencontainers.image.description="Development container with AI coding assistants (Claude Code, Codex, Gemini) and task management tools"
 LABEL org.opencontainers.image.source="https://github.com/jpoley/flowspec"
 LABEL org.opencontainers.image.vendor="jpoley"
 LABEL org.opencontainers.image.licenses="MIT"
@@ -141,10 +149,10 @@ LABEL org.opencontainers.image.base.digest="sha256:51b5354ed44df6e1a3b3faf6d3a3d
 RUN echo "=== Installation Verification ===" \
     && echo "Python: $(python --version)" \
     && echo "Node: $(node --version)" \
-    && echo "npm: $(npm --version)" \
     && echo "pnpm: $(pnpm --version)" \
     && echo "uv: $(/home/vscode/.local/bin/uv --version)" \
     && echo "gh: $(gh --version | head -1)" \
+    && echo "npm: $(npm --version 2>&1 || echo 'REMOVED - security fix')" \
     && echo "PATH: $PATH"
 
 # Default command
