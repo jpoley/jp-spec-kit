@@ -22,7 +22,7 @@ def workspace_root(tmp_path: Path) -> Path:
     workspace = tmp_path / "project"
     workspace.mkdir()
     # Create hooks directory
-    hooks_dir = workspace / ".specify" / "hooks"
+    hooks_dir = workspace / ".flowspec" / "hooks"
     hooks_dir.mkdir(parents=True)
     return workspace
 
@@ -71,7 +71,7 @@ class TestEventEmitter:
     def test_init_without_config(self, workspace_root: Path):
         """Test emitter initialization without config (loads from workspace)."""
         # Create empty hooks.yaml
-        hooks_file = workspace_root / ".specify" / "hooks" / "hooks.yaml"
+        hooks_file = workspace_root / ".flowspec" / "hooks" / "hooks.yaml"
         hooks_file.write_text("version: '1.0'\nhooks: []\n")
 
         emitter = EventEmitter(workspace_root=workspace_root)
@@ -113,7 +113,7 @@ class TestEventEmitter:
     ):
         """Test emit executes matching hooks."""
         # Create a success script
-        hooks_dir = workspace_root / ".specify" / "hooks"
+        hooks_dir = workspace_root / ".flowspec" / "hooks"
         script = hooks_dir / "test.sh"
         script.write_text("#!/bin/bash\necho 'Success'\nexit 0\n")
         script.chmod(script.stat().st_mode | 0o111)
@@ -144,7 +144,7 @@ class TestEventEmitter:
     def test_emit_fail_mode_continue(self, workspace_root: Path):
         """Test emit with fail_mode=continue executes all hooks despite failures."""
         # Create scripts
-        hooks_dir = workspace_root / ".specify" / "hooks"
+        hooks_dir = workspace_root / ".flowspec" / "hooks"
 
         # Failing script
         script1 = hooks_dir / "hook1.sh"
@@ -189,7 +189,7 @@ class TestEventEmitter:
     def test_emit_fail_mode_stop(self, workspace_root: Path):
         """Test emit with fail_mode=stop stops on first failure."""
         # Create scripts
-        hooks_dir = workspace_root / ".specify" / "hooks"
+        hooks_dir = workspace_root / ".flowspec" / "hooks"
 
         # Failing script
         script1 = hooks_dir / "hook1.sh"
@@ -390,7 +390,7 @@ class TestPerformance:
         import time
 
         # Create a fast script
-        hooks_dir = workspace_root / ".specify" / "hooks"
+        hooks_dir = workspace_root / ".flowspec" / "hooks"
         script = hooks_dir / "fast.sh"
         script.write_text("#!/bin/bash\nexit 0\n")
         script.chmod(script.stat().st_mode | 0o111)

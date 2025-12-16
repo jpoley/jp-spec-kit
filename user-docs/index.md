@@ -23,7 +23,7 @@ Customize and extend the Spec-Driven Development workflow to match your organiza
 ### Understanding Workflows
 
 - [Workflow Architecture](guides/workflow-architecture.md) - Overall workflow system design and components
-- [JP Spec Workflow Guide](guides/flowspec-workflow-guide.md) - Comprehensive guide to the workflow system
+- [Flowspec Workflow Guide](guides/flowspec-workflow-guide.md) - Comprehensive guide to the workflow system
 - [Workflow State Mapping](guides/workflow-state-mapping.md) - How workflow states map to backlog task states
 
 ### Customization

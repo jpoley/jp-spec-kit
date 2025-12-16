@@ -31,7 +31,7 @@ def workspace_root(tmp_path: Path) -> Path:
     workspace = tmp_path / "project"
     workspace.mkdir()
     # Create hooks directory structure
-    hooks_dir = workspace / ".specify" / "hooks"
+    hooks_dir = workspace / ".flowspec" / "hooks"
     hooks_dir.mkdir(parents=True)
     # Create empty hooks.yaml
     hooks_file = hooks_dir / "hooks.yaml"

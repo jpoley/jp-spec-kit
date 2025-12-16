@@ -661,14 +661,14 @@ specify memory template apply feature --task task-42
 
 **Creating Custom Templates**:
 
-Place custom templates in `.specify/templates/memory/`:
+Place custom templates in `.flowspec/templates/memory/`:
 
 ```bash
 # Create custom template directory
-mkdir -p .specify/templates/memory
+mkdir -p .flowspec/templates/memory
 
 # Create your template
-cat > .specify/templates/memory/api-endpoint.md << 'EOF'
+cat > .flowspec/templates/memory/api-endpoint.md << 'EOF'
 ---
 task_id: {task_id}
 created: {created_date}

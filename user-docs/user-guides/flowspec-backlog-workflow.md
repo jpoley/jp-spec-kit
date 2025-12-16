@@ -587,7 +587,7 @@ claude mcp add backlog --scope user -- backlog mcp start
 
 ## Related Documentation
 
-- **[JP Spec Workflow Guide](flowspec-workflow-guide.md)** - Complete workflow documentation
+- **[Flowspec Workflow Guide](flowspec-workflow-guide.md)** - Complete workflow documentation
 - **[Backlog User Guide](backlog-user-guide.md)** - Backlog.md standalone usage
 - **[Backlog Quick Start](backlog-quickstart.md)** - Get started in 5 minutes
 - **[Workflow State Mapping](workflow-state-mapping.md)** - State transition details

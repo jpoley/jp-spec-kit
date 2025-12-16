@@ -102,14 +102,14 @@ class QualityConfig:
 
     @classmethod
     def find_config(cls, start_path: Optional[Path] = None) -> "QualityConfig":
-        """Find and load quality config from .specify/ directory."""
+        """Find and load quality config from .flowspec/ directory."""
         if start_path is None:
             start_path = Path.cwd()
 
-        # Look for .specify/quality-config.json
+        # Look for .flowspec/quality-config.json
         current = start_path.resolve()
         while current != current.parent:
-            config_file = current / ".specify" / "quality-config.json"
+            config_file = current / ".flowspec" / "quality-config.json"
             if config_file.exists():
                 return cls.load_from_file(config_file)
             current = current.parent

@@ -339,7 +339,7 @@ backlog task list --plain | grep -i "dashboard"
 2. Architectural Blueprint (system overview, component design, integration patterns using EIP taxonomy)
 3. Architecture Decision Records (ADRs) - Key decisions with context, options, consequences
 4. Platform Quality Assessment (7 C's evaluation)
-5. Architectural Principles for /speckit.constitution
+5. Architectural Principles for /spec.constitution
 
 **Agent 2 Outputs** (Platform Engineer):
 1. DORA Elite Performance Design (deployment frequency, lead time, CFR, MTTR strategies)
@@ -347,13 +347,13 @@ backlog task list --plain | grep -i "dashboard"
 3. Infrastructure Architecture (cloud platform, Kubernetes, service mesh, HA, DR)
 4. DevSecOps Integration (SAST/DAST/SCA, SBOM, SLSA compliance, secret management)
 5. Observability Architecture (Prometheus/OpenTelemetry, logging, tracing, alerting)
-6. Platform Principles for /speckit.constitution
+6. Platform Principles for /spec.constitution
 
 **Integration Phase**:
 After both agents complete, consolidate findings into:
 - Complete system architecture document
 - Platform and infrastructure design
-- Updated /speckit.constitution (architectural + platform principles)
+- Updated /spec.constitution (architectural + platform principles)
 - ADRs for key decisions
 - Implementation readiness assessment
 
@@ -824,7 +824,7 @@ Agents are organized into two loops based on the **Agent Loop Classification** f
 - Architectural blueprint (component design, integration patterns using EIP)
 - Architecture Decision Records (ADRs) with options analysis
 - Platform quality assessment (7 C's)
-- Architectural principles for /speckit.constitution
+- Architectural principles for /spec.constitution
 - **Create architecture tasks in backlog** (ADRs, design docs, pattern implementations)
 
 ---
@@ -851,7 +851,7 @@ Agents are organized into two loops based on the **Agent Loop Classification** f
 - Infrastructure architecture (cloud platform, Kubernetes, service mesh, HA/DR)
 - DevSecOps integration (SAST/DAST/SCA, SBOM, secret management)
 - Observability architecture (metrics, logging, tracing, alerting)
-- Platform principles for /speckit.constitution
+- Platform principles for /spec.constitution
 - **Create infrastructure tasks in backlog** (CI/CD, observability, security, IaC)
 
 ---
@@ -1488,7 +1488,7 @@ backlog task create "Fix button alignment on login page" \
 
 # Consolidated output:
 # - Complete architecture document
-# - /speckit.constitution updated with payment service principles
+# - /spec.constitution updated with payment service principles
 # - 15+ architecture/infrastructure tasks created
 
 # 5. Implementation with code review
@@ -2249,7 +2249,7 @@ Action: Complete missing items before re-submitting for release'
 - This is expected during parallel execution
 - **Integration Phase** explicitly resolves conflicts
 - Review both outputs, identify conflicts, and consolidate
-- Update /speckit.constitution with unified principles
+- Update /spec.constitution with unified principles
 - Create follow-up tasks to resolve design conflicts if needed
 
 ---

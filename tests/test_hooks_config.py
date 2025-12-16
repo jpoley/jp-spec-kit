@@ -29,7 +29,7 @@ class TestLoadHooksConfig:
 
     def test_load_minimal_config(self, tmp_path):
         """Test loading minimal valid config."""
-        hooks_dir = tmp_path / ".specify" / "hooks"
+        hooks_dir = tmp_path / ".flowspec" / "hooks"
         hooks_dir.mkdir(parents=True)
 
         config_yaml = dedent(
@@ -51,7 +51,7 @@ class TestLoadHooksConfig:
 
     def test_load_config_with_defaults(self, tmp_path):
         """Test loading config with defaults section."""
-        hooks_dir = tmp_path / ".specify" / "hooks"
+        hooks_dir = tmp_path / ".flowspec" / "hooks"
         hooks_dir.mkdir(parents=True)
 
         config_yaml = dedent(
@@ -75,7 +75,7 @@ class TestLoadHooksConfig:
 
     def test_load_config_with_filters(self, tmp_path):
         """Test loading config with event filters."""
-        hooks_dir = tmp_path / ".specify" / "hooks"
+        hooks_dir = tmp_path / ".flowspec" / "hooks"
         hooks_dir.mkdir(parents=True)
 
         config_yaml = dedent(
@@ -100,7 +100,7 @@ class TestLoadHooksConfig:
 
     def test_invalid_yaml(self, tmp_path):
         """Test error on invalid YAML."""
-        hooks_dir = tmp_path / ".specify" / "hooks"
+        hooks_dir = tmp_path / ".flowspec" / "hooks"
         hooks_dir.mkdir(parents=True)
 
         (hooks_dir / "hooks.yaml").write_text("invalid: yaml: syntax:")
@@ -110,7 +110,7 @@ class TestLoadHooksConfig:
 
     def test_missing_required_field(self, tmp_path):
         """Test error on missing required field."""
-        hooks_dir = tmp_path / ".specify" / "hooks"
+        hooks_dir = tmp_path / ".flowspec" / "hooks"
         hooks_dir.mkdir(parents=True)
 
         config_yaml = dedent(
@@ -134,7 +134,7 @@ class TestSecurityValidation:
 
     def test_path_traversal_blocked(self, tmp_path):
         """Test path traversal in script path is blocked."""
-        hooks_dir = tmp_path / ".specify" / "hooks"
+        hooks_dir = tmp_path / ".flowspec" / "hooks"
         hooks_dir.mkdir(parents=True)
 
         config_yaml = dedent(
@@ -154,7 +154,7 @@ class TestSecurityValidation:
 
     def test_shell_metacharacters_blocked(self, tmp_path):
         """Test shell metacharacters in env vars are blocked."""
-        hooks_dir = tmp_path / ".specify" / "hooks"
+        hooks_dir = tmp_path / ".flowspec" / "hooks"
         hooks_dir.mkdir(parents=True)
 
         config_yaml = dedent(
@@ -176,7 +176,7 @@ class TestSecurityValidation:
 
     def test_timeout_limits_enforced(self, tmp_path):
         """Test timeout limits are enforced by JSON schema."""
-        hooks_dir = tmp_path / ".specify" / "hooks"
+        hooks_dir = tmp_path / ".flowspec" / "hooks"
         hooks_dir.mkdir(parents=True)
 
         config_yaml = dedent(
@@ -198,7 +198,7 @@ class TestSecurityValidation:
 
     def test_security_validation_can_be_skipped(self, tmp_path):
         """Test security validation can be disabled."""
-        hooks_dir = tmp_path / ".specify" / "hooks"
+        hooks_dir = tmp_path / ".flowspec" / "hooks"
         hooks_dir.mkdir(parents=True)
 
         config_yaml = dedent(
@@ -223,7 +223,7 @@ class TestValidateHooksConfigFile:
 
     def test_valid_config_passes(self, tmp_path):
         """Test valid config passes validation."""
-        hooks_dir = tmp_path / ".specify" / "hooks"
+        hooks_dir = tmp_path / ".flowspec" / "hooks"
         hooks_dir.mkdir(parents=True)
 
         config_yaml = dedent(
@@ -259,7 +259,7 @@ class TestValidateHooksConfigFile:
 
     def test_duplicate_hook_names_detected(self, tmp_path):
         """Test duplicate hook names are detected."""
-        hooks_dir = tmp_path / ".specify" / "hooks"
+        hooks_dir = tmp_path / ".flowspec" / "hooks"
         hooks_dir.mkdir(parents=True)
 
         config_yaml = dedent(
@@ -287,7 +287,7 @@ class TestValidateHooksConfigFile:
 
     def test_missing_script_detected(self, tmp_path):
         """Test missing script files are detected."""
-        hooks_dir = tmp_path / ".specify" / "hooks"
+        hooks_dir = tmp_path / ".flowspec" / "hooks"
         hooks_dir.mkdir(parents=True)
 
         config_yaml = dedent(
@@ -311,7 +311,7 @@ class TestValidateHooksConfigFile:
 
     def test_high_timeout_warning(self, tmp_path):
         """Test high timeouts generate warnings."""
-        hooks_dir = tmp_path / ".specify" / "hooks"
+        hooks_dir = tmp_path / ".flowspec" / "hooks"
         hooks_dir.mkdir(parents=True)
 
         config_yaml = dedent(

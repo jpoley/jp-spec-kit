@@ -1,1 +1,0 @@
-../../../templates/commands/speckit/checklist.md

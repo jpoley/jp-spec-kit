@@ -87,7 +87,7 @@ class BatchApplyResult:
 class PatchApplicatorConfig:
     """Configuration for patch application."""
 
-    backup_dir: Path | None = None  # Directory for backups (default: .specify/backups)
+    backup_dir: Path | None = None  # Directory for backups (default: .flowspec/backups)
     create_backups: bool = True  # Create backups before applying
     use_git_apply: bool = True  # Use git apply (vs manual file modification)
 
@@ -395,7 +395,7 @@ class PatchApplicator:
 
     def _create_backup(self, file_path: Path) -> Path | None:
         """Create a backup of a file before patching."""
-        backup_dir = self.config.backup_dir or Path(".specify/backups")
+        backup_dir = self.config.backup_dir or Path(".flowspec/backups")
         backup_dir.mkdir(parents=True, exist_ok=True)
 
         timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")

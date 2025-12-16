@@ -35,9 +35,9 @@
       items:
         - name: Workflow Architecture
           href: guides/workflow-architecture.md
-        - name: JP Spec Workflow Guide
+        - name: Flowspec Workflow Guide
           href: guides/flowspec-workflow-guide.md
-        - name: JP Spec + Backlog Integration
+        - name: Flowspec + Backlog Integration
           href: guides/flowspec-backlog-workflow.md
         - name: Workflow State Mapping
           href: guides/workflow-state-mapping.md

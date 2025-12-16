@@ -77,11 +77,11 @@ class TestPermissionAutoApprove(unittest.TestCase):
         self.assertEqual(output["decision"], "allow")
 
     def test_read_specify_approved(self):
-        """Read in .specify/ should be auto-approved."""
+        """Read in .flowspec/ should be auto-approved."""
         exit_code, output = run_hook(
             {
                 "tool_name": "Read",
-                "tool_input": {"file_path": ".specify/hooks/hooks.yaml"},
+                "tool_input": {"file_path": ".flowspec/hooks/hooks.yaml"},
             }
         )
 

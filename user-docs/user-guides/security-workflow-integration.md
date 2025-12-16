@@ -565,7 +565,7 @@ flowspec hooks enable pre-commit-security
 
 ### Configuration
 
-Create `.specify/hooks/hooks.yaml`:
+Create `.flowspec/hooks/hooks.yaml`:
 
 ```yaml
 version: "1.0"
@@ -887,7 +887,7 @@ chmod +x scripts/security/pre-commit-scan.sh
 bash scripts/security/pre-commit-scan.sh
 
 # Check hook configuration
-cat .specify/hooks/hooks.yaml
+cat .flowspec/hooks/hooks.yaml
 ```
 
 ### GitHub Security Tab Empty

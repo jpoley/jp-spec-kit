@@ -2,7 +2,7 @@
 """PostToolUse hook: Auto-emit flowspec events when /flowspec commands complete.
 
 This hook intercepts SlashCommand tool completions and emits corresponding
-flowspec events to trigger user-configured hooks in .specify/hooks/.
+flowspec events to trigger user-configured hooks in .flowspec/hooks/.
 
 Event Mapping:
     /flow:assess    → workflow.assessed

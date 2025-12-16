@@ -1,5 +1,5 @@
 ---
-name: "speckit-init"
+name: "spec-init"
 description: "Initialize project with constitution and role selection for personalized workflows"
 target: "chat"
 tools:
@@ -23,7 +23,7 @@ This command initializes the project constitution and allows the user to select 
 
 ### Overview
 
-The `/speckit:init` command:
+The `/spec:init` command:
 1. Detects project type (greenfield vs brownfield)
 2. Analyzes repository for tech stack detection
 3. Prompts for role selection (pm, arch, dev, sec, qa, ops, all)
@@ -94,7 +94,7 @@ fi
 If constitution exists and `--force` is not set:
 1. Display current constitution tier
 2. Ask if user wants to replace, customize, or abort
-3. If customize, suggest `/speckit:constitution` for detailed customization
+3. If customize, suggest `/spec:constitution` for detailed customization
 
 ### Step 3: Role Selection Prompt
 
@@ -288,7 +288,7 @@ build_tools:
 
 # Repository Facts
 
-**Generated**: {YYYY-MM-DD} by `/speckit:init` command
+**Generated**: {YYYY-MM-DD} by `/spec:init` command
 
 This document contains automatically detected repository characteristics.
 LLM agents reference this file for project context.
@@ -347,12 +347,12 @@ Prompt for workflow configuration:
 Would you like to configure workflow validation modes now?
   1. Yes - Configure validation gates for each transition
   2. No - Use defaults (NONE for all transitions)
-  3. Later - Run /speckit:configure when ready
+  3. Later - Run /spec:configure when ready
 
 Choice [2]: _
 ```
 
-If yes, run the same validation mode prompts as `/speckit:configure` (see configure.md).
+If yes, run the same validation mode prompts as `/spec:configure` (see configure.md).
 
 ### Step 10: Generate Summary Report
 
@@ -372,7 +372,7 @@ This role determines:
   • Which agents are auto-loaded for handoffs
   • Default workflow entry points
 
-To change your role later, run: /speckit:configure --role <new_role>
+To change your role later, run: /spec:configure --role <new_role>
 
 📊 PROJECT ANALYSIS
 
@@ -449,10 +449,10 @@ Look for NEEDS_VALIDATION markers:
 
 💡 TIPS
 
-• Change role anytime: /speckit:configure --role <new_role>
+• Change role anytime: /spec:configure --role <new_role>
 • Override role per session: export FLOWSPEC_PRIMARY_ROLE=<role>
 • See all commands regardless of role: Set show_all_commands: true in flowspec_workflow.yml
-• Customize constitution further: /speckit:constitution
+• Customize constitution further: /spec:constitution
 ```
 
 ### Greenfield vs Brownfield Differences
@@ -499,9 +499,9 @@ Choice [1]: _
 ### Integration with Existing Commands
 
 - **After init**: Run role-appropriate workflow command
-- **To customize more**: Run `/speckit:constitution` for detailed customization
-- **To reconfigure**: Run `/speckit:configure`
-- **To change role**: Run `/speckit:configure --role <new_role>`
+- **To customize more**: Run `/spec:constitution` for detailed customization
+- **To reconfigure**: Run `/spec:configure`
+- **To change role**: Run `/spec:configure --role <new_role>`
 
 ### Quality Checks
 
@@ -524,4 +524,4 @@ Before completing:
 5. **Idempotent**: Running twice without `--force` is a no-op
 6. **Tech stack aware**: Customizes constitution based on actual project technologies
 7. **Tier upgradeable**: Start light, upgrade to medium/heavy as project grows
-8. **Role switchable**: Change role anytime with `/speckit:configure --role <new_role>`
+8. **Role switchable**: Change role anytime with `/spec:configure --role <new_role>`

@@ -608,7 +608,7 @@ __version__ = "0.2.360"
 # Constitution template version
 CONSTITUTION_VERSION = "1.0.0"
 
-TAGLINE = f"(flowspec v{__version__}) built on spec-kit & backlog.md - Spec-Driven Development with a Backlog"
+TAGLINE = f"(flowspec v{__version__}) with backlog.md & beads - Spec-Driven Development"
 
 # Repository configuration for two-stage download
 BASE_REPO_OWNER = "github"
@@ -618,6 +618,9 @@ BASE_REPO_DEFAULT_VERSION = "latest"  # or specific version like "0.0.20"
 EXTENSION_REPO_OWNER = "jpoley"
 EXTENSION_REPO_NAME = "flowspec"
 EXTENSION_REPO_DEFAULT_VERSION = "latest"
+
+BEADS_REPO_OWNER = "jpoley"
+BEADS_REPO_NAME = "beads"
 
 # Marker file that identifies the flowspec source repository
 # When present, flowspec init/upgrade will skip to avoid clobbering source files
@@ -687,6 +690,32 @@ def check_backlog_installed_version() -> Optional[str]:
             # Validate it looks like a version (digits and dots)
             if output and all(c.isdigit() or c == "." for c in output):
                 return output
+    except FileNotFoundError:
+        pass
+    return None
+
+
+def check_beads_installed_version() -> Optional[str]:
+    """Check the currently installed beads version.
+
+    Returns:
+        Version string (e.g., "0.29.0") or None if not installed
+    """
+    try:
+        result = subprocess.run(
+            ["bd", "--version"], capture_output=True, text=True, check=False
+        )
+        if result.returncode == 0:
+            # bd --version outputs "bd version 0.29.0 (c9eeecf0)"
+            output = result.stdout.strip()
+            # Extract version number from "bd version X.Y.Z (hash)"
+            if output.startswith("bd version "):
+                parts = output.split()
+                if len(parts) >= 3:
+                    version = parts[2]
+                    # Validate it looks like a version (digits and dots)
+                    if version and all(c.isdigit() or c == "." for c in version):
+                        return version
     except FileNotFoundError:
         pass
     return None
@@ -908,7 +937,8 @@ def get_all_component_versions() -> dict:
         {
             "jp_spec_kit": {"installed": str, "available": str | None},
             "spec_kit": {"installed": str, "available": str | None},
-            "backlog_md": {"installed": str | None, "available": str | None}
+            "backlog_md": {"installed": str | None, "available": str | None},
+            "beads": {"installed": str | None, "available": str | None}
         }
     """
     return {
@@ -925,6 +955,10 @@ def get_all_component_versions() -> dict:
         "backlog_md": {
             "installed": check_backlog_installed_version(),
             "available": get_npm_latest_version("backlog.md"),
+        },
+        "beads": {
+            "installed": check_beads_installed_version(),
+            "available": get_npm_latest_version("@beads/bd"),
         },
     }
 
@@ -994,11 +1028,13 @@ def show_version_info(detailed: bool = False, centered: bool = False) -> None:
             _add_version_row(table, "flowspec", versions["jp_spec_kit"])
         )
         upgrades_available.append(
-            _add_version_row(table, "spec-kit", versions["spec_kit"])
+            _add_version_row(
+                table, "backlog.md", versions["backlog_md"], "[dim]not installed[/dim]"
+            )
         )
         upgrades_available.append(
             _add_version_row(
-                table, "backlog.md", versions["backlog_md"], "[dim]not installed[/dim]"
+                table, "beads", versions["beads"], "[dim]not installed[/dim]"
             )
         )
 
@@ -2221,6 +2257,50 @@ def download_template_from_github(
     return zip_path, metadata
 
 
+def _cleanup_legacy_speckit_files(project_path: Path, ai_assistants: list[str]) -> None:
+    """Remove legacy speckit.* files from base spec-kit after flowspec overlay.
+
+    The base spec-kit uses flat speckit.* file naming (e.g., speckit.specify.md)
+    in the commands directory. The flowspec extension uses a spec/ subdirectory
+    structure (e.g., spec/specify.md) which provides the /spec:* command namespace.
+
+    After the flowspec extension overlays the base, both structures exist:
+    - .claude/commands/speckit.*.md (legacy, should be removed)
+    - .claude/commands/spec/*.md (flowspec, should remain)
+
+    This function removes the legacy files to avoid confusion.
+    """
+    # Map of AI assistant to their commands directory
+    agent_command_dirs = {
+        "claude": ".claude/commands",
+        "cursor-agent": ".cursor/commands",
+        "gemini": ".gemini/commands",
+        "copilot": ".github/prompts",
+        "qwen": ".qwen/commands",
+        "opencode": ".opencode/command",
+        "windsurf": ".windsurf/workflows",
+        "codex": ".codex/prompts",
+        "kilocode": ".kilocode/workflows",
+        "auggie": ".augment/commands",
+        "roo": ".roo/commands",
+        "codebuddy": ".codebuddy/commands",
+        "q": ".amazonq/prompts",
+    }
+
+    for agent in ai_assistants:
+        if agent not in agent_command_dirs:
+            continue
+
+        commands_dir = project_path / agent_command_dirs[agent]
+        if not commands_dir.exists():
+            continue
+
+        # Find and remove legacy speckit.* files
+        for item in commands_dir.iterdir():
+            if item.is_file() and item.name.startswith("speckit."):
+                item.unlink()
+
+
 def download_and_extract_two_stage(
     project_path: Path,
     ai_assistants: str | list[str],
@@ -2449,6 +2529,11 @@ def download_and_extract_two_stage(
         if ext_zip and ext_zip.exists():
             ext_zip.unlink()
 
+    # Clean up legacy speckit.* files from base spec-kit that are now in spec/ directory
+    # The flowspec extension uses spec/ subdirectory (e.g., .claude/commands/spec/specify.md)
+    # but the base spec-kit may have flat speckit.* files (e.g., .claude/commands/speckit.specify.md)
+    _cleanup_legacy_speckit_files(project_path, ai_assistants)
+
     return project_path
 
 
@@ -2658,10 +2743,10 @@ def download_and_extract_template(
 def ensure_executable_scripts(
     project_path: Path, tracker: StepTracker | None = None
 ) -> None:
-    """Ensure POSIX .sh scripts under .specify/scripts (recursively) have execute bits (no-op on Windows)."""
+    """Ensure POSIX .sh scripts under .flowspec/scripts (recursively) have execute bits (no-op on Windows)."""
     if os.name == "nt":
         return  # Windows: skip silently
-    scripts_root = project_path / ".specify" / "scripts"
+    scripts_root = project_path / ".flowspec" / "scripts"
     if not scripts_root.is_dir():
         return
     failures: list[str] = []
@@ -2834,7 +2919,7 @@ def init(
     no_hooks: bool = typer.Option(
         False,
         "--no-hooks",
-        help="Initialize with all hooks disabled. Hooks can be enabled later in .specify/hooks/hooks.yaml",
+        help="Initialize with all hooks disabled. Hooks can be enabled later in .flowspec/hooks/hooks.yaml",
     ),
 ):
     """
@@ -3341,7 +3426,7 @@ def init(
         constitution_panel = Panel(
             "Constitution template created at [cyan]memory/constitution.md[/cyan]\n\n"
             "[yellow]Next step:[/yellow] Customize it for your repository using:\n"
-            "[green]/speckit:constitution[/green]\n\n"
+            "[green]/spec:constitution[/green]\n\n"
             "This will tailor the constitution to your project's specific needs.",
             title="[green]Constitution Created[/green]",
             border_style="green",
@@ -3393,7 +3478,7 @@ def init(
 
     # Check for backlog-md and offer to install if missing
     current_backlog_version = check_backlog_installed_version()
-    if not current_backlog_version:
+    if not current_backlog_version and not no_validation_prompts and sys.stdin.isatty():
         console.print()
         install_backlog = typer.confirm(
             "[cyan]backlog-md[/cyan] is not installed. Would you like to install it for task management?",
@@ -3463,6 +3548,52 @@ def init(
         console.print(
             f"[dim]To change version: flowspec backlog upgrade --version {backlog_version}[/dim]"
         )
+
+    # Check for beads and offer to install if missing
+    current_beads_version = check_beads_installed_version()
+    if not current_beads_version and not no_validation_prompts and sys.stdin.isatty():
+        console.print()
+        install_beads = typer.confirm(
+            "[cyan]beads[/cyan] is not installed. Would you like to install it for issue tracking?",
+            default=True,
+        )
+        if install_beads:
+            pkg_manager = detect_package_manager()
+            if pkg_manager:
+                console.print("\n[cyan]Installing @beads/bd...[/cyan]")
+                try:
+                    if pkg_manager == "pnpm":
+                        cmd = ["pnpm", "add", "-g", "@beads/bd"]
+                    else:
+                        cmd = ["npm", "install", "-g", "@beads/bd"]
+
+                    subprocess.run(cmd, check=True, capture_output=True, text=True)
+
+                    installed_version = check_beads_installed_version()
+                    if installed_version:
+                        console.print(
+                            f"[green]beads {installed_version} installed successfully![/green]"
+                        )
+                    else:
+                        console.print(
+                            "[yellow]Installation completed but verification failed[/yellow]"
+                        )
+                except subprocess.CalledProcessError as e:
+                    console.print(f"[yellow]Installation failed:[/yellow] {e.stderr}")
+                    console.print(
+                        "[dim]You can install it manually: npm install -g @beads/bd[/dim]"
+                    )
+            else:
+                console.print(
+                    "[yellow]No Node.js package manager found (pnpm or npm required)[/yellow]"
+                )
+                console.print(
+                    "[dim]Install beads manually: npm install -g @beads/bd[/dim]"
+                )
+        else:
+            console.print(
+                "[dim]You can install beads later: npm install -g @beads/bd[/dim]"
+            )
 
     # Generate workflow configuration file with per-transition validation modes
     # Priority order:
@@ -3559,14 +3690,12 @@ def init(
     steps_lines.append(f"{step_num}. Start using slash commands with your AI agent:")
 
     steps_lines.append(
-        "   2.1 [cyan]/speckit.constitution[/] - Establish project principles"
+        "   2.1 [cyan]/flow:init[/] - Establish project principles (constitution)"
     )
-    steps_lines.append(
-        "   2.2 [cyan]/speckit.specify[/] - Create baseline specification"
-    )
-    steps_lines.append("   2.3 [cyan]/speckit.plan[/] - Create implementation plan")
-    steps_lines.append("   2.4 [cyan]/speckit.tasks[/] - Generate actionable tasks")
-    steps_lines.append("   2.5 [cyan]/speckit.implement[/] - Execute implementation")
+    steps_lines.append("   2.2 [cyan]/flow:specify[/] - Create baseline specification")
+    steps_lines.append("   2.3 [cyan]/flow:plan[/] - Create implementation plan")
+    steps_lines.append("   2.4 [cyan]/flow:implement[/] - Execute implementation")
+    steps_lines.append("   2.5 [cyan]/flow:validate[/] - QA and security review")
 
     steps_panel = Panel(
         "\n".join(steps_lines), title="Next Steps", border_style="cyan", padding=(1, 2)
@@ -3575,15 +3704,15 @@ def init(
     console.print(steps_panel)
 
     enhancement_lines = [
-        "Optional commands that you can use for your specs [bright_black](improve quality & confidence)[/bright_black]",
+        "Optional commands [bright_black](improve quality & confidence)[/bright_black]",
         "",
-        "○ [cyan]/speckit.clarify[/] [bright_black](optional)[/bright_black] - Ask structured questions to de-risk ambiguous areas before planning (run before [cyan]/speckit.plan[/] if used)",
-        "○ [cyan]/speckit.analyze[/] [bright_black](optional)[/bright_black] - Cross-artifact consistency & alignment report (after [cyan]/speckit.tasks[/], before [cyan]/speckit.implement[/])",
-        "○ [cyan]/speckit.checklist[/] [bright_black](optional)[/bright_black] - Generate quality checklists to validate requirements completeness, clarity, and consistency (after [cyan]/speckit.plan[/])",
+        "○ [cyan]/flow:assess[/] - Evaluate complexity and recommend workflow mode",
+        "○ [cyan]/flow:research[/] - Research and business validation (after specify)",
+        "○ [cyan]/flow:operate[/] - Deploy and create runbooks (after validate)",
     ]
     enhancements_panel = Panel(
         "\n".join(enhancement_lines),
-        title="Enhancement Commands",
+        title="Additional Commands",
         border_style="cyan",
         padding=(1, 2),
     )
@@ -3684,7 +3813,7 @@ def upgrade_repo(
 
     # Detect script type (look for .sh or .ps1 scripts)
     script_type = "sh"  # default
-    specify_scripts = project_path / ".specify" / "scripts"
+    specify_scripts = project_path / ".flowspec" / "scripts"
     if specify_scripts.exists():
         if list(specify_scripts.glob("**/*.ps1")):
             script_type = "ps"
@@ -3736,7 +3865,7 @@ def upgrade_repo(
                 constitution_panel = Panel(
                     "Constitution template created at [cyan]memory/constitution.md[/cyan]\n\n"
                     "[yellow]Next step:[/yellow] Customize it for your repository using:\n"
-                    "[green]/speckit:constitution[/green]\n\n"
+                    "[green]/spec:constitution[/green]\n\n"
                     "This will tailor the constitution to your project's specific needs.",
                     title="[green]Constitution Created[/green]",
                     border_style="green",
@@ -3783,11 +3912,11 @@ def upgrade_repo(
             # Create backup of existing templates with timestamp
             tracker.start("backup")
             timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-            backup_dir = project_path / f".specify-backup-{timestamp}"
+            backup_dir = project_path / f".flowspec-backup-{timestamp}"
             backup_dir.mkdir(parents=True)
 
             # Backup key directories
-            for dir_name in [".specify", ".claude", ".github", "templates"]:
+            for dir_name in [".flowspec", ".claude", ".github", "templates"]:
                 src = project_path / dir_name
                 if src.exists():
                     shutil.copytree(src, backup_dir / dir_name, dirs_exist_ok=True)
@@ -4532,12 +4661,12 @@ def dev_setup(
     Set up flowspec source repository for development.
 
     This command prepares the flowspec source repository to use its own
-    /speckit:* and /flow:* commands during development. It creates symlinks
+    /spec:* and /flow:* commands during development. It creates symlinks
     for multiple AI agents:
 
-    - Claude Code: .claude/commands/speckit/ and .claude/commands/flow/
+    - Claude Code: .claude/commands/spec/ and .claude/commands/flow/
       (symlinks to templates/commands/)
-    - VS Code Copilot: .github/prompts/ (symlinks as speckit.*.prompt.md
+    - VS Code Copilot: .github/prompts/ (symlinks as spec.*.prompt.md
       and flowspec.*.prompt.md)
 
     It also creates .vscode/settings.json with chat.promptFiles enabled for Copilot.
@@ -4569,7 +4698,7 @@ def dev_setup(
 
     templates_dir = project_path / "templates" / "commands"
     flow_templates_dir = templates_dir / "flow"
-    speckit_templates_dir = templates_dir / "speckit"
+    spec_templates_dir = templates_dir / "spec"
     if not templates_dir.exists():
         console.print(
             f"[red]Error:[/red] Templates directory not found: {templates_dir}"
@@ -4577,16 +4706,14 @@ def dev_setup(
         raise typer.Exit(1)
 
     # Get list of template command files
-    speckit_files = (
-        list(speckit_templates_dir.glob("*.md"))
-        if speckit_templates_dir.exists()
-        else []
+    spec_files = (
+        list(spec_templates_dir.glob("*.md")) if spec_templates_dir.exists() else []
     )
     flow_files = (
         list(flow_templates_dir.glob("*.md")) if flow_templates_dir.exists() else []
     )
 
-    if not speckit_files and not flow_files:
+    if not spec_files and not flow_files:
         console.print(
             f"[yellow]Warning:[/yellow] No command templates found in {templates_dir}"
         )
@@ -4600,25 +4727,25 @@ def dev_setup(
 
     all_errors = []
 
-    # === Claude Code Setup - speckit commands ===
-    tracker.add("claude_speckit", "Set up Claude Code speckit commands")
+    # === Claude Code Setup - spec commands ===
+    tracker.add("claude_spec", "Set up Claude Code spec commands")
 
-    speckit_commands_dir = project_path / ".claude" / "commands" / "speckit"
-    speckit_commands_dir.mkdir(parents=True, exist_ok=True)
+    spec_commands_dir = project_path / ".claude" / "commands" / "spec"
+    spec_commands_dir.mkdir(parents=True, exist_ok=True)
 
-    claude_speckit_created = 0
-    claude_speckit_skipped = 0
-    claude_speckit_errors = []
+    claude_spec_created = 0
+    claude_spec_skipped = 0
+    claude_spec_errors = []
 
-    for template_file in speckit_files:
-        symlink_path = speckit_commands_dir / template_file.name
+    for template_file in spec_files:
+        symlink_path = spec_commands_dir / template_file.name
         relative_target = (
             Path("..")
             / ".."
             / ".."
             / "templates"
             / "commands"
-            / "speckit"
+            / "spec"
             / template_file.name
         )
 
@@ -4627,22 +4754,22 @@ def dev_setup(
                 if force:
                     symlink_path.unlink()
                     symlink_path.symlink_to(relative_target)
-                    claude_speckit_created += 1
+                    claude_spec_created += 1
                 else:
-                    claude_speckit_skipped += 1
+                    claude_spec_skipped += 1
             else:
                 symlink_path.symlink_to(relative_target)
-                claude_speckit_created += 1
+                claude_spec_created += 1
         except OSError as e:
-            claude_speckit_errors.append(f"speckit/{template_file.name}: {e}")
+            claude_spec_errors.append(f"spec/{template_file.name}: {e}")
 
-    if claude_speckit_errors:
-        tracker.error("claude_speckit", f"{len(claude_speckit_errors)} errors")
-        all_errors.extend(claude_speckit_errors)
+    if claude_spec_errors:
+        tracker.error("claude_spec", f"{len(claude_spec_errors)} errors")
+        all_errors.extend(claude_spec_errors)
     else:
         tracker.complete(
-            "claude_speckit",
-            f"{claude_speckit_created} created, {claude_speckit_skipped} skipped",
+            "claude_spec",
+            f"{claude_spec_created} created, {claude_spec_skipped} skipped",
         )
 
     # === Claude Code Setup - flowspec commands ===
@@ -4700,18 +4827,13 @@ def dev_setup(
     copilot_skipped = 0
     copilot_errors = []
 
-    # Create speckit.*.prompt.md symlinks for speckit commands
-    for template_file in speckit_files:
-        # VS Code Copilot uses speckit.*.prompt.md format
-        prompt_name = f"speckit.{template_file.stem}.prompt.md"
+    # Create spec.*.prompt.md symlinks for spec commands
+    for template_file in spec_files:
+        # VS Code Copilot uses spec.*.prompt.md format
+        prompt_name = f"spec.{template_file.stem}.prompt.md"
         symlink_path = prompts_dir / prompt_name
         relative_target = (
-            Path("..")
-            / ".."
-            / "templates"
-            / "commands"
-            / "speckit"
-            / template_file.name
+            Path("..") / ".." / "templates" / "commands" / "spec" / template_file.name
         )
 
         try:
@@ -4804,8 +4926,8 @@ def dev_setup(
     valid = 0
     broken = 0
 
-    # Check Claude speckit symlinks
-    for symlink_path in speckit_commands_dir.glob("*.md"):
+    # Check Claude spec symlinks
+    for symlink_path in spec_commands_dir.glob("*.md"):
         if symlink_path.is_symlink():
             if symlink_path.resolve().exists():
                 valid += 1
@@ -4843,9 +4965,9 @@ def dev_setup(
     console.print(
         "\n[bold]Claude Code[/bold] - The following commands are now available:"
     )
-    console.print("  [dim]speckit:[/dim]")
-    for template_file in sorted(speckit_files):
-        console.print(f"    [cyan]/speckit:{template_file.stem}[/cyan]")
+    console.print("  [dim]spec:[/dim]")
+    for template_file in sorted(spec_files):
+        console.print(f"    [cyan]/spec:{template_file.stem}[/cyan]")
     console.print("  [dim]flow:[/dim]")
     for template_file in sorted(flow_files):
         console.print(f"    [cyan]/flow:{template_file.stem}[/cyan]")
@@ -4853,8 +4975,8 @@ def dev_setup(
     console.print(
         "\n[bold]VS Code Copilot[/bold] - The following prompts are now available:"
     )
-    for template_file in sorted(speckit_files):
-        console.print(f"  [cyan]/speckit.{template_file.stem}[/cyan]")
+    for template_file in sorted(spec_files):
+        console.print(f"  [cyan]/spec.{template_file.stem}[/cyan]")
     for template_file in sorted(flow_files):
         console.print(f"  [cyan]/flowspec.{template_file.stem}[/cyan]")
 
@@ -5590,7 +5712,7 @@ def backlog_upgrade(
 @app.command()
 def quality(
     spec_path: str = typer.Argument(
-        None, help="Path to specification file (defaults to .specify/spec.md)"
+        None, help="Path to specification file (defaults to .flowspec/spec.md)"
     ),
     config_path: str = typer.Option(
         None, "--config", help="Path to custom quality config file"
@@ -5625,7 +5747,7 @@ def quality(
 
     # Determine spec path
     if spec_path is None:
-        spec_file = Path.cwd() / ".specify" / "spec.md"
+        spec_file = Path.cwd() / ".flowspec" / "spec.md"
         if not spec_file.exists():
             # Try current directory
             spec_file = Path.cwd() / "spec.md"
@@ -5636,7 +5758,7 @@ def quality(
         console.print(f"[red]Error: Specification file not found: {spec_file}[/red]")
         console.print("\nUsage:")
         console.print("  flowspec quality [SPEC_PATH]")
-        console.print("  flowspec quality .specify/spec.md")
+        console.print("  flowspec quality .flowspec/spec.md")
         raise typer.Exit(1)
 
     # Load configuration
@@ -5797,14 +5919,14 @@ def gate(
     from flowspec_cli.quality import QualityConfig, QualityScorer
 
     project_root = Path.cwd()
-    spec_path = project_root / ".specify" / "spec.md"
+    spec_path = project_root / ".flowspec" / "spec.md"
 
     if not spec_path.exists():
-        console.print("[red]Error:[/red] No spec.md found at .specify/spec.md")
+        console.print("[red]Error:[/red] No spec.md found at .flowspec/spec.md")
         raise typer.Exit(2)
 
     # Load config and override threshold if provided
-    config = QualityConfig.find_config(project_root / ".specify")
+    config = QualityConfig.find_config(project_root / ".flowspec")
     min_threshold = threshold if threshold is not None else config.passing_threshold
 
     console.print("🔍 Running pre-implementation quality gate...\n")

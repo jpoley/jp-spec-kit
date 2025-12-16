@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Migrate slash commands from flat structure to subdirectory structure
-# This script moves flowspec.*.md and speckit.*.md files to their respective subdirectories
+# This script moves flowspec.*.md and spec.*.md files to their respective subdirectories
 #
 # Usage: ./scripts/bash/migrate-commands-to-subdirs.sh [--dry-run] [--path <directory>]
 #
@@ -32,7 +32,7 @@ Migrate slash commands from flat structure to subdirectory structure.
 
 This script moves:
   - flowspec.*.md files to flowspec/ subdirectory (renamed to *.md)
-  - speckit.*.md files to speckit/ subdirectory (renamed to *.md)
+  - spec.*.md files to spec/ subdirectory (renamed to *.md)
 
 OPTIONS:
   --dry-run         Show what would be moved without actually moving
@@ -123,7 +123,7 @@ find_target_dir() {
     for candidate in "${candidates[@]}"; do
         if [[ -d "$candidate" ]]; then
             # Check if it has files to migrate
-            if ls "$candidate"/flowspec.*.md "$candidate"/speckit.*.md 2>/dev/null | head -1 | grep -q .; then
+            if ls "$candidate"/flowspec.*.md "$candidate"/spec.*.md 2>/dev/null | head -1 | grep -q .; then
                 echo "$candidate"
                 return
             fi
@@ -141,7 +141,7 @@ find_target_dir() {
     echo ""
 }
 
-# Migrate files for a specific prefix (flowspec or speckit)
+# Migrate files for a specific prefix (flowspec or spec)
 migrate_prefix() {
     local target_dir="$1"
     local prefix="$2"
@@ -254,8 +254,8 @@ main() {
     migrate_prefix "$target_dir" "flowspec"
     echo ""
 
-    # Migrate speckit files
-    migrate_prefix "$target_dir" "speckit"
+    # Migrate spec files
+    migrate_prefix "$target_dir" "spec"
     echo ""
 
     # Check for broken symlinks

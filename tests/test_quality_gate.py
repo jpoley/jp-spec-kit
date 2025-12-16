@@ -11,7 +11,7 @@ class TestGateCommand:
     def test_gate_passes_high_quality_spec(self, tmp_path, monkeypatch):
         """Gate passes when spec quality is above threshold."""
         # Create a high-quality spec that includes all required sections
-        specify_dir = tmp_path / ".specify"
+        specify_dir = tmp_path / ".flowspec"
         specify_dir.mkdir()
         spec = specify_dir / "spec.md"
         spec.write_text("""# Feature: User Authentication
@@ -55,7 +55,7 @@ their credentials and sessions are properly protected.
 
     def test_gate_fails_low_quality_spec(self, tmp_path, monkeypatch):
         """Gate fails when spec quality is below threshold."""
-        specify_dir = tmp_path / ".specify"
+        specify_dir = tmp_path / ".flowspec"
         specify_dir.mkdir()
         spec = specify_dir / "spec.md"
         spec.write_text("# TODO\nSome vague stuff maybe later")
@@ -69,7 +69,7 @@ their credentials and sessions are properly protected.
 
     def test_gate_force_bypasses_failure(self, tmp_path, monkeypatch):
         """--force flag allows bypassing failed gate."""
-        specify_dir = tmp_path / ".specify"
+        specify_dir = tmp_path / ".flowspec"
         specify_dir.mkdir()
         spec = specify_dir / "spec.md"
         spec.write_text("# TODO\nVague")
@@ -83,7 +83,7 @@ their credentials and sessions are properly protected.
 
     def test_gate_custom_threshold(self, tmp_path, monkeypatch):
         """--threshold flag overrides config threshold."""
-        specify_dir = tmp_path / ".specify"
+        specify_dir = tmp_path / ".flowspec"
         specify_dir.mkdir()
         spec = specify_dir / "spec.md"
         spec.write_text("# Feature\nBasic description")
@@ -105,7 +105,7 @@ their credentials and sessions are properly protected.
 
     def test_gate_shows_recommendations_on_failure(self, tmp_path, monkeypatch):
         """Failed gate shows improvement recommendations."""
-        specify_dir = tmp_path / ".specify"
+        specify_dir = tmp_path / ".flowspec"
         specify_dir.mkdir()
         spec = specify_dir / "spec.md"
         spec.write_text("# TODO")

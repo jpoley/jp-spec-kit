@@ -18,7 +18,7 @@ def workspace_root(tmp_path: Path) -> Path:
     workspace = tmp_path / "project"
     workspace.mkdir()
     # Create hooks directory
-    hooks_dir = workspace / ".specify" / "hooks"
+    hooks_dir = workspace / ".flowspec" / "hooks"
     hooks_dir.mkdir(parents=True)
     return workspace
 
@@ -36,7 +36,7 @@ def sample_event(workspace_root: Path) -> Event:
 @pytest.fixture
 def success_script(workspace_root: Path) -> Path:
     """Create a test script that succeeds."""
-    hooks_dir = workspace_root / ".specify" / "hooks"
+    hooks_dir = workspace_root / ".flowspec" / "hooks"
     script = hooks_dir / "success.sh"
     script.write_text("#!/bin/bash\necho 'Success'\nexit 0\n")
     # Make executable
@@ -47,7 +47,7 @@ def success_script(workspace_root: Path) -> Path:
 @pytest.fixture
 def failure_script(workspace_root: Path) -> Path:
     """Create a test script that fails."""
-    hooks_dir = workspace_root / ".specify" / "hooks"
+    hooks_dir = workspace_root / ".flowspec" / "hooks"
     script = hooks_dir / "failure.sh"
     script.write_text("#!/bin/bash\necho 'Error' >&2\nexit 1\n")
     script.chmod(script.stat().st_mode | stat.S_IEXEC)
@@ -57,7 +57,7 @@ def failure_script(workspace_root: Path) -> Path:
 @pytest.fixture
 def timeout_script(workspace_root: Path) -> Path:
     """Create a test script that times out."""
-    hooks_dir = workspace_root / ".specify" / "hooks"
+    hooks_dir = workspace_root / ".flowspec" / "hooks"
     script = hooks_dir / "timeout.sh"
     script.write_text("#!/bin/bash\nsleep 10\necho 'Done'\n")
     script.chmod(script.stat().st_mode | stat.S_IEXEC)
@@ -67,7 +67,7 @@ def timeout_script(workspace_root: Path) -> Path:
 @pytest.fixture
 def event_reader_script(workspace_root: Path) -> Path:
     """Create a test script that reads HOOK_EVENT environment variable."""
-    hooks_dir = workspace_root / ".specify" / "hooks"
+    hooks_dir = workspace_root / ".flowspec" / "hooks"
     script = hooks_dir / "read_event.sh"
     script.write_text("#!/bin/bash\necho $HOOK_EVENT\n")
     script.chmod(script.stat().st_mode | stat.S_IEXEC)
@@ -143,7 +143,7 @@ class TestHookRunner:
         runner = HookRunner(workspace_root=workspace_root)
 
         assert runner.workspace_root == workspace_root
-        assert runner.audit_log_path == workspace_root / ".specify/hooks/audit.log"
+        assert runner.audit_log_path == workspace_root / ".flowspec/hooks/audit.log"
         # Verify audit log directory was created
         assert runner.audit_log_path.parent.exists()
 
@@ -330,7 +330,7 @@ class TestSecurityValidation:
 
     def test_validate_script_path_success(self, workspace_root: Path):
         """Test valid script path passes validation."""
-        hooks_dir = workspace_root / ".specify" / "hooks"
+        hooks_dir = workspace_root / ".flowspec" / "hooks"
         script = hooks_dir / "valid.sh"
         script.write_text("#!/bin/bash\necho 'test'\n")
 
@@ -354,7 +354,7 @@ class TestSecurityValidation:
             runner._validate_script_path("/usr/bin/evil.sh")
 
     def test_validate_script_path_outside_hooks_dir_blocked(self, workspace_root: Path):
-        """Test scripts outside .specify/hooks/ are blocked."""
+        """Test scripts outside .flowspec/hooks/ are blocked."""
         runner = HookRunner(workspace_root=workspace_root)
 
         # Try to escape hooks directory (path traversal caught first)

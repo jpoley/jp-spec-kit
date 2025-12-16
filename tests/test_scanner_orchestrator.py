@@ -27,7 +27,7 @@ from flowspec_cli.security.orchestrator import ScannerOrchestrator
 @pytest.fixture
 def temp_cache_dir(tmp_path):
     """Temporary cache directory for tool discovery."""
-    cache_dir = tmp_path / ".specify" / "tools"
+    cache_dir = tmp_path / ".flowspec" / "tools"
     cache_dir.mkdir(parents=True)
     return cache_dir
 

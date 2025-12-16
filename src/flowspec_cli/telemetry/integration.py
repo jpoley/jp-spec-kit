@@ -255,7 +255,7 @@ def track_command_execution(
 ) -> None:
     """Track a command execution event.
 
-    Called when a /flow or /speckit command is executed.
+    Called when a /flow or /spec command is executed.
 
     Args:
         command: The command being executed (e.g., "/flow:implement")

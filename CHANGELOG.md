@@ -4,7 +4,7 @@
 
 - **File-friendly timestamp in specify-backup path**: Backup directories now include timestamp (`YYYYMMDD-HHMMSS`) format
   - Previous backups are preserved instead of being overwritten
-  - Example: `.specify-backup-20251207-143052/` instead of `.specify-backup/`
+  - Example: `.flowspec-backup-20251207-143052/` instead of `.flowspec-backup/`
   - Enables rollback to any previous backup version
 
 ## [0.2.316] - 2025-12-07
@@ -101,12 +101,12 @@ Flowspec is now a **layered extension** of GitHub's spec-kit, not a fork!
   - `--dry-run` - Preview changes without applying
   - `--templates-only` - Only update templates
   - `--base-version` / `--extension-version` - Pin upgrade versions
-  - Automatic backup to `.specify-backup/` before applying changes
+  - Automatic backup to `.flowspec-backup/` before applying changes
   - Auto-detects AI assistant and script type from project
 
 - **Configuration Files**:
   - `.spec-kit-compatibility.yml` - Version compatibility matrix
-  - `.specify-plugin.yml` - Plugin manifest for future extension system
+  - `.flowspec-plugin.yml` - Plugin manifest for future extension system
 
 - **Repository Configuration Constants**:
   ```python
@@ -212,7 +212,7 @@ See `LAYERED-EXTENSION-ARCHITECTURE.md` for complete details.
 
 ### Changed
 
-- All command files now prefixed with `speckit.` (e.g., `speckit.specify.md`, `speckit.plan.md`) for better discoverability and differentiation in IDE/CLI command palettes and file explorers
+- All command files now prefixed with `speckit.` (e.g., `speckit.flowspec.md`, `speckit.plan.md`) for better discoverability and differentiation in IDE/CLI command palettes and file explorers
 
 ## [0.0.17] - 2025-09-22
 

@@ -36,7 +36,7 @@ def e2e_workspace(tmp_path: Path) -> Path:
     workspace.mkdir()
 
     # Create hooks directory
-    hooks_dir = workspace / ".specify" / "hooks"
+    hooks_dir = workspace / ".flowspec" / "hooks"
     hooks_dir.mkdir(parents=True)
 
     return workspace
@@ -45,7 +45,7 @@ def e2e_workspace(tmp_path: Path) -> Path:
 @pytest.fixture
 def quality_gate_config(e2e_workspace: Path) -> Path:
     """Create realistic quality gate hooks configuration."""
-    hooks_dir = e2e_workspace / ".specify" / "hooks"
+    hooks_dir = e2e_workspace / ".flowspec" / "hooks"
     config_file = hooks_dir / "hooks.yaml"
 
     config_content = """
@@ -105,7 +105,7 @@ hooks:
 @pytest.fixture
 def failing_hook_config(e2e_workspace: Path) -> Path:
     """Create configuration with a failing hook."""
-    hooks_dir = e2e_workspace / ".specify" / "hooks"
+    hooks_dir = e2e_workspace / ".flowspec" / "hooks"
     config_file = hooks_dir / "hooks.yaml"
 
     config_content = """
@@ -144,7 +144,7 @@ hooks:
 @pytest.fixture
 def timeout_hook_config(e2e_workspace: Path) -> Path:
     """Create configuration with a hook that times out."""
-    hooks_dir = e2e_workspace / ".specify" / "hooks"
+    hooks_dir = e2e_workspace / ".flowspec" / "hooks"
     config_file = hooks_dir / "hooks.yaml"
 
     config_content = """
@@ -177,7 +177,7 @@ hooks:
 @pytest.fixture
 def wildcard_hook_config(e2e_workspace: Path) -> Path:
     """Create configuration with wildcard event matching."""
-    hooks_dir = e2e_workspace / ".specify" / "hooks"
+    hooks_dir = e2e_workspace / ".flowspec" / "hooks"
     config_file = hooks_dir / "hooks.yaml"
 
     config_content = """
@@ -269,7 +269,7 @@ class TestFullWorkflowEmitAndExecute:
         assert "All hooks succeeded" in result.stdout
 
         # Step 4: Verify audit log
-        audit_log_path = e2e_workspace / ".specify" / "hooks" / "audit.log"
+        audit_log_path = e2e_workspace / ".flowspec" / "hooks" / "audit.log"
         assert audit_log_path.exists()
 
         audit_lines = audit_log_path.read_text().strip().split("\n")
@@ -333,7 +333,7 @@ class TestFullWorkflowEmitAndExecute:
         assert "notify-slack" in result.stdout
 
         # Verify audit log has both events
-        audit_log_path = e2e_workspace / ".specify" / "hooks" / "audit.log"
+        audit_log_path = e2e_workspace / ".flowspec" / "hooks" / "audit.log"
         audit_lines = audit_log_path.read_text().strip().split("\n")
         assert len(audit_lines) >= 2
 
@@ -366,7 +366,7 @@ class TestDryRunMode:
         assert "DRY RUN MODE" in result.stdout
 
         # Verify no audit log created
-        audit_log_path = e2e_workspace / ".specify" / "hooks" / "audit.log"
+        audit_log_path = e2e_workspace / ".flowspec" / "hooks" / "audit.log"
         assert not audit_log_path.exists()
 
 
@@ -375,7 +375,7 @@ class TestDisabledHooks:
 
     def test_disabled_hook_not_executed(self, e2e_workspace: Path):
         """Test that disabled hooks are not executed."""
-        hooks_dir = e2e_workspace / ".specify" / "hooks"
+        hooks_dir = e2e_workspace / ".flowspec" / "hooks"
         hooks_dir.mkdir(parents=True, exist_ok=True)
 
         config_file = hooks_dir / "hooks.yaml"
@@ -442,7 +442,7 @@ class TestFailModeStop:
         assert "quality-check-strict" in result.stdout
 
         # Verify audit log shows only failed hook, not subsequent ones
-        audit_log_path = e2e_workspace / ".specify" / "hooks" / "audit.log"
+        audit_log_path = e2e_workspace / ".flowspec" / "hooks" / "audit.log"
         audit_lines = audit_log_path.read_text().strip().split("\n")
 
         # Should only have 1 entry (quality-check-strict)
@@ -480,7 +480,7 @@ class TestTimeoutEnforcement:
         assert elapsed_time < 3.0  # Allow some overhead
 
         # Verify audit log shows timeout
-        audit_log_path = e2e_workspace / ".specify" / "hooks" / "audit.log"
+        audit_log_path = e2e_workspace / ".flowspec" / "hooks" / "audit.log"
         audit_lines = audit_log_path.read_text().strip().split("\n")
 
         audit_record = json.loads(audit_lines[0])
@@ -495,7 +495,7 @@ class TestSecurityPathValidation:
 
     def test_path_traversal_blocked(self, e2e_workspace: Path):
         """Test that path traversal in script path is blocked."""
-        hooks_dir = e2e_workspace / ".specify" / "hooks"
+        hooks_dir = e2e_workspace / ".flowspec" / "hooks"
         hooks_dir.mkdir(parents=True, exist_ok=True)
 
         config_file = hooks_dir / "hooks.yaml"
@@ -526,7 +526,7 @@ hooks:
 
     def test_absolute_path_blocked(self, e2e_workspace: Path):
         """Test that absolute paths in script field are blocked."""
-        hooks_dir = e2e_workspace / ".specify" / "hooks"
+        hooks_dir = e2e_workspace / ".flowspec" / "hooks"
         hooks_dir.mkdir(parents=True, exist_ok=True)
 
         config_file = hooks_dir / "hooks.yaml"
@@ -585,7 +585,7 @@ class TestAuditLogIntegrity:
             )
 
         # Verify audit log
-        audit_log_path = e2e_workspace / ".specify" / "hooks" / "audit.log"
+        audit_log_path = e2e_workspace / ".flowspec" / "hooks" / "audit.log"
         audit_lines = audit_log_path.read_text().strip().split("\n")
 
         # Should have entries for:
@@ -697,7 +697,7 @@ class TestScaffoldCreatesValidConfig:
 
     def test_init_creates_valid_hooks_config(self, e2e_workspace: Path):
         """Test that scaffolded hooks.yaml passes validation."""
-        hooks_dir = e2e_workspace / ".specify" / "hooks"
+        hooks_dir = e2e_workspace / ".flowspec" / "hooks"
         hooks_dir.mkdir(parents=True, exist_ok=True)
 
         # Create minimal scaffolded config

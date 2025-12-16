@@ -341,6 +341,6 @@ This constitution then guides all subsequent implementation and validation phase
 
 **Related Documentation**:
 - [Agent Loop Classification](../reference/agent-loop-classification.md)
-- [JP Spec Workflow Reference](../flowspec-workflow-reference.md)
+- [Flowspec Workflow Reference](../flowspec-workflow-reference.md)
 - [Inner Loop Principles](../reference/inner-loop.md)
 - [Outer Loop Principles](../reference/outer-loop.md)

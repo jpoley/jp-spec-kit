@@ -34,7 +34,7 @@ python -c "import yaml; yaml.safe_load(open('flowspec_workflow.yml'))"
 Searched locations:
   - /home/user/project/flowspec_workflow.yml
   - /home/user/project/memory/flowspec_workflow.yml
-  - /home/user/project/.specify/flowspec_workflow.yml
+  - /home/user/project/.flowspec/flowspec_workflow.yml
 ```
 
 **Causes**:

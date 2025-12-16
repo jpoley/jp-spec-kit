@@ -87,7 +87,7 @@ Events include the following context:
 
 ### Hook Integration
 
-These events can trigger hooks defined in `.specify/hooks/hooks.yaml`. For example:
+These events can trigger hooks defined in `.flowspec/hooks/hooks.yaml`. For example:
 
 ```yaml
 version: "1.0"
@@ -209,7 +209,7 @@ bk task edit task-456 -s Done
 Configure hooks to automatically run tests when tasks are completed:
 
 ```yaml
-# .specify/hooks/hooks.yaml
+# .flowspec/hooks/hooks.yaml
 version: "1.0"
 hooks:
   - name: run-tests-on-completion

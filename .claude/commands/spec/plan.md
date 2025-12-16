@@ -1,0 +1,1 @@
+../../../templates/commands/spec/plan.md

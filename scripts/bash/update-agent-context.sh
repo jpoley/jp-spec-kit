@@ -73,7 +73,7 @@ CODEBUDDY_FILE="$REPO_ROOT/CODEBUDDY.md"
 Q_FILE="$REPO_ROOT/AGENTS.md"
 
 # Template file
-TEMPLATE_FILE="$REPO_ROOT/.specify/templates/agent-file-template.md"
+TEMPLATE_FILE="$REPO_ROOT/.flowspec/templates/agent-file-template.md"
 
 # Global variables for parsed plan data
 NEW_LANG=""

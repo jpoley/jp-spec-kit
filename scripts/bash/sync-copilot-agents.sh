@@ -99,7 +99,7 @@ Options:
   --help              Show this help message
 
 Source:
-  - .claude/commands/{flow,speckit}/*.md (legacy workflow commands)
+  - .claude/commands/{flow,spec}/*.md (legacy workflow commands)
   - templates/commands/{role}/*.md (role-based commands)
 Target: .github/agents/{role}-{command}.agent.md or {namespace}-{command}.agent.md
 
@@ -436,7 +436,7 @@ get_handoffs() {
     local command="$2"
 
     # Role-based commands use role-specific handoffs
-    if [[ -n "$role" && "$role" != "flow" && "$role" != "speckit" ]]; then
+    if [[ -n "$role" && "$role" != "flow" && "$role" != "spec" ]]; then
         # Get next logical command in same role
         case "$role" in
             pm)
@@ -691,7 +691,7 @@ tools:
   - "Skill"
 TOOLS
     else
-        # Utility tools (speckit)
+        # Utility tools (spec)
         cat << 'TOOLS'
 tools:
   - "Read"
@@ -938,7 +938,7 @@ generate_vscode_settings() {
       "flow-*": {
         "visibleInRoles": ["all"]
       },
-      "speckit-*": {
+      "spec-*": {
         "visibleInRoles": ["all"]
       }
     }
@@ -962,8 +962,8 @@ cleanup_stale() {
     old_nullglob=$(shopt -p nullglob || true)
     shopt -s nullglob
 
-    # Remove old-format files (flow.*.md and speckit.*.md)
-    for old_file in "$AGENTS_DIR"/flow.*.md "$AGENTS_DIR"/speckit.*.md; do
+    # Remove old-format files (flow.*.md and spec.*.md)
+    for old_file in "$AGENTS_DIR"/flow.*.md "$AGENTS_DIR"/spec.*.md; do
         if [[ -f "$old_file" ]]; then
             if [[ "$FORCE" == true ]]; then
                 rm "$old_file"
@@ -985,7 +985,7 @@ cleanup_stale() {
 
         # Parse role and command from filename
         local role command
-        if [[ "$basename" =~ ^(pm|arch|dev|qa|sec|ops|flow|speckit)-(.+)$ ]]; then
+        if [[ "$basename" =~ ^(pm|arch|dev|qa|sec|ops|flow|spec)-(.+)$ ]]; then
             role="${BASH_REMATCH[1]}"
             command="${BASH_REMATCH[2]}"
         else
@@ -1057,8 +1057,8 @@ main() {
     if [[ -d "$COMMANDS_DIR/flow" ]]; then
         process_namespace "flow" "$COMMANDS_DIR/flow"
     fi
-    if [[ -d "$COMMANDS_DIR/speckit" ]]; then
-        process_namespace "speckit" "$COMMANDS_DIR/speckit"
+    if [[ -d "$COMMANDS_DIR/spec" ]]; then
+        process_namespace "spec" "$COMMANDS_DIR/spec"
     fi
 
     # Process role-based commands from templates/commands/

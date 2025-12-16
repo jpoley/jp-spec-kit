@@ -196,7 +196,7 @@ class AuditLogger:
         log_path: Path to audit log file.
 
     Example:
-        >>> logger = AuditLogger(Path(".specify/hooks/audit.log"))
+        >>> logger = AuditLogger(Path(".flowspec/hooks/audit.log"))
         >>> logger.log_execution({
         ...     "hook_name": "test",
         ...     "timestamp": "2025-12-02T12:34:56.789Z",
@@ -213,7 +213,7 @@ class AuditLogger:
             log_path: Path to audit log file (will be created if needed).
 
         Example:
-            >>> logger = AuditLogger(Path(".specify/hooks/audit.log"))
+            >>> logger = AuditLogger(Path(".flowspec/hooks/audit.log"))
         """
         self.log_path = log_path
         # Ensure log directory exists

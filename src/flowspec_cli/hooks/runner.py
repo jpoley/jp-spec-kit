@@ -1,7 +1,7 @@
 """Hook runner with security sandboxing and audit logging.
 
 This module provides secure execution of hooks with:
-- Script path validation (allowlist: .specify/hooks/ only)
+- Script path validation (allowlist: .flowspec/hooks/ only)
 - Timeout enforcement (SIGTERM then SIGKILL)
 - Environment sanitization
 - Audit logging (JSONL format)
@@ -41,7 +41,7 @@ MAX_TIMEOUT_SECONDS = 600
 DEFAULT_TIMEOUT_SECONDS = 30
 
 # Default audit log location
-DEFAULT_AUDIT_LOG = ".specify/hooks/audit.log"
+DEFAULT_AUDIT_LOG = ".flowspec/hooks/audit.log"
 
 
 @dataclass
@@ -109,7 +109,7 @@ class HookRunner:
     5. Logging execution to audit log
 
     Security features:
-    - Script allowlist: Only scripts in .specify/hooks/ can execute
+    - Script allowlist: Only scripts in .flowspec/hooks/ can execute
     - Timeout enforcement: SIGTERM at timeout, SIGKILL after 5s grace period
     - Environment sanitization: Limited set of environment variables
     - Working directory validation: Must be within project
@@ -136,7 +136,7 @@ class HookRunner:
         Args:
             workspace_root: Project root directory.
             audit_log_path: Path to audit log file (optional). Defaults to
-                workspace_root/.specify/hooks/audit.log.
+                workspace_root/.flowspec/hooks/audit.log.
             security_config: Security configuration (optional). Defaults to
                 default SecurityConfig.
 
@@ -304,10 +304,10 @@ class HookRunner:
         Security checks:
         1. No path traversal (no "..")
         2. Must be relative path
-        3. Must resolve to .specify/hooks/ directory
+        3. Must resolve to .flowspec/hooks/ directory
 
         Args:
-            script: Script path (relative to .specify/hooks/).
+            script: Script path (relative to .flowspec/hooks/).
 
         Returns:
             Absolute path to validated script.
@@ -318,7 +318,7 @@ class HookRunner:
         Example:
             >>> runner = HookRunner(workspace_root=Path("/project"))
             >>> path = runner._validate_script_path("test.sh")
-            >>> assert path == Path("/project/.specify/hooks/test.sh")
+            >>> assert path == Path("/project/.flowspec/hooks/test.sh")
         """
         # Check for path traversal
         if ".." in script:
@@ -329,7 +329,7 @@ class HookRunner:
             raise ValueError(f"Script must be relative path, got: {script}")
 
         # Resolve path relative to hooks directory
-        hooks_dir = self.workspace_root / ".specify" / "hooks"
+        hooks_dir = self.workspace_root / ".flowspec" / "hooks"
         script_path = (hooks_dir / script).resolve()
 
         # Verify path is within hooks directory
@@ -337,7 +337,7 @@ class HookRunner:
             script_path.relative_to(hooks_dir)
         except ValueError:
             raise ValueError(
-                f"Script must be in .specify/hooks/, got: {script}"
+                f"Script must be in .flowspec/hooks/, got: {script}"
             ) from None
 
         # Check script exists

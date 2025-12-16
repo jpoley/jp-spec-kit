@@ -42,7 +42,7 @@ DEFAULT_SCHEMA_PATHS = [
     "schemas/flowspec_workflow.schema.json",  # v2.0+ (preferred)
     "memory/flowspec_workflow.schema.json",
     "memory/flowspec_workflow.schema.json",  # v1.x (legacy)
-    ".specify/flowspec_workflow.schema.json",
+    ".flowspec/flowspec_workflow.schema.json",
 ]
 
 
@@ -115,7 +115,7 @@ class WorkflowConfig:
         1. Explicit path (if provided)
         2. Current working directory (flowspec_workflow.yml)
         3. memory/ directory
-        4. .specify/ directory
+        4. .flowspec/ directory
 
         Args:
             path: Explicit path to config file. If not provided, searches
@@ -613,8 +613,8 @@ class WorkflowConfig:
             if candidate.exists():
                 return candidate
 
-            # Check .specify/ directory
-            candidate = cwd / ".specify" / name
+            # Check .flowspec/ directory
+            candidate = cwd / ".flowspec" / name
             searched.append(str(candidate))
             if candidate.exists():
                 return candidate

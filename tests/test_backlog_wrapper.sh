@@ -54,8 +54,8 @@ setup_test_env() {
     backlog config set remoteOperations false >/dev/null 2>&1
 
     # Initialize specify hooks (minimal config)
-    mkdir -p .specify/hooks
-    cat > .specify/hooks/hooks.yaml <<'EOF'
+    mkdir -p .flowspec/hooks
+    cat > .flowspec/hooks/hooks.yaml <<'EOF'
 version: "1.0"
 hooks: []
 EOF
@@ -122,14 +122,14 @@ test_task_created_event() {
     test_start "Wrapper emits task.created on task create"
 
     # Clear any existing audit log
-    rm -f .specify/hooks/audit.log
+    rm -f .flowspec/hooks/audit.log
 
     # Create a task
     "$BK_WRAPPER" task create "Test task for event" >/dev/null 2>&1
 
     # Check if event was emitted (audit log should exist and contain task.created)
-    if [[ -f .specify/hooks/audit.log ]]; then
-        if grep -q "task.created" .specify/hooks/audit.log; then
+    if [[ -f .flowspec/hooks/audit.log ]]; then
+        if grep -q "task.created" .flowspec/hooks/audit.log; then
             test_pass
             return 0
         else
@@ -158,14 +158,14 @@ test_status_changed_event() {
     fi
 
     # Clear audit log
-    rm -f .specify/hooks/audit.log
+    rm -f .flowspec/hooks/audit.log
 
     # Change status to In Progress
     "$BK_WRAPPER" task edit "$TASK_ID" -s "In Progress" >/dev/null 2>&1
 
     # Check if event was emitted
-    if [[ -f .specify/hooks/audit.log ]]; then
-        if grep -q "task.status_changed" .specify/hooks/audit.log; then
+    if [[ -f .flowspec/hooks/audit.log ]]; then
+        if grep -q "task.status_changed" .flowspec/hooks/audit.log; then
             test_pass
             return 0
         else
@@ -193,14 +193,14 @@ test_task_completed_event() {
     fi
 
     # Clear audit log
-    rm -f .specify/hooks/audit.log
+    rm -f .flowspec/hooks/audit.log
 
     # Mark as Done
     "$BK_WRAPPER" task edit "$TASK_ID" -s "Done" >/dev/null 2>&1
 
     # Check if task.completed event was emitted (NOT task.status_changed)
-    if [[ -f .specify/hooks/audit.log ]]; then
-        if grep -q "task.completed" .specify/hooks/audit.log; then
+    if [[ -f .flowspec/hooks/audit.log ]]; then
+        if grep -q "task.completed" .flowspec/hooks/audit.log; then
             test_pass
             return 0
         else
@@ -228,14 +228,14 @@ test_ac_checked_event() {
     fi
 
     # Clear audit log
-    rm -f .specify/hooks/audit.log
+    rm -f .flowspec/hooks/audit.log
 
     # Check AC
     "$BK_WRAPPER" task edit "$TASK_ID" --check-ac 1 >/dev/null 2>&1
 
     # Check if event was emitted
-    if [[ -f .specify/hooks/audit.log ]]; then
-        if grep -q "task.ac_checked" .specify/hooks/audit.log; then
+    if [[ -f .flowspec/hooks/audit.log ]]; then
+        if grep -q "task.ac_checked" .flowspec/hooks/audit.log; then
             test_pass
             return 0
         else
@@ -254,18 +254,18 @@ test_no_events_on_failure() {
     test_start "Wrapper does not emit events when backlog command fails"
 
     # Clear audit log
-    rm -f .specify/hooks/audit.log
+    rm -f .flowspec/hooks/audit.log
 
     # Run a failing command (task edit returns non-zero for missing tasks)
     "$BK_WRAPPER" task edit nonexistent-task -s "Done" >/dev/null 2>&1 || true
 
     # Audit log should not be created or should be empty
-    if [[ ! -f .specify/hooks/audit.log ]]; then
+    if [[ ! -f .flowspec/hooks/audit.log ]]; then
         test_pass
         return 0
     else
         # Check if it's empty (no new entries)
-        if [[ ! -s .specify/hooks/audit.log ]]; then
+        if [[ ! -s .flowspec/hooks/audit.log ]]; then
             test_pass
             return 0
         else
