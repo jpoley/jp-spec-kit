@@ -162,20 +162,20 @@ generate_commands() {
       body=$(printf '%s\n' "$body" | sed "s/{ARGS}/$arg_format/g" | sed "s/__AGENT__/$agent/g" | rewrite_paths)
 
       # For md-based agents (Claude, Cursor, etc.), use subdirectory structure for colon-namespacing
-      # e.g., .claude/commands/flowspec/init.md -> /flow:init
+      # e.g., .claude/commands/flow/init.md -> /flow:init
       # For toml-based agents (Gemini, Qwen), use dot notation in filename
-      # e.g., .gemini/commands/flowspec.init.toml -> /flowspec.init
+      # e.g., .gemini/commands/flow.init.toml -> /flow.init
       case $ext in
         toml)
           body=$(printf '%s\n' "$body" | sed 's/\\/\\\\/g')
-          { echo "description = \"$description\""; echo; echo "prompt = \"\"\""; echo "$body"; echo "\"\"\""; } > "$output_dir/flowspec.$name.$ext" ;;
+          { echo "description = \"$description\""; echo; echo "prompt = \"\"\""; echo "$body"; echo "\"\"\""; } > "$output_dir/flow.$name.$ext" ;;
         md)
-          # Create flowspec subdirectory for colon-namespaced commands
-          mkdir -p "$output_dir/flowspec"
-          echo "$body" > "$output_dir/flowspec/$name.$ext" ;;
+          # Create flow subdirectory for colon-namespaced commands
+          mkdir -p "$output_dir/flow"
+          echo "$body" > "$output_dir/flow/$name.$ext" ;;
         prompt.md)
           # GitHub Copilot uses dot notation in filenames
-          echo "$body" > "$output_dir/flowspec.$name.$ext" ;;
+          echo "$body" > "$output_dir/flow.$name.$ext" ;;
       esac
     done
   fi

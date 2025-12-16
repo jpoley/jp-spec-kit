@@ -2257,6 +2257,50 @@ def download_template_from_github(
     return zip_path, metadata
 
 
+def _cleanup_legacy_speckit_files(project_path: Path, ai_assistants: list[str]) -> None:
+    """Remove legacy speckit.* files from base spec-kit after flowspec overlay.
+
+    The base spec-kit uses flat speckit.* file naming (e.g., speckit.specify.md)
+    in the commands directory. The flowspec extension uses a spec/ subdirectory
+    structure (e.g., spec/specify.md) which provides the /spec:* command namespace.
+
+    After the flowspec extension overlays the base, both structures exist:
+    - .claude/commands/speckit.*.md (legacy, should be removed)
+    - .claude/commands/spec/*.md (flowspec, should remain)
+
+    This function removes the legacy files to avoid confusion.
+    """
+    # Map of AI assistant to their commands directory
+    agent_command_dirs = {
+        "claude": ".claude/commands",
+        "cursor-agent": ".cursor/commands",
+        "gemini": ".gemini/commands",
+        "copilot": ".github/prompts",
+        "qwen": ".qwen/commands",
+        "opencode": ".opencode/command",
+        "windsurf": ".windsurf/workflows",
+        "codex": ".codex/prompts",
+        "kilocode": ".kilocode/workflows",
+        "auggie": ".augment/commands",
+        "roo": ".roo/commands",
+        "codebuddy": ".codebuddy/commands",
+        "q": ".amazonq/prompts",
+    }
+
+    for agent in ai_assistants:
+        if agent not in agent_command_dirs:
+            continue
+
+        commands_dir = project_path / agent_command_dirs[agent]
+        if not commands_dir.exists():
+            continue
+
+        # Find and remove legacy speckit.* files
+        for item in commands_dir.iterdir():
+            if item.is_file() and item.name.startswith("speckit."):
+                item.unlink()
+
+
 def download_and_extract_two_stage(
     project_path: Path,
     ai_assistants: str | list[str],
@@ -2484,6 +2528,11 @@ def download_and_extract_two_stage(
         # Always clean up extension zip after extraction attempt
         if ext_zip and ext_zip.exists():
             ext_zip.unlink()
+
+    # Clean up legacy speckit.* files from base spec-kit that are now in spec/ directory
+    # The flowspec extension uses spec/ subdirectory (e.g., .claude/commands/spec/specify.md)
+    # but the base spec-kit may have flat speckit.* files (e.g., .claude/commands/speckit.specify.md)
+    _cleanup_legacy_speckit_files(project_path, ai_assistants)
 
     return project_path
 
