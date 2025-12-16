@@ -20,7 +20,7 @@ This command analyzes the repository structure to detect languages, frameworks, 
 
 ### Overview
 
-The `/speckit:constitution` command:
+The `/spec:constitution` command:
 1. Scans repository for technology stack indicators
 2. Detects languages, frameworks, tooling, and development practices
 3. Writes structured findings to `memory/repo-facts.md`
@@ -280,7 +280,7 @@ build_tools:
 
 # Repository Facts
 
-**Generated**: YYYY-MM-DD by `/speckit:constitution` command
+**Generated**: YYYY-MM-DD by `/spec:constitution` command
 
 This document contains automatically detected repository characteristics. LLM agents reference this file for project context.
 
@@ -368,7 +368,7 @@ This document contains automatically detected repository characteristics. LLM ag
 ## Notes
 
 - This document is auto-generated and should be reviewed for accuracy
-- Re-run `/speckit:constitution` after major tooling changes
+- Re-run `/spec:constitution` after major tooling changes
 ```
 
 **Important guidelines**:
@@ -560,10 +560,10 @@ Run this to find all validation markers:
    - Customized constitution with detected tech stack
    - Created structured repository facts for LLM agents
 
-   Generated via /speckit:constitution command"
+   Generated via /spec:constitution command"
 
 💡 TIP: If tier seems wrong, override with:
-   /speckit:constitution --tier {light|medium|heavy}
+   /spec:constitution --tier {light|medium|heavy}
 ```
 
 **Adapt summary to actual findings**:
@@ -604,7 +604,7 @@ Run this to find all validation markers:
 - If very few technologies detected, still create repo-facts.md
 - Note that analysis found limited tooling
 - Default to "light" tier
-- Suggest running `/speckit:constitution` again after setup
+- Suggest running `/spec:constitution` again after setup
 
 **Scenario: Invalid --tier flag value**
 - If user provides `--tier` with invalid value (not light/medium/heavy)

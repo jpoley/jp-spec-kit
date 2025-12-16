@@ -567,7 +567,7 @@ def test_clear_creates_backup(temp_workspace, sample_memories):
     assert "Backup created" in result.stdout
 
     # Verify backup exists
-    backup_dir = temp_workspace / ".specify" / "backups"
+    backup_dir = temp_workspace / ".flowspec" / "backups"
     backups = list(backup_dir.glob("task-389.*.bak"))
     assert len(backups) > 0
 
@@ -589,7 +589,7 @@ def test_clear_no_backup(temp_workspace, sample_memories):
     assert result.exit_code == 0
 
     # Verify no backup was created
-    backup_dir = temp_workspace / ".specify" / "backups"
+    backup_dir = temp_workspace / ".flowspec" / "backups"
     if backup_dir.exists():
         backups = list(backup_dir.glob("task-389.*.bak"))
         assert len(backups) == 0

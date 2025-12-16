@@ -1,5 +1,5 @@
 ---
-name: "speckit-tasks"
+name: "spec-tasks"
 description: "Generate an actionable, dependency-ordered task backlog for the feature based on available design artifacts."
 target: "chat"
 tools:

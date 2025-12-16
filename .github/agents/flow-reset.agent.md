@@ -212,12 +212,12 @@ If `--constitution` or `--all` flag is provided:
 
 3. Copy the selected tier template to `memory/constitution.md`
 
-4. Suggest running `/speckit:constitution` for full customization:
+4. Suggest running `/spec:constitution` for full customization:
    ```
    Constitution template installed.
 
    For full customization with auto-detected tech stack, run:
-     /speckit:constitution --tier {selected_tier}
+     /spec:constitution --tier {selected_tier}
    ```
 
 ### Step 6: Display Summary

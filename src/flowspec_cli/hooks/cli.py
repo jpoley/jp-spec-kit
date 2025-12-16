@@ -233,7 +233,7 @@ def hooks_validate(
         None,
         "--file",
         "-f",
-        help="Config file to validate (default: .specify/hooks/hooks.yaml)",
+        help="Config file to validate (default: .flowspec/hooks/hooks.yaml)",
     ),
     project_root: Optional[str] = typer.Option(
         None,
@@ -255,7 +255,7 @@ def hooks_validate(
         flowspec hooks validate
 
         # Validate specific config file
-        flowspec hooks validate -f .specify/hooks/custom.yaml
+        flowspec hooks validate -f .flowspec/hooks/custom.yaml
 
         # Validate in different project directory
         flowspec hooks validate --project-root /path/to/project
@@ -266,7 +266,7 @@ def hooks_validate(
         config_path = Path(file)
         console.print(f"[cyan]Validating:[/cyan] {config_path}")
     else:
-        config_path_rel = ".specify/hooks/hooks.yaml"
+        config_path_rel = ".flowspec/hooks/hooks.yaml"
         config_path = workspace_root / config_path_rel
         console.print(f"[cyan]Validating:[/cyan] {config_path_rel}")
 
@@ -328,7 +328,7 @@ def hooks_list(
         config = load_hooks_config(project_root=workspace_root)
     except HooksConfigNotFoundError:
         console.print("[yellow]No hooks configuration found[/yellow]")
-        console.print("[dim]Create .specify/hooks/hooks.yaml to configure hooks[/dim]")
+        console.print("[dim]Create .flowspec/hooks/hooks.yaml to configure hooks[/dim]")
         raise typer.Exit(0)
     except (HooksConfigError, HooksSecurityError) as e:
         console.print(f"[red]Error loading hooks config:[/red] {e}")
@@ -413,7 +413,7 @@ def hooks_audit(
         flowspec hooks audit --json
     """
     workspace_root = Path(project_root) if project_root else Path.cwd()
-    audit_log_path = workspace_root / ".specify" / "hooks" / "audit.log"
+    audit_log_path = workspace_root / ".flowspec" / "hooks" / "audit.log"
 
     if not audit_log_path.exists():
         console.print("[yellow]No audit log found[/yellow]")

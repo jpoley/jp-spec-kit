@@ -1,11 +1,11 @@
 """Hook configuration parser and loader.
 
 This module provides functions to load, parse, and validate hook configurations
-from .specify/hooks/hooks.yaml. Includes security validation to prevent
+from .flowspec/hooks/hooks.yaml. Includes security validation to prevent
 path traversal and other attacks.
 
 Example:
-    >>> config = load_hooks_config(".specify/hooks/hooks.yaml")
+    >>> config = load_hooks_config(".flowspec/hooks/hooks.yaml")
     >>> matching = config.get_matching_hooks(event)
     >>> for hook in matching:
     ...     print(f"Running hook: {hook.name}")
@@ -22,8 +22,8 @@ from .schema import HooksConfig, HOOKS_CONFIG_JSON_SCHEMA
 
 # Default locations to search for hooks.yaml
 DEFAULT_HOOKS_CONFIG_PATHS = [
-    ".specify/hooks/hooks.yaml",
-    ".specify/hooks/hooks.yml",
+    ".flowspec/hooks/hooks.yaml",
+    ".flowspec/hooks/hooks.yml",
 ]
 
 
@@ -99,7 +99,7 @@ def load_hooks_config(
 
     Example:
         >>> config = load_hooks_config()
-        >>> config = load_hooks_config(".specify/hooks/hooks.yaml")
+        >>> config = load_hooks_config(".flowspec/hooks/hooks.yaml")
         >>> config = load_hooks_config(validate_schema=False)
     """
     if project_root is None:
@@ -221,7 +221,7 @@ def _validate_security(hooks_config: HooksConfig, project_root: Path) -> None:
     """Validate security constraints for all hooks.
 
     Checks:
-    - Script paths are within .specify/hooks/ (no path traversal)
+    - Script paths are within .flowspec/hooks/ (no path traversal)
     - Timeouts are within allowed range
     - Environment variables don't contain shell metacharacters
 
@@ -232,7 +232,7 @@ def _validate_security(hooks_config: HooksConfig, project_root: Path) -> None:
     Raises:
         HooksSecurityError: If security validation fails.
     """
-    hooks_dir = project_root / ".specify" / "hooks"
+    hooks_dir = project_root / ".flowspec" / "hooks"
 
     for hook in hooks_config.hooks:
         # Validate script path
@@ -258,7 +258,7 @@ def _validate_script_path(script: str, hooks_dir: Path, hook_name: str) -> None:
 
     Args:
         script: Script path (relative to hooks_dir).
-        hooks_dir: Hooks directory (.specify/hooks/).
+        hooks_dir: Hooks directory (.flowspec/hooks/).
         hook_name: Hook name (for error messages).
 
     Raises:
@@ -281,7 +281,7 @@ def _validate_script_path(script: str, hooks_dir: Path, hook_name: str) -> None:
         script_path = (hooks_dir / script).resolve()
         if not script_path.is_relative_to(hooks_dir):
             raise HooksSecurityError(
-                f"Hook '{hook_name}' script must be in .specify/hooks/, got: {script}"
+                f"Hook '{hook_name}' script must be in .flowspec/hooks/, got: {script}"
             )
     except (ValueError, OSError) as e:
         raise HooksSecurityError(
@@ -412,7 +412,7 @@ def validate_hooks_config_file(
         errors.append(f"Duplicate hook names found: {', '.join(set(duplicates))}")
 
     # Check script files exist
-    hooks_dir = project_root / ".specify" / "hooks"
+    hooks_dir = project_root / ".flowspec" / "hooks"
     for hook in hooks_config.hooks:
         if hook.script is not None:
             script_path = hooks_dir / hook.script

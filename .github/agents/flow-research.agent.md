@@ -83,7 +83,7 @@ else
   echo ""
   echo "To create one:"
   echo "  1. Run: flowspec init --here"
-  echo "  2. Then: Run /speckit:constitution to customize"
+  echo "  2. Then: Run /spec:constitution to customize"
   echo ""
   echo "Proceeding without constitution..."
 fi
@@ -121,7 +121,7 @@ If `TIER = Light` and `MARKER_COUNT > 0`:
 ⚠️ Constitution has N unvalidated sections:
 $SECTIONS
 
-Consider running /speckit:constitution to customize your constitution.
+Consider running /spec:constitution to customize your constitution.
 
 Proceeding with command...
 ```
@@ -142,7 +142,7 @@ Medium tier projects should validate their constitution before workflow commands
 
 Options:
   1. Continue anyway (y/N)
-  2. Run /speckit:constitution to customize
+  2. Run /spec:constitution to customize
   3. Run flowspec constitution validate to check status
 
 Continue without validation? [y/N]: _
@@ -152,7 +152,7 @@ Wait for user response:
 - If user responds `y` or `yes` -> Continue with command
 - If user responds `n`, `no`, or empty/Enter -> Stop and show:
   ```text
-  Command cancelled. Run /speckit:constitution to customize your constitution.
+  Command cancelled. Run /spec:constitution to customize your constitution.
   ```
 
 #### Heavy Tier - Block Until Validated
@@ -168,7 +168,7 @@ $SECTIONS
 Heavy tier constitutions require full validation before workflow commands.
 
 To resolve:
-  1. Run /speckit:constitution to customize your constitution
+  1. Run /spec:constitution to customize your constitution
   2. Run flowspec constitution validate to verify
   3. Remove all NEEDS_VALIDATION markers
 
@@ -249,7 +249,7 @@ You **MUST** consider the user input before proceeding (if not empty).
 | Command | Purpose |
 |---------|---------|
 | `flowspec init --here` | Initialize constitution if missing |
-| `/speckit:constitution` | Interactive constitution customization |
+| `/spec:constitution` | Interactive constitution customization |
 | `flowspec constitution validate` | Check validation status and show report |
 | `flowspec constitution show` | Display current constitution |
 

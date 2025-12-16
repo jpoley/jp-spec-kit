@@ -16,12 +16,12 @@ Custom rules allow you to:
 
 Semgrep rules are YAML-based pattern matching rules.
 
-**Location**: `.specify/security/rules/` or `.semgrep/`
+**Location**: `.flowspec/security/rules/` or `.semgrep/`
 
 **Example**: Detect hardcoded AWS keys
 
 ```yaml
-# .specify/security/rules/aws-keys.yml
+# .flowspec/security/rules/aws-keys.yml
 rules:
   - id: hardcoded-aws-access-key
     pattern: AKIA[A-Z0-9]{16}
@@ -48,12 +48,12 @@ rules:
 
 Bandit plugins are Python modules that extend the scanner.
 
-**Location**: `.specify/security/bandit/`
+**Location**: `.flowspec/security/bandit/`
 
 **Example**: Detect unsafe deserialization
 
 ```python
-# .specify/security/bandit/unsafe_yaml.py
+# .flowspec/security/bandit/unsafe_yaml.py
 import bandit
 from bandit.core import issue
 from bandit.core import test_properties as test
@@ -157,13 +157,13 @@ rules:
 ### Enable Custom Rules
 
 ```yaml
-# .specify/security.yml
+# .flowspec/security.yml
 scanners:
   semgrep:
     enabled: true
     config:
       - auto  # OWASP ruleset
-      - .specify/security/rules/  # Custom rules
+      - .flowspec/security/rules/  # Custom rules
     exclude_rules:
       - generic.secrets.security.detected-generic-api-key
 ```
@@ -172,7 +172,7 @@ scanners:
 
 Rules are applied in order:
 1. Built-in rules (auto)
-2. Custom rules (.specify/security/rules/)
+2. Custom rules (.flowspec/security/rules/)
 3. Exclusions applied last
 
 ## Testing Custom Rules
@@ -181,19 +181,19 @@ Rules are applied in order:
 
 ```bash
 # Test rule against file
-semgrep --config .specify/security/rules/my-rule.yml src/
+semgrep --config .flowspec/security/rules/my-rule.yml src/
 
 # Test with verbose output
-semgrep --config .specify/security/rules/my-rule.yml src/ --verbose
+semgrep --config .flowspec/security/rules/my-rule.yml src/ --verbose
 
 # Validate rule syntax
-semgrep --validate --config .specify/security/rules/my-rule.yml
+semgrep --validate --config .flowspec/security/rules/my-rule.yml
 ```
 
 ### Creating Test Cases
 
 ```yaml
-# .specify/security/rules/my-rule.yml
+# .flowspec/security/rules/my-rule.yml
 rules:
   - id: unsafe-eval
     pattern: eval($X)
@@ -202,7 +202,7 @@ rules:
     languages:
       - python
 
-# Test file: .specify/security/rules/my-rule.test.py
+# Test file: .flowspec/security/rules/my-rule.test.py
 # ruleid: unsafe-eval
 eval(user_input)
 
@@ -213,7 +213,7 @@ ast.literal_eval(safe_input)
 Run tests:
 
 ```bash
-semgrep --test .specify/security/rules/
+semgrep --test .flowspec/security/rules/
 ```
 
 ## Common Rule Patterns
@@ -316,28 +316,28 @@ rules:
 
 1. **Create rule file**:
    ```bash
-   mkdir -p .specify/security/rules
-   vim .specify/security/rules/company-rules.yml
+   mkdir -p .flowspec/security/rules
+   vim .flowspec/security/rules/company-rules.yml
    ```
 
 2. **Test locally**:
    ```bash
-   flowspec security scan --config .specify/security/rules/
+   flowspec security scan --config .flowspec/security/rules/
    ```
 
 3. **Add to configuration**:
    ```yaml
-   # .specify/security.yml
+   # .flowspec/security.yml
    scanners:
      semgrep:
        config:
          - auto
-         - .specify/security/rules/
+         - .flowspec/security/rules/
    ```
 
 4. **Commit and use**:
    ```bash
-   git add .specify/security/rules/
+   git add .flowspec/security/rules/
    git commit -m "Add custom security rules"
    flowspec security scan
    ```

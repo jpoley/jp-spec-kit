@@ -51,4 +51,4 @@ sdd-*/
 task-*-worktree
 
 # Backup files from specify
-.specify/backups/
+.flowspec/backups/

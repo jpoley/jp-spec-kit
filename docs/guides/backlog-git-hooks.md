@@ -146,7 +146,7 @@ The hook only processes:
 
 ## Integration with Flowspec Hooks
 
-Events emitted by this git hook trigger matching flowspec hooks configured in `.specify/hooks/hooks.yaml`:
+Events emitted by this git hook trigger matching flowspec hooks configured in `.flowspec/hooks/hooks.yaml`:
 
 ```yaml
 hooks:

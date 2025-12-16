@@ -5,7 +5,7 @@ security scanning tools in multiple locations:
 
 1. System PATH
 2. Project virtual environment (.venv)
-3. Tool cache (~/.specify/tools)
+3. Tool cache (~/.flowspec/tools)
 
 See ADR-005 for architectural decisions.
 """
@@ -38,9 +38,9 @@ class ToolDiscovery:
         """Initialize tool discovery.
 
         Args:
-            cache_dir: Directory to cache downloaded tools (default: ~/.specify/tools).
+            cache_dir: Directory to cache downloaded tools (default: ~/.flowspec/tools).
         """
-        self.cache_dir = cache_dir or Path.home() / ".specify" / "tools"
+        self.cache_dir = cache_dir or Path.home() / ".flowspec" / "tools"
         self.cache_dir.mkdir(parents=True, exist_ok=True)
 
     def find_tool(self, tool_name: str) -> Path | None:
@@ -49,7 +49,7 @@ class ToolDiscovery:
         Searches in order:
         1. System PATH
         2. Project virtual environment
-        3. Tool cache (~/.specify/tools)
+        3. Tool cache (~/.flowspec/tools)
 
         Args:
             tool_name: Name of the tool to find (e.g., "semgrep").

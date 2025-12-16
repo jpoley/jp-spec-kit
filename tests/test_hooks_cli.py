@@ -28,7 +28,7 @@ runner = CliRunner()
 @pytest.fixture
 def temp_workspace(tmp_path):
     """Create temporary workspace with hooks directory."""
-    hooks_dir = tmp_path / ".specify" / "hooks"
+    hooks_dir = tmp_path / ".flowspec" / "hooks"
     hooks_dir.mkdir(parents=True)
     return tmp_path
 
@@ -36,7 +36,7 @@ def temp_workspace(tmp_path):
 @pytest.fixture
 def sample_hooks_config(temp_workspace):
     """Create sample hooks.yaml for testing."""
-    hooks_dir = temp_workspace / ".specify" / "hooks"
+    hooks_dir = temp_workspace / ".flowspec" / "hooks"
     config_file = hooks_dir / "hooks.yaml"
 
     config_content = """
@@ -70,7 +70,7 @@ hooks:
 @pytest.fixture
 def sample_audit_log(temp_workspace):
     """Create sample audit log."""
-    audit_log_path = temp_workspace / ".specify" / "hooks" / "audit.log"
+    audit_log_path = temp_workspace / ".flowspec" / "hooks" / "audit.log"
     logger = AuditLogger(audit_log_path)
 
     # Add sample entries
@@ -276,7 +276,7 @@ def test_validate_missing_config(temp_workspace):
 
 def test_validate_invalid_config(temp_workspace):
     """Test validation with invalid YAML."""
-    hooks_dir = temp_workspace / ".specify" / "hooks"
+    hooks_dir = temp_workspace / ".flowspec" / "hooks"
     hooks_dir.mkdir(parents=True, exist_ok=True)
     config_file = hooks_dir / "hooks.yaml"
 
@@ -299,7 +299,7 @@ def test_validate_invalid_config(temp_workspace):
 
 def test_validate_missing_script(temp_workspace):
     """Test validation when script file doesn't exist."""
-    hooks_dir = temp_workspace / ".specify" / "hooks"
+    hooks_dir = temp_workspace / ".flowspec" / "hooks"
     hooks_dir.mkdir(parents=True, exist_ok=True)
     config_file = hooks_dir / "hooks.yaml"
 
@@ -352,7 +352,7 @@ def test_list_hooks(temp_workspace, sample_hooks_config):
 
 def test_list_no_hooks(temp_workspace):
     """Test listing when no hooks configured."""
-    hooks_dir = temp_workspace / ".specify" / "hooks"
+    hooks_dir = temp_workspace / ".flowspec" / "hooks"
     hooks_dir.mkdir(parents=True, exist_ok=True)
     config_file = hooks_dir / "hooks.yaml"
 
@@ -470,7 +470,7 @@ def test_audit_no_log(temp_workspace):
 
 def test_audit_empty_log(temp_workspace):
     """Test audit with empty log file."""
-    audit_log_path = temp_workspace / ".specify" / "hooks" / "audit.log"
+    audit_log_path = temp_workspace / ".flowspec" / "hooks" / "audit.log"
     audit_log_path.parent.mkdir(parents=True, exist_ok=True)
     audit_log_path.touch()
 
@@ -512,7 +512,7 @@ def test_test_hook_success(temp_workspace, sample_hooks_config):
 
 def test_test_hook_failure(temp_workspace):
     """Test testing a hook that fails."""
-    hooks_dir = temp_workspace / ".specify" / "hooks"
+    hooks_dir = temp_workspace / ".flowspec" / "hooks"
     hooks_dir.mkdir(parents=True, exist_ok=True)
 
     # Create failing hook
@@ -566,7 +566,7 @@ def test_test_hook_not_found(temp_workspace, sample_hooks_config):
 
 def test_test_hook_with_output(temp_workspace):
     """Test hook that produces stdout/stderr."""
-    hooks_dir = temp_workspace / ".specify" / "hooks"
+    hooks_dir = temp_workspace / ".flowspec" / "hooks"
     hooks_dir.mkdir(parents=True, exist_ok=True)
 
     # Create hook with output
@@ -675,7 +675,7 @@ def test_emit_creates_audit_entry(temp_workspace, sample_hooks_config):
     assert result.exit_code == 0
 
     # Check audit log was created
-    audit_log_path = temp_workspace / ".specify" / "hooks" / "audit.log"
+    audit_log_path = temp_workspace / ".flowspec" / "hooks" / "audit.log"
     assert audit_log_path.exists()
 
     # Verify audit entry

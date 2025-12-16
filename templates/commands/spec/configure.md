@@ -1,14 +1,7 @@
 ---
-name: "speckit-configure"
-description: "Configure or reconfigure workflow settings including role selection and validation modes"
-target: "chat"
-tools:
-  - "Read"
-  - "Write"
-  - "Grep"
-  - "Glob"
-  - "mcp__backlog__*"
+description: Configure or reconfigure workflow settings including role selection and validation modes
 ---
+
 ## User Input
 
 ```text
@@ -23,7 +16,7 @@ This command allows users to reconfigure project settings including role selecti
 
 ### Overview
 
-The `/speckit:configure` command:
+The `/spec:configure` command:
 1. Re-prompts for role selection (optional)
 2. Re-prompts for validation mode on each workflow transition (optional)
 3. Regenerates or updates `flowspec_workflow.yml` with new settings
@@ -53,7 +46,7 @@ Before proceeding, verify this is a valid flowspec project:
 # Check for project markers
 if [ ! -f "flowspec_workflow.yml" ] && [ ! -f "flowspec_workflow.yml" ] && [ ! -d ".claude" ]; then
   echo "Error: This doesn't appear to be a flowspec project"
-  echo "Run '/speckit:init' first to initialize the project"
+  echo "Run '/spec:init' first to initialize the project"
   exit 1
 fi
 ```
@@ -292,12 +285,12 @@ If `--constitution` or `--all` flag is provided:
 
 3. Copy the selected tier template to `memory/constitution.md`
 
-4. Suggest running `/speckit:constitution` for full customization:
+4. Suggest running `/spec:constitution` for full customization:
    ```
    Constitution template installed.
 
    For full customization with auto-detected tech stack, run:
-     /speckit:constitution --tier {selected_tier}
+     /spec:constitution --tier {selected_tier}
    ```
 
 ### Step 7: Display Summary
@@ -366,40 +359,40 @@ operate                  {MODE}
 
 • Override role per session: export FLOWSPEC_PRIMARY_ROLE=<role>
 • See all commands: Set show_all_commands: true in flowspec_workflow.yml
-• Reconfigure anytime: /speckit:configure
-• Change just role: /speckit:configure --role <new_role>
-• Reset validation modes: /speckit:configure --all
+• Reconfigure anytime: /spec:configure
+• Change just role: /spec:configure --role <new_role>
+• Reset validation modes: /spec:configure --all
 ```
 
 ### Non-Interactive Modes
 
 **Change role only** (fast):
 ```bash
-/speckit:configure --role dev
+/spec:configure --role dev
 # Output: Role updated to 💻 Developer
 ```
 
 **Set all validation modes**:
 ```bash
-/speckit:configure --validation-mode none
+/spec:configure --validation-mode none
 # Sets all transitions to NONE
 ```
 
 **No prompts mode**:
 ```bash
-/speckit:configure --no-prompts
+/spec:configure --no-prompts
 # Uses current role, NONE for all validations
 ```
 
 **Full reconfiguration**:
 ```bash
-/speckit:configure --all
+/spec:configure --all
 # Prompts for role, validation modes, and constitution
 ```
 
 ### Error Handling
 
-- **Not in project directory**: Show error and suggest `/speckit:init`
+- **Not in project directory**: Show error and suggest `/spec:init`
 - **Invalid role value**: Show valid options (pm, arch, dev, sec, qa, ops, all)
 - **Invalid validation mode**: Show valid options (none, keyword, pull-request)
 - **Invalid constitution tier**: Show valid options (light, medium, heavy)
@@ -455,7 +448,7 @@ After successful role configuration, track the selection for analytics (if telem
 
 ```bash
 # Track role selection event silently (will be no-op if telemetry disabled)
-flowspec telemetry track-role "{selected_role}" --command /speckit:configure -q
+flowspec telemetry track-role "{selected_role}" --command /spec:configure -q
 ```
 
 Replace `{selected_role}` with the role that was selected (dev, pm, qa, etc.).

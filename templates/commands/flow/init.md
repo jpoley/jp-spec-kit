@@ -82,7 +82,7 @@ fi
 If constitution exists and `--force` is not set:
 1. Display current constitution tier
 2. Ask if user wants to replace, customize, or abort
-3. If customize, suggest `/speckit:constitution` for detailed customization
+3. If customize, suggest `/spec:constitution` for detailed customization
 
 ### Step 3: Tech Stack Analysis (Brownfield)
 
@@ -312,7 +312,7 @@ Look for NEEDS_VALIDATION markers:
 4. Start your first workflow:
    /flow:assess <feature-name>
 
-💡 TIP: Run '/speckit:constitution' for more detailed customization
+💡 TIP: Run '/spec:constitution' for more detailed customization
 ```
 
 ### Greenfield vs Brownfield Differences
@@ -355,7 +355,7 @@ Choice [1]: _
 ### Integration with Existing Commands
 
 - **After init**: Run `/flow:assess <feature>` to start workflow
-- **To customize more**: Run `/speckit:constitution` for detailed customization
+- **To customize more**: Run `/spec:constitution` for detailed customization
 - **To reconfigure workflow**: Run `/flow:reset`
 - **CLI equivalent**: `flowspec init --here --constitution {tier}`
 

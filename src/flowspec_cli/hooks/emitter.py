@@ -72,7 +72,7 @@ class EventEmitter:
         Args:
             workspace_root: Project root directory.
             config: Pre-loaded hooks configuration (optional). If not provided,
-                configuration will be loaded from workspace_root/.specify/hooks/hooks.yaml.
+                configuration will be loaded from workspace_root/.flowspec/hooks/hooks.yaml.
             dry_run: If True, log hooks without executing them (for testing).
 
         Example:

@@ -8,7 +8,7 @@ Approved Directories:
 - docs/           - Documentation files
 - backlog/        - Task management files
 - templates/      - Template files
-- .specify/       - Flowspec configuration
+- .flowspec/       - Flowspec configuration
 
 Also approves:
 - Bash commands using the 'backlog' CLI tool
@@ -27,7 +27,7 @@ SAFE_READ_DIRECTORIES = [
     "docs/",
     "backlog/",
     "templates/",
-    ".specify/",
+    ".flowspec/",
     ".github/prompts/",  # GitHub prompts for slash commands
     "memory/",  # Memory/constitution files
 ]

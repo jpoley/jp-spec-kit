@@ -150,7 +150,7 @@ LLM-based detection analyzes file patterns and package.json/requirements.txt but
 **Prevention**:
 - Keep devDependencies clean (remove unused tools)
 - Document tool choices in constitution
-- Run `/speckit:constitution` after major tool changes
+- Run `/spec:constitution` after major tool changes
 
 ---
 
@@ -303,7 +303,7 @@ $ grep -n "NEEDS_VALIDATION" memory/constitution.md
 cp memory/constitution.md memory/constitution.md.backup
 
 # Re-run LLM customization
-/speckit:constitution
+/spec:constitution
 
 # Merge your custom content back
 ```
@@ -859,10 +859,10 @@ jobs:
 
 ---
 
-### Problem: `/speckit:constitution` command not available in Claude
+### Problem: `/spec:constitution` command not available in Claude
 
 **Symptoms**:
-- Typing `/speckit:constitution` does nothing
+- Typing `/spec:constitution` does nothing
 - Command not in slash command menu
 - LLM doesn't customize constitution
 
@@ -881,7 +881,7 @@ ls -la .claude/
 
 # Should contain:
 # .claude/commands/
-# .claude/commands/speckit/constitution.md
+# .claude/commands/spec/constitution.md
 
 # If missing, initialize:
 flowspec init --here
@@ -891,7 +891,7 @@ flowspec init --here
 
 ```bash
 # Check constitution command template exists
-cat .claude/commands/speckit/constitution.md
+cat .claude/commands/spec/constitution.md
 
 # Should show slash command implementation
 ```
@@ -907,17 +907,17 @@ cat .claude/commands/speckit/constitution.md
 
 ```bash
 # Manually create command from template
-mkdir -p .claude/commands/speckit
-cp templates/commands/speckit/constitution.md .claude/commands/speckit/
+mkdir -p .claude/commands/spec
+cp templates/commands/spec/constitution.md .claude/commands/spec/
 
 # Verify
-ls -la .claude/commands/speckit/
-cat .claude/commands/speckit/constitution.md
+ls -la .claude/commands/spec/
+cat .claude/commands/spec/constitution.md
 ```
 
 **Alternative: Manual LLM customization:**
 
-If `/speckit:constitution` unavailable, manually ask LLM:
+If `/spec:constitution` unavailable, manually ask LLM:
 
 ```
 Please analyze my project and customize memory/constitution.md:
@@ -979,7 +979,7 @@ flowspec init my-project --constitution medium   # New project with tier
 flowspec init --here                             # Add to existing project
 
 # LLM customization
-/speckit:constitution                           # Run LLM detection
+/spec:constitution                           # Run LLM detection
 
 # Upgrade
 flowspec upgrade                                 # Upgrade Flowspec
@@ -997,7 +997,7 @@ templates/constitutions/                # Template source files
   ├── constitution-light.md
   ├── constitution-medium.md
   └── constitution-heavy.md
-.claude/commands/speckit/constitution.md # /speckit:constitution command
+.claude/commands/spec/constitution.md # /spec:constitution command
 ```
 
 ### Exit Codes

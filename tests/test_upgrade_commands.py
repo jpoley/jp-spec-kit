@@ -522,8 +522,8 @@ class TestVersionHint:
         with patch("flowspec_cli.get_all_component_versions") as mock_versions:
             mock_versions.return_value = {
                 "jp_spec_kit": {"installed": "1.0.0", "available": "2.0.0"},
-                "spec_kit": {"installed": "1.0.0", "available": "2.0.0"},
                 "backlog_md": {"installed": "1.0.0", "available": "2.0.0"},
+                "beads": {"installed": "1.0.0", "available": "2.0.0"},
             }
             # version command (no --detail flag, it shows detailed by default)
             result = runner.invoke(app, ["version"])

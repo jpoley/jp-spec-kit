@@ -488,7 +488,7 @@ def clear(
 
     # Create backup if requested
     if not no_backup:
-        backup_dir = workspace_root / ".specify" / "backups"
+        backup_dir = workspace_root / ".flowspec" / "backups"
         backup_dir.mkdir(parents=True, exist_ok=True)
 
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -1061,7 +1061,7 @@ def template_cmd(
     builtin_templates = (
         Path(__file__).parent.parent.parent.parent / "templates" / "memory"
     )
-    project_templates = workspace_root / ".specify" / "templates" / "memory"
+    project_templates = workspace_root / ".flowspec" / "templates" / "memory"
 
     # Built-in template definitions
     templates = {

@@ -66,7 +66,7 @@ MARKER_COUNT=$(grep -c "NEEDS_VALIDATION" memory/constitution.md)
   - Section 2 name
   - Section 3 name
 
-Consider running /speckit:constitution to customize your constitution.
+Consider running /spec:constitution to customize your constitution.
 
 Proceeding with command...
 ```
@@ -87,7 +87,7 @@ Medium tier projects should validate their constitution before workflow commands
 
 Options:
   1. Continue anyway (y/N)
-  2. Run /speckit:constitution to customize
+  2. Run /spec:constitution to customize
   3. Run flowspec constitution validate to check status
 
 Continue without validation? [y/N]: _
@@ -95,7 +95,7 @@ Continue without validation? [y/N]: _
 
 Wait for user input:
 - `y` or `yes` → Proceed with command
-- `n`, `no`, or empty → Stop, suggest `/speckit:constitution`
+- `n`, `no`, or empty → Stop, suggest `/spec:constitution`
 
 ### Heavy Tier
 **Action**: Block execution until validated
@@ -112,7 +112,7 @@ Your constitution has N unvalidated sections:
 Heavy tier constitutions require full validation before workflow commands.
 
 To resolve:
-  1. Run /speckit:constitution to customize your constitution
+  1. Run /spec:constitution to customize your constitution
   2. Run flowspec constitution validate to verify
   3. Remove all NEEDS_VALIDATION markers
 
@@ -180,7 +180,7 @@ User: /flow:specify "Add payment integration"
   - Technology stack choices
   - Quality standards and test coverage
 
-Consider running /speckit:constitution to customize your constitution.
+Consider running /spec:constitution to customize your constitution.
 
 Proceeding with command...
 
@@ -224,7 +224,7 @@ Your constitution has 5 unvalidated sections:
 Heavy tier constitutions require full validation before workflow commands.
 
 To resolve:
-  1. Run /speckit:constitution to customize your constitution
+  1. Run /spec:constitution to customize your constitution
   2. Run flowspec constitution validate to verify
   3. Remove all NEEDS_VALIDATION markers
 
@@ -250,7 +250,7 @@ Guide users to these commands for resolution:
 | Command | Purpose |
 |---------|---------|
 | `flowspec init --here` | Initialize constitution if missing |
-| `/speckit:constitution` | Interactive constitution customization |
+| `/spec:constitution` | Interactive constitution customization |
 | `flowspec constitution validate` | Check validation status |
 | `flowspec constitution show` | Display current constitution |
 
@@ -318,7 +318,7 @@ Instead:
 To create one:
   1. Run: flowspec init --here
   2. Or: Copy templates/constitutions/light.md to memory/constitution.md
-  3. Then: Run /speckit:constitution to customize
+  3. Then: Run /spec:constitution to customize
 ```
 
 ### Tier Comment Missing

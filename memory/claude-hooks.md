@@ -107,7 +107,7 @@ Runs automated quality gates before `/flow:implement` can proceed. Ensures speci
   Recommendations:
   - Add missing section: ## User Story
   - Reduce vague terms (currently: 12 instances)
-  → Improve spec quality using /speckit:clarify
+  → Improve spec quality using /spec:clarify
 
 Run with --skip-quality-gates to bypass (NOT RECOMMENDED).
 ```

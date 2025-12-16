@@ -1,5 +1,5 @@
 ---
-description: Execute planning workflow using project architect and platform engineer agents (builds out /speckit.constitution).
+description: Execute planning workflow using project architect and platform engineer agents (builds out /spec.constitution).
 ---
 
 ## User Input
@@ -40,7 +40,7 @@ Continue with the workflow below, but:
 
 ## Execution Instructions
 
-This command creates comprehensive architectural and platform planning using two specialized agents working in parallel, building out /speckit.constitution.
+This command creates comprehensive architectural and platform planning using two specialized agents working in parallel, building out /spec.constitution.
 
 {{INCLUDE:.claude/commands/flow/_constitution-check.md}}
 
@@ -207,7 +207,7 @@ Apply Gregor Hohpe's architectural principles and create:
    - Consumption (Developer Experience)
    - Credibility (Reliability)
 
-5. **For /speckit.constitution - Architectural Principles**
+5. **For /spec.constitution - Architectural Principles**
    - Core architectural constraints
    - Design patterns and anti-patterns
    - Integration standards
@@ -381,7 +381,7 @@ Apply DevOps/Platform Engineering best practices and create:
    - Alerting strategy
    - Dashboard design
 
-6. **For /speckit.constitution - Platform Principles**
+6. **For /spec.constitution - Platform Principles**
    - Platform engineering standards
    - Infrastructure as Code requirements
    - CI/CD best practices
@@ -400,7 +400,7 @@ After both agents complete:
    - Resolve any conflicts or gaps
    - Ensure alignment between layers
 
-2. **Build /speckit.constitution**
+2. **Build /spec.constitution**
    - Architectural principles and constraints
    - Platform engineering standards
    - Infrastructure requirements
@@ -412,7 +412,7 @@ After both agents complete:
 3. **Deliverables**
    - Complete system architecture document
    - Platform and infrastructure design
-   - Updated /speckit.constitution
+   - Updated /spec.constitution
    - ADRs for key decisions
    - Implementation readiness assessment
 

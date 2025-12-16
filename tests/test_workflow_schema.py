@@ -403,7 +403,7 @@ class TestCommandPatternValidation:
 
     def test_invalid_command_wrong_prefix(self, schema, valid_config):
         """Test command with wrong prefix fails."""
-        valid_config["workflows"]["specify"]["command"] = "/speckit:specify"
+        valid_config["workflows"]["specify"]["command"] = "/spec:specify"
         with pytest.raises(ValidationError) as exc_info:
             validate(instance=valid_config, schema=schema)
         # Error message varies by jsonschema version

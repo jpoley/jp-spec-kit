@@ -143,11 +143,11 @@ class ToolManager:
         """Initialize tool manager.
 
         Args:
-            cache_dir: Directory to cache tools (default: ~/.specify/tools).
+            cache_dir: Directory to cache tools (default: ~/.flowspec/tools).
             offline_mode: If True, only use cached tools, no network access.
             tool_configs: Custom tool configurations (default: built-in configs).
         """
-        self.cache_dir = cache_dir or Path.home() / ".specify" / "tools"
+        self.cache_dir = cache_dir or Path.home() / ".flowspec" / "tools"
         self.offline_mode = offline_mode
         self.tool_configs = tool_configs or DEFAULT_TOOL_CONFIGS.copy()
         self._ensure_cache_dir()

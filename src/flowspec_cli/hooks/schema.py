@@ -1,7 +1,7 @@
 """Hook definition schema for flowspec hooks.
 
 This module defines the structure and validation logic for hook definitions
-in .specify/hooks/hooks.yaml. Hooks define event matchers, execution methods,
+in .flowspec/hooks/hooks.yaml. Hooks define event matchers, execution methods,
 and security constraints.
 
 Example:
@@ -171,7 +171,7 @@ class HookDefinition:
     Attributes:
         name: Unique hook identifier
         events: List of event matchers (OR semantics)
-        script: Path to executable script (relative to .specify/hooks/)
+        script: Path to executable script (relative to .flowspec/hooks/)
         command: Inline shell command
         webhook: Webhook configuration (v2 feature)
         description: Human-readable description

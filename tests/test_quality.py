@@ -82,8 +82,8 @@ class TestQualityConfig:
         assert config.completeness_weight == 0.35
 
     def test_find_config_in_specify_dir(self, tmp_path):
-        """Test finding config in .specify directory."""
-        specify_dir = tmp_path / ".specify"
+        """Test finding config in .flowspec directory."""
+        specify_dir = tmp_path / ".flowspec"
         specify_dir.mkdir()
 
         config_file = specify_dir / "quality-config.json"

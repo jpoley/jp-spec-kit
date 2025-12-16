@@ -268,7 +268,7 @@ flowspec hooks validate
 
 ## Security
 
-- Scripts must be in `.specify/hooks/` directory
+- Scripts must be in `.flowspec/hooks/` directory
 - Timeout enforced (default: 30s)
 - All executions are audit logged
 - Scripts run in sandboxed environment
@@ -289,7 +289,7 @@ def scaffold_hooks(project_root: Path, no_hooks: bool = False) -> list[Path]:
     Returns:
         List of paths to created files
     """
-    hooks_dir = project_root / ".specify" / "hooks"
+    hooks_dir = project_root / ".flowspec" / "hooks"
     hooks_dir.mkdir(parents=True, exist_ok=True)
 
     created = []

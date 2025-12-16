@@ -16,14 +16,14 @@ cd my-project
 ```
 
 This creates:
-- `.specify/hooks/` directory
+- `.flowspec/hooks/` directory
 - `hooks.yaml` configuration with examples
 - Example hook scripts (disabled by default)
 - `README.md` with quick reference
 
 ### 2. Review Example Hooks
 
-Open `.specify/hooks/hooks.yaml` to see the example hooks:
+Open `.flowspec/hooks/hooks.yaml` to see the example hooks:
 
 ```yaml
 hooks:
@@ -255,7 +255,7 @@ MESSAGE=$(echo "$HOOK_EVENT" | jq -r '.context.status_message // ""')
 TIMESTAMP=$(echo "$HOOK_EVENT" | jq -r '.timestamp')
 
 # Append to progress summary with file locking for concurrent safety
-SUMMARY_FILE=".specify/hooks/progress-summary.log"
+SUMMARY_FILE=".flowspec/hooks/progress-summary.log"
 LOCK_FILE="$SUMMARY_FILE.lock"
 (
   flock -x 200
@@ -378,7 +378,7 @@ flowspec hooks test quality-gate spec.created --spec-id my-feature
 flowspec hooks validate
 
 # Validate specific config file
-flowspec hooks validate -f .specify/hooks/custom.yaml
+flowspec hooks validate -f .flowspec/hooks/custom.yaml
 ```
 
 ## Configuration Options
@@ -401,7 +401,7 @@ defaults:
     - pattern: "spec.*"   # Regex pattern
 
   # Execution method (choose one)
-  script: my-script.sh     # Script in .specify/hooks/
+  script: my-script.sh     # Script in .flowspec/hooks/
   # OR
   command: "npm test"      # Inline command
 
@@ -437,12 +437,12 @@ Example:
 ## Security
 
 ### Sandboxing
-- Scripts must be in `.specify/hooks/` directory
+- Scripts must be in `.flowspec/hooks/` directory
 - Cannot execute scripts outside this directory
 - Timeout enforced (default: 30s, max: 600s)
 
 ### Audit Logging
-- All hook executions are logged to `.specify/hooks/audit.log`
+- All hook executions are logged to `.flowspec/hooks/audit.log`
 - Includes timestamp, success/failure, duration, exit code
 - View with `flowspec hooks audit`
 
@@ -459,7 +459,7 @@ Example:
 ### Hook not executing
 1. Check `enabled: true` in hooks.yaml
 2. Verify event type matches
-3. Check script is executable: `chmod +x .specify/hooks/my-script.sh`
+3. Check script is executable: `chmod +x .flowspec/hooks/my-script.sh`
 4. Validate config: `flowspec hooks validate`
 
 ### Hook failing

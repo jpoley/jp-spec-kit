@@ -503,7 +503,7 @@ def track_role_command(
     Events are only recorded if telemetry is enabled.
 
     Examples:
-        flowspec telemetry track-role dev --command /speckit:configure
+        flowspec telemetry track-role dev --command /spec:configure
         flowspec telemetry track-role pm -c /flow:init -q
     """
     root = Path(project_root) if project_root else Path.cwd()
