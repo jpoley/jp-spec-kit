@@ -1,8 +1,8 @@
-# JP Flowspec - Layered Extension Architecture
+# Flowspec - Layered Extension Architecture
 
 ## Overview
 
-JP Flowspec has been transformed from a fork into a **layered extension** of GitHub's spec-kit. This architecture allows you to:
+Flowspec has been transformed from a fork into a **layered extension** of GitHub's spec-kit. This architecture allows you to:
 
 - ✅ **Stay current** with upstream spec-kit features
 - ✅ **Add custom** agents, stacks, and workflows  
@@ -18,14 +18,14 @@ JP Flowspec has been transformed from a fork into a **layered extension** of Git
 ┌─────────────────────────────────────────┐
 │  Your Project                           │
 │  ┌───────────────────────────────────┐  │
-│  │ JP Flowspec Extension (Layer 2)  │  │  ← Custom flowspec commands
-│  │ • flow:* commands               │  │  ← Multi-language support  
+│  │ flowspec Extension (Layer 2).     │  │  ← Custom flowspec commands
+│  │ • flow:* commands                 │  │  ← Multi-language support  
 │  │ • .languages/ expertise           │  │  ← Expert personas
 │  │ • Multi-agent workflows           │  │  ← Advanced orchestration
 │  └───────────────────────────────────┘  │
 │           ↓ Overlays on top of ↓        │
 │  ┌───────────────────────────────────┐  │
-│  │ Base Flowspec (Layer 1)          │  │  ← Core /speckit.* commands
+│  │ Base Flowspec (Layer 1)           │  │  ← Core /speckit.* commands
 │  │ • /speckit.* commands             │  │  ← Standard templates
 │  │ • Core templates                  │  │  ← Setup scripts
 │  │ • Setup scripts                   │  │
@@ -39,7 +39,7 @@ JP Flowspec has been transformed from a fork into a **layered extension** of Git
 
 #### 1. **Repository Configuration** (Step 1)
 
-Added constants in `src/specify_cli/__init__.py`:
+Added constants in `src/flowspec_cli/__init__.py`:
 
 ```python
 # Repository configuration for two-stage download
@@ -251,7 +251,7 @@ flowspec init my-project --ai claude
 
 # Result:
 # - Base spec-kit templates from github/spec-kit
-# - JP spec-kit extension overlay from jpoley/flowspec
+# - Flowspec extension overlay from jpoley/flowspec
 # - Both /speckit.* and /flow:* commands available
 ```
 
@@ -335,7 +335,7 @@ flowspec upgrade
 flowspec upgrade --base-version 0.0.20 --extension-version 0.0.20
 ```
 
-### If You're New to JP Flowspec
+### If You're New to Flowspec
 
 Just use the standard workflow:
 ```bash
@@ -345,7 +345,7 @@ flowspec init my-project --ai claude
 
 You automatically get:
 - ✅ Base spec-kit features
-- ✅ JP spec-kit extensions
+- ✅ Flowspec extensions
 - ✅ Ability to upgrade both
 
 ## Technical Details
@@ -530,7 +530,7 @@ flowspec upgrade --debug
 
 ## Summary
 
-JP Flowspec is now a **true layered extension** that:
+Flowspec is now a **true layered extension** that:
 
 1. ✅ Downloads base spec-kit from `github/spec-kit`
 2. ✅ Overlays flowspec extensions from `jpoley/flowspec`

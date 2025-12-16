@@ -37,7 +37,7 @@ This is the single most important architectural constraint. Any implementation t
 
 ## 1. Workflow Independence
 
-**The Muckross Security Platform is NOT part of the core JP Spec workflow.**
+**The Muckross Security Platform is NOT part of the core Flowspec workflow.**
 
 This security scanning capability is an **optional, standalone feature** that can be used independently of the standard `/flow:specify → /flow:plan → /flow:implement` workflow.
 
@@ -116,7 +116,7 @@ This security scanning capability is an **optional, standalone feature** that ca
 
 ```
 1. Developer runs scan (Python subprocess):
-   $ specify security scan
+   $ flowspec security scan
    → Semgrep executes
    → Writes findings to docs/security/findings.json
 
@@ -149,10 +149,10 @@ This security scanning capability is an **optional, standalone feature** that ca
 
 | Aspect | Details |
 |--------|---------|
-| **Location** | `src/specify_cli/commands/` |
+| **Location** | `src/flowspec_cli/commands/` |
 | **Execution** | Python code, no LLM |
 | **Purpose** | Automation, CI/CD, scripting |
-| **Example** | `specify security scan` |
+| **Example** | `flowspec security scan` |
 | **Use in** | GitHub Actions, pre-commit hooks, Docker |
 
 **Characteristics:**
@@ -185,7 +185,7 @@ This security scanning capability is an **optional, standalone feature** that ca
 
 | Command | Type | Purpose |
 |---------|------|---------|
-| `specify security scan` | CLI | Run security scanners |
+| `flowspec security scan` | CLI | Run security scanners |
 | `/flow:security_scan` | Agentic | Invoke scan with context |
 | `/flow:security_triage` | Agentic | AI-powered triage |
 | `/flow:security_fix` | Agentic | Generate security fixes |
@@ -208,7 +208,7 @@ This security scanning capability is an **optional, standalone feature** that ca
 ```yaml
 # GitHub Actions - CORRECT
 - name: Run Security Scan
-  run: specify security scan --fail-on critical,high
+  run: flowspec security scan --fail-on critical,high
 
 # GitHub Actions - WRONG (would fail)
 - name: Run Security Triage
@@ -333,7 +333,7 @@ async def get_triage_guidelines() -> Resource:
 ### 5.1 MCP Server Implementation
 
 ```python
-# src/specify_cli/security/mcp_server.py
+# src/flowspec_cli/security/mcp_server.py
 from mcp.server import Server
 from mcp.types import Tool, Resource, TextContent
 from pathlib import Path
@@ -658,7 +658,7 @@ Explanation: Use parameterized queries to prevent SQL injection.
 **CRITICAL: CI/CD pipelines use CLI commands ONLY, never agentic commands.**
 
 **GitHub Actions workflow runs:**
-1. `specify security scan` - CLI command (Python runs Semgrep, deterministic)
+1. `flowspec security scan` - CLI command (Python runs Semgrep, deterministic)
 2. Upload SARIF to GitHub Security tab
 3. **NO AI triage** (that happens locally with AI coding tool)
 4. **NO LLM API calls** (no AI dependencies in pipeline)
@@ -696,7 +696,7 @@ jobs:
         run: |
           # CLI command: deterministic, no LLM, safe for CI/CD
           # ONLY run scanner. NO AI triage.
-          specify security scan \
+          flowspec security scan \
             --format sarif \
             --output security-results.sarif \
             --fail-on critical,high
@@ -731,7 +731,7 @@ jobs:
 
 ```bash
 # 1. Developer runs scan (CLI command - deterministic)
-$ specify security scan
+$ flowspec security scan
 
 # 2. Developer asks AI tool to triage (agentic command - LLM-powered)
 $ # In Claude Code:
@@ -759,7 +759,7 @@ $ git commit -m "fix: apply security patches"
 ```
 
 **Key distinction:**
-- **CLI commands** (`specify security scan`): Deterministic, safe for CI/CD
+- **CLI commands** (`flowspec security scan`): Deterministic, safe for CI/CD
 - **Agentic commands** (`/flow:security_triage`): LLM-powered, local development only
 
 ---
@@ -791,7 +791,7 @@ RUN uv tool install flowspec-cli
 
 WORKDIR /src
 
-ENTRYPOINT ["specify", "security", "scan"]
+ENTRYPOINT ["flowspec", "security", "scan"]
 CMD ["--help"]
 ```
 
@@ -831,7 +831,7 @@ CMD ["--help"]
 ```python
 # tests/security/test_mcp_server.py
 import pytest
-from specify_cli.security.mcp_server import SecurityScannerMCPServer
+from flowspec_cli.security.mcp_server import SecurityScannerMCPServer
 
 def test_security_scan_tool_returns_scanner_results():
     """Test that security_scan tool runs Semgrep and returns findings."""
@@ -912,7 +912,7 @@ Manual validation: Run skill, compare output to fixture, adjust skill if needed.
 ### 9.2 Metrics Implementation
 
 ```python
-# src/specify_cli/security/metrics.py
+# src/flowspec_cli/security/metrics.py
 from prometheus_client import Histogram, Counter, Gauge
 
 SCAN_DURATION = Histogram(
@@ -1002,7 +1002,7 @@ MCP_TOOL_INVOCATIONS.labels(tool_name='security_triage').inc()
 
 1. **Create GitHub Actions workflow** for security scanning
    - Install Semgrep
-   - Run `specify security scan` (CLI command - deterministic)
+   - Run `flowspec security scan` (CLI command - deterministic)
    - Upload SARIF to GitHub Security tab
    - **NO agentic commands in CI/CD** (no `/flow:security_triage`)
    - **NO AI triage in CI/CD** (happens locally with AI tool)
@@ -1012,7 +1012,7 @@ MCP_TOOL_INVOCATIONS.labels(tool_name='security_triage').inc()
    - Developer downloads and uses AI tool locally for triage
 
 **Acceptance Criteria (CORRECTED):**
-- CI/CD runs CLI commands only (`specify security scan`)
+- CI/CD runs CLI commands only (`flowspec security scan`)
 - No agentic commands in CI/CD (no `/flow:*` commands)
 - No AI triage in pipeline
 - No API keys or LLM dependencies in CI/CD
@@ -1140,7 +1140,7 @@ MCP_TOOL_INVOCATIONS.labels(tool_name='security_triage').inc()
 **Implementation Plan:**
 
 1. **Pre-commit Hook** for fast local scanning
-   - Run `specify security scan --fast` (CLI command) on commit
+   - Run `flowspec security scan --fast` (CLI command) on commit
    - **NO agentic commands in pre-commit hook** (too slow, requires LLM)
    - **NO AI triage in pre-commit hook** (happens separately with AI tool)
 
@@ -1149,7 +1149,7 @@ MCP_TOOL_INVOCATIONS.labels(tool_name='security_triage').inc()
    - Usage examples
 
 **Acceptance Criteria (CORRECTED):**
-- Pre-commit hook runs CLI command only (`specify security scan --fast`)
+- Pre-commit hook runs CLI command only (`flowspec security scan --fast`)
 - No agentic commands in pre-commit hook
 - No AI triage in pre-commit hook
 - Hook completes in < 10 seconds (deterministic scanner execution)
@@ -1180,11 +1180,11 @@ MCP_TOOL_INVOCATIONS.labels(tool_name='security_triage').inc()
 ```
 1. Developer writes code
    ↓
-2. Pre-commit hook runs `specify security scan --fast` (CLI - deterministic)
+2. Pre-commit hook runs `flowspec security scan --fast` (CLI - deterministic)
    ↓
 3. Developer pushes to branch
    ↓
-4. CI/CD runs `specify security scan --incremental` (CLI - deterministic)
+4. CI/CD runs `flowspec security scan --incremental` (CLI - deterministic)
    ↓
 5. CI/CD uploads SARIF to GitHub Security tab
    ↓
@@ -1226,13 +1226,13 @@ MCP_TOOL_INVOCATIONS.labels(tool_name='security_triage').inc()
 - Step 16: AI tool executes security-fix skill with `/flow:security_fix` (LLM-powered)
 
 **AI does NOT happen in (CLI commands only):**
-- Pre-commit hooks (step 2) - CLI: `specify security scan --fast`
-- CI/CD pipelines (step 4-5) - CLI: `specify security scan --incremental`
+- Pre-commit hooks (step 2) - CLI: `flowspec security scan --fast`
+- CI/CD pipelines (step 4-5) - CLI: `flowspec security scan --incremental`
 - MCP server (step 9-10, 14-15) - Returns instructions, doesn't execute AI
-- Docker image (scanner execution) - CLI: `specify security scan`
+- Docker image (scanner execution) - CLI: `flowspec security scan`
 
 **Command types:**
-- **CLI (deterministic)**: `specify security scan` - Safe for automation
+- **CLI (deterministic)**: `flowspec security scan` - Safe for automation
 - **Agentic (LLM-powered)**: `/flow:security_triage`, `/flow:security_fix` - Local development only
 
 ---
@@ -1270,7 +1270,7 @@ Before declaring any implementation complete, verify:
 - [ ] No API key handling in environment variables or config
 - [ ] No LLM API calls in MCP server code
 - [ ] No agentic commands (no `/flow:*`) in CI/CD pipelines
-- [ ] CI/CD uses CLI commands only (`specify security scan`)
+- [ ] CI/CD uses CLI commands only (`flowspec security scan`)
 - [ ] Skills exist in `.claude/skills/` directory with `@import memory/security/*.md`
 - [ ] Memory files exist in `memory/security/` directory
 - [ ] MCP server exposes `security://knowledge/*` resources
@@ -1298,7 +1298,7 @@ Before declaring any implementation complete, verify:
 
 **CI/CD Changes:**
 1. Remove AI triage (agentic commands) from GitHub Actions workflow
-2. Use CLI commands only (`specify security scan`)
+2. Use CLI commands only (`flowspec security scan`)
 3. Remove API key secrets from GitHub Actions
 4. Upload findings artifact for local triage with AI tool
 5. Document "CLI only, no LLM" in pipeline

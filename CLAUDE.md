@@ -230,11 +230,11 @@ backlog task edit task-42 --check-ac 1  # Check ACs progressively
 
 **Key rule**: Never run `/flow:implement` without first running `/flow:specify` to create tasks.
 
-See [JP Spec + Backlog.md Integration Guide](docs/guides/flowspec-backlog-workflow.md) for complete details.
+See [Flowspec + Backlog.md Integration Guide](docs/guides/flowspec-backlog-workflow.md) for complete details.
 
 ### Workflow Documentation
 
-- [JP Spec + Backlog.md Integration](docs/guides/flowspec-backlog-workflow.md) - Complete integration guide
+- [Flowspec + Backlog.md Integration](docs/guides/flowspec-backlog-workflow.md) - Complete integration guide
 - [Workflow State Mapping](docs/guides/workflow-state-mapping.md) - State and command mapping
 - [Workflow Customization Guide](docs/guides/workflow-customization.md) - How to modify workflows
 - [Workflow Architecture](docs/guides/workflow-architecture.md) - Overall design

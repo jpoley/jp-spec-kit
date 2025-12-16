@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@galway'
 created_date: '2025-12-03 14:01'
-updated_date: '2025-12-15 02:17'
+updated_date: '2025-12-16 16:39'
 labels:
   - bug
   - documentation
@@ -35,7 +35,7 @@ Original scope (architecture docs) merged into this fix.
 - [x] #2 Update docs.yml workflow footer branding
 - [x] #3 Rename all Specflow references in docs/ to flowspec
 - [x] #4 Update JP Spec/flowspec references to flowspec where appropriate
-- [ ] #5 Verify docs build locally with docfx
+- [x] #5 Verify docs build locally with docfx
 - [x] #6 Document GitHub Pages environment protection rule fix needed
 <!-- AC:END -->
 
@@ -60,4 +60,18 @@ Original scope (architecture docs) merged into this fix.
 Alternatively, use "No restriction" if you want all branches/tags to deploy.
 
 **After fixing**: Re-run the failed docs workflow or create a new release to trigger deployment.
+
+## Branding Cleanup Completed (2025-12-16)
+
+Fixed the following files:
+- **CLAUDE.md**: Updated JP Spec + Backlog.md Integration references to Flowspec
+- **LAYERED-EXTENSION-ARCHITECTURE.md**: Fixed JP Flowspec/JP spec-kit references, updated src/specify_cli paths to src/flowspec_cli
+- **muckross-security-platform-plan-v2.md**: Fixed JP Spec workflow reference, updated all specify CLI commands to flowspec
+- **backlog-user-guide.md**: Fixed JP Spec Integration Guide link, updated specify tasks generate to flowspec
+- **CONTRIBUTING.md**: Fixed spec-kit reference to Flowspec
+- **design-command-migration-path.md**: Updated all specify migrate-commands to flowspec migrate-commands
+
+Decisions documented in: docs/decisions/task-279-branding-cleanup.jsonl
+
+Branch: 279-doc-branding-cleanup
 <!-- SECTION:NOTES:END -->

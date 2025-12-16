@@ -38,16 +38,16 @@ Here are a few things you can do that will increase the likelihood of your pull 
 
 ## Development workflow
 
-When working on spec-kit:
+When working on Flowspec:
 
-1. Test changes with the `specify` CLI commands (`/speckit.flowspec`, `/speckit.plan`, `/speckit.tasks`) in your coding agent of choice
+1. Test changes with the `flowspec` CLI commands (`/flow.spec`, `/flow.plan`, `/flow.tasks`) in your coding agent of choice
 2. Verify templates are working correctly in `templates/` directory
 3. Test script functionality in the `scripts/` directory
 4. Ensure memory files (`memory/constitution.md`) are updated if major process changes are made
 
 ## Development Setup for flowspec
 
-flowspec can use its own `/speckit.*` and `/flow:*` commands during development. This ensures developers test the same commands that users receive.
+flowspec can use its own `/flow:*` commands during development. This ensures developers test the same commands that users receive.
 
 ### Quick Setup
 
@@ -103,7 +103,7 @@ For complete details, see [Dev-Setup Consistency Guide](docs/reference/dev-setup
 
 Once set up, you can use these commands in Claude Code:
 
-**Spec-Kit Commands** (via symlinks):
+**Spec-Kit Commands** ():
 - `/speckit:specify` - Create feature specifications
 - `/speckit:plan` - Create implementation plans
 - `/speckit:tasks` - Generate task breakdowns
@@ -113,7 +113,7 @@ Once set up, you can use these commands in Claude Code:
 - `/speckit:clarify` - Clarify underspecified areas
 - `/speckit:constitution` - Work with project constitution
 
-**JP Spec-Kit Commands** (already available):
+** flowspec Commands** (already available):
 - `/flow:specify` - Product requirements management
 - `/flow:plan` - Architecture planning
 - `/flow:research` - Market research

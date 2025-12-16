@@ -187,7 +187,7 @@ backlog task create "T001: Create User model" \
 
 ```bash
 # Generate Backlog.md tasks directly from spec
-specify tasks generate --format backlog-md
+flowspec tasks generate --format backlog-md
 
 # This will:
 # 1. Parse spec.md and plan.md
@@ -1023,7 +1023,7 @@ labels: [backend, US1]
 
 ### Learn More
 
-See **[JP Spec + Backlog.md Integration Guide](flowspec-backlog-workflow.md)** for:
+See **[Flowspec + Backlog.md Integration Guide](flowspec-backlog-workflow.md)** for:
 - Complete workflow state transitions
 - Task format specifications
 - Command integration details

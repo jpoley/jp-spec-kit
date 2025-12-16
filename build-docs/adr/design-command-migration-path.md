@@ -144,7 +144,7 @@ Update your workflows: https://flowspec.dev/docs/migration
 **Actions**:
 1. ✅ Warnings become more prominent (colored, bold)
 2. ✅ Countdown timer added ("3 months until removal")
-3. ✅ Auto-migration script released (`specify migrate-commands`)
+3. ✅ Auto-migration script released (`flowspec migrate-commands`)
 4. ✅ Email to active users with migration checklist
 5. ✅ In-tool migration prompt on first use after Month 6
 
@@ -162,7 +162,7 @@ Replacement: /pm:assess
 Removal Date: 2026-09-09 (3 months)
 
 ACTION REQUIRED:
-Run: specify migrate-commands --dry-run
+Run: flowspec migrate-commands --dry-run
 to update all your workflows automatically.
 
 Migration guide: https://flowspec.dev/docs/migration
@@ -175,7 +175,7 @@ Migration guide: https://flowspec.dev/docs/migration
 **Auto-Migration Tool**:
 ```bash
 # Scan for deprecated command usage
-specify migrate-commands --dry-run
+flowspec migrate-commands --dry-run
 
 # Output:
 Found 12 deprecated commands in your project:
@@ -225,7 +225,7 @@ URGENT ACTION REQUIRED:
 This command will STOP WORKING in 30 days.
 
 Auto-migrate now:
-  specify migrate-commands
+  flowspec migrate-commands
 
 Need help? Contact support: support@flowspec.dev
 
@@ -268,7 +268,7 @@ Update your command:
   NEW: /pm:assess user-auth
 
 Migration guide: https://flowspec.dev/docs/migration
-Auto-migrate: specify migrate-commands
+Auto-migrate: flowspec migrate-commands
 
 Need help? support@flowspec.dev
 
@@ -332,12 +332,12 @@ Need help? support@flowspec.dev
 
 ```bash
 # 1. Scan your project for deprecated commands
-specify migrate-commands --dry-run
+flowspec migrate-commands --dry-run
 
 # 2. Review suggested changes
 
 # 3. Apply changes automatically
-specify migrate-commands
+flowspec migrate-commands
 
 # 4. Verify changes
 git diff
@@ -374,7 +374,7 @@ grep -r "/flow:" .github/ docs/ scripts/
 
 ---
 
-## Auto-Migration Tool (`specify migrate-commands`)
+## Auto-Migration Tool (`flowspec migrate-commands`)
 
 ### Features
 
@@ -388,19 +388,19 @@ grep -r "/flow:" .github/ docs/ scripts/
 
 ```bash
 # Basic usage
-specify migrate-commands
+flowspec migrate-commands
 
 # Preview changes
-specify migrate-commands --dry-run
+flowspec migrate-commands --dry-run
 
 # Migrate specific files
-specify migrate-commands --files ".github/workflows/*"
+flowspec migrate-commands --files ".github/workflows/*"
 
 # Exclude certain files
-specify migrate-commands --exclude "vendor/*"
+flowspec migrate-commands --exclude "vendor/*"
 
 # Auto-commit changes
-specify migrate-commands --commit
+flowspec migrate-commands --commit
 ```
 
 ### Implementation Sketch
@@ -496,9 +496,9 @@ What's Changing:
 • 12-month transition period with full backwards compatibility
 
 Action Required:
-1. Run: specify migrate-commands --dry-run
+1. Run: flowspec migrate-commands --dry-run
 2. Review changes
-3. Run: specify migrate-commands
+3. Run: flowspec migrate-commands
 4. Update your workflows
 
 Timeline:
@@ -511,7 +511,7 @@ Migration Guide: https://flowspec.dev/docs/migration
 Questions? support@flowspec.dev
 
 Thanks for using Flowspec!
-The JP Spec Team
+The  Team
 ```
 
 ---
@@ -527,7 +527,7 @@ The JP Spec Team
 **Solution**:
 ```bash
 # Ensure you're on latest version
-specify --version
+flowspec --version
 
 # Should be v2.0.0 or later
 # If not, upgrade:
@@ -546,7 +546,7 @@ pip install --upgrade flowspec-cli
 grep -r "/flow:" .github/
 
 # 2. Run migration tool on specific files
-specify migrate-commands --files ".github/workflows/*"
+flowspec migrate-commands --files ".github/workflows/*"
 
 # 3. Test locally before pushing
 bash .github/workflows/ci.yml
@@ -561,7 +561,7 @@ bash .github/workflows/ci.yml
 **Solution**:
 ```bash
 # Migrate all markdown files
-specify migrate-commands --files "**/*.md"
+flowspec migrate-commands --files "**/*.md"
 
 # Review changes
 git diff
@@ -603,7 +603,7 @@ If critical issues arise during migration:
 ### Measurement
 
 - **Telemetry**: Track command usage (old vs new)
-- **Migration tool usage**: How many ran `specify migrate-commands`
+- **Migration tool usage**: How many ran `flowspec migrate-commands`
 - **Support tickets**: Volume and type of migration issues
 - **User feedback**: Survey satisfaction with migration process
 

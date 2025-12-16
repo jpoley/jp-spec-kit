@@ -1,6 +1,6 @@
-# JP Spec + Backlog.md Integration Guide
+# flowspec + Backlog.md Integration Guide
 
-Complete guide to using `/flowspec` commands with backlog.md task management for end-to-end spec-driven development.
+Complete guide to using `/flow` commands with backlog.md task management for end-to-end spec-driven development.
 
 ## Table of Contents
 
@@ -14,9 +14,9 @@ Complete guide to using `/flowspec` commands with backlog.md task management for
 
 ## Overview
 
-The `/flowspec` workflow system and backlog.md are deeply integrated to provide:
+The `/flow` workflow system and backlog.md are deeply integrated to provide:
 
-1. **State-Driven Commands**: Each `/flowspec` command validates task state before execution
+1. **State-Driven Commands**: Each `/flow` command validates task state before execution
 2. **Automatic Task Discovery**: Commands search backlog for relevant tasks
 3. **Progressive Task Creation**: Design commands create tasks; implementation commands consume them
 4. **Acceptance Criteria Tracking**: Engineers check ACs as work progresses
