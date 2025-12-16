@@ -35,7 +35,7 @@ jobs:
       - name: Install Flowspec
         run: |
           pip install uv
-          uv tool install specify-cli
+          uv tool install flowspec-cli
 
       - name: Run Security Scan
         run: |
@@ -124,7 +124,7 @@ jobs:
       - name: Install Tools
         run: |
           pip install uv
-          uv tool install specify-cli
+          uv tool install flowspec-cli
           pip install semgrep==1.50.0
 
       - name: Run Security Scan
@@ -233,7 +233,7 @@ jobs:
       - name: Install Tools
         run: |
           pip install uv
-          uv tool install specify-cli
+          uv tool install flowspec-cli
 
       - name: Full Security Scan
         run: |
@@ -502,7 +502,7 @@ security-scan:
   image: python:3.11-slim
   before_script:
     - pip install uv
-    - uv tool install specify-cli
+    - uv tool install flowspec-cli
   script:
     - specify security scan --fail-on critical,high --format json,sarif
   artifacts:
@@ -530,7 +530,7 @@ pipeline {
             steps {
                 sh '''
                     pip install uv
-                    uv tool install specify-cli
+                    uv tool install flowspec-cli
                     specify security scan --fail-on critical,high --format sarif
                 '''
             }
@@ -579,7 +579,7 @@ jobs:
           name: Install Tools
           command: |
             pip install uv
-            uv tool install specify-cli
+            uv tool install flowspec-cli
 
       - run:
           name: Run Security Scan
@@ -791,7 +791,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install uv && uv tool install specify-cli
+      - run: pip install uv && uv tool install flowspec-cli
       - run: specify security scan --fail-on critical,high
 ```
 
@@ -810,7 +810,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - run: npm install -g specify-cli
+      - run: npm install -g flowspec-cli
       - run: specify security scan --path src --fail-on critical,high
 ```
 

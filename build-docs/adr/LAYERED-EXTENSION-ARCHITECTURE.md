@@ -244,7 +244,7 @@ specify upgrade --templates-only
 
 ```bash
 # Install CLI
-uv tool install specify-cli --from git+https://github.com/jpoley/flowspec.git
+uv tool install flowspec-cli --from git+https://github.com/jpoley/flowspec.git
 
 # Initialize project with two-stage download
 specify init my-project --ai claude
@@ -339,7 +339,7 @@ specify upgrade --base-version 0.0.20 --extension-version 0.0.20
 
 Just use the standard workflow:
 ```bash
-uv tool install specify-cli --from git+https://github.com/jpoley/flowspec.git
+uv tool install flowspec-cli --from git+https://github.com/jpoley/flowspec.git
 specify init my-project --ai claude
 ```
 

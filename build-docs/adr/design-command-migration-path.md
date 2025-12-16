@@ -531,7 +531,7 @@ specify --version
 
 # Should be v2.0.0 or later
 # If not, upgrade:
-pip install --upgrade specify-cli
+pip install --upgrade flowspec-cli
 ```
 
 ---
@@ -578,7 +578,7 @@ If critical issues arise during migration:
 
 ### Emergency Rollback (Month 0-11)
 
-1. **Revert version**: `pip install specify-cli==1.x.x`
+1. **Revert version**: `pip install flowspec-cli==1.x.x`
 2. **Old commands still work**: Aliases remain functional
 3. **No data loss**: Migration only affects command names
 

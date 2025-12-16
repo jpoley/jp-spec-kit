@@ -406,7 +406,7 @@ class SARIFExporter:
             "tool": {
                 "driver": {
                     "name": scanner,
-                    "informationUri": f"https://specify-cli.dev/security/{scanner}",
+                    "informationUri": f"https://flowspec-cli.dev/security/{scanner}",
                     "rules": list(rules.values()),
                 }
             },

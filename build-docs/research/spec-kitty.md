@@ -39,7 +39,7 @@
 | **Version** | 0.6.4 | 0.2.358 |
 | **Python** | 3.11+ | 3.11+ |
 | **CLI Command** | `spec-kitty` | `specify` |
-| **PyPI Package** | `spec-kitty-cli` | `specify-cli` |
+| **PyPI Package** | `spec-kitty-cli` | `flowspec-cli` |
 | **Primary Focus** | Real-time visibility & multi-agent | Security & workflow governance |
 | **Core Innovation** | Live kanban dashboard | Unified security scanning |
 

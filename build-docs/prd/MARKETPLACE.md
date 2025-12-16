@@ -429,10 +429,10 @@ Requires Claude Code 2.0.0 or higher.
 
 ```bash
 # Install via pip
-pip install specify-cli
+pip install flowspec-cli
 
 # Or use uvx (recommended)
-uvx specify-cli init my-project
+uvx flowspec-cli init my-project
 ```
 
 **Both provide the same core workflow commands!** Choose based on your needs.

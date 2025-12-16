@@ -185,7 +185,7 @@ Analysis:
 
 **Impact**:
 - Users see wrong version: `specify --version` returns 0.2.328, actual tag is v0.2.337
-- `uv tool install specify-cli` installs from PyPI (may differ from git)
+- `uv tool install flowspec-cli` installs from PyPI (may differ from git)
 - Developers cannot determine actual version from source
 
 **Recovery**: Manual PR to sync versions (not automated)

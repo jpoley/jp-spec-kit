@@ -689,7 +689,7 @@ jobs:
       - name: Install tools
         run: |
           pip install uv
-          uv tool install specify-cli
+          uv tool install flowspec-cli
           pip install semgrep
 
       - name: Run Security Scan
@@ -782,8 +782,8 @@ RUN pip install --no-cache-dir \
     uv \
     semgrep==1.50.0
 
-# Install specify-cli
-RUN uv tool install specify-cli
+# Install flowspec-cli
+RUN uv tool install flowspec-cli
 
 # NO ANTHROPIC SDK
 # NO API KEY HANDLING
@@ -1026,7 +1026,7 @@ MCP_TOOL_INVOCATIONS.labels(tool_name='security_triage').inc()
 1. **Create Dockerfile** with:
    - Python 3.11
    - Semgrep
-   - specify-cli (uv tool install)
+   - flowspec-cli (uv tool install)
    - **NO Anthropic SDK**
 
 2. **Publish to GHCR**

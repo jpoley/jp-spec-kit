@@ -124,7 +124,7 @@ pub struct CheckpointManager {
 ### Core Architecture
 
 Flowspec is a **CLI toolkit** for Spec-Driven Development:
-- **CLI**: Python (`specify-cli` package via uv)
+- **CLI**: Python (`flowspec-cli` package via uv)
 - **Templates**: Markdown templates for artifacts
 - **Configuration**: YAML-based workflow definitions
 - **Integration**: backlog.md MCP server for task management
@@ -410,7 +410,7 @@ Teams can share workflow configurations. Opcode is inherently single-user.
 │  - Transitions           │  - Acceptance criteria        │
 │  - Agent assignments     │  - Status tracking            │
 ├──────────────────────────────────────────────────────────┤
-│  specify-cli (Python)    │  templates/                   │
+│  flowspec-cli (Python)    │  templates/                   │
 │  - Project init          │  - Artifact templates         │
 │  - Workflow validation   │  - Command templates          │
 │  - Feature detection     │  - Skill templates            │

@@ -121,7 +121,7 @@ This functional specification defines behaviors for 10 architecture enhancement 
 - **Errors**: Fall back to "ALL STACKS" if terminal not interactive
 
 **FR-STACK-002**: Stack Definitions
-- **Input**: STACK_CONFIG in specify-cli
+- **Input**: STACK_CONFIG in flowspec-cli
 - **Output**: 9 predefined stacks with file lists
 - **Rules**: Include React+Go, React+Python, Full-Stack TS, etc.
 - **Errors**: N/A (static configuration)

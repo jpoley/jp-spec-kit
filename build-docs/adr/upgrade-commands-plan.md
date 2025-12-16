@@ -13,7 +13,7 @@ The `specify` CLI has a confusing upgrade story:
 The tools are installed per-user:
 | Tool | Installation Method | Location |
 |------|---------------------|----------|
-| flowspec | `uv tool install specify-cli --from git+...` | `~/.local/bin/specify` |
+| flowspec | `uv tool install flowspec-cli --from git+...` | `~/.local/bin/specify` |
 | spec-kit | `uv tool install spec-kit` | uv managed |
 | backlog.md | `pnpm add -g backlog-md` | npm global |
 
@@ -34,7 +34,7 @@ specify upgrade-tools --dry-run          # Preview changes
 ```
 
 Implementation:
-- flowspec: `uv tool upgrade specify-cli`
+- flowspec: `uv tool upgrade flowspec-cli`
 - backlog.md: `pnpm add -g backlog-md@latest` (or npm)
 - Verify version after upgrade
 

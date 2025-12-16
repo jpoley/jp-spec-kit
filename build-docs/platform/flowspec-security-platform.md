@@ -221,7 +221,7 @@ jobs:
       - name: Install Flowspec
         run: |
           pip install uv
-          uv tool install specify-cli
+          uv tool install flowspec-cli
 
       - name: Cache Semgrep
         uses: actions/cache@v4
@@ -411,7 +411,7 @@ git commit --no-verify -m "fix: critical production bug (bypass security scan)"
 | **Semgrep** | ~50MB | LGPL 2.1 | pip install, cache binary |
 | **CodeQL** | ~400MB (CLI) + ~1.5GB (DB) | GitHub Terms | Download on-demand, optional |
 | **Python** | N/A | PSF | System dependency (3.11+) |
-| **uv** | ~10MB | Apache 2.0 | Included in specify-cli |
+| **uv** | ~10MB | Apache 2.0 | Included in flowspec-cli |
 
 ### 4.2 Semgrep Installation Strategy
 
@@ -496,7 +496,7 @@ def ensure_codeql_available():
 
 **Semgrep Version Pinning:**
 ```toml
-# pyproject.toml (specify-cli)
+# pyproject.toml (flowspec-cli)
 [project.dependencies]
 semgrep = "==1.50.0"  # Pin exact version for reproducibility
 ```
@@ -999,8 +999,8 @@ RUN pip install --no-cache-dir \
     uv \
     semgrep==1.50.0
 
-# Install specify-cli via uv
-RUN uv tool install specify-cli
+# Install flowspec-cli via uv
+RUN uv tool install flowspec-cli
 
 # Create working directory
 WORKDIR /src
@@ -1116,8 +1116,8 @@ backlog task create "Track DORA Metrics for Security Scanning" \
 #### Task 7: Docker Image for Security Scanner
 ```bash
 backlog task create "Build and Publish Security Scanner Docker Image" \
-  -d "Create Docker image with Semgrep and specify-cli for air-gapped environments" \
-  --ac "Create Dockerfile with Python 3.11, Semgrep, uv, specify-cli" \
+  -d "Create Docker image with Semgrep and flowspec-cli for air-gapped environments" \
+  --ac "Create Dockerfile with Python 3.11, Semgrep, uv, flowspec-cli" \
   --ac "Optimize image size (<200MB)" \
   --ac "Publish to GHCR (ghcr.io/yourusername/flowspeckit-security-scanner)" \
   --ac "Add image to CI/CD pipeline as alternative scan method" \

@@ -174,8 +174,8 @@ Two parallel command suites exist with similar purposes:
 ### 3.1 Current Installation Flow
 
 ```bash
-# Step 1: Install specify-cli (requires uv + Python 3.11+)
-uv tool install specify-cli --from git+https://github.com/jpoley/flowspec.git
+# Step 1: Install flowspec-cli (requires uv + Python 3.11+)
+uv tool install flowspec-cli --from git+https://github.com/jpoley/flowspec.git
 
 # Step 2: Install backlog.md (requires Node.js + pnpm/npm)
 pnpm i -g backlog.md
@@ -205,7 +205,7 @@ The following scenarios lack clear error handling:
 
 1. **User has Python 3.10:** Silent failure or unclear error
 2. **GitHub rate limiting:** Authentication hints provided but could be clearer
-3. **Missing pnpm/npm:** No guidance in specify-cli
+3. **Missing pnpm/npm:** No guidance in flowspec-cli
 4. **Backlog.md version mismatch:** Warning shown but no auto-fix
 5. **Non-Git directory:** Git init skipped silently
 
@@ -214,7 +214,7 @@ The following scenarios lack clear error handling:
 1. **Unified installer script:**
    ```bash
    curl -fsSL https://flowspec.dev/install.sh | bash
-   # Handles: uv, specify-cli, backlog.md, verification
+   # Handles: uv, flowspec-cli, backlog.md, verification
    ```
 
 2. **Pre-flight checks with clear remediation:**
