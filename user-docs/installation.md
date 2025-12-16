@@ -29,7 +29,7 @@ uvx --from git+https://github.com/jpoley/flowspec.git specify init --here
 Alternatively, install persistently once and use everywhere:
 
 ```bash
-uv tool install specify-cli --from git+https://github.com/jpoley/flowspec.git
+uv tool install flowspec-cli --from git+https://github.com/jpoley/flowspec.git
 specify init <PROJECT_NAME>
 ```
 

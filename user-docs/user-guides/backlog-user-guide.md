@@ -74,7 +74,7 @@ Completed Feature
 
 ### Prerequisites
 
-- Flowspec installed: `uv tool install specify-cli --from git+https://github.com/jpoley/flowspec.git`
+- Flowspec installed: `uv tool install flowspec-cli --from git+https://github.com/jpoley/flowspec.git`
 - Node.js 18+ or npm/pnpm
 - Git repository initialized
 - Claude Code (optional, for AI integration)

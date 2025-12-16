@@ -43,7 +43,7 @@ FAILS: "GitHub Actions is not permitted to create or approve pull requests"
 
 ```toml
 [project]
-name = "specify-cli"
+name = "flowspec-cli"
 dynamic = ["version"]  # Version comes from git tags
 description = "..."
 

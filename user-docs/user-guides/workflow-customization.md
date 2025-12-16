@@ -697,7 +697,7 @@ If all else fails, restore the default configuration:
 
 ```bash
 # Copy from template (Flowspec installation)
-cp ~/.local/share/specify-cli/templates/flowspec_workflow.yml ./flowspec_workflow.yml
+cp ~/.local/share/flowspec-cli/templates/flowspec_workflow.yml ./flowspec_workflow.yml
 ```
 
 ## Related Documentation

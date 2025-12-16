@@ -96,7 +96,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install tools
-        run: pip install specify-cli semgrep
+        run: pip install flowspec-cli semgrep
 
       - name: Run scan
         id: scan
@@ -125,7 +125,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install tools
-        run: pip install specify-cli
+        run: pip install flowspec-cli
 
       - name: Download scan results
         uses: actions/download-artifact@v4
@@ -160,7 +160,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install tools
-        run: pip install specify-cli
+        run: pip install flowspec-cli
 
       - name: Download artifacts
         uses: actions/download-artifact@v4
@@ -227,7 +227,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install tools
-        run: pip install specify-cli semgrep
+        run: pip install flowspec-cli semgrep
 
       - name: Scan changed files
         if: steps.changed.outputs.files != ''
@@ -253,7 +253,7 @@ variables:
 .security-base:
   image: python:3.11
   before_script:
-    - pip install specify-cli semgrep
+    - pip install flowspec-cli semgrep
   cache:
     paths:
       - .pip-cache/
@@ -327,7 +327,7 @@ flowspec-security:
   stage: test
   image: python:3.11
   script:
-    - pip install specify-cli semgrep
+    - pip install flowspec-cli semgrep
     - specify security scan --format json --output gl-sast-report.json
   artifacts:
     reports:
@@ -354,7 +354,7 @@ pipeline {
     stages {
         stage('Setup') {
             steps {
-                sh 'pip install specify-cli semgrep'
+                sh 'pip install flowspec-cli semgrep'
             }
         }
 
@@ -459,7 +459,7 @@ pipeline {
                     stage('Scan') {
                         steps {
                             sh """
-                                pip install specify-cli ${SCANNER}
+                                pip install flowspec-cli ${SCANNER}
                                 specify security scan \
                                     --scanner ${SCANNER} \
                                     --format json \
@@ -510,7 +510,7 @@ stages:
               versionSpec: '$(pythonVersion)'
 
           - script: |
-              pip install specify-cli semgrep
+              pip install flowspec-cli semgrep
             displayName: 'Install tools'
 
           - script: |
@@ -538,7 +538,7 @@ stages:
               artifactName: 'SecurityResults'
 
           - script: |
-              pip install specify-cli
+              pip install flowspec-cli
               specify security audit \
                 $(System.ArtifactsDirectory)/SecurityResults/scan-results.json \
                 --format html \
@@ -574,7 +574,7 @@ jobs:
       - checkout
       - python/install-packages:
           pkg-manager: pip
-          packages: specify-cli semgrep
+          packages: flowspec-cli semgrep
       - run:
           name: Run security scan
           command: |
@@ -596,7 +596,7 @@ jobs:
           at: .
       - python/install-packages:
           pkg-manager: pip
-          packages: specify-cli
+          packages: flowspec-cli
       - run:
           name: AI triage
           command: |
@@ -614,7 +614,7 @@ jobs:
           at: .
       - python/install-packages:
           pkg-manager: pip
-          packages: specify-cli
+          packages: flowspec-cli
       - run:
           name: Generate report
           command: |
@@ -630,7 +630,7 @@ jobs:
       - checkout
       - python/install-packages:
           pkg-manager: pip
-          packages: specify-cli semgrep
+          packages: flowspec-cli semgrep
       - run:
           name: Security gate
           command: specify security scan --fail-on critical
@@ -663,7 +663,7 @@ repos:
         name: Security Scan
         entry: specify security scan --quick --fail-on critical
         language: python
-        additional_dependencies: [specify-cli, semgrep]
+        additional_dependencies: [flowspec-cli, semgrep]
         pass_filenames: false
         stages: [commit]
 ```
@@ -679,7 +679,7 @@ repos:
         name: Security Scan (Python)
         entry: specify security scan --scanner semgrep --quick --fail-on high
         language: python
-        additional_dependencies: [specify-cli, semgrep]
+        additional_dependencies: [flowspec-cli, semgrep]
         types: [python]
         pass_filenames: false
 

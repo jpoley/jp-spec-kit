@@ -47,11 +47,11 @@ Searched locations:
 **Solution 1: Create default configuration**
 ```bash
 # Copy from Flowspec templates
-cp ~/.local/share/specify-cli/templates/flowspec_workflow.yml ./flowspec_workflow.yml
+cp ~/.local/share/flowspec-cli/templates/flowspec_workflow.yml ./flowspec_workflow.yml
 
 # Or create in memory/ directory
 mkdir -p memory
-cp ~/.local/share/specify-cli/templates/flowspec_workflow.yml memory/flowspec_workflow.yml
+cp ~/.local/share/flowspec-cli/templates/flowspec_workflow.yml memory/flowspec_workflow.yml
 ```
 
 **Solution 2: Check current directory**
@@ -617,7 +617,7 @@ cp flowspec_workflow.yml.backup.* flowspec_workflow.yml
 mv flowspec_workflow.yml flowspec_workflow.yml.broken
 
 # 2. Copy default configuration
-cp ~/.local/share/specify-cli/templates/flowspec_workflow.yml ./flowspec_workflow.yml
+cp ~/.local/share/flowspec-cli/templates/flowspec_workflow.yml ./flowspec_workflow.yml
 
 # Or from project templates
 cp flowspec_workflow.yml

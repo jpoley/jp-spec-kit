@@ -19,7 +19,7 @@ Install DAST dependencies:
 
 ```bash
 # Install with DAST extras
-pip install 'specify-cli[dast]'
+pip install 'flowspec-cli[dast]'
 
 # Or install Playwright separately
 pip install playwright
@@ -404,7 +404,7 @@ ImportError: Playwright is not installed
 **Solution:**
 
 ```bash
-pip install 'specify-cli[dast]'
+pip install 'flowspec-cli[dast]'
 playwright install chromium
 ```
 

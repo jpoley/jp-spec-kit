@@ -131,7 +131,7 @@ jobs:
         with:
           python-version: '3.11'
       - name: Install specify
-        run: pip install specify-cli
+        run: pip install flowspec-cli
       - name: Validate constitution
         run: specify constitution validate
 ```
