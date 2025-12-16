@@ -3429,7 +3429,7 @@ def init(
 
     # Check for backlog-md and offer to install if missing
     current_backlog_version = check_backlog_installed_version()
-    if not current_backlog_version and not no_validation_prompts:
+    if not current_backlog_version and not no_validation_prompts and sys.stdin.isatty():
         console.print()
         install_backlog = typer.confirm(
             "[cyan]backlog-md[/cyan] is not installed. Would you like to install it for task management?",
@@ -3502,7 +3502,7 @@ def init(
 
     # Check for beads and offer to install if missing
     current_beads_version = check_beads_installed_version()
-    if not current_beads_version and not no_validation_prompts:
+    if not current_beads_version and not no_validation_prompts and sys.stdin.isatty():
         console.print()
         install_beads = typer.confirm(
             "[cyan]beads[/cyan] is not installed. Would you like to install it for issue tracking?",
