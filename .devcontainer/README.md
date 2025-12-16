@@ -30,7 +30,7 @@ Development container for consistent, reproducible development environments acro
 
 4. **Verify Environment**:
    ```bash
-   specify --version
+   flowspec --version
    pytest tests/
    backlog task list
    ```
@@ -181,7 +181,7 @@ uv sync                    # Update dependencies
 # Task Management
 backlog task list          # List tasks
 backlog task create "..."  # Create task
-specify workflow validate  # Validate workflow
+flowspec workflow validate  # Validate workflow
 
 # AI Assistants
 claude --help              # Claude Code CLI
@@ -223,7 +223,7 @@ uv tool install . --force
 
 # Verify installation
 which specify
-specify --version
+flowspec --version
 ```
 
 ### AI CLI Not Working

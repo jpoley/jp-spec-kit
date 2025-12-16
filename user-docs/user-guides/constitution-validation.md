@@ -29,7 +29,7 @@ The validation command:
 
 ## Understanding NEEDS_VALIDATION Markers
 
-When you create a constitution using `specify init`, the generated template includes markers like:
+When you create a constitution using `flowspec init`, the generated template includes markers like:
 
 ```markdown
 <!-- NEEDS_VALIDATION: Update team size -->
@@ -142,7 +142,7 @@ jobs:
 
 ```bash
 # 1. Initialize project
-specify init my-project --constitution medium
+flowspec init my-project --constitution medium
 
 # 2. Enter project
 cd my-project
@@ -161,7 +161,7 @@ specify constitution validate
 
 ```bash
 # 1. Add constitution
-specify init --here
+flowspec init --here
 
 # 2. Choose tier when prompted (or use --constitution flag)
 
@@ -190,11 +190,11 @@ specify constitution validate --path docs/team-charter.md
 **Error:**
 ```
 Error: Constitution not found at /path/to/memory/constitution.md
-Tip: Run 'specify init --here' to create one
+Tip: Run 'flowspec init --here' to create one
 ```
 
 **Solution:**
-Run `specify init --here` to create a constitution, or use `--path` to specify the correct location.
+Run `flowspec init --here` to create a constitution, or use `--path` to specify the correct location.
 
 ### Validation Keeps Failing
 
@@ -235,9 +235,9 @@ Example of a marker (not for validation):
 
 | Command | Purpose |
 |---------|---------|
-| `specify init` | Create new project with constitution |
-| `specify init --here` | Add constitution to existing project |
-| `specify workflow validate` | Validate workflow configuration |
+| `flowspec init` | Create new project with constitution |
+| `flowspec init --here` | Add constitution to existing project |
+| `flowspec workflow validate` | Validate workflow configuration |
 
 ## See Also
 

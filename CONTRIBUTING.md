@@ -54,7 +54,7 @@ flowspec can use its own `/speckit.*` and `/flow:*` commands during development.
 Run the dev-setup command in the flowspec repository root:
 
 ```bash
-specify dev-setup
+flowspec dev-setup
 ```
 
 This creates symlinks from `.claude/commands/` to `templates/commands/` so Claude Code can discover the commands while maintaining a single source of truth.
@@ -88,9 +88,9 @@ For detailed workflows, troubleshooting, and advanced scenarios, see [Dev-Setup 
 ### How It Works
 
 The flowspec repository contains a `.flowspec-source` marker file that:
-- Prevents `specify init` from accidentally overwriting source files
-- Prevents `specify upgrade` from clobbering development work
-- Identifies the repository as the source (not a project created by `specify init`)
+- Prevents `flowspec init` from accidentally overwriting source files
+- Prevents `flowspec upgrade` from clobbering development work
+- Identifies the repository as the source (not a project created by `flowspec init`)
 
 The symlinks allow Claude Code to discover commands while keeping `templates/commands/` as the **single source of truth**. This ensures:
 - What developers test is exactly what users receive

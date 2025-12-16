@@ -8,10 +8,10 @@ Hooks allow you to run custom scripts when workflow events occur in your Flowspe
 
 ### 1. Initialize Your Project
 
-When you run `specify init`, the hooks system is automatically set up:
+When you run `flowspec init`, the hooks system is automatically set up:
 
 ```bash
-specify init my-project --ai claude
+flowspec init my-project --ai claude
 cd my-project
 ```
 

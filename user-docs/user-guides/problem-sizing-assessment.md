@@ -231,7 +231,7 @@ The assessment evaluates 8 key dimensions, each scored 1-4 points:
 /flow:assess "Integrate Stripe payment processing"
 
 # As part of project initialization
-specify init
+flowspec init
 # (Will prompt: "Run complexity assessment? [Y/n]")
 ```
 

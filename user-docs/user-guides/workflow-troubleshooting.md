@@ -8,7 +8,7 @@ Before troubleshooting specific errors, run these diagnostic commands:
 
 ```bash
 # 1. Check workflow configuration validity
-specify workflow validate
+flowspec workflow validate
 
 # 2. Check current task state
 backlog task view task-123
@@ -234,7 +234,7 @@ vim flowspec_workflow.yml
 # Or change it to use via: "rework"
 
 # Validate
-specify workflow validate
+flowspec workflow validate
 ```
 
 ---
@@ -446,10 +446,10 @@ transitions:
 ```bash
 # Restart Claude Code to reload configuration
 # Or use reload command if available
-specify workflow validate --reload
+flowspec workflow validate --reload
 
 # Verify changes are reflected
-specify workflow validate
+flowspec workflow validate
 ```
 
 ---
@@ -488,7 +488,7 @@ states:
 **Solution 2: Fix circular dependencies**
 ```bash
 # Check for cycles
-specify workflow validate
+flowspec workflow validate
 
 # Remove circular transitions
 # Use "rework" via for backward transitions only
@@ -508,11 +508,11 @@ workflows:
 
 ## Validation Command Issues
 
-### Error: "specify workflow validate fails"
+### Error: "flowspec workflow validate fails"
 
 **Symptom**:
 ```bash
-specify workflow validate
+flowspec workflow validate
 # Command not found or fails
 ```
 
@@ -529,7 +529,7 @@ specify workflow validate
 uv tool install . --force
 
 # Verify installation
-specify --version
+flowspec --version
 
 # Should be v0.0.136 or later for workflow support
 ```
@@ -543,7 +543,7 @@ which specify
 export PATH="$HOME/.local/bin:$PATH"
 
 # Or use full path
-~/.local/bin/specify workflow validate
+~/.local/bin/flowspec workflow validate
 ```
 
 **Solution 3: Run validation manually**
@@ -591,7 +591,7 @@ git checkout HEAD~1 flowspec_workflow.yml
 git checkout <commit-hash> flowspec_workflow.yml
 
 # Verify
-specify workflow validate
+flowspec workflow validate
 ```
 
 **Step 3: Create backup before changes**
@@ -623,7 +623,7 @@ cp ~/.local/share/flowspec-cli/templates/flowspec_workflow.yml ./flowspec_workfl
 cp flowspec_workflow.yml
 
 # 3. Verify default works
-specify workflow validate
+flowspec workflow validate
 
 # 4. Gradually re-add customizations from broken config
 diff flowspec_workflow.yml.broken flowspec_workflow.yml
@@ -638,7 +638,7 @@ diff flowspec_workflow.yml.broken flowspec_workflow.yml
 ```bash
 # Pre-commit checklist
 vim flowspec_workflow.yml
-specify workflow validate
+flowspec workflow validate
 git add flowspec_workflow.yml
 git commit -s -m "feat(workflow): add custom phase"
 ```
@@ -717,7 +717,7 @@ cat docs/examples/workflows/security-audit-workflow.yml
 ```bash
 # If available, enable verbose output
 export SPECIFY_DEBUG=1
-specify workflow validate
+flowspec workflow validate
 
 # Check for detailed error messages
 ```
@@ -734,13 +734,13 @@ If none of these solutions work:
 
 2. Include diagnostic output:
    ```bash
-   specify workflow validate > workflow-debug.txt 2>&1
+   flowspec workflow validate > workflow-debug.txt 2>&1
    ```
 
 3. Report via GitHub Issues with:
    - Error message
    - Minimal flowspec_workflow.yml
-   - Flowspec version (`specify --version`)
+   - Flowspec version (`flowspec --version`)
    - Steps to reproduce
 
 ---
@@ -755,7 +755,7 @@ If none of these solutions work:
 5. **Unknown agents** → Accept warning or define custom agents
 
 **Quick Fixes**:
-- Run `specify workflow validate` to diagnose
+- Run `flowspec workflow validate` to diagnose
 - Check current task state with `backlog task view`
 - Verify workflow sequence matches configuration
 - Restore from Git if changes cause issues

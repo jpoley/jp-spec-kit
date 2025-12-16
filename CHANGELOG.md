@@ -36,7 +36,7 @@
 ### Added
 
 - **Spec-Light Mode for Medium-Complexity Features**: Streamlined SDD workflow with `--light` flag
-  - Add `specify init --light` flag for medium-complexity features (complexity score 4-6/10)
+  - Add `flowspec init --light` flag for medium-complexity features (complexity score 4-6/10)
   - Creates `.flowspec-light-mode` marker file in project root
   - New templates: `spec-light-template.md` (combined user stories + acceptance criteria) and `plan-light-template.md` (high-level approach only)
   - Skips research and analyze phases for faster iteration (~60% faster workflow; see docs/guides/when-to-use-light-mode.md for example metrics)
@@ -96,7 +96,7 @@ Flowspec is now a **layered extension** of GitHub's spec-kit, not a fork!
   - Defaults to "latest" for both
   - Enables reproducible builds and CI/CD integration
 
-- **`specify upgrade` Command**:
+- **`flowspec upgrade` Command**:
   - Upgrade existing projects to latest base + extension
   - `--dry-run` - Preview changes without applying
   - `--templates-only` - Only update templates
@@ -118,7 +118,7 @@ Flowspec is now a **layered extension** of GitHub's spec-kit, not a fork!
 
 #### Changed
 
-- **`specify init` Now Uses Two-Stage Download by Default**:
+- **`flowspec init` Now Uses Two-Stage Download by Default**:
   - Automatically downloads both base spec-kit and flowspec extension
   - Use `--no-layered` to download only flowspec (legacy mode)
   - Tracker shows separate stages: fetch-base, fetch-extension, extract-base, extract-extension, merge
@@ -135,7 +135,7 @@ Flowspec is now a **layered extension** of GitHub's spec-kit, not a fork!
 
 #### Benefits
 
-- ✅ **Stay current** with upstream spec-kit features via `specify upgrade`
+- ✅ **Stay current** with upstream spec-kit features via `flowspec upgrade`
 - ✅ **Customizable** - Keep flowspec extensions while getting base updates
 - ✅ **Reproducible** - Pin versions for stable CI/CD builds
 - ✅ **Safe** - Automatic backups before upgrades
@@ -154,12 +154,12 @@ Flowspec is now a **layered extension** of GitHub's spec-kit, not a fork!
 Existing flowspec projects can upgrade:
 ```bash
 cd your-project
-specify upgrade
+flowspec upgrade
 ```
 
 New projects automatically use layered architecture:
 ```bash
-specify init my-project --ai claude
+flowspec init my-project --ai claude
 ```
 
 See `LAYERED-EXTENSION-ARCHITECTURE.md` for complete details.
@@ -204,7 +204,7 @@ See `LAYERED-EXTENSION-ARCHITECTURE.md` for complete details.
 
 ### Added
 
-- Support for using `.` as a shorthand for current directory in `specify init .` command, equivalent to `--here` flag but more intuitive for users.
+- Support for using `.` as a shorthand for current directory in `flowspec init .` command, equivalent to `--here` flag but more intuitive for users.
 - Use the `/speckit.` command prefix to easily discover Spec Kit-related commands.
 - Refactor the prompts and templates to simplify their capabilities and how they are tracked. No more polluting things with tests when they are not needed.
 - Ensure that tasks are created per user story (simplifies testing and validation).

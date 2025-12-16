@@ -283,7 +283,7 @@ backlog task view task-123
 Check that your state transitions are valid:
 
 ```bash
-specify workflow validate
+flowspec workflow validate
 
 # Output:
 # ✓ Configuration valid
@@ -323,7 +323,7 @@ workflows = config.get_valid_workflows("Planned")
 **Solution**:
 1. Check for typos in state name
 2. Verify state is defined in `flowspec_workflow.yml`
-3. Run `specify workflow validate` to check configuration
+3. Run `flowspec workflow validate` to check configuration
 
 ### Warning: "State 'X' is not reachable"
 
@@ -340,7 +340,7 @@ workflows = config.get_valid_workflows("Planned")
 **Solution**:
 1. Restart Claude Code or reload the configuration
 2. Verify changes were saved to `flowspec_workflow.yml`
-3. Run `specify workflow validate` to check for errors
+3. Run `flowspec workflow validate` to check for errors
 
 ## Advanced Topics
 

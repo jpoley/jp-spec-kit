@@ -89,5 +89,5 @@ See `CONTRIBUTING-AGENTS.md` for:
 ```bash
 uv build                      # Build package
 uv tool install . --force     # Install locally
-specify --help                # Verify installation
+flowspec --help                # Verify installation
 ```

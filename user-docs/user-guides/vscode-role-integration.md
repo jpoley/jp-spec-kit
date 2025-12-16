@@ -302,7 +302,7 @@ Changing `roles.primary` in workflow config changes the default role for `specif
 ## Future Enhancements
 
 Planned features:
-- [ ] Auto-regenerate on `specify init`
+- [ ] Auto-regenerate on `flowspec init`
 - [ ] VS Code extension for one-click role switching
 - [ ] Command palette integration for role selection
 - [ ] Agent handoff customization per role

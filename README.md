@@ -57,7 +57,7 @@ pnpm i -g backlog.md
 ### Initialize Your Project
 
 ```bash
-specify init my-project --ai claude
+flowspec init my-project --ai claude
 cd my-project
 backlog init "$(basename "$PWD")"
 ```
@@ -337,7 +337,7 @@ The [`jpoley/flowspec-agents`](https://hub.docker.com/r/jpoley/flowspec-agents) 
 
 ```bash
 # Initialize with multiple agents
-specify init my-project --ai claude,copilot,cursor-agent
+flowspec init my-project --ai claude,copilot,cursor-agent
 ```
 
 ## File Structure

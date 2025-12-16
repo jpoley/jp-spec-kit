@@ -6,7 +6,7 @@ Spec-Light Mode is a streamlined SDD workflow for medium-complexity features tha
 
 ## When to Use Light Mode
 
-Use `specify init --light` when:
+Use `flowspec init --light` when:
 
 | Criteria | Light Mode | Full Mode |
 |----------|------------|-----------|
@@ -59,7 +59,7 @@ docs/
 
 ```bash
 # Initialize with light mode
-specify init my-feature --light
+flowspec init my-feature --light
 
 # Check if project is light mode
 ls .flowspec-light-mode

@@ -425,7 +425,7 @@ The role validation workflow integrates with:
 
 3. **Dev Setup Validation** (`.github/workflows/dev-setup-validation.yml`):
    - Validates symlink structure for development
-   - Ensures `specify dev-setup` works correctly
+   - Ensures `flowspec dev-setup` works correctly
 
 ## Best Practices
 

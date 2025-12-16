@@ -42,7 +42,7 @@ source .venv/bin/activate  # or on Windows PowerShell: .venv\Scripts\Activate.ps
 uv pip install -e .
 
 # Now 'specify' entrypoint is available
-specify --help
+flowspec --help
 ```
 
 Re-running after code edits requires no reinstall because of editable mode.
@@ -52,7 +52,7 @@ Re-running after code edits requires no reinstall because of editable mode.
 `uvx` can run from a local path (or a Git ref) to simulate user flows:
 
 ```bash
-uvx --from . specify init demo-uvx --ai copilot --ignore-agent-tools --script sh
+uvx --from . flowspec init demo-uvx --ai copilot --ignore-agent-tools --script sh
 ```
 
 You can also point uvx at a specific branch without merging:
@@ -60,7 +60,7 @@ You can also point uvx at a specific branch without merging:
 ```bash
 # Push your working branch first
 git push origin your-feature-branch
-uvx --from git+https://github.com/jpoley/flowspec.git@your-feature-branch specify init demo-branch-test --script ps
+uvx --from git+https://github.com/jpoley/flowspec.git@your-feature-branch flowspec init demo-branch-test --script ps
 ```
 
 ### 4a. Absolute Path uvx (Run From Anywhere)
@@ -68,14 +68,14 @@ uvx --from git+https://github.com/jpoley/flowspec.git@your-feature-branch specif
 If you're in another directory, use an absolute path instead of `.`:
 
 ```bash
-uvx --from /path/to/flowspec specify --help
-uvx --from /path/to/flowspec specify init demo-anywhere --ai copilot --ignore-agent-tools --script sh
+uvx --from /path/to/flowspec flowspec --help
+uvx --from /path/to/flowspec flowspec init demo-anywhere --ai copilot --ignore-agent-tools --script sh
 ```
 
 Set an environment variable for convenience:
 ```bash
 export FLOWSPEC_SRC=/path/to/flowspec
-uvx --from "$FLOWSPEC_SRC" specify init demo-env --ai copilot --ignore-agent-tools --script ps
+uvx --from "$FLOWSPEC_SRC" flowspec init demo-env --ai copilot --ignore-agent-tools --script ps
 ```
 
 (Optional) Define a shell function:
@@ -128,7 +128,7 @@ If you need to bypass TLS validation while experimenting:
 
 ```bash
 specify check --skip-tls
-specify init demo --skip-tls --ai gemini --ignore-agent-tools --script ps
+flowspec init demo --skip-tls --ai gemini --ignore-agent-tools --script ps
 ```
 (Use only for local experimentation.)
 

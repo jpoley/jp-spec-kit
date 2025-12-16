@@ -45,7 +45,7 @@ Choosing the right tier ensures your constitution **helps** rather than **hinder
 
 ```
 1. Choose Tier
-   └─> Run `specify init my-project --constitution medium`
+   └─> Run `flowspec init my-project --constitution medium`
 
 2. Customize Constitution
    └─> Run `/speckit:constitution` (LLM detects your tech stack)
@@ -236,13 +236,13 @@ Create a new project with constitution:
 
 ```bash
 # Interactive selection - prompts for tier choice
-specify init my-project
+flowspec init my-project
 
 # Pre-select tier
-specify init my-project --constitution medium
+flowspec init my-project --constitution medium
 
 # Skip LLM customization (manual customization later)
-specify init my-project --constitution light --skip-llm
+flowspec init my-project --constitution light --skip-llm
 ```
 
 **What happens:**
@@ -260,10 +260,10 @@ Add constitution to an existing project:
 cd /path/to/existing-project
 
 # Initialize in current directory
-specify init --here
+flowspec init --here
 
 # Or specify tier explicitly
-specify init --here --constitution heavy
+flowspec init --here --constitution heavy
 ```
 
 **Detection logic:**
@@ -283,7 +283,7 @@ Update existing Flowspec installation:
 
 ```bash
 # Upgrade Flowspec
-specify upgrade
+flowspec upgrade
 
 # If constitution missing, you'll be prompted:
 # "No constitution found. Select tier: light/medium/heavy"
@@ -316,7 +316,7 @@ The LLM analyzes your repository and customizes the constitution template with:
 
 ```bash
 # Automatic (default behavior)
-specify init my-project --constitution medium
+flowspec init my-project --constitution medium
 
 # The LLM will:
 # 1. Scan your repository
@@ -819,35 +819,35 @@ All `/flowspec` workflow commands:
 | `/flow:validate` | Yes | Light: warn, Medium: confirm, Heavy: block |
 | `/flow:operate` | Yes | Light: warn, Medium: confirm, Heavy: block |
 
-**Note:** Utility commands (`backlog`, `specify init`, etc.) do not enforce constitution.
+**Note:** Utility commands (`backlog`, `flowspec init`, etc.) do not enforce constitution.
 
 ---
 
 ## CLI Command Reference
 
-### `specify init`
+### `flowspec init`
 
 Create new project or initialize existing project with constitution.
 
 **New project:**
 ```bash
 # Interactive tier selection
-specify init my-project
+flowspec init my-project
 
 # Pre-select tier
-specify init my-project --constitution medium
+flowspec init my-project --constitution medium
 
 # Skip LLM customization
-specify init my-project --constitution light --skip-llm
+flowspec init my-project --constitution light --skip-llm
 ```
 
 **Existing project:**
 ```bash
 # Initialize in current directory
-specify init --here
+flowspec init --here
 
 # With tier selection
-specify init --here --constitution heavy
+flowspec init --here --constitution heavy
 ```
 
 **Options:**
@@ -905,14 +905,14 @@ specify constitution version
 # Last Amended: 2025-03-22
 ```
 
-### `specify upgrade`
+### `flowspec upgrade`
 
 Upgrade Flowspec and handle constitution detection.
 
 **Usage:**
 ```bash
 # Upgrade Flowspec
-specify upgrade
+flowspec upgrade
 
 # If constitution missing:
 # "No constitution found. Select tier: light/medium/heavy"
@@ -1051,7 +1051,7 @@ specify constitution upgrade
 **Solution:**
 ```bash
 # Create constitution
-specify init --here
+flowspec init --here
 
 # Or manually create from template
 mkdir -p memory
@@ -1134,7 +1134,7 @@ Use skip flag:
 
 ### Constitution Version Mismatch After Upgrade
 
-**Problem:** After `specify upgrade`, constitution feels outdated.
+**Problem:** After `flowspec upgrade`, constitution feels outdated.
 
 **Future feature:**
 ```bash
@@ -1237,10 +1237,10 @@ Signed-off-by: Your Name <you@example.com>"
 
 ```bash
 # Create new project with constitution
-specify init my-project --constitution medium
+flowspec init my-project --constitution medium
 
 # Add constitution to existing project
-specify init --here
+flowspec init --here
 
 # Check validation status
 specify constitution validate
@@ -1252,7 +1252,7 @@ specify constitution validate --json
 /speckit:constitution
 
 # Upgrade Flowspec (detects missing constitutions)
-specify upgrade
+flowspec upgrade
 ```
 
 ### Files

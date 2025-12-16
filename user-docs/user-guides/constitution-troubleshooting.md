@@ -469,7 +469,7 @@ Medium tier uses warnings + confirmation prompts but allows proceeding after ack
 
 ## Upgrade and Migration Issues
 
-### Problem: Constitution version mismatch after `specify upgrade`
+### Problem: Constitution version mismatch after `flowspec upgrade`
 
 **Symptoms**:
 - Upgraded Flowspec to new version
@@ -577,7 +577,7 @@ specify constitution upgrade --interactive
 - Lost compliance or security customizations
 
 **Cause**:
-Ran `specify init --here` or manually copied template over existing constitution without merging.
+Ran `flowspec init --here` or manually copied template over existing constitution without merging.
 
 **Resolution**:
 
@@ -632,7 +632,7 @@ Signed-off-by: Your Name <you@example.com>"
 - **ALWAYS backup** before modifying constitution: `cp memory/constitution.md memory/constitution.md.backup`
 - Use git to track all constitution changes
 - Review diffs before committing constitution updates
-- Never run `specify init --here` in existing project without backup
+- Never run `flowspec init --here` in existing project without backup
 
 ---
 
@@ -884,7 +884,7 @@ ls -la .claude/
 # .claude/commands/speckit/constitution.md
 
 # If missing, initialize:
-specify init --here
+flowspec init --here
 ```
 
 **Step 2: Verify template availability:**
@@ -975,14 +975,14 @@ specify constitution validate --json       # JSON output for scripts
 specify constitution validate --verbose    # Detailed output
 
 # Project setup
-specify init my-project --constitution medium   # New project with tier
-specify init --here                             # Add to existing project
+flowspec init my-project --constitution medium   # New project with tier
+flowspec init --here                             # Add to existing project
 
 # LLM customization
 /speckit:constitution                           # Run LLM detection
 
 # Upgrade
-specify upgrade                                 # Upgrade Flowspec
+flowspec upgrade                                 # Upgrade Flowspec
 
 # Search for issues
 grep -i "NEEDS_VALIDATION" memory/constitution.md   # Find markers

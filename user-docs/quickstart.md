@@ -11,13 +11,13 @@ This guide will help you get started with Spec-Driven Development using Flowspec
 Initialize your project depending on the coding agent you're using:
 
 ```bash
-uvx --from git+https://github.com/jpoley/flowspec.git specify init <PROJECT_NAME>
+uvx --from git+https://github.com/jpoley/flowspec.git flowspec init <PROJECT_NAME>
 ```
 
 Pick script type explicitly (optional):
 ```bash
-uvx --from git+https://github.com/jpoley/flowspec.git specify init <PROJECT_NAME> --script ps  # Force PowerShell
-uvx --from git+https://github.com/jpoley/flowspec.git specify init <PROJECT_NAME> --script sh  # Force POSIX shell
+uvx --from git+https://github.com/jpoley/flowspec.git flowspec init <PROJECT_NAME> --script ps  # Force PowerShell
+uvx --from git+https://github.com/jpoley/flowspec.git flowspec init <PROJECT_NAME> --script sh  # Force POSIX shell
 ```
 
 If you're using a private fork or private release assets, pass a GitHub token for authenticated downloads:
@@ -25,12 +25,12 @@ If you're using a private fork or private release assets, pass a GitHub token fo
 - macOS/Linux:
 
 	export GITHUB_FLOWSPEC=ghp_your_token_here
-	uvx --from git+https://github.com/jpoley/flowspec.git specify init <PROJECT_NAME>
+	uvx --from git+https://github.com/jpoley/flowspec.git flowspec init <PROJECT_NAME>
 
 - Windows PowerShell:
 
 	$env:GITHUB_FLOWSPEC = "ghp_your_token_here"
-	uvx --from git+https://github.com/jpoley/flowspec.git specify init <PROJECT_NAME>
+	uvx --from git+https://github.com/jpoley/flowspec.git flowspec init <PROJECT_NAME>
 
 Or pass inline: --github-token ghp_your_token_here
 

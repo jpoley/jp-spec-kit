@@ -142,7 +142,7 @@ Backlog.md integrations:
 
 ### 4. CLI Enhancements
 
-New command: `specify workflow validate`
+New command: `flowspec workflow validate`
 - Validates workflow configuration
 - Shows warnings for customizations
 - Tests state transitions

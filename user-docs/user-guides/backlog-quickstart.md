@@ -16,7 +16,7 @@ Backlog.md integration extends Flowspec's spec-driven development workflow with 
 
 ## Prerequisites
 
-- Flowspec installed and initialized (`specify init`)
+- Flowspec installed and initialized (`flowspec init`)
 - Node.js 18+ (for Backlog.md CLI)
 - Claude Code (optional, for AI integration)
 

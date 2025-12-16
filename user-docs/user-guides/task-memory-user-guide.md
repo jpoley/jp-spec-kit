@@ -469,7 +469,7 @@ cat backlog/memory/task-42.md
 1. **Lifecycle hooks not installed**
    ```bash
    # Reinstall hooks
-   specify init
+   flowspec init
    ```
 
 2. **Manual state change in task file**

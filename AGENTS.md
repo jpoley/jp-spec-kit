@@ -132,7 +132,7 @@ specify check
 3. **Test CLI commands**:
    ```bash
    uv tool install . --force
-   specify init test-project --ai claude
+   flowspec init test-project --ai claude
    specify check
    ```
 
@@ -274,7 +274,7 @@ uv tool install . --force
 
 # Check installation
 which specify
-specify --help
+flowspec --help
 ```
 
 ### Tests Failing
@@ -329,7 +329,7 @@ uv tool install . --force
 3. **Test CLI locally**
    ```bash
    uv tool install . --force
-   specify init test-project --ai claude
+   flowspec init test-project --ai claude
    ```
 
 4. **Commit**

@@ -142,7 +142,7 @@ metadata:
 
 4. **Validate the configuration**:
    ```bash
-   specify workflow validate
+   flowspec workflow validate
    ```
 
 ### 2. Removing a Phase
@@ -189,7 +189,7 @@ metadata:
 
 4. **Validate**:
    ```bash
-   specify workflow validate
+   flowspec workflow validate
    ```
 
 ### 3. Reordering Phases
@@ -227,7 +227,7 @@ metadata:
 
 4. **Validate**:
    ```bash
-   specify workflow validate
+   flowspec workflow validate
    ```
 
 ### 4. Adding Custom Agents
@@ -370,7 +370,7 @@ workflows:
 Always validate after making changes:
 
 ```bash
-specify workflow validate
+flowspec workflow validate
 
 # Example output:
 # ✓ Configuration structure valid (schema v1.1)
@@ -460,12 +460,12 @@ For complete working examples, see:
 
 ### 1. Always Validate
 
-Run `specify workflow validate` after every change:
+Run `flowspec workflow validate` after every change:
 
 ```bash
 vim flowspec_workflow.yml
 # ... make changes ...
-specify workflow validate
+flowspec workflow validate
 ```
 
 ### 2. Version Control
@@ -515,7 +515,7 @@ Every custom state must be reachable from "To Do":
 To Do → ... → Custom State → ... → Done
 ```
 
-Use `specify workflow validate` to verify reachability.
+Use `flowspec workflow validate` to verify reachability.
 
 ### 7. Use Descriptive Names
 
@@ -590,7 +590,7 @@ transitions:
 **How to avoid**:
 - Draw your state diagram before implementing
 - Use `via: "rework"` for legitimate backward transitions (e.g., returning to planning after failed validation)
-- Run `specify workflow validate` after every change
+- Run `flowspec workflow validate` after every change
 
 **Fix**: Remove or modify the transition creating the cycle:
 ```yaml
@@ -625,7 +625,7 @@ transitions:
 **How to avoid**:
 - Every state (except "To Do") must have at least one incoming transition
 - Every state (except terminal states) must have at least one outgoing transition
-- Use `specify workflow validate` to detect unreachable states
+- Use `flowspec workflow validate` to detect unreachable states
 
 **Fix**: Add a transition path to the state:
 ```yaml
@@ -655,7 +655,7 @@ Run these when troubleshooting:
 
 ```bash
 # 1. Validate configuration (catches most issues)
-specify workflow validate
+flowspec workflow validate
 
 # 2. Check YAML syntax
 python -c "import yaml; yaml.safe_load(open('flowspec_workflow.yml'))"
@@ -681,7 +681,7 @@ If customizations cause issues:
 2. **Reload configuration**:
    ```bash
    # Restart Claude Code, or use:
-   specify workflow validate --reload
+   flowspec workflow validate --reload
    ```
 
 ### Backup Before Editing
@@ -712,7 +712,7 @@ cp ~/.local/share/flowspec-cli/templates/flowspec_workflow.yml ./flowspec_workfl
 
 - `flowspec_workflow.yml` is the single source of truth for workflow configuration
 - Customize by adding/removing/reordering states, workflows, and transitions
-- Always validate after changes: `specify workflow validate`
+- Always validate after changes: `flowspec workflow validate`
 - Test customizations on small tasks first
 - Keep workflows simple and maintainable
 - Document custom phases with comments

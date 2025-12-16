@@ -12,7 +12,7 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 ## Execution Instructions
 
-This command re-runs the workflow configuration questions that were asked during `specify init`, allowing users to reconfigure their workflow settings without reinitializing the entire project.
+This command re-runs the workflow configuration questions that were asked during `flowspec init`, allowing users to reconfigure their workflow settings without reinitializing the entire project.
 
 ### Overview
 
@@ -41,7 +41,7 @@ Before proceeding, verify this is a valid flowspec project:
 # Check for project markers
 if [ ! -f "flowspec_workflow.yml" ] && [ ! -d ".claude" ]; then
   echo "Error: This doesn't appear to be a flowspec project"
-  echo "Run 'specify init --here' first to initialize the project"
+  echo "Run 'flowspec init --here' first to initialize the project"
   exit 1
 fi
 ```
@@ -258,7 +258,7 @@ If `--no-prompts` is specified:
 
 ### Error Handling
 
-- **Not in project directory**: Show error and suggest `specify init --here`
+- **Not in project directory**: Show error and suggest `flowspec init --here`
 - **Invalid validation mode**: Show valid options (none, keyword, pull-request)
 - **Invalid constitution tier**: Show valid options (light, medium, heavy)
 - **User cancels**: Exit gracefully with message
@@ -269,7 +269,7 @@ This command mirrors the behavior of the CLI's internal `prompt_validation_modes
 
 ```bash
 # Equivalent CLI command
-specify init --here --force  # Re-runs full init with prompts
+flowspec init --here --force  # Re-runs full init with prompts
 ```
 
 ### Quality Checks
