@@ -116,13 +116,13 @@ templates/commands/          ← SINGLE SOURCE OF TRUTH
 - Validation requirements specified
 - Content requirements documented
 
-**B. dev-setup Command** (`specify dev-setup`)
+**B. dev-setup Command** (`flowspec dev-setup`)
 - Pseudocode provided
 - Both speckit and flowspec symlink creation
 - Error handling defined
 - Testing approach specified
 
-**C. Init Command** (`specify init`)
+**C. Init Command** (`flowspec init`)
 - Updated copy logic designed
 - Subdirectory structure handling
 - Breaking change mitigation planned

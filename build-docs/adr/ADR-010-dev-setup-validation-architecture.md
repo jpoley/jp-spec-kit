@@ -16,7 +16,7 @@ The flowspec project uses a "dev-setup" (formerly "dogfood") pattern where the s
 3. **Automatic Propagation**: Template changes immediately reflect in development
 
 **Current State**:
-- `specify dev-setup` command creates symlinks for flowspec and speckit commands
+- `flowspec dev-setup` command creates symlinks for flowspec and speckit commands
 - `.claude/commands/flow/*.md` -> `templates/commands/flowspec/*.md`
 - `.claude/commands/speckit/*.md` -> `templates/commands/*.md`
 
@@ -110,9 +110,9 @@ Recovery Procedures:
 
 | Scenario | Command | MTTR |
 |----------|---------|------|
-| Non-symlink files | `specify dev-setup --force` | < 1 min |
-| Broken symlinks | `specify dev-setup --force` | < 1 min |
-| Corrupted structure | `rm -rf .claude/commands && specify dev-setup` | < 2 min |
+| Non-symlink files | `flowspec dev-setup --force` | < 1 min |
+| Broken symlinks | `flowspec dev-setup --force` | < 1 min |
+| Corrupted structure | `rm -rf .claude/commands && flowspec dev-setup` | < 2 min |
 | Template missing | `git checkout main -- templates/commands/FILE` | < 2 min |
 
 ---
@@ -191,7 +191,7 @@ Critical Path: `task-260/task-277 → task-261 → task-259`
 
 - **Automated Enforcement**: CI/CD prevents non-symlink files from merging
 - **Fast Feedback**: Pre-commit hook catches issues in < 10 seconds
-- **Self-Healing**: `specify dev-setup --force` fixes most issues automatically
+- **Self-Healing**: `flowspec dev-setup --force` fixes most issues automatically
 - **Comprehensive Testing**: Test suite covers all validation rules
 - **Clear Documentation**: Contributors understand the architecture
 

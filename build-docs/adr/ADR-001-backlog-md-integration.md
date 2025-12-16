@@ -549,7 +549,7 @@ def test_implement_exit_hook():
 **Test Specify Workflow**:
 ```python
 def test_specify_workflow_end_to_end():
-    """Verify complete specify workflow from entry to exit."""
+    """Verify complete flowspec workflow from entry to exit."""
     feature = "user-authentication"
     task_id = f"flowspec-specify-{feature}-20251128"
 

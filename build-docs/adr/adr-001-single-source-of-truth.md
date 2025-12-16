@@ -12,7 +12,7 @@ We currently have three different versions of flowspec commands:
 
 1. **Enhanced versions** in `.claude/commands/flow/` (20KB files with full backlog integration)
 2. **Minimal versions** in `templates/commands/flowspec/` (3KB files, basic stubs)
-3. **Distributed versions** (same as #2, installed by `specify init`)
+3. **Distributed versions** (same as #2, installed by `flowspec init`)
 
 This creates several problems:
 

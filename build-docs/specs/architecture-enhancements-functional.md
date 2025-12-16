@@ -31,13 +31,13 @@ This functional specification defines behaviors for 10 architecture enhancement 
 ### FR-TIER: Constitution Tiers (task-086, task-182)
 
 **FR-TIER-001**: Light Tier Support
-- **Input**: `specify init --tier light` or `--light`
+- **Input**: `flowspec init --tier light` or `--light`
 - **Output**: Constitution with ~50 lines, core non-negotiables only
 - **Rules**: Skip research phase, 50/100 quality threshold
 - **Errors**: Warn if project complexity suggests higher tier
 
 **FR-TIER-002**: Tier Selection UI
-- **Input**: `specify init` (no tier flag)
+- **Input**: `flowspec init` (no tier flag)
 - **Output**: Interactive prompt with tier descriptions
 - **Rules**: Default to medium tier, show team size guidance
 - **Errors**: Fall back to medium if stdin not available
@@ -115,7 +115,7 @@ This functional specification defines behaviors for 10 architecture enhancement 
 ### FR-STACK: Stack Selection (task-079)
 
 **FR-STACK-001**: Interactive Selection UI
-- **Input**: `specify init` (no --stack flag)
+- **Input**: `flowspec init` (no --stack flag)
 - **Output**: Arrow-key navigable stack list
 - **Rules**: Show stack name, languages, frameworks
 - **Errors**: Fall back to "ALL STACKS" if terminal not interactive
@@ -232,7 +232,7 @@ This functional specification defines behaviors for 10 architecture enhancement 
 **Actor**: Solo developer
 **Preconditions**: Empty directory, specify CLI installed
 **Flow**:
-1. Run `specify init --light`
+1. Run `flowspec init --light`
 2. Select stack (or skip)
 3. Constitution created with light tier
 4. Begin spec-driven development

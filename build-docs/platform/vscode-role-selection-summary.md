@@ -121,7 +121,7 @@ vscode_roles:
 ### 1. Project Initialization
 
 ```bash
-specify init --here
+flowspec init --here
 ```
 
 **Prompt**:
@@ -182,7 +182,7 @@ Mode [1]: 2
 - [ ] Regenerate all 23 agents with metadata
 
 ### Phase 3: Advanced Features (3-4 days)
-- [ ] Implement role switching (`specify config set vscode.role`)
+- [ ] Implement role switching (`flowspec config set vscode.role`)
 - [ ] Add CI/CD role validation workflows
 - [ ] Implement telemetry (privacy-preserving)
 

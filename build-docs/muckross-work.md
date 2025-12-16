@@ -57,7 +57,7 @@ Here are the action-event system related tasks:
   | task-402 | HIGH     | To Do  | Task Memory: Upstream contribution to backlog CLI for hook support |
   | task-377 | HIGH     | Done   | Task Memory: Claude Code integration via hooks and MCP (Phase 3)   |
   | task-370 | HIGH     | To Do  | Task Memory: Lifecycle integration with backlog.md (Phase 2)       |
-  | task-473 | HIGH     | To Do  | claude-improves: Enable hooks by default in specify init           |
+  | task-473 | HIGH     | To Do  | claude-improves: Enable hooks by default in flowspec init           |
   | task-283 | MEDIUM   | To Do  | Create post-workflow-archive.sh hook for agent-triggered archiving |
 
   Related Telemetry/Event Tasks

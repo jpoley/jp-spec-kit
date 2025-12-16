@@ -4917,11 +4917,11 @@ def backlog_migrate(
     labels, dependencies, status, and user stories.
 
     Examples:
-        specify backlog migrate                          # Migrate ./tasks.md to ./backlog
-        specify backlog migrate --source ../tasks.md     # Migrate from specific file
-        specify backlog migrate --dry-run                # Preview migration
-        specify backlog migrate --force                  # Overwrite existing tasks
-        specify backlog migrate --no-backup              # Skip backup creation
+        flowspec backlog migrate                          # Migrate ./tasks.md to ./backlog
+        flowspec backlog migrate --source ../tasks.md     # Migrate from specific file
+        flowspec backlog migrate --dry-run                # Preview migration
+        flowspec backlog migrate --force                  # Overwrite existing tasks
+        flowspec backlog migrate --no-backup              # Skip backup creation
     """
     show_banner()
 
@@ -6207,10 +6207,10 @@ def vscode_generate(
     will be pinned to the top of suggestions.
 
     Examples:
-        specify vscode generate                    # Use primary role from config
-        specify vscode generate --role dev         # Generate for dev role
-        specify vscode generate --force            # Overwrite without merging
-        specify vscode generate -o custom.json     # Custom output path
+        flowspec vscode generate                    # Use primary role from config
+        flowspec vscode generate --role dev         # Generate for dev role
+        flowspec vscode generate --force            # Overwrite without merging
+        flowspec vscode generate -o custom.json     # Custom output path
     """
     from flowspec_cli.vscode.settings_generator import VSCodeSettingsGenerator
     from flowspec_cli.workflow.config import WorkflowConfig
@@ -6680,9 +6680,9 @@ def constitution_validate_cmd(
     - 1: Validation failed (markers found or file not found)
 
     Examples:
-        specify constitution validate                 # Validate default location
-        specify constitution validate --path my.md    # Validate custom file
-        specify constitution validate --verbose       # Show detailed output
+        flowspec constitution validate                 # Validate default location
+        flowspec constitution validate --path my.md    # Validate custom file
+        flowspec constitution validate --verbose       # Show detailed output
     """
     show_banner()
 

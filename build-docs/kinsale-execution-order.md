@@ -38,7 +38,7 @@ Tasks are grouped by execution level. Tasks within the same level have no depend
   - Labels: `claude-improves, standards, prompts`
 - **task-469**: claude-improves: Document agent prompt alignment (Copilot vs Claude Code)
   - Labels: `claude-improves, documentation, agents`
-- **task-470**: claude-improves: Enhance specify init to deploy skills to .claude/skills
+- **task-470**: claude-improves: Enhance flowspec init to deploy skills to .claude/skills
   - Labels: `claude-improves, cli, specify-init`
 - **task-471**: claude-improves: Add CLAUDE.md scaffolding to specify init
   - Labels: `claude-improves, cli, specify-init`
@@ -56,7 +56,7 @@ Tasks are grouped by execution level. Tasks within the same level have no depend
   - Labels: `claude-improves, templates, mcp`
 - **task-479**: claude-improves: Add CI check for template deployment parity
   - Labels: `claude-improves, ci, templates`
-- **task-480**: claude-improves: Add specify init --complete option
+- **task-480**: claude-improves: Add flowspec init --complete option
   - Labels: `claude-improves, cli, specify-init`
 - **task-481**: claude-improves: Add deployment completeness report to specify init
   - Labels: `claude-improves, cli, specify-init`

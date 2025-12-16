@@ -64,7 +64,7 @@ Tasks are grouped by execution level. Tasks within the same level have no depend
   - Labels: `upstream, contribution, infrastructure`
 - **task-429**: Create flowspec CLI ASCII logo
   - Labels: `cli, branding, flowspec`
-- **task-430**: Create flowspec-cli to replace specify init for AI
+- **task-430**: Create flowspec-cli to replace flowspec init for AI
   - Labels: `cli, flowspec, enhancement`
 - **task-432**: Enforce DCO sign-off in all automated commits
   - Labels: `compliance, ci-cd, process`

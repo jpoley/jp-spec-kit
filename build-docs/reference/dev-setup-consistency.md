@@ -51,7 +51,7 @@ All command development occurs in `templates/commands/`:
 │           ↓ (symlinks)                ↓ (copies)            │
 │  ┌──────────────────┐       ┌──────────────────┐          │
 │  │ Development      │       │ Distribution     │          │
-│  │ (dev-setup)      │       │ (specify init)   │          │
+│  │ (dev-setup)      │       │ (flowspec init)   │          │
 │  │                  │       │                  │          │
 │  │ .claude/commands/│       │ .claude/commands/│          │
 │  │   flowspec/        │       │   flowspec/        │          │
@@ -90,7 +90,7 @@ flowspec/
 └── .flowspec-source              ◄─── MARKER FILE
 ```
 
-**User Projects** (created via `specify init`):
+**User Projects** (created via `flowspec init`):
 ```
 my-project/
 └── .claude/commands/                ◄─── COPIED FILES
@@ -116,7 +116,7 @@ my-project/
 │     └───────────────┬─────────────────────┘               │
 │                     ↓                                       │
 │     ┌─────────────────────────────────────┐               │
-│     │ specify dev-setup creates symlink   │               │
+│     │ flowspec dev-setup creates symlink   │               │
 │     │ .claude/commands/flow/implement.md│               │
 │     │    → templates/commands/...         │               │
 │     └───────────────┬─────────────────────┘               │
@@ -144,7 +144,7 @@ my-project/
 │                     │                                       │
 │  3. DISTRIBUTION    ↓                                       │
 │     ┌─────────────────────────────────────┐               │
-│     │ specify init downloads release      │               │
+│     │ flowspec init downloads release      │               │
 │     │ Copies files to user's project      │               │
 │     └───────────────┬─────────────────────┘               │
 │                     ↓                                       │
@@ -234,7 +234,7 @@ vim templates/commands/flowspec/new-command.md
 **Step 2: Recreate Symlinks**
 ```bash
 # Regenerate symlinks to include new command
-specify dev-setup --force
+flowspec dev-setup --force
 
 # Or use Makefile
 make dev-fix
@@ -320,7 +320,7 @@ git mv templates/commands/flowspec/old-name.md \
 git rm .claude/commands/flow/old-name.md
 
 # Recreate all symlinks
-specify dev-setup --force
+flowspec dev-setup --force
 ```
 
 **Step 3: Verify**
@@ -443,7 +443,7 @@ uv tool install . --force
 **Step 2: Run Dev-Setup**
 ```bash
 # Create symlinks
-specify dev-setup
+flowspec dev-setup
 
 # Expected output:
 # ✓ Created symlink: .claude/commands/flow/implement.md
@@ -477,7 +477,7 @@ make dev-validate
 ```
 
 **Key Points**:
-- Run `specify dev-setup` after cloning
+- Run `flowspec dev-setup` after cloning
 - Validate before starting work
 - Test Claude Code can discover commands
 
@@ -494,7 +494,7 @@ make dev-validate
 | **Pre-commit hook fails** | Validation errors in staged files | Fix errors + retry commit | [Issue 3](#issue-3-pre-commit-hook-failure) |
 | **CI validation fails** | PR contains invalid structure | `make ci-local` to reproduce | [Issue 4](#issue-4-ci-validation-fails) |
 | **Corrupted .claude directory** | Manual manipulation | `rm -rf .claude/commands && make dev-fix` | [Issue 5](#issue-5-corrupted-claude-directory) |
-| **Command not appearing** | Symlink not created | `specify dev-setup --force` | [Issue 6](#issue-6-command-not-appearing-in-claude-code) |
+| **Command not appearing** | Symlink not created | `flowspec dev-setup --force` | [Issue 6](#issue-6-command-not-appearing-in-claude-code) |
 | **Changes not reflecting** | Cached symlink | Restart Claude Code | [Issue 7](#issue-7-changes-not-reflecting) |
 
 ---
@@ -703,14 +703,14 @@ ls -la templates/commands/flowspec/new-command.md
 ls -la .claude/commands/flow/new-command.md
 
 # 3. If symlink missing, create it
-specify dev-setup --force
+flowspec dev-setup --force
 
 # 4. Restart Claude Code
 # Commands are discovered on startup
 ```
 
 **Prevention**:
-- Always run `specify dev-setup --force` after adding new commands
+- Always run `flowspec dev-setup --force` after adding new commands
 - Restart Claude Code after structural changes
 
 ---
@@ -734,7 +734,7 @@ cat .claude/commands/flow/implement.md
 **Alternative**:
 ```bash
 # Force symlink recreation
-specify dev-setup --force
+flowspec dev-setup --force
 
 # Restart Claude Code
 ```
@@ -918,8 +918,8 @@ make test-dev            # Run dev-setup tests only
 make ci-local            # Simulate full CI pipeline
 
 # Development
-specify dev-setup        # Run dev-setup command
-specify dev-setup --force  # Force recreation of all symlinks
+flowspec dev-setup        # Run dev-setup command
+flowspec dev-setup --force  # Force recreation of all symlinks
 ```
 
 ### Command Details
@@ -1008,7 +1008,7 @@ Automated recovery: recreates all symlinks from templates.
 **Process**:
 1. Backs up current state
 2. Removes existing symlinks
-3. Runs `specify dev-setup --force`
+3. Runs `flowspec dev-setup --force`
 4. Validates new structure
 
 **Output**:
@@ -1113,17 +1113,17 @@ Step 3: Development setup validation...
 
 ---
 
-#### `specify dev-setup`
+#### `flowspec dev-setup`
 
 Core CLI command to create symlinks.
 
 **Usage**:
 ```bash
 # Create symlinks (skip existing)
-specify dev-setup
+flowspec dev-setup
 
 # Force recreation (overwrite existing)
-specify dev-setup --force
+flowspec dev-setup --force
 ```
 
 **Options**:

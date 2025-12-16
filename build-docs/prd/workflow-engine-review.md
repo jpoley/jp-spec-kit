@@ -736,7 +736,7 @@ Use **SQLite** (single-file database) or **JSON append log** to maintain zero-in
 2. **Debugging Difficulty** ⚠️
    - Event logs and execution history add new debugging surfaces
    - Risk: Users overwhelmed by too much information
-   - Mitigation: Simple CLI commands (`specify workflow history task-123`)
+   - Mitigation: Simple CLI commands (`flowspec workflow history task-123`)
 
 3. **Breaking Changes** ❌
    - Migrating from file-based to database-backed state could break existing workflows
@@ -962,7 +962,7 @@ JP Flowspec is a **developer productivity tool** for **Spec-Driven Development**
    - **Effort**: 1 week
 
 4. **task-099**: Implement workflow config validation CLI command
-   - **Action**: Add `specify workflow validate` command
+   - **Action**: Add `flowspec workflow validate` command
    - **Effort**: 1 week
 
 5. **task-100**: Write unit tests for WorkflowConfig class
@@ -984,7 +984,7 @@ JP Flowspec is a **developer productivity tool** for **Spec-Driven Development**
 8. **Event Log** (NEW)
    - **Approach**: JSON append log for workflow events
    - **Schema**: `{event_id, task_id, event_type, timestamp, details}`
-   - **CLI**: `specify workflow history <task-id>`
+   - **CLI**: `flowspec workflow history <task-id>`
    - **Effort**: 1 week
 
 **Phase 1 Total Effort: 6-8 weeks**
@@ -1097,7 +1097,7 @@ JP Flowspec is a **developer productivity tool** for **Spec-Driven Development**
    - **Description**: Create JSON-based append log for all workflow events (transitions, validations, failures)
    - **Acceptance Criteria**:
      - JSON append log with event schema (event_id, task_id, event_type, timestamp, details)
-     - CLI command `specify workflow history <task-id>` to view event timeline
+     - CLI command `flowspec workflow history <task-id>` to view event timeline
      - Event log rotation and archival after 90 days
      - Query performance <100ms for task with 100 events
    - **Priority**: P0 (Critical)
@@ -1131,7 +1131,7 @@ JP Flowspec is a **developer productivity tool** for **Spec-Driven Development**
    - **Title**: Create workflow observability dashboard and metrics
    - **Description**: Build CLI-based reporting for workflow performance, bottlenecks, and failure analysis
    - **Acceptance Criteria**:
-     - `specify workflow report` command shows metrics (duration, failure rate, bottleneck states)
+     - `flowspec workflow report` command shows metrics (duration, failure rate, bottleneck states)
      - Static HTML dashboard generation for visual analysis
      - Metrics aggregation from event log
      - Export to CSV for further analysis
@@ -1389,7 +1389,7 @@ backlog task create "Implement SQLite-based workflow state persistence" \
 backlog task create "Implement workflow event log for execution history" \
   -d "Create JSON-based append log for all workflow events (transitions, validations, failures)" \
   --ac "JSON append log with event schema (event_id, task_id, event_type, timestamp, details)" \
-  --ac "CLI command 'specify workflow history <task-id>' to view event timeline" \
+  --ac "CLI command 'flowspec workflow history <task-id>' to view event timeline" \
   --ac "Event log rotation and archival after 90 days" \
   --ac "Query performance <100ms for task with 100 events" \
   --ac "Unit tests with >80% coverage" \
@@ -1423,7 +1423,7 @@ backlog task create "Implement compensation workflows for failure handling" \
 
 backlog task create "Create workflow observability dashboard and metrics" \
   -d "Build CLI-based reporting for workflow performance, bottlenecks, and failure analysis" \
-  --ac "'specify workflow report' command shows metrics (duration, failure rate, bottleneck states)" \
+  --ac "'flowspec workflow report' command shows metrics (duration, failure rate, bottleneck states)" \
   --ac "Static HTML dashboard generation for visual analysis" \
   --ac "Metrics aggregation from event log" \
   --ac "Export to CSV for further analysis" \

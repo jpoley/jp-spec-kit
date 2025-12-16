@@ -82,7 +82,7 @@ agent_context: |
 **So that** my workflow matches research methodology
 
 **Acceptance Criteria:**
-- [ ] `specify init --mission research` creates research-focused workflow
+- [ ] `flowspec init --mission research` creates research-focused workflow
 - [ ] States reflect research phases, not software dev phases
 - [ ] Templates are research-specific (research-question.md, findings.md)
 - [ ] Agent context guides research practices
@@ -115,7 +115,7 @@ agent_context: |
 **So that** our specific process is enforced
 
 **Acceptance Criteria:**
-- [ ] User can create `.specify/missions/custom-mission/` directory
+- [ ] User can create `.flowspec/missions/custom-mission/` directory
 - [ ] Mission YAML defines states, artifacts, validation
 - [ ] Custom mission appears in `specify mission list`
 - [ ] Templates from custom mission used during specify
@@ -127,7 +127,7 @@ agent_context: |
 ### 4.1 Mission Directory Structure
 
 ```
-.specify/
+.flowspec/
 ├── config.yml              # Project config including default mission
 └── missions/               # Custom missions (optional)
     └── security-audit/
@@ -621,7 +621,7 @@ artifacts:
 
 ### Phase 2: CLI Integration (Week 1-2)
 1. Add `specify mission` command group
-2. Integrate mission selection into `specify init`
+2. Integrate mission selection into `flowspec init`
 3. Pass mission context to /flow commands
 4. Add `--mission` flag to `/flow:specify`
 

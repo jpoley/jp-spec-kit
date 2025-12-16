@@ -280,7 +280,7 @@ validation: PULL_REQUEST
 Use `--skip-validation` flag to bypass all validation gates (emergency use only).
 
 ```bash
-specify workflow transition --to "Planned" --skip-validation
+flowspec workflow transition --to "Planned" --skip-validation
 ```
 
 **Warning:** This flag bypasses all validation and logs a warning for audit trail. Use only in exceptional circumstances.

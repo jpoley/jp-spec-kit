@@ -31,7 +31,7 @@ Teams using these additional agents cannot use flowspec's slash commands without
 
 ## 2. Solution Overview
 
-Extend `specify init` to generate commands for all 11 AI coding agents. Each agent has specific requirements:
+Extend `flowspec init` to generate commands for all 11 AI coding agents. Each agent has specific requirements:
 
 | Agent | Directory | File Format | Argument Syntax |
 |-------|-----------|-------------|-----------------|
@@ -54,7 +54,7 @@ Extend `specify init` to generate commands for all 11 AI coding agents. Each age
 
 ### US-1: Initialize with New Agent
 **As a** developer using Qwen Code
-**I want to** run `specify init --ai qwen`
+**I want to** run `flowspec init --ai qwen`
 **So that** I get slash commands compatible with my agent
 
 **Acceptance Criteria:**
@@ -64,7 +64,7 @@ Extend `specify init` to generate commands for all 11 AI coding agents. Each age
 
 ### US-2: Multiple Agent Initialization
 **As a** team using multiple AI tools
-**I want to** run `specify init --ai claude,qwen,cursor`
+**I want to** run `flowspec init --ai claude,qwen,cursor`
 **So that** all team members can use their preferred agent
 
 **Acceptance Criteria:**
@@ -414,7 +414,7 @@ def remove_argument_references(content: str) -> str:
 ### 4.4 CLI Integration
 
 ```python
-# Update to specify init command
+# Update to flowspec init command
 
 @app.command()
 def init(
@@ -512,7 +512,7 @@ Each agent gets these templates copied to their specific directory with format t
 4. Handle argument syntax variations
 
 ### Phase 3: CLI Integration (Day 3-4)
-1. Update `specify init` command
+1. Update `flowspec init` command
 2. Add `--ai` flag with all agents
 3. Interactive agent selection prompt
 4. Integration tests

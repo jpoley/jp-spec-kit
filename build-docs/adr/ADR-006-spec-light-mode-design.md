@@ -15,7 +15,7 @@ User feedback (Böckeler) noted that full SDD workflow creates "a LOT of markdow
 ## Decision
 Implement Spec-Light Mode with:
 
-1. **`--light` flag on `specify init`**: Creates `.flowspec-light-mode` marker file
+1. **`--light` flag on `flowspec init`**: Creates `.flowspec-light-mode` marker file
 2. **Simplified templates**: `spec-light.md` (combined stories + AC) and `plan-light.md` (high-level only)
 3. **Skipped phases**: Research, analyze, detailed data models, API contracts
 4. **Maintained requirements**: Constitutional compliance, test-first, PR workflow

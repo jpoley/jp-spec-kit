@@ -600,7 +600,7 @@ This section provides detailed ratings for each capability's utilization in JP F
 - ⚠️ No LLM-based (prompt) hooks for intelligent decision-making
 
 **Recommendations**:
-1. **Quick Win**: Add SessionStart hook to load `.specify/` context and verify dependencies
+1. **Quick Win**: Add SessionStart hook to load `.flowspec/` context and verify dependencies
 2. **Quick Win**: Add Stop hook to enforce backlog task completion before PR creation
 3. **Medium**: Add PermissionRequest hook to auto-approve Read operations in `docs/`, `backlog/`, `templates/`
 4. **Long-term**: Experiment with LLM-based hooks for intelligent quality gates
@@ -1472,8 +1472,8 @@ Replace `/Users/jasonpoley/...` with `${CLAUDE_PROJECT_DIR}` or relative path
 #!/bin/bash
 # .claude/hooks/session-start.sh
 
-# Load .specify/ context
-echo "Loading project context from .specify/"
+# Load .flowspec/ context
+echo "Loading project context from .flowspec/"
 
 # Verify dependencies
 command -v uv >/dev/null || echo "WARNING: uv not found"
@@ -1571,7 +1571,7 @@ safe_patterns = [
     "Read(./docs/**)",
     "Read(./backlog/**)",
     "Read(./templates/**)",
-    "Read(./.specify/**)",
+    "Read(./.flowspec/**)",
 ]
 # Auto-approve Bash for backlog CLI
 if "backlog task" in tool_input:
@@ -1715,7 +1715,7 @@ backlog task list --plain | grep -i "claude\|hook\|skill\|mcp\|agent"
    - **AC**:
      - [ ] SessionStart hook script created (.claude/hooks/session-start.sh)
      - [ ] Hook verifies dependencies (uv, backlog CLI)
-     - [ ] Hook loads .specify/ context
+     - [ ] Hook loads .flowspec/ context
      - [ ] Hook displays active backlog tasks
      - [ ] Hook configuration added to settings.json
    - **Labels**: claude-code, hooks, automation

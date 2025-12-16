@@ -266,7 +266,7 @@ Create `docs/guides/flowspec-workflow-tutorial.md`:
 
 Enhance `specify` CLI with:
 ```bash
-specify workflows    # List available workflows
+flowspec workflows    # List available workflows
 specify help plan    # Get help for specific workflow
 ```
 

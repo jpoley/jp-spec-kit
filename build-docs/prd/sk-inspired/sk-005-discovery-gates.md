@@ -668,7 +668,7 @@ WAITING_FOR_DISCOVERY_INPUT
 
 ## 8. Configuration
 
-Users can customize discovery behavior in `.specify/config.yml`:
+Users can customize discovery behavior in `.flowspec/config.yml`:
 
 ```yaml
 discovery:
@@ -677,7 +677,7 @@ discovery:
   max_questions: 10
   skip_for_complexity_under: 3  # Skip for trivial tasks
   require_confirmation: true
-  custom_questions_file: ".specify/discovery-questions.yml"
+  custom_questions_file: ".flowspec/discovery-questions.yml"
 ```
 
 ---

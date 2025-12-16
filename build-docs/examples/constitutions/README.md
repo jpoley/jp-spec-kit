@@ -27,7 +27,7 @@ Each example demonstrates:
 
 ```bash
 # Initialize constitution for your project
-specify init
+flowspec init
 
 # Run constitution detection
 /speckit:constitution
@@ -40,10 +40,10 @@ specify init
 specify constitution validate
 
 # View constitution
-cat .specify/memory/constitution.md
+cat .flowspec/memory/constitution.md
 
 # Check detected facts
-cat .specify/memory/repo-facts.md
+cat .flowspec/memory/repo-facts.md
 ```
 
 ### Step 3: Apply Customizations
@@ -111,20 +111,20 @@ Tech-stack specific sections:
 
 ```bash
 # 1. Generate constitution
-specify init
+flowspec init
 /speckit:constitution
 
 # 2. View Python example
 cat docs/examples/constitutions/python-fastapi.md
 
 # 3. Edit constitution
-vim .specify/memory/constitution.md
+vim .flowspec/memory/constitution.md
 
 # 4. Validate
 specify constitution validate
 
 # 5. Commit
-git add .specify/memory/constitution.md
+git add .flowspec/memory/constitution.md
 git commit -s -m "docs: customize constitution for Python/FastAPI"
 ```
 
@@ -179,7 +179,7 @@ To add a new example:
 
 ### Q: Can I have multiple constitutions?
 
-**A**: No. Each project should have one constitution in `.specify/memory/constitution.md`. However, you can customize sections extensively for different components.
+**A**: No. Each project should have one constitution in `.flowspec/memory/constitution.md`. However, you can customize sections extensively for different components.
 
 ### Q: What if my tech stack isn't shown?
 
@@ -217,7 +217,7 @@ To add a new example:
 
 ### Q: What if detected facts are wrong?
 
-**A**: Manually edit `.specify/memory/repo-facts.md`. Detection is a starting point, not authoritative.
+**A**: Manually edit `.flowspec/memory/repo-facts.md`. Detection is a starting point, not authoritative.
 
 ### Q: Do I need to re-run detection after changes?
 

@@ -226,7 +226,7 @@ cp .claude/commands/flow.specify.md .github/agents/flowspec.specify.md
 Or use spec-kit's CLI to regenerate:
 
 ```bash
-uvx --from git+https://github.com/jpoley/flowspec.git specify init --here --force --ai copilot
+uvx --from git+https://github.com/jpoley/flowspec.git flowspec init --here --force --ai copilot
 ```
 
 **Warning:** The spec-kit command will overwrite files. Back up customizations first.

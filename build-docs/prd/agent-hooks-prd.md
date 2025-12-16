@@ -25,8 +25,8 @@ These gaps force developers to maintain mental checklists of post-workflow actio
 Introduce an **event + hook abstraction** that transforms JP Flowspec from a linear workflow engine into an **event-driven automation platform**. The system consists of three core components:
 
 1. **Event Model**: Canonical event types (spec.created, task.completed, implement.completed, etc.)
-2. **Hook Definitions**: YAML configuration in `.specify/hooks/hooks.yaml` mapping events to scripts
-3. **Hook Runner**: CLI command `specify hooks run` that receives events and dispatches to configured hooks
+2. **Hook Definitions**: YAML configuration in `.flowspec/hooks/hooks.yaml` mapping events to scripts
+3. **Hook Runner**: CLI command `flowspec hooks run` that receives events and dispatches to configured hooks
 
 **Key Design Principle**: JP Flowspec hooks are **tool-agnostic** and **workflow-focused**, complementing Claude Code hooks (tool-level events) rather than replacing them.
 
@@ -120,7 +120,7 @@ So that I catch regressions before code review
 - [ ] Hook triggered on implement.completed event
 - [ ] Test suite executes with timeout (default 5 minutes)
 - [ ] Test failures block PR creation
-- [ ] Results logged to .specify/hooks/audit.log
+- [ ] Results logged to .flowspec/hooks/audit.log
 
 **US-1.2: Enforce Backlog Task Completion Before PR**
 ```
@@ -273,13 +273,13 @@ So that eng team has backlog items ready
 - ⚠️ **Debugging**: Hook failures are harder to debug than inline code
 
 **Validation Experiments**:
-1. **Wizard/scaffolding**: `specify init` creates example hooks.yaml with commented sections
+1. **Wizard/scaffolding**: `flowspec init` creates example hooks.yaml with commented sections
 2. **Usability test**: Give 5 users "Configure hooks to run tests" task, measure completion time (Target: <10 minutes)
 3. **Documentation review**: Have 3 technical writers review docs for clarity
 
 **Mitigations**:
 - **Clear error messages**: "Hook 'run-tests' timed out after 30s. Increase timeout in hooks.yaml."
-- **Debugging tools**: `specify hooks test --dry-run` validates config without execution
+- **Debugging tools**: `flowspec hooks test --dry-run` validates config without execution
 - **Progressive disclosure**: Start with simple examples (single event, single script), advance to complex patterns
 
 ### Feasibility Risk: Can We Build This?
@@ -316,7 +316,7 @@ So that eng team has backlog items ready
 
 **Mitigations**:
 - **Curated hook library**: Publish official hooks for common use cases (testing, docs, CI/CD)
-- **Validation tooling**: `specify hooks validate` catches config errors early
+- **Validation tooling**: `flowspec hooks validate` catches config errors early
 - **Enterprise support tier**: Offer hook configuration consulting for paid customers
 
 ---
@@ -352,7 +352,7 @@ So that eng team has backlog items ready
 - `task.archived`: Task moved to archive
 
 **System Events** (future):
-- `project.initialized`: New project created via specify init
+- `project.initialized`: New project created via flowspec init
 - `config.updated`: flowspec_workflow.yml modified
 
 #### Event Payload Schema
@@ -435,7 +435,7 @@ So that eng team has backlog items ready
 #### YAML Schema
 
 ```yaml
-# .specify/hooks/hooks.yaml
+# .flowspec/hooks/hooks.yaml
 version: "1.0"
 
 # Global defaults
@@ -451,7 +451,7 @@ hooks:
     description: "Run test suite after implementation"
     events:
       - type: "implement.completed"
-    script: ".specify/hooks/run-tests.sh"
+    script: ".flowspec/hooks/run-tests.sh"
     timeout: 300  # 5 minutes
     env:
       PYTEST_ARGS: "-v --cov=src"
@@ -462,7 +462,7 @@ hooks:
     events:
       - type: "spec.created"
       - type: "spec.updated"
-    script: ".specify/hooks/update-changelog.py"
+    script: ".flowspec/hooks/update-changelog.py"
     env:
       CHANGELOG_PATH: "./CHANGELOG.md"
 
@@ -501,7 +501,7 @@ hooks:
 - `events`: List of event matchers (at least one)
 
 **Execution Methods** (one required):
-- `script`: Path to executable script (relative to .specify/hooks/)
+- `script`: Path to executable script (relative to .flowspec/hooks/)
 - `command`: Inline shell command
 - `webhook`: HTTP request configuration (v2)
 
@@ -554,57 +554,57 @@ events:
 **Run Hooks** (primary use case):
 ```bash
 # Emit event and run matching hooks
-specify hooks run \
+flowspec hooks run \
   --event-type "implement.completed" \
   --payload '{"feature": "auth", "task_id": "task-189"}'
 
 # Emit from JSON file
-specify hooks run --event-file event.json
+flowspec hooks run --event-file event.json
 
 # Dry-run (no execution)
-specify hooks run --event-type "task.completed" --dry-run
+flowspec hooks run --event-type "task.completed" --dry-run
 ```
 
 **List Hooks**:
 ```bash
 # List all configured hooks
-specify hooks list
+flowspec hooks list
 
 # List hooks matching event type
-specify hooks list --event-type "task.completed"
+flowspec hooks list --event-type "task.completed"
 
 # Output as JSON
-specify hooks list --json
+flowspec hooks list --json
 ```
 
 **Test Hook**:
 ```bash
 # Test specific hook with sample event
-specify hooks test run-tests --event-file sample-event.json
+flowspec hooks test run-tests --event-file sample-event.json
 
 # Validate hook configuration
-specify hooks validate
+flowspec hooks validate
 ```
 
 **Audit Log**:
 ```bash
 # View recent hook executions
-specify hooks audit
+flowspec hooks audit
 
 # Live tail
-specify hooks audit --tail
+flowspec hooks audit --tail
 
 # Filter by hook name
-specify hooks audit --hook run-tests
+flowspec hooks audit --hook run-tests
 
 # Filter by status
-specify hooks audit --status failed
+flowspec hooks audit --status failed
 ```
 
 #### Execution Behavior
 
 **Security Sandbox**:
-- Scripts must exist in `.specify/hooks/` directory (no path traversal)
+- Scripts must exist in `.flowspec/hooks/` directory (no path traversal)
 - Timeout enforced (default 30s, max 600s)
 - Working directory constrained to project root or subdirectories
 - Environment variables sanitized (no shell injection)
@@ -623,7 +623,7 @@ specify hooks audit --status failed
 {"timestamp": "2025-12-02T15:32:00.789Z", "event_id": "evt_124", "hook": "deploy", "status": "failed", "exit_code": 1, "error": "Webhook timeout"}
 ```
 
-Stored at `.specify/hooks/audit.log` (append-only, rotated at 10MB).
+Stored at `.flowspec/hooks/audit.log` (append-only, rotated at 10MB).
 
 ### 3.4 Integration Points
 
@@ -680,12 +680,12 @@ def implement_command(feature: str):
 
 **Potential integration** (v2):
 ```yaml
-# .specify/hooks/hooks.yaml
+# .flowspec/hooks/hooks.yaml
 hooks:
   - name: "sync-to-claude-hooks"
     events:
       - type: "project.initialized"
-    script: ".specify/hooks/sync-claude-hooks.sh"
+    script: ".flowspec/hooks/sync-claude-hooks.sh"
     description: "Copy example hooks to .claude/hooks/"
 ```
 
@@ -704,7 +704,7 @@ This allows JP Flowspec hooks to manage Claude Code hooks as artifacts.
 
 **Hook Execution**:
 - **Requirement**: Hook runner starts script execution within 100ms
-- **Measurement**: Timestamp delta between `specify hooks run` invocation and script start
+- **Measurement**: Timestamp delta between `flowspec hooks run` invocation and script start
 - **Mitigation**: Lazy load hook configuration, cache event matchers
 
 **Audit Log Performance**:
@@ -715,7 +715,7 @@ This allows JP Flowspec hooks to manage Claude Code hooks as artifacts.
 ### 4.2 Security
 
 **Script Execution Sandbox**:
-- ✅ Path allowlist: Scripts must be in `.specify/hooks/` (no `../../etc/passwd`)
+- ✅ Path allowlist: Scripts must be in `.flowspec/hooks/` (no `../../etc/passwd`)
 - ✅ Timeout enforcement: All scripts terminated after configured timeout
 - ✅ Environment sanitization: No shell injection via env vars
 - ✅ Working directory restrictions: CWD constrained to project root
@@ -734,7 +734,7 @@ This allows JP Flowspec hooks to manage Claude Code hooks as artifacts.
    - Mitigation: Audit log records all executions
 2. **Command injection**: Attacker crafts event payload with shell metacharacters
    - Mitigation: Event payload passed via stdin (JSON), not shell args
-3. **Path traversal**: Attacker references script outside `.specify/hooks/`
+3. **Path traversal**: Attacker references script outside `.flowspec/hooks/`
    - Mitigation: Path validation rejects `..` and absolute paths
 4. **Resource exhaustion**: Hook runs infinite loop
    - Mitigation: Timeout enforcement with SIGKILL
@@ -749,7 +749,7 @@ This allows JP Flowspec hooks to manage Claude Code hooks as artifacts.
 **Error Recovery**:
 - Retry logic for webhook hooks (v2): 3 attempts with exponential backoff
 - Dead letter queue for failed webhook events (v2)
-- Manual retry: `specify hooks retry <event-id>`
+- Manual retry: `flowspec hooks retry <event-id>`
 
 **Graceful Degradation**:
 - If hook runner crashes, workflow still completes
@@ -765,9 +765,9 @@ This allows JP Flowspec hooks to manage Claude Code hooks as artifacts.
 - Retention: 30 days (configurable)
 
 **Debugging Tools**:
-- `specify hooks audit --tail`: Live tail of executions
-- `specify hooks test --dry-run`: Validate without execution
-- `specify hooks list --verbose`: Show matched events for each hook
+- `flowspec hooks audit --tail`: Live tail of executions
+- `flowspec hooks test --dry-run`: Validate without execution
+- `flowspec hooks list --verbose`: Show matched events for each hook
 - Error messages include: hook name, event type, script path, exit code, stderr
 
 **Metrics** (v2):
@@ -862,7 +862,7 @@ The following tasks have been created in the backlog system:
    - Labels: implement, security, hooks
    - Priority: high
 
-9. **task-206**: Create specify init Hook Scaffolding
+9. **task-206**: Create flowspec init Hook Scaffolding
    - Status: To Do
    - Assignee: @pm-planner
    - Labels: implement, cli, hooks
@@ -1016,19 +1016,19 @@ task-210 (ADR) ← parallel to implementation
 **Must-Have (v1)**:
 - [ ] All 13+ event types documented with JSON schema
 - [ ] hooks.yaml configuration supports event matching, script execution, timeout, env vars
-- [ ] `specify hooks run` command executes matching hooks
+- [ ] `flowspec hooks run` command executes matching hooks
 - [ ] Security: Path allowlist, timeout enforcement, environment sanitization
-- [ ] Audit logging to .specify/hooks/audit.log
+- [ ] Audit logging to .flowspec/hooks/audit.log
 - [ ] Event emission from all 7 /flowspec commands
 - [ ] Event emission from 4 backlog task operations
-- [ ] `specify init` creates .specify/hooks/ with example configurations
+- [ ] `flowspec init` creates .flowspec/hooks/ with example configurations
 - [ ] Documentation: user guide, API reference, 10+ examples
 - [ ] Test coverage >85% for all hook-related code
 - [ ] Zero critical security vulnerabilities
 
 **Nice-to-Have (v1.5)**:
-- [ ] `specify hooks test --dry-run` command
-- [ ] `specify hooks audit --tail` live monitoring
+- [ ] `flowspec hooks test --dry-run` command
+- [ ] `flowspec hooks audit --tail` live monitoring
 - [ ] Performance: <50ms event emission overhead
 - [ ] Graceful degradation: malformed hooks.yaml doesn't break workflows
 
@@ -1073,7 +1073,7 @@ task-210 (ADR) ← parallel to implementation
 #### Scenario 4: Security - Path Traversal Prevention
 
 **Given**: hooks.yaml configured with script="../../../etc/passwd"
-**When**: User runs specify hooks validate
+**When**: User runs flowspec hooks validate
 **Then**:
 - Validation fails with error: "Hook script path traversal detected"
 - Hook configuration rejected
@@ -1196,7 +1196,7 @@ task-210 (ADR) ← parallel to implementation
 **Risk 3: Configuration Complexity**
 - **Impact**: Users confused, support burden increases
 - **Probability**: Medium (YAML + event model is new concept)
-- **Mitigation**: Scaffolding via `specify init`, 10+ examples, debugging tools, documentation
+- **Mitigation**: Scaffolding via `flowspec init`, 10+ examples, debugging tools, documentation
 
 **Risk 4: Hook Failures Break Workflows**
 - **Impact**: Workflow blocked by unrelated hook error
@@ -1257,7 +1257,7 @@ task-210 (ADR) ← parallel to implementation
   - Target: 100 executions/day across all users
 - Success rate of hook executions
   - Target: >90% hooks succeed (not timeout/error)
-- `specify hooks audit` command usage
+- `flowspec hooks audit` command usage
   - Target: 20% of users check audit logs weekly
 
 **Developer Experience Metrics**:
@@ -1362,7 +1362,7 @@ hooks:
     description: "Run pytest suite after implementation completes"
     events:
       - type: "implement.completed"
-    script: ".specify/hooks/run-tests.sh"
+    script: ".flowspec/hooks/run-tests.sh"
     timeout: 300
     env:
       PYTEST_ARGS: "-v --cov=src --cov-report=term-missing"
@@ -1376,7 +1376,7 @@ hooks:
     description: "Add feature to CHANGELOG.md when spec created"
     events:
       - type: "spec.created"
-    script: ".specify/hooks/update-changelog.py"
+    script: ".flowspec/hooks/update-changelog.py"
     env:
       CHANGELOG_PATH: "./CHANGELOG.md"
 ```
@@ -1406,7 +1406,7 @@ hooks:
       - type: "adr.created"
         filter:
           adr_title_contains: "API"
-    script: ".specify/hooks/generate-api-docs.py"
+    script: ".flowspec/hooks/generate-api-docs.py"
     timeout: 60
 ```
 
@@ -1417,7 +1417,7 @@ hooks:
     description: "Block validation if AC coverage < 100%"
     events:
       - type: "validate.started"
-    script: ".specify/hooks/check-ac-coverage.sh"
+    script: ".flowspec/hooks/check-ac-coverage.sh"
     fail_mode: "stop"
 ```
 
@@ -1425,7 +1425,7 @@ hooks:
 
 **Attack Vectors**:
 1. **Malicious Script in Repository**
-   - Attacker commits `.specify/hooks/malicious.sh` that exfiltrates secrets
+   - Attacker commits `.flowspec/hooks/malicious.sh` that exfiltrates secrets
    - Mitigation: Code review catches malicious hooks.yaml changes
    - Residual Risk: Low (requires repo write access)
 
@@ -1455,7 +1455,7 @@ hooks:
    - Residual Risk: Medium (v1 doesn't restrict network)
 
 **Security Recommendations for v1**:
-- ✅ Path allowlist (only .specify/hooks/)
+- ✅ Path allowlist (only .flowspec/hooks/)
 - ✅ Timeout enforcement
 - ✅ Environment sanitization
 - ✅ Audit logging
@@ -1508,12 +1508,12 @@ hooks:
 
 **Event Replay**:
 - Replay historical events for debugging
-- Command: `specify hooks replay evt_123`
+- Command: `flowspec hooks replay evt_123`
 
 **Hook Marketplace**:
 - Community-contributed hooks
-- Discovery: `specify hooks search "slack"`
-- Install: `specify hooks install slack-notifier`
+- Discovery: `flowspec hooks search "slack"`
+- Install: `flowspec hooks install slack-notifier`
 
 **Multi-Project Coordination**:
 - Emit events across multiple repos

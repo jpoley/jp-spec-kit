@@ -1,7 +1,7 @@
 """CLI commands for flowspec hooks system.
 
 This module provides CLI commands for event emission, hook validation,
-and hook management. Integrates with the main specify CLI via typer.
+and hook management. Integrates with the main flowspec CLI via typer.
 
 Commands:
 - emit: Emit an event and trigger matching hooks

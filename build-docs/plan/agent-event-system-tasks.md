@@ -156,7 +156,7 @@ Phase 8: Documentation & Testing
 - **ACs**:
   1. Configuration schema with all required sections documented
   2. Default configuration template with comments
-  3. Validation command `specify workflow config validate`
+  3. Validation command `flowspec workflow config validate`
   4. Environment variable override support
   5. Documentation in `docs/reference/git-workflow-config.md`
 
@@ -169,7 +169,7 @@ Phase 8: Documentation & Testing
   1. Configuration class `GitWorkflowConfig` in Python
   2. Load from `.flowspec/git-workflow.yml` with fallback to defaults
   3. Emit `system.config_change` event on reload
-  4. CLI command `specify config show`
+  4. CLI command `flowspec config show`
   5. Unit tests for all config sections
 
 ---

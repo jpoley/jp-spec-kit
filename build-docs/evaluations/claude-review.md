@@ -181,7 +181,7 @@ uv tool install flowspec-cli --from git+https://github.com/jpoley/flowspec.git
 pnpm i -g backlog.md
 
 # Step 3: Initialize project
-specify init my-project --ai claude
+flowspec init my-project --ai claude
 
 # Step 4: Initialize backlog
 cd my-project
@@ -226,7 +226,7 @@ The following scenarios lack clear error handling:
 
 3. **Integrated backlog installation:**
    ```bash
-   specify init my-project --ai claude --with-backlog
+   flowspec init my-project --ai claude --with-backlog
    # Automatically initializes backlog.md
    ```
 
@@ -261,7 +261,7 @@ The following scenarios lack clear error handling:
 
 **Recommendation:** Add interactive workflow chooser:
 ```bash
-specify workflow
+flowspec workflow
 # Shows: Which path do you want?
 # Options:
 # 1. MVP Path (fastest): specify → plan → tasks → implement
@@ -365,7 +365,7 @@ specify workflow
 **Action:**
 1. Create `install.sh` / `install.ps1` bootstrap scripts
 2. Add `specify doctor` command for verification
-3. Integrate backlog.md installation into `specify init`
+3. Integrate backlog.md installation into `flowspec init`
 
 #### 6.1.3 Command Decision Guide
 **Issue:** Users don't know when to use flowspec vs speckit.
@@ -435,7 +435,7 @@ specify next
 **Action:**
 1. Add `specify templates list` command
 2. Show stack descriptions and tech combinations
-3. Allow `specify init --stack react-go` shortcuts
+3. Allow `flowspec init --stack react-go` shortcuts
 
 #### 6.3.3 Backlog Sync Visualization
 **Issue:** Relationship between spec/plan/tasks unclear.

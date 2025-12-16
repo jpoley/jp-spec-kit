@@ -237,7 +237,7 @@ redis_client.publish("flowspec.events", json.dumps(event))
 
 ### Alternative 4: File-Based Event Stream
 
-**Approach**: Append events to `.specify/events.jsonl` file, hooks tail the file.
+**Approach**: Append events to `.flowspec/events.jsonl` file, hooks tail the file.
 
 **Example**:
 ```jsonl

@@ -85,7 +85,7 @@ specify security audit results.json --no-ai-explanation
 ### Configuration for Air-Gapped Environments
 
 ```yaml
-# .specify/security.yml
+# .flowspec/security.yml
 triage:
   ai_enabled: false  # Disable AI triage
 
@@ -197,7 +197,7 @@ rm -f security-report.*
 ### Disable All External Communication
 
 ```yaml
-# .specify/security.yml
+# .flowspec/security.yml
 privacy:
   offline_mode: true  # No external API calls
   disable_telemetry: true
@@ -225,7 +225,7 @@ export CODEQL_DISABLE_TELEMETRY=true
 
 **Storage Options:**
 1. Environment variable: `ANTHROPIC_API_KEY`
-2. Configuration file: `.specify/credentials.yml` (gitignored)
+2. Configuration file: `.flowspec/credentials.yml` (gitignored)
 3. CI/CD secrets
 
 **Best Practices:**

@@ -6,7 +6,7 @@
 
 ## Feature Overview
 
-Implement predefined constitution templates with three tiers of control levels during `specify init`:
+Implement predefined constitution templates with three tiers of control levels during `flowspec init`:
 - **Light**: Minimal controls for startups, hobby projects, rapid prototyping
 - **Medium**: Standard controls for typical business applications
 - **Heavy**: Bank-level regulation, strict compliance, enterprise controls
@@ -80,7 +80,7 @@ The feature primarily involves:
    - `constitution-medium.md` - Standard controls
    - `constitution-heavy.md` - Enterprise/bank-level controls
 
-2. **Modify `specify init`** to add:
+2. **Modify `flowspec init`** to add:
    - `--constitution {light|medium|heavy}` flag
    - Empty repo detection logic
    - Interactive prompt if no flag provided
@@ -136,7 +136,7 @@ backlog task create "Implement tiered constitution templates for specify init" \
   --ac "Create constitution-light.md template" \
   --ac "Create constitution-medium.md template" \
   --ac "Create constitution-heavy.md template" \
-  --ac "Add --constitution flag to specify init command" \
+  --ac "Add --constitution flag to flowspec init command" \
   --ac "Detect empty repo and prompt for tier selection" \
   --ac "Tests for new init options" \
   -l cli,templates,enhancement \

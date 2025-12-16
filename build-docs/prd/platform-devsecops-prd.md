@@ -80,7 +80,7 @@ Build a comprehensive platform infrastructure layer:
 - Support Semgrep (pip), CodeQL (binary), act (binary)
 
 **FR-TOOL-002**: Version Pinning
-- Store versions in `.specify/versions.lock.json`
+- Store versions in `.flowspec/versions.lock.json`
 - SLSA Level 2 compliance with checksums
 
 **FR-TOOL-003**: Cache Management

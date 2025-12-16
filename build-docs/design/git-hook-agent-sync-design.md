@@ -229,9 +229,9 @@ ERROR: Failed to resolve includes for flow/implement
    ln -s ../../scripts/bash/pre-commit-agent-sync.sh .git/hooks/pre-commit-agent-sync
    ```
 
-### For specify init Users
+### For flowspec init Users
 
-When running `specify init`, the hook configuration should be automatically added to `.pre-commit-config.yaml` if the project uses Claude Code.
+When running `flowspec init`, the hook configuration should be automatically added to `.pre-commit-config.yaml` if the project uses Claude Code.
 
 ## Testing
 

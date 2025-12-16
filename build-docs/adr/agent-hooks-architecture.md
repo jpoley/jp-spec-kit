@@ -77,7 +77,7 @@ The Agent Hooks system transforms JP Flowspec from a **linear, synchronous workf
    │              Hook Execution Engine                     │
    │  ┌──────────────────────────────────────────────────┐  │
    │  │ Security Validation                              │  │
-   │  │  - Path allowlist (.specify/hooks/)              │  │
+   │  │  - Path allowlist (.flowspec/hooks/)              │  │
    │  │  - No path traversal                             │  │
    │  │  - Script exists                                 │  │
    │  └──────────────────────────────────────────────────┘  │
@@ -109,7 +109,7 @@ The Agent Hooks system transforms JP Flowspec from a **linear, synchronous workf
                  └──────────┬──────────┘
                             │
                             ▼
-              .specify/hooks/audit.log
+              .flowspec/hooks/audit.log
 ```
 
 ---
@@ -166,14 +166,14 @@ class EventEmitter:
 
 **Location**: `src/specify_cli/hooks/config_parser.py`
 
-**Configuration File**: `.specify/hooks/hooks.yaml`
+**Configuration File**: `.flowspec/hooks/hooks.yaml`
 
 **Schema Validation**: JSON Schema (`hooks-config.schema.json`)
 
 **Validation Checks**:
 1. JSON Schema compliance
 2. Hook names unique
-3. Scripts exist in `.specify/hooks/`
+3. Scripts exist in `.flowspec/hooks/`
 4. No path traversal in script paths
 5. Timeouts within 1-600s range
 6. Event types recognized
@@ -240,7 +240,7 @@ events:
 
 **Path Allowlist**:
 ```python
-allowed_dir = Path(project_root) / ".specify/hooks"
+allowed_dir = Path(project_root) / ".flowspec/hooks"
 script_path.resolve().is_relative_to(allowed_dir)  # Must be True
 ```
 
@@ -284,7 +284,7 @@ result = subprocess.run(
 
 **Log Format**: JSON Lines (JSONL)
 
-**Log File**: `.specify/hooks/audit.log`
+**Log File**: `.flowspec/hooks/audit.log`
 
 **Log Entry Schema**:
 ```json
@@ -359,7 +359,7 @@ event_emitter.emit(
 
 **Step 4**: Hook dispatcher loads configuration
 ```yaml
-# .specify/hooks/hooks.yaml
+# .flowspec/hooks/hooks.yaml
 hooks:
   - name: "run-tests"
     events:
@@ -377,7 +377,7 @@ matcher.match_hooks(hooks_config, event)
 
 **Step 6**: Hook execution engine runs script
 ```bash
-# .specify/hooks/run-tests.sh receives event via stdin
+# .flowspec/hooks/run-tests.sh receives event via stdin
 #!/bin/bash
 EVENT=$(cat)
 FEATURE=$(echo "$EVENT" | jq -r '.feature')
@@ -503,7 +503,7 @@ def task_edit(task_id: str, status: str):
 
 ```
 project-root/
-├── .specify/
+├── .flowspec/
 │   ├── hooks/
 │   │   ├── hooks.yaml              # Hook configuration
 │   │   ├── run-tests.sh            # Example hook script
@@ -607,7 +607,7 @@ project-root/
 
 ### Security Boundaries
 
-**Trusted Zone**: .specify/hooks/ directory
+**Trusted Zone**: .flowspec/hooks/ directory
 - Only scripts in this directory can execute
 - Code review required for changes
 
@@ -628,7 +628,7 @@ project-root/
 ### Audit Logging
 
 **Log Format**: JSON Lines (JSONL)
-**Log Location**: `.specify/hooks/audit.log`
+**Log Location**: `.flowspec/hooks/audit.log`
 
 **Log Entry Fields**:
 - `timestamp`: ISO 8601 UTC
@@ -646,31 +646,31 @@ project-root/
 
 **Validate Configuration**:
 ```bash
-specify hooks validate
+flowspec hooks validate
 # Output: Schema errors, missing scripts, warnings
 ```
 
 **List Configured Hooks**:
 ```bash
-specify hooks list
+flowspec hooks list
 # Output: Hook names, descriptions, event types
 ```
 
 **Test Hook Matching**:
 ```bash
-specify hooks run --event-type "task.completed" --dry-run
+flowspec hooks run --event-type "task.completed" --dry-run
 # Output: Matched hooks (no execution)
 ```
 
 **View Audit Log**:
 ```bash
-specify hooks audit
+flowspec hooks audit
 # Output: Recent hook executions
 
-specify hooks audit --tail
+flowspec hooks audit --tail
 # Output: Live tail of audit log
 
-specify hooks audit --hook run-tests --status failed
+flowspec hooks audit --hook run-tests --status failed
 # Output: Filtered executions
 ```
 
@@ -711,7 +711,7 @@ hooks:
 
 **Parallel Execution**:
 ```bash
-specify hooks run --event-type "implement.completed" --parallel
+flowspec hooks run --event-type "implement.completed" --parallel
 ```
 
 **Conditional Execution**:
@@ -740,9 +740,9 @@ hooks:
 
 **Hook Marketplace**:
 ```bash
-specify hooks search "slack"
-specify hooks install slack-notifier
-specify hooks update slack-notifier
+flowspec hooks search "slack"
+flowspec hooks install slack-notifier
+flowspec hooks update slack-notifier
 ```
 
 **Community Hooks**:
@@ -827,7 +827,7 @@ specify hooks update slack-notifier
 
 **Phase 3**: Developer Experience
 - CLI commands (validate, list, test)
-- Example hooks in `specify init`
+- Example hooks in `flowspec init`
 - Documentation and examples
 
 **Phase 4**: Quality Assurance

@@ -40,7 +40,7 @@ Implement automated quality gates that run before `/flow:implement` can proceed,
    - Rationale: Enforce constitutional principles from `memory/constitution.md`
 
 4. **Spec Quality Threshold Check**
-   - Run `specify quality` scorer on spec.md
+   - Run `flowspec quality` scorer on spec.md
    - Require overall score >= 70/100
    - Report score breakdown and recommendations
    - Rationale: Quantitative quality gate prevents subjective "good enough" decisions
@@ -152,7 +152,7 @@ Run with --skip-quality-gates to bypass (NOT RECOMMENDED).
 The `/flow:implement` command in `.claude/commands/flow/implement.md` already includes:
 ```bash
 # Phase 0: Quality Gate (MANDATORY)
-specify gate
+flowspec gate
 ```
 
 However, the `pre-implement.sh` script provides a more comprehensive implementation with:

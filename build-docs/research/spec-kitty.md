@@ -400,7 +400,7 @@ Flowspec configures **6 MCP servers**:
 Event-driven workflow automation:
 
 ```yaml
-# .specify/hooks/hooks.yaml
+# .flowspec/hooks/hooks.yaml
 pre_commit:
   - command: "pytest tests/"
   - command: "/sec:scan"

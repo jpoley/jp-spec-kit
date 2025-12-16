@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-Complete platform and testing infrastructure has been designed and implemented to ensure dev-setup consistency for the Flowspec project. This infrastructure prevents content drift between development (`specify dev-setup`) and distribution (`specify init`) through automated validation, clear recovery procedures, and comprehensive testing.
+Complete platform and testing infrastructure has been designed and implemented to ensure dev-setup consistency for the Flowspec project. This infrastructure prevents content drift between development (`flowspec dev-setup`) and distribution (`flowspec init`) through automated validation, clear recovery procedures, and comprehensive testing.
 
 **Impact**: Achieves DORA Elite performance by catching issues in < 2 minutes, enabling self-healing in < 5 minutes, and eliminating entire class of content drift bugs.
 
@@ -139,7 +139,7 @@ Files that should be symlinks:
 
 To fix:
   1. Move enhanced content to templates/commands/
-  2. Run: specify dev-setup --force
+  2. Run: flowspec dev-setup --force
 ```
 
 ### Integration
@@ -364,7 +364,7 @@ All tasks created with proper acceptance criteria, descriptions, labels, and pri
 - [ ] Create templates/commands/flowspec/ directory
 - [ ] Copy all flowspec commands to templates
 - [ ] Include _backlog-instructions.md in templates
-- [ ] Update specify dev-setup to create flowspec symlinks
+- [ ] Update flowspec dev-setup to create flowspec symlinks
 - [ ] Verify symlinks work correctly
 - [ ] Remove old flowspec files from .claude/commands/
 - [ ] Update tests to verify flowspec template coverage
@@ -373,7 +373,7 @@ All tasks created with proper acceptance criteria, descriptions, labels, and pri
 
 ---
 
-#### task-265: Add flowspec commands to specify init distribution
+#### task-265: Add flowspec commands to flowspec init distribution
 **Priority**: MEDIUM | **Labels**: feature, dev-setup
 
 **Acceptance Criteria**:
@@ -423,7 +423,7 @@ All tasks created with proper acceptance criteria, descriptions, labels, and pri
 
 ### Phase 2: Content Migration (4-6 hours) - NOT STARTED
 - [ ] Migrate flowspec to templates (task-264) - Critical path
-- [ ] Update specify init (task-265) - Depends on task-264
+- [ ] Update flowspec init (task-265) - Depends on task-264
 - [ ] Verify equivalence
 - [ ] Update tests
 
@@ -509,7 +509,7 @@ All PRs MUST pass dev-setup validation:
 ### Developer Workflow
 Standard procedure for command development:
 1. Edit commands in `templates/commands/`
-2. Run `specify dev-setup --force` after adding new commands
+2. Run `flowspec dev-setup --force` after adding new commands
 3. Use `make dev-validate` before committing
 4. Pre-commit hooks validate automatically
 
@@ -785,7 +785,7 @@ make test-dev           # Run dev-setup tests (when tests created)
 make ci-local               # Simulate full CI
 
 # Development
-specify dev-setup --force     # Run dev-setup command
+flowspec dev-setup --force     # Run dev-setup command
 backlog search dev-setup      # List related tasks
 ```
 

@@ -19,14 +19,14 @@ The `/flow:security` command suite provides AI-powered security scanning, triage
 
 ---
 
-## `specify security scan`
+## `flowspec security scan`
 
 Run security scanners and generate findings.
 
 ### Usage
 
 ```bash
-specify security scan [PATH] [OPTIONS]
+flowspec security scan [PATH] [OPTIONS]
 ```
 
 ### Arguments
@@ -55,22 +55,22 @@ specify security scan [PATH] [OPTIONS]
 
 ```bash
 # Basic scan
-specify security scan
+flowspec security scan
 
 # Scan specific directory with JSON output
-specify security scan ./src --format json --output results.json
+flowspec security scan ./src --format json --output results.json
 
 # Use only Semgrep
-specify security scan --scanner semgrep
+flowspec security scan --scanner semgrep
 
 # Fail CI on high severity findings
-specify security scan --fail-on high
+flowspec security scan --fail-on high
 
 # Quick scan for pre-commit
-specify security scan --quick --fail-on critical
+flowspec security scan --quick --fail-on critical
 
 # SARIF output for GitHub
-specify security scan --format sarif --output results.sarif
+flowspec security scan --format sarif --output results.sarif
 ```
 
 ### Exit Codes
@@ -84,14 +84,14 @@ specify security scan --format sarif --output results.sarif
 
 ---
 
-## `specify security triage`
+## `flowspec security triage`
 
 AI-powered classification of security findings.
 
 ### Usage
 
 ```bash
-specify security triage RESULTS [OPTIONS]
+flowspec security triage RESULTS [OPTIONS]
 ```
 
 ### Arguments
@@ -125,16 +125,16 @@ specify security triage RESULTS [OPTIONS]
 
 ```bash
 # Basic triage
-specify security triage results.json
+flowspec security triage results.json
 
 # Interactive mode with explanations
-specify security triage results.json --interactive --explain
+flowspec security triage results.json --interactive --explain
 
 # Auto-dismiss informational findings
-specify security triage results.json --auto-dismiss
+flowspec security triage results.json --auto-dismiss
 
 # Output triage report
-specify security triage results.json --format markdown --output triage.md
+flowspec security triage results.json --format markdown --output triage.md
 ```
 
 ### Output Format
@@ -166,14 +166,14 @@ specify security triage results.json --format markdown --output triage.md
 
 ---
 
-## `specify security fix`
+## `flowspec security fix`
 
 Generate remediation patches for security findings.
 
 ### Usage
 
 ```bash
-specify security fix RESULTS [OPTIONS]
+flowspec security fix RESULTS [OPTIONS]
 ```
 
 ### Arguments
@@ -199,19 +199,19 @@ specify security fix RESULTS [OPTIONS]
 
 ```bash
 # Generate patches (dry-run)
-specify security fix triage.json
+flowspec security fix triage.json
 
 # Preview specific fixes
-specify security fix triage.json --dry-run
+flowspec security fix triage.json --dry-run
 
 # Apply patches with backup
-specify security fix triage.json --apply --backup
+flowspec security fix triage.json --apply --backup
 
 # Apply and run tests
-specify security fix triage.json --apply --test
+flowspec security fix triage.json --apply --test
 
 # Output patches to directory
-specify security fix triage.json --output ./security-patches
+flowspec security fix triage.json --output ./security-patches
 ```
 
 ### Patch Output
@@ -231,14 +231,14 @@ specify security fix triage.json --output ./security-patches
 
 ---
 
-## `specify security audit`
+## `flowspec security audit`
 
 Generate compliance-ready security audit reports.
 
 ### Usage
 
 ```bash
-specify security audit RESULTS [OPTIONS]
+flowspec security audit RESULTS [OPTIONS]
 ```
 
 ### Arguments
@@ -265,16 +265,16 @@ specify security audit RESULTS [OPTIONS]
 
 ```bash
 # Basic markdown report
-specify security audit results.json
+flowspec security audit results.json
 
 # SARIF for GitHub Code Scanning
-specify security audit results.json --format sarif --output results.sarif
+flowspec security audit results.json --format sarif --output results.sarif
 
 # SOC2 compliance report
-specify security audit results.json --compliance soc2 --format html
+flowspec security audit results.json --compliance soc2 --format html
 
 # Executive summary only
-specify security audit results.json --executive --no-technical
+flowspec security audit results.json --executive --no-technical
 ```
 
 ### Report Sections
@@ -288,14 +288,14 @@ specify security audit results.json --executive --no-technical
 
 ---
 
-## `specify security status`
+## `flowspec security status`
 
 Display current security configuration and scan status.
 
 ### Usage
 
 ```bash
-specify security status [OPTIONS]
+flowspec security status [OPTIONS]
 ```
 
 ### Options
@@ -310,10 +310,10 @@ specify security status [OPTIONS]
 
 ```bash
 # Check status
-specify security status
+flowspec security status
 
 # JSON output for scripting
-specify security status --format json
+flowspec security status --format json
 ```
 
 ### Output
@@ -322,7 +322,7 @@ specify security status --format json
 Security Status
 ===============
 
-Configuration: .specify/security.yml (found)
+Configuration: .flowspec/security.yml (found)
 
 Scanners:
   [✓] semgrep 1.50.0 (installed)
@@ -342,14 +342,14 @@ Configuration:
 
 ---
 
-## `specify security init`
+## `flowspec security init`
 
 Initialize security configuration for a project.
 
 ### Usage
 
 ```bash
-specify security init [OPTIONS]
+flowspec security init [OPTIONS]
 ```
 
 ### Options
@@ -364,13 +364,13 @@ specify security init [OPTIONS]
 
 ```bash
 # Initialize with standard template
-specify security init
+flowspec security init
 
 # Strict security configuration
-specify security init --template strict
+flowspec security init --template strict
 
 # Minimal configuration
-specify security init --template minimal --scanners semgrep
+flowspec security init --template minimal --scanners semgrep
 ```
 
 ---
@@ -443,7 +443,7 @@ Generate security audit report.
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `SPECIFY_SECURITY_CONFIG` | Path to configuration file | `.specify/security.yml` |
+| `SPECIFY_SECURITY_CONFIG` | Path to configuration file | `.flowspec/security.yml` |
 | `SPECIFY_SECURITY_SCANNER` | Default scanner | `semgrep` |
 | `SPECIFY_SECURITY_OUTPUT` | Default output directory | `./security-reports` |
 | `SEMGREP_APP_TOKEN` | Semgrep App token | None |
@@ -453,7 +453,7 @@ Generate security audit report.
 
 ## Configuration File
 
-See [Security Configuration Reference](./security-configuration.md) for complete `.specify/security.yml` schema.
+See [Security Configuration Reference](./security-configuration.md) for complete `.flowspec/security.yml` schema.
 
 ## Related Documentation
 

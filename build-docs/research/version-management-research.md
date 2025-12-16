@@ -25,7 +25,7 @@ The version management workflow has a **fundamental architectural flaw**: git ta
 ### Impact Assessment
 
 - **Current State**: 100% of releases since v0.2.328 have version desync
-- **Developer Impact**: Confusion about current version (`specify --version` lies)
+- **Developer Impact**: Confusion about current version (`flowspec --version` lies)
 - **Release Trust**: Users cannot trust version numbers
 - **Repository Health**: 4 orphaned version-bump branches polluting repository
 
@@ -184,7 +184,7 @@ Analysis:
 **Evidence**: 9 consecutive releases with desync (v0.2.329 → v0.2.337)
 
 **Impact**:
-- Users see wrong version: `specify --version` returns 0.2.328, actual tag is v0.2.337
+- Users see wrong version: `flowspec --version` returns 0.2.328, actual tag is v0.2.337
 - `uv tool install flowspec-cli` installs from PyPI (may differ from git)
 - Developers cannot determine actual version from source
 

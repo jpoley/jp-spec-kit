@@ -127,7 +127,7 @@ Enable fast security scanning before commits by uncommenting the flowspec hook:
   hooks:
     - id: flowspec-security-fast
       name: Flowspec Security Scan (fast)
-      entry: specify security scan --fast --changed-only --fail-on critical
+      entry: flowspec security scan --fast --changed-only --fail-on critical
       language: system
       pass_filenames: false
       stages: [pre-commit]

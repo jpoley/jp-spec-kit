@@ -120,6 +120,6 @@ deployment: Docker + Kubernetes
 specify constitution validate
 
 # Apply customizations from this example
-# Edit .specify/memory/constitution.md
+# Edit .flowspec/memory/constitution.md
 # Replace template sections with customized versions
 ```

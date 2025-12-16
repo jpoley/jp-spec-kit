@@ -19,20 +19,20 @@ This document defines how Flowspec hooks integrate with continuous integration a
 **Use Case**: After local implementation completes, trigger remote CI pipeline for integration tests.
 
 ```yaml
-# .specify/hooks/hooks.yaml
+# .flowspec/hooks/hooks.yaml
 hooks:
   - name: "trigger-ci-tests"
     description: "Trigger GitHub Actions integration tests after implementation"
     events:
       - type: "implement.completed"
-    script: ".specify/hooks/trigger-ci.sh"
+    script: ".flowspec/hooks/trigger-ci.sh"
     timeout: 30
     env:
       GITHUB_TOKEN: "${GITHUB_FLOWSPEC}"
       WORKFLOW_FILE: "integration-tests.yml"
 ```
 
-**Hook Script** (`.specify/hooks/trigger-ci.sh`):
+**Hook Script** (`.flowspec/hooks/trigger-ci.sh`):
 ```bash
 #!/bin/bash
 set -e
@@ -117,7 +117,7 @@ jobs:
             }'
 ```
 
-**Local Hook** (`.specify/hooks/hooks.yaml`):
+**Local Hook** (`.flowspec/hooks/hooks.yaml`):
 ```yaml
 hooks:
   - name: "deployment-notification"
@@ -135,18 +135,18 @@ hooks:
 **Use Case**: Block PR creation unless all quality gates pass (tests, coverage, linting).
 
 ```yaml
-# .specify/hooks/hooks.yaml
+# .flowspec/hooks/hooks.yaml
 hooks:
   - name: "quality-gate"
     description: "Enforce quality gates before PR creation"
     events:
       - type: "validate.completed"
-    script: ".specify/hooks/quality-gate.sh"
+    script: ".flowspec/hooks/quality-gate.sh"
     timeout: 600  # 10 minutes for full quality suite
     fail_mode: "stop"  # Block workflow if quality gate fails
 ```
 
-**Hook Script** (`.specify/hooks/quality-gate.sh`):
+**Hook Script** (`.flowspec/hooks/quality-gate.sh`):
 ```bash
 #!/bin/bash
 set -e
@@ -180,20 +180,20 @@ echo "✅ All quality gates passed"
 **Use Case**: After validation completes, automatically trigger deployment to staging.
 
 ```yaml
-# .specify/hooks/hooks.yaml
+# .flowspec/hooks/hooks.yaml
 hooks:
   - name: "trigger-deployment"
     description: "Trigger deployment pipeline after validation"
     events:
       - type: "validate.completed"
-    script: ".specify/hooks/trigger-deploy.sh"
+    script: ".flowspec/hooks/trigger-deploy.sh"
     timeout: 30
     env:
       DEPLOY_WEBHOOK_URL: "${DEPLOY_WEBHOOK_URL}"
       ENVIRONMENT: "staging"
 ```
 
-**Hook Script** (`.specify/hooks/trigger-deploy.sh`):
+**Hook Script** (`.flowspec/hooks/trigger-deploy.sh`):
 ```bash
 #!/bin/bash
 set -e
@@ -269,7 +269,7 @@ pipeline {
 #### Triggering Workflows from Hooks
 
 ```bash
-# .specify/hooks/trigger-github-workflow.sh
+# .flowspec/hooks/trigger-github-workflow.sh
 #!/bin/bash
 set -e
 
@@ -330,7 +330,7 @@ jobs:
 #### Triggering Pipelines from Hooks
 
 ```bash
-# .specify/hooks/trigger-gitlab-pipeline.sh
+# .flowspec/hooks/trigger-gitlab-pipeline.sh
 #!/bin/bash
 set -e
 
@@ -387,7 +387,7 @@ deploy-staging:
 #### Triggering Jobs from Hooks
 
 ```bash
-# .specify/hooks/trigger-jenkins-job.sh
+# .flowspec/hooks/trigger-jenkins-job.sh
 #!/bin/bash
 set -e
 
@@ -458,7 +458,7 @@ pipeline {
 #### Triggering Pipelines from Hooks
 
 ```bash
-# .specify/hooks/trigger-circleci-pipeline.sh
+# .flowspec/hooks/trigger-circleci-pipeline.sh
 #!/bin/bash
 set -e
 
@@ -546,13 +546,13 @@ workflows:
 **Goal**: After implementation completes locally, trigger remote integration tests.
 
 ```yaml
-# .specify/hooks/hooks.yaml
+# .flowspec/hooks/hooks.yaml
 hooks:
   - name: "run-local-tests"
     description: "Run local unit tests immediately"
     events:
       - type: "implement.completed"
-    script: ".specify/hooks/run-local-tests.sh"
+    script: ".flowspec/hooks/run-local-tests.sh"
     timeout: 300
     fail_mode: "stop"
 
@@ -560,7 +560,7 @@ hooks:
     description: "Trigger remote integration tests in CI"
     events:
       - type: "implement.completed"
-    script: ".specify/hooks/trigger-ci.sh"
+    script: ".flowspec/hooks/trigger-ci.sh"
     timeout: 30
 ```
 
@@ -577,13 +577,13 @@ hooks:
 **Goal**: After validation completes, deploy to staging automatically.
 
 ```yaml
-# .specify/hooks/hooks.yaml
+# .flowspec/hooks/hooks.yaml
 hooks:
   - name: "validate-quality-gates"
     description: "Run all quality checks before deployment"
     events:
       - type: "validate.completed"
-    script: ".specify/hooks/quality-gate.sh"
+    script: ".flowspec/hooks/quality-gate.sh"
     timeout: 600
     fail_mode: "stop"
 
@@ -591,7 +591,7 @@ hooks:
     description: "Trigger staging deployment"
     events:
       - type: "validate.completed"
-    script: ".specify/hooks/deploy-staging.sh"
+    script: ".flowspec/hooks/deploy-staging.sh"
     timeout: 30
 ```
 
@@ -609,17 +609,17 @@ hooks:
 **Goal**: Automatically create PR when all tasks complete.
 
 ```yaml
-# .specify/hooks/hooks.yaml
+# .flowspec/hooks/hooks.yaml
 hooks:
   - name: "auto-create-pr"
     description: "Create PR when all tasks complete"
     events:
       - type: "task.completed"
-    script: ".specify/hooks/create-pr.sh"
+    script: ".flowspec/hooks/create-pr.sh"
     timeout: 60
 ```
 
-**Hook Script** (`.specify/hooks/create-pr.sh`):
+**Hook Script** (`.flowspec/hooks/create-pr.sh`):
 ```bash
 #!/bin/bash
 set -e
@@ -668,7 +668,7 @@ echo "✅ PR created for feature: $FEATURE"
 3. Use secret management tools: 1Password, AWS Secrets Manager
 4. Rotate tokens regularly
 
-**Example** (`.specify/hooks/.env`):
+**Example** (`.flowspec/hooks/.env`):
 ```bash
 # CI/CD Tokens (NEVER commit this file)
 GITHUB_TOKEN=ghp_xxxxxxxxxxxx
@@ -683,8 +683,8 @@ SLACK_WEBHOOK_URL=https://hooks.slack.com/services/xxx
 set -e
 
 # Load environment variables from .env
-if [ -f .specify/hooks/.env ]; then
-  source .specify/hooks/.env
+if [ -f .flowspec/hooks/.env ]; then
+  source .flowspec/hooks/.env
 fi
 
 # Use token
@@ -761,13 +761,13 @@ hooks:
   - name: "trigger-tests"
     events:
       - type: "implement.completed"
-    script: ".specify/hooks/trigger-tests.sh"
+    script: ".flowspec/hooks/trigger-tests.sh"
     parallel: true  # v2 feature
 
   - name: "notify-team"
     events:
       - type: "implement.completed"
-    script: ".specify/hooks/notify-slack.sh"
+    script: ".flowspec/hooks/notify-slack.sh"
     parallel: true  # v2 feature
 ```
 

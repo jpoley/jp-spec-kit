@@ -165,11 +165,11 @@ exit 0
 echo '{"event_type": "validate.completed", "feature": "test", "project_root": "/home/jpoley/ps/flowspec"}' | \
   .claude/hooks/post-workflow-archive.sh
 
-# Test via specify hooks test command (once hook system implemented)
-specify hooks test post-workflow-archive validate.completed --spec-id test-feature
+# Test via flowspec hooks test command (once hook system implemented)
+flowspec hooks test post-workflow-archive validate.completed --spec-id test-feature
 
 # Validate hook configuration
-specify hooks validate
+flowspec hooks validate
 ```
 
 ### Hook Security
@@ -793,10 +793,10 @@ echo '{"event_type": "validate.completed", "project_root": "/home/jpoley/ps/flow
 # Expected: Dry-run output, exit code 0
 
 # Test hook via specify CLI
-specify hooks test post-workflow-archive validate.completed
+flowspec hooks test post-workflow-archive validate.completed
 
 # Validate hook configuration
-specify hooks validate
+flowspec hooks validate
 # Expected: No validation errors
 ```
 
@@ -1047,7 +1047,7 @@ The following tasks must be created in backlog.md for full implementation:
 
 **Deliverables**:
 - [ ] post-workflow-archive.sh hook script
-- [ ] Hook testing (manual execution, specify hooks test)
+- [ ] Hook testing (manual execution, flowspec hooks test)
 - [ ] Hook documentation
 - [ ] Hook configuration (hooks.yaml)
 

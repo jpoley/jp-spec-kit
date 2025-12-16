@@ -21,7 +21,7 @@ Implemented VS Code Copilot integration for role-based agent pinning and command
 - Idempotent operations (safe to run multiple times)
 
 ### 2. CLI Command
-**Command**: `specify vscode generate`
+**Command**: `flowspec vscode generate`
 
 **Options**:
 - `--role <role>`: Override primary role from workflow config
@@ -32,16 +32,16 @@ Implemented VS Code Copilot integration for role-based agent pinning and command
 **Usage Examples**:
 ```bash
 # Generate for primary role
-specify vscode generate
+flowspec vscode generate
 
 # Generate for specific role
-specify vscode generate --role qa
+flowspec vscode generate --role qa
 
 # Force overwrite
-specify vscode generate --force
+flowspec vscode generate --force
 
 # Custom output
-specify vscode generate -o custom.json
+flowspec vscode generate -o custom.json
 ```
 
 ### 3. Generated Settings Schema
@@ -146,7 +146,7 @@ While agents are prioritized by role, users can:
 | 3 | Handoff customization per role documented | ✅ | Cross-role handoff section in ADR |
 | 4 | Cross-role handoff approval gates specified | ✅ | No gatekeeping; all agents accessible |
 | 5 | VS Code agent pinning integration designed | ✅ | `pinnedAgents` in settings schema |
-| 6 | .vscode/settings.json generated with role config | ✅ | `specify vscode generate` command |
+| 6 | .vscode/settings.json generated with role config | ✅ | `flowspec vscode generate` command |
 | 7 | Primary role agents pinned to top | ✅ | Top 6 agents from role pinned first |
 | 8 | Handoff priorities reflect role workflow | ✅ | Agent order reflects role priorities |
 | 9 | Works in VS Code and VS Code Insiders | ✅ | Same settings file for both |
@@ -213,9 +213,9 @@ Generated settings configure:
 
 ### With Development Workflow
 
-1. User selects role during `specify init`
+1. User selects role during `flowspec init`
 2. Role stored in `flowspec_workflow.yml`
-3. User runs `specify vscode generate`
+3. User runs `flowspec vscode generate`
 4. VS Code settings generated with role-appropriate config
 5. VS Code reloaded to apply settings
 6. Agents appear in priority order in Copilot
@@ -224,7 +224,7 @@ Generated settings configure:
 
 Potential improvements for future iterations:
 
-1. **Auto-regenerate on init**: Run `specify vscode generate` automatically during `specify init`
+1. **Auto-regenerate on init**: Run `flowspec vscode generate` automatically during `flowspec init`
 
 2. **VS Code extension**: Create extension for one-click role switching within VS Code
 
@@ -260,18 +260,18 @@ Potential improvements for future iterations:
 ```bash
 # Generate settings for primary role
 cd /home/jpoley/ps/flowspec-task-362
-uv run specify vscode generate
+uv run flowspec vscode generate
 
 # Test with different roles
-uv run specify vscode generate --role qa
-uv run specify vscode generate --role sec
-uv run specify vscode generate --role pm
+uv run flowspec vscode generate --role qa
+uv run flowspec vscode generate --role sec
+uv run flowspec vscode generate --role pm
 
 # Test force overwrite
-uv run specify vscode generate --force
+uv run flowspec vscode generate --force
 
 # Test custom output
-uv run specify vscode generate -o /tmp/test-settings.json
+uv run flowspec vscode generate -o /tmp/test-settings.json
 
 # Run tests
 uv run pytest tests/test_vscode_settings_generator.py -v

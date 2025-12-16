@@ -180,7 +180,7 @@ fi
 
 ### 5.1 Pre-Commit Hook
 
-**File**: `.specify/hooks/hooks.yaml`
+**File**: `.flowspec/hooks/hooks.yaml`
 
 ```yaml
 hooks:

@@ -300,7 +300,7 @@ EOF
 
 ```bash
 cp docs/examples/workflows/custom-agents-workflow.yml flowspec_workflow.yml
-specify workflow validate
+flowspec workflow validate
 ```
 
 ### 3. Run Custom Workflows
@@ -439,7 +439,7 @@ agent_loops:
 ### Step 5: Test
 
 ```bash
-specify workflow validate
+flowspec workflow validate
 
 # Run the workflow
 /{workflow-command}

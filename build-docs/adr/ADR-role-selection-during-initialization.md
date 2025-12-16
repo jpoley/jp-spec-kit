@@ -141,7 +141,7 @@ Store role configuration in project's `flowspec_workflow.yml` with user-specific
 When user runs `/flow:init` or `/flow:reset`:
 
 ```bash
-specify init
+flowspec init
 
 # Output:
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
@@ -186,11 +186,11 @@ Enter selection [1-6] (default: 2): _
 
 ```bash
 # Skip prompt, use default or env var
-specify init --role dev
+flowspec init --role dev
 
 # Or via environment variable
 export FLOWSPEC_PRIMARY_ROLE=pm
-specify init
+flowspec init
 ```
 
 ---
@@ -399,10 +399,10 @@ User can change role at any time:
 
 ```bash
 # Re-run init to select new role
-specify init --reset-role
+flowspec init --reset-role
 
 # Or directly via reset
-specify reset --role pm
+flowspec reset --role pm
 
 # Or edit config directly
 vim flowspec_workflow.yml
@@ -416,17 +416,17 @@ Some users wear multiple hats (e.g., Full-Stack Dev + PM):
 **Option 1: Switch roles as needed**
 ```bash
 # Morning: PM work
-specify reset --role pm
+flowspec reset --role pm
 /pm:assess feature-x
 
 # Afternoon: Dev work
-specify reset --role dev
+flowspec reset --role dev
 /dev:implement feature-x
 ```
 
 **Option 2: Use "All Roles" mode**
 ```bash
-specify init --role all
+flowspec init --role all
 # See all commands, no filtering
 ```
 
@@ -509,8 +509,8 @@ def get_available_roles(workflow_config: dict) -> list[str]:
 - If not set, show one-time prompt:
   ```
   🎯 Quick Setup: Select your role to see relevant commands
-  Run: specify init --role <role>
-  Skip: specify init --role all
+  Run: flowspec init --role <role>
+  Skip: flowspec init --role all
   ```
 
 **Phase 3: Recommended Practice (Month 7+)**
@@ -545,7 +545,7 @@ def get_available_roles(workflow_config: dict) -> list[str]:
 - [x] Implement handoff priority based on role
 - [x] Implement agent pinning based on role
 - [x] Test in VS Code and VS Code Insiders
-- [x] Create `specify vscode generate` command
+- [x] Create `flowspec vscode generate` command
 - [x] Generate .vscode/settings.json with role config
 
 ### Phase 3: CLI Integration (Week 3)
@@ -603,7 +603,7 @@ The `VSCodeSettingsGenerator` class provides:
 
 ### CLI Command
 
-**Command**: `specify vscode generate`
+**Command**: `flowspec vscode generate`
 
 **Options**:
 - `--role <role>`: Override primary role from config
@@ -614,13 +614,13 @@ The `VSCodeSettingsGenerator` class provides:
 **Example Usage**:
 ```bash
 # Generate for primary role
-specify vscode generate
+flowspec vscode generate
 
 # Generate for specific role
-specify vscode generate --role qa
+flowspec vscode generate --role qa
 
 # Force overwrite
-specify vscode generate --force
+flowspec vscode generate --force
 ```
 
 ### Generated Settings Structure

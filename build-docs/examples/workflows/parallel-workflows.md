@@ -155,7 +155,7 @@ Integration In Progress → Backend In Progress (backend issues)
 
 ```bash
 cp docs/examples/workflows/parallel-workflows.yml flowspec_workflow.yml
-specify workflow validate
+flowspec workflow validate
 ```
 
 ### 2. Create Feature with Clear API Contract

@@ -263,7 +263,7 @@ dependencies: [task-foundational-auth]
 - Migration for existing projects with tasks.md files
 
 **Mitigation**:
-- Auto-install Backlog.md during `specify init` if user opts in
+- Auto-install Backlog.md during `flowspec init` if user opts in
 - Provide migration wizard: `specify migrate-to-backlog`
 - Documentation with video walkthrough
 
@@ -470,7 +470,7 @@ dependencies: [task-foundational-auth]
 | Experiment | Method | Success Criteria | Timeline |
 |-----------|--------|-----------------|----------|
 | **Usability Testing** | 5 developers (unfamiliar with Backlog.md) attempt setup and first task generation | 4/5 complete without asking for help | 3 days |
-| **Rapid Prototyping** | Build CLI wizard: `specify init --with-backlog` that guides setup | Users rate setup as "easy" (4+/5) | 1 week |
+| **Rapid Prototyping** | Build CLI wizard: `flowspec init --with-backlog` that guides setup | Users rate setup as "easy" (4+/5) | 1 week |
 | **Think-Aloud Sessions** | Watch 3 developers use `backlog board --filter US1`, observe confusion points | Identify top 3 UX improvements | 2 days |
 | **Documentation Review** | Have non-technical user read setup guide, note questions/confusion | Identify gaps in documentation | 1 day |
 
@@ -672,7 +672,7 @@ Claude (via MCP):
 **Requirement**: Automate MCP server configuration for users.
 
 **Implementation**:
-1. During `specify init --with-backlog`:
+1. During `flowspec init --with-backlog`:
    - Check if Backlog.md is installed (`which backlog`)
    - If not: Prompt to install (`npm i -g backlog.md` or `brew install backlog-md`)
    - Run `claude mcp add backlog --scope user -- backlog mcp start`
@@ -767,7 +767,7 @@ Claude (via MCP):
 
 **NFR4.1**: Setup Time
 - **Requirement**: New users complete setup in <5 minutes
-- **Measurement**: Time from `specify init --with-backlog` to first generated task
+- **Measurement**: Time from `flowspec init --with-backlog` to first generated task
 - **Validation**: Usability testing with 5 users
 
 **NFR4.2**: CLI Discoverability
@@ -952,7 +952,7 @@ Claude (via MCP):
 
 ```
 my-project/
-├── .specify/
+├── .flowspec/
 │   └── templates/
 │       └── tasks-template.md
 ├── specs/
@@ -1086,14 +1086,14 @@ my-project/
 **Goal**: Automate MCP server configuration for Claude Code integration
 
 **Independent Test**:
-1. Run `specify init --with-backlog`
+1. Run `flowspec init --with-backlog`
 2. Verify Backlog.md MCP server configured
 3. Test Claude Code command: "List all tasks"
 4. Verify Claude can read tasks via MCP
 
 #### Implementation for User Story 4
 
-- [ ] T031 [US4] Add `--with-backlog` flag to `specify init` command
+- [ ] T031 [US4] Add `--with-backlog` flag to `flowspec init` command
 - [ ] T032 [US4] Implement Backlog.md installation check in `src/specify_cli/backlog/setup.py`
 - [ ] T033 [US4] Implement MCP server configuration: `claude mcp add backlog` in setup
 - [ ] T034 [US4] Verify MCP connection with test command: `backlog_list_tasks`
@@ -1496,7 +1496,7 @@ my-project/
 | Metric | Definition | Target | Timeline |
 |--------|-----------|--------|---------|
 | **Task Generation Success Rate** | % of `specify tasks generate` commands that complete without errors | 95%+ | Month 1 |
-| **Integration Setup Time** | Median time from `specify init --with-backlog` to first task synced | <5 minutes | Month 1 |
+| **Integration Setup Time** | Median time from `flowspec init --with-backlog` to first task synced | <5 minutes | Month 1 |
 | **Developer Adoption Rate** | % of new flowspec users who opt into Backlog.md during init | 60%+ | Month 3 |
 | **MCP Connection Success** | % of setups where MCP integration works on first try | 80%+ | Month 2 |
 | **Migration Success Rate** | % of `specify backlog migrate` commands that complete without data loss | 100% | Month 2 |

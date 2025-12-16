@@ -2,12 +2,12 @@ docs: recover dev-setup architecture (all review issues fixed)
 
 ## Executive Summary
 
-The `specify dev-setup` command has significant gaps compared to what `specify init` installs into target projects. This document provides a comprehensive analysis of the differences between:
+The `flowspec dev-setup` command has significant gaps compared to what `flowspec init` installs into target projects. This document provides a comprehensive analysis of the differences between:
 
 1. **flowspec source repo** (dev-setup installation at `./flowspec`)
-2. **nanofuse project** (normal `specify init` installation at `./nanofuse`)
+2. **nanofuse project** (normal `flowspec init` installation at `./nanofuse`)
 
-**Critical Finding**: The dev-setup command only sets up `speckit` symlinks but completely ignores `flowspec` commands and many other components that are installed during `specify init`.
+**Critical Finding**: The dev-setup command only sets up `speckit` symlinks but completely ignores `flowspec` commands and many other components that are installed during `flowspec init`.
 
 ---
 
@@ -25,14 +25,14 @@ The `specify dev-setup` command has significant gaps compared to what `specify i
 
 **What it does NOT do:**
 - Does NOT create symlinks for `flowspec` commands
-- Does NOT set up `.specify/` directory structure
+- Does NOT set up `.flowspec/` directory structure
 - Does NOT install memory files
 - Does NOT install scripts
 - Does NOT handle naming convention differences (subdirs vs flat files)
 
 ### Step 2: Comparing Command File Structures
 
-#### Nanofuse Installation (via `specify init`)
+#### Nanofuse Installation (via `flowspec init`)
 ```
 .claude/commands/
 ├── flowspec.implement.md      (2933 bytes)
@@ -118,10 +118,10 @@ All three are different! The version flowspec uses for development (`.claude/com
 
 ### Step 5: Missing Directory Structure
 
-#### `.specify/` Directory
+#### `.flowspec/` Directory
 **Nanofuse has:**
 ```
-.specify/
+.flowspec/
 ├── memory/
 │   ├── claude-hooks.md
 │   ├── code-standards.md
@@ -161,14 +161,14 @@ All three are different! The version flowspec uses for development (`.claude/com
 ```
 
 **flowspec has:**
-- NO `.specify/` directory (expected for source repo)
+- NO `.flowspec/` directory (expected for source repo)
 - `memory/` at root level with only 2 files (vs 9 in nanofuse)
 - `scripts/` at root level with different structure
 - `templates/` at root level
 
 ### Step 6: Memory Directory Differences
 
-**Nanofuse `.specify/memory/` (9 files):**
+**Nanofuse `.flowspec/memory/` (9 files):**
 - claude-hooks.md
 - code-standards.md
 - constitution.md
@@ -221,7 +221,7 @@ All three are different! The version flowspec uses for development (`.claude/com
 
 ### Issue 1: dev-setup Command is Incomplete (CRITICAL)
 
-**Problem**: The `specify dev-setup` command only creates symlinks for `speckit` commands, completely ignoring `flowspec` commands.
+**Problem**: The `flowspec dev-setup` command only creates symlinks for `speckit` commands, completely ignoring `flowspec` commands.
 
 **Evidence**:
 ```python
@@ -264,7 +264,7 @@ speckit_commands_dir.mkdir(parents=True, exist_ok=True)
 
 ### Issue 5: Naming Convention Mismatch
 
-**Problem**: dev-setup creates `speckit/implement.md` but `specify init` creates `speckit.implement.md`.
+**Problem**: dev-setup creates `speckit/implement.md` but `flowspec init` creates `speckit.implement.md`.
 
 **Evidence**:
 - nanofuse: `.claude/commands/speckit.implement.md` (dot notation)
@@ -274,7 +274,7 @@ speckit_commands_dir.mkdir(parents=True, exist_ok=True)
 
 ### Issue 6: Missing Memory Files
 
-**Problem**: flowspec `memory/` has only 2 files vs 9 files installed by `specify init`.
+**Problem**: flowspec `memory/` has only 2 files vs 9 files installed by `flowspec init`.
 
 **Missing files:**
 - claude-hooks.md
@@ -300,7 +300,7 @@ The dev-setup command was designed to only link the `speckit` commands, assuming
 
 This creates a **dual-source-of-truth problem** where:
 - Developers working on flowspec get the enhanced commands
-- End users installing via `specify init` get the minimal template versions
+- End users installing via `flowspec init` get the minimal template versions
 
 ---
 
@@ -346,7 +346,7 @@ Update both dev-setup and init commands to use the same convention.
 
 ### Fix 5: Sync Memory Files
 
-Update flowspec `memory/` directory to include all files that get installed via `specify init`:
+Update flowspec `memory/` directory to include all files that get installed via `flowspec init`:
 - claude-hooks.md
 - code-standards.md
 - critical-rules.md
@@ -383,7 +383,7 @@ Update flowspec `memory/` directory to include all files that get installed via 
 | `flowspec/templates/commands/` | Templates for distribution |
 | `flowspec/memory/` | Memory/context files |
 | `nanofuse/.claude/commands/` | Installed commands (for comparison) |
-| `nanofuse/.specify/` | Installed specify directory structure |
+| `nanofuse/.flowspec/` | Installed specify directory structure |
 
 ---
 
@@ -394,6 +394,6 @@ The dev-setup setup is fundamentally incomplete. It was designed as a quick work
 1. Completely ignores flowspec commands
 2. Has allowed flowspec commands to diverge significantly between development and distribution
 3. Creates a different command structure than what end users get
-4. Missing several files and commands that are installed via `specify init`
+4. Missing several files and commands that are installed via `flowspec init`
 
 This needs to be fixed to ensure flowspec developers have the same experience as end users, and that improvements made during development are properly propagated to the release templates.

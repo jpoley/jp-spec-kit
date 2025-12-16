@@ -205,13 +205,13 @@ def scan(
 
 ```bash
 # Create/update CodeQL database
-specify security codeql-db create --language python
+flowspec security codeql-db create --language python
 
 # List available databases
-specify security codeql-db list
+flowspec security codeql-db list
 
 # Clean stale databases
-specify security codeql-db clean --older-than 7d
+flowspec security codeql-db clean --older-than 7d
 ```
 
 ---

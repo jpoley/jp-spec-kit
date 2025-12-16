@@ -164,7 +164,7 @@ Pen test complete. All critical vulns resolved."
 
 3. **Validate configuration**:
    ```bash
-   specify workflow validate
+   flowspec workflow validate
    ```
 
 4. **Run the workflow**:

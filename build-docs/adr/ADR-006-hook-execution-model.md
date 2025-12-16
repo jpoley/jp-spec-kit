@@ -43,7 +43,7 @@ Security Validation (path allowlist, timeout check)
     ↓
 Script Execution (subprocess with sandbox)
     ↓
-Audit Logging (JSONL to .specify/hooks/audit.log)
+Audit Logging (JSONL to .flowspec/hooks/audit.log)
     ↓
 Error Handling (fail-open or fail-stop based on hook config)
 ```
@@ -69,10 +69,10 @@ def validate_script_path(script_path: str, project_root: str) -> bool:
 
     Raises SecurityError if:
     - Path contains ".." (path traversal)
-    - Path is absolute (must be relative to .specify/hooks/)
-    - Path resolves outside .specify/hooks/
+    - Path is absolute (must be relative to .flowspec/hooks/)
+    - Path resolves outside .flowspec/hooks/
     """
-    allowed_dir = Path(project_root) / ".specify/hooks"
+    allowed_dir = Path(project_root) / ".flowspec/hooks"
     script_full_path = (allowed_dir / script_path).resolve()
 
     # Check for path traversal
@@ -81,7 +81,7 @@ def validate_script_path(script_path: str, project_root: str) -> bool:
 
     # Check script is within allowed directory
     if not script_full_path.is_relative_to(allowed_dir):
-        raise SecurityError(f"Hook script must be in .specify/hooks/, got: {script_path}")
+        raise SecurityError(f"Hook script must be in .flowspec/hooks/, got: {script_path}")
 
     # Check script exists
     if not script_full_path.exists():
@@ -280,7 +280,7 @@ def execute_hook(hook: Hook, event: Event) -> HookResult:
 **Script Interface**:
 ```bash
 #!/bin/bash
-# .specify/hooks/run-tests.sh
+# .flowspec/hooks/run-tests.sh
 
 # Read event from stdin
 EVENT=$(cat)
@@ -301,7 +301,7 @@ exit $?
 **Python Script Example**:
 ```python
 #!/usr/bin/env python3
-# .specify/hooks/update-changelog.py
+# .flowspec/hooks/update-changelog.py
 
 import sys
 import json
@@ -324,7 +324,7 @@ sys.exit(0)
 
 **Format**: JSON Lines (JSONL)
 
-**Location**: `.specify/hooks/audit.log`
+**Location**: `.flowspec/hooks/audit.log`
 
 **Log Entries**:
 ```jsonl
@@ -375,15 +375,15 @@ def rotate_audit_log_if_needed(log_path: Path):
 **Primary Command**:
 ```bash
 # Emit event and run matching hooks
-specify hooks run \
+flowspec hooks run \
   --event-type "implement.completed" \
   --payload '{"feature": "auth", "task_id": "task-189"}'
 
 # Emit from JSON file
-specify hooks run --event-file event.json
+flowspec hooks run --event-file event.json
 
 # Dry-run (show matching hooks, no execution)
-specify hooks run --event-type "task.completed" --dry-run
+flowspec hooks run --event-type "task.completed" --dry-run
 ```
 
 **Implementation**:
@@ -410,7 +410,7 @@ def hooks_run(event_type: str, payload: str, event_file: str, dry_run: bool):
         )
 
     # Load hook configuration
-    hooks_config = load_hooks_config(".specify/hooks/hooks.yaml")
+    hooks_config = load_hooks_config(".flowspec/hooks/hooks.yaml")
 
     # Match hooks to event
     matching_hooks = match_hooks(hooks_config, event)
@@ -497,7 +497,7 @@ hooks:
 
 **Example**:
 ```python
-# .specify/hooks/run_tests.py
+# .flowspec/hooks/run_tests.py
 def on_implement_completed(event):
     import pytest
     return pytest.main(["-v"])
@@ -567,7 +567,7 @@ class HookRunner:
     def __init__(self, config_path: Path, project_root: Path):
         self.config = load_hooks_config(config_path)
         self.project_root = project_root
-        self.audit_logger = AuditLogger(project_root / ".specify/hooks/audit.log")
+        self.audit_logger = AuditLogger(project_root / ".flowspec/hooks/audit.log")
 
     def run_hooks(self, event: Event) -> List[HookResult]:
         """Run all hooks matching event."""
@@ -595,7 +595,7 @@ class HookRunner:
         try:
             # Execute with timeout
             result = execute_with_timeout(
-                script_path=self.project_root / ".specify/hooks" / hook.script,
+                script_path=self.project_root / ".flowspec/hooks" / hook.script,
                 timeout=hook.timeout,
                 event_json=json.dumps(event.to_dict()),
                 working_dir=self.project_root,
@@ -671,7 +671,7 @@ def test_audit_log_format():
     runner = HookRunner(config_path, project_root)
     runner.run_hooks(test_event)
 
-    with open(project_root / ".specify/hooks/audit.log") as f:
+    with open(project_root / ".flowspec/hooks/audit.log") as f:
         for line in f:
             entry = json.loads(line)  # Should not raise
             assert "timestamp" in entry

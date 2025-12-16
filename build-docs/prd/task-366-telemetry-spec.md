@@ -388,7 +388,7 @@ Introduce an **opt-in, privacy-preserving telemetry system** for role usage anal
   - `set_telemetry_consent(enabled: bool)`
   - `get_telemetry_config() -> dict`
 - **FR2.3**: Environment variable override: `FLOWSPEC_TELEMETRY_ENABLED=true`
-- **FR2.4**: Config validation in `specify workflow validate` command
+- **FR2.4**: Config validation in `flowspec workflow validate` command
 - **FR2.5**: Opt-in only - telemetry disabled by default
 
 **Acceptance Criteria**:
@@ -796,7 +796,7 @@ A task is considered "Done" when:
 **Scenario**: User opts in to telemetry and selects Dev role during init
 
 **Steps**:
-1. Run `specify workflow init` (or equivalent init command)
+1. Run `flowspec workflow init` (or equivalent init command)
 2. When prompted "Enable telemetry? [y/N/defer]:", enter "y"
 3. Select role: "dev"
 4. Run command: `/dev:build`
@@ -816,7 +816,7 @@ A task is considered "Done" when:
 **Scenario**: User opts out of telemetry, no events should be tracked
 
 **Steps**:
-1. Run `specify workflow init`
+1. Run `flowspec workflow init`
 2. When prompted "Enable telemetry?", enter "N"
 3. Select role: "pm"
 4. Run command: `/pm:assess`
@@ -1068,7 +1068,7 @@ Privacy guarantees:
   🔒 View your data anytime: specify telemetry view
   🔒 Export your data: specify telemetry export
   🔒 Delete anytime: specify telemetry clear
-  🔒 Opt-out anytime: specify workflow configure
+  🔒 Opt-out anytime: flowspec workflow configure
 
 Storage location: .flowspec/telemetry.jsonl (gitignored)
 

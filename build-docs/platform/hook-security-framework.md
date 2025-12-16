@@ -26,7 +26,7 @@ The Flowspec hook security framework provides defense-in-depth protection for ho
 | Vector | Threat | Likelihood | Impact | Mitigation |
 |--------|--------|------------|--------|------------|
 | Command Injection | Shell metacharacters in event payload execute arbitrary commands | Medium | High | Event payload passed via stdin (JSON), not shell args |
-| Path Traversal | Hook references script outside `.specify/hooks/` (e.g., `../../etc/passwd`) | Medium | High | Path validation rejects `..` and absolute paths |
+| Path Traversal | Hook references script outside `.flowspec/hooks/` (e.g., `../../etc/passwd`) | Medium | High | Path validation rejects `..` and absolute paths |
 | Resource Exhaustion | Infinite loop or forkbomb in hook script | Low | Medium | Timeout enforcement with SIGKILL |
 | Privilege Escalation | Hook exploits setuid binary or sudo to gain root | Low | Critical | Hooks run as current user, no privilege escalation |
 | Data Exfiltration | Hook sends secrets to external server | Medium | High | Audit logging (v1), network controls (v2) |
@@ -36,7 +36,7 @@ The Flowspec hook security framework provides defense-in-depth protection for ho
 
 ### 1. Script Allowlist
 
-**Control**: Only execute scripts from the `.specify/hooks/` directory (or subdirectories).
+**Control**: Only execute scripts from the `.flowspec/hooks/` directory (or subdirectories).
 
 **Implementation**:
 ```python
@@ -60,7 +60,7 @@ def validate_script_path(script_path: str, hooks_dir: Path) -> Path:
     except ValueError:
         raise ValueError(
             f"Hook script path '{script_path}' is outside allowed directory "
-            f"'{hooks_dir}'. All scripts must be in .specify/hooks/"
+            f"'{hooks_dir}'. All scripts must be in .flowspec/hooks/"
         )
 
     # Reject absolute paths and path traversal
@@ -82,11 +82,11 @@ def validate_script_path(script_path: str, hooks_dir: Path) -> Path:
 ```
 
 **Test Cases**:
-- ✅ `.specify/hooks/test.sh` → ALLOW
-- ✅ `.specify/hooks/subdir/test.sh` → ALLOW
+- ✅ `.flowspec/hooks/test.sh` → ALLOW
+- ✅ `.flowspec/hooks/subdir/test.sh` → ALLOW
 - ❌ `../../etc/passwd` → REJECT (path traversal)
 - ❌ `/bin/rm` → REJECT (absolute path)
-- ❌ `.specify/hooks/../../../etc/passwd` → REJECT (resolved outside hooks_dir)
+- ❌ `.flowspec/hooks/../../../etc/passwd` → REJECT (resolved outside hooks_dir)
 
 ### 2. Timeout Enforcement
 
@@ -143,7 +143,7 @@ def execute_with_timeout(
 
 **Timeout Configuration**:
 ```yaml
-# .specify/hooks/hooks.yaml
+# .flowspec/hooks/hooks.yaml
 defaults:
   timeout: 30  # Global default (30 seconds)
 
@@ -350,7 +350,7 @@ def validate_hook_script(script_path: Path) -> None:
 
 **Warning Example**:
 ```bash
-$ specify hooks validate
+$ flowspec hooks validate
 ⚠️  WARNING: Hook 'cleanup.sh' contains dangerous operations:
   - Recursive deletion of root directory
   - World-writable permissions
@@ -372,7 +372,7 @@ $ specify hooks validate
   "status": "success|failed|timeout|error",
   "exit_code": 0,
   "duration_ms": 30333,
-  "script_path": ".specify/hooks/run-tests.sh",
+  "script_path": ".flowspec/hooks/run-tests.sh",
   "working_directory": "/home/user/project",
   "environment_keys": ["PYTEST_ARGS", "FEATURE_NAME"],
   "pid": 12345,
@@ -489,12 +489,12 @@ class AuditLogger:
 - Rotate at 10MB file size
 - Keep last 5 files (50MB total)
 - Rotation preserves chronological order
-- Old logs archived to `.specify/hooks/audit.log.1`, `.specify/hooks/audit.log.2`, etc.
+- Old logs archived to `.flowspec/hooks/audit.log.1`, `.flowspec/hooks/audit.log.2`, etc.
 
 **Log Retention**:
 - Default: 30 days
 - Configurable via `audit_retention_days` in hooks.yaml
-- Automated cleanup on `specify hooks cleanup`
+- Automated cleanup on `flowspec hooks cleanup`
 
 ### 7. Configuration Validation
 
@@ -590,12 +590,12 @@ def validate_hooks_config(config_path: Path) -> Dict[str, Any]:
 def test_path_traversal_rejected():
     """Verify path traversal attempts are blocked"""
     with pytest.raises(ValueError, match="outside allowed directory"):
-        validate_script_path("../../etc/passwd", Path(".specify/hooks"))
+        validate_script_path("../../etc/passwd", Path(".flowspec/hooks"))
 
 def test_absolute_path_rejected():
     """Verify absolute paths are blocked"""
     with pytest.raises(ValueError, match="forbidden components"):
-        validate_script_path("/bin/rm", Path(".specify/hooks"))
+        validate_script_path("/bin/rm", Path(".flowspec/hooks"))
 
 def test_dangerous_command_detection():
     """Verify dangerous commands are flagged"""
@@ -656,7 +656,7 @@ def test_timeout_kills_infinite_loop(tmp_path):
         "hooks": [{
             "name": "infinite",
             "events": [{"type": "test.event"}],
-            "script": ".specify/hooks/infinite.sh",
+            "script": ".flowspec/hooks/infinite.sh",
             "timeout": 2
         }]
     }
@@ -670,7 +670,7 @@ def test_timeout_kills_infinite_loop(tmp_path):
 
 **Test Cases**:
 1. **Command Injection**: Attempt to inject shell commands via event payload
-2. **Path Traversal**: Attempt to reference scripts outside `.specify/hooks/`
+2. **Path Traversal**: Attempt to reference scripts outside `.flowspec/hooks/`
 3. **Resource Exhaustion**: Attempt to consume all CPU/memory via forkbomb
 4. **Privilege Escalation**: Attempt to gain root via setuid binary exploitation
 5. **Data Exfiltration**: Attempt to exfiltrate secrets via network requests
@@ -682,7 +682,7 @@ def test_timeout_kills_infinite_loop(tmp_path):
 | Control ID | Description | Implementation |
 |------------|-------------|----------------|
 | CC6.1 | Logical access controls | Script allowlist, environment sanitization |
-| CC6.6 | Audit logging | Immutable audit trail in `.specify/hooks/audit.log` |
+| CC6.6 | Audit logging | Immutable audit trail in `.flowspec/hooks/audit.log` |
 | CC7.2 | Change monitoring | Security events logged when hooks modified |
 | CC7.3 | Malware protection | Dangerous command detection |
 
@@ -690,7 +690,7 @@ def test_timeout_kills_infinite_loop(tmp_path):
 
 ```bash
 # Generate security audit report
-specify hooks audit --security-report --start-date 2025-12-01 --end-date 2025-12-31
+flowspec hooks audit --security-report --start-date 2025-12-01 --end-date 2025-12-31
 
 # Output:
 # Security Audit Report: 2025-12-01 to 2025-12-31

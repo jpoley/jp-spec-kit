@@ -10,7 +10,7 @@
 
 This report combines two complementary audits:
 
-1. **Installed Review** - Issues found in a project (fastapi-template) with Flowspec installed via `specify init`
+1. **Installed Review** - Issues found in a project (fastapi-template) with Flowspec installed via `flowspec init`
 2. **Dev-Setup Review** - Issues found in the Flowspec SOURCE repository used for framework development
 
 | Aspect | Installed Project | Source Repository |
@@ -27,14 +27,14 @@ This report combines two complementary audits:
 
 # Part 1: Installed Project Review
 
-> **Target:** fastapi-template (project with Flowspec installed via `specify init`)
+> **Target:** fastapi-template (project with Flowspec installed via `flowspec init`)
 > **Status:** ~60% complete - critical deployment gaps
 
 ## Critical Issues (8)
 
 ### C1. Skills Not Deployed to .claude/skills/
 
-**Problem:** Skills exist only in `.specify/templates/skills/` as templates but were never deployed to `.claude/skills/` where Claude Code can auto-invoke them.
+**Problem:** Skills exist only in `.flowspec/templates/skills/` as templates but were never deployed to `.claude/skills/` where Claude Code can auto-invoke them.
 
 **7 skills need deployment:**
 - architect/SKILL.md
@@ -48,7 +48,7 @@ This report combines two complementary audits:
 **Fix:**
 ```bash
 mkdir -p .claude/skills
-cp -r .specify/templates/skills/* .claude/skills/
+cp -r .flowspec/templates/skills/* .claude/skills/
 ```
 
 ---
@@ -75,7 +75,7 @@ cp -r .specify/templates/skills/* .claude/skills/
 
 ### C4. All Hooks Are Disabled
 
-**Problem:** All 4 hooks in `.specify/hooks/hooks.yaml` have `enabled: false`:
+**Problem:** All 4 hooks in `.flowspec/hooks/hooks.yaml` have `enabled: false`:
 - run-tests (post-implementation)
 - update-changelog (on spec creation)
 - lint-code (on task completion)
@@ -244,7 +244,7 @@ The dev-setup is functional and validates successfully.
 - security-fixer
 - security-workflow
 
-**Impact:** Users running `specify init` won't get these skills.
+**Impact:** Users running `flowspec init` won't get these skills.
 
 **Fix:** Copy to templates:
 ```bash
@@ -386,7 +386,7 @@ cat CLAUDE.md | head -20
 grep -r '\[PROJECT' memory/
 
 # Check hooks enabled
-grep "enabled: true" .specify/hooks/hooks.yaml
+grep "enabled: true" .flowspec/hooks/hooks.yaml
 ```
 
 ### For Source Repository
@@ -409,11 +409,11 @@ diff <(ls .github/agents/*.md | xargs -n1 basename | sed 's/.agent.md//' | sort)
 
 ## Conclusion
 
-### Installed Projects (via `specify init`)
+### Installed Projects (via `flowspec init`)
 - **Status:** ~60% deployed
 - **Primary gaps:** Skills not deployed, hooks disabled, CI minimal
-- **Root cause:** `specify init` doesn't complete full deployment
-- **Recommendation:** Create `specify init --complete` that enables all features
+- **Root cause:** `flowspec init` doesn't complete full deployment
+- **Recommendation:** Create `flowspec init --complete` that enables all features
 
 ### Source Repository (Flowspec)
 - **Status:** ~85% functional
@@ -426,7 +426,7 @@ diff <(ls .github/agents/*.md | xargs -n1 basename | sed 's/.agent.md//' | sort)
 1. **Single Source of Truth:** Use symlinks for prompts→commands, agents→templates
 2. **Automated Validation:** Add CI checks for all component alignments
 3. **Documentation:** Document expected file counts and structures
-4. **init Enhancements:** Have `specify init` report deployment completeness
+4. **init Enhancements:** Have `flowspec init` report deployment completeness
 
 ---
 

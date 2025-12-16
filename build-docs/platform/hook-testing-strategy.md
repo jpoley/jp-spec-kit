@@ -141,7 +141,7 @@ hooks:
   - name: "test-hook"
     events:
       - type: "implement.completed"
-    script: ".specify/hooks/test.sh"
+    script: ".flowspec/hooks/test.sh"
     timeout: 60
 """)
 
@@ -161,7 +161,7 @@ version: "1.0"
 hooks:
   - name: "invalid-hook"
     # Missing 'events' field
-    script: ".specify/hooks/test.sh"
+    script: ".flowspec/hooks/test.sh"
 """)
 
         parser = HookParser()
@@ -177,7 +177,7 @@ hooks:
   - name: "Invalid Name With Spaces"  # Invalid
     events:
       - type: "task.completed"
-    script: ".specify/hooks/test.sh"
+    script: ".flowspec/hooks/test.sh"
 """)
 
         parser = HookParser()
@@ -193,11 +193,11 @@ hooks:
   - name: "duplicate"
     events:
       - type: "task.completed"
-    script: ".specify/hooks/test1.sh"
+    script: ".flowspec/hooks/test1.sh"
   - name: "duplicate"
     events:
       - type: "spec.created"
-    script: ".specify/hooks/test2.sh"
+    script: ".flowspec/hooks/test2.sh"
 """)
 
         parser = HookParser()
@@ -243,7 +243,7 @@ class TestSecurity:
         script.write_text("#!/bin/bash\necho test")
         script.chmod(0o755)
 
-        result = validate_script_path(".specify/hooks/test.sh", hooks_dir)
+        result = validate_script_path(".flowspec/hooks/test.sh", hooks_dir)
         assert result == script.resolve()
 
     def test_environment_sanitization_blocks_dangerous_vars(self):
@@ -460,7 +460,7 @@ from pathlib import Path
 
 @pytest.fixture
 def project_root(tmp_path):
-    """Create temporary project root with .specify/hooks/ structure"""
+    """Create temporary project root with .flowspec/hooks/ structure"""
     hooks_dir = tmp_path / ".specify" / "hooks"
     hooks_dir.mkdir(parents=True)
     return tmp_path
@@ -539,7 +539,7 @@ hooks:
   - name: "run-tests"
     events:
       - type: "implement.completed"
-    script: ".specify/hooks/run-tests.sh"
+    script: ".flowspec/hooks/run-tests.sh"
     timeout: 300
     fail_mode: "stop"
 """)

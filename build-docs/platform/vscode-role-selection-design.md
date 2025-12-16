@@ -137,7 +137,7 @@ For automation and scripting:
 
 ```bash
 # Initialize with role selection
-specify init --here --vscode-role dev --vscode-secondary qa,sec
+flowspec init --here --vscode-role dev --vscode-secondary qa,sec
 
 # Reset role configuration
 specify reset --vscode-role pm --vscode-mode team
@@ -750,7 +750,7 @@ def get_agent_priority(agent_name, user_config):
 
 ```bash
 # Update .vscode/settings.json only
-specify config set vscode.role.primary dev
+flowspec config set vscode.role.primary dev
 
 # Or manually edit .vscode/settings.json
 # VS Code reloads settings automatically
@@ -915,7 +915,7 @@ jobs:
       - name: Check role configuration
         run: |
           # Validate flowspec_workflow.yml role definitions
-          specify workflow validate
+          flowspec workflow validate
 
           # Check .vscode/settings.json not committed in team mode
           if grep -q '"mode": "team"' flowspec_workflow.yml; then

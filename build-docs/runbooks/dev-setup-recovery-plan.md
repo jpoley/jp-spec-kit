@@ -102,7 +102,7 @@ Import tasks 259-279 from dogfood-cli:
 | 262 | Add dev-setup management Makefile commands |
 | 263 | Document dev-setup workflow for contributors |
 | 264 | Migrate flowspec commands to templates |
-| 265 | Add flowspec commands to specify init distribution |
+| 265 | Add flowspec commands to flowspec init distribution |
 | 266 | Create dev-setup operational runbook |
 | 267 | ADR: Single Source of Truth for Commands |
 | 268 | ADR: Directory Structure Convention |
@@ -226,7 +226,7 @@ The following changes in dogfood-cli are **intentionally excluded**:
 
 ## Notes
 
-- The dev-setup command (`specify dev-setup`) is already functional from PR #271
+- The dev-setup command (`flowspec dev-setup`) is already functional from PR #271
 - The architecture docs describe enhancements to make dev-setup match init output
 - Main has continued active development on security scanning features
 - The voice module is a separate feature that could be extracted independently

@@ -32,7 +32,7 @@ All pull requests MUST pass dev-setup validation:
 Standard operating procedure for command development:
 
 1. **Edit commands in `templates/commands/`** - Never edit `.claude/commands/` directly
-2. **Run `specify dev-setup --force`** after adding new commands to create symlinks
+2. **Run `flowspec dev-setup --force`** after adding new commands to create symlinks
 3. **Use `make dev-validate`** to verify setup before committing
 4. **Pre-commit hooks** automatically validate on every commit
 
@@ -169,7 +169,7 @@ All validation failures must include:
 
 All operations use standard commands:
 - `make dev-setup-*` for all dev-setup operations
-- `specify dev-setup` for core functionality
+- `flowspec dev-setup` for core functionality
 - `backlog task *` for task management
 - No manual file manipulation required
 

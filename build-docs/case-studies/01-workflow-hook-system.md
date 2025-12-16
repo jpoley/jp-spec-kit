@@ -122,8 +122,8 @@ Bug Reduction: ~70% (estimated based on clear ACs)
 
 ### Workflow Improvements Identified
 
-- Added `specify hooks test` command for development (task-207)
-- Created hook scaffolding in `specify init` (task-206)
+- Added `flowspec hooks test` command for development (task-207)
+- Created hook scaffolding in `flowspec init` (task-206)
 
 ---
 

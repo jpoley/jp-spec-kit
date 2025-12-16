@@ -117,7 +117,7 @@ The dashboard READS from backlog.md - it does not replace it.
 **So that** I don't have to manage it manually
 
 **Acceptance Criteria:**
-- [ ] `specify init` optionally starts dashboard
+- [ ] `flowspec init` optionally starts dashboard
 - [ ] Dashboard runs as background process
 - [ ] `specify dashboard --kill` stops it
 - [ ] `specify dashboard` opens existing or starts new

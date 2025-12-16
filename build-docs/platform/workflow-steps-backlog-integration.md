@@ -188,7 +188,7 @@ backlog task edit 42 -s "Specified"
   Reason: --override-workflow flag
   Previous state: To Do
   New state: Specified
-  Audit: Manual override bypasses /flow:specify workflow
+  Audit: Manual override bypasses /flow:flowspec workflow
 ```
 
 #### 3. Board Column Generation
@@ -1065,10 +1065,10 @@ RAG System     │ Assess Feature │ User Auth
 
 ```bash
 # Option A: Use flowspec default workflow
-specify workflow init --template flowspec-sdd
+flowspec workflow init --template flowspec-sdd
 
 # Option B: Create custom workflow
-specify workflow init --custom
+flowspec workflow init --custom
 
 # Option C: Copy from memory/ (already exists)
 # No action needed - auto-detected
@@ -1240,12 +1240,12 @@ backlog board --workflow
 # Result: Workflow mode is enabled for this invocation only
 ```
 
-### Auto-Configuration on `specify init`
+### Auto-Configuration on `flowspec init`
 
 When initializing a new flowspec project:
 
 ```bash
-specify init my-project --agent claude
+flowspec init my-project --agent claude
 
 # Auto-generates backlog/config.yml with workflow enabled:
 cat backlog/config.yml
@@ -1533,7 +1533,7 @@ backlog task 42 --workflow # Workflow task details
 |--------------|--------|----------|
 | **Legacy (no workflow)** | `workflow_enabled: false` or omitted | Standard backlog.md (To Do / In Progress / Done) |
 | **New (with workflow)** | `workflow_enabled: true` + `flowspec_workflow.yml` exists | Workflow-enhanced mode |
-| **Migrating** | `workflow_enabled: true` but no `flowspec_workflow.yml` | Error: "Workflow config not found. Run `specify workflow init`" |
+| **Migrating** | `workflow_enabled: true` but no `flowspec_workflow.yml` | Error: "Workflow config not found. Run `flowspec workflow init`" |
 
 **Example: Legacy Project**
 
@@ -1742,7 +1742,7 @@ Expected location: memory/flowspec_workflow.yml
 **Solution**:
 ```bash
 # Initialize workflow config
-specify workflow init --template flowspec-sdd
+flowspec workflow init --template flowspec-sdd
 
 # Or disable workflow
 vim backlog/config.yml

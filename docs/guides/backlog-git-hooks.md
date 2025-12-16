@@ -100,7 +100,7 @@ git commit -m "Complete login task"
 1. **Commit-based**: Events only fire on commit, not in real-time when files change
 2. **Batched Changes**: Multiple task changes in one commit may batch into fewer events
 3. **Git Workflow Required**: Requires committing after each backlog change for immediate events
-4. **Requires specify CLI**: Event emission depends on `specify hooks emit` command
+4. **Requires flowspec CLI**: Event emission depends on `flowspec hooks emit` command
 
 ## Troubleshooting
 
@@ -121,10 +121,10 @@ git commit -m "Complete login task"
    ./scripts/hooks/post-commit-backlog-events.sh --dry-run --verbose
    ```
 
-4. **Check specify CLI is available**:
+4. **Check flowspec CLI is available**:
    ```bash
-   which specify
-   specify hooks emit --help
+   which flowspec
+   flowspec hooks emit --help
    ```
 
 ### Hook Fails Silently

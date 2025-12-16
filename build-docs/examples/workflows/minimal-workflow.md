@@ -48,7 +48,7 @@ Done
 
 2. **Validate**:
    ```bash
-   specify workflow validate
+   flowspec workflow validate
    ```
 
 3. **Create a task**:

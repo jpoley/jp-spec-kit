@@ -21,11 +21,11 @@ This creates a fundamental problem:
 
 ### Solution Overview
 
-Distribute tiered constitution templates (light/medium/heavy) to target repositories during `specify init` and `specify upgrade`, with LLM-powered customization based on repository analysis. The constitution becomes the **single source of truth** for workflow rules, quality standards, and development practices in each project.
+Distribute tiered constitution templates (light/medium/heavy) to target repositories during `flowspec init` and `specify upgrade`, with LLM-powered customization based on repository analysis. The constitution becomes the **single source of truth** for workflow rules, quality standards, and development practices in each project.
 
 ### Success Metrics
 
-1. **100% constitution coverage**: Every project initialized with `specify init` has a constitution
+1. **100% constitution coverage**: Every project initialized with `flowspec init` has a constitution
 2. **Existing project detection**: `specify upgrade` detects and prompts for constitution in repos without one
 3. **Tier-appropriate selection**: Users choose appropriate tier (light/medium/heavy) for their project type
 4. **LLM customization accuracy**: 90%+ of auto-detected repo facts are correct (languages, frameworks, CI configs)
@@ -47,14 +47,14 @@ All templates have:
 - Placeholder tokens: `[PROJECT_NAME]`, `[LANGUAGES_AND_FRAMEWORKS]`, `[LINTING_TOOLS]`, `[DATE]`
 
 **--constitution flag** (task-242 ✅ DONE):
-- `specify init my-project --constitution medium` works
+- `flowspec init my-project --constitution medium` works
 - Templates embedded in `__init__.py` (CONSTITUTION_TEMPLATES dict)
 - Interactive selection with arrow keys when flag omitted
 - Writes to `memory/constitution.md` in target project
 
 ### What Needs to Be Built
 
-1. **Existing project detection** - Detect repos without constitution during `specify init --here` or `specify upgrade`
+1. **Existing project detection** - Detect repos without constitution during `flowspec init --here` or `specify upgrade`
 2. **LLM customization command** - `/speckit:constitution` slash command to analyze repo and customize template
 3. **Validation workflow** - Help users review and approve NEEDS_VALIDATION sections
 4. **Constitution enforcement** - /flowspec commands verify constitution exists and is validated
@@ -63,12 +63,12 @@ All templates have:
 
 ```bash
 # New project - constitution selection works
-specify init my-project --constitution medium
+flowspec init my-project --constitution medium
 # Result: memory/constitution.md created with medium template
 
 # Existing project - NO constitution handling yet
 cd existing-repo
-specify init --here
+flowspec init --here
 # Result: Constitution NOT created, workflow rules NOT distributed
 ```
 
@@ -77,18 +77,18 @@ specify init --here
 ### US-1: New Project Initialization
 
 **As a** developer creating a new project
-**I want** to select a constitution tier during `specify init`
+**I want** to select a constitution tier during `flowspec init`
 **So that** my project has clear workflow rules from day one
 
 **Acceptance Criteria**:
-- When I run `specify init my-project`, I'm prompted to select tier (light/medium/heavy)
-- When I run `specify init my-project --constitution medium`, tier is pre-selected
+- When I run `flowspec init my-project`, I'm prompted to select tier (light/medium/heavy)
+- When I run `flowspec init my-project --constitution medium`, tier is pre-selected
 - Constitution is written to `memory/constitution.md` with appropriate tier template
 - LLM customization can be triggered immediately or deferred to `/speckit:constitution`
 
 ### US-2: Existing Project Without Constitution
 
-**As a** developer running `specify init --here` or `specify upgrade` on an existing repo
+**As a** developer running `flowspec init --here` or `specify upgrade` on an existing repo
 **I want** to be prompted to add a constitution
 **So that** my existing project can benefit from workflow rules and standards
 
@@ -248,7 +248,7 @@ specify init --here
 
 ### FR-2: Existing Project Detection
 
-**Description**: Detect existing projects without constitution during `specify init --here` or `specify upgrade`.
+**Description**: Detect existing projects without constitution during `flowspec init --here` or `specify upgrade`.
 
 **Inputs**:
 - Current working directory
@@ -387,7 +387,7 @@ specify init --here
 
 - Works with Python 3.11+
 - Cross-platform (Linux, macOS, Windows)
-- Compatible with existing `specify init` workflows
+- Compatible with existing `flowspec init` workflows
 - Does not break existing projects using `specify upgrade`
 
 ### NFR-6: Maintainability
@@ -500,7 +500,7 @@ specify init --here
   - Format: YAML frontmatter + markdown sections
   - Facts include: languages, frameworks, linting tools, CI/CD, test setup, security tools
   - LLM agents can reference repo-facts.md for context in other commands
-  - `specify init` and `specify upgrade` update repo-facts.md
+  - `flowspec init` and `specify upgrade` update repo-facts.md
 - Labels: memory, llm-context, constitution
 - Priority: Medium
 - Dependencies: task-244
@@ -608,8 +608,8 @@ specify init --here
 **Question**: When should LLM customization happen?
 
 **Options**:
-1. **During `specify init`** (user waits for LLM)
-2. **After `specify init` via `/speckit:constitution`** (async, user triggers manually)
+1. **During `flowspec init`** (user waits for LLM)
+2. **After `flowspec init` via `/speckit:constitution`** (async, user triggers manually)
 3. **Both**: Auto-trigger during init, allow manual re-run later
 
 **Validation Method**:
@@ -626,16 +626,16 @@ specify init --here
 **Recommendation**: **Both approaches** (Option 3)
 
 **Rationale**:
-- Default: Auto-trigger during `specify init` for best first-run experience
+- Default: Auto-trigger during `flowspec init` for best first-run experience
 - Fallback: Manual `/speckit:constitution` for re-customization or init failures
-- Add `--skip-llm` flag to `specify init` for users who want to customize manually later
+- Add `--skip-llm` flag to `flowspec init` for users who want to customize manually later
 
 ### Phase 3: Existing Repo Detection Strategy (Week 3)
 
 **Question**: What triggers constitution creation in existing repos?
 
 **Triggers**:
-1. `specify init --here` (initializing in current directory)
+1. `flowspec init --here` (initializing in current directory)
 2. `specify upgrade` (updating JP Flowspec)
 3. Any `/flowspec` command when constitution missing (just-in-time)
 
@@ -654,7 +654,7 @@ specify init --here
 **Recommendation**: **Triggers 1 & 2 create constitution; Trigger 3 warns only**
 
 **Rationale**:
-- `specify init --here` is explicit initialization → create constitution
+- `flowspec init --here` is explicit initialization → create constitution
 - `specify upgrade` is maintenance operation → safe to add constitution
 - `/flowspec` commands failing is surprising → warn, don't auto-create
 - Users can manually run `specify constitution create` if needed
@@ -665,7 +665,7 @@ specify init --here
 
 **Options**:
 1. **Store in `memory/repo-facts.md`** (persistent, version-controlled)
-2. **Store in `.specify/cache/repo-facts.json`** (ephemeral cache, not version-controlled)
+2. **Store in `.flowspec/cache/repo-facts.json`** (ephemeral cache, not version-controlled)
 3. **Don't store, re-detect on every LLM customization**
 
 **Validation Method**:
@@ -717,14 +717,14 @@ specify init --here
 
 ### AC-1: Constitution Template Distribution
 
-- [ ] `specify init my-project` prompts for constitution tier (light/medium/heavy)
-- [ ] `specify init my-project --constitution medium` pre-selects tier, skips prompt
+- [ ] `flowspec init my-project` prompts for constitution tier (light/medium/heavy)
+- [ ] `flowspec init my-project --constitution medium` pre-selects tier, skips prompt
 - [ ] Constitution written to `memory/constitution.md` in target project
 - [ ] All three tiers available and selectable
 
 ### AC-2: Existing Project Detection
 
-- [ ] `specify init --here` detects existing project (checks .git, package.json, etc.)
+- [ ] `flowspec init --here` detects existing project (checks .git, package.json, etc.)
 - [ ] If `memory/constitution.md` missing, prompts for tier selection
 - [ ] If `memory/constitution.md` exists, skips creation, preserves existing
 - [ ] `specify upgrade` triggers same detection logic
@@ -765,7 +765,7 @@ specify init --here
 ### AC-7: Testing Coverage
 
 - [ ] Unit tests for constitution detection logic
-- [ ] Integration tests for `specify init --here` with/without existing constitution
+- [ ] Integration tests for `flowspec init --here` with/without existing constitution
 - [ ] LLM customization accuracy tests (90%+ correct detections)
 - [ ] Constitution enforcement tests for all /flowspec commands
 - [ ] Edge case tests: empty repo, multi-language, monorepo
@@ -795,7 +795,7 @@ specify init --here
 - Constitution must be valid markdown
 - LLM customization must complete in < 30 seconds
 - Detection logic must be cross-platform (Linux/macOS/Windows)
-- No breaking changes to existing `specify init` behavior
+- No breaking changes to existing `flowspec init` behavior
 
 **Business Constraints**:
 - Must support all three tiers (light/medium/heavy) equally
@@ -813,7 +813,7 @@ specify init --here
 
 | Metric | Target | Measurement Method |
 |--------|--------|-------------------|
-| Constitution coverage (new projects) | 100% | Track `specify init` runs with constitution creation |
+| Constitution coverage (new projects) | 100% | Track `flowspec init` runs with constitution creation |
 | Constitution coverage (existing projects) | 50%+ | Track `specify upgrade` runs with constitution creation |
 | Tier distribution | 50% light, 35% medium, 15% heavy | Track tier selection telemetry |
 
@@ -843,7 +843,7 @@ specify init --here
 - Basic validation workflow
 
 **Deliverables**:
-- `specify init --here` detects and prompts for constitution
+- `flowspec init --here` detects and prompts for constitution
 - `/speckit:constitution` generates customized constitution
 - NEEDS_VALIDATION markers in output
 

@@ -13,7 +13,7 @@
 | task-083 | Pre-Implementation Quality Gates | Quality Gates | High | US2 |
 | task-084 | Spec Quality Metrics Command | Quality Metrics | Medium | US6 |
 | task-086 | Spec-Light Mode for Medium Features | Constitution Tiers | Medium | US1 |
-| task-182 | Extend specify init to Configure Transition Validation Modes | Constitution Tiers | High | US1 |
+| task-182 | Extend flowspec init to Configure Transition Validation Modes | Constitution Tiers | High | US1 |
 | task-243 | Detect existing projects without constitution | Constitution Tiers | High | US5 |
 | task-244 | Implement /speckit:constitution LLM customization command | Constitution Tiers | High | US5 |
 | task-245 | Add constitution validation guidance and user prompts | Constitution Tiers | Medium | US5 |
@@ -54,7 +54,7 @@ This PRD defines architecture enhancements to JP Flowspec aimed at increasing ad
 As a **solo developer**, I want **a light-weight SDD workflow** so that **I can adopt spec-driven development without overwhelming documentation overhead**.
 
 **Acceptance Criteria:**
-- [ ] `specify init --light` creates light-tier constitution with minimal required artifacts
+- [ ] `flowspec init --light` creates light-tier constitution with minimal required artifacts
 - [ ] Light mode skips research and analysis phases for medium-complexity features
 - [ ] Light mode still enforces test-first and constitutional compliance
 - [ ] Quality gates have lower threshold (50/100) for light mode
@@ -87,7 +87,7 @@ As an **end user**, I want **JP Flowspec available as a Claude plugin** so that 
 As a **new project creator**, I want **to select my technology stack during init** so that **I only get relevant templates and CI/CD configs without clutter**.
 
 **Acceptance Criteria:**
-- [ ] `specify init` prompts for stack selection with arrow key navigation
+- [ ] `flowspec init` prompts for stack selection with arrow key navigation
 - [ ] 9 predefined stacks available (React+Go, React+Python, Full-Stack TypeScript, etc.)
 - [ ] Selected stack's CI/CD workflow copied to .github/workflows/
 - [ ] Unselected stack files removed to reduce clutter
@@ -109,7 +109,7 @@ As a **repository owner**, I want **automatic constitution customization based o
 As a **specification author**, I want **automated quality assessment** so that **I know my spec is ready for implementation**.
 
 **Acceptance Criteria:**
-- [ ] `specify quality` command scores specs across 5 dimensions
+- [ ] `flowspec quality` command scores specs across 5 dimensions
 - [ ] Dimensions: completeness, clarity, traceability, testability, scoping
 - [ ] Score range 0-100 with letter grade (A/B/C/D/F)
 - [ ] Remediation suggestions for low-scoring dimensions

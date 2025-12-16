@@ -645,7 +645,7 @@ def validate_task_workflow_step(
 - task-091: Implement workflow validation logic
 - task-095: Document backlog.md state mapping
 - task-096: Update /flowspec commands to check workflow constraints
-- task-182: Extend specify init to configure transition validation modes
+- task-182: Extend flowspec init to configure transition validation modes
 
 ---
 

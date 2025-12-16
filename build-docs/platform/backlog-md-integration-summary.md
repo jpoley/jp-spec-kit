@@ -293,7 +293,7 @@ Phase 3: User Story 1 (MVP)
 ### Phase 3: MCP Setup & Regeneration (US4, US5)
 
 **US4: MCP Integration**
-- Automate MCP configuration during `specify init`
+- Automate MCP configuration during `flowspec init`
 - Verify MCP connection
 - Document AI workflows
 

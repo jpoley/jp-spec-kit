@@ -31,16 +31,16 @@ Use **YAML format** for hook configuration with JSON Schema validation.
 
 ### 1. Configuration File Location
 
-**Path**: `.specify/hooks/hooks.yaml`
+**Path**: `.flowspec/hooks/hooks.yaml`
 
 **Rationale**:
-- `.specify/` directory already exists (created by `specify init`)
+- `.flowspec/` directory already exists (created by `flowspec init`)
 - `hooks/` subdirectory contains both config and scripts
 - `hooks.yaml` vs `config.yaml` is more specific and discoverable
 
 **Directory Structure**:
 ```
-.specify/
+.flowspec/
 ├── hooks/
 │   ├── hooks.yaml          # Hook configuration (this ADR)
 │   ├── run-tests.sh        # Example hook script
@@ -54,7 +54,7 @@ Use **YAML format** for hook configuration with JSON Schema validation.
 
 **Complete Example**:
 ```yaml
-# .specify/hooks/hooks.yaml
+# .flowspec/hooks/hooks.yaml
 version: "1.0"
 
 # Global defaults applied to all hooks
@@ -151,8 +151,8 @@ hooks:
 
 **`script`** (conditional):
 - Type: `string`
-- Description: Path to executable script (relative to `.specify/hooks/`)
-- Constraints: Must exist in `.specify/hooks/`, no path traversal (`..`)
+- Description: Path to executable script (relative to `.flowspec/hooks/`)
+- Constraints: Must exist in `.flowspec/hooks/`, no path traversal (`..`)
 - Examples: `run-tests.sh`, `update-changelog.py`
 
 **`command`** (conditional):
@@ -353,7 +353,7 @@ Hook runs if EITHER event matches.
 **Validation Command**:
 ```bash
 # Validate hooks configuration
-specify hooks validate
+flowspec hooks validate
 
 # Output:
 # ✓ Schema validation passed
@@ -366,7 +366,7 @@ specify hooks validate
 **Validation Checks**:
 
 1. **JSON Schema Validation**: Configuration structure matches schema
-2. **Script Existence**: All `script` paths exist in `.specify/hooks/`
+2. **Script Existence**: All `script` paths exist in `.flowspec/hooks/`
 3. **Unique Names**: No duplicate hook names
 4. **Event Type Recognition**: All event types are documented types
 5. **Path Safety**: No path traversal in script paths
@@ -402,7 +402,7 @@ def validate_hooks_config(config_path: Path) -> ValidationResult:
     # Check scripts exist
     for hook in config["hooks"]:
         if "script" in hook:
-            script_path = Path(".specify/hooks") / hook["script"]
+            script_path = Path(".flowspec/hooks") / hook["script"]
             if not script_path.exists():
                 errors.append(f"Hook '{hook['name']}' script not found: {hook['script']}")
 
@@ -434,8 +434,8 @@ def validate_hooks_config(config_path: Path) -> ValidationResult:
 ### 6. Configuration Loading
 
 **Loading Priority**:
-1. Project-local: `.specify/hooks/hooks.yaml`
-2. Global defaults: `~/.specify/hooks/hooks.yaml` (v2 feature)
+1. Project-local: `.flowspec/hooks/hooks.yaml`
+2. Global defaults: `~/.flowspec/hooks/hooks.yaml` (v2 feature)
 3. Built-in defaults: Empty hooks list
 
 **Implementation**:
@@ -561,7 +561,7 @@ timeout = 300
 
 **Example**:
 ```python
-# .specify/hooks/hooks.py
+# .flowspec/hooks/hooks.py
 from specify_hooks import Hook, Event
 
 hooks = [
@@ -613,7 +613,7 @@ hooks = [
 
 **Example**:
 ```
-.specify/hooks/
+.flowspec/hooks/
 ├── run-tests/
 │   ├── hook.yaml
 │   └── script.sh
@@ -631,7 +631,7 @@ hooks = [
 - Better organization for large hook collections
 - Scripts co-located with configs
 
-**Note**: Could revisit for v2 with `specify hooks init <hook-name>` scaffolding.
+**Note**: Could revisit for v2 with `flowspec hooks init <hook-name>` scaffolding.
 
 ---
 

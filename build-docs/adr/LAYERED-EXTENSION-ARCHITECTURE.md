@@ -6,7 +6,7 @@ JP Flowspec has been transformed from a fork into a **layered extension** of Git
 
 - ✅ **Stay current** with upstream spec-kit features
 - ✅ **Add custom** agents, stacks, and workflows  
-- ✅ **Upgrade seamlessly** with `specify upgrade`
+- ✅ **Upgrade seamlessly** with `flowspec upgrade`
 - ✅ **Pin versions** for reproducible builds
 - ✅ **Extend without forking** the base codebase
 
@@ -105,10 +105,10 @@ def download_template_from_github(
 **Usage**:
 ```bash
 # Pin to specific versions
-specify init my-project --base-version 0.0.20 --extension-version 0.0.20
+flowspec init my-project --base-version 0.0.20 --extension-version 0.0.20
 
 # Always get latest
-specify init my-project  # Uses "latest" by default
+flowspec init my-project  # Uses "latest" by default
 ```
 
 **Impact**: Reproducible builds, version control.
@@ -165,7 +165,7 @@ provides:
 
 ## New CLI Features
 
-### `specify init` - Enhanced
+### `flowspec init` - Enhanced
 
 **New Flags**:
 - `--base-version <version>` - Pin base spec-kit version
@@ -175,13 +175,13 @@ provides:
 **Examples**:
 ```bash
 # Two-stage with latest versions (default)
-specify init my-project
+flowspec init my-project
 
 # Pin to specific versions
-specify init my-project --base-version 0.0.20 --extension-version 0.0.20
+flowspec init my-project --base-version 0.0.20 --extension-version 0.0.20
 
 # Extension only (no base)
-specify init my-project --no-layered
+flowspec init my-project --no-layered
 ```
 
 **Behind the Scenes**:
@@ -199,7 +199,7 @@ else:
     )
 ```
 
-### `specify upgrade` - New Command
+### `flowspec upgrade` - New Command
 
 Upgrade existing projects to latest base + extension.
 
@@ -221,16 +221,16 @@ Upgrade existing projects to latest base + extension.
 **Examples**:
 ```bash
 # Upgrade to latest
-specify upgrade
+flowspec upgrade
 
 # Preview changes
-specify upgrade --dry-run
+flowspec upgrade --dry-run
 
 # Pin versions
-specify upgrade --base-version 0.0.21 --extension-version 0.0.21
+flowspec upgrade --base-version 0.0.21 --extension-version 0.0.21
 
 # Templates only
-specify upgrade --templates-only
+flowspec upgrade --templates-only
 ```
 
 **Safety**:
@@ -247,7 +247,7 @@ specify upgrade --templates-only
 uv tool install flowspec-cli --from git+https://github.com/jpoley/flowspec.git
 
 # Initialize project with two-stage download
-specify init my-project --ai claude
+flowspec init my-project --ai claude
 
 # Result:
 # - Base spec-kit templates from github/spec-kit
@@ -260,20 +260,20 @@ specify init my-project --ai claude
 ```bash
 # Upgrade to latest base + extension
 cd my-project
-specify upgrade
+flowspec upgrade
 
 # Preview first
-specify upgrade --dry-run
+flowspec upgrade --dry-run
 
 # Pin to specific versions
-specify upgrade --base-version 0.0.21 --extension-version 0.0.21
+flowspec upgrade --base-version 0.0.21 --extension-version 0.0.21
 ```
 
 ### Version Pinning for CI/CD
 
 ```bash
 # In CI pipeline or team setup
-specify init my-project \
+flowspec init my-project \
   --base-version 0.0.20 \
   --extension-version 0.0.20 \
   --ai claude
@@ -285,7 +285,7 @@ specify init my-project \
 
 ```bash
 # Skip base spec-kit, use flowspec only
-specify init my-project --no-layered --ai claude
+flowspec init my-project --no-layered --ai claude
 
 # Result: Only flowspec templates (no base)
 ```
@@ -313,7 +313,7 @@ Plugin manifest declaring what flowspec provides.
 - Language support list
 - Merge strategy rules
 
-**Future**: Foundation for full plugin system with `specify plugin add`.
+**Future**: Foundation for full plugin system with `flowspec plugin add`.
 
 ## Migration Guide
 
@@ -329,10 +329,10 @@ Plugin manifest declaring what flowspec provides.
 ```bash
 # Upgrade to latest base + extension
 cd your-project
-specify upgrade
+flowspec upgrade
 
 # Or pin to specific versions
-specify upgrade --base-version 0.0.20 --extension-version 0.0.20
+flowspec upgrade --base-version 0.0.20 --extension-version 0.0.20
 ```
 
 ### If You're New to JP Flowspec
@@ -340,7 +340,7 @@ specify upgrade --base-version 0.0.20 --extension-version 0.0.20
 Just use the standard workflow:
 ```bash
 uv tool install flowspec-cli --from git+https://github.com/jpoley/flowspec.git
-specify init my-project --ai claude
+flowspec init my-project --ai claude
 ```
 
 You automatically get:
@@ -373,8 +373,8 @@ shutil.copy2(item, dest_path)  # Overwrites base
 ```
 
 **Examples**:
-- Base has `.specify/plan-template.md`
-- Extension has `.specify/flowspec-plan-template.md`
+- Base has `.flowspec/plan-template.md`
+- Extension has `.flowspec/flowspec-plan-template.md`
 - Result: Both files present (extension adds, doesn't replace)
 
 - Base has `.claude/commands/plan.md`
@@ -403,7 +403,7 @@ tracker.add("extract", "Extract template")
 
 ### For Users
 
-1. **Always Up-to-Date**: `specify upgrade` syncs with latest upstream
+1. **Always Up-to-Date**: `flowspec upgrade` syncs with latest upstream
 2. **Version Control**: Pin to specific versions for reproducibility
 3. **Customization**: Keep flowspec extensions while getting base updates
 4. **Safety**: Automatic backups before upgrades
@@ -440,7 +440,7 @@ specify plugin update flowspec
 
 ```bash
 # CLI reads .spec-kit-compatibility.yml
-specify init my-project --extension-version 0.0.30
+flowspec init my-project --extension-version 0.0.30
 
 # Warning: flowspec 0.0.30 not tested with spec-kit 0.0.20
 # Recommended: upgrade to spec-kit 0.0.25
@@ -465,22 +465,22 @@ extensions:
 
 ```bash
 # Pull from both upstream AND extension
-specify sync
+flowspec sync
 
 # Push customizations back to extension repo (if you're a contributor)
-specify sync --push
+flowspec sync --push
 ```
 
 ## Troubleshooting
 
 ### "Could not detect AI assistant type"
 
-**Problem**: Running `specify upgrade` in non-Specify directory.
+**Problem**: Running `flowspec upgrade` in non-Specify directory.
 
 **Solution**:
 ```bash
 cd <your-specify-project>
-specify upgrade
+flowspec upgrade
 ```
 
 ### Version Mismatch
@@ -490,10 +490,10 @@ specify upgrade
 **Solution**:
 ```bash
 # Upgrade both to latest
-specify upgrade
+flowspec upgrade
 
 # Or pin to compatible versions (see .spec-kit-compatibility.yml)
-specify upgrade --base-version 0.0.20 --extension-version 0.0.20
+flowspec upgrade --base-version 0.0.20 --extension-version 0.0.20
 ```
 
 ### Merge Conflicts
@@ -503,7 +503,7 @@ specify upgrade --base-version 0.0.20 --extension-version 0.0.20
 **Solution**:
 ```bash
 # Preview first
-specify upgrade --dry-run
+flowspec upgrade --dry-run
 
 # Backup is automatic, but you can restore:
 cp -r .specify-backup/* .
@@ -519,13 +519,13 @@ git diff
 **Solution**:
 ```bash
 # Use GitHub token
-specify upgrade --github-token ghp_your_token
+flowspec upgrade --github-token ghp_your_token
 
 # Or skip TLS (not recommended)
-specify upgrade --skip-tls
+flowspec upgrade --skip-tls
 
 # Enable debug output
-specify upgrade --debug
+flowspec upgrade --debug
 ```
 
 ## Summary
@@ -536,7 +536,7 @@ JP Flowspec is now a **true layered extension** that:
 2. ✅ Overlays flowspec extensions from `jpoley/flowspec`
 3. ✅ Merges with clear precedence (extension overrides base)
 4. ✅ Supports version pinning for reproducibility
-5. ✅ Provides `specify upgrade` for syncing with upstream
+5. ✅ Provides `flowspec upgrade` for syncing with upstream
 
 This architecture enables you to:
 
@@ -548,7 +548,7 @@ This architecture enables you to:
 
 **Next Steps**:
 
-1. Try it: `specify init test-project --ai claude`
+1. Try it: `flowspec init test-project --ai claude`
 2. Explore flowspec commands: `/flow:plan`, `/flow:implement`
-3. Upgrade regularly: `specify upgrade`
+3. Upgrade regularly: `flowspec upgrade`
 4. Report issues: https://github.com/jpoley/flowspec/issues

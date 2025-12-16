@@ -178,7 +178,7 @@ role_config:
 **Backwards Compatibility**:
 - Old commands continue to work via include-based forwarding
 - Deprecation warnings escalate over time
-- Auto-migration tool available: `specify migrate-commands`
+- Auto-migration tool available: `flowspec migrate-commands`
 
 **Example Migration**:
 ```bash
@@ -225,7 +225,7 @@ role_config:
 - [ ] Update VS Code Copilot agent metadata
 
 ### Phase 3: Migration Tooling (Weeks 5-6)
-- [ ] Build `specify migrate-commands` auto-migration tool
+- [ ] Build `flowspec migrate-commands` auto-migration tool
 - [ ] Add dry-run mode
 - [ ] Implement git integration
 - [ ] Create command mapping database
@@ -365,7 +365,7 @@ role_config:
 3. **VS Code Integration**: Update agent metadata with role information
 
 ### Medium-term (Weeks 5-8)
-1. **Migration Tool**: Build and test `specify migrate-commands`
+1. **Migration Tool**: Build and test `flowspec migrate-commands`
 2. **Documentation**: Update all guides, examples, and quickstarts
 3. **Testing**: Comprehensive cross-platform testing
 

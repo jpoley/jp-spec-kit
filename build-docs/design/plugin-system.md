@@ -307,22 +307,22 @@ config:
     ┌──────────┐
     │ Available│  (In registry, not installed)
     └────┬─────┘
-         │ specify plugin install
+         │ flowspec plugin install
          ▼
     ┌──────────┐
     │ Installed│  (Downloaded, verified, not enabled)
     └────┬─────┘
-         │ specify plugin enable
+         │ flowspec plugin enable
          ▼
     ┌──────────┐
     │  Enabled │  (Active, loaded on startup)
     └────┬─────┘
-         │ specify plugin disable
+         │ flowspec plugin disable
          ▼
     ┌──────────┐
     │ Disabled │  (Installed but not active)
     └────┬─────┘
-         │ specify plugin remove
+         │ flowspec plugin remove
          ▼
     ┌──────────┐
     │ Removed  │  (Uninstalled, back to Available)
@@ -333,13 +333,13 @@ config:
 
 ```bash
 # Search for plugins
-$ specify plugin search security
+$ flowspec plugin search security
 NAME              VERSION  AUTHOR          DESCRIPTION
 security-scanner  1.2.0    security-team   Security scanning for flowspec
 sast-analyzer     2.0.1    acme-tools      Static analysis integration
 
 # Install a plugin
-$ specify plugin install security-scanner
+$ flowspec plugin install security-scanner
 
 [1/5] Resolving dependencies...
       ✓ speckit >=0.0.20 (installed: 0.0.21)
@@ -359,18 +359,18 @@ $ specify plugin install security-scanner
       ⚠ Plugin requests: network, filesystem.read
       Accept capabilities? [y/N]: y
       
-[5/5] Installing to .specify/plugins/security-scanner/
+[5/5] Installing to .flowspec/plugins/security-scanner/
       ✓ Extracted plugin files
       ✓ Registered extension points
       ✓ Plugin installed successfully
 
-Run 'specify plugin enable security-scanner' to activate.
+Run 'flowspec plugin enable security-scanner' to activate.
 ```
 
 ### 5.3 Enable/Load Flow
 
 ```bash
-$ specify plugin enable security-scanner
+$ flowspec plugin enable security-scanner
 
 [1/3] Loading plugin configuration...
       ✓ Config validated against schema
@@ -415,7 +415,7 @@ audit_logger.log_invocation(plugin="security-scanner", command="security_scan", 
 ### 5.5 Update Flow
 
 ```bash
-$ specify plugin update security-scanner
+$ flowspec plugin update security-scanner
 
 [1/4] Checking for updates...
       Current: 1.2.0
@@ -438,7 +438,7 @@ Plugin will reload on next command.
 ### 5.6 Remove Flow
 
 ```bash
-$ specify plugin remove security-scanner
+$ flowspec plugin remove security-scanner
 
 [1/3] Checking dependencies...
       ⚠ advanced-security depends on security-scanner
@@ -451,7 +451,7 @@ $ specify plugin remove security-scanner
       ✓ Removed hooks
       
 [3/3] Removing files...
-      ✓ Deleted .specify/plugins/security-scanner/
+      ✓ Deleted .flowspec/plugins/security-scanner/
       ✓ Plugin removed successfully
 ```
 
@@ -770,18 +770,18 @@ async def startup():
 ```yaml
 # Plugin signing workflow
 # 1. Author generates key pair
-$ specify plugin keygen
+$ flowspec plugin keygen
 Generated keypair:
-  Public:  ~/.specify/keys/public.pem
-  Private: ~/.specify/keys/private.pem
+  Public:  ~/.flowspec/keys/public.pem
+  Private: ~/.flowspec/keys/private.pem
 
 # 2. Sign plugin package
-$ specify plugin sign ./my-plugin/
-Signing with: ~/.specify/keys/private.pem
+$ flowspec plugin sign ./my-plugin/
+Signing with: ~/.flowspec/keys/private.pem
 Package signed: my-plugin-1.0.0.tar.gz.sig
 
 # 3. Upload to registry (includes signature)
-$ specify plugin publish
+$ flowspec plugin publish
 Uploading my-plugin@1.0.0...
 ✓ Package uploaded
 ✓ Signature verified
@@ -823,7 +823,7 @@ class CapabilityManager:
 Enterprise admins can set policies:
 
 ```yaml
-# .specify/policy.yaml
+# .flowspec/policy.yaml
 plugin_policy:
   # Trust requirements
   trust:
@@ -918,7 +918,7 @@ telemetry:
   # User controls
   user_consent:
     required: true
-    opt_out_command: "specify telemetry disable"
+    opt_out_command: "flowspec telemetry disable"
 ```
 
 ---
@@ -958,7 +958,7 @@ telemetry:
 
 ```yaml
 # Enterprise registry configuration
-# .specify/registry.yaml
+# .flowspec/registry.yaml
 
 registries:
   - name: company-internal
@@ -982,7 +982,7 @@ registries:
 
 ```bash
 # Browse categories
-$ specify plugin browse
+$ flowspec plugin browse
 Categories:
   workflows (12 plugins)
   commands (45 plugins)
@@ -991,14 +991,14 @@ Categories:
   integrations (31 plugins)
 
 # Search with filters
-$ specify plugin search security --category commands --trust certified
+$ flowspec plugin search security --category commands --trust certified
 NAME                  VERSION  DOWNLOADS  TRUST
 security-scanner      1.2.0    12.5k      certified
 code-audit            2.0.1    8.1k       certified
 vulnerability-check   1.0.5    3.2k       certified
 
 # View plugin details
-$ specify plugin info security-scanner
+$ flowspec plugin info security-scanner
 
 security-scanner v1.2.0
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1022,7 +1022,7 @@ Requires:
   • python >= 3.11
   • Capabilities: network, filesystem.read
 
-$ specify plugin install security-scanner
+$ flowspec plugin install security-scanner
 ```
 
 ### 9.4 Registry API
@@ -1078,39 +1078,39 @@ paths:
 
 ```bash
 # Plugin Management
-specify plugin search <query>           # Search registry
-specify plugin browse                   # Browse categories
-specify plugin info <name>              # View plugin details
-specify plugin install <name>[@version] # Install plugin
-specify plugin update <name>            # Update plugin
-specify plugin remove <name>            # Remove plugin
-specify plugin list                     # List installed plugins
-specify plugin enable <name>            # Enable plugin
-specify plugin disable <name>           # Disable plugin
+flowspec plugin search <query>           # Search registry
+flowspec plugin browse                   # Browse categories
+flowspec plugin info <name>              # View plugin details
+flowspec plugin install <name>[@version] # Install plugin
+flowspec plugin update <name>            # Update plugin
+flowspec plugin remove <name>            # Remove plugin
+flowspec plugin list                     # List installed plugins
+flowspec plugin enable <name>            # Enable plugin
+flowspec plugin disable <name>           # Disable plugin
 
 # Plugin Development
-specify plugin init <name>              # Scaffold new plugin
-specify plugin validate                 # Validate plugin manifest
-specify plugin test                     # Run plugin tests
-specify plugin build                    # Build plugin package
-specify plugin sign                     # Sign plugin package
-specify plugin publish                  # Publish to registry
+flowspec plugin init <name>              # Scaffold new plugin
+flowspec plugin validate                 # Validate plugin manifest
+flowspec plugin test                     # Run plugin tests
+flowspec plugin build                    # Build plugin package
+flowspec plugin sign                     # Sign plugin package
+flowspec plugin publish                  # Publish to registry
 
 # Registry Management
-specify plugin registry add <url>       # Add registry
-specify plugin registry remove <url>    # Remove registry
-specify plugin registry list            # List registries
+flowspec plugin registry add <url>       # Add registry
+flowspec plugin registry remove <url>    # Remove registry
+flowspec plugin registry list            # List registries
 
 # Security
-specify plugin keygen                   # Generate signing keys
-specify plugin verify <package>         # Verify plugin signature
-specify plugin audit                    # Audit installed plugins
+flowspec plugin keygen                   # Generate signing keys
+flowspec plugin verify <package>         # Verify plugin signature
+flowspec plugin audit                    # Audit installed plugins
 ```
 
 ### 10.2 Interactive Installation
 
 ```bash
-$ specify plugin install jira-sync
+$ flowspec plugin install jira-sync
 
 ╭─ Installing jira-sync@2.1.0 ─────────────────────────────────────╮
 │                                                                   │
@@ -1141,8 +1141,8 @@ Accept and install? [y/N]: y
 ✓ jira-sync installed successfully
 
 Next steps:
-  1. Configure: specify plugin config jira-sync
-  2. Enable:    specify plugin enable jira-sync
+  1. Configure: flowspec plugin config jira-sync
+  2. Enable:    flowspec plugin enable jira-sync
   3. Use:       /flow:jira-sync
 ```
 
@@ -1213,7 +1213,7 @@ class Migration_1_2_to_2_0(Migration):
 **CLI Migration**:
 
 ```bash
-$ specify plugin update security-scanner
+$ flowspec plugin update security-scanner
 
 Updates available:
   security-scanner: 1.2.0 → 2.0.0 (major)
@@ -1235,7 +1235,7 @@ Run migration? [y/N]: y
 ✓ Update complete
 
 Review migrated config:
-  cat .specify/plugins/security-scanner/config.yaml
+  cat .flowspec/plugins/security-scanner/config.yaml
 ```
 
 ---
@@ -1246,7 +1246,7 @@ Review migrated config:
 
 ```bash
 # Run plugin tests
-$ specify plugin test
+$ flowspec plugin test
 
 Running tests for: security-scanner
 
@@ -1276,7 +1276,7 @@ Before a plugin can be published to the registry:
 | Gate | Requirement |
 |------|-------------|
 | **Manifest Valid** | `plugin.yaml` passes schema validation |
-| **Tests Pass** | All tests pass with `specify plugin test` |
+| **Tests Pass** | All tests pass with `flowspec plugin test` |
 | **Coverage** | Minimum 85% code coverage |
 | **No Vulnerabilities** | No known CVEs in dependencies |
 | **Signed** | Package signed with valid key |
@@ -1284,7 +1284,7 @@ Before a plugin can be published to the registry:
 | **License** | Valid OSI-approved license declared |
 
 ```bash
-$ specify plugin publish
+$ flowspec plugin publish
 
 Pre-publish checks:
   ✓ Manifest valid
@@ -1354,7 +1354,7 @@ class TestSecurityScanCommand(PluginTestCase):
 | Task | Description | Estimate |
 |------|-------------|----------|
 | Plugin manifest schema | Define `plugin.yaml` schema and validator | 3d |
-| Plugin loader | Load plugins from `.specify/plugins/` | 4d |
+| Plugin loader | Load plugins from `.flowspec/plugins/` | 4d |
 | Extension point registry | Register and invoke extension points | 3d |
 | Basic CLI commands | `install`, `list`, `enable`, `disable`, `remove` | 4d |
 | Local plugin support | Install from local directory | 2d |
@@ -1362,7 +1362,7 @@ class TestSecurityScanCommand(PluginTestCase):
 
 **Deliverables**:
 - Users can create local plugins with `plugin.yaml`
-- Basic CLI: `specify plugin install ./my-plugin`
+- Basic CLI: `flowspec plugin install ./my-plugin`
 - Extension points: `command.register`, `workflow.phase.after`
 
 ### Phase 2: Registry and Security (Weeks 5-8)
@@ -1390,8 +1390,8 @@ class TestSecurityScanCommand(PluginTestCase):
 | Task | Description | Estimate |
 |------|-------------|----------|
 | Python SDK | `speckit_sdk` package with full API | 5d |
-| Testing framework | `specify plugin test` command | 3d |
-| Plugin scaffolding | `specify plugin init` command | 2d |
+| Testing framework | `flowspec plugin test` command | 3d |
+| Plugin scaffolding | `flowspec plugin init` command | 2d |
 | Example plugins | 5+ official plugins | 5d |
 | Quality gates | Automated pre-publish checks | 3d |
 | Developer documentation | SDK reference, tutorials | 3d |

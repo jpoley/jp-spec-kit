@@ -7,7 +7,7 @@
 ## Prompt
 
 ```
-Perform a comprehensive source-to-deployment audit of the Flowspec/Speckit framework. Analyze what the framework provides vs. what actually gets deployed when users run `specify init` and on this repo `dev-setup`. Generate a detailed report at `./docs/research/framework-deployment-audit.md`.
+Perform a comprehensive source-to-deployment audit of the Flowspec/Speckit framework. Analyze what the framework provides vs. what actually gets deployed when users run `flowspec init` and on this repo `dev-setup`. Generate a detailed report at `./docs/research/framework-deployment-audit.md`.
 
 ## Analysis Goals
 
@@ -23,7 +23,7 @@ Perform a comprehensive source-to-deployment audit of the Flowspec/Speckit frame
 ### 1.1 Commands Registry
 
 **Scan for all command definitions:**
-- Search `.specify/templates/commands/` recursively for all `.md` files
+- Search `.flowspec/templates/commands/` recursively for all `.md` files
 - Search `.claude/commands/` patterns in framework source
 - List each command with: name, description, category, file location
 
@@ -95,7 +95,7 @@ Perform a comprehensive source-to-deployment audit of the Flowspec/Speckit frame
 
 ### 2.1 Init Command Analysis
 
-**Trace what `specify init` does:**
+**Trace what `flowspec init` does:**
 - What files/directories does it create?
 - What templates does it copy vs symlink?
 - What placeholders does it attempt to fill?
@@ -105,9 +105,9 @@ Perform a comprehensive source-to-deployment audit of the Flowspec/Speckit frame
 **Create init deployment map:**
 ```
 Source                           -> Destination                    | Method
-.specify/templates/commands/     -> .claude/commands/              | copy/symlink/skip
-.specify/templates/skills/       -> .claude/skills/                | copy/symlink/skip
-.specify/templates/agents/       -> .github/agents/                | copy/symlink/skip
+.flowspec/templates/commands/     -> .claude/commands/              | copy/symlink/skip
+.flowspec/templates/skills/       -> .claude/skills/                | copy/symlink/skip
+.flowspec/templates/agents/       -> .github/agents/                | copy/symlink/skip
 ```
 
 ### 2.2 Dev-Setup Command Analysis
@@ -197,11 +197,11 @@ Source                           -> Destination                    | Method
 ```bash
 # Count all framework components
 echo "=== Framework Source Inventory ==="
-echo "Commands: $(find .specify/templates/commands -name '*.md' 2>/dev/null | wc -l)"
-echo "Skills: $(find .specify/templates/skills -name 'SKILL.md' 2>/dev/null | wc -l)"
-echo "Agents: $(find .specify/templates/agents -name '*.agent.md' 2>/dev/null | wc -l)"
-echo "Prompts: $(find .specify/templates/prompts -name '*.prompt.md' 2>/dev/null | wc -l)"
-echo "Hooks: $(grep -c 'name:' .specify/hooks/hooks.yaml 2>/dev/null || echo 0)"
+echo "Commands: $(find .flowspec/templates/commands -name '*.md' 2>/dev/null | wc -l)"
+echo "Skills: $(find .flowspec/templates/skills -name 'SKILL.md' 2>/dev/null | wc -l)"
+echo "Agents: $(find .flowspec/templates/agents -name '*.agent.md' 2>/dev/null | wc -l)"
+echo "Prompts: $(find .flowspec/templates/prompts -name '*.prompt.md' 2>/dev/null | wc -l)"
+echo "Hooks: $(grep -c 'name:' .flowspec/hooks/hooks.yaml 2>/dev/null || echo 0)"
 ```
 
 ### 5.2 Deployment Validation
@@ -216,13 +216,13 @@ echo "Prompts deployed: $(find .github/prompts -name '*.prompt.md' 2>/dev/null |
 
 # Check for unresolved placeholders
 echo "=== Unresolved Placeholders ==="
-grep -r '\[PROJECT' memory/ .specify/memory/ 2>/dev/null || echo "None found"
-grep -r '\[DATE\]' memory/ .specify/memory/ 2>/dev/null || echo "None found"
-grep -r '\[LANGUAGE' memory/ .specify/memory/ 2>/dev/null || echo "None found"
+grep -r '\[PROJECT' memory/ .flowspec/memory/ 2>/dev/null || echo "None found"
+grep -r '\[DATE\]' memory/ .flowspec/memory/ 2>/dev/null || echo "None found"
+grep -r '\[LANGUAGE' memory/ .flowspec/memory/ 2>/dev/null || echo "None found"
 
 # Check hook status
 echo "=== Hook Status ==="
-grep -E 'enabled:\s*(true|false)' .specify/hooks/hooks.yaml 2>/dev/null
+grep -E 'enabled:\s*(true|false)' .flowspec/hooks/hooks.yaml 2>/dev/null
 
 # Check for stub prompts (< 10 lines)
 echo "=== Potential Stub Prompts ==="
@@ -323,7 +323,7 @@ Generate report at `./docs/research/framework-deployment-audit.md` with:
 ## When to Use Each
 
 - **This prompt (Framework Audit):** Run against Flowspec source to improve the framework and its deployment commands
-- **Installed Audit:** Run against a project after `specify init` to find and fix installation gaps
+- **Installed Audit:** Run against a project after `flowspec init` to find and fix installation gaps
 
 ## Expected Deliverable
 

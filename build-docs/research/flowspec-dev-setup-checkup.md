@@ -2,7 +2,7 @@
 
 **Date:** December 11, 2025
 **Repository:** fastapi-template
-**Scope:** .claude, .github, .vscode, .specify configurations
+**Scope:** .claude, .github, .vscode, .flowspec configurations
 **Analyst:** Claude Code
 
 ---
@@ -29,11 +29,11 @@ This repository has an extensive configuration framework (Flowspec/Speckit) with
 **Location:** `.claude/skills/` (missing)
 **Impact:** Skills cannot be auto-invoked by Claude Code
 
-**Problem:** The documentation at `.specify/memory/claude-skills.md` states skills should be in `.claude/skills/<skill-name>/SKILL.md`, but no `.claude/skills/` directory exists. Skills only exist in `.specify/templates/skills/` as templates.
+**Problem:** The documentation at `.flowspec/memory/claude-skills.md` states skills should be in `.claude/skills/<skill-name>/SKILL.md`, but no `.claude/skills/` directory exists. Skills only exist in `.flowspec/templates/skills/` as templates.
 
 **Current State:**
 ```
-.specify/templates/skills/
+.flowspec/templates/skills/
 ├── architect/SKILL.md
 ├── constitution-checker/SKILL.md
 ├── pm-planner/SKILL.md
@@ -47,7 +47,7 @@ This repository has an extensive configuration framework (Flowspec/Speckit) with
 ```bash
 # Deploy skills from templates to .claude/skills/
 mkdir -p .claude/skills
-cp -r .specify/templates/skills/* .claude/skills/
+cp -r .flowspec/templates/skills/* .claude/skills/
 ```
 
 **Verification:**
@@ -62,7 +62,7 @@ ls -la .claude/skills/*/SKILL.md
 **Location:** `./CLAUDE.md` (missing)
 **Impact:** No project-specific instructions for Claude Code
 
-**Problem:** The only `CLAUDE.md` is at `.specify/scripts/CLAUDE.md` which documents scripts, not the project. Claude Code needs a root-level `CLAUDE.md` for project context.
+**Problem:** The only `CLAUDE.md` is at `.flowspec/scripts/CLAUDE.md` which documents scripts, not the project. Claude Code needs a root-level `CLAUDE.md` for project context.
 
 **Fix:** Create `./CLAUDE.md` with:
 ```markdown
@@ -167,7 +167,7 @@ Python 3.13, FastAPI, SQLModel, PostgreSQL, Celery, Redis
 
 ### C4. All Hooks Are Disabled
 
-**Location:** `.specify/hooks/hooks.yaml`
+**Location:** `.flowspec/hooks/hooks.yaml`
 **Impact:** No automated quality gates
 
 **Problem:** All 4 defined hooks have `enabled: false`:
@@ -401,8 +401,8 @@ jobs:
         "speckit.implement": true
     },
     "chat.tools.terminal.autoApprove": {
-        ".specify/scripts/bash/": true,
-        ".specify/scripts/powershell/": true
+        ".flowspec/scripts/bash/": true,
+        ".flowspec/scripts/powershell/": true
     },
     "python.defaultInterpreterPath": ".venv/bin/python",
     "python.analysis.typeCheckingMode": "basic",
@@ -433,7 +433,7 @@ jobs:
 **Location:** `.mcp.json` (missing)
 **Impact:** MCP servers not configured for project-specific needs
 
-**Problem:** MCP configuration documented in `.specify/memory/mcp-configuration.md` but no actual `.mcp.json` exists.
+**Problem:** MCP configuration documented in `.flowspec/memory/mcp-configuration.md` but no actual `.mcp.json` exists.
 
 **Fix:** Create `.mcp.json`:
 ```json
@@ -810,7 +810,7 @@ clean:
 Establish single-source-of-truth architecture:
 
 ```
-.specify/templates/           # Source templates
+.flowspec/templates/           # Source templates
 ├── commands/                 # Command definitions
 ├── agents/                   # Agent definitions
 ├── prompts/                  # Prompt definitions
@@ -872,7 +872,7 @@ cat CLAUDE.md
 grep -c "PROJECT_NAME" memory/constitution.md  # Should be 0
 
 # Hooks enabled
-grep "enabled: true" .specify/hooks/hooks.yaml
+grep "enabled: true" .flowspec/hooks/hooks.yaml
 
 # Extensions recommended
 jq '.recommendations | length' .vscode/extensions.json  # Should be > 0

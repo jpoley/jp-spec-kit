@@ -364,7 +364,7 @@ def discover_scanner(tool_name: str) -> Path | None:
 
     1. Check system PATH
     2. Check project venv
-    3. Check ~/.specify/tools/ cache
+    3. Check ~/.flowspec/tools/ cache
     4. Return None (caller can offer download)
 
     Returns:

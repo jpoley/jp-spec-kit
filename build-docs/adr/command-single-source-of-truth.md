@@ -49,7 +49,7 @@
 │  templates/commands/                         │              │
 │  ┌──────────────────────┐                   │              │
 │  │ flowspec/              │ ──────────────────┘              │
-│  │   (3KB minimal)      │   specify init                   │
+│  │   (3KB minimal)      │   flowspec init                   │
 │  │ speckit/             │   copies these                   │
 │  │   (source for ↑)     │                                  │
 │  └──────────────────────┘                                  │
@@ -87,7 +87,7 @@
 │           ↓                           ↓                     │
 │  ┌──────────────────┐       ┌──────────────────┐          │
 │  │ Development      │       │ Distribution     │          │
-│  │ (dev-setup)        │       │ (specify init)   │          │
+│  │ (dev-setup)        │       │ (flowspec init)   │          │
 │  │                  │       │                  │          │
 │  │ .claude/commands/│       │ .claude/commands/│          │
 │  │   flowspec/        │       │   flowspec/        │          │
@@ -98,7 +98,7 @@
 │                                                              │
 │  SOLUTION: One canonical version in templates/              │
 │  - Development uses symlinks (dev-setup)                       │
-│  - Distribution copies files (specify init)                 │
+│  - Distribution copies files (flowspec init)                 │
 │  - Both get IDENTICAL enhanced content                      │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -153,7 +153,7 @@ flowspec/
 │       ├── implement.md → ../../../templates/commands/speckit/implement.md
 │       └── ... (all speckit files as symlinks)
 │
-└── [END USER PROJECTS]              ◄─── COPIES (via specify init)
+└── [END USER PROJECTS]              ◄─── COPIES (via flowspec init)
     └── .claude/commands/
         ├── flowspec/
         │   ├── implement.md         (copied from templates)
@@ -178,7 +178,7 @@ flowspec/
 │                     │                                       │
 │                     ↓                                       │
 │     ┌─────────────────────────────────────┐               │
-│     │ specify dev-setup creates symlink     │               │
+│     │ flowspec dev-setup creates symlink     │               │
 │     │ .claude/commands/flow/implement.md│               │
 │     │    → templates/commands/...         │               │
 │     └───────────────┬─────────────────────┘               │
@@ -208,7 +208,7 @@ flowspec/
 │                     │                                       │
 │  3. DISTRIBUTION    ↓                                       │
 │     ┌─────────────────────────────────────┐               │
-│     │ specify init downloads release      │               │
+│     │ flowspec init downloads release      │               │
 │     │ Copies files to user's project      │               │
 │     └───────────────┬─────────────────────┘               │
 │                     │                                       │
@@ -241,7 +241,7 @@ flowspec/
 │      ↓                           ↓                           │
 │  ┌─────────────────────┐    ┌─────────────────────┐        │
 │  │ dev-setup Command     │    │ Init Command        │        │
-│  │ (specify dev-setup)   │    │ (specify init)      │        │
+│  │ (flowspec dev-setup)   │    │ (flowspec init)      │        │
 │  │                     │    │                     │        │
 │  │ Creates:            │    │ Creates:            │        │
 │  │ - flowspec symlinks   │    │ - flowspec copies     │        │
@@ -286,7 +286,7 @@ flowspec/
 We have three versions of flowspec commands:
 1. Enhanced versions in `.claude/commands/flow/` (20KB files with backlog integration)
 2. Minimal versions in `templates/commands/flowspec/` (3KB files, basic stubs)
-3. Distributed versions (same as #2, installed by `specify init`)
+3. Distributed versions (same as #2, installed by `flowspec init`)
 
 This creates:
 - **Maintenance burden**: Must manually sync enhancements from #1 to #2
@@ -504,7 +504,7 @@ templates/commands/
 
 ---
 
-### 4.2 dev-setup Command (`specify dev-setup`)
+### 4.2 dev-setup Command (`flowspec dev-setup`)
 
 **Current State**:
 ```python
@@ -571,7 +571,7 @@ def dev-setup(force: bool = False):
 
 ---
 
-### 4.3 Init Command (`specify init`)
+### 4.3 Init Command (`flowspec init`)
 
 **Current State**:
 - Downloads release ZIP from GitHub
@@ -829,7 +829,7 @@ jobs:
    # In flowspec source repo
    rm -rf .claude/commands/*
    uv tool install . --force
-   specify dev-setup
+   flowspec dev-setup
 
    # Verify
    ls -la .claude/commands/flow/
@@ -895,7 +895,7 @@ jobs:
 
 2. **Run dev-setup to create symlinks** (5 min)
    ```bash
-   specify dev-setup --force
+   flowspec dev-setup --force
    ```
 
 3. **Verify symlinks** (10 min)
@@ -955,7 +955,7 @@ jobs:
    ```bash
    # Test in temp directory
    cd /tmp
-   specify init test-project --ai claude
+   flowspec init test-project --ai claude
    cd test-project
    ls -la .claude/commands/flow/
    ls -la .claude/commands/speckit/
@@ -1149,7 +1149,7 @@ The following architectural principles should be added to `/speckit.constitution
 
 **Guidelines**:
 - ✅ DO edit files in `templates/commands/flowspec/` and `templates/commands/speckit/`
-- ✅ DO run `specify dev-setup` after changing templates (to refresh symlinks)
+- ✅ DO run `flowspec dev-setup` after changing templates (to refresh symlinks)
 - ❌ DON'T edit files in `.claude/commands/` directly (they are symlinks)
 - ❌ DON'T create command files outside `templates/commands/`
 
@@ -1200,7 +1200,7 @@ The following architectural principles should be added to `/speckit.constitution
 **Rationale**: Ensures developers test the exact content that will be distributed, prevents divergence.
 
 **Guidelines**:
-- ✅ DO use `specify dev-setup` in flowspec source repo
+- ✅ DO use `flowspec dev-setup` in flowspec source repo
 - ✅ DO verify symlinks resolve correctly
 - ✅ DO restart Claude Code after running dev-setup
 - ❌ DON'T commit direct files to `.claude/commands/` in source repo

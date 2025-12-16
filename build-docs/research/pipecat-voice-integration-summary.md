@@ -169,7 +169,7 @@ User speaks → STT → LLM (with JP Flowspec context) → TTS → User hears
 ```
 
 **Use Cases**:
-1. "Run the specify command for authentication feature"
+1. "Run the flowspec command for authentication feature"
 2. "Show me the current task status"
 3. "Create a new task for implementing the login page"
 4. "What's the plan for this sprint?"
@@ -369,7 +369,7 @@ voice = [
 | Create voice module structure | Set up directory structure | All files created, imports work |
 | Implement basic bot | Create minimal working voice bot | Bot responds to "hello" with voice |
 | Add configuration system | JSON config loading | Config loads, validates, applies |
-| Add CLI command | `specify voice` command | Command starts voice bot |
+| Add CLI command | `flowspec voice` command | Command starts voice bot |
 
 ### Phase 2: JP Flowspec Integration (Sprint 3-4)
 

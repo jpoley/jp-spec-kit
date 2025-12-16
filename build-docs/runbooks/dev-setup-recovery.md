@@ -496,7 +496,7 @@ make test-dev           # Run dev-setup tests only
 make ci-local               # Simulate full CI pipeline
 
 # Development
-specify dev-setup --force     # Run dev-setup command directly
+flowspec dev-setup --force     # Run dev-setup command directly
 ```
 
 ---

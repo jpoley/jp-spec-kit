@@ -24,7 +24,7 @@ The Flowspec hook observability system provides comprehensive visibility into ho
 ### Log Storage
 
 ```
-.specify/hooks/
+.flowspec/hooks/
 ├── audit.log           # Append-only audit trail (JSONL)
 ├── audit.log.1         # Rotated audit logs
 ├── audit.log.2
@@ -45,7 +45,7 @@ The Flowspec hook observability system provides comprehensive visibility into ho
   "hook_execution": {
     "hook_name": "run-tests",
     "hook_id": "hook_abc123",
-    "script_path": ".specify/hooks/run-tests.sh",
+    "script_path": ".flowspec/hooks/run-tests.sh",
     "status": "success",
     "exit_code": 0,
     "duration_ms": 30333,
@@ -126,7 +126,7 @@ The Flowspec hook observability system provides comprehensive visibility into ho
   "hook_execution": {
     "hook_name": "run-tests",
     "hook_id": "hook_xyz789",
-    "script_path": ".specify/hooks/run-tests.sh",
+    "script_path": ".flowspec/hooks/run-tests.sh",
     "status": "success",
     "exit_code": 0,
     "duration_ms": 30333,
@@ -169,7 +169,7 @@ The Flowspec hook observability system provides comprehensive visibility into ho
   "hook_execution": {
     "hook_name": "long-validation",
     "hook_id": "hook_abc123",
-    "script_path": ".specify/hooks/long-validation.sh",
+    "script_path": ".flowspec/hooks/long-validation.sh",
     "status": "timeout",
     "exit_code": 124,
     "duration_ms": 30005,
@@ -260,13 +260,13 @@ Debug logs provide detailed execution trace for development and troubleshooting.
 ```bash
 # Enable via environment variable
 export SPECIFY_HOOKS_DEBUG=1
-specify hooks run --event-type implement.completed
+flowspec hooks run --event-type implement.completed
 
 # Enable via CLI flag
-specify hooks run --event-type implement.completed --debug
+flowspec hooks run --event-type implement.completed --debug
 
 # Enable via configuration
-# .specify/hooks/hooks.yaml
+# .flowspec/hooks/hooks.yaml
 defaults:
   debug_logging: true
 ```
@@ -281,7 +281,7 @@ defaults:
   "event_type": "implement.completed",
   "message": "Executing hook",
   "details": {
-    "script_path": ".specify/hooks/run-tests.sh",
+    "script_path": ".flowspec/hooks/run-tests.sh",
     "script_args": [],
     "working_directory": "/home/jpoley/ps/flowspec",
     "environment": {
@@ -310,7 +310,7 @@ defaults:
 
 ### Aggregated Metrics
 
-Metrics are aggregated hourly and stored in `.specify/hooks/metrics.json`:
+Metrics are aggregated hourly and stored in `.flowspec/hooks/metrics.json`:
 
 ```json
 {
@@ -387,27 +387,27 @@ Metrics are aggregated hourly and stored in `.specify/hooks/metrics.json`:
 
 ```bash
 # View last 20 audit entries
-specify hooks audit
+flowspec hooks audit
 
 # Live tail (follow mode)
-specify hooks audit --tail
+flowspec hooks audit --tail
 
 # Filter by hook name
-specify hooks audit --hook run-tests
+flowspec hooks audit --hook run-tests
 
 # Filter by status
-specify hooks audit --status failed
+flowspec hooks audit --status failed
 
 # Filter by date range
-specify hooks audit --start-date 2025-12-01 --end-date 2025-12-02
+flowspec hooks audit --start-date 2025-12-01 --end-date 2025-12-02
 
 # Export to CSV for analysis
-specify hooks audit --format csv --output audit-report.csv
+flowspec hooks audit --format csv --output audit-report.csv
 ```
 
 **Example Output**:
 ```
-Audit Log: /home/jpoley/ps/flowspec/.specify/hooks/audit.log
+Audit Log: /home/jpoley/ps/flowspec/.flowspec/hooks/audit.log
 ==================================================================
 
 2025-12-02 15:31:15  implement.completed  run-tests       ✓ success  (30.3s)
@@ -426,16 +426,16 @@ Summary:
 
 ```bash
 # View current metrics
-specify hooks metrics
+flowspec hooks metrics
 
 # View metrics for specific hook
-specify hooks metrics --hook run-tests
+flowspec hooks metrics --hook run-tests
 
 # View metrics for date range
-specify hooks metrics --start-date 2025-12-01 --end-date 2025-12-02
+flowspec hooks metrics --start-date 2025-12-01 --end-date 2025-12-02
 
 # Export to JSON
-specify hooks metrics --format json --output metrics.json
+flowspec hooks metrics --format json --output metrics.json
 ```
 
 **Example Output**:
@@ -474,13 +474,13 @@ Recommendations:
 
 ```bash
 # Show execution trends over time
-specify hooks trends --days 30
+flowspec hooks trends --days 30
 
 # Compare week-over-week
-specify hooks trends --compare
+flowspec hooks trends --compare
 
 # Generate report
-specify hooks trends --format html --output trends-report.html
+flowspec hooks trends --format html --output trends-report.html
 ```
 
 **Example Output**:
@@ -535,7 +535,7 @@ Insights:
 ### Retention Configuration
 
 ```yaml
-# .specify/hooks/hooks.yaml
+# .flowspec/hooks/hooks.yaml
 retention:
   audit_log_days: 30        # Delete entries older than 30 days
   debug_log_days: 7         # Delete debug logs older than 7 days
@@ -546,13 +546,13 @@ retention:
 
 ```bash
 # Clean up old logs based on retention policy
-specify hooks cleanup
+flowspec hooks cleanup
 
 # Force clean all logs (requires confirmation)
-specify hooks cleanup --force
+flowspec hooks cleanup --force
 
 # Clean specific log type
-specify hooks cleanup --audit-only
+flowspec hooks cleanup --audit-only
 ```
 
 ## Performance Considerations
@@ -641,7 +641,7 @@ class AsyncAuditLogger:
 
 ```bash
 # Check hook system health
-specify hooks health
+flowspec hooks health
 
 # Output:
 # Hook System Health Check
@@ -685,7 +685,7 @@ specify hooks health
 **Prometheus Export**:
 ```bash
 # Export metrics in Prometheus format
-specify hooks metrics --format prometheus --output /var/lib/prometheus/node-exporter/hooks.prom
+flowspec hooks metrics --format prometheus --output /var/lib/prometheus/node-exporter/hooks.prom
 ```
 
 **Example Prometheus Metrics**:
@@ -717,23 +717,23 @@ Observability implementation steps:
 - [ ] Write unit tests for audit logger
 
 ### Phase 2: CLI Tools (Week 2)
-- [ ] Implement `specify hooks audit` command
-- [ ] Implement `specify hooks audit --tail` live monitoring
+- [ ] Implement `flowspec hooks audit` command
+- [ ] Implement `flowspec hooks audit --tail` live monitoring
 - [ ] Implement filtering by hook name, status, date
 - [ ] Implement CSV/JSON export formats
 - [ ] Write integration tests for CLI tools
 
 ### Phase 3: Metrics (Week 3)
 - [ ] Implement metrics aggregation (hourly rollup)
-- [ ] Implement `specify hooks metrics` command
-- [ ] Implement `specify hooks trends` command
+- [ ] Implement `flowspec hooks metrics` command
+- [ ] Implement `flowspec hooks trends` command
 - [ ] Add Prometheus export format
 - [ ] Write tests for metrics calculation
 
 ### Phase 4: Operations (Week 4)
 - [ ] Implement log rotation automation
-- [ ] Implement `specify hooks cleanup` command
-- [ ] Implement `specify hooks health` command
+- [ ] Implement `flowspec hooks cleanup` command
+- [ ] Implement `flowspec hooks health` command
 - [ ] Add performance optimizations (async logging)
 - [ ] Write operational documentation
 

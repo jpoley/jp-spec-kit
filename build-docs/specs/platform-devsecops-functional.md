@@ -48,7 +48,7 @@ This functional specification defines behaviors for 9 platform infrastructure ta
 
 **FR-SEC-003**: Audit Logging
 - **Input**: Security event (deny, override, confirm)
-- **Output**: Log entry in `.specify/audit.log`
+- **Output**: Log entry in `.flowspec/audit.log`
 - **Rules**:
   - Format: `[ISO-timestamp] [event-type] [user] [details]`
   - Include: denied path/command, override reason if applicable
@@ -69,7 +69,7 @@ This functional specification defines behaviors for 9 platform infrastructure ta
 - **Output**: Installed semgrep in venv or cache
 - **Rules**:
   - Method: `pip install semgrep==[version]`
-  - Version from `.specify/versions.lock.json`
+  - Version from `.flowspec/versions.lock.json`
 - **Errors**: `Failed to install semgrep: [pip error]`
 
 **FR-TOOL-003**: CodeQL Installation

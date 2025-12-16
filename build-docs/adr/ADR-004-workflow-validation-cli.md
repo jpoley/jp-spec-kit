@@ -40,7 +40,7 @@ Flowspec's workflow configuration (`flowspec_workflow.yml`) is a critical file t
 
 ## Decision
 
-Implement `specify workflow validate` CLI command with:
+Implement `flowspec workflow validate` CLI command with:
 
 ### Schema Validation (Structural)
 - Validate against JSON schema (`memory/flowspec_workflow.schema.json`)
@@ -57,10 +57,10 @@ Implement `specify workflow validate` CLI command with:
 
 ### CLI Interface
 ```bash
-specify workflow validate                    # Default config
-specify workflow validate --file custom.yml  # Custom file
-specify workflow validate --verbose          # Detailed output
-specify workflow validate --json             # CI/automation
+flowspec workflow validate                    # Default config
+flowspec workflow validate --file custom.yml  # Custom file
+flowspec workflow validate --verbose          # Detailed output
+flowspec workflow validate --json             # CI/automation
 ```
 
 ### Exit Codes
@@ -123,7 +123,7 @@ specify workflow validate --json             # CI/automation
 ### Architecture
 
 ```
-specify workflow validate
+flowspec workflow validate
     ↓
 workflow_validate() CLI function
     ↓
@@ -280,4 +280,4 @@ Follows POSIX conventions:
 - `/home/jpoley/ps/flowspec/src/specify_cli/workflow/config.py`
 - `/home/jpoley/ps/flowspec/src/specify_cli/workflow/validator.py`
 - `/home/jpoley/ps/flowspec/tests/test_cli_workflow_validate.py`
-- CLAUDE.md: Updated with `specify workflow validate` documentation
+- CLAUDE.md: Updated with `flowspec workflow validate` documentation

@@ -275,7 +275,7 @@ Archived task memories are retained indefinitely in `backlog/memory/archive/`. O
 
 2. **Add configuration**:
    ```yaml
-   # .specify/config.yml
+   # .flowspec/config.yml
    memory:
      archive:
        retention_days: 90  # Keep archives for 90 days

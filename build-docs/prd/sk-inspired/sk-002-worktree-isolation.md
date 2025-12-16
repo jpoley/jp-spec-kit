@@ -550,7 +550,7 @@ You are now in: /path/to/my-project (main branch)
 
 ### User Preferences
 
-Add to `.specify/config.yml`:
+Add to `.flowspec/config.yml`:
 
 ```yaml
 worktree:

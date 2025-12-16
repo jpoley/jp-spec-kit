@@ -73,19 +73,19 @@ To run security scanning without any external API calls:
 
 ```bash
 # Scan only (no AI)
-specify security scan --format json --output results.json
+flowspec security scan --format json --output results.json
 
 # Manual triage (no AI)
 # Review results.json directly
 
 # Report without AI analysis
-specify security audit results.json --no-ai-explanation
+flowspec security audit results.json --no-ai-explanation
 ```
 
 ### Configuration for Air-Gapped Environments
 
 ```yaml
-# .specify/security.yml
+# .flowspec/security.yml
 triage:
   ai_enabled: false  # Disable AI triage
 
@@ -140,10 +140,10 @@ When uploading SARIF results to GitHub Code Scanning:
 
 ```bash
 # Minimal SARIF (findings only)
-specify security audit results.json --format sarif --sarif-minimal
+flowspec security audit results.json --format sarif --sarif-minimal
 
 # Full SARIF (with descriptions)
-specify security audit results.json --format sarif
+flowspec security audit results.json --format sarif
 ```
 
 ## Data Storage
@@ -197,7 +197,7 @@ rm -f security-report.*
 ### Disable All External Communication
 
 ```yaml
-# .specify/security.yml
+# .flowspec/security.yml
 privacy:
   offline_mode: true  # No external API calls
   disable_telemetry: true
@@ -225,7 +225,7 @@ export CODEQL_DISABLE_TELEMETRY=true
 
 **Storage Options:**
 1. Environment variable: `ANTHROPIC_API_KEY`
-2. Configuration file: `.specify/credentials.yml` (gitignored)
+2. Configuration file: `.flowspec/credentials.yml` (gitignored)
 3. CI/CD secrets
 
 **Best Practices:**

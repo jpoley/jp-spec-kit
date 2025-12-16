@@ -432,11 +432,11 @@ Your task is...
 
 **Details**:
 
-**Hook Location**: `.git/hooks/pre-commit` (via `.specify/hooks/hooks.yaml` or manual install)
+**Hook Location**: `.git/hooks/pre-commit` (via `.flowspec/hooks/hooks.yaml` or manual install)
 
 **Hook Behavior**:
 ```yaml
-# In .specify/hooks/hooks.yaml
+# In .flowspec/hooks/hooks.yaml
 hooks:
   pre-commit:
     - name: sync-copilot-agents
@@ -693,7 +693,7 @@ backlog task create "Test commands in VS Code and VS Code Insiders" \
 # Task 6: Create pre-commit hook integration
 backlog task create "Create pre-commit hook for agent sync" \
   -d "Add pre-commit hook to automatically sync .claude/commands/ changes to .github/agents/ when commands are modified" \
-  --ac "Hook configuration added to .specify/hooks/hooks.yaml" \
+  --ac "Hook configuration added to .flowspec/hooks/hooks.yaml" \
   --ac "Hook triggers only when .claude/commands/ files are staged" \
   --ac "Hook auto-stages generated .github/agents/ files" \
   --ac "Hook can be bypassed with git commit --no-verify" \
@@ -1201,7 +1201,7 @@ If VS Code Copilot integration fails or introduces critical bugs:
 **Rollback Steps**:
 1. Remove `.github/agents/` directory: `git rm -rf .github/agents/`
 2. Revert README/CLAUDE.md documentation changes
-3. Remove pre-commit hook from `.specify/hooks/hooks.yaml`
+3. Remove pre-commit hook from `.flowspec/hooks/hooks.yaml`
 4. Announce rollback to users: "VS Code Copilot support temporarily disabled - use Claude Code CLI"
 
 **Rollback Criteria**:

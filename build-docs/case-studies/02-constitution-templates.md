@@ -12,7 +12,7 @@
 
 ### Project Description
 
-Implementation of a tiered constitution template system (light/medium/heavy) for Flowspec's `specify init` command. Enables projects to choose appropriate governance levels based on their complexity and team size.
+Implementation of a tiered constitution template system (light/medium/heavy) for Flowspec's `flowspec init` command. Enables projects to choose appropriate governance levels based on their complexity and team size.
 
 ### Key Technologies
 
@@ -88,7 +88,7 @@ User Experience: Significantly improved onboarding
 > "Having clear tier definitions in the spec prevented scope creep and kept each template focused."
 
 - Tier definitions clarified early saved implementation time
-- E2E tests caught integration issues with existing `specify init`
+- E2E tests caught integration issues with existing `flowspec init`
 - Template content was easy to iterate on
 
 ### Challenges Encountered
@@ -128,7 +128,7 @@ User Experience: Significantly improved onboarding
 | Task ID | Title | Status | Time |
 |---------|-------|--------|------|
 | task-241 | Create tiered constitution templates | Done | 2h |
-| task-242 | Add --constitution flag to specify init | Done | 2h |
+| task-242 | Add --constitution flag to flowspec init | Done | 2h |
 | task-246 | Integration tests for constitution system | Done | 1h |
 
 ### Artifacts Created

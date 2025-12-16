@@ -167,7 +167,7 @@ workflows:
     output_state: "In Implementation"
     optional: false
     requires_backlog_tasks: true
-    quality_gate: "specify gate"
+    quality_gate: "flowspec gate"
 ```
 
 ### 3.4 Agent Object
@@ -534,7 +534,7 @@ The workflow configuration file should be placed at the project root:
 ```
 project/
 ├── flowspec_workflow.yml    # <-- This file
-├── .specify/
+├── .flowspec/
 ├── .claude/
 │   └── commands/
 │       └── flowspec/

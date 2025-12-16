@@ -416,7 +416,7 @@ def aggregate_findings(findings: list[Finding]) -> list[Finding]:
 **Mitigation:**
 - Clear messaging: "Semgrep not found. Install now? (Y/n)"
 - Respect GITHUB_TOKEN for authenticated downloads
-- Cache tool binaries in `~/.specify/tools/` (avoid re-download)
+- Cache tool binaries in `~/.flowspec/tools/` (avoid re-download)
 - Provide offline mode (use system tools only)
 
 ### Risk 4: Performance on Large Codebases

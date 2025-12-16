@@ -1,17 +1,17 @@
 # Task-084 AC #9: Pre-Implementation Quality Gates
 
 ## Overview
-Integrate `specify quality` command as a pre-implementation gate that validates spec quality before coding begins.
+Integrate `flowspec quality` command as a pre-implementation gate that validates spec quality before coding begins.
 
 ## Requirements
 
 ### 1. Gate Integration Points
 - **Slash command integration**: `/flow:implement` should run quality check first
-- **CLI integration**: New `specify gate` command that runs quality + blocks on failure
-- **Threshold configuration**: Use existing `.specify/quality-config.json` thresholds
+- **CLI integration**: New `flowspec gate` command that runs quality + blocks on failure
+- **Threshold configuration**: Use existing `.flowspec/quality-config.json` thresholds
 
 ### 2. Behavior
-- Run `specify quality` on spec.md before implementation
+- Run `flowspec quality` on spec.md before implementation
 - If overall score < threshold (default 70): BLOCK with recommendations
 - If score >= threshold: PROCEED with summary
 - `--force` flag to bypass gate (with warning)
@@ -20,7 +20,7 @@ Integrate `specify quality` command as a pre-implementation gate that validates 
 
 **Recommended: Option C (Both CLI command + Slash command integration)**
 
-#### Option A: CLI `specify gate` Command
+#### Option A: CLI `flowspec gate` Command
 - Add new `gate` command to CLI
 - Wraps existing quality check logic
 - Returns exit code 0 (pass) or 1 (fail)
@@ -28,19 +28,19 @@ Integrate `specify quality` command as a pre-implementation gate that validates 
 
 #### Option B: Modify `/flow:implement` Slash Command
 - Add quality gate check at start of implementation workflow
-- Uses existing `specify quality` via subprocess
+- Uses existing `flowspec quality` via subprocess
 - Blocks implementation if gate fails
 - Allows `--force` flag to bypass
 
 #### Option C: Both (Recommended)
-- Implement standalone `specify gate` command for manual use
+- Implement standalone `flowspec gate` command for manual use
 - Integrate gate check into `/flow:implement` workflow
 - Provides both programmatic (exit codes) and interactive (slash command) interfaces
 - Maximizes reusability and flexibility
 
 ### 4. Exit Codes
 
-For `specify gate` command:
+For `flowspec gate` command:
 - **0**: Quality gate passed (score >= threshold)
 - **1**: Quality gate failed (score < threshold)
 - **2**: Error running quality check (file not found, invalid config, etc.)
@@ -107,7 +107,7 @@ This may lead to implementation issues and rework.
 
 ### 6. Configuration
 
-Uses existing `QualityConfig.find_config()` to locate `.specify/quality-config.json`:
+Uses existing `QualityConfig.find_config()` to locate `.flowspec/quality-config.json`:
 
 ```json
 {
@@ -157,7 +157,7 @@ Modify `/flow:implement` to include quality gate check before Phase 1:
 Before launching engineer agents, validate specification quality:
 
 ```bash
-specify gate
+flowspec gate
 
 # If gate fails, stop here and fix issues
 # If gate passes, continue to Phase 1
@@ -165,7 +165,7 @@ specify gate
 
 If quality gate fails and user wants to proceed anyway:
 ```bash
-specify gate --force
+flowspec gate --force
 ```
 ```
 
@@ -178,9 +178,9 @@ specify gate --force
 
 ## Acceptance Criteria
 
-- [ ] AC #9.1: `specify gate` command implemented with quality check
+- [ ] AC #9.1: `flowspec gate` command implemented with quality check
 - [ ] AC #9.2: Exit code 0 on pass (score >= threshold), 1 on fail, 2 on error
-- [ ] AC #9.3: Respects threshold from `.specify/quality-config.json` or uses default 70
+- [ ] AC #9.3: Respects threshold from `.flowspec/quality-config.json` or uses default 70
 - [ ] AC #9.4: `--force` flag bypasses gate with warning (exit code 0)
 - [ ] AC #9.5: Clear pass/fail output with dimension scores
 - [ ] AC #9.6: Recommendations displayed on failure (top 5)

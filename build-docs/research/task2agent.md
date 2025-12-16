@@ -146,26 +146,26 @@ Your dispatcher will:
 
 ---
 
-## 5. Step 3 – Design a `specify dispatch` CLI
+## 5. Step 3 – Design a `flowspec dispatch` CLI
 
 Add a new command in flowspec (or a sibling script):
 
-- Name suggestion: `specify dispatch`
+- Name suggestion: `flowspec dispatch`
 
 ### 5.1 Example CLI Usage
 
 Dispatch a specific task:
 
-- `specify dispatch task-001`
+- `flowspec dispatch task-001`
 
 Dispatch tasks by agent and status:
 
-- `specify dispatch --agent claude --status todo --limit 1`
-- `specify dispatch --agent gemini --status todo --limit 3`
+- `flowspec dispatch --agent claude --status todo --limit 1`
+- `flowspec dispatch --agent gemini --status todo --limit 3`
 
 Dispatch by label:
 
-- `specify dispatch --label agent:claude --status todo`
+- `flowspec dispatch --label agent:claude --status todo`
 
 Helpful flags:
 
@@ -268,7 +268,7 @@ You could implement the dispatcher in Python (or Go, TS, whatever). In Python, a
 - `create_pr(task, branch_name) -> pr_url`
 - `update_task_status(task, new_status, extra_info)`
 
-Flow for `specify dispatch task-001`:
+Flow for `flowspec dispatch task-001`:
 
 1. Parse CLI args → `task_ids = ["task-001"]`
 2. For each `task_id`:
@@ -326,7 +326,7 @@ Missing pieces:
    - Defines how each logical agent is actually invoked (CLI command, args, mode, prompt style).
 
 3. The actual dispatcher/orchestrator:
-   - A `specify dispatch` (or equivalent) command that:
+   - A `flowspec dispatch` (or equivalent) command that:
      - Reads tasks from Backlog.md
      - Resolves the correct agent
      - Runs that agent with a constructed prompt and repo context
@@ -336,5 +336,5 @@ Missing pieces:
 So: it’s not literally “only a dispatch service,” but the **main missing thing is the dispatch/orchestration layer**, plus two relatively small pieces of configuration and template wiring that make agent assignment first-class and predictable.
 
 If you want, the next layer of detail would be:
-- A concrete CLI spec for `specify dispatch` (argument table, examples).
+- A concrete CLI spec for `flowspec dispatch` (argument table, examples).
 - A first-pass Python script for dispatch that you can drop straight into the repo and iterate on.

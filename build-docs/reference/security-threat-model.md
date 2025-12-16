@@ -34,7 +34,7 @@ This document describes the threat model, security boundaries, and known limitat
 │  │  Local System                                           ││
 │  │  - Source code (user's codebase)                       ││
 │  │  - Scanner tools (Semgrep, Bandit)                     ││
-│  │  - Configuration files (.specify/security.yml)         ││
+│  │  - Configuration files (.flowspec/security.yml)         ││
 │  │  - Scan results (local JSON files)                     ││
 │  └─────────────────────────────────────────────────────────┘│
 └─────────────────────────────────────────────────────────────┘
