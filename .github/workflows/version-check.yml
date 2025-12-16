@@ -4,14 +4,14 @@ on:
   pull_request:
     paths:
       - 'pyproject.toml'
-      - 'src/specify_cli/__init__.py'
+      - 'src/flowspec_cli/__init__.py'
       - '.github/workflows/release.yml'
       - '.github/workflows/version-check.yml'
   push:
     branches: [main]
     paths:
       - 'pyproject.toml'
-      - 'src/specify_cli/__init__.py'
+      - 'src/flowspec_cli/__init__.py'
   workflow_dispatch:
 
 jobs:
@@ -36,9 +36,9 @@ jobs:
           echo "pyproject_version=$PYPROJECT_VERSION" >> $GITHUB_OUTPUT
 
           # Get version from __init__.py
-          INIT_VERSION=$(grep '__version__ = ' src/specify_cli/__init__.py | sed 's/__version__ = "\(.*\)"/\1/')
+          INIT_VERSION=$(grep '__version__ = ' src/flowspec_cli/__init__.py | sed 's/__version__ = "\(.*\)"/\1/')
           if [ -z "$INIT_VERSION" ]; then
-            echo "❌ Failed to extract version from src/specify_cli/__init__.py"
+            echo "❌ Failed to extract version from src/flowspec_cli/__init__.py"
             exit 1
           fi
           echo "init_version=$INIT_VERSION" >> $GITHUB_OUTPUT
