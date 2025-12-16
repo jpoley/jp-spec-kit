@@ -1,4 +1,4 @@
-"""Tests for specify gate command."""
+"""Tests for flowspec gate command."""
 
 from typer.testing import CliRunner
 
@@ -6,7 +6,7 @@ from flowspec_cli import app
 
 
 class TestGateCommand:
-    """Test the specify gate command."""
+    """Test the flowspec gate command."""
 
     def test_gate_passes_high_quality_spec(self, tmp_path, monkeypatch):
         """Gate passes when spec quality is above threshold."""

@@ -23,7 +23,7 @@ You are a constitution validator that ensures project constitutions are properly
 if [ -f "memory/constitution.md" ]; then
   echo "Constitution found"
 else
-  echo "⚠️ No constitution found. Run 'specify init --here' to create one."
+  echo "⚠️ No constitution found. Run 'flowspec init --here' to create one."
 fi
 ```
 
@@ -88,7 +88,7 @@ Medium tier projects should validate their constitution before workflow commands
 Options:
   1. Continue anyway (y/N)
   2. Run /speckit:constitution to customize
-  3. Run specify constitution validate to check status
+  3. Run flowspec constitution validate to check status
 
 Continue without validation? [y/N]: _
 ```
@@ -113,7 +113,7 @@ Heavy tier constitutions require full validation before workflow commands.
 
 To resolve:
   1. Run /speckit:constitution to customize your constitution
-  2. Run specify constitution validate to verify
+  2. Run flowspec constitution validate to verify
   3. Remove all NEEDS_VALIDATION markers
 
 Or use --skip-validation to bypass (not recommended).
@@ -158,7 +158,7 @@ Each `/flow:*` command should invoke this skill at the beginning:
 {{INVOKE_SKILL:constitution-checker}}
 
 1. Check if `memory/constitution.md` exists
-2. If missing, warn user and suggest `specify init --here`
+2. If missing, warn user and suggest `flowspec init --here`
 3. If exists:
    - Detect tier from TIER comment (default: Medium)
    - Count NEEDS_VALIDATION markers
@@ -225,7 +225,7 @@ Heavy tier constitutions require full validation before workflow commands.
 
 To resolve:
   1. Run /speckit:constitution to customize your constitution
-  2. Run specify constitution validate to verify
+  2. Run flowspec constitution validate to verify
   3. Remove all NEEDS_VALIDATION markers
 
 Or use --skip-validation to bypass (not recommended).
@@ -249,17 +249,17 @@ Guide users to these commands for resolution:
 
 | Command | Purpose |
 |---------|---------|
-| `specify init --here` | Initialize constitution if missing |
+| `flowspec init --here` | Initialize constitution if missing |
 | `/speckit:constitution` | Interactive constitution customization |
-| `specify constitution validate` | Check validation status |
-| `specify constitution show` | Display current constitution |
+| `flowspec constitution validate` | Check validation status |
+| `flowspec constitution show` | Display current constitution |
 
 ## Programmatic Validation
 
 For Python integration:
 
 ```python
-from specify_cli.constitution import (
+from flowspec_cli.constitution import (
     check_constitution_exists,
     detect_tier,
     count_validation_markers,
@@ -316,7 +316,7 @@ Instead:
 ⚠️ No constitution found at memory/constitution.md
 
 To create one:
-  1. Run: specify init --here
+  1. Run: flowspec init --here
   2. Or: Copy templates/constitutions/light.md to memory/constitution.md
   3. Then: Run /speckit:constitution to customize
 ```

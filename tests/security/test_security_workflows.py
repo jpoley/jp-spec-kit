@@ -207,7 +207,7 @@ class TestShellInjectionPrevention:
                             key in env for key in ["SCAN_PATH", "FAIL_ON", "COMPONENT"]
                         )
                         # Only check steps that seem to be scan-related
-                        if "specify security scan" in run_script:
+                        if "flowspec security scan" in run_script:
                             assert has_env_vars, (
                                 f"Step '{step.get('name')}' in {workflow_file.name} "
                                 f"should use env blocks for inputs"

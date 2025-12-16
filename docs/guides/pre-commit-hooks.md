@@ -28,7 +28,7 @@ brew install pre-commit
 
 ### 2. Initialize hooks
 
-If you ran `specify init`, you already have a `.pre-commit-config.yaml` file. Install the hooks with:
+If you ran `flowspec init`, you already have a `.pre-commit-config.yaml` file. Install the hooks with:
 
 ```bash
 pre-commit install

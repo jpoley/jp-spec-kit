@@ -110,4 +110,4 @@ else
   uv tool install flowspec-cli --from "$UV_FROM"
 fi
 
-echo "Done. Run: specify --help"
+echo "Done. Run: flowspec --help"

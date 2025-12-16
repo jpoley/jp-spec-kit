@@ -157,6 +157,6 @@
   "notes": {
     "languageSupport": "Includes language-specific agent personas for C, C++, C#, Go, Java, Kotlin, Python, Rust, TypeScript/JavaScript, and Mobile (Dart/Flutter)",
     "mcpServers": "Pre-configured with 7 MCP servers: GitHub, Serena, Playwright, Trivy, Semgrep, shadcn-ui, Chrome DevTools",
-    "dualDistribution": "Also available as Specify CLI (pip install specify-cli) for multi-agent support (Copilot, Gemini, Cursor, etc.)"
+    "dualDistribution": "Also available as Specify CLI (pip install flowspec-cli) for multi-agent support (Copilot, Gemini, Cursor, etc.)"
   }
 }

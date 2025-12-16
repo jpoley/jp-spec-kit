@@ -1,4 +1,4 @@
-"""CLI tests for specify workflow validate command.
+"""CLI tests for flowspec workflow validate command.
 
 Tests cover:
 - Valid config file validation (exit code 0)

@@ -50,7 +50,7 @@ Custom branching strategy.
 
 
 class TestConstitutionDiff:
-    """Tests for 'specify constitution diff' command."""
+    """Tests for 'flowspec constitution diff' command."""
 
     def test_diff_command_exists(self):
         """Verify constitution diff command is available."""
@@ -139,7 +139,7 @@ class TestConstitutionDiff:
 
 
 class TestConstitutionMerge:
-    """Tests for 'specify constitution merge' command."""
+    """Tests for 'flowspec constitution merge' command."""
 
     def test_merge_command_exists(self):
         """Verify constitution merge command is available."""

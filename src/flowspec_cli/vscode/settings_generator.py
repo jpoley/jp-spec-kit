@@ -61,14 +61,14 @@ class VSCodeSettingsGenerator:
         if not roles_config:
             raise WorkflowConfigError(
                 "No 'roles' section found in workflow configuration. "
-                "Please run 'specify init' to configure roles."
+                "Please run 'flowspec init' to configure roles."
             )
 
         primary = roles_config.get("primary")
         if not primary:
             raise WorkflowConfigError(
                 "No 'primary' role set in workflow configuration. "
-                "Please run 'specify init' to select your role."
+                "Please run 'flowspec init' to select your role."
             )
 
         return primary

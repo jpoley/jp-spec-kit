@@ -435,7 +435,7 @@ After the research and business validation agents complete their work:
 After successfully completing this command (research and validation reports generated), emit the workflow event:
 
 ```bash
-specify hooks emit research.completed \
+flowspec hooks emit research.completed \
   --spec-id "$FEATURE_ID" \
   --task-id "$TASK_ID" \
   -f docs/research/$FEATURE_ID-research.md \
@@ -444,4 +444,4 @@ specify hooks emit research.completed \
 
 Replace `$FEATURE_ID` with the feature name/identifier and `$TASK_ID` with the backlog task ID if available.
 
-This triggers any configured hooks in `.specify/hooks/hooks.yaml` (e.g., notifications, quality gates).
+This triggers any configured hooks in `.flowspec/hooks/hooks.yaml` (e.g., notifications, quality gates).

@@ -343,7 +343,7 @@ class TestUpgradeSpecKit:
 
 
 class TestUpgradeToolsCommand:
-    """Tests for 'specify upgrade-tools' command."""
+    """Tests for 'flowspec upgrade-tools' command."""
 
     def test_help_shows_correct_description(self):
         """Help text explains the command upgrades CLI tools."""
@@ -434,7 +434,7 @@ class TestUpgradeToolsCommand:
 
 
 class TestUpgradeRepoCommand:
-    """Tests for 'specify upgrade-repo' command."""
+    """Tests for 'flowspec upgrade-repo' command."""
 
     def test_help_shows_correct_description(self):
         """Help text explains the command upgrades repository templates."""
@@ -466,7 +466,7 @@ class TestUpgradeRepoCommand:
 
 
 class TestUpgradeCommand:
-    """Tests for 'specify upgrade' dispatcher command."""
+    """Tests for 'flowspec upgrade' dispatcher command."""
 
     def test_help_shows_options(self):
         """Help text shows --tools, --repo, and --all options."""

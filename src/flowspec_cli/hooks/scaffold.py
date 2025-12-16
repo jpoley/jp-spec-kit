@@ -1,7 +1,7 @@
-"""Hook scaffolding for specify init.
+"""Hook scaffolding for flowspec init.
 
 This module provides hook directory structure and example hooks
-that are created when users run `specify init`.
+that are created when users run `flowspec init`.
 """
 
 from __future__ import annotations
@@ -223,7 +223,7 @@ When hooks are scaffolded (without `--no-hooks`), these 3 hooks are **enabled**:
 
 **Not enabled by default**: The `update-changelog` hook is opt-in (set `enabled: true` to use it).
 
-To disable all hooks during init, use: `specify init --no-hooks`
+To disable all hooks during init, use: `flowspec init --no-hooks`
 
 ## Getting Started
 
@@ -231,11 +231,11 @@ To disable all hooks during init, use: `specify init --no-hooks`
 2. **Customize scripts** for your project's tooling
 3. **Test a hook**:
    ```bash
-   specify hooks test run-tests implement.completed
+   flowspec hooks test run-tests implement.completed
    ```
 4. **Validate configuration**:
    ```bash
-   specify hooks validate
+   flowspec hooks validate
    ```
 
 ## Available Events
@@ -251,19 +251,19 @@ To disable all hooks during init, use: `specify init --no-hooks`
 
 ```bash
 # List configured hooks
-specify hooks list
+flowspec hooks list
 
 # Emit an event manually
-specify hooks emit spec.created --spec-id my-feature
+flowspec hooks emit spec.created --spec-id my-feature
 
 # View execution history
-specify hooks audit --tail 20
+flowspec hooks audit --tail 20
 
 # Test a hook
-specify hooks test <hook-name> <event-type>
+flowspec hooks test <hook-name> <event-type>
 
 # Validate configuration
-specify hooks validate
+flowspec hooks validate
 ```
 
 ## Security

@@ -63,7 +63,7 @@ jobs:
 
       - name: Check for critical findings
         run: |
-          specify security scan --fail-on critical
+          flowspec security scan --fail-on critical
 ```
 
 ### Full Security Pipeline
@@ -101,7 +101,7 @@ jobs:
       - name: Run scan
         id: scan
         run: |
-          specify security scan --format json --output scan-results.json
+          flowspec security scan --format json --output scan-results.json
           FINDINGS=$(jq '.findings | length' scan-results.json)
           echo "findings=$FINDINGS" >> $GITHUB_OUTPUT
 
@@ -232,7 +232,7 @@ jobs:
       - name: Scan changed files
         if: steps.changed.outputs.files != ''
         run: |
-          specify security scan ${{ steps.changed.outputs.files }} \
+          flowspec security scan ${{ steps.changed.outputs.files }} \
             --fail-on high
 ```
 
@@ -262,7 +262,7 @@ security-scan:
   extends: .security-base
   stage: security
   script:
-    - specify security scan --format json --output gl-sast-report.json
+    - flowspec security scan --format json --output gl-sast-report.json
   artifacts:
     reports:
       sast: gl-sast-report.json
@@ -307,7 +307,7 @@ security-gate:
   stage: security
   needs: [security-scan]
   script:
-    - specify security scan --fail-on critical
+    - flowspec security scan --fail-on critical
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 ```
@@ -328,7 +328,7 @@ flowspec-security:
   image: python:3.11
   script:
     - pip install flowspec-cli semgrep
-    - specify security scan --format json --output gl-sast-report.json
+    - flowspec security scan --format json --output gl-sast-report.json
   artifacts:
     reports:
       sast: gl-sast-report.json
@@ -361,7 +361,7 @@ pipeline {
         stage('Security Scan') {
             steps {
                 sh '''
-                    specify security scan \
+                    flowspec security scan \
                         --format json \
                         --output scan-results.json
                 '''
@@ -419,7 +419,7 @@ pipeline {
 
         stage('Security Gate') {
             steps {
-                sh 'specify security scan --fail-on high'
+                sh 'flowspec security scan --fail-on high'
             }
         }
     }
@@ -460,7 +460,7 @@ pipeline {
                         steps {
                             sh """
                                 pip install flowspec-cli ${SCANNER}
-                                specify security scan \
+                                flowspec security scan \
                                     --scanner ${SCANNER} \
                                     --format json \
                                     --output ${SCANNER}-results.json
@@ -514,7 +514,7 @@ stages:
             displayName: 'Install tools'
 
           - script: |
-              specify security scan \
+              flowspec security scan \
                 --format json \
                 --output $(Build.ArtifactStagingDirectory)/scan-results.json
             displayName: 'Run security scan'
@@ -525,7 +525,7 @@ stages:
               artifactName: 'SecurityResults'
 
           - script: |
-              specify security scan --fail-on high
+              flowspec security scan --fail-on high
             displayName: 'Security gate'
             continueOnError: true
 
@@ -578,7 +578,7 @@ jobs:
       - run:
           name: Run security scan
           command: |
-            specify security scan \
+            flowspec security scan \
               --format json \
               --output scan-results.json
       - store_artifacts:
@@ -633,7 +633,7 @@ jobs:
           packages: flowspec-cli semgrep
       - run:
           name: Security gate
-          command: specify security scan --fail-on critical
+          command: flowspec security scan --fail-on critical
 
 workflows:
   security:
@@ -661,7 +661,7 @@ repos:
     hooks:
       - id: flowspec-security
         name: Security Scan
-        entry: specify security scan --quick --fail-on critical
+        entry: flowspec security scan --quick --fail-on critical
         language: python
         additional_dependencies: [flowspec-cli, semgrep]
         pass_filenames: false
@@ -677,7 +677,7 @@ repos:
     hooks:
       - id: flowspec-security-python
         name: Security Scan (Python)
-        entry: specify security scan --scanner semgrep --quick --fail-on high
+        entry: flowspec security scan --scanner semgrep --quick --fail-on high
         language: python
         additional_dependencies: [flowspec-cli, semgrep]
         types: [python]
@@ -734,7 +734,7 @@ env:
 - name: Scan changed files only
   run: |
     git diff --name-only ${{ github.event.before }} ${{ github.sha }} | \
-    xargs specify security scan
+    xargs flowspec security scan
 ```
 
 ### 5. Scheduled Full Scans
@@ -770,7 +770,7 @@ permissions:
 ```yaml
 - name: Run scan with timeout
   timeout-minutes: 30
-  run: specify security scan --timeout 1800
+  run: flowspec security scan --timeout 1800
 ```
 
 ## Related Documentation

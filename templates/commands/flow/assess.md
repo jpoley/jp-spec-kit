@@ -290,7 +290,7 @@ Before completing:
 After successfully completing this command (assessment report generated), emit the workflow event:
 
 ```bash
-specify hooks emit workflow.assessed \
+flowspec hooks emit workflow.assessed \
   --spec-id "$FEATURE_ID" \
   --task-id "$TASK_ID" \
   -f docs/assess/$FEATURE_ID-assessment.md
@@ -298,4 +298,4 @@ specify hooks emit workflow.assessed \
 
 Replace `$FEATURE_ID` with the feature being assessed and `$TASK_ID` with the backlog task ID if available.
 
-This triggers any configured hooks in `.specify/hooks/hooks.yaml` (e.g., notifications, workflow tracking).
+This triggers any configured hooks in `.flowspec/hooks/hooks.yaml` (e.g., notifications, workflow tracking).

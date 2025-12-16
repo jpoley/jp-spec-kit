@@ -636,7 +636,7 @@ if finding["scanner"] == "codeql":
 
 ```bash
 # User runs CodeQL scan
-specify security scan --scanner codeql --language python
+flowspec security scan --scanner codeql --language python
 
 # You execute:
 1. Read docs/security/codeql-results.sarif

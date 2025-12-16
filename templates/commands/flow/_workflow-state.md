@@ -106,7 +106,7 @@ Tasks use labels with the `workflow:` prefix to track their current workflow sta
 The state guard module can also be used programmatically:
 
 ```python
-from specify_cli.workflow import check_workflow_state, get_valid_workflows
+from flowspec_cli.workflow import check_workflow_state, get_valid_workflows
 
 # Check if current state allows command execution
 can_proceed, message = check_workflow_state("implement", current_state)

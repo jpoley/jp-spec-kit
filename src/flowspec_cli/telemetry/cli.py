@@ -61,9 +61,9 @@ What we DON'T collect:
 
 Your data:
 • Stored locally in .flowspec/telemetry.jsonl
-• You can view it anytime: specify telemetry view
-• You can clear it anytime: specify telemetry clear
-• You can disable anytime: specify telemetry disable
+• You can view it anytime: flowspec telemetry view
+• You can clear it anytime: flowspec telemetry clear
+• You can disable anytime: flowspec telemetry disable
 
 Purpose:
 • Improve flowspec workflow recommendations
@@ -154,7 +154,7 @@ def enable_command(
     if enable_telemetry(root):
         console.print("[green]✓ Telemetry enabled.[/green]")
         console.print(
-            "[dim]You can disable it anytime with: specify telemetry disable[/dim]"
+            "[dim]You can disable it anytime with: flowspec telemetry disable[/dim]"
         )
     else:
         console.print("[red]Failed to enable telemetry.[/red]")
@@ -172,7 +172,7 @@ def disable_command(
 ) -> None:
     """Disable telemetry and revoke consent.
 
-    Your existing telemetry data is preserved. Use 'specify telemetry clear'
+    Your existing telemetry data is preserved. Use 'flowspec telemetry clear'
     to delete collected data.
     """
     root = Path(project_root) if project_root else Path.cwd()
@@ -184,7 +184,7 @@ def disable_command(
     if disable_telemetry(root):
         console.print("[green]✓ Telemetry disabled.[/green]")
         console.print(
-            "[dim]Use 'specify telemetry clear' to delete existing data.[/dim]"
+            "[dim]Use 'flowspec telemetry clear' to delete existing data.[/dim]"
         )
     else:
         console.print("[red]Failed to disable telemetry.[/red]")
@@ -503,8 +503,8 @@ def track_role_command(
     Events are only recorded if telemetry is enabled.
 
     Examples:
-        specify telemetry track-role dev --command /speckit:configure
-        specify telemetry track-role pm -c /flow:init -q
+        flowspec telemetry track-role dev --command /speckit:configure
+        flowspec telemetry track-role pm -c /flow:init -q
     """
     root = Path(project_root) if project_root else Path.cwd()
 
@@ -553,8 +553,8 @@ def track_agent_command(
     Events are only recorded if telemetry is enabled.
 
     Examples:
-        specify telemetry track-agent backend-engineer --command /flow:implement
-        specify telemetry track-agent qa-engineer -c /flow:validate -r dev -q
+        flowspec telemetry track-agent backend-engineer --command /flow:implement
+        flowspec telemetry track-agent qa-engineer -c /flow:validate -r dev -q
     """
     root = Path(project_root) if project_root else Path.cwd()
 
@@ -605,8 +605,8 @@ def track_handoff_command(
     Events are only recorded if telemetry is enabled.
 
     Examples:
-        specify telemetry track-handoff orchestrator frontend-engineer
-        specify telemetry track-handoff pm-planner backend-engineer -r dev -q
+        flowspec telemetry track-handoff orchestrator frontend-engineer
+        flowspec telemetry track-handoff pm-planner backend-engineer -r dev -q
     """
     root = Path(project_root) if project_root else Path.cwd()
 

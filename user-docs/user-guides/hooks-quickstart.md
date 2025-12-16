@@ -69,7 +69,7 @@ echo "Tests completed successfully"
 Before enabling it in production, test the hook:
 
 ```bash
-specify hooks test run-tests implement.completed
+flowspec hooks test run-tests implement.completed
 ```
 
 This executes the hook with a mock event and shows you the output.
@@ -79,7 +79,7 @@ This executes the hook with a mock event and shows you the output.
 Always validate your configuration after making changes:
 
 ```bash
-specify hooks validate
+flowspec hooks validate
 ```
 
 This checks:
@@ -268,16 +268,16 @@ LOCK_FILE="$SUMMARY_FILE.lock"
 Emitting agent progress events:
 ```bash
 # When starting work on a task
-specify hooks emit agent.started --task-id task-229 --spec-id agent-hooks
+flowspec hooks emit agent.started --task-id task-229 --spec-id agent-hooks
 
 # Report progress periodically
-specify hooks emit agent.progress --task-id task-229 --progress 50 --message "Implementing hooks"
+flowspec hooks emit agent.progress --task-id task-229 --progress 50 --message "Implementing hooks"
 
 # When handing off to another machine
-specify hooks emit agent.handoff --task-id task-229 --agent-id claude-code@muckross --message "Planning complete, ready for implementation"
+flowspec hooks emit agent.handoff --task-id task-229 --agent-id claude-code@muckross --message "Planning complete, ready for implementation"
 
 # When completing work
-specify hooks emit agent.completed --task-id task-229 --message "All ACs verified"
+flowspec hooks emit agent.completed --task-id task-229 --message "All ACs verified"
 ```
 
 Multi-machine coordination example:
@@ -327,7 +327,7 @@ echo "Task: $TASK_ID"
 ### List Configured Hooks
 
 ```bash
-specify hooks list
+flowspec hooks list
 ```
 
 Shows all hooks with their event types, scripts, and configuration.
@@ -336,49 +336,49 @@ Shows all hooks with their event types, scripts, and configuration.
 
 ```bash
 # Emit a spec.created event
-specify hooks emit spec.created --spec-id my-feature
+flowspec hooks emit spec.created --spec-id my-feature
 
 # Emit a task.completed event
-specify hooks emit task.completed --task-id task-123 --spec-id my-feature
+flowspec hooks emit task.completed --task-id task-123 --spec-id my-feature
 
 # Dry run (show what would execute)
-specify hooks emit implement.completed --spec-id auth --dry-run
+flowspec hooks emit implement.completed --spec-id auth --dry-run
 
 # JSON output
-specify hooks emit spec.created --spec-id test --json
+flowspec hooks emit spec.created --spec-id test --json
 ```
 
 ### View Execution History
 
 ```bash
 # Show last 10 executions
-specify hooks audit
+flowspec hooks audit
 
 # Show last 20 executions
-specify hooks audit --tail 20
+flowspec hooks audit --tail 20
 
 # JSON output
-specify hooks audit --json
+flowspec hooks audit --json
 ```
 
 ### Test a Hook
 
 ```bash
 # Test run-tests hook with implement.completed event
-specify hooks test run-tests implement.completed
+flowspec hooks test run-tests implement.completed
 
 # Test with custom spec ID
-specify hooks test quality-gate spec.created --spec-id my-feature
+flowspec hooks test quality-gate spec.created --spec-id my-feature
 ```
 
 ### Validate Configuration
 
 ```bash
 # Validate default hooks.yaml
-specify hooks validate
+flowspec hooks validate
 
 # Validate specific config file
-specify hooks validate -f .specify/hooks/custom.yaml
+flowspec hooks validate -f .specify/hooks/custom.yaml
 ```
 
 ## Configuration Options
@@ -444,11 +444,11 @@ Example:
 ### Audit Logging
 - All hook executions are logged to `.specify/hooks/audit.log`
 - Includes timestamp, success/failure, duration, exit code
-- View with `specify hooks audit`
+- View with `flowspec hooks audit`
 
 ### Best Practices
 1. **Keep scripts in version control** - Track changes to hooks
-2. **Test before enabling** - Use `specify hooks test`
+2. **Test before enabling** - Use `flowspec hooks test`
 3. **Set appropriate timeouts** - Prevent hung processes
 4. **Use fail_mode wisely** - Only use `stop` for critical gates
 5. **Validate environment variables** - Don't assume they exist
@@ -460,11 +460,11 @@ Example:
 1. Check `enabled: true` in hooks.yaml
 2. Verify event type matches
 3. Check script is executable: `chmod +x .specify/hooks/my-script.sh`
-4. Validate config: `specify hooks validate`
+4. Validate config: `flowspec hooks validate`
 
 ### Hook failing
-1. Test manually: `specify hooks test my-hook implement.completed`
-2. Check audit log: `specify hooks audit --tail 20`
+1. Test manually: `flowspec hooks test my-hook implement.completed`
+2. Check audit log: `flowspec hooks audit --tail 20`
 3. Review error messages in output
 4. Verify script permissions and dependencies
 
@@ -474,7 +474,7 @@ Example:
 3. Move long-running tasks to background jobs
 
 ### Event not firing
-1. Verify you're emitting the event: `specify hooks emit <event-type> --dry-run`
+1. Verify you're emitting the event: `flowspec hooks emit <event-type> --dry-run`
 2. Check event type spelling
 3. Review hooks.yaml event matchers
 
@@ -534,8 +534,8 @@ golangci-lint run
 ## Next Steps
 
 1. **Enable your first hook** - Start with a simple test hook
-2. **Test it thoroughly** - Use `specify hooks test`
-3. **Monitor execution** - Check `specify hooks audit`
+2. **Test it thoroughly** - Use `flowspec hooks test`
+3. **Monitor execution** - Check `flowspec hooks audit`
 4. **Customize for your workflow** - Add project-specific hooks
 5. **Share with team** - Commit hooks to version control
 
@@ -548,7 +548,7 @@ golangci-lint run
 
 ## Getting Help
 
-- Validate your config: `specify hooks validate`
-- Test hooks individually: `specify hooks test <hook-name> <event-type>`
-- View execution history: `specify hooks audit`
+- Validate your config: `flowspec hooks validate`
+- Test hooks individually: `flowspec hooks test <hook-name> <event-type>`
+- View execution history: `flowspec hooks audit`
 - Check GitHub issues: https://github.com/jpoley/flowspec/issues

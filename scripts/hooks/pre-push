@@ -25,7 +25,7 @@ fi
 
 # Run security scan on src/ directory (Python code)
 echo "Scanning src/ for security issues..."
-if ! specify security scan src/ --fail-on high 2>/dev/null; then
+if ! flowspec security scan src/ --fail-on high 2>/dev/null; then
     echo ""
     echo "Security scan failed! Please fix the issues before pushing."
     echo ""

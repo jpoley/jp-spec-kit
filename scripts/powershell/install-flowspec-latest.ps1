@@ -81,18 +81,18 @@ if (-not $tag) {
   exit 1
 }
 
-Write-Host "Installing specify-cli @ $tag from $Owner/$Repo via $Method"
+Write-Host "Installing flowspec-cli @ $tag from $Owner/$Repo via $Method"
 
 if ($Method -eq 'ssh') {
   $from = "git+ssh://git@github.com/$Owner/$Repo.git@$tag"
-  uv tool install specify-cli --from $from
+  uv tool install flowspec-cli --from $from
 } else {
   if (-not $env:GITHUB_TOKEN) {
     Write-Error "GITHUB_TOKEN not set for private HTTPS access. Export it and retry, or use -Method ssh."
     exit 1
   }
   $from = "git+https://x-access-token:$($env:GITHUB_TOKEN)@github.com/$Owner/$Repo.git@$tag"
-  uv tool install specify-cli --from $from
+  uv tool install flowspec-cli --from $from
 }
 
-Write-Host "Done. Run: specify --help"
+Write-Host "Done. Run: flowspec --help"

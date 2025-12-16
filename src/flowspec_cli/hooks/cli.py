@@ -11,11 +11,11 @@ Commands:
 - test: Test a specific hook with a mock event
 
 Example:
-    $ specify hooks emit spec.created --spec-id my-feature
-    $ specify hooks validate
-    $ specify hooks list
-    $ specify hooks audit --tail 10
-    $ specify hooks test run-tests implement.completed
+    $ flowspec hooks emit spec.created --spec-id my-feature
+    $ flowspec hooks validate
+    $ flowspec hooks list
+    $ flowspec hooks audit --tail 10
+    $ flowspec hooks test run-tests implement.completed
 """
 
 from __future__ import annotations
@@ -115,25 +115,25 @@ def hooks_emit(
 
     Examples:
         # Emit spec.created event
-        specify hooks emit spec.created --spec-id my-feature
+        flowspec hooks emit spec.created --spec-id my-feature
 
         # Emit task.completed event
-        specify hooks emit task.completed --task-id task-123 --spec-id my-feature
+        flowspec hooks emit task.completed --task-id task-123 --spec-id my-feature
 
         # Emit implement.completed with files
-        specify hooks emit implement.completed --spec-id auth -f src/auth/login.py -f src/auth/signup.py
+        flowspec hooks emit implement.completed --spec-id auth -f src/auth/login.py -f src/auth/signup.py
 
         # Emit agent.progress for multi-machine observability
-        specify hooks emit agent.progress --task-id task-229 --progress 60 --message "Implementing hooks"
+        flowspec hooks emit agent.progress --task-id task-229 --progress 60 --message "Implementing hooks"
 
         # Emit agent.started when beginning work
-        specify hooks emit agent.started --task-id task-229 --spec-id agent-hooks
+        flowspec hooks emit agent.started --task-id task-229 --spec-id agent-hooks
 
         # Dry run (show what would execute)
-        specify hooks emit spec.created --spec-id test --dry-run
+        flowspec hooks emit spec.created --spec-id test --dry-run
 
         # JSON output for scripting
-        specify hooks emit task.completed --task-id task-123 --json
+        flowspec hooks emit task.completed --task-id task-123 --json
     """
     # Determine project root
     workspace_root = Path(project_root) if project_root else Path.cwd()
@@ -252,13 +252,13 @@ def hooks_validate(
 
     Examples:
         # Validate default hooks.yaml
-        specify hooks validate
+        flowspec hooks validate
 
         # Validate specific config file
-        specify hooks validate -f .specify/hooks/custom.yaml
+        flowspec hooks validate -f .specify/hooks/custom.yaml
 
         # Validate in different project directory
-        specify hooks validate --project-root /path/to/project
+        flowspec hooks validate --project-root /path/to/project
     """
     workspace_root = Path(project_root) if project_root else Path.cwd()
 
@@ -319,7 +319,7 @@ def hooks_list(
     execution methods, and configuration.
 
     Example:
-        specify hooks list
+        flowspec hooks list
     """
     workspace_root = Path(project_root) if project_root else Path.cwd()
 
@@ -404,13 +404,13 @@ def hooks_audit(
 
     Examples:
         # Show last 10 executions
-        specify hooks audit
+        flowspec hooks audit
 
         # Show last 20 executions
-        specify hooks audit --tail 20
+        flowspec hooks audit --tail 20
 
         # JSON output
-        specify hooks audit --json
+        flowspec hooks audit --json
     """
     workspace_root = Path(project_root) if project_root else Path.cwd()
     audit_log_path = workspace_root / ".specify" / "hooks" / "audit.log"
@@ -501,10 +501,10 @@ def hooks_test(
 
     Examples:
         # Test run-tests hook with implement.completed event
-        specify hooks test run-tests implement.completed
+        flowspec hooks test run-tests implement.completed
 
         # Test with custom spec ID
-        specify hooks test quality-gate spec.created --spec-id my-feature
+        flowspec hooks test quality-gate spec.created --spec-id my-feature
     """
     workspace_root = Path(project_root) if project_root else Path.cwd()
 

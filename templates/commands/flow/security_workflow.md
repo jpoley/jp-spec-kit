@@ -322,7 +322,7 @@ jobs:
 
       - name: Run security scan
         run: |
-          specify security scan --format sarif --output security-results.sarif
+          flowspec security scan --format sarif --output security-results.sarif
 
       - name: Upload SARIF to GitHub Security
         uses: github/codeql-action/upload-sarif@v3
@@ -331,12 +331,12 @@ jobs:
 
       - name: Triage findings
         run: |
-          specify security triage --input security-results.sarif
+          flowspec security triage --input security-results.sarif
 
       - name: Generate report and create tasks
         if: github.event_name == 'pull_request'
         run: |
-          specify security report --create-tasks --severity critical,high
+          flowspec security report --create-tasks --severity critical,high
 
       - name: Block on critical findings
         run: |
@@ -360,9 +360,9 @@ security-scan:
     - uv tool install .
 
   script:
-    - specify security scan --format sarif --output gl-sast-report.json
-    - specify security triage --input gl-sast-report.json
-    - specify security report --create-tasks --severity critical,high
+    - flowspec security scan --format sarif --output gl-sast-report.json
+    - flowspec security triage --input gl-sast-report.json
+    - flowspec security report --create-tasks --severity critical,high
 
   artifacts:
     reports:
@@ -386,10 +386,10 @@ Users can optionally enable pre-commit security scanning:
 
 ```bash
 # Enable pre-commit hook
-specify hooks enable pre-commit-security
+flowspec hooks enable pre-commit-security
 
-# Configure in .specify/hooks/hooks.yaml
-cat > .specify/hooks/hooks.yaml << 'EOF'
+# Configure in .flowspec/hooks/hooks.yaml
+cat > .flowspec/hooks/hooks.yaml << 'EOF'
 version: "1.0"
 
 hooks:
@@ -416,14 +416,14 @@ if [ -z "$STAGED_FILES" ]; then
 fi
 
 # Run security scan on staged files only
-specify security scan --staged-only --output docs/security/pre-commit-scan.json
+flowspec security scan --staged-only --output docs/security/pre-commit-scan.json
 
 # Check for critical findings
 CRITICAL_COUNT=$(jq '[.findings[] | select(.severity == "critical")] | length' docs/security/pre-commit-scan.json)
 
 if [ "$CRITICAL_COUNT" -gt 0 ]; then
   echo "[X] Found $CRITICAL_COUNT critical security issues in staged files"
-  echo "   Run 'specify security triage' to review findings"
+  echo "   Run 'flowspec security triage' to review findings"
   exit 1
 fi
 
@@ -437,7 +437,7 @@ chmod +x scripts/security/pre-commit-scan.sh
 ### Configuration Options
 
 ```yaml
-# .specify/hooks/hooks.yaml
+# .flowspec/hooks/hooks.yaml
 
 hooks:
   pre-commit:
@@ -471,7 +471,7 @@ SARIF (Static Analysis Results Interchange Format) is a standard format for stat
 
 ```bash
 # Generate SARIF during scan
-specify security scan --format sarif --output security-results.sarif
+flowspec security scan --format sarif --output security-results.sarif
 
 # Upload to GitHub Security (via GitHub Actions)
 - name: Upload SARIF to GitHub Security
@@ -599,7 +599,7 @@ specify security scan --format sarif --output security-results.sarif
 
 ```bash
 # Check if --create-tasks flag is set
-specify security scan --create-tasks --severity critical,high
+flowspec security scan --create-tasks --severity critical,high
 
 # Verify triage results exist
 ls -l docs/security/triage-results.json

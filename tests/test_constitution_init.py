@@ -1,4 +1,4 @@
-"""Tests for constitution tier functionality in specify init command.
+"""Tests for constitution tier functionality in flowspec init command.
 
 Tests cover:
 - Constitution tier choices constant

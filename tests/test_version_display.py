@@ -274,7 +274,7 @@ class TestVersionCliCommand:
     """Tests for the version CLI command."""
 
     def test_version_command_shows_table(self):
-        """'specify version' shows detailed version table."""
+        """'flowspec version' shows detailed version table."""
         with (
             patch("flowspec_cli.get_github_latest_release", return_value="1.0.0"),
             patch("flowspec_cli.get_npm_latest_version", return_value="1.26.4"),
@@ -291,14 +291,14 @@ class TestVersionCliCommand:
             assert "backlog.md" in result.stdout
 
     def test_version_flag_shows_simple_version(self):
-        """'specify --version' shows simple version string."""
+        """'flowspec --version' shows simple version string."""
         result = runner.invoke(app, ["--version"])
 
         assert result.exit_code == 0
         assert "flowspec" in result.stdout
 
     def test_version_flag_short_form(self):
-        """'specify -v' shows simple version string."""
+        """'flowspec -v' shows simple version string."""
         result = runner.invoke(app, ["-v"])
 
         assert result.exit_code == 0

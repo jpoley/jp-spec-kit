@@ -37,7 +37,7 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Create parallel execution examples per user story
    - Validate task completeness (each user story has all needed tasks, independently testable)
 
-4. **Generate intermediate tasks.md**: Use `.specify/templates/tasks-template.md` as structure, fill with:
+4. **Generate intermediate tasks.md**: Use `.flowspec/templates/tasks-template.md` as structure, fill with:
    - Correct feature name from plan.md
    - Phase 1: Setup tasks (project initialization)
    - Phase 2: Foundational tasks (blocking prerequisites for all user stories)
@@ -51,7 +51,7 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Implementation strategy section (MVP first, incremental delivery)
 
 5. **Convert to Backlog.md format**:
-   - Run `specify tasks generate --source {FEATURE_DIR}` from the repo root to convert tasks.md to Backlog.md format
+   - Run `flowspec tasks generate --source {FEATURE_DIR}` from the repo root to convert tasks.md to Backlog.md format
    - This will create individual task files in `{FEATURE_DIR}/backlog/tasks/*.md`
    - Each task becomes a separate markdown file with YAML frontmatter
    - Preserves all task metadata (labels, dependencies, phases, user stories)

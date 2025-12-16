@@ -1,7 +1,7 @@
-"""Tests for interactive validation mode prompts in specify init (AC1-4, AC8).
+"""Tests for interactive validation mode prompts in flowspec init (AC1-4, AC8).
 
 These tests verify:
-- AC1: Add validation mode prompts to specify init command
+- AC1: Add validation mode prompts to flowspec init command
 - AC2: Support NONE selection (default, press Enter)
 - AC3: Support KEYWORD selection with custom keyword input
 - AC4: Support PULL_REQUEST selection
@@ -306,7 +306,7 @@ class TestDisplayValidationSummary:
 
 
 class TestInitInteractivePrompts:
-    """Tests for interactive prompts during specify init."""
+    """Tests for interactive prompts during flowspec init."""
 
     def test_non_interactive_skips_prompts(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, mock_github_releases

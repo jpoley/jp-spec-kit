@@ -121,7 +121,7 @@ jobs:
           fi
 
           # Use positional argument for path (not --path flag)
-          specify security scan \
+          flowspec security scan \
             "$COMPONENT" \
             --format sarif \
             --output "security-results-${COMPONENT_NAME}.sarif" \

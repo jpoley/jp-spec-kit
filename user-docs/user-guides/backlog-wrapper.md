@@ -162,13 +162,13 @@ Check that hooks are configured:
 
 ```bash
 # Validate hooks configuration
-specify hooks validate
+flowspec hooks validate
 
 # List configured hooks
-specify hooks list
+flowspec hooks list
 
 # View audit log to see if events are being received
-specify hooks audit --tail 10
+flowspec hooks audit --tail 10
 ```
 
 ### Wrapper not found
@@ -271,7 +271,7 @@ Backlog CLI executes normally
     ↓
 Wrapper detects: status changed to Done
     ↓
-Wrapper emits: specify hooks emit task.completed --task-id task-123
+Wrapper emits: flowspec hooks emit task.completed --task-id task-123
     ↓
 Hooks system executes matching hooks
 ```
@@ -286,13 +286,13 @@ The wrapper parses command-line arguments to detect:
 
 ### Event Emission
 
-Events are emitted using the specify hooks CLI:
+Events are emitted using the flowspec hooks CLI:
 
 ```bash
-specify hooks emit task.created --task-id task-123
-specify hooks emit task.completed --task-id task-123
-specify hooks emit task.status_changed --task-id task-123
-specify hooks emit task.ac_checked --task-id task-123
+flowspec hooks emit task.created --task-id task-123
+flowspec hooks emit task.completed --task-id task-123
+flowspec hooks emit task.status_changed --task-id task-123
+flowspec hooks emit task.ac_checked --task-id task-123
 ```
 
 ## Limitations

@@ -2,7 +2,7 @@
 # post-commit-backlog-events.sh - Emit flowspec events when backlog tasks change
 #
 # This git post-commit hook detects changes to backlog task files and emits
-# corresponding flowspec events via `specify hooks emit`.
+# corresponding flowspec events via `flowspec hooks emit`.
 #
 # Events emitted:
 #   - task.created:        New task file added
@@ -81,7 +81,7 @@ count_ac() {
     echo "${checked}/${total}"
 }
 
-# Emit event via specify hooks emit
+# Emit event via flowspec hooks emit
 emit_event() {
     local event_type="$1"
     local task_id="$2"
@@ -100,7 +100,7 @@ emit_event() {
         return 0
     fi
 
-    # Run specify hooks emit
+    # Run flowspec hooks emit
     if "$SPECIFY_CMD" hooks emit "$event_type" --task-id "$task_id" "${extra_args[@]}" 2>/dev/null; then
         log_debug "  Event emitted successfully"
     else

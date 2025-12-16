@@ -285,11 +285,11 @@ codeql database analyze mydb --format=text
 
 ### Using specify CLI
 
-Flowspec integrates CodeQL through the `specify security scan` command:
+Flowspec integrates CodeQL through the `flowspec security scan` command:
 
 ```bash
 # Scan with CodeQL (requires --codeql flag)
-specify security scan --scanner codeql --language python
+flowspec security scan --scanner codeql --language python
 
 # This will:
 # 1. Create CodeQL database

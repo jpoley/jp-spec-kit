@@ -1,6 +1,6 @@
 """Tests for hooks CLI commands.
 
-Tests the specify hooks CLI subcommands:
+Tests the flowspec hooks CLI subcommands:
 - emit: Event emission and hook triggering
 - validate: Hook configuration validation
 - list: Hook listing

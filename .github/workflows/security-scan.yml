@@ -151,7 +151,7 @@ jobs:
           fi
 
           # Use positional argument for path (not --path flag)
-          specify security scan \
+          flowspec security scan \
             "$SCAN_PATH" \
             --format sarif \
             --output security-results.sarif \
@@ -237,7 +237,7 @@ jobs:
             specify security fix
 
             # Apply fixes and re-scan
-            specify security scan
+            flowspec security scan
             \`\`\`
 
             See the [Security tab](https://github.com/${{ github.repository }}/security/code-scanning) for detailed findings.

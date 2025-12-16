@@ -27,7 +27,7 @@ Before running these examples:
 4. **Run a Security Scan:**
    ```bash
    # Generate initial findings data
-   specify security scan .
+   flowspec security scan .
    ```
 
 ## Examples
@@ -175,14 +175,14 @@ pip install mcp
 
 Make sure each repository has:
 1. Flowspec installed
-2. Security scan has been run at least once (`specify security scan .`)
+2. Security scan has been run at least once (`flowspec security scan .`)
 3. MCP server is configured in `.mcp.json`
 
 ### "Findings file not found"
 
 Run a security scan first:
 ```bash
-specify security scan .
+flowspec security scan .
 ```
 
 ## Related Documentation

@@ -50,7 +50,7 @@
     },
     "flowspec-security": {
       "command": "python",
-      "args": ["-m", "specify_cli.security.mcp_server"],
+      "args": ["-m", "flowspec_cli.security.mcp_server"],
       "env": {},
       "description": "Flowspec Security Scanner: scan, triage, and fix security findings with AI assistance"
     }

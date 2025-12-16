@@ -61,7 +61,7 @@ class PreCommitConfig:
         flowspec_hook = {
             "id": "flowspec-security",
             "name": "flowspec security scan",
-            "entry": f"specify security scan --fail-on {self.fail_on_severity}",
+            "entry": f"flowspec security scan --fail-on {self.fail_on_severity}",
             "language": "python",
             "types": ["python", "javascript", "typescript"],
             "pass_filenames": False,
@@ -139,7 +139,7 @@ def generate_husky_config() -> str:
 
 # Run security scan before commit
 echo "Running security scan..."
-specify security scan --fail-on high
+flowspec security scan --fail-on high
 
 # Exit with the scan's exit code
 exit $?
@@ -157,7 +157,7 @@ def generate_lefthook_config() -> str:
             "commands": {
                 "security-scan": {
                     "glob": "*.{py,js,ts,tsx}",
-                    "run": "specify security scan --fail-on high {staged_files}",
+                    "run": "flowspec security scan --fail-on high {staged_files}",
                 }
             }
         }

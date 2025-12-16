@@ -58,13 +58,13 @@ def init(
 
     Examples:
         # Initialize memory for task
-        specify memory init task-389
+        flowspec memory init task-389
 
         # With title
-        specify memory init task-389 --title "Implement login feature"
+        flowspec memory init task-389 --title "Implement login feature"
 
         # Force overwrite existing
-        specify memory init task-389 --force
+        flowspec memory init task-389 --force
     """
     workspace_root = Path(project_root) if project_root else Path.cwd()
     store = TaskMemoryStore(base_path=workspace_root)
@@ -102,13 +102,13 @@ def show(
 
     Examples:
         # Show active task memory
-        specify memory show task-389
+        flowspec memory show task-389
 
         # Show archived task memory
-        specify memory show task-389 --archived
+        flowspec memory show task-389 --archived
 
         # Plain text output
-        specify memory show task-389 --plain
+        flowspec memory show task-389 --plain
     """
     workspace_root = Path(project_root) if project_root else Path.cwd()
     store = TaskMemoryStore(base_path=workspace_root)
@@ -158,13 +158,13 @@ def append(
 
     Examples:
         # Append to end of file
-        specify memory append task-389 "Implemented feature X"
+        flowspec memory append task-389 "Implemented feature X"
 
         # Append to specific section
-        specify memory append task-389 "Decision: Use FastAPI" --section "Key Decisions"
+        flowspec memory append task-389 "Decision: Use FastAPI" --section "Key Decisions"
 
         # Multi-line content
-        specify memory append task-389 $'Line 1\\nLine 2'
+        flowspec memory append task-389 $'Line 1\\nLine 2'
     """
     workspace_root = Path(project_root) if project_root else Path.cwd()
     store = TaskMemoryStore(base_path=workspace_root)
@@ -203,16 +203,16 @@ def list_memories(
 
     Examples:
         # List active memories
-        specify memory list
+        flowspec memory list
 
         # List archived memories
-        specify memory list --archived
+        flowspec memory list --archived
 
         # List all (active and archived)
-        specify memory list --all
+        flowspec memory list --all
 
         # Plain output for scripting
-        specify memory list --plain
+        flowspec memory list --plain
     """
     workspace_root = Path(project_root) if project_root else Path.cwd()
     store = TaskMemoryStore(base_path=workspace_root)
@@ -320,19 +320,19 @@ def search(
 
     Examples:
         # Simple text search
-        specify memory search "FastAPI"
+        flowspec memory search "FastAPI"
 
         # Regex pattern
-        specify memory search "implement.*feature"
+        flowspec memory search "implement.*feature"
 
         # Include archived memories
-        specify memory search "bug fix" --archived
+        flowspec memory search "bug fix" --archived
 
         # Limit results
-        specify memory search "API" --limit 10
+        flowspec memory search "API" --limit 10
 
         # More context
-        specify memory search "decision" --context 5
+        flowspec memory search "decision" --context 5
     """
     workspace_root = Path(project_root) if project_root else Path.cwd()
     store = TaskMemoryStore(base_path=workspace_root)
@@ -458,13 +458,13 @@ def clear(
 
     Examples:
         # Clear with confirmation prompt
-        specify memory clear task-389
+        flowspec memory clear task-389
 
         # Skip confirmation
-        specify memory clear task-389 --confirm
+        flowspec memory clear task-389 --confirm
 
         # Skip backup
-        specify memory clear task-389 --confirm --no-backup
+        flowspec memory clear task-389 --confirm --no-backup
     """
     workspace_root = Path(project_root) if project_root else Path.cwd()
     store = TaskMemoryStore(base_path=workspace_root)
@@ -538,16 +538,16 @@ def cleanup(
 
     Examples:
         # Preview archival of memories older than 30 days
-        specify memory cleanup --archive-older-than 30
+        flowspec memory cleanup --archive-older-than 30
 
         # Execute archival
-        specify memory cleanup --archive-older-than 30 --execute
+        flowspec memory cleanup --archive-older-than 30 --execute
 
         # Delete archived memories older than 90 days
-        specify memory cleanup --delete-older-than 90 --execute
+        flowspec memory cleanup --delete-older-than 90 --execute
 
         # Combined cleanup
-        specify memory cleanup --archive-older-than 30 --delete-older-than 90 --execute
+        flowspec memory cleanup --archive-older-than 30 --delete-older-than 90 --execute
     """
     workspace_root = Path(project_root) if project_root else Path.cwd()
     store = TaskMemoryStore(base_path=workspace_root)
@@ -665,10 +665,10 @@ def stats(
 
     Examples:
         # Show statistics
-        specify memory stats
+        flowspec memory stats
 
         # JSON output for scripting
-        specify memory stats --json
+        flowspec memory stats --json
     """
     workspace_root = Path(project_root) if project_root else Path.cwd()
     store = TaskMemoryStore(base_path=workspace_root)
@@ -817,13 +817,13 @@ def import_memory(
 
     Examples:
         # Import from PR description
-        specify memory import task-389 --from-pr 780
+        flowspec memory import task-389 --from-pr 780
 
         # Import from file
-        specify memory import task-389 --from-file docs/spec.md
+        flowspec memory import task-389 --from-file docs/spec.md
 
         # Append to existing memory
-        specify memory import task-389 --from-pr 780 --append
+        flowspec memory import task-389 --from-pr 780 --append
     """
     import subprocess
 
@@ -939,16 +939,16 @@ def export_memory(
 
     Examples:
         # Export to stdout
-        specify memory export task-389
+        flowspec memory export task-389
 
         # Export to file
-        specify memory export task-389 --output memory.md
+        flowspec memory export task-389 --output memory.md
 
         # Export as JSON
-        specify memory export task-389 --format json
+        flowspec memory export task-389 --format json
 
         # Export without metadata
-        specify memory export task-389 --no-metadata
+        flowspec memory export task-389 --no-metadata
     """
     import yaml
 
@@ -1047,13 +1047,13 @@ def template_cmd(
 
     Examples:
         # List available templates
-        specify memory template list
+        flowspec memory template list
 
         # Show template content
-        specify memory template show feature
+        flowspec memory template show feature
 
         # Apply template to task
-        specify memory template apply feature --task task-389
+        flowspec memory template apply feature --task task-389
     """
     workspace_root = Path(project_root) if project_root else Path.cwd()
 

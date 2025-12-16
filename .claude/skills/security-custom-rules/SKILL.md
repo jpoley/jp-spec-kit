@@ -469,7 +469,7 @@ cp /tmp/test-rule.yml .specify/security/rules/
 
 3. **Test locally**:
    ```bash
-   specify security scan --config .specify/security/rules/
+   flowspec security scan --config .specify/security/rules/
    ```
 
 4. **Update security config**:

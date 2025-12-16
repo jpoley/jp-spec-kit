@@ -66,7 +66,7 @@ class TestPreCommitConfig:
         flowspec_hook = next((h for h in hooks if h["id"] == "flowspec-security"), None)
 
         assert flowspec_hook is not None
-        assert "specify security scan" in flowspec_hook["entry"]
+        assert "flowspec security scan" in flowspec_hook["entry"]
         assert "--fail-on high" in flowspec_hook["entry"]
 
     def test_fail_on_severity_in_config(self):
@@ -145,7 +145,7 @@ class TestGenerateHuskyConfig:
         config = generate_husky_config()
 
         assert "#!/usr/bin/env sh" in config
-        assert "specify security scan" in config
+        assert "flowspec security scan" in config
         assert "--fail-on high" in config
 
     def test_includes_exit_code(self):
@@ -173,4 +173,4 @@ class TestGenerateLefthookConfig:
 
         commands = data["pre-commit"]["commands"]
         assert "security-scan" in commands
-        assert "specify security scan" in commands["security-scan"]["run"]
+        assert "flowspec security scan" in commands["security-scan"]["run"]

@@ -390,7 +390,7 @@ jobs:
 
       - name: Run security scan
         run: |
-          specify security scan --format sarif --output security-results.sarif
+          flowspec security scan --format sarif --output security-results.sarif
 
       - name: Upload SARIF to GitHub Security
         uses: github/codeql-action/upload-sarif@v3
@@ -458,7 +458,7 @@ security-scan:
 
   script:
     # Run scan and generate SARIF
-    - specify security scan --format sarif --output gl-sast-report.json
+    - flowspec security scan --format sarif --output gl-sast-report.json
 
     # Triage findings
     - specify security triage --input gl-sast-report.json
@@ -501,7 +501,7 @@ pipeline {
     stages {
         stage('Security Scan') {
             steps {
-                sh 'specify security scan --format sarif --output security-results.sarif'
+                sh 'flowspec security scan --format sarif --output security-results.sarif'
             }
         }
 
@@ -557,10 +557,10 @@ Pre-commit hooks run security scans on staged files before commit, catching issu
 
 ```bash
 # Initialize hooks configuration
-specify hooks init
+flowspec hooks init
 
 # Enable pre-commit security scanning
-specify hooks enable pre-commit-security
+flowspec hooks enable pre-commit-security
 ```
 
 ### Configuration
@@ -611,7 +611,7 @@ if [ -z "$STAGED_FILES" ]; then
 fi
 
 # Run security scan on staged files only
-specify security scan --staged-only --output docs/security/pre-commit-scan.json
+flowspec security scan --staged-only --output docs/security/pre-commit-scan.json
 
 # Check for critical findings
 CRITICAL_COUNT=$(jq '[.findings[] | select(.severity == "critical")] | length' docs/security/pre-commit-scan.json)
@@ -693,7 +693,7 @@ SARIF (Static Analysis Results Interchange Format) is a standard JSON format for
 
 ```bash
 # Generate SARIF during scan
-specify security scan --format sarif --output security-results.sarif
+flowspec security scan --format sarif --output security-results.sarif
 
 # Upload to GitHub (via GitHub Actions)
 - name: Upload SARIF to GitHub Security
@@ -847,7 +847,7 @@ When SARIF is uploaded to GitHub:
 
 ```bash
 # Verify --create-tasks flag is set
-specify security scan --create-tasks --severity critical,high
+flowspec security scan --create-tasks --severity critical,high
 
 # Check triage results exist
 ls -l docs/security/triage-results.json
@@ -856,7 +856,7 @@ ls -l docs/security/triage-results.json
 backlog task list --plain
 
 # Check for errors in scan output
-specify security scan --verbose --create-tasks
+flowspec security scan --verbose --create-tasks
 ```
 
 ### SARIF Upload Fails

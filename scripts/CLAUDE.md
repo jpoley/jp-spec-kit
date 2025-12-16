@@ -261,7 +261,7 @@ Migrates slash commands from flat structure (e.g., `flowspec.implement.md`) to s
 
 **Next steps after migration:**
 1. Review changes: `git status`
-2. If migrating `.claude/commands/`, run: `specify dev-setup --force`
+2. If migrating `.claude/commands/`, run: `flowspec dev-setup --force`
 3. Commit changes: `git add -A && git commit -m 'Migrate commands to subdirectories'`
 
 ## Local CI with act

@@ -302,7 +302,7 @@ backlog task list --plain | grep -i "<feature-keyword>"
 After successfully completing this command (PRD created and tasks defined), emit the workflow event:
 
 ```bash
-specify hooks emit spec.created \
+flowspec hooks emit spec.created \
   --spec-id "$FEATURE_ID" \
   --task-id "$TASK_ID" \
   -f docs/prd/$FEATURE_ID-spec.md
@@ -310,4 +310,4 @@ specify hooks emit spec.created \
 
 Replace `$FEATURE_ID` with the feature name/identifier and `$TASK_ID` with the backlog task ID if available.
 
-This triggers any configured hooks in `.specify/hooks/hooks.yaml` (e.g., notifications, quality gates).
+This triggers any configured hooks in `.flowspec/hooks/hooks.yaml` (e.g., notifications, quality gates).

@@ -81,7 +81,7 @@ class TestRoleSelectionTracking:
         """Test tracking role selection."""
         track_role_selection(
             role="dev",
-            command="specify init",
+            command="flowspec init",
             project_root=tmp_path,
         )
 
@@ -90,14 +90,14 @@ class TestRoleSelectionTracking:
         assert len(events) == 1
         assert events[0]["event_type"] == "role.selected"
         assert events[0]["role"] == "dev"
-        assert events[0]["command"] == "specify init"
+        assert events[0]["command"] == "flowspec init"
 
     def test_track_role_change(self, tmp_path: Path):
         """Test tracking role change."""
         track_role_change(
             new_role="qa",
             old_role="dev",
-            command="specify configure",
+            command="flowspec configure",
             project_root=tmp_path,
         )
 
@@ -367,7 +367,7 @@ class TestEndToEndIntegration:
     def test_full_workflow_telemetry(self, tmp_path: Path):
         """Test tracking a full workflow with multiple events."""
         # User selects role
-        track_role_selection(role="dev", command="specify init", project_root=tmp_path)
+        track_role_selection(role="dev", command="flowspec init", project_root=tmp_path)
 
         # User executes command
         track_command_execution(

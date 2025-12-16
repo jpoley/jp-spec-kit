@@ -49,7 +49,7 @@ else
   echo "⚠️ No constitution found"
   echo ""
   echo "To create one:"
-  echo "  1. Run: specify init --here"
+  echo "  1. Run: flowspec init --here"
   echo "  2. Then: Run /speckit:constitution to customize"
   echo ""
   echo "Proceeding without constitution..."
@@ -58,7 +58,7 @@ fi
 
 If no constitution exists:
 - Warn the user
-- Suggest creating one with `specify init --here`
+- Suggest creating one with `flowspec init --here`
 - Continue with command (constitution is recommended but not required)
 
 ### 2. If Constitution Exists, Check Validation Status
@@ -110,7 +110,7 @@ Medium tier projects should validate their constitution before workflow commands
 Options:
   1. Continue anyway (y/N)
   2. Run /speckit:constitution to customize
-  3. Run specify constitution validate to check status
+  3. Run flowspec constitution validate to check status
 
 Continue without validation? [y/N]: _
 ```
@@ -136,7 +136,7 @@ Heavy tier constitutions require full validation before workflow commands.
 
 To resolve:
   1. Run /speckit:constitution to customize your constitution
-  2. Run specify constitution validate to verify
+  2. Run flowspec constitution validate to verify
   3. Remove all NEEDS_VALIDATION markers
 
 Or use --skip-validation to bypass (not recommended).
@@ -215,10 +215,10 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 | Command | Purpose |
 |---------|---------|
-| `specify init --here` | Initialize constitution if missing |
+| `flowspec init --here` | Initialize constitution if missing |
 | `/speckit:constitution` | Interactive constitution customization |
-| `specify constitution validate` | Check validation status and show report |
-| `specify constitution show` | Display current constitution |
+| `flowspec constitution validate` | Check validation status and show report |
+| `flowspec constitution show` | Display current constitution |
 
 
 # Workflow State Validation
@@ -329,7 +329,7 @@ Tasks use labels with the `workflow:` prefix to track their current workflow sta
 The state guard module can also be used programmatically:
 
 ```python
-from specify_cli.workflow import check_workflow_state, get_valid_workflows
+from flowspec_cli.workflow import check_workflow_state, get_valid_workflows
 
 # Check if current state allows command execution
 can_proceed, message = check_workflow_state("implement", current_state)
@@ -469,7 +469,7 @@ fi
 **For Python projects**:
 ```bash
 # Run pytest with coverage
-pytest tests/ -v --cov=src/specify_cli --cov-report=term-missing
+pytest tests/ -v --cov=src/flowspec_cli --cov-report=term-missing
 
 # Run linting
 ruff check . --output-format=concise
@@ -1332,7 +1332,7 @@ If a phase fails, fix the issue and re-run the command. The workflow will resume
 After successfully completing this command (all validation phases passed, PR created), emit the workflow event:
 
 ```bash
-specify hooks emit validate.completed \
+flowspec hooks emit validate.completed \
   --spec-id "$FEATURE_ID" \
   --task-id "$TASK_ID" \
   -f docs/qa/$FEATURE_ID-qa-report.md \
@@ -1341,7 +1341,7 @@ specify hooks emit validate.completed \
 
 Replace `$FEATURE_ID` with the feature name/identifier and `$TASK_ID` with the backlog task ID if available.
 
-This triggers any configured hooks in `.specify/hooks/hooks.yaml` (e.g., notifications, deployment triggers).
+This triggers any configured hooks in `.flowspec/hooks/hooks.yaml` (e.g., notifications, deployment triggers).
 
 ## Telemetry: Track Agent Invocations
 
@@ -1351,21 +1351,21 @@ After validation completes, track the agents that were invoked for analytics (if
 # Track each agent that was invoked during this command (silently, will be no-op if disabled)
 
 # Track the command execution with user's role
-specify telemetry track-role "$CURRENT_ROLE" --command /flow:validate -q
+flowspec telemetry track-role "$CURRENT_ROLE" --command /flow:validate -q
 
 # QA Guardian agent was invoked in Phase 2:
-specify telemetry track-agent quality-guardian --command /flow:validate -q
+flowspec telemetry track-agent quality-guardian --command /flow:validate -q
 
 # Security Engineer agent was invoked in Phase 2:
-specify telemetry track-agent secure-by-design-engineer --command /flow:validate -q
+flowspec telemetry track-agent secure-by-design-engineer --command /flow:validate -q
 
 # Technical Writer agent was invoked in Phase 3:
-specify telemetry track-agent technical-writer --command /flow:validate -q
+flowspec telemetry track-agent technical-writer --command /flow:validate -q
 ```
 
 Replace `$CURRENT_ROLE` with the user's current role (dev, pm, qa, etc.).
 
 This enables workflow analytics for understanding agent usage patterns. The tracking is:
-- **Opt-in only**: Only recorded if user has enabled telemetry via `specify telemetry enable`
+- **Opt-in only**: Only recorded if user has enabled telemetry via `flowspec telemetry enable`
 - **Privacy-first**: Project names are hashed, no PII collected
 - **Fail-safe**: Commands will not fail if telemetry is unavailable

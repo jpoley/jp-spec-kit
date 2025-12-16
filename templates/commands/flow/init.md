@@ -357,7 +357,7 @@ Choice [1]: _
 - **After init**: Run `/flow:assess <feature>` to start workflow
 - **To customize more**: Run `/speckit:constitution` for detailed customization
 - **To reconfigure workflow**: Run `/flow:reset`
-- **CLI equivalent**: `specify init --here --constitution {tier}`
+- **CLI equivalent**: `flowspec init --here --constitution {tier}`
 
 ### Quality Checks
 

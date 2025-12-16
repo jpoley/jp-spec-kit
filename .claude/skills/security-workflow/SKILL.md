@@ -368,7 +368,7 @@ if [ -z "$STAGED_FILES" ]; then
 fi
 
 # Run security scan on staged files only
-specify security scan --staged-only --output docs/security/pre-commit-scan.json
+flowspec security scan --staged-only --output docs/security/pre-commit-scan.json
 
 # Check for critical/high findings
 CRITICAL_COUNT=$(jq '[.findings[] | select(.severity == "critical")] | length' docs/security/pre-commit-scan.json)
@@ -427,7 +427,7 @@ jobs:
 
       - name: Run security scan
         run: |
-          specify security scan --format sarif --output security-results.sarif
+          flowspec security scan --format sarif --output security-results.sarif
 
       - name: Upload SARIF to GitHub Security
         uses: github/codeql-action/upload-sarif@v3
@@ -472,7 +472,7 @@ security-scan:
     - uv tool install .
 
   script:
-    - specify security scan --format sarif --output gl-sast-report.json
+    - flowspec security scan --format sarif --output gl-sast-report.json
     - specify security triage --input gl-sast-report.json
     - specify security report --create-tasks
 

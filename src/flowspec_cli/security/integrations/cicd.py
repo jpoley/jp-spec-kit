@@ -80,7 +80,7 @@ class CICDIntegration:
         )
 
         # Run security scan
-        scan_cmd = f"specify security scan --fail-on {self.fail_on_severity}"
+        scan_cmd = f"flowspec security scan --fail-on {self.fail_on_severity}"
         if self.upload_sarif:
             scan_cmd += " --output security-results.sarif --format sarif"
 
@@ -125,7 +125,7 @@ class CICDIntegration:
                     "pip install flowspec-cli semgrep bandit",
                 ],
                 "script": [
-                    f"specify security scan --fail-on {self.fail_on_severity} --output gl-sast-report.json --format json",
+                    f"flowspec security scan --fail-on {self.fail_on_severity} --output gl-sast-report.json --format json",
                 ],
                 "artifacts": {
                     "reports": {"sast": "gl-sast-report.json"},
@@ -166,7 +166,7 @@ class CICDIntegration:
                     "displayName": "Install security tools",
                 },
                 {
-                    "script": f"specify security scan --fail-on {self.fail_on_severity} --output $(Build.ArtifactStagingDirectory)/security-results.sarif --format sarif",
+                    "script": f"flowspec security scan --fail-on {self.fail_on_severity} --output $(Build.ArtifactStagingDirectory)/security-results.sarif --format sarif",
                     "displayName": "Run security scan",
                     "continueOnError": True,
                 },

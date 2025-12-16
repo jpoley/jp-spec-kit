@@ -136,13 +136,13 @@ Before starting implementation, you MUST run the quality gate:
 
 ```bash
 # Run quality gate on spec.md
-specify gate
+flowspec gate
 
 # Alternative: Override threshold if needed
-specify gate --threshold 60
+flowspec gate --threshold 60
 
 # Emergency bypass (NOT RECOMMENDED - use only with explicit user approval)
-specify gate --force
+flowspec gate --force
 ```
 
 **Quality Gate Exit Codes:**
@@ -168,11 +168,11 @@ Recommendations:
 
 Action Required:
 1. Improve spec quality using recommendations
-2. Re-run: specify quality .specify/spec.md
+2. Re-run: flowspec quality .flowspec/spec.md
 3. When quality ≥70, re-run: /flow:implement
 
 OR (not recommended without user approval):
-  specify gate --force
+  flowspec gate --force
 ```
 
 **--force Bypass:**
@@ -813,7 +813,7 @@ Implementation is **code + documents + tests**. All three are mandatory delivera
 After successfully completing this command (implementation done, reviews passed, pre-PR validation complete), emit the workflow event:
 
 ```bash
-specify hooks emit implement.completed \
+flowspec hooks emit implement.completed \
   --spec-id "$FEATURE_ID" \
   --task-id "$TASK_ID" \
   -f src/$FEATURE_ID/
@@ -821,7 +821,7 @@ specify hooks emit implement.completed \
 
 Replace `$FEATURE_ID` with the feature name/identifier and `$TASK_ID` with the backlog task ID if available.
 
-This triggers any configured hooks in `.specify/hooks/hooks.yaml` (e.g., running tests, quality gates, notifications).
+This triggers any configured hooks in `.flowspec/hooks/hooks.yaml` (e.g., running tests, quality gates, notifications).
 
 ## Telemetry: Track Agent Invocations
 
@@ -831,25 +831,25 @@ After implementation completes, track the agents that were invoked for analytics
 # Track each agent that was invoked during this command (silently, will be no-op if disabled)
 
 # Track the command execution
-specify telemetry track-role "$CURRENT_ROLE" --command /flow:implement -q
+flowspec telemetry track-role "$CURRENT_ROLE" --command /flow:implement -q
 
 # If frontend work was done:
-specify telemetry track-agent frontend-engineer --command /flow:implement -q
+flowspec telemetry track-agent frontend-engineer --command /flow:implement -q
 
 # If backend work was done:
-specify telemetry track-agent backend-engineer --command /flow:implement -q
+flowspec telemetry track-agent backend-engineer --command /flow:implement -q
 
 # If AI/ML work was done:
-specify telemetry track-agent ai-ml-engineer --command /flow:implement -q
+flowspec telemetry track-agent ai-ml-engineer --command /flow:implement -q
 
 # If code reviews were performed:
-specify telemetry track-agent frontend-code-reviewer --command /flow:implement -q
-specify telemetry track-agent backend-code-reviewer --command /flow:implement -q
+flowspec telemetry track-agent frontend-code-reviewer --command /flow:implement -q
+flowspec telemetry track-agent backend-code-reviewer --command /flow:implement -q
 ```
 
 Replace `$CURRENT_ROLE` with the user's current role (dev, pm, qa, etc.).
 
 This enables workflow analytics for understanding agent usage patterns. The tracking is:
-- **Opt-in only**: Only recorded if user has enabled telemetry via `specify telemetry enable`
+- **Opt-in only**: Only recorded if user has enabled telemetry via `flowspec telemetry enable`
 - **Privacy-first**: Project names are hashed, no PII collected
 - **Fail-safe**: Commands will not fail if telemetry is unavailable

@@ -53,7 +53,7 @@
     "alternativeMethods": [
       "Direct from GitHub: /plugin install jpoley/flowspec",
       "Local development: /plugin install /path/to/flowspec",
-      "CLI tool (multi-agent): pip install specify-cli"
+      "CLI tool (multi-agent): pip install flowspec-cli"
     ]
   },
   "support": {

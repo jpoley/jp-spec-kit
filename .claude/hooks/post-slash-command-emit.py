@@ -95,7 +95,7 @@ def extract_task_id(text: str) -> str | None:
 def emit_event(
     event_type: str, feature_id: str | None, task_id: str | None
 ) -> tuple[bool, str]:
-    """Call specify hooks emit to trigger user-configured hooks.
+    """Call flowspec hooks emit to trigger user-configured hooks.
 
     Returns:
         Tuple of (success, message)
@@ -124,7 +124,7 @@ def emit_event(
     except subprocess.TimeoutExpired:
         return False, "Event emission timed out"
     except FileNotFoundError:
-        return False, "specify CLI not found"
+        return False, "flowspec CLI not found"
     except Exception as e:
         return False, f"Unexpected error: {e}"
 

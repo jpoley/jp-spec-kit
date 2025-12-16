@@ -41,7 +41,7 @@ if [[ $exit_code -eq 0 ]]; then
                 if [[ "$output" =~ Created[[:space:]]+task[[:space:]]+(task-[0-9]+(\.[0-9]+)*) ]]; then
                     TASK_ID="${BASH_REMATCH[1]}"
                     # Emit task.created event
-                    specify hooks emit task.created --task-id "$TASK_ID" 2>/dev/null || true
+                    flowspec hooks emit task.created --task-id "$TASK_ID" 2>/dev/null || true
                 fi
                 ;;
 
@@ -64,9 +64,9 @@ if [[ $exit_code -eq 0 ]]; then
                     # Emit status change events
                     if [[ -n "$STATUS" ]]; then
                         if [[ "$STATUS" == "Done" ]]; then
-                            specify hooks emit task.completed --task-id "$TASK_ID" 2>/dev/null || true
+                            flowspec hooks emit task.completed --task-id "$TASK_ID" 2>/dev/null || true
                         else
-                            specify hooks emit task.status_changed --task-id "$TASK_ID" 2>/dev/null || true
+                            flowspec hooks emit task.status_changed --task-id "$TASK_ID" 2>/dev/null || true
                         fi
                     fi
 
@@ -80,7 +80,7 @@ if [[ $exit_code -eq 0 ]]; then
                     done
 
                     if [[ "$AC_MODIFIED" == true ]]; then
-                        specify hooks emit task.ac_checked --task-id "$TASK_ID" 2>/dev/null || true
+                        flowspec hooks emit task.ac_checked --task-id "$TASK_ID" 2>/dev/null || true
                     fi
                 fi
                 ;;

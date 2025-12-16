@@ -478,7 +478,7 @@ def validate_ac_coverage(
             "To fix:",
             '1. Add @pytest.mark.ac("ACX: Description") to your test functions',
             "2. Ensure test files are in ./tests/ or configured test directories",
-            "3. Run: specify ac-coverage --check",
+            "3. Run: flowspec ac-coverage --check",
             "",
             "Or use --allow-partial-coverage flag if exceptional case",
         ]

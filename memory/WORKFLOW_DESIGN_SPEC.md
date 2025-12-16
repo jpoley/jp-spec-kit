@@ -288,7 +288,7 @@ When user creates custom states in config, backlog.md is updated to include them
 
 ### 3. CLI Validation Command
 
-**Command**: `specify workflow validate [--file <path>] [--verbose]`
+**Command**: `flowspec workflow validate [--file <path>] [--verbose]`
 
 **Behavior**:
 - Load configuration (from file or default)
@@ -523,7 +523,7 @@ src/specify_cli/workflow/
 ### B. Configuration Change Checklist
 
 Before deploying configuration changes:
-- [ ] Run `specify workflow validate`
+- [ ] Run `flowspec workflow validate`
 - [ ] No circular transitions
 - [ ] All states reachable
 - [ ] All agents are valid

@@ -322,7 +322,7 @@ rules:
 
 2. **Test locally**:
    ```bash
-   specify security scan --config .specify/security/rules/
+   flowspec security scan --config .specify/security/rules/
    ```
 
 3. **Add to configuration**:
@@ -339,7 +339,7 @@ rules:
    ```bash
    git add .specify/security/rules/
    git commit -m "Add custom security rules"
-   specify security scan
+   flowspec security scan
    ```
 
 ## Rule Metadata

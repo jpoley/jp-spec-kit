@@ -56,7 +56,7 @@ backlog task create "Create Git Workflow Configuration Schema" \
   -d "Define YAML schema for git-workflow.yml with worktree local_pr signing isolation sections." \
   --ac "Configuration schema with all required sections documented" \
   --ac "Default configuration template with comments" \
-  --ac "Validation command specify workflow config validate" \
+  --ac "Validation command flowspec workflow config validate" \
   --ac "Environment variable override support" \
   --ac "Documentation in docs reference" \
   -l "agent-event-system,phase-1,infrastructure,configuration" \

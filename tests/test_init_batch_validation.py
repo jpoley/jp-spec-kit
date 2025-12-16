@@ -1,4 +1,4 @@
-"""Tests for batch --validation-mode flag in specify init (AC6).
+"""Tests for batch --validation-mode flag in flowspec init (AC6).
 
 These tests verify AC6: Add --validation-mode {none|keyword|pull-request} flag
 for setting all transitions at once.

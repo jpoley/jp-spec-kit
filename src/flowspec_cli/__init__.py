@@ -3434,25 +3434,25 @@ def init(
                             f"[yellow]Installation failed:[/yellow] {e.stderr}"
                         )
                         console.print(
-                            "[dim]You can install it manually later: specify backlog install[/dim]"
+                            "[dim]You can install it manually later: flowspec backlog install[/dim]"
                         )
                 else:
                     console.print(
                         "[yellow]No Node.js package manager found (pnpm or npm required)[/yellow]"
                     )
                     console.print(
-                        "[dim]Install backlog-md manually: specify backlog install[/dim]"
+                        "[dim]Install backlog-md manually: flowspec backlog install[/dim]"
                     )
             else:
                 console.print(
                     "[yellow]Could not determine backlog-md version to install[/yellow]"
                 )
                 console.print(
-                    "[dim]You can install it manually later: specify backlog install[/dim]"
+                    "[dim]You can install it manually later: flowspec backlog install[/dim]"
                 )
         else:
             console.print(
-                "[dim]You can install backlog-md later with: specify backlog install[/dim]"
+                "[dim]You can install backlog-md later with: flowspec backlog install[/dim]"
             )
     elif backlog_version:
         # User specified a version but backlog is already installed
@@ -3461,7 +3461,7 @@ def init(
             f"[yellow]backlog-md is already installed (version {current_backlog_version})[/yellow]"
         )
         console.print(
-            f"[dim]To change version: specify backlog upgrade --version {backlog_version}[/dim]"
+            f"[dim]To change version: flowspec backlog upgrade --version {backlog_version}[/dim]"
         )
 
     # Generate workflow configuration file with per-transition validation modes
@@ -3874,21 +3874,21 @@ def upgrade_repo(
                     except subprocess.CalledProcessError as e:
                         console.print(f"[yellow]Sync failed:[/yellow] {e.stderr}")
                         console.print(
-                            "[dim]You can sync manually: specify backlog upgrade[/dim]"
+                            "[dim]You can sync manually: flowspec backlog upgrade[/dim]"
                         )
                 else:
                     console.print("[yellow]No Node.js package manager found[/yellow]")
                     console.print(
-                        "[dim]You can sync manually: specify backlog upgrade[/dim]"
+                        "[dim]You can sync manually: flowspec backlog upgrade[/dim]"
                     )
             else:
                 console.print(
-                    "[dim]You can sync backlog-md later with: specify backlog upgrade[/dim]"
+                    "[dim]You can sync backlog-md later with: flowspec backlog upgrade[/dim]"
                 )
     elif not current_backlog_version and recommended_version:
         console.print()
         console.print("[yellow]backlog-md is not installed[/yellow]")
-        console.print("[dim]Install with: specify backlog install[/dim]")
+        console.print("[dim]Install with: flowspec backlog install[/dim]")
 
     console.print()
     console.print("[cyan]Next steps:[/cyan]")
@@ -4044,7 +4044,7 @@ def _upgrade_backlog_md(dry_run: bool = False) -> tuple[bool, str]:
     available_version = get_npm_latest_version("backlog.md")
 
     if not current_version:
-        return False, "backlog-md not installed (use 'specify backlog install')"
+        return False, "backlog-md not installed (use 'flowspec backlog install')"
 
     if not available_version:
         return False, "Could not determine latest version"
@@ -4378,7 +4378,7 @@ def upgrade(
     ),
 ):
     """
-    Upgrade specify components (dispatcher for upgrade-tools and upgrade-repo).
+    Upgrade flowspec components (dispatcher for upgrade-tools and upgrade-repo).
 
     By default, shows upgrade options interactively. Use flags to specify what to upgrade:
 
@@ -4503,7 +4503,7 @@ def check():
                     f"[dim](recommended: {recommended_version})[/dim]"
                 )
                 console.print(
-                    "[dim]Run 'specify backlog upgrade' to sync to recommended version[/dim]"
+                    "[dim]Run 'flowspec backlog upgrade' to sync to recommended version[/dim]"
                 )
 
     console.print("\n[bold green]Specify CLI is ready to use![/bold green]")
@@ -4516,7 +4516,7 @@ def check():
 
     if not backlog_version:
         console.print(
-            "[dim]Tip: Install backlog-md for task management: specify backlog install[/dim]"
+            "[dim]Tip: Install backlog-md for task management: flowspec backlog install[/dim]"
         )
 
 
@@ -5092,7 +5092,7 @@ def backlog_migrate(
                 [
                     "",
                     "[dim]You can now track task progress by updating status in task frontmatter[/dim]",
-                    "[dim]Use 'specify tasks generate' to regenerate tasks from spec[/dim]",
+                    "[dim]Use 'flowspec tasks generate' to regenerate tasks from spec[/dim]",
                 ]
             )
 
@@ -5161,11 +5161,11 @@ def tasks(
     from the current directory or specified source path.
 
     Examples:
-        specify tasks generate                           # Generate backlog tasks from current dir
-        specify tasks generate --format markdown         # Generate legacy tasks.md format
-        specify tasks generate --source ./feature-x      # Generate from specific directory
-        specify tasks generate --dry-run                 # Preview without writing files
-        specify tasks generate --overwrite               # Overwrite existing tasks
+        flowspec tasks generate                           # Generate backlog tasks from current dir
+        flowspec tasks generate --format markdown         # Generate legacy tasks.md format
+        flowspec tasks generate --source ./feature-x      # Generate from specific directory
+        flowspec tasks generate --dry-run                 # Preview without writing files
+        flowspec tasks generate --overwrite               # Overwrite existing tasks
     """
     show_banner()
 
@@ -5397,9 +5397,9 @@ def backlog_install(
     4. Verify installation success
 
     Examples:
-        specify backlog install                    # Install recommended version
-        specify backlog install --version 1.21.0   # Install specific version
-        specify backlog install --force            # Force reinstall
+        flowspec backlog install                    # Install recommended version
+        flowspec backlog install --version 1.21.0   # Install specific version
+        flowspec backlog install --force            # Force reinstall
     """
     show_banner()
 
@@ -5504,9 +5504,9 @@ def backlog_upgrade(
     4. Verify upgrade success
 
     Examples:
-        specify backlog upgrade                    # Upgrade to recommended version
-        specify backlog upgrade --version 1.22.0   # Upgrade to specific version
-        specify backlog upgrade --force            # Force upgrade
+        flowspec backlog upgrade                    # Upgrade to recommended version
+        flowspec backlog upgrade --version 1.22.0   # Upgrade to specific version
+        flowspec backlog upgrade --force            # Force upgrade
     """
     show_banner()
 
@@ -5514,7 +5514,7 @@ def backlog_upgrade(
     current_version = check_backlog_installed_version()
     if not current_version:
         console.print("[yellow]backlog-md is not installed[/yellow]")
-        console.print("[dim]Run: specify backlog install[/dim]")
+        console.print("[dim]Run: flowspec backlog install[/dim]")
         raise typer.Exit(1)
 
     # Determine target version
@@ -5635,8 +5635,8 @@ def quality(
     if not spec_file.exists():
         console.print(f"[red]Error: Specification file not found: {spec_file}[/red]")
         console.print("\nUsage:")
-        console.print("  specify quality [SPEC_PATH]")
-        console.print("  specify quality .specify/spec.md")
+        console.print("  flowspec quality [SPEC_PATH]")
+        console.print("  flowspec quality .specify/spec.md")
         raise typer.Exit(1)
 
     # Load configuration
@@ -5788,9 +5788,9 @@ def gate(
     (e.g., in CI/CD pipelines or as part of /flow:implement workflow).
 
     Example usage:
-        specify gate                    # Check with default threshold (70)
-        specify gate --threshold 80     # Custom threshold
-        specify gate --force            # Bypass failed gate (not recommended)
+        flowspec gate                    # Check with default threshold (70)
+        flowspec gate --threshold 80     # Custom threshold
+        flowspec gate --force            # Bypass failed gate (not recommended)
     """
     from pathlib import Path
 
@@ -5891,9 +5891,9 @@ def ac_coverage_command(
     corresponding test markers (@pytest.mark.ac).
 
     Examples:
-        specify ac-coverage --check
-        specify ac-coverage --feature auth --output coverage.json
-        specify ac-coverage --allow-partial-coverage
+        flowspec ac-coverage --check
+        flowspec ac-coverage --feature auth --output coverage.json
+        flowspec ac-coverage --allow-partial-coverage
     """
     from pathlib import Path
 
@@ -5977,7 +5977,7 @@ def ac_coverage_command(
         console.print("[dim]To fix:[/dim]")
         console.print('  1. Add @pytest.mark.ac("ACX: Description") to test functions')
         console.print("  2. Ensure tests are in configured test directories")
-        console.print("  3. Run: specify ac-coverage --check")
+        console.print("  3. Run: flowspec ac-coverage --check")
         console.print()
 
     # Validate coverage if --check flag is set
@@ -6038,9 +6038,9 @@ def config_validation(
     """View or update workflow transition validation configuration.
 
     Examples:
-        specify config validation --show
-        specify config validation -t plan -m pull-request
-        specify config validation -t specify -m keyword -k PRD_APPROVED
+        flowspec config validation --show
+        flowspec config validation -t plan -m pull-request
+        flowspec config validation -t specify -m keyword -k PRD_APPROVED
     """
     import yaml
 
@@ -6338,11 +6338,11 @@ def security_scan(
     - 2: Error during scan
 
     Examples:
-        specify security scan                           # Scan current directory
-        specify security scan /path/to/code             # Scan specific path
-        specify security scan --tool semgrep            # Specify scanner
-        specify security scan --fail-on critical        # Fail only on critical
-        specify security scan --format json -o out.json # JSON output to file
+        flowspec security scan                           # Scan current directory
+        flowspec security scan /path/to/code             # Scan specific path
+        flowspec security scan --tool semgrep            # Specify scanner
+        flowspec security scan --fail-on critical        # Fail only on critical
+        flowspec security scan --format json -o out.json # JSON output to file
     """
     import json
 
@@ -6562,8 +6562,8 @@ def security_triage(
     (Currently a placeholder for future implementation)
 
     Examples:
-        specify security triage findings.json
-        specify security triage findings.json --min-severity high
+        flowspec security triage findings.json
+        flowspec security triage findings.json --min-severity high
     """
     console.print("[yellow]Triage command coming in Phase 2[/yellow]")
     console.print(f"Would triage: {findings_file}")
@@ -6593,8 +6593,8 @@ def security_fix(
     (Currently a placeholder for future implementation)
 
     Examples:
-        specify security fix SEMGREP-001 --dry-run
-        specify security fix SEMGREP-001 --apply
+        flowspec security fix SEMGREP-001 --dry-run
+        flowspec security fix SEMGREP-001 --apply
     """
     console.print("[yellow]Fix command coming in Phase 2[/yellow]")
     if finding_id:
@@ -6635,9 +6635,9 @@ def security_audit(
     (Currently a placeholder for future implementation)
 
     Examples:
-        specify security audit
-        specify security audit --format html --output audit.html
-        specify security audit --compliance owasp
+        flowspec security audit
+        flowspec security audit --format html --output audit.html
+        flowspec security audit --compliance owasp
     """
     console.print("[yellow]Audit command coming in Phase 2[/yellow]")
     console.print(f"Would audit: {target}")
@@ -6836,10 +6836,10 @@ def constitution_diff(
     and differences.
 
     Examples:
-        specify constitution diff
-        specify constitution diff --tier heavy
-        specify constitution diff --tier light --verbose
-        specify constitution diff --path /path/to/project
+        flowspec constitution diff
+        flowspec constitution diff --tier heavy
+        flowspec constitution diff --tier light --verbose
+        flowspec constitution diff --path /path/to/project
     """
     from difflib import unified_diff
 
@@ -6931,7 +6931,7 @@ def constitution_diff(
         console.print("\nRun with --verbose to see full diff")
 
     console.print(
-        "\n[dim]Tip: Use 'specify constitution merge' to update from template[/dim]"
+        "\n[dim]Tip: Use 'flowspec constitution merge' to update from template[/dim]"
     )
     raise typer.Exit(1)  # Exit with error code when differences exist
 
@@ -6974,10 +6974,10 @@ def constitution_merge(
     Review the merged file before replacing your constitution.
 
     Examples:
-        specify constitution merge
-        specify constitution merge --tier heavy
-        specify constitution merge --dry-run
-        specify constitution merge --output /tmp/constitution.md
+        flowspec constitution merge
+        flowspec constitution merge --tier heavy
+        flowspec constitution merge --dry-run
+        flowspec constitution merge --output /tmp/constitution.md
     """
     import re
 
