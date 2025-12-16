@@ -103,18 +103,47 @@ jobs:
       - name: Install Cosign
         uses: sigstore/cosign-installer@v3.7.0
 
-      - name: Verify attestations
+      - name: Verify SBOM attestation
         env:
-          REGISTRY: docker.io
-          IMAGE_NAME: jpoley/flowspec-agents
+          IMAGE_REF: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
         run: |
-          echo "=== Verifying SBOM attestation ==="
-          docker buildx imagetools inspect "${REGISTRY}/${IMAGE_NAME}:latest" --format '{{json .SBOM}}' | head -c 500
-          echo ""
-          echo "=== Verifying Provenance attestation ==="
-          docker buildx imagetools inspect "${REGISTRY}/${IMAGE_NAME}:latest" --format '{{json .Provenance}}' | head -c 500
-          echo ""
-          echo "Attestation verification complete"
+          echo "=== Cryptographically verifying SBOM attestation ==="
+          # Verify SBOM attestation exists and is signed
+          cosign verify-attestation \
+            --type spdxjson \
+            --certificate-identity-regexp '.*' \
+            --certificate-oidc-issuer-regexp '.*' \
+            "${IMAGE_REF}" > /tmp/sbom-attestation.json
+
+          # Validate SBOM structure contains required fields
+          echo "Validating SBOM structure..."
+          jq -e '.payload' /tmp/sbom-attestation.json > /dev/null || { echo "ERROR: Missing payload in SBOM"; exit 1; }
+          SBOM_PAYLOAD=$(jq -r '.payload' /tmp/sbom-attestation.json | base64 -d)
+          echo "$SBOM_PAYLOAD" | jq -e '.predicate.spdxVersion' > /dev/null || { echo "ERROR: Invalid SBOM - missing spdxVersion"; exit 1; }
+          echo "$SBOM_PAYLOAD" | jq -e '.predicate.packages' > /dev/null || { echo "ERROR: Invalid SBOM - missing packages"; exit 1; }
+          PACKAGE_COUNT=$(echo "$SBOM_PAYLOAD" | jq '.predicate.packages | length')
+          echo "SBOM verified: contains $PACKAGE_COUNT packages"
+
+      - name: Verify Provenance attestation
+        env:
+          IMAGE_REF: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+        run: |
+          echo "=== Cryptographically verifying Provenance attestation ==="
+          # Verify provenance attestation exists and is signed
+          cosign verify-attestation \
+            --type slsaprovenance \
+            --certificate-identity-regexp '.*' \
+            --certificate-oidc-issuer-regexp '.*' \
+            "${IMAGE_REF}" > /tmp/provenance-attestation.json
+
+          # Validate provenance structure contains required SLSA fields
+          echo "Validating Provenance structure..."
+          jq -e '.payload' /tmp/provenance-attestation.json > /dev/null || { echo "ERROR: Missing payload in Provenance"; exit 1; }
+          PROV_PAYLOAD=$(jq -r '.payload' /tmp/provenance-attestation.json | base64 -d)
+          echo "$PROV_PAYLOAD" | jq -e '.predicate.buildDefinition' > /dev/null || { echo "ERROR: Invalid Provenance - missing buildDefinition"; exit 1; }
+          echo "$PROV_PAYLOAD" | jq -e '.predicate.runDetails' > /dev/null || { echo "ERROR: Invalid Provenance - missing runDetails"; exit 1; }
+          BUILDER=$(echo "$PROV_PAYLOAD" | jq -r '.predicate.runDetails.builder.id // "unknown"')
+          echo "Provenance verified: built by $BUILDER"
 
       - name: Determine image tag to verify
         id: verify-tag
