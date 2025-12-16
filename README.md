@@ -5,7 +5,7 @@
 </div>
 
 <p align="center">
-    <strong>Plan features with specialized AI agents. Track progress in backlog.md. Ship with confidence.</strong>
+    <strong>Plan features with specialized AI agents. Track tasks with backlog.md + beads. Ship with confidence.</strong>
 </p>
 
 <p align="center">
@@ -42,25 +42,22 @@ curl -o .devcontainer/devcontainer.json \
 
 Open in VS Code → "Reopen in Container". The image includes:
 - **Claude Code**, **Codex**, **Gemini CLI**, **GitHub Copilot CLI**
-- Python 3.11, Node.js 20, pnpm, uv, backlog.md
+- Python 3.11, Node.js 20, pnpm, uv, backlog.md, beads
 
 ### Option B: Local Installation
 
 ```bash
-# Specify CLI (project initialization)
+# Install flowspec CLI
 uv tool install flowspec-cli --from git+https://github.com/jpoley/flowspec.git
 
-# Backlog.md (task management)
-pnpm i -g backlog.md
-```
-
-### Initialize Your Project
-
-```bash
+# Initialize your project (prompts to install backlog.md + beads if missing)
 flowspec init my-project --ai claude
 cd my-project
-backlog init "$(basename "$PWD")"
 ```
+
+> **Note:** During `flowspec init`, you'll be prompted to install:
+> - **backlog.md** - task management
+> - **beads** - issue tracking for AI agents
 
 ### Establish Principles (Optional but Recommended)
 
