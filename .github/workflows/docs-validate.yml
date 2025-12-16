@@ -1,0 +1,106 @@
+# Validate documentation structure on PRs
+# This workflow catches documentation structure issues before merge
+# to prevent breaking the docs deployment workflow.
+
+name: Validate Documentation Structure
+
+on:
+  pull_request:
+    paths:
+      - 'user-docs/**'
+      - 'build-docs/**'
+      - '.github/workflows/docs*.yml'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate DocFX structure
+        run: |
+          echo "Checking documentation structure..."
+          ERRORS=0
+          WARNINGS=0
+
+          # Required files for DocFX
+          REQUIRED_FILES=(
+            "user-docs/docfx.json"
+            "user-docs/toc.yml"
+            "user-docs/index.md"
+          )
+
+          for file in "${REQUIRED_FILES[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "::error::Required file missing: $file"
+              ERRORS=$((ERRORS + 1))
+            else
+              echo "✓ Found: $file"
+            fi
+          done
+
+          # Validate docfx.json is valid JSON
+          if [ -f "user-docs/docfx.json" ]; then
+            if ! jq empty user-docs/docfx.json 2>/dev/null; then
+              echo "::error::docfx.json is invalid JSON"
+              ERRORS=$((ERRORS + 1))
+            else
+              echo "✓ docfx.json is valid JSON"
+            fi
+          fi
+
+          # Validate toc.yml is valid YAML
+          if [ -f "user-docs/toc.yml" ]; then
+            if ! python3 -c "import yaml; yaml.safe_load(open('user-docs/toc.yml'))" 2>/dev/null; then
+              echo "::error::toc.yml is invalid YAML"
+              ERRORS=$((ERRORS + 1))
+            else
+              echo "✓ toc.yml is valid YAML"
+            fi
+          fi
+
+          # Check for broken TOC references (warnings only)
+          if [ -f "user-docs/toc.yml" ]; then
+            echo ""
+            echo "Checking TOC file references..."
+            # Extract href values and check if files exist
+            grep -E "^\s*href:" user-docs/toc.yml | sed 's/.*href:\s*//' | while read -r href; do
+              # Skip external URLs
+              if [[ "$href" =~ ^https?:// ]]; then
+                continue
+              fi
+              # Check if file exists
+              if [ ! -f "user-docs/$href" ]; then
+                echo "::warning::TOC references missing file: user-docs/$href"
+                # Note: we don't increment WARNINGS here due to subshell
+              else
+                echo "✓ TOC reference OK: $href"
+              fi
+            done
+          fi
+
+          # Summary
+          echo ""
+          if [ $ERRORS -gt 0 ]; then
+            echo "::error::$ERRORS validation errors found"
+            exit 1
+          else
+            echo "Documentation structure validated successfully"
+          fi
+
+      - name: Check for media assets
+        run: |
+          echo "Checking media assets..."
+
+          # Check if favicon exists (referenced in docfx.json)
+          if [ -f "user-docs/docfx.json" ]; then
+            FAVICON=$(jq -r '.build.globalMetadata._appFaviconPath // empty' user-docs/docfx.json)
+            if [ -n "$FAVICON" ]; then
+              if [ ! -f "user-docs/$FAVICON" ]; then
+                echo "::warning::Favicon missing: user-docs/$FAVICON"
+              else
+                echo "✓ Favicon found: user-docs/$FAVICON"
+              fi
+            fi
+          fi
