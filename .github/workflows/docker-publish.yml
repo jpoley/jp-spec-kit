@@ -30,6 +30,9 @@ jobs:
     permissions:
       contents: read
       security-events: write
+      id-token: write  # Required for SLSA provenance attestations
+    outputs:
+      image-ref: ${{ steps.output-ref.outputs.image-ref }}
 
     steps:
       - name: Checkout repository
@@ -39,7 +42,10 @@ jobs:
         uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v3.11.1
+        with:
+          # Use latest buildkit for security fixes including sigstore/timestamp-authority
+          version: latest
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
@@ -60,7 +66,8 @@ jobs:
             type=ref,event=branch
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+        id: build
+        uses: docker/build-push-action@v6
         with:
           context: .devcontainer
           file: .devcontainer/Dockerfile
@@ -70,14 +77,22 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          sbom: true  # Generate Software Bill of Materials
+          provenance: mode=max  # Generate SLSA provenance attestations
+
+      - name: Output image reference for verify job
+        id: output-ref
+        run: echo "image-ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest" >> "$GITHUB_OUTPUT"
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@0.30.0
         with:
           image-ref: '${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest'
           format: 'sarif'
           output: 'trivy-results.sarif'
           severity: 'CRITICAL,HIGH'
+        # Note: continue-on-error preserved to avoid breaking builds on existing vulnerabilities
+        # Trivy results are uploaded to Security tab for visibility without blocking CI
         continue-on-error: true
 
       - name: Upload Trivy scan results
@@ -89,7 +104,59 @@ jobs:
   verify:
     needs: build-and-push
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write  # For attestation verification
+    env:
+      # Define registry/image at job level to ensure availability
+      REGISTRY: docker.io
+      IMAGE_NAME: jpoley/flowspec-agents
     steps:
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3.7.0
+
+      - name: Verify SBOM attestation
+        env:
+          IMAGE_REF: ${{ needs.build-and-push.outputs.image-ref }}
+        run: |
+          echo "=== Cryptographically verifying SBOM attestation ==="
+          # Verify SBOM attestation exists and is signed by this workflow
+          cosign verify-attestation \
+            --type spdxjson \
+            --certificate-identity-regexp '^https://github\.com/jpoley/flowspec/\.github/workflows/docker-publish\.yml@refs/heads/main$' \
+            --certificate-oidc-issuer 'https://token.actions.githubusercontent.com' \
+            "${IMAGE_REF}" > /tmp/sbom-attestation.json
+
+          # Validate SBOM structure contains required fields
+          echo "Validating SBOM structure..."
+          jq -e '.payload' /tmp/sbom-attestation.json > /dev/null || { echo "ERROR: Missing payload in SBOM"; exit 1; }
+          SBOM_PAYLOAD=$(jq -r '.payload' /tmp/sbom-attestation.json | base64 -d)
+          echo "$SBOM_PAYLOAD" | jq -e '.predicate.spdxVersion' > /dev/null || { echo "ERROR: Invalid SBOM - missing spdxVersion"; exit 1; }
+          echo "$SBOM_PAYLOAD" | jq -e '.predicate.packages' > /dev/null || { echo "ERROR: Invalid SBOM - missing packages"; exit 1; }
+          PACKAGE_COUNT=$(echo "$SBOM_PAYLOAD" | jq '.predicate.packages | length')
+          echo "SBOM verified: contains $PACKAGE_COUNT packages"
+
+      - name: Verify Provenance attestation
+        env:
+          IMAGE_REF: ${{ needs.build-and-push.outputs.image-ref }}
+        run: |
+          echo "=== Cryptographically verifying Provenance attestation ==="
+          # Verify provenance attestation exists and is signed by this workflow
+          cosign verify-attestation \
+            --type slsaprovenance \
+            --certificate-identity-regexp '^https://github\.com/jpoley/flowspec/\.github/workflows/docker-publish\.yml@refs/heads/main$' \
+            --certificate-oidc-issuer 'https://token.actions.githubusercontent.com' \
+            "${IMAGE_REF}" > /tmp/provenance-attestation.json
+
+          # Validate provenance structure contains required SLSA fields
+          echo "Validating Provenance structure..."
+          jq -e '.payload' /tmp/provenance-attestation.json > /dev/null || { echo "ERROR: Missing payload in Provenance"; exit 1; }
+          PROV_PAYLOAD=$(jq -r '.payload' /tmp/provenance-attestation.json | base64 -d)
+          echo "$PROV_PAYLOAD" | jq -e '.predicate.buildDefinition' > /dev/null || { echo "ERROR: Invalid Provenance - missing buildDefinition"; exit 1; }
+          echo "$PROV_PAYLOAD" | jq -e '.predicate.runDetails' > /dev/null || { echo "ERROR: Invalid Provenance - missing runDetails"; exit 1; }
+          BUILDER=$(echo "$PROV_PAYLOAD" | jq -r '.predicate.runDetails.builder.id // "unknown"')
+          echo "Provenance verified: built by $BUILDER"
+
       - name: Determine image tag to verify
         id: verify-tag
         run: |
