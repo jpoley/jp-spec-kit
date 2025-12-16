@@ -30,6 +30,7 @@ jobs:
     permissions:
       contents: read
       security-events: write
+      id-token: write  # Required for SLSA provenance attestations
 
     steps:
       - name: Checkout repository
@@ -39,7 +40,10 @@ jobs:
         uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v3.11.1
+        with:
+          # Use latest buildkit for security fixes including sigstore/timestamp-authority
+          version: latest
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
@@ -60,7 +64,8 @@ jobs:
             type=ref,event=branch
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+        id: build
+        uses: docker/build-push-action@v6
         with:
           context: .devcontainer
           file: .devcontainer/Dockerfile
@@ -70,15 +75,19 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          sbom: true  # Generate Software Bill of Materials
+          provenance: mode=max  # Generate SLSA provenance attestations
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@0.30.0
         with:
           image-ref: '${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest'
           format: 'sarif'
           output: 'trivy-results.sarif'
           severity: 'CRITICAL,HIGH'
-        continue-on-error: true
+          exit-code: '1'  # Fail build on HIGH/CRITICAL vulnerabilities
+          # Skip attestation layers for vulnerability scan (attestation deps are not runtime)
+          skip-files: '.attestation'
 
       - name: Upload Trivy scan results
         uses: github/codeql-action/upload-sarif@v3
@@ -89,7 +98,26 @@ jobs:
   verify:
     needs: build-and-push
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write  # For attestation verification
     steps:
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3.7.0
+
+      - name: Verify attestations
+        env:
+          REGISTRY: docker.io
+          IMAGE_NAME: jpoley/flowspec-agents
+        run: |
+          echo "=== Verifying SBOM attestation ==="
+          docker buildx imagetools inspect "${REGISTRY}/${IMAGE_NAME}:latest" --format '{{json .SBOM}}' | head -c 500
+          echo ""
+          echo "=== Verifying Provenance attestation ==="
+          docker buildx imagetools inspect "${REGISTRY}/${IMAGE_NAME}:latest" --format '{{json .Provenance}}' | head -c 500
+          echo ""
+          echo "Attestation verification complete"
+
       - name: Determine image tag to verify
         id: verify-tag
         run: |

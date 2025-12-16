@@ -43,6 +43,12 @@ RUN apk add --no-cache \
 # Install pnpm globally
 RUN npm install -g pnpm
 
+# Fix npm vulnerabilities by upgrading vulnerable packages globally
+# - CVE-2025-64756: glob@11.0.3 -> 11.1.0 (command injection vulnerability)
+# - CVE-2022-25883: semver@7.0.0 -> 7.5.4 (ReDoS vulnerability, fix >= 7.5.2)
+RUN npm install -g glob@11.1.0 semver@7.5.4 \
+    && npm cache clean --force
+
 # Install GitHub CLI
 RUN apk add --no-cache github-cli
 
