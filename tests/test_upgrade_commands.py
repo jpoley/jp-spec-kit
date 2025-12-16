@@ -389,9 +389,7 @@ class TestUpgradeToolsCommand:
                             "flowspec_cli._upgrade_beads",
                             return_value=(True, "Would upgrade"),
                         ):
-                            result = runner.invoke(
-                                app, ["upgrade-tools", "--dry-run"]
-                            )
+                            result = runner.invoke(app, ["upgrade-tools", "--dry-run"])
                             assert result.exit_code == 0
                             assert "DRY RUN" in result.output
 
