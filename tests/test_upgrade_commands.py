@@ -353,6 +353,7 @@ class TestUpgradeToolsCommand:
         assert "flowspec" in result.output
         assert "spec-kit" in result.output
         assert "backlog-md" in result.output
+        assert "beads" in result.output
 
     def test_invalid_component_rejected(self):
         """Invalid component name is rejected."""
@@ -369,6 +370,7 @@ class TestUpgradeToolsCommand:
                     "jp_spec_kit": {"installed": "1.0.0", "available": "2.0.0"},
                     "spec_kit": {"installed": "1.0.0", "available": "2.0.0"},
                     "backlog_md": {"installed": "1.0.0", "available": "2.0.0"},
+                    "beads": {"installed": "1.0.0", "available": "2.0.0"},
                 }
                 with patch(
                     "flowspec_cli._upgrade_jp_spec_kit",
@@ -382,9 +384,15 @@ class TestUpgradeToolsCommand:
                             "flowspec_cli._upgrade_backlog_md",
                             return_value=(True, "Would upgrade"),
                         ):
-                            result = runner.invoke(app, ["upgrade-tools", "--dry-run"])
-                            assert result.exit_code == 0
-                            assert "DRY RUN" in result.output
+                            with patch(
+                                "flowspec_cli._upgrade_beads",
+                                return_value=(True, "Would upgrade"),
+                            ):
+                                result = runner.invoke(
+                                    app, ["upgrade-tools", "--dry-run"]
+                                )
+                                assert result.exit_code == 0
+                                assert "DRY RUN" in result.output
 
     def test_single_component_upgrade(self):
         """Can upgrade a single component with -c flag."""
@@ -394,6 +402,7 @@ class TestUpgradeToolsCommand:
                     "jp_spec_kit": {"installed": "1.0.0", "available": "2.0.0"},
                     "spec_kit": {"installed": "1.0.0", "available": "2.0.0"},
                     "backlog_md": {"installed": "1.0.0", "available": "2.0.0"},
+                    "beads": {"installed": "1.0.0", "available": "2.0.0"},
                 }
                 with patch(
                     "flowspec_cli._upgrade_jp_spec_kit",
@@ -401,13 +410,15 @@ class TestUpgradeToolsCommand:
                 ) as mock_jp:
                     with patch("flowspec_cli._upgrade_spec_kit") as mock_sk:
                         with patch("flowspec_cli._upgrade_backlog_md") as mock_bl:
-                            result = runner.invoke(
-                                app, ["upgrade-tools", "-c", "flowspec"]
-                            )
-                            assert result.exit_code == 0
-                            mock_jp.assert_called_once()
-                            mock_sk.assert_not_called()
-                            mock_bl.assert_not_called()
+                            with patch("flowspec_cli._upgrade_beads") as mock_bd:
+                                result = runner.invoke(
+                                    app, ["upgrade-tools", "-c", "flowspec"]
+                                )
+                                assert result.exit_code == 0
+                                mock_jp.assert_called_once()
+                                mock_sk.assert_not_called()
+                                mock_bl.assert_not_called()
+                                mock_bd.assert_not_called()
 
     def test_spec_kit_component_upgrade(self):
         """Can upgrade spec-kit component with -c flag."""
@@ -417,6 +428,7 @@ class TestUpgradeToolsCommand:
                     "jp_spec_kit": {"installed": "1.0.0", "available": "2.0.0"},
                     "spec_kit": {"installed": "1.0.0", "available": "2.0.0"},
                     "backlog_md": {"installed": "1.0.0", "available": "2.0.0"},
+                    "beads": {"installed": "1.0.0", "available": "2.0.0"},
                 }
                 with patch("flowspec_cli._upgrade_jp_spec_kit") as mock_jp:
                     with patch(
@@ -424,13 +436,41 @@ class TestUpgradeToolsCommand:
                         return_value=(True, "Upgraded"),
                     ) as mock_sk:
                         with patch("flowspec_cli._upgrade_backlog_md") as mock_bl:
-                            result = runner.invoke(
-                                app, ["upgrade-tools", "-c", "spec-kit"]
-                            )
-                            assert result.exit_code == 0
-                            mock_jp.assert_not_called()
-                            mock_sk.assert_called_once()
-                            mock_bl.assert_not_called()
+                            with patch("flowspec_cli._upgrade_beads") as mock_bd:
+                                result = runner.invoke(
+                                    app, ["upgrade-tools", "-c", "spec-kit"]
+                                )
+                                assert result.exit_code == 0
+                                mock_jp.assert_not_called()
+                                mock_sk.assert_called_once()
+                                mock_bl.assert_not_called()
+                                mock_bd.assert_not_called()
+
+    def test_beads_component_upgrade(self):
+        """Can upgrade beads component with -c flag."""
+        with patch("flowspec_cli.show_banner"):
+            with patch("flowspec_cli.get_all_component_versions") as mock_versions:
+                mock_versions.return_value = {
+                    "jp_spec_kit": {"installed": "1.0.0", "available": "2.0.0"},
+                    "spec_kit": {"installed": "1.0.0", "available": "2.0.0"},
+                    "backlog_md": {"installed": "1.0.0", "available": "2.0.0"},
+                    "beads": {"installed": "1.0.0", "available": "2.0.0"},
+                }
+                with patch("flowspec_cli._upgrade_jp_spec_kit") as mock_jp:
+                    with patch("flowspec_cli._upgrade_spec_kit") as mock_sk:
+                        with patch("flowspec_cli._upgrade_backlog_md") as mock_bl:
+                            with patch(
+                                "flowspec_cli._upgrade_beads",
+                                return_value=(True, "Upgraded"),
+                            ) as mock_bd:
+                                result = runner.invoke(
+                                    app, ["upgrade-tools", "-c", "beads"]
+                                )
+                                assert result.exit_code == 0
+                                mock_jp.assert_not_called()
+                                mock_sk.assert_not_called()
+                                mock_bl.assert_not_called()
+                                mock_bd.assert_called_once()
 
 
 class TestUpgradeRepoCommand:
