@@ -4029,7 +4029,7 @@ def upgrade_repo(
 
 
 # Valid component names for upgrade-tools
-UPGRADE_TOOLS_COMPONENTS = ["flowspec", "spec-kit", "backlog", "beads"]
+UPGRADE_TOOLS_COMPONENTS = ["flowspec", "backlog", "beads"]
 
 
 def _get_installed_jp_spec_kit_version() -> Optional[str]:
@@ -4161,7 +4161,7 @@ def _upgrade_jp_spec_kit(
 
 
 def _upgrade_backlog_md(dry_run: bool = False) -> tuple[bool, str]:
-    """Upgrade backlog-md via npm/pnpm.
+    """Upgrade or install backlog-md via npm/pnpm.
 
     Args:
         dry_run: If True, only show what would be done
@@ -4172,12 +4172,36 @@ def _upgrade_backlog_md(dry_run: bool = False) -> tuple[bool, str]:
     current_version = check_backlog_installed_version()
     available_version = get_npm_latest_version("backlog.md")
 
-    if not current_version:
-        return False, "backlog-md not installed (use 'flowspec backlog install')"
-
     if not available_version:
         return False, "Could not determine latest version"
 
+    # Not installed - install it
+    if not current_version:
+        if dry_run:
+            return True, f"Would install version {available_version}"
+
+        pkg_manager = detect_package_manager()
+        if not pkg_manager:
+            return False, "No Node.js package manager found (npm or pnpm required)"
+
+        try:
+            if pkg_manager == "pnpm":
+                cmd = ["pnpm", "add", "-g", f"backlog.md@{available_version}"]
+            else:
+                cmd = ["npm", "install", "-g", f"backlog.md@{available_version}"]
+
+            subprocess.run(cmd, check=True, capture_output=True, text=True)
+
+            new_version = check_backlog_installed_version()
+            if new_version:
+                return True, f"Installed version {new_version}"
+            return False, "Install completed but version check failed"
+        except FileNotFoundError:
+            return False, f"{pkg_manager} not found"
+        except subprocess.CalledProcessError as e:
+            return False, f"Install failed: {e.stderr}"
+
+    # Already at latest
     if compare_semver(current_version, available_version) >= 0:
         return True, f"Already at latest version ({current_version})"
 
@@ -4207,7 +4231,7 @@ def _upgrade_backlog_md(dry_run: bool = False) -> tuple[bool, str]:
 
 
 def _upgrade_beads(dry_run: bool = False) -> tuple[bool, str]:
-    """Upgrade beads via npm/pnpm.
+    """Upgrade or install beads via npm/pnpm.
 
     Args:
         dry_run: If True, only show what would be done
@@ -4218,12 +4242,36 @@ def _upgrade_beads(dry_run: bool = False) -> tuple[bool, str]:
     current_version = check_beads_installed_version()
     available_version = get_npm_latest_version("@beads/bd")
 
-    if not current_version:
-        return False, "beads not installed (use 'npm install -g @beads/bd')"
-
     if not available_version:
         return False, "Could not determine latest version"
 
+    # Not installed - install it
+    if not current_version:
+        if dry_run:
+            return True, f"Would install version {available_version}"
+
+        pkg_manager = detect_package_manager()
+        if not pkg_manager:
+            return False, "No Node.js package manager found (npm or pnpm required)"
+
+        try:
+            if pkg_manager == "pnpm":
+                cmd = ["pnpm", "add", "-g", f"@beads/bd@{available_version}"]
+            else:
+                cmd = ["npm", "install", "-g", f"@beads/bd@{available_version}"]
+
+            subprocess.run(cmd, check=True, capture_output=True, text=True)
+
+            new_version = check_beads_installed_version()
+            if new_version:
+                return True, f"Installed version {new_version}"
+            return False, "Install completed but version check failed"
+        except FileNotFoundError:
+            return False, f"{pkg_manager} not found"
+        except subprocess.CalledProcessError as e:
+            return False, f"Install failed: {e.stderr}"
+
+    # Already at latest
     if compare_semver(current_version, available_version) >= 0:
         return True, f"Already at latest version ({current_version})"
 
@@ -4357,7 +4405,7 @@ def upgrade_tools(
         None,
         "--component",
         "-c",
-        help="Specific component to upgrade (flowspec, spec-kit, backlog). Upgrades all if not specified.",
+        help="Specific component (flowspec, backlog, beads). All if not specified.",
     ),
     dry_run: bool = typer.Option(
         False, "--dry-run", help="Show what would be upgraded without making changes"
@@ -4376,25 +4424,22 @@ def upgrade_tools(
     ),
 ):
     """
-    Upgrade globally installed CLI tools (flowspec, spec-kit, backlog-md, beads).
+    Install or upgrade CLI tools (flowspec, backlog-md, beads).
 
-    This upgrades the CLI tools themselves at their global installation locations.
-    It does NOT upgrade repository templates (use 'flowspec upgrade-repo' for that).
+    This installs missing tools and upgrades existing ones to their latest versions.
 
-    Tools upgraded:
-    - flowspec (flowspec-cli): via uv tool upgrade
-    - spec-kit: base templates bundled in flowspec (triggers flowspec reinstall)
+    Tools managed:
+    - flowspec (flowspec-cli): via uv tool
     - backlog-md: via npm/pnpm global install
     - beads: via npm/pnpm global install
 
     Examples:
-        flowspec upgrade-tools                    # Upgrade all tools
+        flowspec upgrade-tools                    # Install/upgrade all tools
         flowspec upgrade-tools -c flowspec        # Upgrade only flowspec
-        flowspec upgrade-tools -c spec-kit        # Upgrade only spec-kit templates
-        flowspec upgrade-tools -c backlog         # Upgrade only backlog-md
-        flowspec upgrade-tools -c beads           # Upgrade only beads
-        flowspec upgrade-tools --dry-run          # Preview what would be upgraded
-        flowspec upgrade-tools --version 0.2.325  # Install specific version
+        flowspec upgrade-tools -c backlog         # Install/upgrade backlog-md
+        flowspec upgrade-tools -c beads           # Install/upgrade beads
+        flowspec upgrade-tools --dry-run          # Preview what would happen
+        flowspec upgrade-tools --version 0.2.325  # Install specific flowspec version
         flowspec upgrade-tools --list-versions    # Show available versions
 
     See also:
@@ -4469,17 +4514,6 @@ def _run_upgrade_tools(
         results.append(("flowspec", success, message))
 
         table.add_row("flowspec", jp_current, jp_available, f"{status} {message}")
-
-    # spec-kit (bundled templates)
-    if not component or component == "spec-kit":
-        sk_current = versions["spec_kit"].get("installed", "-")
-        sk_available = versions["spec_kit"].get("available", "-")
-
-        success, message = _upgrade_spec_kit(dry_run=dry_run)
-        status = "[green]✓[/green]" if success else "[red]✗[/red]"
-        results.append(("spec-kit", success, message))
-
-        table.add_row("spec-kit", sk_current, sk_available, f"{status} {message}")
 
     # backlog-md
     if not component or component == "backlog":
