@@ -142,7 +142,7 @@ class TestValidation:
 
     def test_validation_command_documented(self, guide_content):
         """Verify the validation command is documented."""
-        assert "specify workflow validate" in guide_content
+        assert "flowspec workflow validate" in guide_content
 
     def test_validation_output_explained(self, guide_content):
         """Verify validation output is explained."""

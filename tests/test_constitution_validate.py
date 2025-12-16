@@ -29,7 +29,7 @@ def test_validate_missing_constitution(tmp_path: Path, monkeypatch):
 
     assert result.exit_code == 1
     assert "Constitution not found" in result.stdout
-    assert "specify init --here" in result.stdout
+    assert "flowspec init --here" in result.stdout
 
 
 def test_validate_fully_validated_constitution(temp_constitution: Path, monkeypatch):

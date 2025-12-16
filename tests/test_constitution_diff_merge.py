@@ -70,7 +70,7 @@ class TestConstitutionDiff:
         result = runner.invoke(app, ["constitution", "diff", "--path", str(tmp_path)])
         assert result.exit_code == 1
         assert "no constitution found" in result.stdout.lower()
-        assert "specify init" in result.stdout.lower()
+        assert "flowspec init" in result.stdout.lower()
 
     def test_diff_invalid_tier(self, project_with_constitution):
         """Diff should reject invalid tier names."""
