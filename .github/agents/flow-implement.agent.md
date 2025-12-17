@@ -510,15 +510,60 @@ fi
 
 **Remediation**:
 ```bash
-# Create decision log directory if needed
-mkdir -p memory/decisions
+# Use the helper script (recommended)
+./scripts/bash/rigor-decision-log.sh \
+  --task task-542 \
+  --phase execution \
+  --decision "Selected JSONL format for decision logs" \
+  --rationale "Append-only, git-friendly, streaming-compatible" \
+  --actor "@backend-engineer" \
+  --alternatives "SQLite,Plain text,YAML"
 
-# Log a decision (JSONL format)
+# With optional context
+./scripts/bash/rigor-decision-log.sh \
+  --task task-542 \
+  --phase execution \
+  --decision "Split validation into separate functions" \
+  --rationale "Improves testability and single responsibility" \
+  --actor "@backend-engineer" \
+  --files "src/validator.py,tests/test_validator.py" \
+  --tags "architecture,testing"
+
+# Manual logging (if script not available)
 TASK_ID="task-541"
+mkdir -p memory/decisions
 echo '{"timestamp":"'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'","task_id":"'"$TASK_ID"'","phase":"execution","decision":"Using shared include pattern for rigor rules","rationale":"Single source of truth, consistent with existing patterns","alternatives":["Inline in each command","Python module"],"actor":"@backend-engineer"}' >> "memory/decisions/${TASK_ID}.jsonl"
 ```
 
-**Rationale**: Decision logs enable post-mortems, onboarding, and architectural reviews. See ADR-002 for JSONL schema.
+**Utility Script**: `scripts/bash/rigor-decision-log.sh`
+
+The helper script provides:
+- Automatic JSONL formatting and validation
+- Proper timestamp generation (ISO 8601 UTC)
+- JSON escaping for special characters
+- Structured optional fields (alternatives, files, tags)
+- Entry count tracking
+
+**Example Workflow**:
+```bash
+# 1. Make a technology choice
+./scripts/bash/rigor-decision-log.sh \
+  --task task-100 \
+  --phase execution \
+  --decision "Use FastAPI over Flask" \
+  --rationale "Better async support, automatic OpenAPI docs, type hints" \
+  --alternatives "Flask,Django,Starlette" \
+  --actor "@backend-engineer" \
+  --tags "architecture,framework"
+
+# 2. View logged decisions
+cat memory/decisions/task-100.jsonl | jq '.'
+
+# 3. Validate during PR phase (VALID-001)
+jq empty memory/decisions/task-100.jsonl
+```
+
+**Rationale**: Decision logs enable post-mortems, onboarding, and architectural reviews. See ADR-002 for JSONL schema and `memory/decisions/README.md` for query examples.
 
 ---
 
