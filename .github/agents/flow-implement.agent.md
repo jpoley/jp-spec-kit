@@ -1632,7 +1632,7 @@ if ! [[ "$BRANCH" =~ ^[a-z0-9-]+/task-[0-9]+/[a-z0-9-]+$ ]]; then
   echo "Fix: Create a new branch with compliant naming:"
   HOSTNAME=$(hostname -s | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g')
   # Extract task number if present in current branch, otherwise prompt user
-  TASK_NUM=$(echo "$BRANCH" | grep -oP 'task-\d+' || echo "")
+  TASK_NUM=$(echo "$BRANCH" | grep -Eo 'task-[0-9]+' || echo "")
   if [ -z "$TASK_NUM" ]; then
     echo "  # First, identify your task ID from the backlog:"
     echo "  backlog task list --plain"
@@ -1673,7 +1673,7 @@ if [ "$IS_WORKTREE" = "no" ]; then
   echo "  - Isolate dependencies and state"
   echo ""
   echo "Fix: Create worktree matching your branch:"
-  BRANCH=$(git branch --show-current)
+  # BRANCH already defined at start of this code block
   WORKTREE_NAME=$(basename "$BRANCH")
   echo "  cd $(git rev-parse --show-toplevel)"
   echo "  git worktree add ../${WORKTREE_NAME} ${BRANCH}"
@@ -1683,7 +1683,7 @@ fi
 
 # Check worktree directory name contains task ID (best practice)
 WORKTREE_NAME=$(basename "$WORKTREE_DIR")
-TASK_ID=$(echo "$BRANCH" | grep -oP 'task-\d+' || echo "")
+TASK_ID=$(echo "$BRANCH" | grep -Eo 'task-[0-9]+' || echo "")
 
 if [ -z "$TASK_ID" ]; then
   echo "⚠️  WARNING (EXEC-001): Branch does not contain task ID"
@@ -1706,7 +1706,7 @@ fi
 
 ```bash
 # Validate backlog task exists (EXEC-004)
-TASK_ID=$(echo "$BRANCH" | grep -oP 'task-\d+' || echo "")
+TASK_ID=$(echo "$BRANCH" | grep -Eo 'task-[0-9]+' || echo "")
 
 if [ -z "$TASK_ID" ]; then
   echo "[X] RIGOR VIOLATION (EXEC-004): No task ID in branch name"
@@ -2412,7 +2412,7 @@ All significant decisions MUST be logged before PR creation.
 
 ```bash
 # Check decision log exists and has entries (VALID-001)
-TASK_ID=$(git branch --show-current 2>/dev/null | grep -oP 'task-\d+' || echo "")
+TASK_ID=$(git branch --show-current 2>/dev/null | grep -Eo 'task-[0-9]+' || echo "")
 DECISION_LOG="memory/decisions/${TASK_ID}.jsonl"
 
 if [ ! -f "$DECISION_LOG" ]; then
@@ -2655,7 +2655,7 @@ echo "✅ Rebase status check passed"
 
 ```bash
 # Check all ACs are complete (VALID-005)
-TASK_ID=$(git branch --show-current 2>/dev/null | grep -oP 'task-\d+' || echo "")
+TASK_ID=$(git branch --show-current 2>/dev/null | grep -Eo 'task-[0-9]+' || echo "")
 
 if [ -n "$TASK_ID" ]; then
   echo "Verifying acceptance criteria..."
@@ -2678,6 +2678,9 @@ fi
 
 ```bash
 # Verify task status is current (VALID-006)
+# Extract TASK_ID from branch (each code block is independent in markdown)
+TASK_ID=$(git branch --show-current 2>/dev/null | grep -Eo 'task-[0-9]+' || echo "")
+
 if [ -n "$TASK_ID" ]; then
   echo "Verifying task status..."
   # Extract full status (handles multi-word statuses like "In Progress")
@@ -2723,6 +2726,7 @@ PRs that fail CI:
 # Check all commits have DCO sign-off (PR-001)
 echo "Checking DCO sign-off..."
 # Use process substitution to avoid subshell variable scope issues
+# NOTE: Process substitution requires bash 4.0+ (most Linux systems; macOS needs upgrade)
 UNSIGNED_COMMITS=""
 while read -r hash msg; do
   if ! git log -1 --format='%B' "$hash" 2>/dev/null | grep -q "Signed-off-by:"; then
