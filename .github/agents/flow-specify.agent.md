@@ -621,7 +621,8 @@ fi
 ```bash
 # Update or create task memory
 TASK_ID="task-541"
-cat >> "backlog/memory/${TASK_ID}.md" << 'EOF'
+# Note: Using unquoted EOF to allow variable expansion for the date
+cat >> "backlog/memory/${TASK_ID}.md" << EOF
 
 ## Current State (Updated: $(date +%Y-%m-%d))
 
@@ -717,7 +718,8 @@ fi
 **Remediation**:
 ```bash
 # Update task memory with freeze snapshot
-cat >> "backlog/memory/${TASK_ID}.md" << 'EOF'
+# Note: Using unquoted EOF to allow variable expansion for the date
+cat >> "backlog/memory/${TASK_ID}.md" << EOF
 
 ## Current State (Frozen: $(date +%Y-%m-%d %H:%M))
 
