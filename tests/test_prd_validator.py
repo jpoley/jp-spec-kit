@@ -128,6 +128,14 @@ System must respond within 200ms.
 ## Success Metrics
 
 - Login success rate > 99%
+
+## All Needed Context
+
+### Examples
+
+| Example | Location | Relevance to This Feature |
+|---------|----------|---------------------------|
+| Auth Example | `examples/auth/login.py` | Demonstrates authentication patterns |
 """
 
     @pytest.fixture
@@ -184,6 +192,14 @@ NFR.
 ## Success Metrics
 
 Metrics.
+
+## All Needed Context
+
+### Examples
+
+| Example | Location | Relevance to This Feature |
+|---------|----------|---------------------------|
+| Auth Example | `examples/auth/login.py` | Example authentication patterns |
 """
 
     def test_validate_valid_prd(
@@ -263,6 +279,144 @@ Metrics.
         assert not result.is_valid
         assert any("user stories" in e.lower() for e in result.errors)
 
+    def test_validate_missing_all_needed_context(
+        self,
+        validator: PRDValidator,
+        tmp_path: Path,
+    ) -> None:
+        """Test validating PRD missing All Needed Context section (includes Examples)."""
+        content = """# PRD: Auth
+
+## Executive Summary
+
+Summary.
+
+## Problem Statement
+
+Problem.
+
+## User Stories
+
+As a user, I want to login so that I can access.
+
+## Functional Requirements
+
+Requirements.
+
+## Non-Functional Requirements
+
+NFR.
+
+## Success Metrics
+
+Metrics.
+"""
+        prd_file = tmp_path / "auth.md"
+        prd_file.write_text(content)
+
+        result = validator.validate_prd(prd_file)
+
+        assert not result.is_valid
+        assert any("all needed context" in e.lower() for e in result.errors)
+
+    def test_validate_missing_example_references(
+        self,
+        validator: PRDValidator,
+        tmp_path: Path,
+    ) -> None:
+        """Test validating PRD with All Needed Context but no example references."""
+        content = """# PRD: Auth
+
+## Executive Summary
+
+Summary.
+
+## Problem Statement
+
+Problem.
+
+## User Stories
+
+As a user, I want to login so that I can access.
+
+## Functional Requirements
+
+Requirements.
+
+## Non-Functional Requirements
+
+NFR.
+
+## Success Metrics
+
+Metrics.
+
+## All Needed Context
+
+### Examples
+
+No examples provided yet.
+"""
+        prd_file = tmp_path / "auth.md"
+        prd_file.write_text(content)
+
+        result = validator.validate_prd(prd_file)
+
+        assert not result.is_valid
+        assert any("example references" in e.lower() for e in result.errors)
+        assert result.example_count == 0
+
+    def test_validate_placeholder_example_references_excluded(
+        self,
+        validator: PRDValidator,
+        tmp_path: Path,
+    ) -> None:
+        """Test that placeholder rows with curly braces are excluded from example count."""
+        content = """# PRD: Auth
+
+## Executive Summary
+
+Summary.
+
+## Problem Statement
+
+Problem.
+
+## User Stories
+
+As a user, I want to login so that I can access.
+
+## Functional Requirements
+
+Requirements.
+
+## Non-Functional Requirements
+
+NFR.
+
+## Success Metrics
+
+Metrics.
+
+## All Needed Context
+
+### Examples
+
+| Example | Location | Relevance to This Feature |
+|---------|----------|---------------------------|
+| {Example name} | `examples/{path}` | {How this example relates} |
+| {Another example} | examples/{another/path} | {Description} |
+"""
+        prd_file = tmp_path / "auth.md"
+        prd_file.write_text(content)
+
+        result = validator.validate_prd(prd_file)
+
+        # Placeholder rows should be excluded, so example_count should be 0
+        assert result.example_count == 0
+        assert not result.is_valid
+        assert any("example references" in e.lower() for e in result.errors)
+
     def test_validate_empty_section(
         self,
         validator: PRDValidator,
@@ -292,6 +446,14 @@ NFR.
 ## Success Metrics
 
 Metrics.
+
+## All Needed Context
+
+### Examples
+
+| Example | Location | Relevance to This Feature |
+|---------|----------|---------------------------|
+| Auth Example | `examples/auth/login.py` | Example authentication patterns |
 """
         prd_file = tmp_path / "auth.md"
         prd_file.write_text(content)
@@ -367,6 +529,14 @@ NFR.
 ## Success Metrics
 
 Metrics.
+
+## All Needed Context
+
+### Examples
+
+| Example | Location | Relevance to This Feature |
+|---------|----------|---------------------------|
+| Auth Example | `examples/auth/login.py` | Example authentication patterns |
 """
         prd_file = tmp_path / "auth.md"
         prd_file.write_text(content)
@@ -416,6 +586,14 @@ NFR.
 ## Success Metrics
 
 Metrics.
+
+## All Needed Context
+
+### Examples
+
+| Example | Location | Relevance to This Feature |
+|---------|----------|---------------------------|
+| Auth Example | `examples/auth/login.py` | Example authentication patterns |
 """
         prd_file = tmp_path / "auth.md"
         prd_file.write_text(content)
@@ -462,6 +640,14 @@ NFR.
 ## Success Metrics
 
 Metrics.
+
+## All Needed Context
+
+### Examples
+
+| Example | Location | Relevance to This Feature |
+|---------|----------|---------------------------|
+| Auth Example | `examples/auth/login.py` | Example authentication patterns |
 """
         (prd_dir / "auth.md").write_text(content)
 

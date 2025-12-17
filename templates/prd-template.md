@@ -123,13 +123,33 @@ As a {user role}, I want {goal} so that {benefit}.
 
 ### Examples
 
+<!-- REQUIRED: PRDs without at least one example reference are considered incomplete -->
+<!-- Examples help implementers understand patterns, expected behavior, and best practices -->
 <!-- List example files that demonstrate patterns or expected behavior -->
-<!-- Format: | Example | Location | Relevance | -->
+
+**Requirement**: Every PRD MUST reference at least one relevant example from the `examples/` directory. Examples provide concrete implementations that guide development and ensure consistency.
+
+**Good Example Reference Criteria**:
+- **Relevance**: Example directly relates to the feature's technical domain or pattern
+- **Specificity**: Clear explanation of which parts of the example apply to this feature
+- **Actionable**: Implementer can extract specific patterns or approaches from the example
 
 | Example | Location | Relevance to This Feature |
 |---------|----------|---------------------------|
-| {Example name} | `examples/{path}` | {How this example relates to the feature} |
-| {Example name} | `examples/{path}` | {How this example relates to the feature} |
+| {Example name} | `examples/{path}` | {How this example relates - be specific about which patterns/functions/approaches apply} |
+| {Example name} | `examples/{path}` | {How this example relates - be specific about which patterns/functions/approaches apply} |
+
+<!-- Example of a Good Reference (wrapped in HTML comment to prevent validator from counting it):
+| Example | Location | Relevance to This Feature |
+|---------|----------|---------------------------|
+| MCP Security Agent | `examples/mcp/claude_security_agent.py` | Demonstrates MCP server setup and tool registration pattern that applies to our feature's API integration |
+-->
+
+<!-- Example of a Poor Reference - too vague (wrapped in HTML comment):
+| Example | Location | Relevance to This Feature |
+|---------|----------|---------------------------|
+| Security Example | `examples/mcp/README.md` | Shows security stuff |
+-->
 
 ### Gotchas / Prior Failures
 
