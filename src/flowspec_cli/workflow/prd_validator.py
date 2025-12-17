@@ -10,6 +10,7 @@ PRD Format: Standard product requirements document with required sections:
 - Functional Requirements
 - Non-Functional Requirements
 - Success Metrics
+- All Needed Context (includes Examples, Gotchas, External Systems)
 
 Example:
     >>> from flowspec_cli.workflow.prd_validator import PRDValidator
@@ -30,6 +31,10 @@ from pathlib import Path
 from typing import Any
 
 
+# HTML comment pattern for stripping demo/example content in comments
+HTML_COMMENT_PATTERN = re.compile(r"<!--.*?-->", re.DOTALL)
+
+
 # Required sections in a PRD (case-insensitive matching)
 REQUIRED_PRD_SECTIONS = [
     "executive summary",
@@ -38,6 +43,7 @@ REQUIRED_PRD_SECTIONS = [
     "functional requirements",
     "non-functional requirements",
     "success metrics",
+    "all needed context",  # Includes Examples, Gotchas, External Systems
 ]
 
 # Optional but recommended sections
@@ -59,6 +65,20 @@ USER_STORY_PATTERN = re.compile(
 # Acceptance criterion pattern: AC# or - [ ]
 AC_PATTERN = re.compile(r"(?:AC\d+:?|[-*]\s*\[[ x]\])\s*.+", re.IGNORECASE)
 
+# Example reference pattern: table row with examples/ path
+# Matches rows like: | Example Name | `examples/path` | Description |
+# Excludes placeholder rows with curly braces in ANY column:
+#   - | {Example name} | examples/path | Description | (placeholder name)
+#   - | Example | examples/{path} | Description | (placeholder path)
+#   - | Example | examples/path | {Description} | (placeholder description)
+# Column 1 (Name): negative lookahead (?![^|]*[{}]) rejects if either brace present
+# Column 2 (Location): Allows optional backticks around the examples/ path but rejects curly braces and backticks within the path content itself
+# Column 3 (Description): negative lookahead (?![^|]*[{}]) rejects if either brace present
+EXAMPLE_REFERENCE_PATTERN = re.compile(
+    r"^\s*\|(?![^|]*[{}])[^|]+\|[^|{}]*`?examples/[^|`{}]+`?[^|{}]*\|(?![^|]*[{}])[^|]+\|",
+    re.MULTILINE,
+)
+
 
 @dataclass
 class PRDValidationResult:
@@ -73,6 +93,7 @@ class PRDValidationResult:
         sections_found: List of sections found in the PRD.
         user_story_count: Number of user stories found.
         ac_count: Number of acceptance criteria found.
+        example_count: Number of example references found.
     """
 
     is_valid: bool
@@ -83,6 +104,7 @@ class PRDValidationResult:
     sections_found: list[str] = field(default_factory=list)
     user_story_count: int = 0
     ac_count: int = 0
+    example_count: int = 0
 
     def to_dict(self) -> dict[str, Any]:
         """Convert result to dictionary for serialization."""
@@ -95,6 +117,7 @@ class PRDValidationResult:
             "sections_found": self.sections_found,
             "user_story_count": self.user_story_count,
             "ac_count": self.ac_count,
+            "example_count": self.example_count,
         }
 
 
@@ -136,6 +159,7 @@ class PRDValidator:
         feature_name: str | None = None
         user_story_count: int = 0
         ac_count: int = 0
+        example_count: int = 0
 
         # Check file exists
         if not prd_path.exists():
@@ -197,6 +221,16 @@ class PRDValidator:
                 "Consider adding AC1, AC2, etc."
             )
 
+        # Count example references (expected in All Needed Context section)
+        # Strip HTML comments first so demo tables in comments aren't counted
+        content_without_comments = HTML_COMMENT_PATTERN.sub("", content)
+        example_count = len(EXAMPLE_REFERENCE_PATTERN.findall(content_without_comments))
+        if example_count == 0:
+            errors.append(
+                "No example references found. Expected at least one table row with "
+                "an examples/ path (e.g., | Example Name | `examples/path/file.py` | Description |)."
+            )
+
         # Check for empty sections
         empty_sections = self._find_empty_sections(content, REQUIRED_PRD_SECTIONS)
         for empty_section in empty_sections:
@@ -216,6 +250,7 @@ class PRDValidator:
             sections_found=sections_found,
             user_story_count=user_story_count,
             ac_count=ac_count,
+            example_count=example_count,
         )
 
     def validate_for_feature(

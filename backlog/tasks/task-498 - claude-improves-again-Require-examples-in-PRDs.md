@@ -5,7 +5,7 @@ status: To Do
 assignee:
   - '@muckross'
 created_date: '2025-12-14 03:06'
-updated_date: '2025-12-15 01:50'
+updated_date: '2025-12-17 01:25'
 labels:
   - context-engineering
   - templates
@@ -24,9 +24,9 @@ Source: docs/research/archon-inspired.md Task 11
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 /flow:specify template includes required Examples section
-- [ ] #2 Section lists relevant files from examples directory
-- [ ] #3 Each example has short explanation of relevance to feature
-- [ ] #4 Guidance states specs without examples are incomplete
-- [ ] #5 Template provides example format for referencing examples
+- [x] #1 /flow:specify template includes required Examples section
+- [x] #2 Section lists relevant files from examples directory
+- [x] #3 Each example has short explanation of relevance to feature
+- [x] #4 Guidance states specs without examples are incomplete
+- [x] #5 Template provides example format for referencing examples
 <!-- AC:END -->

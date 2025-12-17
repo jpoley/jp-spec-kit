@@ -128,6 +128,14 @@ System must respond within 200ms.
 ## Success Metrics
 
 - Login success rate > 99%
+
+## All Needed Context
+
+### Examples
+
+| Example | Location | Relevance to This Feature |
+|---------|----------|---------------------------|
+| Auth Example | `examples/auth/login.py` | Demonstrates authentication patterns |
 """
 
     @pytest.fixture
@@ -184,6 +192,14 @@ NFR.
 ## Success Metrics
 
 Metrics.
+
+## All Needed Context
+
+### Examples
+
+| Example | Location | Relevance to This Feature |
+|---------|----------|---------------------------|
+| Auth Example | `examples/auth/login.py` | Example authentication patterns |
 """
 
     def test_validate_valid_prd(
@@ -263,6 +279,374 @@ Metrics.
         assert not result.is_valid
         assert any("user stories" in e.lower() for e in result.errors)
 
+    def test_validate_missing_all_needed_context(
+        self,
+        validator: PRDValidator,
+        tmp_path: Path,
+    ) -> None:
+        """Test validating PRD missing All Needed Context section (includes Examples)."""
+        content = """# PRD: Auth
+
+## Executive Summary
+
+Summary.
+
+## Problem Statement
+
+Problem.
+
+## User Stories
+
+As a user, I want to login so that I can access.
+
+## Functional Requirements
+
+Requirements.
+
+## Non-Functional Requirements
+
+NFR.
+
+## Success Metrics
+
+Metrics.
+"""
+        prd_file = tmp_path / "auth.md"
+        prd_file.write_text(content)
+
+        result = validator.validate_prd(prd_file)
+
+        assert not result.is_valid
+        assert any("all needed context" in e.lower() for e in result.errors)
+
+    def test_validate_missing_example_references(
+        self,
+        validator: PRDValidator,
+        tmp_path: Path,
+    ) -> None:
+        """Test validating PRD with All Needed Context but no example references."""
+        content = """# PRD: Auth
+
+## Executive Summary
+
+Summary.
+
+## Problem Statement
+
+Problem.
+
+## User Stories
+
+As a user, I want to login so that I can access.
+
+## Functional Requirements
+
+Requirements.
+
+## Non-Functional Requirements
+
+NFR.
+
+## Success Metrics
+
+Metrics.
+
+## All Needed Context
+
+### Examples
+
+No examples provided yet.
+"""
+        prd_file = tmp_path / "auth.md"
+        prd_file.write_text(content)
+
+        result = validator.validate_prd(prd_file)
+
+        assert not result.is_valid
+        assert any("example references" in e.lower() for e in result.errors)
+        assert result.example_count == 0
+
+    def test_validate_placeholder_example_references_excluded(
+        self,
+        validator: PRDValidator,
+        tmp_path: Path,
+    ) -> None:
+        """Test that placeholder rows with curly braces are excluded from example count."""
+        content = """# PRD: Auth
+
+## Executive Summary
+
+Summary.
+
+## Problem Statement
+
+Problem.
+
+## User Stories
+
+As a user, I want to login so that I can access.
+
+## Functional Requirements
+
+Requirements.
+
+## Non-Functional Requirements
+
+NFR.
+
+## Success Metrics
+
+Metrics.
+
+## All Needed Context
+
+### Examples
+
+| Example | Location | Relevance to This Feature |
+|---------|----------|---------------------------|
+| {Example name} | `examples/{path}` | {How this example relates} |
+| {Another example} | examples/{another/path} | {Description} |
+"""
+        prd_file = tmp_path / "auth.md"
+        prd_file.write_text(content)
+
+        result = validator.validate_prd(prd_file)
+
+        # Placeholder rows should be excluded, so example_count should be 0
+        assert result.example_count == 0
+        assert not result.is_valid
+        assert any("example references" in e.lower() for e in result.errors)
+
+    def test_validate_placeholder_in_single_column_excluded(
+        self,
+        validator: PRDValidator,
+        tmp_path: Path,
+    ) -> None:
+        """Test that rows with curly braces in ANY column are excluded.
+
+        This tests edge cases where:
+        - Placeholder in name column only: | {Example} | examples/real/path.py | Desc |
+        - Placeholder in description only: | Example | examples/real/path.py | {Desc} |
+        - Real path but placeholder name/desc should be excluded
+        """
+        content = """# PRD: Auth
+
+## Executive Summary
+
+Summary.
+
+## Problem Statement
+
+Problem.
+
+## User Stories
+
+As a user, I want to login so that I can access.
+
+## Functional Requirements
+
+Requirements.
+
+## Non-Functional Requirements
+
+NFR.
+
+## Success Metrics
+
+Metrics.
+
+## All Needed Context
+
+### Examples
+
+| Example | Location | Relevance to This Feature |
+|---------|----------|---------------------------|
+| {Example name} | `examples/auth/real-file.py` | Real description here |
+| Real Example | `examples/auth/login.py` | {Placeholder description} |
+| {Placeholder} | examples/valid/path.py | {Both placeholders} |
+"""
+        prd_file = tmp_path / "auth.md"
+        prd_file.write_text(content)
+
+        result = validator.validate_prd(prd_file)
+
+        # All rows have curly braces in at least one column, so none should count
+        assert result.example_count == 0
+        assert not result.is_valid
+        assert any("example references" in e.lower() for e in result.errors)
+
+    def test_validate_closing_brace_only_excluded(
+        self,
+        validator: PRDValidator,
+        tmp_path: Path,
+    ) -> None:
+        """Test that rows with only closing braces } are also excluded.
+
+        This verifies that both opening { and closing } braces trigger exclusion,
+        not just opening braces. Catches malformed placeholders like "}Description}"
+        or incomplete template rows.
+        """
+        content = """# PRD: Auth
+
+## Executive Summary
+
+Summary.
+
+## Problem Statement
+
+Problem.
+
+## User Stories
+
+As a user, I want to login so that I can access.
+
+## Functional Requirements
+
+Requirements.
+
+## Non-Functional Requirements
+
+NFR.
+
+## Success Metrics
+
+Metrics.
+
+## All Needed Context
+
+### Examples
+
+| Example | Location | Relevance to This Feature |
+|---------|----------|---------------------------|
+| Example} | `examples/auth/file.py` | Description here |
+| Name | `examples/auth/}path.py` | Description |
+| Valid Name | `examples/auth/valid.py` | }Broken description |
+| Real Example | `examples/auth/handler.py` | Correct description |
+"""
+        prd_file = tmp_path / "auth.md"
+        prd_file.write_text(content)
+
+        result = validator.validate_prd(prd_file)
+
+        # Only the last row (Real Example) has no braces in any column
+        assert result.example_count == 1
+        assert result.is_valid  # Has the one required example
+
+    def test_validate_mixed_placeholder_and_real_examples(
+        self,
+        validator: PRDValidator,
+        tmp_path: Path,
+    ) -> None:
+        """Test that real examples are counted even when mixed with placeholders."""
+        content = """# PRD: Auth
+
+## Executive Summary
+
+Summary.
+
+## Problem Statement
+
+Problem.
+
+## User Stories
+
+As a user, I want to login so that I can access.
+
+## Functional Requirements
+
+Requirements.
+
+## Non-Functional Requirements
+
+NFR.
+
+## Success Metrics
+
+Metrics.
+
+## All Needed Context
+
+### Examples
+
+| Example | Location | Relevance to This Feature |
+|---------|----------|---------------------------|
+| {Example name} | `examples/{path}` | {Placeholder row} |
+| Auth Handler | `examples/auth/handler.py` | Shows authentication patterns |
+| {Another placeholder} | examples/fake/{path} | {Desc} |
+| Login Flow | `examples/auth/login.py` | Demonstrates login implementation |
+"""
+        prd_file = tmp_path / "auth.md"
+        prd_file.write_text(content)
+
+        result = validator.validate_prd(prd_file)
+
+        # Only the 2 real examples should count (Auth Handler and Login Flow)
+        assert result.example_count == 2
+        assert result.is_valid  # Has required examples
+
+    def test_validate_html_comments_excluded(
+        self,
+        validator: PRDValidator,
+        tmp_path: Path,
+    ) -> None:
+        """Test that example tables inside HTML comments are not counted.
+
+        This verifies that demo/example tables wrapped in HTML comments
+        (like those in prd-template.md) don't inflate the example count.
+        """
+        content = """# PRD: Auth
+
+## Executive Summary
+
+Summary.
+
+## Problem Statement
+
+Problem.
+
+## User Stories
+
+As a user, I want to login so that I can access.
+
+## Functional Requirements
+
+Requirements.
+
+## Non-Functional Requirements
+
+NFR.
+
+## Success Metrics
+
+Metrics.
+
+## All Needed Context
+
+### Examples
+
+| Example | Location | Relevance to This Feature |
+|---------|----------|---------------------------|
+| Real Example | `examples/auth/handler.py` | Shows real authentication patterns |
+
+<!-- Example of a Good Reference (wrapped in HTML comment to prevent validator from counting it):
+| Example | Location | Relevance to This Feature |
+|---------|----------|---------------------------|
+| Demo Example | `examples/demo/file.py` | This should NOT be counted |
+-->
+
+<!-- Another commented table that should not count:
+| Hidden Example | `examples/hidden/path.py` | Should be excluded |
+-->
+"""
+        prd_file = tmp_path / "auth.md"
+        prd_file.write_text(content)
+
+        result = validator.validate_prd(prd_file)
+
+        # Only the real example outside HTML comments should count
+        assert result.example_count == 1
+        assert result.is_valid  # Has the one required example
+
     def test_validate_empty_section(
         self,
         validator: PRDValidator,
@@ -292,6 +676,14 @@ NFR.
 ## Success Metrics
 
 Metrics.
+
+## All Needed Context
+
+### Examples
+
+| Example | Location | Relevance to This Feature |
+|---------|----------|---------------------------|
+| Auth Example | `examples/auth/login.py` | Example authentication patterns |
 """
         prd_file = tmp_path / "auth.md"
         prd_file.write_text(content)
@@ -367,6 +759,14 @@ NFR.
 ## Success Metrics
 
 Metrics.
+
+## All Needed Context
+
+### Examples
+
+| Example | Location | Relevance to This Feature |
+|---------|----------|---------------------------|
+| Auth Example | `examples/auth/login.py` | Example authentication patterns |
 """
         prd_file = tmp_path / "auth.md"
         prd_file.write_text(content)
@@ -416,6 +816,14 @@ NFR.
 ## Success Metrics
 
 Metrics.
+
+## All Needed Context
+
+### Examples
+
+| Example | Location | Relevance to This Feature |
+|---------|----------|---------------------------|
+| Auth Example | `examples/auth/login.py` | Example authentication patterns |
 """
         prd_file = tmp_path / "auth.md"
         prd_file.write_text(content)
@@ -462,6 +870,14 @@ NFR.
 ## Success Metrics
 
 Metrics.
+
+## All Needed Context
+
+### Examples
+
+| Example | Location | Relevance to This Feature |
+|---------|----------|---------------------------|
+| Auth Example | `examples/auth/login.py` | Example authentication patterns |
 """
         (prd_dir / "auth.md").write_text(content)
 
