@@ -253,7 +253,7 @@ else
   #   - Indented non-comment lines with actual content (strips leading whitespace)
   # Filters out:
   #   - Code block markers via /^```[[:space:]]*$/ which matches fence lines with optional trailing whitespace
-  #   - Code blocks are supported but not recommended; this logic defensively skips fenced blocks
+  #   - Code blocks are not supported for command extraction; this logic intentionally skips fenced blocks to match the documented format
   VALIDATION_COMMANDS=$(echo "$FVP_SECTION" | awk '
     BEGIN { in_cmds=0; in_code_block=0 }
     /^### Commands/ { in_cmds=1; next }
