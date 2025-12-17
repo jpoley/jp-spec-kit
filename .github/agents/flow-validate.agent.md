@@ -376,6 +376,7 @@ If the task doesn't have the required workflow state, inform the user:
 This command orchestrates a phased validation workflow:
 
 - **Phase 0: Task Discovery & Load** - Find/load target task
+- **Phase 0.5: Feature Validation Plan Extraction** - Extract and execute FVP from PRD/PRP
 - **Phase 1: Automated Testing** - Run tests, linting, type checks
 - **Phase 2: Agent Validation (Parallel)** - QA Guardian + Security Engineer
 - **Phase 3: Documentation** - Technical Writer agent
@@ -441,6 +442,205 @@ backlog task <task-id> --plain
    Title: Integration - Enhanced /flow:validate Command
    Status: In Progress
    ACs: 0/8 complete
+```
+
+---
+
+### Phase 0.5: Feature Validation Plan Extraction
+
+**Report progress**: Print "Phase 0.5: Extracting Feature Validation Plan from PRD/PRP..."
+
+This phase locates the task's PRD or PRP file and extracts the Feature Validation Plan section to get feature-specific validation commands.
+
+#### Step 1: Locate PRD or PRP File
+
+Search for PRD/PRP files related to the current task:
+
+```bash
+# Extract task ID number
+TASK_NUM=$(echo "$TASK_ID" | grep -oE '[0-9]+')
+
+# Search for task-specific PRP file
+PRP_FILE="docs/prp/task-${TASK_NUM}.md"
+
+# If PRP doesn't exist, search for PRD files that might reference this task
+if [ ! -f "$PRP_FILE" ]; then
+  # Look for PRD files in docs/prd/ directory
+  find docs/prd/ -name "*.md" -type f 2>/dev/null
+fi
+```
+
+**File Search Priority**:
+1. Task-specific PRP: `docs/prp/task-{task-id}.md`
+2. Task-specific PRP (alternate): `docs/prp/{task-id}.md`
+3. PRD files mentioning the task in docs/prd/
+4. No file found (skip this phase gracefully)
+
+#### Step 2: Extract Feature Validation Plan Section
+
+If a PRD/PRP file is found, extract the "Feature Validation Plan" or "Validation Loop" section:
+
+```bash
+# Extract the Feature Validation Plan section
+# Look for either "## Feature Validation Plan" (PRD) or "## VALIDATION LOOP" (PRP)
+
+# Use awk or sed to extract the section between the header and the next ## header
+awk '/^## (Feature Validation Plan|VALIDATION LOOP)/,/^## / {
+  if (/^## / && !/^## (Feature Validation Plan|VALIDATION LOOP)/) exit;
+  print
+}' "$PRD_OR_PRP_FILE"
+```
+
+**Expected Section Structure** (from PRD):
+```markdown
+## Feature Validation Plan
+
+### Commands
+
+```bash
+# Run feature-specific unit tests
+pytest tests/path/to/feature/ -v
+
+# Run linting for affected files
+ruff check src/path/to/feature/
+```
+
+### Expected Success
+...
+
+### Known Failure Modes
+...
+```
+
+**Expected Section Structure** (from PRP):
+```markdown
+## VALIDATION LOOP
+
+### Commands
+
+```bash
+# Run feature-specific tests
+pytest tests/feature/ -v
+```
+
+### Expected Success
+...
+```
+
+#### Step 3: Parse Validation Commands
+
+Extract the commands from the "Commands" subsection:
+
+```bash
+# Extract bash code block from Commands subsection
+# Look for ### Commands followed by ```bash ... ```
+
+# Use sed/awk to extract commands between ```bash and ```
+awk '/^### Commands/,/^```$/ {
+  if (in_block && /^```$/) exit;
+  if (in_block) print;
+  if (/^```bash/) in_block=1;
+}' "$SECTION_FILE"
+```
+
+Store the extracted commands for use in Phase 1.
+
+#### Step 4: Display Validation Commands to User
+
+Present the feature-specific validation commands to the user:
+
+```
+📋 Feature Validation Plan found in: docs/prp/task-094.md
+
+Validation Commands:
+--------------------------------------------------------------------------------
+# Run feature-specific unit tests
+pytest tests/flowspec_cli/test_validate_command.py -v
+
+# Run integration tests
+pytest tests/integration/test_validate_workflow.py -v
+
+# Run linting for affected files
+ruff check src/flowspec_cli/commands/validate.py
+
+# Verify command help text
+flowspec validate --help
+--------------------------------------------------------------------------------
+
+Do you want to:
+1. Run these commands automatically
+2. Print commands for manual execution
+3. Skip and use default test suite
+
+Choice [1/2/3]:
+```
+
+#### Step 5: Execute or Print Commands
+
+Based on user choice:
+
+**Option 1: Run automatically**
+- Execute each command sequentially
+- Capture output and exit codes
+- Report success/failure for each command
+- Continue to Phase 1 only if all commands pass
+
+**Option 2: Print for manual execution**
+- Display commands with copy-paste friendly format
+- Print "Expected Success" criteria if available
+- Print "Known Failure Modes" if available
+- Pause and wait for user confirmation before Phase 1
+
+**Option 3: Skip**
+- Proceed directly to Phase 1 with standard test suite
+
+#### Step 6: Store Validation Results
+
+If commands were run automatically, store results for Phase 5 task notes:
+
+```bash
+# Store validation results in temporary file or variable
+VALIDATION_RESULTS="Feature Validation Plan Results:
+Command 1: pytest tests/feature/ -v → PASSED (15 tests)
+Command 2: ruff check src/feature/ → PASSED (0 errors)
+Command 3: Custom validation → PASSED
+"
+```
+
+These results will be included in implementation notes during Phase 5.
+
+**Error Handling**:
+- If PRD/PRP file not found: Print info message and skip to Phase 1
+  ```
+  ℹ️  Phase 0.5 Skipped: No PRD/PRP file found for task-094
+     Continuing with standard test suite...
+  ```
+- If Feature Validation Plan section not found: Skip to Phase 1
+  ```
+  ℹ️  Phase 0.5 Skipped: No Feature Validation Plan in PRD/PRP
+     Continuing with standard test suite...
+  ```
+- If any validation command fails: Halt workflow
+  ```
+  [X] Phase 0.5 Failed: Validation command failed
+  Command: pytest tests/feature/ -v
+  Exit Code: 1
+  Output: [test output]
+
+  Fix the failing tests and re-run /flow:validate
+  ```
+
+**Phase 0.5 Success**: Print summary:
+```
+✅ Phase 0.5 Complete: Feature validation commands executed
+   Source: docs/prp/task-094.md
+   Commands run: 3
+   All validations: PASSED
+```
+
+**Re-run handling**: If feature validation already passed in previous run, skip and print:
+```
+⏭️  Phase 0.5 Skipped: Feature validation already completed
 ```
 
 ---
@@ -935,7 +1135,7 @@ backlog task <task-id> --plain
 
 Create comprehensive implementation notes based on:
 - What was implemented (from task description and changes)
-- How it was tested (from Phase 1 test results)
+- How it was tested (from Phase 0.5 FVP + Phase 1 test results)
 - Key decisions made (from agent reports)
 - Validation results (from Phases 2-3)
 
@@ -946,6 +1146,16 @@ Create comprehensive implementation notes based on:
 ### What Was Implemented
 Enhanced the /flow:validate command with phased orchestration workflow.
 Implemented 7 distinct phases with progress reporting and error handling.
+
+### Feature Validation Plan Results
+[Include results from Phase 0.5 if Feature Validation Plan was found and executed]
+
+Source: docs/prp/task-094.md
+
+Commands executed:
+- pytest tests/flowspec_cli/test_validate_command.py -v → PASSED (15 tests)
+- ruff check src/flowspec_cli/commands/validate.py → PASSED (0 errors)
+- flowspec validate --help → PASSED (help text verified)
 
 ### Testing
 - All unit tests passing (45/45)
@@ -964,6 +1174,8 @@ Implemented 7 distinct phases with progress reporting and error handling.
 - Security Engineer: No critical vulnerabilities
 - Documentation: Updated 2 command files
 ```
+
+**Important**: If Phase 0.5 extracted and ran Feature Validation Plan commands, include those results in the "Feature Validation Plan Results" section. This provides traceable evidence that feature-specific validations were performed.
 
 #### Step 2: Add Implementation Notes
 
@@ -1283,12 +1495,13 @@ If any phase fails, the workflow halts with a clear error message. To recover:
 
 **Workflow Phases**:
 1. **Phase 0: Task Discovery & Load** - Find and load target task
-2. **Phase 1: Automated Testing** - Run tests, linting, type checks
-3. **Phase 2: Agent Validation** - Launch QA Guardian and Security Engineer (parallel)
-4. **Phase 3: Documentation** - Launch Technical Writer agent
-5. **Phase 4: AC Verification** - Verify all acceptance criteria met
-6. **Phase 5: Task Completion** - Generate notes and mark task Done
-7. **Phase 6: PR Generation** - Create pull request with human approval
+2. **Phase 0.5: Feature Validation Plan Extraction** - Extract and execute feature-specific validation from PRD/PRP
+3. **Phase 1: Automated Testing** - Run tests, linting, type checks
+4. **Phase 2: Agent Validation** - Launch QA Guardian and Security Engineer (parallel)
+5. **Phase 3: Documentation** - Launch Technical Writer agent
+6. **Phase 4: AC Verification** - Verify all acceptance criteria met
+7. **Phase 5: Task Completion** - Generate notes and mark task Done
+8. **Phase 6: PR Generation** - Create pull request with human approval
 
 **Examples**:
 
