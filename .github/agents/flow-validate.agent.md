@@ -773,7 +773,7 @@ fi
 UNPUSHED=$(git log @{u}.. --oneline 2>/dev/null | wc -l || echo 0)
 if [ "$UNPUSHED" -gt 0 ]; then
   echo "[X] FREEZE-002 VIOLATION: $UNPUSHED unpushed commits"
-  echo "Remediation: git push origin $(git branch --show-current)"
+  echo "Remediation: git push origin "$(git branch --show-current)""
 fi
 ```
 
@@ -782,7 +782,7 @@ fi
 # Commit and push all changes
 git add .
 git commit -s -m "wip: freeze checkpoint - $(date +%Y-%m-%d)"
-git push origin $(git branch --show-current)
+git push origin "$(git branch --show-current)"
 ```
 
 **Rationale**: Prevents work loss due to hardware failure, machine changes, or accidental deletion.
@@ -981,7 +981,7 @@ git rebase origin/main
 git rebase --continue
 
 # Force push (with lease for safety)
-git push --force-with-lease origin $(git branch --show-current)
+git push --force-with-lease origin "$(git branch --show-current)"
 ```
 
 **Rationale**: Prevents integration delays and merge conflicts during PR merge. PRs with conflicts waste reviewer time.
@@ -1137,7 +1137,7 @@ git rebase origin/main --exec "git commit --amend --no-edit -s"
 git commit --amend -s
 
 # Push with force (after rebase)
-git push --force-with-lease origin $(git branch --show-current)
+git push --force-with-lease origin "$(git branch --show-current)"
 ```
 
 **Rationale**: DCO is a legal requirement for open-source contributions, certifying you have the right to submit the code.
@@ -1191,7 +1191,7 @@ Iteration branches MUST follow naming pattern: `{original-branch}-v2`, `-v3`, et
 **Validation**:
 ```bash
 BRANCH=$(git branch --show-current 2>/dev/null)
-if echo "$BRANCH" | grep -Eq '\-v[0-9]+$'; then
+if echo "$BRANCH" | grep -Eq '\-v[0-9][0-9]*$'; then
   # This is an iteration branch - validate base exists
   # Use [0-9][0-9]* to require at least one digit for consistency
   BASE_BRANCH=$(echo "$BRANCH" | sed 's/-v[0-9][0-9]*$//')
@@ -2299,7 +2299,7 @@ git merge-tree $(git merge-base HEAD origin/main) HEAD origin/main | grep -q "^<
 ```
 ⚠️  Warning: Current branch is not pushed to remote.
 Please push your branch first:
-  git push -u origin $(git branch --show-current)
+  git push -u origin "$(git branch --show-current)"
 
 [X] Phase 6 Failed: Branch not pushed to remote
 ```
@@ -2499,12 +2499,12 @@ CURRENT_BRANCH=$(git branch --show-current)
 # Calculate next version using portable extraction (works in bash 3.2+)
 # Extract version number using sed for better portability
 # Use [0-9][0-9]* to require at least one digit (not [0-9]* which matches zero)
-VERSION=$(echo "$CURRENT_BRANCH" | sed -n 's/.*-v\([0-9][0-9]*\)$/\1/p')
+VERSION=$(printf '%s\n' "$CURRENT_BRANCH" | sed -n 's/.*-v\([0-9][0-9]*\)$/\1/p')
 
 if [ -n "$VERSION" ]; then
   # Already an iteration branch (e.g., hostname/task-123/feature-v2)
   NEXT_VERSION=$((VERSION + 1))
-  BASE_BRANCH=$(echo "$CURRENT_BRANCH" | sed 's/-v[0-9][0-9]*$//')
+  BASE_BRANCH=$(printf '%s\n' "$CURRENT_BRANCH" | sed 's/-v[0-9][0-9]*$//')
   ITERATION_BRANCH="${BASE_BRANCH}-v${NEXT_VERSION}"
 else
   # First iteration (e.g., hostname/task-123/feature -> hostname/task-123/feature-v2)

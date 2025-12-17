@@ -885,7 +885,7 @@ git merge-tree $(git merge-base HEAD origin/main) HEAD origin/main | grep -q "^<
 ```
 ⚠️  Warning: Current branch is not pushed to remote.
 Please push your branch first:
-  git push -u origin $(git branch --show-current)
+  git push -u origin "$(git branch --show-current)"
 
 [X] Phase 6 Failed: Branch not pushed to remote
 ```
@@ -1085,12 +1085,12 @@ CURRENT_BRANCH=$(git branch --show-current)
 # Calculate next version using portable extraction (works in bash 3.2+)
 # Extract version number using sed for better portability
 # Use [0-9][0-9]* to require at least one digit (not [0-9]* which matches zero)
-VERSION=$(echo "$CURRENT_BRANCH" | sed -n 's/.*-v\([0-9][0-9]*\)$/\1/p')
+VERSION=$(printf '%s\n' "$CURRENT_BRANCH" | sed -n 's/.*-v\([0-9][0-9]*\)$/\1/p')
 
 if [ -n "$VERSION" ]; then
   # Already an iteration branch (e.g., hostname/task-123/feature-v2)
   NEXT_VERSION=$((VERSION + 1))
-  BASE_BRANCH=$(echo "$CURRENT_BRANCH" | sed 's/-v[0-9][0-9]*$//')
+  BASE_BRANCH=$(printf '%s\n' "$CURRENT_BRANCH" | sed 's/-v[0-9][0-9]*$//')
   ITERATION_BRANCH="${BASE_BRANCH}-v${NEXT_VERSION}"
 else
   # First iteration (e.g., hostname/task-123/feature -> hostname/task-123/feature-v2)

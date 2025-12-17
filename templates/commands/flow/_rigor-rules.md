@@ -550,7 +550,7 @@ fi
 UNPUSHED=$(git log @{u}.. --oneline 2>/dev/null | wc -l || echo 0)
 if [ "$UNPUSHED" -gt 0 ]; then
   echo "[X] FREEZE-002 VIOLATION: $UNPUSHED unpushed commits"
-  echo "Remediation: git push origin $(git branch --show-current)"
+  echo "Remediation: git push origin "$(git branch --show-current)""
 fi
 ```
 
@@ -559,7 +559,7 @@ fi
 # Commit and push all changes
 git add .
 git commit -s -m "wip: freeze checkpoint - $(date +%Y-%m-%d)"
-git push origin $(git branch --show-current)
+git push origin "$(git branch --show-current)"
 ```
 
 **Rationale**: Prevents work loss due to hardware failure, machine changes, or accidental deletion.
@@ -758,7 +758,7 @@ git rebase origin/main
 git rebase --continue
 
 # Force push (with lease for safety)
-git push --force-with-lease origin $(git branch --show-current)
+git push --force-with-lease origin "$(git branch --show-current)"
 ```
 
 **Rationale**: Prevents integration delays and merge conflicts during PR merge. PRs with conflicts waste reviewer time.
@@ -914,7 +914,7 @@ git rebase origin/main --exec "git commit --amend --no-edit -s"
 git commit --amend -s
 
 # Push with force (after rebase)
-git push --force-with-lease origin $(git branch --show-current)
+git push --force-with-lease origin "$(git branch --show-current)"
 ```
 
 **Rationale**: DCO is a legal requirement for open-source contributions, certifying you have the right to submit the code.
@@ -968,7 +968,7 @@ Iteration branches MUST follow naming pattern: `{original-branch}-v2`, `-v3`, et
 **Validation**:
 ```bash
 BRANCH=$(git branch --show-current 2>/dev/null)
-if echo "$BRANCH" | grep -Eq '\-v[0-9]+$'; then
+if echo "$BRANCH" | grep -Eq '\-v[0-9][0-9]*$'; then
   # This is an iteration branch - validate base exists
   # Use [0-9][0-9]* to require at least one digit for consistency
   BASE_BRANCH=$(echo "$BRANCH" | sed 's/-v[0-9][0-9]*$//')
