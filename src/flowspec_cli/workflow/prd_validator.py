@@ -72,7 +72,7 @@ AC_PATTERN = re.compile(r"(?:AC\d+:?|[-*]\s*\[[ x]\])\s*.+", re.IGNORECASE)
 #   - | Example | examples/{path} | Description | (placeholder path)
 #   - | Example | examples/path | {Description} | (placeholder description)
 # Column 1 (Name): negative lookahead (?![^|]*[{}]) rejects if either brace present
-# Column 2 (Location): Pattern allows optional backticks around examples/ path, rejects curly braces anywhere in column
+# Column 2 (Location): Allows optional backticks around the examples/ path but rejects curly braces and backticks within the path content itself
 # Column 3 (Description): negative lookahead (?![^|]*[{}]) rejects if either brace present
 EXAMPLE_REFERENCE_PATTERN = re.compile(
     r"^\s*\|(?![^|]*[{}])[^|]+\|[^|{}]*`?examples/[^|`{}]+`?[^|{}]*\|(?![^|]*[{}])[^|]+\|",
