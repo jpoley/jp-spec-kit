@@ -29,40 +29,54 @@ backlog task edit 42 -s Done     # Complete task
 
 ```bash
 # Workflow Commands (stateful, sequential stages)
-/flow:assess    # Evaluate SDD workflow suitability
-/flow:specify   # Create/update feature specs
-/flow:research  # Research and validation
-/flow:plan      # Execute planning workflow
-/flow:implement # Implementation with code review
-/flow:validate  # QA, security, docs validation
-/flow:operate   # SRE operations (CI/CD, K8s)
+/flow:assess       # Evaluate SDD workflow suitability
+/flow:specify      # Create/update feature specs
+/flow:research     # Research and validation
+/flow:plan         # Execute planning workflow
+/flow:implement    # Implementation with code review
+/flow:validate     # QA, security, docs validation
+/flow:operate      # SRE operations (CI/CD, K8s)
+
+# Specification & Analysis Commands
+/flow:analyze      # Cross-artifact consistency analysis
+/flow:checklist    # Generate custom checklist for feature
+/flow:clarify      # Identify underspecified areas, ask clarification questions
+/flow:tasks        # Generate dependency-ordered task backlog
 
 # Setup & Configuration Commands
-/flow:init      # Initialize constitution (greenfield/brownfield)
-/flow:reset     # Re-run workflow configuration prompts
-/flow:intake    # Process INITIAL docs to create backlog tasks with context
-/flow:generate-prp  # Generate PRP context bundle from task artifacts
-/flow:map-codebase  # Generate bounded directory tree listings for codebase areas
+/flow:init         # Initialize constitution (greenfield/brownfield)
+/flow:reset        # Re-run workflow configuration prompts
+/flow:configure    # Configure workflow settings and roles
+/flow:constitution # Analyze repo and create customized constitution
+/flow:intake       # Process INITIAL docs to create backlog tasks
+/flow:generate-prp # Generate PRP context bundle from artifacts
+/flow:map-codebase # Generate bounded directory tree listings
+
+# Security Commands
+/flow:security_workflow  # Integrate security scanning into workflow
+/flow:security_fix       # Generate patches for vulnerabilities
+/flow:security_triage    # Triage security findings
+/flow:security_report    # Generate security audit report
 
 # Utility Commands (stateless, run anytime)
-/dev:debug          # Debugging assistance
-/dev:refactor       # Refactoring guidance
-/dev:cleanup        # Prune merged branches
+/dev:debug         # Debugging assistance
+/dev:refactor      # Refactoring guidance
+/dev:cleanup       # Prune merged branches
 
-/sec:scan           # Security scanning
-/sec:triage         # Triage findings
-/sec:fix            # Apply security patches
-/sec:report         # Generate security report
+/sec:scan          # Security scanning
+/sec:triage        # Triage findings
+/sec:fix           # Apply security patches
+/sec:report        # Generate security report
 
-/arch:decide        # Create ADRs
-/arch:model         # Create data models, API contracts
+/arch:decide       # Create ADRs
+/arch:model        # Create data models, API contracts
 
-/ops:monitor        # Setup monitoring
-/ops:respond        # Incident response
-/ops:scale          # Scaling guidance
+/ops:monitor       # Setup monitoring
+/ops:respond       # Incident response
+/ops:scale         # Scaling guidance
 
-/qa:test            # Execute tests
-/qa:review          # Generate checklist
+/qa:test           # Execute tests
+/qa:review         # Generate checklist
 ```
 
 ## Engineering Subagents
@@ -118,6 +132,29 @@ Flowspec includes specialized engineering subagents for implementation tasks. Th
 **Use for**: Security reviews, vulnerability scanning, compliance checks, threat analysis
 
 **Note**: Security reviewer has **read-only** access to code. It analyzes and reports findings but does not make code changes directly.
+
+### Language Expert Agents
+
+Flowspec includes language-specific expert agents for each supported programming language. These agents provide deep expertise in language idioms, best practices, and ecosystem tools.
+
+| Language | Agent | Expertise |
+|----------|-------|-----------|
+| C | `lang-c` | Systems programming, embedded, memory management |
+| C# | `lang-csharp` | .NET, ASP.NET Core, enterprise applications |
+| C++ | `lang-cpp` | Modern C++, systems programming, performance |
+| Go | `lang-go` | Cloud-native, microservices, concurrency |
+| Java | `lang-java` | Spring Boot, enterprise, cloud-native |
+| Kotlin | `lang-kotlin` | Android, Spring Boot, multiplatform |
+| Mobile | `lang-mobile` | iOS (Swift), Android (Kotlin), cross-platform |
+| Python | `lang-python` | Web development, data engineering, FastAPI |
+| Rust | `lang-rust` | Systems programming, WebAssembly, safety |
+| Systems | `lang-systems` | OS development, embedded, low-level |
+| TypeScript | `lang-typescript` | Full-stack, Node.js, React, Next.js |
+| Web | `lang-web` | HTML, CSS, accessibility, web standards |
+
+**Locations**:
+- Claude: `.claude/agents/lang-{language}.md`
+- GitHub Copilot: `.github/agents/lang-{language}.agent.md`
 
 ### Agent Invocation
 

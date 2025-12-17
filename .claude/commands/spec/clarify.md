@@ -1,1 +1,0 @@
-../../../templates/commands/spec/clarify.md

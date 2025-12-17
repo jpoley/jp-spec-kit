@@ -48,7 +48,7 @@ Choosing the right tier ensures your constitution **helps** rather than **hinder
    └─> Run `flowspec init my-project --constitution medium`
 
 2. Customize Constitution
-   └─> Run `/spec:constitution` (LLM detects your tech stack)
+   └─> Run `/flow:constitution` (LLM detects your tech stack)
 
 3. Validate Auto-Generated Content
    └─> Run `specify constitution validate`
@@ -329,10 +329,10 @@ flowspec init my-project --constitution medium
 
 ```bash
 # Use the slash command
-/spec:constitution
+/flow:constitution
 
 # With tier override
-/spec:constitution --tier heavy
+/flow:constitution --tier heavy
 ```
 
 **When to use manual customization:**
@@ -1249,7 +1249,7 @@ specify constitution validate
 specify constitution validate --json
 
 # Run LLM customization
-/spec:constitution
+/flow:constitution
 
 # Upgrade Flowspec (detects missing constitutions)
 flowspec upgrade

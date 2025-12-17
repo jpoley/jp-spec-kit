@@ -1,1 +1,0 @@
-../../../templates/commands/spec/specify.md

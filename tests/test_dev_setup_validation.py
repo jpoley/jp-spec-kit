@@ -27,9 +27,9 @@ import pytest
 # Role-based command namespace directories (from flowspec_workflow.yml)
 # These are the expected subdirectories in .claude/commands/
 # NOTE: PM role removed - PM work is done via /flowspec workflow commands
+# NOTE: spec namespace removed - all spec commands consolidated into /flow:* namespace
 EXPECTED_COMMAND_NAMESPACES = {
     "flow",
-    "spec",
     "arch",
     "dev",
     "ops",
@@ -299,11 +299,14 @@ class TestSubdirectoryStructure:
     """
 
     def test_expected_subdirectories_exist(self, claude_commands_dir: Path) -> None:
-        """Verify expected subdirectories exist in .claude/commands/ (R7)."""
+        """Verify expected subdirectories exist in .claude/commands/ (R7).
+
+        Note: spec namespace was removed - all spec commands consolidated into /flow:* namespace.
+        """
         if not claude_commands_dir.exists():
             pytest.skip("No .claude/commands directory - dev-setup not initialized")
 
-        expected_dirs = {"flow", "spec"}
+        expected_dirs = {"flow"}
         missing_dirs = {
             d for d in expected_dirs if not (claude_commands_dir / d).exists()
         }
@@ -318,8 +321,9 @@ class TestSubdirectoryStructure:
     def test_no_unexpected_subdirectories(self, claude_commands_dir: Path) -> None:
         """Verify no unexpected subdirectories exist in .claude/commands/ (R7).
 
-        Expected namespaces include flowspec, spec, and role-based directories
+        Expected namespaces include flowspec and role-based directories
         (arch, dev, ops, qa, sec) as defined in flowspec_workflow.yml.
+        Note: spec namespace was removed - all spec commands consolidated into /flow:* namespace.
         """
         if not claude_commands_dir.exists():
             pytest.skip("No .claude/commands directory - dev-setup not initialized")
@@ -356,11 +360,13 @@ class TestDevSetupDirectoryStructure:
     """Integration tests for complete dev-setup validation."""
 
     def test_dev_setup_directory_structure_complete(self, project_root: Path) -> None:
-        """Verify complete dev-setup directory structure exists."""
+        """Verify complete dev-setup directory structure exists.
+
+        Note: spec namespace was removed - all spec commands consolidated into /flow:* namespace.
+        """
         required_paths = [
             ".claude/commands",
             ".claude/commands/flow",
-            ".claude/commands/spec",
             "templates/commands",
             "templates/commands/flow",
         ]

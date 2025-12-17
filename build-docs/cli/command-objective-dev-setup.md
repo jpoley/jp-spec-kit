@@ -4,7 +4,7 @@
 Set up the flowspec source repository for development by creating symlinks to template commands.
 
 ## Objective
-Enable flowspec developers to use the repository's own /spec:* and /flow:* commands during development without installing the package.
+Enable flowspec developers to use the repository's own /flow:* and /flow:* commands during development without installing the package.
 
 ## IMPORTANT: Scope Limitation
 **This command is ONLY for developing flowspec itself.** It is NOT for end users setting up their projects. End users should use `flowspec init` instead.

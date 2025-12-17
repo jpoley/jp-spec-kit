@@ -20,9 +20,9 @@ import pytest
 # Role-based command namespace directories (from flowspec_workflow.yml)
 # These are the expected subdirectories in .claude/commands/
 # NOTE: PM role removed - PM work is done via /flowspec workflow commands
+# NOTE: spec namespace removed - all spec commands consolidated into /flow:* namespace
 EXPECTED_COMMAND_NAMESPACES = {
     "flow",
-    "spec",
     "arch",
     "dev",
     "ops",
@@ -218,17 +218,12 @@ class TestSubdirectoryStructure:
         assert flowspec_dir.exists(), "flowspec subdirectory does not exist"
         assert flowspec_dir.is_dir(), "flowspec is not a directory"
 
-    def test_spec_subdirectory_exists(self, claude_commands_dir: Path) -> None:
-        """Test spec subdirectory exists in .claude/commands/."""
-        spec_dir = claude_commands_dir / "spec"
-        assert spec_dir.exists(), "spec subdirectory does not exist"
-        assert spec_dir.is_dir(), "spec is not a directory"
-
     def test_no_extra_subdirectories(self, claude_commands_dir: Path) -> None:
         """Test only expected command namespace subdirectories exist.
 
-        Expected namespaces include flowspec, spec, and role-based directories
+        Expected namespaces include flowspec and role-based directories
         (arch, dev, ops, qa, sec) as defined in flowspec_workflow.yml.
+        Note: spec namespace was removed - all spec commands consolidated into /flow:* namespace.
         """
         if not claude_commands_dir.exists():
             pytest.skip("No .claude/commands directory")
@@ -246,20 +241,31 @@ class TestSubdirectoryStructure:
     def test_templates_subdirectory_structure_matches(
         self, templates_dir: Path
     ) -> None:
-        """Test templates directory has matching flowspec and spec subdirectories."""
+        """Test templates directory has flow subdirectory with commands.
+
+        Note: spec namespace was removed - all spec commands consolidated into /flow:* namespace.
+        """
         flowspec_templates = templates_dir / "flow"
         assert flowspec_templates.exists(), "templates/commands/flow does not exist"
         assert flowspec_templates.is_dir(), "templates/commands/flow is not a directory"
 
         flowspec_files = list(flowspec_templates.glob("*.md"))
         assert len(flowspec_files) > 0, "No flowspec template files found"
-
-        spec_templates = templates_dir / "spec"
-        assert spec_templates.exists(), "templates/commands/spec does not exist"
-        assert spec_templates.is_dir(), "templates/commands/spec is not a directory"
-
-        spec_files = list(spec_templates.glob("*.md"))
-        assert len(spec_files) > 0, "No spec template files found"
+        # Verify flow commands include the consolidated spec commands
+        flow_command_names = {f.stem for f in flowspec_files}
+        expected_flow_commands = {
+            "analyze",
+            "checklist",
+            "clarify",
+            "configure",
+            "constitution",
+            "tasks",
+        }
+        assert expected_flow_commands.issubset(flow_command_names), (
+            f"Missing consolidated spec commands in flow.\n"
+            f"Expected: {expected_flow_commands}\n"
+            f"Found: {flow_command_names}"
+        )
 
     def test_no_direct_files_in_commands_root(self, claude_commands_dir: Path) -> None:
         """Test no direct .md files exist in .claude/commands/ root."""
@@ -334,7 +340,7 @@ class TestDevSetupSymlinkValidation:
         """Test all symlinks resolve to existing files (R2)."""
         broken_symlinks: list[str] = []
 
-        for subdir in ["flow", "spec"]:
+        for subdir in ["flow"]:
             subdir_path = claude_commands_dir / subdir
             if not subdir_path.exists():
                 continue
@@ -396,11 +402,12 @@ class TestDevSetupIdempotency:
         Supports two symlink strategies:
         1. Directory-level symlink: the directory itself is a symlink
         2. File-level symlinks: individual files are symlinks
+
+        Note: spec namespace was removed - all spec commands consolidated into /flow:* namespace.
         """
         flowspec_dir = claude_commands_dir / "flow"
-        spec_dir = claude_commands_dir / "spec"
 
-        if not flowspec_dir.exists() or not spec_dir.exists():
+        if not flowspec_dir.exists():
             pytest.skip("dev-setup not initialized")
 
         # For directory-level symlinks, check the directory is symlinked
@@ -412,17 +419,11 @@ class TestDevSetupIdempotency:
                 [f for f in flowspec_dir.glob("*.md") if f.is_symlink()]
             )
 
-        if spec_dir.is_symlink():
-            spec_count = len(list(spec_dir.glob("*.md")))
-        else:
-            spec_count = len([f for f in spec_dir.glob("*.md") if f.is_symlink()])
-
         assert flowspec_count > 0, "No flowspec commands found"
-        assert spec_count > 0, "No spec commands found"
 
     def test_no_duplicate_symlinks(self, claude_commands_dir: Path) -> None:
         """Test no duplicate symlink names exist."""
-        for subdir in ["flow", "spec"]:
+        for subdir in ["flow"]:
             subdir_path = claude_commands_dir / subdir
             if not subdir_path.exists():
                 continue
@@ -438,7 +439,7 @@ class TestDevSetupIdempotency:
         """Test symlinks use relative paths for portability."""
         absolute_symlinks: list[str] = []
 
-        for subdir in ["flow", "spec"]:
+        for subdir in ["flow"]:
             subdir_path = claude_commands_dir / subdir
             if not subdir_path.exists():
                 continue

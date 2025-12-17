@@ -150,7 +150,7 @@ LLM-based detection analyzes file patterns and package.json/requirements.txt but
 **Prevention**:
 - Keep devDependencies clean (remove unused tools)
 - Document tool choices in constitution
-- Run `/spec:constitution` after major tool changes
+- Run `/flow:constitution` after major tool changes
 
 ---
 
@@ -303,7 +303,7 @@ $ grep -n "NEEDS_VALIDATION" memory/constitution.md
 cp memory/constitution.md memory/constitution.md.backup
 
 # Re-run LLM customization
-/spec:constitution
+/flow:constitution
 
 # Merge your custom content back
 ```
@@ -859,10 +859,10 @@ jobs:
 
 ---
 
-### Problem: `/spec:constitution` command not available in Claude
+### Problem: `/flow:constitution` command not available in Claude
 
 **Symptoms**:
-- Typing `/spec:constitution` does nothing
+- Typing `/flow:constitution` does nothing
 - Command not in slash command menu
 - LLM doesn't customize constitution
 
@@ -917,7 +917,7 @@ cat .claude/commands/spec/constitution.md
 
 **Alternative: Manual LLM customization:**
 
-If `/spec:constitution` unavailable, manually ask LLM:
+If `/flow:constitution` unavailable, manually ask LLM:
 
 ```
 Please analyze my project and customize memory/constitution.md:
@@ -979,7 +979,7 @@ flowspec init my-project --constitution medium   # New project with tier
 flowspec init --here                             # Add to existing project
 
 # LLM customization
-/spec:constitution                           # Run LLM detection
+/flow:constitution                           # Run LLM detection
 
 # Upgrade
 flowspec upgrade                                 # Upgrade Flowspec
@@ -997,7 +997,7 @@ templates/constitutions/                # Template source files
   ├── constitution-light.md
   ├── constitution-medium.md
   └── constitution-heavy.md
-.claude/commands/spec/constitution.md # /spec:constitution command
+.claude/commands/spec/constitution.md # /flow:constitution command
 ```
 
 ### Exit Codes

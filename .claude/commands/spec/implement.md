@@ -1,1 +1,0 @@
-../../../templates/commands/spec/implement.md
