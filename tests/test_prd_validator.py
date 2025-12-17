@@ -366,6 +366,57 @@ No examples provided yet.
         assert any("example references" in e.lower() for e in result.errors)
         assert result.example_count == 0
 
+    def test_validate_placeholder_example_references_excluded(
+        self,
+        validator: PRDValidator,
+        tmp_path: Path,
+    ) -> None:
+        """Test that placeholder rows with curly braces are excluded from example count."""
+        content = """# PRD: Auth
+
+## Executive Summary
+
+Summary.
+
+## Problem Statement
+
+Problem.
+
+## User Stories
+
+As a user, I want to login so that I can access.
+
+## Functional Requirements
+
+Requirements.
+
+## Non-Functional Requirements
+
+NFR.
+
+## Success Metrics
+
+Metrics.
+
+## All Needed Context
+
+### Examples
+
+| Example | Location | Relevance to This Feature |
+|---------|----------|---------------------------|
+| {Example name} | `examples/{path}` | {How this example relates} |
+| {Another example} | examples/{another/path} | {Description} |
+"""
+        prd_file = tmp_path / "auth.md"
+        prd_file.write_text(content)
+
+        result = validator.validate_prd(prd_file)
+
+        # Placeholder rows should be excluded, so example_count should be 0
+        assert result.example_count == 0
+        assert not result.is_valid
+        assert any("example references" in e.lower() for e in result.errors)
+
     def test_validate_empty_section(
         self,
         validator: PRDValidator,
