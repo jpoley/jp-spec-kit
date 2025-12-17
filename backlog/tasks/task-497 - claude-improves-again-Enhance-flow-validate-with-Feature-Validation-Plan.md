@@ -5,7 +5,7 @@ status: To Do
 assignee:
   - '@muckross'
 created_date: '2025-12-14 03:06'
-updated_date: '2025-12-15 01:50'
+updated_date: '2025-12-17 01:28'
 labels:
   - context-engineering
   - commands
@@ -25,9 +25,9 @@ Source: docs/research/archon-inspired.md Task 10
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 /flow:validate locates PRD or PRP for active task
-- [ ] #2 Extracts Feature Validation Plan section using context helper
-- [ ] #3 Runs validation commands or prints them for manual execution
-- [ ] #4 Updates backlog task notes with validation results
-- [ ] #5 Updates task memory with Current State and Latest validation run
+- [x] #1 /flow:validate locates PRD or PRP for active task
+- [x] #2 Extracts Feature Validation Plan section using context helper
+- [x] #3 Runs validation commands or prints them for manual execution
+- [x] #4 Updates backlog task notes with validation results
+- [x] #5 Updates task memory with Current State and Latest validation run
 <!-- AC:END -->

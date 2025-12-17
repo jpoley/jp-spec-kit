@@ -46,6 +46,7 @@ If the task doesn't have the required workflow state, inform the user:
 This command orchestrates a phased validation workflow:
 
 - **Phase 0: Task Discovery & Load** - Find/load target task
+- **Phase 0.5: Feature Validation Plan Extraction** - Extract and execute FVP from PRD/PRP
 - **Phase 1: Automated Testing** - Run tests, linting, type checks
 - **Phase 2: Agent Validation (Parallel)** - QA Guardian + Security Engineer
 - **Phase 3: Documentation** - Technical Writer agent
@@ -111,6 +112,369 @@ backlog task <task-id> --plain
    Title: Integration - Enhanced /flow:validate Command
    Status: In Progress
    ACs: 0/8 complete
+```
+
+---
+
+### Phase 0.5: Feature Validation Plan Extraction
+
+**Report progress**: Print "Phase 0.5: Extracting Feature Validation Plan from PRD/PRP..."
+
+This phase locates the task's PRD or PRP file and extracts the Feature Validation Plan section to get feature-specific validation commands.
+
+#### Step 1: Locate PRD or PRP File
+
+Search for PRD/PRP files related to the current task using this priority order:
+
+```bash
+# Extract task ID number
+TASK_NUM=$(echo "$TASK_ID" | grep -oE '[0-9]+')
+
+# Initialize SPEC_FILE variable
+SPEC_FILE=""
+
+# Priority 1: Task-specific PRP with "task-" prefix
+PRP_FILE_PRIMARY="docs/prp/task-${TASK_NUM}.md"
+
+# Priority 2: Task-specific PRP without prefix
+PRP_FILE_ALT="docs/prp/${TASK_ID}.md"
+
+# Search with priority order
+if [ -f "$PRP_FILE_PRIMARY" ]; then
+  SPEC_FILE="$PRP_FILE_PRIMARY"
+  echo "✅ Found PRP: $SPEC_FILE"
+
+elif [ -f "$PRP_FILE_ALT" ]; then
+  SPEC_FILE="$PRP_FILE_ALT"
+  echo "✅ Found PRP (alternate format): $SPEC_FILE"
+
+else
+  # Priority 3: PRD files that mention this task
+  # First, search for the numeric task reference pattern (safe - TASK_NUM is digits only)
+  PRD_FILE=$(find docs/prd/ -name "*.md" -type f -print0 2>/dev/null \
+    | xargs -0 grep -l -E "task-${TASK_NUM}\b" 2>/dev/null \
+    | head -n 1 || true)
+
+  # If not found, search for TASK_ID as a literal string (use -F to avoid injection)
+  if [ -z "$PRD_FILE" ] && [ -n "$TASK_ID" ]; then
+    PRD_FILE=$(find docs/prd/ -name "*.md" -type f -print0 2>/dev/null \
+      | xargs -0 grep -l -F -- "$TASK_ID" 2>/dev/null \
+      | head -n 1 || true)
+  fi
+
+  if [ -n "$PRD_FILE" ]; then
+    SPEC_FILE="$PRD_FILE"
+    echo "✅ Found PRD referencing task: $SPEC_FILE"
+  else
+    echo "ℹ️ No PRP/PRD file found for ${TASK_ID}; skipping Feature Validation Plan extraction."
+  fi
+fi
+```
+
+**File Search Priority**:
+1. Task-specific PRP: `docs/prp/task-{task-num}.md`
+2. Task-specific PRP (alternate): `docs/prp/{task-id}.md`
+3. PRD files mentioning the task in docs/prd/
+4. No file found (skip this phase gracefully)
+
+#### Step 2: Extract Feature Validation Plan Section
+
+If a spec file is found (`$SPEC_FILE` is not empty), extract the "Feature Validation Plan" or "VALIDATION LOOP" section:
+
+```bash
+# Only proceed if we found a spec file
+if [ -n "$SPEC_FILE" ]; then
+  # Extract the Feature Validation Plan section using awk
+  # Uses flag-based approach to avoid including next section header
+  # Note: awk ERE supports | alternation without escaping
+  FVP_SECTION=$(awk '
+    /^## Feature Validation Plan/ || /^## VALIDATION LOOP/ { in_section=1; print; next }
+    /^## / && in_section { exit }
+    in_section { print }
+  ' "$SPEC_FILE")
+
+  if [ -z "$FVP_SECTION" ]; then
+    echo "ℹ️ No Feature Validation Plan section found in: $SPEC_FILE"
+  else
+    echo "✅ Found Feature Validation Plan section"
+  fi
+fi
+```
+
+**Expected Section Structure** (from PRD or PRP):
+
+```markdown
+## Feature Validation Plan
+
+### Commands
+pytest tests/path/to/feature/ -v
+ruff check src/path/to/feature/
+
+### Expected Success
+All tests pass, no linting errors
+
+### Known Failure Modes
+Test may fail if database not initialized
+```
+
+#### Step 3: Parse Validation Commands
+
+Extract the commands from the "Commands" subsection.
+
+> **Important**: Commands should be listed directly without code block wrappers (no triple backticks).
+> The parser looks for lines starting with command names (pytest, ruff, etc.) and will NOT
+> correctly extract commands wrapped in markdown code blocks.
+>
+> **Correct format:**
+> ```
+> ### Commands
+> pytest tests/feature/ -v
+> ruff check src/feature/
+> ```
+>
+> **Incorrect format** (commands inside code blocks will be filtered out during parsing):
+> ```
+> ### Commands
+> ```bash
+> pytest tests/feature/ -v
+> ```
+> ```
+
+```bash
+# Check if FVP_SECTION was extracted before parsing
+if [ -z "$FVP_SECTION" ]; then
+  echo "ℹ️ Feature Validation Plan section is missing or empty; skipping command extraction."
+  VALIDATION_COMMANDS=""
+else
+  # Extract commands from the Commands subsection
+  # Looks for lines after "### Commands" until the next "###" header or section end
+  # Pattern matches:
+  #   - Lines starting with non-whitespace, non-hash chars (direct commands)
+  #   - Indented non-comment lines with actual content (strips leading whitespace)
+  # Filters out:
+  #   - Code block markers via /^```([[:alnum:]_+-]+)?[[:space:]]*$/ which matches fences with optional language and trailing whitespace
+  #   - Code blocks are supported but not recommended; this logic defensively skips fenced blocks
+  VALIDATION_COMMANDS=$(echo "$FVP_SECTION" | awk '
+    BEGIN { in_cmds=0; in_code_block=0 }
+    /^### Commands/ { in_cmds=1; next }
+    /^###/ && in_cmds { exit }
+    /^## / && in_cmds { exit }
+    in_cmds && /^```([[:alnum:]_+-]+)?[[:space:]]*$/ { in_code_block = !in_code_block; next }  # Toggle on fence lines (``` with optional language and whitespace)
+    in_cmds && in_code_block { next }  # Skip all lines inside fenced code blocks
+    in_cmds && /^[^#[:space:]]/ { print }
+    in_cmds && /^[[:space:]]+[^#[:space:]]/ { gsub(/^[[:space:]]+/, ""); if (NF > 0) print }
+  ')
+
+  if [ -z "$VALIDATION_COMMANDS" ]; then
+    echo "ℹ️ No validation commands found in Feature Validation Plan"
+  fi
+fi
+```
+
+Store the extracted commands for immediate execution in Phase 0.5 (Feature Validation Plan execution before Phase 1).
+
+#### Step 4: Display Validation Commands to User
+
+Present the feature-specific validation commands to the user:
+
+```
+📋 Feature Validation Plan found in: docs/prp/task-094.md
+
+Validation Commands:
+--------------------------------------------------------------------------------
+pytest tests/flowspec_cli/test_validate_command.py -v
+pytest tests/integration/test_validate_workflow.py -v
+ruff check src/flowspec_cli/commands/validate.py
+flowspec validate --help
+--------------------------------------------------------------------------------
+
+Do you want to:
+1. Run these commands automatically (with safety validation)
+2. Print commands for manual execution
+3. Skip and use default test suite
+
+Choice [1/2/3]:
+```
+
+#### Step 5: Execute or Print Commands
+
+Based on user choice:
+
+**Option 1: Run automatically (with safety validation)**
+
+> **Security requirement**: Commands from PRD/PRP markdown files must be validated before execution.
+
+```bash
+# Allowlist of safe command patterns (customize per project)
+# Patterns are anchored at both start and end for security
+# Note: ( .*)? allows optional space and arguments (tolerant of trailing whitespace)
+# Security assumption: npm run/test assumes package.json scripts are trusted.
+#   The allowlist validates command format but not the script content itself.
+SAFE_PATTERNS=(
+  "^pytest( .*)?$"
+  "^ruff( .*)?$"
+  "^mypy( .*)?$"
+  "^flowspec( .*)?$"
+  "^npm test( .*)?$"
+  "^npm run (@[a-z0-9_-]+/)?[A-Za-z_][A-Za-z0-9:._-]*( .*)?$"
+  "^cargo test( .*)?$"
+  "^go test( .*)?$"
+)
+
+# Dangerous shell metacharacters that should not appear in commands
+# These could allow command injection even if prefix matches
+# Includes: semicolon, pipe, ampersand, dollar, backtick, backslash,
+#           parentheses, braces, angle brackets, quotes, whitespace controls
+# Note: '$' is intentionally included to block variable expansion. This also
+#       blocks otherwise-safe commands containing literal $ (e.g., grep patterns).
+# Note: In ANSI-C quoting ($'...'), '\\\\' represents two backslashes in the
+#       string literal, which the regex engine interprets as a single escaped
+#       backslash matching a literal '\' character.
+# Note: Single and double quotes are blocked to prevent shell interpretation attacks
+#       when commands are executed via bash -c.
+#
+# Design trade-off: Security over flexibility. Blocking these characters prevents
+# command injection but also blocks some legitimate use cases. Workarounds:
+#   - Backslash in test filters (pytest -k "test\d+"): Use pytest markers or
+#     literal character classes like [0-9] instead of \d
+#   - Dollar sign in grep patterns: Run grep manually or use Option 2 (print commands)
+#   - Quoted arguments (pytest -k "name"): Run manually or use Option 2
+#   - Commands with shell features: Use Option 2 to print and run manually
+DANGEROUS_CHARS=$'[;|&$`\\\\(){}\'\"<>\t\n\r\v\f]'
+
+# Validate each command against allowlist
+validate_command() {
+  local cmd="$1"
+
+  # First check for dangerous shell metacharacters
+  if [[ "$cmd" =~ $DANGEROUS_CHARS ]]; then
+    echo "⚠️ Security: Command contains shell metacharacters: $cmd"
+    return 1  # Reject commands with potentially dangerous chars
+  fi
+
+  # Check for path traversal attempts (e.g., pytest ../../etc/passwd)
+  # Pattern requires "/" or boundary adjacent to ".." to catch actual path traversal:
+  #   - Matches: /../, /.. at end or before space, ../ at start or after space
+  #   - Does NOT match: test..py, 1..10, file...name (consecutive dots without /)
+  # Limitation: Does not catch URL-encoded (%2e%2e) or UTF-8 encoded traversal.
+  #   Such attacks are mitigated by the allowlist and DANGEROUS_CHARS checks.
+  if [[ "$cmd" =~ (^|[[:space:]])\.\.(/|[[:space:]]|$) || "$cmd" =~ /\.\.(/|[[:space:]]|$) ]]; then
+    echo "⚠️ Security: Command contains path traversal (..): $cmd"
+    return 1  # Reject commands with path traversal
+  fi
+
+  # Then check against allowlist patterns
+  for pattern in "${SAFE_PATTERNS[@]}"; do
+    if [[ "$cmd" =~ $pattern ]]; then
+      return 0  # Safe
+    fi
+  done
+  return 1  # Not in allowlist
+}
+
+# Process commands with validation
+# Use here-string (<<<) instead of pipe to avoid subshell variable scope issues.
+# This allows overall_status to be modified inside the loop and checked after.
+overall_status=0
+while IFS= read -r cmd; do
+  if [ -n "$cmd" ]; then
+    if validate_command "$cmd"; then
+      echo "✅ Validated: $cmd"
+      # Execute the validated command via bash -c for proper argument handling.
+      # Safety relies on validate_command/DANGEROUS_CHARS blocking injection.
+      #
+      # Limitation: File paths with spaces are not supported because quotes are
+      # rejected by the security validation (DANGEROUS_CHARS). Commands with paths
+      # that contain spaces will fail validation, even if quoted.
+      # Best practice: Avoid spaces in test file paths entirely (e.g., rename files).
+      bash -c "$cmd"
+      exit_code=$?
+      if [ "$exit_code" -eq 0 ]; then
+        echo "✅ Command succeeded: $cmd"
+      else
+        echo "❌ Command failed with exit code $exit_code: $cmd"
+        overall_status=1
+      fi
+    else
+      # Security-first: Unknown commands fail the workflow rather than being silently skipped.
+      # This ensures all FVP commands are explicitly validated before execution.
+      # To fix: Add the command pattern to SAFE_PATTERNS, or use Option 2 (manual).
+      echo "⚠️ Command not in allowlist, rejecting: $cmd"
+      echo "   Add to SAFE_PATTERNS if this is a legitimate test command"
+      overall_status=1
+    fi
+  fi
+done <<< "$VALIDATION_COMMANDS"
+
+# Check overall status and halt if any command failed or was rejected
+if [ "$overall_status" -ne 0 ]; then
+  echo "❌ One or more validation commands failed or were rejected. Halting before Phase 1."
+  exit 1
+fi
+```
+
+- Validate commands against allowlist before execution
+- Execute each validated command sequentially
+- Capture output and exit codes
+- Report success/failure for each command
+- Continue to Phase 1 only if all commands pass
+
+**Option 2: Print for manual execution**
+- Display commands with copy-paste friendly format
+- Print "Expected Success" criteria if available
+- Print "Known Failure Modes" if available
+- Pause and wait for user confirmation before Phase 1
+
+**Option 3: Skip**
+- Proceed directly to Phase 1 with standard test suite
+
+#### Step 6: Store Validation Results
+
+If commands were run automatically, store results for Phase 5 task notes:
+
+```bash
+# Store validation results in temporary file or variable
+VALIDATION_RESULTS="Feature Validation Plan Results:
+Command 1: pytest tests/feature/ -v → PASSED (15 tests)
+Command 2: ruff check src/feature/ → PASSED (0 errors)
+Command 3: Custom validation → PASSED
+"
+```
+
+These results will be included in implementation notes during Phase 5.
+
+**Error Handling**:
+- If PRD/PRP file not found: Print info message and skip to Phase 1
+  ```
+  ℹ️ Phase 0.5 Skipped: No PRD/PRP file found for task-094
+     Continuing with standard test suite...
+  ```
+- If Feature Validation Plan section not found: Skip to Phase 1
+  ```
+  ℹ️ Phase 0.5 Skipped: No Feature Validation Plan in PRD/PRP
+     Continuing with standard test suite...
+  ```
+- If any validation command fails: Halt workflow
+  ```
+  [X] Phase 0.5 Failed: Validation command failed
+  Command: pytest tests/feature/ -v
+  Exit Code: 1
+  Output: [test output]
+
+  Workflow halted. Fix the failing tests and re-run /flow:validate
+  ```
+
+**Phase 0.5 Success**: Print summary:
+```
+✅ Phase 0.5 Complete: Feature validation commands executed
+   Source: docs/prp/task-094.md
+   Commands run: 3
+   All validations: PASSED
+```
+
+**Re-run handling**: If feature validation already passed in previous run, skip and print:
+```
+⏭️  Phase 0.5 Skipped: Feature validation already completed
 ```
 
 ---
@@ -605,7 +969,7 @@ backlog task <task-id> --plain
 
 Create comprehensive implementation notes based on:
 - What was implemented (from task description and changes)
-- How it was tested (from Phase 1 test results)
+- How it was tested (from Phase 0.5 FVP + Phase 1 test results)
 - Key decisions made (from agent reports)
 - Validation results (from Phases 2-3)
 
@@ -615,7 +979,17 @@ Create comprehensive implementation notes based on:
 
 ### What Was Implemented
 Enhanced the /flow:validate command with phased orchestration workflow.
-Implemented 7 distinct phases with progress reporting and error handling.
+Implemented 8 distinct phases (Phase 0 through Phase 6, including Phase 0.5) with progress reporting and error handling.
+
+### Feature Validation Plan Results
+[Include results from Phase 0.5 if Feature Validation Plan was found and executed]
+
+Source: docs/prp/task-094.md
+
+Commands executed:
+- pytest tests/flowspec_cli/test_validate_command.py -v → PASSED (15 tests)
+- ruff check src/flowspec_cli/commands/validate.py → PASSED (0 errors)
+- flowspec validate --help → PASSED (help text verified)
 
 ### Testing
 - All unit tests passing (45/45)
@@ -634,6 +1008,8 @@ Implemented 7 distinct phases with progress reporting and error handling.
 - Security Engineer: No critical vulnerabilities
 - Documentation: Updated 2 command files
 ```
+
+**Important**: If Phase 0.5 extracted and ran Feature Validation Plan commands, include those results in the "Feature Validation Plan Results" section. This provides traceable evidence that feature-specific validations were performed.
 
 #### Step 2: Add Implementation Notes
 
@@ -1275,12 +1651,13 @@ If any phase fails, the workflow halts with a clear error message. To recover:
 
 **Workflow Phases**:
 1. **Phase 0: Task Discovery & Load** - Find and load target task
-2. **Phase 1: Automated Testing** - Run tests, linting, type checks
-3. **Phase 2: Agent Validation** - Launch QA Guardian and Security Engineer (parallel)
-4. **Phase 3: Documentation** - Launch Technical Writer agent
-5. **Phase 4: AC Verification** - Verify all acceptance criteria met
-6. **Phase 5: Task Completion** - Generate notes and mark task Done
-7. **Phase 6: PR Generation** - Create pull request with human approval
+2. **Phase 0.5: Feature Validation Plan Extraction** - Extract and execute feature-specific validation from PRD/PRP
+3. **Phase 1: Automated Testing** - Run tests, linting, type checks
+4. **Phase 2: Agent Validation** - Launch QA Guardian and Security Engineer (parallel)
+5. **Phase 3: Documentation** - Launch Technical Writer agent
+6. **Phase 4: AC Verification** - Verify all acceptance criteria met
+7. **Phase 5: Task Completion** - Generate notes and mark task Done
+8. **Phase 6: PR Generation** - Create pull request with human approval
 
 **Examples**:
 
