@@ -20,6 +20,8 @@ This command implements features using specialized engineering agents with integ
 
 {{INCLUDE:.claude/commands/flow/_constitution-check.md}}
 
+{{INCLUDE:.claude/commands/flow/_rigor-rules.md}}
+
 {{INCLUDE:.claude/commands/flow/_workflow-state.md}}
 
 **For /flow:implement**: Required input state is `workflow:Planned`. Output state will be `workflow:In Implementation`.
@@ -184,7 +186,133 @@ OR (not recommended without user approval):
 - Warns that bypassing quality checks may lead to unclear requirements
 - Logs the bypass decision
 
-**Proceed to Phase 0.5 ONLY if quality gate passes or user explicitly approves --force bypass.**
+**Proceed to Phase 0.1 ONLY if quality gate passes or user explicitly approves --force bypass.**
+
+### Phase 0.1: Rigor Rules Enforcement (MANDATORY)
+
+**⚠️ CRITICAL: Branch naming and worktree conventions MUST be validated before implementation begins.**
+
+These rules enforce consistency and enable automation across the team.
+
+#### Validation: Branch Naming Convention
+
+Branch names MUST follow the pattern: `{hostname}/task-{id}/{slug-description}`
+
+```bash
+# Validate branch naming (EXEC-002)
+BRANCH=$(git branch --show-current 2>/dev/null)
+if [ -z "$BRANCH" ]; then
+  echo "[X] RIGOR VIOLATION (EXEC-002): Not on a git branch"
+  echo "Fix: Create a branch following the pattern: hostname/task-NNN/slug-description"
+  exit 1
+fi
+
+if ! [[ "$BRANCH" =~ ^[a-z0-9-]+/task-[0-9]+/[a-z0-9-]+$ ]]; then
+  echo "[X] RIGOR VIOLATION (EXEC-002): Branch name must follow format: hostname/task-NNN/slug-description"
+  echo "Current branch: $BRANCH"
+  echo ""
+  echo "Examples of valid branch names:"
+  echo "  - macbook-pro/task-543/rigor-rules-integration"
+  echo "  - desktop-alice/task-123/user-authentication"
+  echo "  - laptop-bob/task-456/api-endpoints"
+  echo ""
+  echo "Fix: Create a new branch with compliant naming:"
+  HOSTNAME=$(hostname -s | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g')
+  TASK_NUM=$(echo "$BRANCH" | grep -oP 'task-\d+' || echo "NNN")
+  echo "  git checkout -b ${HOSTNAME}/${TASK_NUM}/your-feature-slug"
+  exit 1
+fi
+
+echo "✅ Branch naming validation passed: $BRANCH"
+```
+
+**Why this matters**:
+- **Traceability**: Branch name instantly shows which task it implements
+- **Conflict Prevention**: Hostname prefix prevents naming collisions in multi-developer teams
+- **Automation**: Enables automated task-to-branch linking in CI/CD
+- **Consistency**: Team-wide standard reduces cognitive overhead
+
+#### Validation: Git Worktree
+
+Implementation work MUST be done in a git worktree with matching task ID.
+
+```bash
+# Validate worktree usage (EXEC-001)
+WORKTREE_DIR=$(git rev-parse --show-toplevel 2>/dev/null)
+IS_WORKTREE=$(git worktree list 2>/dev/null | grep -q "$WORKTREE_DIR" && echo "yes" || echo "no")
+
+if [ "$IS_WORKTREE" = "no" ]; then
+  echo "[X] RIGOR VIOLATION (EXEC-001): Not in a git worktree"
+  echo ""
+  echo "Why worktrees matter:"
+  echo "  - Enable parallel feature development"
+  echo "  - No branch-switching overhead"
+  echo "  - Isolate dependencies and state"
+  echo ""
+  echo "Fix: Create worktree matching your branch:"
+  BRANCH=$(git branch --show-current)
+  WORKTREE_NAME=$(basename "$BRANCH")
+  echo "  cd $(git rev-parse --show-toplevel)"
+  echo "  git worktree add ../${WORKTREE_NAME} ${BRANCH}"
+  echo "  cd ../${WORKTREE_NAME}"
+  exit 1
+fi
+
+# Check worktree directory name contains task ID (best practice)
+WORKTREE_NAME=$(basename "$WORKTREE_DIR")
+TASK_ID=$(echo "$BRANCH" | grep -oP 'task-\d+' || echo "")
+
+if [ -z "$TASK_ID" ]; then
+  echo "⚠️  WARNING (EXEC-001): Branch does not contain task ID"
+  echo "Worktree name should match task ID for clarity"
+elif ! echo "$WORKTREE_NAME" | grep -q "$TASK_ID"; then
+  echo "⚠️  WARNING (EXEC-001): Worktree name '$WORKTREE_NAME' does not contain task ID '$TASK_ID'"
+  echo "Consider renaming worktree directory to match task ID"
+else
+  echo "✅ Worktree validation passed: $WORKTREE_NAME"
+fi
+```
+
+**Why this matters**:
+- **Parallel Development**: Work on multiple features without branch switching
+- **State Isolation**: Each worktree has independent working directory and index
+- **Dependency Isolation**: Different virtual environments per worktree
+- **Reduced Context Switching**: No git checkout overhead
+
+#### Validation: Backlog Task Linkage
+
+```bash
+# Validate backlog task exists (EXEC-004)
+TASK_ID=$(echo "$BRANCH" | grep -oP 'task-\d+' || echo "")
+
+if [ -z "$TASK_ID" ]; then
+  echo "[X] RIGOR VIOLATION (EXEC-004): No task ID in branch name"
+  echo "All implementation work must be linked to a backlog task"
+  exit 1
+fi
+
+backlog task "$TASK_ID" --plain > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+  echo "[X] RIGOR VIOLATION (EXEC-004): Backlog task not found: $TASK_ID"
+  echo ""
+  echo "Fix: Create the backlog task first:"
+  echo "  backlog task create 'Feature description' \\"
+  echo "    --ac 'Acceptance criterion 1' \\"
+  echo "    --ac 'Acceptance criterion 2' \\"
+  echo "    -l 'backend' \\"
+  echo "    --priority high"
+  exit 1
+fi
+
+echo "✅ Backlog task validation passed: $TASK_ID"
+```
+
+**Why this matters**:
+- **No Rogue Work**: All coding aligns with planned backlog
+- **Prioritization**: Work is tracked and prioritized
+- **Context Preservation**: Task contains acceptance criteria and context
+
+**Proceed to Phase 0.5 ONLY if all rigor validations pass.**
 
 ### Phase 0.5: Load PRP Context (PRP-First Workflow)
 
@@ -304,6 +432,53 @@ Continue without PRP? [y/N]
 ### Phase 1: Implementation (Parallel Execution)
 
 **IMPORTANT**: Launch applicable engineer agents in parallel for maximum efficiency.
+
+**⚠️ RIGOR RULE (EXEC-003)**: Log all significant decisions during implementation using:
+
+```bash
+./scripts/bash/rigor-decision-log.sh \
+  --task $TASK_ID \
+  --phase execution \
+  --decision "What was decided" \
+  --rationale "Why this choice" \
+  --actor "@<agent-name>" \
+  --alternatives "Alternative1,Alternative2"  # Optional
+```
+
+**When to log a decision**:
+- **Technology choices**: Selected library, framework, or pattern
+- **Architecture changes**: Changed data model, API design, or system structure
+- **Trade-off resolutions**: Chose performance over simplicity, etc.
+- **Deferred work**: Decided to defer optimization, feature, or refactor
+
+**Examples**:
+```bash
+# Example 1: Library selection
+./scripts/bash/rigor-decision-log.sh \
+  --task task-543 \
+  --phase execution \
+  --decision "Use FastAPI for REST API" \
+  --rationale "Better async support, OpenAPI generation" \
+  --actor "@backend-engineer" \
+  --alternatives "Flask,Django"
+
+# Example 2: Architecture decision
+./scripts/bash/rigor-decision-log.sh \
+  --task task-543 \
+  --phase execution \
+  --decision "Split validation into separate phase" \
+  --rationale "Clearer separation of concerns, easier to test" \
+  --actor "@backend-engineer"
+
+# Example 3: Deferred work
+./scripts/bash/rigor-decision-log.sh \
+  --task task-543 \
+  --phase execution \
+  --decision "Defer performance optimization to task-600" \
+  --rationale "Current performance meets requirements, avoid premature optimization" \
+  --actor "@backend-engineer" \
+  --related "task-600"
+```
 
 #### Frontend Implementation (if UI/mobile components needed)
 
@@ -806,77 +981,296 @@ Include specific, actionable suggestions with examples.
 
 **⚠️ CRITICAL: Before creating any PR, you MUST run and pass ALL validation checks.**
 
-This is a blocking gate. Do NOT create a PR until ALL checks pass.
+This is a blocking gate enforced by rigor rules (VALID-001 through VALID-007). Do NOT create a PR until ALL checks pass.
 
-#### Step 1: Run Lint Check
+#### Step 1: Verify Decision Logging (VALID-001 - BLOCKING)
+
+All significant decisions MUST be logged before PR creation.
 
 ```bash
-# Python projects
-uv run ruff check .
+# Check decision log exists and has entries (VALID-001)
+TASK_ID=$(git branch --show-current 2>/dev/null | grep -oP 'task-\d+' || echo "")
+DECISION_LOG="memory/decisions/${TASK_ID}.jsonl"
+
+if [ ! -f "$DECISION_LOG" ]; then
+  echo "[X] RIGOR VIOLATION (VALID-001): No decision log found: $DECISION_LOG"
+  echo ""
+  echo "You must log at least one decision. Examples of decisions to log:"
+  echo "  - Technology choices (library, framework, pattern selection)"
+  echo "  - Architecture changes"
+  echo "  - Trade-off resolutions"
+  echo "  - Deferred work decisions"
+  echo ""
+  echo "Fix: Log decisions using:"
+  echo "  ./scripts/bash/rigor-decision-log.sh \\"
+  echo "    --task ${TASK_ID} \\"
+  echo "    --phase execution \\"
+  echo "    --decision 'What was decided' \\"
+  echo "    --rationale 'Why this choice' \\"
+  echo "    --actor '@backend-engineer'"
+  exit 1
+fi
+
+ENTRY_COUNT=$(wc -l < "$DECISION_LOG" 2>/dev/null || echo 0)
+if [ "$ENTRY_COUNT" -eq 0 ]; then
+  echo "[X] RIGOR VIOLATION (VALID-001): Decision log is empty"
+  exit 1
+fi
+
+echo "✅ Decision traceability passed: $ENTRY_COUNT decisions logged"
+```
+
+#### Step 2: Run Lint Check (VALID-002 - BLOCKING)
+
+```bash
+# Python projects (VALID-002)
+if [ -f "pyproject.toml" ]; then
+  echo "Running lint check..."
+  uv run ruff check .
+  LINT_STATUS=$?
+
+  if [ $LINT_STATUS -ne 0 ]; then
+    echo "[X] RIGOR VIOLATION (VALID-002): Lint check failed"
+    echo "Fix: uv run ruff check --fix ."
+    exit 1
+  fi
+
+  echo "✅ Lint check passed"
+fi
 
 # Go projects
-go vet ./...
+if [ -f "go.mod" ]; then
+  go vet ./...
+  if [ $? -ne 0 ]; then
+    echo "[X] RIGOR VIOLATION (VALID-002): go vet failed"
+    exit 1
+  fi
+fi
 
 # TypeScript projects
-npm run lint
+if [ -f "package.json" ]; then
+  npm run lint
+  if [ $? -ne 0 ]; then
+    echo "[X] RIGOR VIOLATION (VALID-002): npm lint failed"
+    exit 1
+  fi
+fi
 ```
 
 **MUST pass with ZERO errors.** Fix all linting issues before proceeding.
 
-#### Step 2: Run Test Suite
+#### Step 3: Run SAST Check (VALID-002 - BLOCKING)
 
 ```bash
-# Python projects
-uv run pytest tests/ -x -q
+# Python SAST check (VALID-002)
+if [ -f "pyproject.toml" ]; then
+  echo "Running SAST check..."
+  if command -v bandit &> /dev/null; then
+    uv run bandit -r src/ -ll
+    if [ $? -ne 0 ]; then
+      echo "[X] RIGOR VIOLATION (VALID-002): SAST check failed"
+      echo "Review and fix security findings"
+      exit 1
+    fi
+    echo "✅ SAST check passed"
+  else
+    echo "⚠️  WARNING: bandit not installed - skipping SAST"
+  fi
+fi
+```
+
+#### Step 4: Verify Coding Standards (VALID-003 - BLOCKING)
+
+```bash
+# Check for unused imports and variables (VALID-003)
+if [ -f "pyproject.toml" ]; then
+  echo "Checking coding standards compliance..."
+  uv run ruff check --select F401,F841 .
+  if [ $? -ne 0 ]; then
+    echo "[X] RIGOR VIOLATION (VALID-003): Unused imports or variables detected"
+    echo "Fix: uv run ruff check --select F401,F841 --fix ."
+    exit 1
+  fi
+  echo "✅ Coding standards check passed"
+fi
+
+# Go - compiler enforces
+if [ -f "go.mod" ]; then
+  go build ./...
+  if [ $? -ne 0 ]; then
+    echo "[X] RIGOR VIOLATION (VALID-003): Build failed"
+    exit 1
+  fi
+fi
+
+# TypeScript
+if [ -f "tsconfig.json" ]; then
+  npx tsc --noEmit
+  if [ $? -ne 0 ]; then
+    echo "[X] RIGOR VIOLATION (VALID-003): TypeScript check failed"
+    exit 1
+  fi
+fi
+```
+
+**MUST have ZERO unused imports or variables.**
+
+#### Step 5: Run Test Suite (VALID-007 - BLOCKING)
+
+```bash
+# Python projects (VALID-007)
+if [ -f "pyproject.toml" ]; then
+  echo "Running test suite..."
+  uv run pytest tests/ -x -q
+  TEST_STATUS=$?
+
+  if [ $TEST_STATUS -ne 0 ]; then
+    echo "[X] RIGOR VIOLATION (VALID-007): Tests failed"
+    echo "Fix failing tests before creating PR"
+    exit 1
+  fi
+
+  echo "✅ Test suite passed"
+fi
 
 # Go projects
-go test ./...
+if [ -f "go.mod" ]; then
+  go test ./...
+  if [ $? -ne 0 ]; then
+    echo "[X] RIGOR VIOLATION (VALID-007): Tests failed"
+    exit 1
+  fi
+fi
 
 # TypeScript projects
-npm test
+if [ -f "package.json" ]; then
+  npm test
+  if [ $? -ne 0 ]; then
+    echo "[X] RIGOR VIOLATION (VALID-007): Tests failed"
+    exit 1
+  fi
+fi
 ```
 
 **MUST pass with ZERO failures.** Fix all failing tests before proceeding.
 
-#### Step 3: Format Code
+#### Step 6: Format Code (VALID-007 - BLOCKING)
 
 ```bash
 # Python projects
-uv run ruff format .
+if [ -f "pyproject.toml" ]; then
+  echo "Checking code formatting..."
+  uv run ruff format --check .
+  FORMAT_STATUS=$?
+
+  if [ $FORMAT_STATUS -ne 0 ]; then
+    echo "[X] RIGOR VIOLATION (VALID-007): Code not formatted"
+    echo "Fix: uv run ruff format ."
+    exit 1
+  fi
+
+  echo "✅ Code formatting check passed"
+fi
 
 # Go projects
-gofmt -w .
+if [ -f "go.mod" ]; then
+  gofmt -l . | grep -q .
+  if [ $? -eq 0 ]; then
+    echo "[X] RIGOR VIOLATION (VALID-007): Code not formatted"
+    echo "Fix: gofmt -w ."
+    exit 1
+  fi
+fi
 
 # TypeScript projects
-npm run format
+if [ -f "package.json" ] && grep -q "\"format\"" package.json; then
+  npm run format:check
+  if [ $? -ne 0 ]; then
+    echo "[X] RIGOR VIOLATION (VALID-007): Code not formatted"
+    echo "Fix: npm run format"
+    exit 1
+  fi
+fi
 ```
 
-#### Step 4: Verify No Unused Code
+#### Step 7: Verify Rebase Status (VALID-004 - BLOCKING)
 
 ```bash
-# Python - check for unused imports and variables
-uv run ruff check --select F401,F841 .
+# Check branch is rebased from main (VALID-004)
+echo "Checking rebase status..."
+git fetch origin main 2>/dev/null
+BEHIND=$(git rev-list HEAD..origin/main --count 2>/dev/null || echo 0)
 
-# Go - compiler enforces this automatically
-go build ./...
+if [ "$BEHIND" -gt 0 ]; then
+  echo "[X] RIGOR VIOLATION (VALID-004): Branch is $BEHIND commits behind main"
+  echo ""
+  echo "Fix: Rebase from main:"
+  echo "  git fetch origin main"
+  echo "  git rebase origin/main"
+  echo "  # Resolve conflicts if any"
+  echo "  git push --force-with-lease origin $(git branch --show-current)"
+  exit 1
+fi
 
-# TypeScript - with noUnusedLocals enabled
-npx tsc --noEmit
+echo "✅ Rebase status check passed"
 ```
 
-**MUST have ZERO unused imports or variables.**
+#### Step 8: Verify Acceptance Criteria (VALID-005 - BLOCKING)
+
+```bash
+# Check all ACs are complete (VALID-005)
+TASK_ID=$(git branch --show-current 2>/dev/null | grep -oP 'task-\d+' || echo "")
+
+if [ -n "$TASK_ID" ]; then
+  echo "Verifying acceptance criteria..."
+  INCOMPLETE=$(backlog task "$TASK_ID" --plain 2>/dev/null | grep -c "^\[ \]" || echo 0)
+
+  if [ "$INCOMPLETE" -gt 0 ]; then
+    echo "[X] RIGOR VIOLATION (VALID-005): $INCOMPLETE incomplete acceptance criteria"
+    backlog task "$TASK_ID" --plain | grep "^\[ \]"
+    echo ""
+    echo "Fix: Complete all ACs or document why they cannot be completed"
+    echo "  backlog task edit ${TASK_ID} --check-ac <N>"
+    exit 1
+  fi
+
+  echo "✅ All acceptance criteria met"
+fi
+```
+
+#### Step 9: Verify Task Status (VALID-006 - BLOCKING)
+
+```bash
+# Verify task status is current (VALID-006)
+if [ -n "$TASK_ID" ]; then
+  echo "Verifying task status..."
+  STATUS=$(backlog task "$TASK_ID" --plain 2>/dev/null | grep "Status:" | head -1 | awk '{print $2}')
+
+  if [ "$STATUS" != "In" ] && [ "$STATUS" != "Progress" ]; then
+    echo "⚠️  WARNING (VALID-006): Task status may be stale: $STATUS"
+    echo "Update task status before PR:"
+    echo "  backlog task edit ${TASK_ID} -s 'In Progress'"
+  else
+    echo "✅ Task status current"
+  fi
+fi
+```
 
 #### Validation Checklist (ALL REQUIRED)
 
 Before creating the PR, verify ALL of these:
 
-- [ ] `ruff check .` passes with zero errors
-- [ ] `pytest tests/ -x -q` passes with zero failures
-- [ ] Code is formatted (`ruff format .`)
-- [ ] No unused imports (`ruff check --select F401`)
-- [ ] No unused variables (`ruff check --select F841`)
-- [ ] All acceptance criteria are marked complete in backlog
-- [ ] Implementation notes added to backlog task
+- [ ] **VALID-001**: Decision log exists with entries
+- [ ] **VALID-002**: Lint check passes (`ruff check .`)
+- [ ] **VALID-002**: SAST check passes (if bandit installed)
+- [ ] **VALID-003**: No unused imports (`ruff check --select F401`)
+- [ ] **VALID-003**: No unused variables (`ruff check --select F841`)
+- [ ] **VALID-007**: Test suite passes (`pytest tests/ -x -q`)
+- [ ] **VALID-007**: Code is formatted (`ruff format --check .`)
+- [ ] **VALID-004**: Branch rebased from main (zero commits behind)
+- [ ] **VALID-005**: All acceptance criteria are marked complete
+- [ ] **VALID-006**: Task status reflects current state
+- [ ] **PR-001**: All commits have DCO sign-off
 
 **⚠️ DO NOT proceed to create a PR if ANY checklist item is incomplete.**
 
@@ -886,7 +1280,28 @@ PRs that fail CI:
 - Demonstrate lack of due diligence
 - Will be closed without review
 
-#### Step 5: Create PR (Only After All Checks Pass)
+#### Step 10: Verify DCO Sign-off (PR-001 - BLOCKING)
+
+```bash
+# Check all commits have DCO sign-off (PR-001)
+echo "Checking DCO sign-off..."
+UNSIGNED=$(git log origin/main..HEAD --format='%h %s' 2>/dev/null | while read hash msg; do
+  git log -1 --format='%b' "$hash" | grep -q "Signed-off-by:" || echo "$hash"
+done | wc -l)
+
+if [ "$UNSIGNED" -gt 0 ]; then
+  echo "[X] RIGOR VIOLATION (PR-001): $UNSIGNED commits missing DCO sign-off"
+  echo ""
+  echo "Fix: Add sign-off to all commits:"
+  echo "  git rebase origin/main --exec 'git commit --amend --no-edit -s'"
+  echo "  git push --force-with-lease origin $(git branch --show-current)"
+  exit 1
+fi
+
+echo "✅ DCO sign-off check passed"
+```
+
+#### Step 11: Create PR (Only After All Checks Pass)
 
 Once all validation passes:
 
