@@ -1507,7 +1507,7 @@ if [ -n "$TASK_ID" ]; then
   if ! backlog task "$TASK_ID" --plain 2>/dev/null | grep -q "Implementation Plan:"; then
     echo "⚠️ RIGOR RULE SETUP-001: No implementation plan for $TASK_ID"
     echo ""
-    echo "A clear plan of action is required before task creation."
+    echo "A clear plan of action is required before proceeding with specification."
     echo "Please provide:"
     echo "  1. Implementation approach"
     echo "  2. Key milestones"
