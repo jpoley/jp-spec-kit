@@ -52,6 +52,8 @@ This command creates comprehensive feature specifications using the PM Planner a
 
 {{INCLUDE:.claude/commands/flow/_constitution-check.md}}
 
+{{INCLUDE:.claude/commands/flow/_rigor-rules.md}}
+
 {{INCLUDE:.claude/commands/flow/_workflow-state.md}}
 
 **For /flow:specify**: Required input state is `workflow:Assessed`. Output state will be `workflow:Specified`.
@@ -74,7 +76,41 @@ backlog task list -s "To Do" --plain | grep -i "spec\|design\|prd"
 
 If existing tasks are found, include their IDs and context in the agent prompt below.
 
-### Step 2: Specification Creation
+### Step 2: Task Setup Hygiene - Plan Verification
+
+**RIGOR RULE SETUP-001**: A clear plan of action is required before task creation.
+
+Before creating implementation tasks, verify a documented plan exists in the backlog task:
+
+```bash
+# Check if current task has an implementation plan (matches SETUP-001 rule definition)
+TASK_ID="${TASK_ID:-$(git branch --show-current 2>/dev/null | grep -Eo 'task-[0-9]+' || echo '')}"
+if [ -n "$TASK_ID" ]; then
+  if ! backlog task "$TASK_ID" --plain 2>/dev/null | grep -q "Implementation Plan:"; then
+    echo "⚠️ RIGOR RULE SETUP-001: No implementation plan for $TASK_ID"
+    echo ""
+    echo "A clear plan of action is required before task creation."
+    echo "Please provide:"
+    echo "  1. Implementation approach"
+    echo "  2. Key milestones"
+    echo "  3. Risk areas"
+    echo ""
+    echo "Options:"
+    echo "  A) Run /flow:plan first to create a plan"
+    echo "  B) Add a plan now: backlog task edit $TASK_ID --plan \$'1. Step 1\n2. Step 2'"
+    echo ""
+    # STOP HERE and ASK USER for plan details before proceeding
+  fi
+fi
+```
+
+If no plan exists, **ASK THE USER** to provide one before creating tasks. Options:
+- User runs `/flow:plan` first to create formal plan documentation
+- User provides plan details inline (you add them via `backlog task edit --plan`)
+
+Do not proceed with task creation until a plan is documented.
+
+### Step 3: Specification Creation
 
 Use the Task tool to launch a **general-purpose** agent with the following prompt (includes full Product Requirements Manager context):
 
