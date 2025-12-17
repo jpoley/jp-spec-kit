@@ -1498,7 +1498,7 @@ If existing tasks are found, include their IDs and context in the agent prompt b
 
 **RIGOR RULE SETUP-001**: A clear plan of action is required before task creation.
 
-Before creating implementation tasks, verify a documented plan exists in the backlog task:
+Before proceeding with specification, verify a documented plan exists in the backlog task:
 
 ```bash
 # Check if current task has an implementation plan (matches SETUP-001 rule definition)
