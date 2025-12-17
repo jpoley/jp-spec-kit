@@ -276,8 +276,8 @@ Your deliverables should include:
    # Create implementation tasks for each major deliverable
    # Example pattern (adapt to actual feature requirements):
 
-   # Use heredoc for multi-line descriptions (bash-compliant syntax)
-   read -r -d '' CORE_DESC << 'EOF'
+   # Use command substitution with heredoc for POSIX-compliant multi-line strings
+   CORE_DESC=$(cat << 'EOF'
 Core implementation per PRD section 4
 
 Agent context:
@@ -285,6 +285,7 @@ Agent context:
 - Follow: repository coding standards in memory/code-standards.md
 - Constraints: Must maintain backward compatibility
 EOF
+)
 
    backlog task create "Implement [Core Feature]" \
      -d "$CORE_DESC" \
@@ -295,7 +296,7 @@ EOF
      -l implement,backend \
      --priority high
 
-   read -r -d '' UI_DESC << 'EOF'
+   UI_DESC=$(cat << 'EOF'
 Frontend implementation per PRD user stories
 
 Agent context:
@@ -303,6 +304,7 @@ Agent context:
 - Follow: WCAG 2.1 AA accessibility standards
 - Constraints: Must work on mobile and desktop viewports
 EOF
+)
 
    backlog task create "Implement [UI Components]" \
      -d "$UI_DESC" \
