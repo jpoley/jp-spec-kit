@@ -63,9 +63,13 @@ AC_PATTERN = re.compile(r"(?:AC\d+:?|[-*]\s*\[[ x]\])\s*.+", re.IGNORECASE)
 
 # Example reference pattern: table row with examples/ path
 # Matches rows like: | Example Name | `examples/path` | Description |
-# Excludes placeholder rows with curly braces like: | {Example name} | examples/{path} |
+# Excludes placeholder rows with curly braces in ANY column:
+#   - | {Example name} | examples/path | Description | (placeholder name)
+#   - | Example | examples/{path} | Description | (placeholder path)
+#   - | Example | examples/path | {Description} | (placeholder description)
+# Uses negative lookahead (?![^|]*\{) to check each column for curly braces
 EXAMPLE_REFERENCE_PATTERN = re.compile(
-    r"^\s*\|\s*[^|]+\s*\|\s*`?examples/[^|`{}]+`?\s*\|\s*[^|]+\s*\|",
+    r"^\s*\|(?![^|]*\{)[^|]+\|[^|]*`?examples/[^|`{}]+`?[^|]*\|(?![^|]*\{)[^|]+\|",
     re.MULTILINE,
 )
 

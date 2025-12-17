@@ -417,6 +417,116 @@ Metrics.
         assert not result.is_valid
         assert any("example references" in e.lower() for e in result.errors)
 
+    def test_validate_placeholder_in_single_column_excluded(
+        self,
+        validator: PRDValidator,
+        tmp_path: Path,
+    ) -> None:
+        """Test that rows with curly braces in ANY column are excluded.
+
+        This tests edge cases where:
+        - Placeholder in name column only: | {Example} | examples/real/path.py | Desc |
+        - Placeholder in description only: | Example | examples/real/path.py | {Desc} |
+        - Real path but placeholder name/desc should be excluded
+        """
+        content = """# PRD: Auth
+
+## Executive Summary
+
+Summary.
+
+## Problem Statement
+
+Problem.
+
+## User Stories
+
+As a user, I want to login so that I can access.
+
+## Functional Requirements
+
+Requirements.
+
+## Non-Functional Requirements
+
+NFR.
+
+## Success Metrics
+
+Metrics.
+
+## All Needed Context
+
+### Examples
+
+| Example | Location | Relevance to This Feature |
+|---------|----------|---------------------------|
+| {Example name} | `examples/auth/real-file.py` | Real description here |
+| Real Example | `examples/auth/login.py` | {Placeholder description} |
+| {Placeholder} | examples/valid/path.py | {Both placeholders} |
+"""
+        prd_file = tmp_path / "auth.md"
+        prd_file.write_text(content)
+
+        result = validator.validate_prd(prd_file)
+
+        # All rows have curly braces in at least one column, so none should count
+        assert result.example_count == 0
+        assert not result.is_valid
+        assert any("example references" in e.lower() for e in result.errors)
+
+    def test_validate_mixed_placeholder_and_real_examples(
+        self,
+        validator: PRDValidator,
+        tmp_path: Path,
+    ) -> None:
+        """Test that real examples are counted even when mixed with placeholders."""
+        content = """# PRD: Auth
+
+## Executive Summary
+
+Summary.
+
+## Problem Statement
+
+Problem.
+
+## User Stories
+
+As a user, I want to login so that I can access.
+
+## Functional Requirements
+
+Requirements.
+
+## Non-Functional Requirements
+
+NFR.
+
+## Success Metrics
+
+Metrics.
+
+## All Needed Context
+
+### Examples
+
+| Example | Location | Relevance to This Feature |
+|---------|----------|---------------------------|
+| {Example name} | `examples/{path}` | {Placeholder row} |
+| Auth Handler | `examples/auth/handler.py` | Shows authentication patterns |
+| {Another placeholder} | examples/fake/{path} | {Desc} |
+| Login Flow | `examples/auth/login.py` | Demonstrates login implementation |
+"""
+        prd_file = tmp_path / "auth.md"
+        prd_file.write_text(content)
+
+        result = validator.validate_prd(prd_file)
+
+        # Only the 2 real examples should count (Auth Handler and Login Flow)
+        assert result.example_count == 2
+        assert result.is_valid  # Has required examples
+
     def test_validate_empty_section(
         self,
         validator: PRDValidator,
