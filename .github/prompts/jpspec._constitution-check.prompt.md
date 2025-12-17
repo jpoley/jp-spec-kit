@@ -1,1 +1,0 @@
-../../templates/commands/jpspec/_constitution-check.md
