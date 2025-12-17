@@ -461,7 +461,7 @@ Branch names MUST follow the pattern: `{hostname}/task-{id}/{slug-description}`
 ```bash
 BRANCH=$(git branch --show-current 2>/dev/null)
 if [ -n "$BRANCH" ]; then
-  if ! [[ "$BRANCH" =~ ^[a-z0-9-]+/task-[0-9]+/[a-z0-9-]+$ ]]; then
+  if ! echo "$BRANCH" | grep -Eq '^[a-z0-9-]+/task-[0-9]+/[a-z0-9-]+$'; then
     echo "[X] EXEC-002 VIOLATION: Invalid branch name: $BRANCH"
     echo "Expected format: hostname/task-NNN/slug-description"
     echo "Example: $(hostname -s | tr '[:upper:]' '[:lower:]')/task-123/add-feature"
@@ -1191,7 +1191,7 @@ Iteration branches MUST follow naming pattern: `{original-branch}-v2`, `-v3`, et
 **Validation**:
 ```bash
 BRANCH=$(git branch --show-current 2>/dev/null)
-if [[ "$BRANCH" =~ -v[0-9]+$ ]]; then
+if echo "$BRANCH" | grep -Eq '\-v[0-9]+$'; then
   # This is an iteration branch - validate base exists
   # Use [0-9][0-9]* to require at least one digit for consistency
   BASE_BRANCH=$(echo "$BRANCH" | sed 's/-v[0-9][0-9]*$//')
@@ -2220,8 +2220,8 @@ PRs that fail CI:
 git fetch origin main 2>/dev/null
 BEHIND=$(git rev-list --count HEAD..origin/main 2>/dev/null || echo "0")
 
-# Validate BEHIND is numeric before comparison
-if ! [[ "$BEHIND" =~ ^[0-9]+$ ]]; then
+# Validate BEHIND is numeric before comparison (POSIX-compliant)
+if ! echo "$BEHIND" | grep -Eq '^[0-9]+$'; then
   echo "[!] Warning: Could not determine commits behind main (origin/main may not exist)"
   BEHIND=0
 fi
@@ -2250,23 +2250,24 @@ echo "[Y] Branch is up-to-date with main (zero commits behind)"
 # Check all commits in branch for DCO sign-off
 echo "Checking DCO sign-off for all commits..."
 
-# Use process substitution to avoid subshell variable scope issues
+# POSIX-compliant iteration over commit hashes (avoids bash-specific process substitution)
 UNSIGNED_COMMITS=""
-while read -r hash msg; do
-  # Check for Signed-off-by anywhere in commit body (not just at line start)
+for hash in $(git log origin/main..HEAD --format='%h' 2>/dev/null); do
+  # Check for Signed-off-by anywhere in commit body
   if ! git log -1 --format='%B' "$hash" 2>/dev/null | grep -q "Signed-off-by:"; then
-    UNSIGNED_COMMITS="${UNSIGNED_COMMITS}${hash} ${msg}\n"
+    MSG=$(git log -1 --format='%s' "$hash" 2>/dev/null)
+    UNSIGNED_COMMITS="$UNSIGNED_COMMITS
+$hash $MSG"
   fi
-done < <(git log origin/main..HEAD --format='%h %s' 2>/dev/null)
+done
 
-# Count unsigned commits: use grep -c . because echo -e on empty/newline-only strings
-# produces extra lines that wc -l would count incorrectly
+# Count unsigned commits (count non-empty lines)
 if [ -n "$UNSIGNED_COMMITS" ]; then
-  UNSIGNED_COUNT=$(echo -e "$UNSIGNED_COMMITS" | grep -c .)
+  UNSIGNED_COUNT=$(printf '%s\n' "$UNSIGNED_COMMITS" | grep -c .)
   echo "[X] RIGOR VIOLATION (PR-001): $UNSIGNED_COUNT commits missing DCO sign-off"
   echo ""
   echo "Unsigned commits:"
-  echo -e "$UNSIGNED_COMMITS" | while read -r line; do
+  printf '%s\n' "$UNSIGNED_COMMITS" | while read -r line; do
     [ -n "$line" ] && echo "  $line"
   done
   echo ""
