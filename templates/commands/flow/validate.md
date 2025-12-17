@@ -242,13 +242,14 @@ else
   #   - Lines starting with non-whitespace, non-hash chars (direct commands)
   #   - Indented non-comment lines with actual content (strips leading whitespace)
   # Filters out:
-  #   - Code block markers (``` or ```bash) in case users ignore documentation warnings
+  #   - Code block markers via /^```/ which matches ``` and ```bash (prefix match)
+  #   - This is defense-in-depth: docs say no code blocks, but we handle them gracefully
   VALIDATION_COMMANDS=$(echo "$FVP_SECTION" | awk '
     BEGIN { in_cmds=0 }
     /^### Commands/ { in_cmds=1; next }
     /^###/ && in_cmds { exit }
     /^## / && in_cmds { exit }
-    /^```/ { next }
+    /^```/ { next }  # Matches ```, ```bash, ```sh, etc. (prefix match)
     in_cmds && /^[^#[:space:]]/ { print }
     in_cmds && /^[[:space:]]+[^#[:space:]]/ { gsub(/^[[:space:]]+/, ""); if (NF > 0) print }
   ')
@@ -316,9 +317,13 @@ SAFE_PATTERNS=(
 # Note: '$' is intentionally included to block variable expansion. This also
 #       blocks otherwise-safe commands containing literal $ (e.g., grep patterns).
 # Note: '\\\\' becomes '\\' after $'...' shell parsing, then '\' in the regex.
-# Limitation: Backslash blocking prevents legitimate escaped regex in test filters
-#   (e.g., pytest -k "test\d+"). Document test patterns without escapes or use
-#   pytest markers instead of -k filters with regex.
+#
+# Design trade-off: Security over flexibility. Blocking these characters prevents
+# command injection but also blocks some legitimate use cases. Workarounds:
+#   - Backslash in test filters (pytest -k "test\d+"): Use pytest markers or
+#     literal character classes like [0-9] instead of \d
+#   - Dollar sign in grep patterns: Run grep manually or use Option 2 (print commands)
+#   - Commands with shell features: Use Option 2 to print and run manually
 DANGEROUS_CHARS=$'[;|&$`\\\\(){}<>\t\n]'
 
 # Validate each command against allowlist
@@ -359,12 +364,13 @@ while IFS= read -r cmd; do
   if [ -n "$cmd" ]; then
     if validate_command "$cmd"; then
       echo "✅ Validated: $cmd"
-      # Execute the validated command via bash so that quoting and arguments
-      # are handled correctly. Safety relies on validate_command/DANGEROUS_CHARS
-      # rejecting shell metacharacters and unsafe patterns.
-      # Limitation: File paths with spaces may not work correctly (e.g.,
-      #   "pytest tests/my file.py"). Use quoted paths in FVP commands or
-      #   avoid spaces in test file paths.
+      # Execute the validated command via bash -c for proper argument handling.
+      # Safety relies on validate_command/DANGEROUS_CHARS blocking injection.
+      #
+      # Limitation: File paths with spaces require proper quoting in the FVP.
+      # Write: pytest "tests/my file.py" (quotes in FVP)
+      # Not:   pytest tests/my file.py (unquoted - will fail)
+      # Best practice: Avoid spaces in test file paths entirely.
       bash -c "$cmd"
       exit_code=$?
       if [ "$exit_code" -eq 0 ]; then
@@ -374,6 +380,9 @@ while IFS= read -r cmd; do
         overall_status=1
       fi
     else
+      # Security-first: Unknown commands fail the workflow rather than being silently skipped.
+      # This ensures all FVP commands are explicitly validated before execution.
+      # To fix: Add the command pattern to SAFE_PATTERNS, or use Option 2 (manual).
       echo "⚠️ Command not in allowlist, skipping: $cmd"
       echo "   Add to SAFE_PATTERNS if this is a legitimate test command"
       overall_status=1
