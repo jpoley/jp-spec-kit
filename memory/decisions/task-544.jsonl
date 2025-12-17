@@ -1,0 +1,13 @@
+{
+  "timestamp": "2025-12-17T17:40:47Z",
+  "task_id": "task-544",
+  "phase": "execution",
+  "decision": "Integrated rigor rules into /flow:validate command template",
+  "rationale": "Adds rigor enforcement for validation phase including rebase enforcement, CI pre-flight checks, DCO sign-off verification, and Copilot iteration guidance",
+  "actor": "@backend-engineer",
+  "context": {
+    "files_affected": [
+      "templates/commands/flow/validate.md"
+    ]
+  }
+}

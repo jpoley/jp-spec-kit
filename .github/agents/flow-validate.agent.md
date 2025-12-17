@@ -221,6 +221,1043 @@ You **MUST** consider the user input before proceeding (if not empty).
 | `flowspec constitution show` | Display current constitution |
 
 
+# Rigor Rules Reference
+
+<!--
+METADATA
+========
+Version: 1.0
+Created: 2025-12-17
+Last Updated: 2025-12-17
+
+This file is the single source of truth for all rigor rules.
+Include it in /flow:* commands via:
+  \{\{INCLUDE:.claude/commands/flow/_rigor-rules.md\}\}
+
+See ADR-001 for design rationale.
+-->
+
+---
+
+## Enforcement Configuration
+
+### Enforcement Modes
+
+Rules can be enforced in three modes:
+
+- **strict**: Block workflow if rule violated (default for BLOCKING rules)
+- **warn**: Warn but allow continuation (use sparingly)
+- **off**: Disable rule (emergency use only)
+
+### Per-Phase Configuration
+
+Configure enforcement in `.flowspec/rigor-config.yml`:
+
+```yaml
+enforcement:
+  global: strict          # Default for all rules
+  phases:
+    setup: strict
+    execution: strict
+    freeze: warn          # Less strict for emergency freezes
+    validation: strict
+    pr: strict
+  rules:
+    EXEC-005: warn        # Advisory rules can be set to warn
+    SETUP-004: warn       # Parallelization is advisory
+```
+
+If no config file exists, all BLOCKING rules default to `strict` and ADVISORY rules to `warn`.
+
+---
+
+## Phase: SETUP (Task Creation & Specification)
+
+**Applies to**: `/flow:assess`, `/flow:specify`
+
+These rules ensure tasks are well-defined before implementation begins.
+
+---
+
+### Rule: SETUP-001 - Clear Plan Required
+**Severity**: BLOCKING
+**Enforcement**: strict
+
+Every task MUST have a documented plan of action before work begins.
+
+**Validation**:
+```bash
+# Check if task has an implementation plan
+TASK_ID="${TASK_ID:-$(git branch --show-current 2>/dev/null | grep -oP 'task-\d+' || echo '')}"
+if [ -n "$TASK_ID" ]; then
+  backlog task "$TASK_ID" --plain 2>/dev/null | grep -q "Implementation Plan:"
+  if [ $? -ne 0 ]; then
+    echo "[X] SETUP-001 VIOLATION: No implementation plan for $TASK_ID"
+    echo "Remediation: backlog task edit $TASK_ID --plan \$'1. Step 1\n2. Step 2'"
+  fi
+fi
+```
+
+**Remediation**:
+```bash
+backlog task edit <task-id> --plan $'1. Step 1\n2. Step 2\n3. Step 3'
+```
+
+**Rationale**: Clear plans prevent scope creep, enable accurate time estimates, and provide onboarding context for new engineers joining mid-task.
+
+---
+
+### Rule: SETUP-002 - Dependencies Mapped
+**Severity**: BLOCKING
+**Enforcement**: strict
+
+Inter-task dependencies MUST be documented before implementation begins. Tasks cannot be worked in isolation when they have upstream or downstream dependencies.
+
+**Validation**:
+```bash
+# Check for dependency documentation in task
+# Note: Not all tasks have dependencies - this validates documentation exists IF dependencies exist
+TASK_ID="${TASK_ID:-$(git branch --show-current 2>/dev/null | grep -oP 'task-\d+' || echo '')}"
+if [ -n "$TASK_ID" ]; then
+  # Check for depends-on labels or dependency notes
+  HAS_DEP_LABELS=$(backlog task "$TASK_ID" --plain 2>/dev/null | grep -qE "(depends-on|blocked-by|Dependencies:)" && echo "yes" || echo "no")
+  if [ "$HAS_DEP_LABELS" = "no" ]; then
+    echo "INFO: SETUP-002: No dependencies documented (OK if task is independent)"
+  fi
+fi
+```
+
+**Remediation**:
+```bash
+# Add dependency label
+backlog task edit <task-id> -l "depends-on:task-123"
+
+# Or document in description/notes
+backlog task edit <task-id> --append-notes "Dependencies: task-123 (API contract must be defined first)"
+```
+
+**Rationale**: Prevents parallel work on dependent tasks, reduces integration conflicts, and ensures proper task ordering.
+
+---
+
+### Rule: SETUP-003 - Testable Acceptance Criteria
+**Severity**: BLOCKING
+**Enforcement**: strict
+
+Every task MUST have at least one acceptance criterion that is:
+1. **Measurable** (not "improve performance" but "reduce latency to <100ms")
+2. **Testable** (can be verified by code or manual test)
+3. **Specific** (avoids vague terms like "better" or "good")
+
+**Validation**:
+```bash
+TASK_ID="${TASK_ID:-$(git branch --show-current 2>/dev/null | grep -oP 'task-\d+' || echo '')}"
+if [ -n "$TASK_ID" ]; then
+  AC_COUNT=$(backlog task "$TASK_ID" --plain 2>/dev/null | grep -cE "^\[[ x]\]" || echo 0)
+  if [ "$AC_COUNT" -eq 0 ]; then
+    echo "[X] SETUP-003 VIOLATION: No acceptance criteria for $TASK_ID"
+    echo "Remediation: backlog task edit $TASK_ID --ac 'Specific testable criterion'"
+  fi
+
+  # Warn about vague terms (heuristic check)
+  backlog task "$TASK_ID" --plain 2>/dev/null | grep -iE "(improve|enhance|better|good|optimize|nice)" && \
+    echo "WARNING: Potentially vague AC terms detected - ensure criteria are measurable"
+fi
+```
+
+**Remediation**:
+```bash
+backlog task edit <task-id> --ac "API returns response in <200ms for 95th percentile"
+backlog task edit <task-id> --ac "Unit test coverage exceeds 80%"
+```
+
+**Rationale**: Vague ACs lead to scope disputes, incomplete implementations, and "it works on my machine" situations.
+
+---
+
+### Rule: SETUP-004 - Sub-Agent Parallelization
+**Severity**: ADVISORY
+**Enforcement**: warn
+
+Tasks SHOULD identify opportunities for parallel sub-agent work when applicable. Large tasks benefit from frontend/backend parallelization.
+
+**Validation**:
+```bash
+# Check if task has parallel-work or multi-agent labels
+TASK_ID="${TASK_ID:-$(git branch --show-current 2>/dev/null | grep -oP 'task-\d+' || echo '')}"
+if [ -n "$TASK_ID" ]; then
+  HAS_PARALLEL=$(backlog task "$TASK_ID" --plain 2>/dev/null | grep -qE "(parallel-work|frontend|backend)" && echo "yes" || echo "no")
+  if [ "$HAS_PARALLEL" = "no" ]; then
+    echo "INFO: SETUP-004: Consider if task can be parallelized (frontend/backend split)"
+  fi
+fi
+```
+
+**Remediation**:
+```bash
+backlog task edit <task-id> -l "parallel-work:frontend,backend"
+```
+
+**Rationale**: Parallel execution reduces critical path duration and improves throughput.
+
+---
+
+## Phase: EXECUTION (Implementation)
+
+**Applies to**: `/flow:implement`
+
+These rules ensure implementation work is traceable, organized, and follows team conventions.
+
+---
+
+### Rule: EXEC-001 - Git Worktree Required
+**Severity**: BLOCKING
+**Enforcement**: strict
+
+All implementation work MUST be done in a git worktree with matching branch name. This prevents branch-switching overhead and enables parallel feature development.
+
+**Validation**:
+```bash
+# Check if current directory is a worktree
+WORKTREE_DIR=$(git rev-parse --show-toplevel 2>/dev/null)
+IS_WORKTREE=$(git worktree list 2>/dev/null | grep -q "$WORKTREE_DIR" && echo "yes" || echo "no")
+
+if [ "$IS_WORKTREE" = "no" ]; then
+  echo "[X] EXEC-001 VIOLATION: Not in a git worktree"
+  echo "Remediation: Create worktree with: git worktree add ../<worktree-name> <branch-name>"
+fi
+
+# Check worktree directory name matches branch (best practice)
+WORKTREE_NAME=$(basename "$WORKTREE_DIR")
+BRANCH_NAME=$(git branch --show-current 2>/dev/null)
+if [ -n "$BRANCH_NAME" ] && [ "$WORKTREE_NAME" != "$BRANCH_NAME" ] && [ "$WORKTREE_NAME" != "${BRANCH_NAME##*/}" ]; then
+  echo "WARNING: EXEC-001: Worktree name '$WORKTREE_NAME' does not match branch '$BRANCH_NAME'"
+fi
+```
+
+**Remediation**:
+```bash
+# From main repository directory:
+BRANCH="$(hostname -s | tr '[:upper:]' '[:lower:]')/task-123/feature-slug"
+git worktree add "../$(basename $BRANCH)" "$BRANCH"
+cd "../$(basename $BRANCH)"
+```
+
+**Rationale**: Worktrees enable parallel feature development without branch switching overhead. Matching names prevent confusion.
+
+---
+
+### Rule: EXEC-002 - Branch Naming Convention
+**Severity**: BLOCKING
+**Enforcement**: strict
+
+Branch names MUST follow the pattern: `{hostname}/task-{id}/{slug-description}`
+
+**Examples**:
+- `macbook-pro/task-541/rigor-rules-include`
+- `desktop-alice/task-123/user-authentication`
+
+**Validation**:
+```bash
+BRANCH=$(git branch --show-current 2>/dev/null)
+if [ -n "$BRANCH" ]; then
+  if ! [[ "$BRANCH" =~ ^[a-z0-9-]+/task-[0-9]+/[a-z0-9-]+$ ]]; then
+    echo "[X] EXEC-002 VIOLATION: Invalid branch name: $BRANCH"
+    echo "Expected format: hostname/task-NNN/slug-description"
+    echo "Example: $(hostname -s | tr '[:upper:]' '[:lower:]')/task-123/add-feature"
+  fi
+fi
+```
+
+**Remediation**:
+```bash
+# Generate compliant branch name
+HOSTNAME=$(hostname -s | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g')
+git checkout -b "${HOSTNAME}/task-123/add-user-authentication"
+```
+
+**Rationale**: Consistent naming enables automation, prevents conflicts in multi-developer teams, and provides instant task traceability. See ADR-003.
+
+---
+
+### Rule: EXEC-003 - Decision Logging Required
+**Severity**: BLOCKING
+**Enforcement**: strict
+
+All significant decisions MUST be logged to the JSONL decision log. A "significant decision" includes:
+- Technology choices (library, framework, pattern selection)
+- Architecture changes
+- Trade-off resolutions
+- Deferred work decisions
+
+**Validation**:
+```bash
+TASK_ID=$(git branch --show-current 2>/dev/null | grep -oP 'task-\d+' || echo "")
+if [ -n "$TASK_ID" ]; then
+  DECISION_LOG="memory/decisions/${TASK_ID}.jsonl"
+
+  if [ ! -f "$DECISION_LOG" ]; then
+    echo "[X] EXEC-003 VIOLATION: No decision log found: $DECISION_LOG"
+    echo "Remediation: Create the log with at least one decision entry"
+  else
+    ENTRY_COUNT=$(wc -l < "$DECISION_LOG" 2>/dev/null || echo 0)
+    if [ "$ENTRY_COUNT" -eq 0 ]; then
+      echo "[X] EXEC-003 VIOLATION: Decision log is empty"
+    fi
+  fi
+fi
+```
+
+**Remediation**:
+```bash
+# Create decision log directory if needed
+mkdir -p memory/decisions
+
+# Log a decision (JSONL format)
+TASK_ID="task-541"
+echo '{"timestamp":"'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'","task_id":"'"$TASK_ID"'","phase":"execution","decision":"Using shared include pattern for rigor rules","rationale":"Single source of truth, consistent with existing patterns","alternatives":["Inline in each command","Python module"],"actor":"@backend-engineer"}' >> "memory/decisions/${TASK_ID}.jsonl"
+```
+
+**Rationale**: Decision logs enable post-mortems, onboarding, and architectural reviews. See ADR-002 for JSONL schema.
+
+---
+
+### Rule: EXEC-004 - Backlog Task Linkage
+**Severity**: BLOCKING
+**Enforcement**: strict
+
+Implementation work MUST be linked to backlog tasks. No "rogue" coding without a task.
+
+**Validation**:
+```bash
+TASK_ID=$(git branch --show-current 2>/dev/null | grep -oP 'task-\d+' || echo "")
+if [ -n "$TASK_ID" ]; then
+  backlog task "$TASK_ID" --plain > /dev/null 2>&1
+  if [ $? -ne 0 ]; then
+    echo "[X] EXEC-004 VIOLATION: No backlog task found: $TASK_ID"
+    echo "Remediation: Create task first: backlog task create 'Task title' --ac 'Criterion'"
+  fi
+else
+  echo "[X] EXEC-004 VIOLATION: Branch does not contain task ID"
+  echo "Branch must follow pattern: hostname/task-NNN/slug"
+fi
+```
+
+**Remediation**:
+```bash
+# Create task if missing
+backlog task create "Feature description" \
+  --ac "Criterion 1" \
+  --ac "Criterion 2" \
+  -l "backend" \
+  --priority high
+```
+
+**Rationale**: Prevents "rogue" work that doesn't align with planned backlog, ensures all work is tracked and prioritized.
+
+---
+
+### Rule: EXEC-005 - Continuous Task Memory Updates
+**Severity**: ADVISORY
+**Enforcement**: warn
+
+Task memory SHOULD be updated after every major decision or implementation milestone. Task memory survives context resets and enables seamless handoffs.
+
+**Validation**:
+```bash
+TASK_ID=$(git branch --show-current 2>/dev/null | grep -oP 'task-\d+' || echo "")
+if [ -n "$TASK_ID" ]; then
+  MEMORY_FILE="backlog/memory/${TASK_ID}.md"
+  if [ -f "$MEMORY_FILE" ]; then
+    # Check last modified time
+    LAST_MODIFIED=$(stat -c %Y "$MEMORY_FILE" 2>/dev/null || stat -f %m "$MEMORY_FILE" 2>/dev/null || echo 0)
+    NOW=$(date +%s)
+    HOURS_AGO=$(( (NOW - LAST_MODIFIED) / 3600 ))
+    if [ "$HOURS_AGO" -gt 24 ]; then
+      echo "WARNING: EXEC-005: Task memory not updated in $HOURS_AGO hours"
+    fi
+  else
+    echo "INFO: EXEC-005: No task memory file yet - consider creating one"
+  fi
+fi
+```
+
+**Remediation**:
+```bash
+# Update or create task memory
+TASK_ID="task-541"
+cat >> "backlog/memory/${TASK_ID}.md" << 'EOF'
+
+## Current State (Updated: $(date +%Y-%m-%d))
+
+### What's Complete
+- Item 1
+- Item 2
+
+### What's In Progress
+- Current work item
+
+### What's Next
+- Next steps
+
+### Key Decisions
+- Decision 1 and rationale
+
+### Blockers
+- None currently
+EOF
+```
+
+**Rationale**: Fresh task memory enables seamless context resumption after interruptions, machine changes, or handoffs.
+
+---
+
+### Rule: EXEC-006 - Workflow State Tracking
+**Severity**: BLOCKING
+**Enforcement**: strict
+
+Agent MUST always know and track what comes next in the workflow. The current workflow state must be reflected in task labels.
+
+**Validation**:
+```bash
+TASK_ID=$(git branch --show-current 2>/dev/null | grep -oP 'task-\d+' || echo "")
+if [ -n "$TASK_ID" ]; then
+  HAS_WORKFLOW=$(backlog task "$TASK_ID" --plain 2>/dev/null | grep -q "workflow:" && echo "yes" || echo "no")
+  if [ "$HAS_WORKFLOW" = "no" ]; then
+    echo "[X] EXEC-006 VIOLATION: No workflow state label for $TASK_ID"
+    echo "Remediation: backlog task edit $TASK_ID -l 'workflow:In Implementation'"
+  fi
+fi
+```
+
+**Remediation**:
+```bash
+# Add workflow state label
+backlog task edit <task-id> -l "workflow:In Implementation"
+```
+
+**Workflow States**:
+- `workflow:Assessed` - SDD suitability evaluated
+- `workflow:Specified` - Requirements captured
+- `workflow:Planned` - Architecture planned
+- `workflow:In Implementation` - Code being written
+- `workflow:Validated` - QA/security validated
+- `workflow:Deployed` - Released
+
+**Rationale**: Prevents "what do I do next?" confusion, enables workflow automation and state machine validation.
+
+---
+
+## Phase: FREEZE (Task Suspension)
+
+**Applies to**: `/flow:freeze`
+
+These rules ensure work can be safely suspended and resumed without context loss.
+
+---
+
+### Rule: FREEZE-001 - Task Memory Snapshot
+**Severity**: BLOCKING
+**Enforcement**: strict
+
+Task memory MUST be updated with current state before freezing. This is the primary mechanism for context preservation.
+
+**Validation**:
+```bash
+TASK_ID=$(git branch --show-current 2>/dev/null | grep -oP 'task-\d+' || echo "")
+if [ -n "$TASK_ID" ]; then
+  MEMORY_FILE="backlog/memory/${TASK_ID}.md"
+  if [ ! -s "$MEMORY_FILE" ]; then
+    echo "[X] FREEZE-001 VIOLATION: Task memory empty or missing: $MEMORY_FILE"
+  else
+    # Check for Current State section
+    grep -q "## Current State" "$MEMORY_FILE" 2>/dev/null
+    if [ $? -ne 0 ]; then
+      echo "[X] FREEZE-001 VIOLATION: No 'Current State' section in task memory"
+    fi
+  fi
+fi
+```
+
+**Remediation**:
+```bash
+# Update task memory with freeze snapshot
+cat >> "backlog/memory/${TASK_ID}.md" << 'EOF'
+
+## Current State (Frozen: $(date +%Y-%m-%d %H:%M))
+
+### Progress
+- [x] Completed item 1
+- [x] Completed item 2
+- [ ] In progress item (50% complete)
+
+### Resume Instructions
+1. First thing to do when resuming
+2. Second thing to check
+3. Run these tests: pytest tests/test_feature.py
+
+### Context
+- Key decision: chose X over Y because Z
+- Watch out for: gotcha description
+
+### Blockers
+- None / or describe blocker
+EOF
+```
+
+**Rationale**: Ensures context preservation across time/person/machine boundaries. Enables any engineer to resume work.
+
+---
+
+### Rule: FREEZE-002 - Remote Sync Required
+**Severity**: BLOCKING
+**Enforcement**: strict
+
+Code and task memory MUST be committed and pushed to remote before freeze. Local-only work risks loss.
+
+**Validation**:
+```bash
+# Check for uncommitted changes
+UNCOMMITTED=$(git status --porcelain 2>/dev/null | wc -l)
+if [ "$UNCOMMITTED" -gt 0 ]; then
+  echo "[X] FREEZE-002 VIOLATION: $UNCOMMITTED uncommitted changes detected"
+  echo "Remediation: git add . && git commit -s -m 'wip: freeze checkpoint'"
+fi
+
+# Check for unpushed commits
+UNPUSHED=$(git log @{u}.. --oneline 2>/dev/null | wc -l || echo 0)
+if [ "$UNPUSHED" -gt 0 ]; then
+  echo "[X] FREEZE-002 VIOLATION: $UNPUSHED unpushed commits"
+  echo "Remediation: git push origin $(git branch --show-current)"
+fi
+```
+
+**Remediation**:
+```bash
+# Commit and push all changes
+git add .
+git commit -s -m "wip: freeze checkpoint - $(date +%Y-%m-%d)"
+git push origin $(git branch --show-current)
+```
+
+**Rationale**: Prevents work loss due to hardware failure, machine changes, or accidental deletion.
+
+---
+
+### Rule: FREEZE-003 - Working State Required
+**Severity**: BLOCKING
+**Enforcement**: strict
+
+Code MUST be in a working state before freeze. Tests should pass, or failures should be documented.
+
+**Validation**:
+```bash
+# Run basic validation
+if [ -f "pyproject.toml" ]; then
+  uv run ruff check . 2>/dev/null
+  LINT_STATUS=$?
+  uv run pytest tests/ -x -q 2>/dev/null
+  TEST_STATUS=$?
+  if [ $LINT_STATUS -ne 0 ] || [ $TEST_STATUS -ne 0 ]; then
+    echo "WARNING: FREEZE-003: Code may not be in working state"
+    echo "Document known failures in task memory if proceeding with freeze"
+  fi
+fi
+```
+
+**Remediation**:
+```bash
+# Fix issues before freeze
+uv run ruff check --fix .
+uv run pytest tests/ -x
+
+# Or document known issues in task memory if they can't be fixed immediately
+echo "### Known Issues at Freeze Time" >> "backlog/memory/${TASK_ID}.md"
+echo "- Test X failing due to Y (not blocking)" >> "backlog/memory/${TASK_ID}.md"
+```
+
+**Rationale**: Prevents resuming work with a broken baseline. Known failures should be documented, not hidden.
+
+---
+
+## Phase: VALIDATION (Quality Gates)
+
+**Applies to**: `/flow:validate`
+
+These rules are the gateway to PR creation. ALL must pass before creating a PR.
+
+---
+
+### Rule: VALID-001 - Decision Traceability
+**Severity**: BLOCKING
+**Enforcement**: strict
+
+All significant decisions MUST be logged in JSONL with task traceability. This is verified before PR creation.
+
+**Validation**:
+```bash
+TASK_ID=$(git branch --show-current 2>/dev/null | grep -oP 'task-\d+' || echo "")
+if [ -n "$TASK_ID" ]; then
+  DECISION_LOG="memory/decisions/${TASK_ID}.jsonl"
+  if [ ! -f "$DECISION_LOG" ]; then
+    echo "[X] VALID-001 VIOLATION: No decision log found: $DECISION_LOG"
+  else
+    ENTRY_COUNT=$(wc -l < "$DECISION_LOG" 2>/dev/null || echo 0)
+    if [ "$ENTRY_COUNT" -eq 0 ]; then
+      echo "[X] VALID-001 VIOLATION: Decision log is empty"
+    fi
+
+    # Validate JSONL format
+    while IFS= read -r line; do
+      echo "$line" | jq empty 2>/dev/null
+      if [ $? -ne 0 ]; then
+        echo "[X] VALID-001 VIOLATION: Invalid JSONL format in decision log"
+        break
+      fi
+    done < "$DECISION_LOG"
+  fi
+fi
+```
+
+**Remediation**:
+```bash
+# Add missing decisions to log
+./scripts/bash/rigor-decision-log.sh \
+  --task task-541 \
+  --phase execution \
+  --decision "Description of decision" \
+  --rationale "Why this choice" \
+  --actor "@backend-engineer"
+```
+
+**Rationale**: Enables audits, post-mortems, and knowledge transfer. Decisions without rationale are lost context.
+
+---
+
+### Rule: VALID-002 - Lint and SAST Required
+**Severity**: BLOCKING
+**Enforcement**: strict
+
+Code MUST pass all linting and static analysis security testing (SAST) checks.
+
+**Validation**:
+```bash
+# Python
+if [ -f "pyproject.toml" ]; then
+  echo "Running lint check..."
+  uv run ruff check .
+  LINT_STATUS=$?
+
+  echo "Running SAST check..."
+  uv run bandit -r src/ -ll 2>/dev/null || echo "Bandit not installed - skipping SAST"
+
+  if [ $LINT_STATUS -ne 0 ]; then
+    echo "[X] VALID-002 VIOLATION: Lint check failed"
+  fi
+fi
+```
+
+**Remediation**:
+```bash
+# Fix linting issues
+uv run ruff check --fix .
+
+# Review and fix SAST findings
+uv run bandit -r src/ -ll
+```
+
+**Rationale**: Catches security vulnerabilities and code quality issues before they reach production.
+
+---
+
+### Rule: VALID-003 - Coding Standards Compliance
+**Severity**: BLOCKING
+**Enforcement**: strict
+
+Code MUST adhere to project coding standards. Key checks:
+- No unused imports
+- No unused variables
+- Type hints on public functions (Python)
+- Defensive coding at boundaries
+
+**Validation**:
+```bash
+if [ -f "pyproject.toml" ]; then
+  # Check for unused imports and variables
+  echo "Checking for unused imports and variables..."
+  uv run ruff check --select F401,F841 .
+  if [ $? -ne 0 ]; then
+    echo "[X] VALID-003 VIOLATION: Unused imports or variables detected"
+    echo "Remediation: uv run ruff check --select F401,F841 --fix ."
+  fi
+fi
+```
+
+**Remediation**:
+```bash
+# Remove unused imports
+uv run ruff check --select F401 --fix .
+
+# Remove unused variables
+uv run ruff check --select F841 --fix .
+
+# Add type hints to public functions
+# See memory/code-standards.md for full checklist
+```
+
+**Rationale**: Consistent coding standards improve maintainability and reduce bugs.
+
+---
+
+### Rule: VALID-004 - Zero Merge Conflicts
+**Severity**: BLOCKING
+**Enforcement**: strict
+
+Branch MUST be rebased from main with zero merge conflicts before PR creation.
+
+**Validation**:
+```bash
+# Check if branch contains all commits from main
+git fetch origin main 2>/dev/null
+BEHIND=$(git rev-list HEAD..origin/main --count 2>/dev/null || echo 0)
+if [ "$BEHIND" -gt 0 ]; then
+  echo "[X] VALID-004 VIOLATION: Branch is $BEHIND commits behind main"
+  echo "Remediation: git fetch origin main && git rebase origin/main"
+fi
+```
+
+**Remediation**:
+```bash
+# Rebase from main
+git fetch origin main
+git rebase origin/main
+
+# Resolve any conflicts, then continue
+git rebase --continue
+
+# Force push (with lease for safety)
+git push --force-with-lease origin $(git branch --show-current)
+```
+
+**Rationale**: Prevents integration delays and merge conflicts during PR merge. PRs with conflicts waste reviewer time.
+
+---
+
+### Rule: VALID-005 - Acceptance Criteria Met
+**Severity**: BLOCKING
+**Enforcement**: strict
+
+All acceptance criteria MUST be marked complete and verified before PR creation.
+
+**Validation**:
+```bash
+TASK_ID=$(git branch --show-current 2>/dev/null | grep -oP 'task-\d+' || echo "")
+if [ -n "$TASK_ID" ]; then
+  INCOMPLETE=$(backlog task "$TASK_ID" --plain 2>/dev/null | grep -c "^\[ \]" || echo 0)
+  if [ "$INCOMPLETE" -gt 0 ]; then
+    echo "[X] VALID-005 VIOLATION: $INCOMPLETE incomplete acceptance criteria"
+    backlog task "$TASK_ID" --plain | grep "^\[ \]"
+    echo "Remediation: Complete all ACs or document why they cannot be completed"
+  fi
+fi
+```
+
+**Remediation**:
+```bash
+# Check ACs as they're completed
+backlog task edit <task-id> --check-ac 1
+backlog task edit <task-id> --check-ac 2 --check-ac 3
+
+# Verify all checked
+backlog task <task-id> --plain | grep "^\["
+```
+
+**Rationale**: Ensures deliverables match requirements. Incomplete ACs indicate incomplete work.
+
+---
+
+### Rule: VALID-006 - Task Status Synchronization
+**Severity**: BLOCKING
+**Enforcement**: strict
+
+Task status MUST reflect current workflow state. A PR must include task status updates.
+
+**Validation**:
+```bash
+TASK_ID=$(git branch --show-current 2>/dev/null | grep -oP 'task-\d+' || echo "")
+if [ -n "$TASK_ID" ]; then
+  STATUS=$(backlog task "$TASK_ID" --plain 2>/dev/null | grep "Status:" | head -1)
+  echo "Current task status: $STATUS"
+  # Status should be "In Progress" during validation phase
+fi
+```
+
+**Remediation**:
+```bash
+# Update task status
+backlog task edit <task-id> -s "In Progress"
+
+# Add implementation notes
+backlog task edit <task-id> --notes $'Implementation complete.\n\nChanges:\n- File A modified\n- File B created'
+```
+
+**Rationale**: Keeps backlog as single source of truth for project state. Stale statuses cause confusion.
+
+---
+
+### Rule: VALID-007 - CI Readiness
+**Severity**: BLOCKING
+**Enforcement**: strict
+
+All CI checks MUST pass locally before PR creation. Do NOT push and hope CI passes.
+
+**Validation**:
+```bash
+if [ -f "pyproject.toml" ]; then
+  echo "Running CI simulation..."
+
+  # Format check
+  uv run ruff format --check .
+  FORMAT_STATUS=$?
+
+  # Lint check
+  uv run ruff check .
+  LINT_STATUS=$?
+
+  # Test check
+  uv run pytest tests/ -x -q
+  TEST_STATUS=$?
+
+  if [ $FORMAT_STATUS -ne 0 ] || [ $LINT_STATUS -ne 0 ] || [ $TEST_STATUS -ne 0 ]; then
+    echo "[X] VALID-007 VIOLATION: CI checks would fail"
+    echo "Fix all issues before creating PR"
+  else
+    echo "[Y] All CI checks passed"
+  fi
+fi
+```
+
+**Remediation**:
+```bash
+# Fix formatting
+uv run ruff format .
+
+# Fix linting
+uv run ruff check --fix .
+
+# Fix tests
+uv run pytest tests/ -v  # See what's failing
+
+# Then run combined check
+uv run ruff format --check . && uv run ruff check . && uv run pytest tests/ -x -q
+```
+
+**Rationale**: Prevents PR churn and CI noise. PRs that fail CI waste everyone's time.
+
+---
+
+## Phase: PR (Pull Request Workflow)
+
+**Applies to**: After `/flow:validate` passes
+
+These rules govern the PR lifecycle from creation to merge.
+
+---
+
+### Rule: PR-001 - DCO Sign-off Required
+**Severity**: BLOCKING
+**Enforcement**: strict
+
+All commits MUST include DCO (Developer Certificate of Origin) sign-off.
+
+**Validation**:
+```bash
+# Check all commits in branch for sign-off
+UNSIGNED=$(git log origin/main..HEAD --format='%h %s' 2>/dev/null | while read hash msg; do
+  git log -1 --format='%b' "$hash" | grep -q "Signed-off-by:" || echo "$hash"
+done | wc -l)
+
+if [ "$UNSIGNED" -gt 0 ]; then
+  echo "[X] PR-001 VIOLATION: $UNSIGNED commits missing DCO sign-off"
+  echo "Remediation: git rebase origin/main --exec 'git commit --amend --no-edit -s'"
+fi
+```
+
+**Remediation**:
+```bash
+# Add sign-off to all commits (interactive rebase)
+git rebase origin/main --exec "git commit --amend --no-edit -s"
+
+# Or for single commit
+git commit --amend -s
+
+# Push with force (after rebase)
+git push --force-with-lease origin $(git branch --show-current)
+```
+
+**Rationale**: DCO is a legal requirement for open-source contributions, certifying you have the right to submit the code.
+
+---
+
+### Rule: PR-002 - Copilot Comments Resolution
+**Severity**: BLOCKING
+**Enforcement**: strict
+
+PR MUST have zero unresolved Copilot review comments before human review. Address all automated feedback first.
+
+**Validation**:
+```bash
+# Check PR for unresolved Copilot comments (requires gh CLI)
+PR_NUMBER=$(gh pr view --json number -q '.number' 2>/dev/null || echo "")
+if [ -n "$PR_NUMBER" ]; then
+  COPILOT_COMMENTS=$(gh api "repos/{owner}/{repo}/pulls/${PR_NUMBER}/comments" 2>/dev/null | \
+    jq '[.[] | select(.user.login | contains("copilot"))] | length')
+  if [ "$COPILOT_COMMENTS" -gt 0 ]; then
+    echo "INFO: PR-002: $COPILOT_COMMENTS Copilot comments to review"
+    echo "Address all comments before requesting human review"
+  fi
+fi
+```
+
+**Remediation**:
+```bash
+# Create iteration branch to address comments
+git checkout -b "$(git branch --show-current)-v2"
+
+# Make fixes
+# ...
+
+# Push new branch, create new PR, close old one
+git push origin "$(git branch --show-current)"
+gh pr create --title "feat: description (v2)" --body "Addresses Copilot feedback from PR #N"
+gh pr close <old-pr-number>
+```
+
+**Rationale**: Maximizes human reviewer efficiency by resolving automated feedback first. See ADR-004.
+
+---
+
+### Rule: PR-003 - Version Iteration Naming
+**Severity**: BLOCKING
+**Enforcement**: strict
+
+Iteration branches MUST follow naming pattern: `{original-branch}-v2`, `-v3`, etc.
+
+**Validation**:
+```bash
+BRANCH=$(git branch --show-current 2>/dev/null)
+if [[ "$BRANCH" =~ -v[0-9]+$ ]]; then
+  # This is an iteration branch - validate base exists
+  BASE_BRANCH=$(echo "$BRANCH" | sed 's/-v[0-9]*$//')
+  git rev-parse --verify "$BASE_BRANCH" > /dev/null 2>&1
+  if [ $? -ne 0 ]; then
+    echo "[X] PR-003 VIOLATION: Base branch not found: $BASE_BRANCH"
+  else
+    echo "[Y] PR-003: Valid iteration branch from $BASE_BRANCH"
+  fi
+fi
+```
+
+**Remediation**:
+```bash
+# Create iteration branch from current
+git checkout -b "$(git branch --show-current)-v2"
+
+# Or calculate next version
+CURRENT=$(git branch --show-current)
+if [[ "$CURRENT" =~ -v([0-9]+)$ ]]; then
+  VERSION="${BASH_REMATCH[1]}"
+  NEXT=$((VERSION + 1))
+  BASE=$(echo "$CURRENT" | sed 's/-v[0-9]*$//')
+  git checkout -b "${BASE}-v${NEXT}"
+else
+  git checkout -b "${CURRENT}-v2"
+fi
+```
+
+**Rationale**: Clear iteration tracking, prevents confusion about PR lineage. See ADR-004 for full pattern.
+
+---
+
+## Utilities and Helpers
+
+### Quick Validation Commands
+
+```bash
+# Validate all rules for current phase (add to scripts/bash/)
+./scripts/bash/rigor-validate.sh setup
+./scripts/bash/rigor-validate.sh execution
+./scripts/bash/rigor-validate.sh validation
+./scripts/bash/rigor-validate.sh pr
+
+# Generate compliant branch name
+./scripts/bash/rigor-branch-name.sh task-541 "rigor-rules-include"
+
+# Log a decision
+./scripts/bash/rigor-decision-log.sh \
+  --task task-541 \
+  --phase execution \
+  --decision "Using shared include pattern" \
+  --rationale "Single source of truth" \
+  --actor "@backend-engineer"
+```
+
+### Workflow Status Output Template
+
+After each workflow command completes, output status in this format:
+
+```
+[Y] Phase: {phase-name} complete
+    Current state: workflow:{State}
+    Next step: /flow:{next-command}
+
+    Progress:
+    [Y] Setup phase
+    [Y] Execution phase
+    [ ] Validation phase (NEXT)
+    [ ] PR phase
+
+    Decisions logged: N (see memory/decisions/task-XXX.jsonl)
+```
+
+---
+
+## Integration Points
+
+This file is included in /flow:* commands via:
+
+```markdown
+\{\{INCLUDE:.claude/commands/flow/_rigor-rules.md\}\}
+```
+
+**Command Phase Mapping**:
+
+| Command | Phase(s) Applied |
+|---------|-----------------|
+| `/flow:assess` | SETUP |
+| `/flow:specify` | SETUP |
+| `/flow:plan` | SETUP, EXECUTION |
+| `/flow:implement` | EXECUTION |
+| `/flow:freeze` | FREEZE |
+| `/flow:validate` | VALIDATION |
+| `/flow:operate` | PR (post-merge) |
+
+---
+
+## References
+
+- **ADR-001**: Rigor Rules Include Pattern
+- **ADR-002**: JSONL Decision Logging
+- **ADR-003**: Branch Naming Convention
+- **ADR-004**: PR Iteration Pattern
+- **memory/critical-rules.md**: Absolute rules (never delete tests, etc.)
+- **memory/code-standards.md**: Code quality standards
+
+---
+
+*Last Updated: 2025-12-17 | Version: 1.0*
+
+
 # Workflow State Validation
 
 ## Step 0: Workflow State Validation (REQUIRED)
@@ -1013,23 +2050,101 @@ This phase creates a well-formatted pull request using the PRGenerator pattern.
 This is a blocking gate. Do NOT proceed to PR creation until ALL checks pass.
 
 ```bash
-# 1. Run lint check - MUST pass with ZERO errors
+# CI Pre-flight Validation (RIGOR: VALID-007)
+echo "Running CI pre-flight validation..."
+echo ""
+
+# 1. Format check - MUST pass with ZERO errors
+echo "1. Format check..."
+uv run ruff format --check .
+FORMAT_STATUS=$?
+if [ $FORMAT_STATUS -ne 0 ]; then
+  echo "[X] Format check failed"
+  echo "Fix: uv run ruff format ."
+else
+  echo "[Y] Format check passed"
+fi
+
+# 2. Lint check - MUST pass with ZERO errors
+echo ""
+echo "2. Lint check..."
 uv run ruff check .
+LINT_STATUS=$?
+if [ $LINT_STATUS -ne 0 ]; then
+  echo "[X] Lint check failed"
+  echo "Fix: uv run ruff check --fix ."
+else
+  echo "[Y] Lint check passed"
+fi
 
-# 2. Run test suite - MUST pass with ZERO failures
+# 3. Test suite - MUST pass with ZERO failures
+echo ""
+echo "3. Test suite..."
 uv run pytest tests/ -x -q
+TEST_STATUS=$?
+if [ $TEST_STATUS -ne 0 ]; then
+  echo "[X] Tests failed"
+  echo "Fix: uv run pytest tests/ -v (see detailed output)"
+else
+  echo "[Y] Tests passed"
+fi
 
-# 3. Check for unused imports/variables
+# 4. Unused imports/variables check
+echo ""
+echo "4. Unused imports/variables..."
 uv run ruff check --select F401,F841 .
+UNUSED_STATUS=$?
+if [ $UNUSED_STATUS -ne 0 ]; then
+  echo "[X] Unused imports/variables detected"
+  echo "Fix: uv run ruff check --select F401,F841 --fix ."
+else
+  echo "[Y] No unused imports/variables"
+fi
+
+# 5. Type check (if mypy configured)
+echo ""
+echo "5. Type check..."
+if [ -f "pyproject.toml" ] && grep -q "mypy" pyproject.toml 2>/dev/null; then
+  uv run mypy src/ 2>/dev/null
+  TYPE_STATUS=$?
+  if [ $TYPE_STATUS -ne 0 ]; then
+    echo "[X] Type check failed"
+    echo "Fix: Review mypy errors and add type hints"
+  else
+    echo "[Y] Type check passed"
+  fi
+else
+  echo "⏭️  Type check skipped (mypy not configured)"
+  TYPE_STATUS=0
+fi
+
+# Evaluate overall status
+echo ""
+if [ $FORMAT_STATUS -ne 0 ] || [ $LINT_STATUS -ne 0 ] || [ $TEST_STATUS -ne 0 ] || [ $UNUSED_STATUS -ne 0 ] || [ $TYPE_STATUS -ne 0 ]; then
+  echo "[X] Pre-PR Gate Failed: CI checks must pass before PR creation"
+  echo ""
+  echo "Failed checks:"
+  [ $FORMAT_STATUS -ne 0 ] && echo "  - Format check"
+  [ $LINT_STATUS -ne 0 ] && echo "  - Lint check"
+  [ $TEST_STATUS -ne 0 ] && echo "  - Test suite"
+  [ $UNUSED_STATUS -ne 0 ] && echo "  - Unused imports/variables"
+  [ $TYPE_STATUS -ne 0 ] && echo "  - Type check"
+  echo ""
+  echo "Fix all issues and re-run /flow:validate"
+  exit 1
+fi
+
+echo "[Y] All CI checks passed"
 ```
 
 **Validation Checklist (ALL REQUIRED)**:
 
+- [ ] `ruff format --check .` passes with zero errors
 - [ ] `ruff check .` passes with zero errors
 - [ ] `pytest tests/ -x -q` passes with zero failures
 - [ ] No unused imports (`ruff check --select F401`)
 - [ ] No unused variables (`ruff check --select F841`)
-- [ ] Code is formatted (`ruff format .`)
+- [ ] Type check passes (if mypy configured)
 
 **If ANY check fails**:
 ```
@@ -1041,13 +2156,76 @@ Failures:
 Fix all issues and re-run /flow:validate
 ```
 
-**⚠️ DO NOT proceed to Step 1 if ANY validation check fails.**
+**⚠️ DO NOT proceed to Step 0.5 if ANY validation check fails.**
 
 PRs that fail CI:
 - Waste reviewer time
 - Create noise in the repository
 - Demonstrate lack of due diligence
 - Will be closed without review
+
+#### Step 0.5: Rebase Enforcement (RIGOR: VALID-004)
+
+**MANDATORY**: Branch MUST be rebased from main with zero commits behind before PR creation.
+
+```bash
+# Check if branch is behind main
+git fetch origin main 2>/dev/null
+BEHIND=$(git rev-list --count HEAD..origin/main 2>/dev/null || echo "0")
+
+if [ "$BEHIND" -gt 0 ]; then
+  echo "[X] RIGOR VIOLATION (VALID-004): Branch is $BEHIND commits behind main"
+  echo "Fix: git fetch origin main && git rebase origin/main"
+  echo ""
+  echo "After rebasing:"
+  echo "  1. Resolve any conflicts"
+  echo "  2. Run tests: uv run pytest tests/ -x"
+  echo "  3. Push: git push --force-with-lease origin \$(git branch --show-current)"
+  exit 1
+fi
+
+echo "[Y] Branch is up-to-date with main (zero commits behind)"
+```
+
+**This is BLOCKING** - do not proceed to Step 1 if branch is behind main.
+
+#### Step 0.6: DCO Sign-off Verification (RIGOR: PR-001)
+
+**MANDATORY**: All commits MUST have DCO (Developer Certificate of Origin) sign-off.
+
+```bash
+# Check all commits in branch for DCO sign-off
+echo "Checking DCO sign-off for all commits..."
+
+UNSIGNED=$(git log origin/main..HEAD --format='%H %s' 2>/dev/null | while read hash msg; do
+  if ! git log -1 --format='%B' "$hash" | grep -q "^Signed-off-by:"; then
+    echo "$hash"
+  fi
+done)
+
+if [ -n "$UNSIGNED" ]; then
+  UNSIGNED_COUNT=$(echo "$UNSIGNED" | wc -l | tr -d ' ')
+  echo "[X] RIGOR VIOLATION (PR-001): $UNSIGNED_COUNT commits missing DCO sign-off"
+  echo ""
+  echo "Unsigned commits:"
+  git log origin/main..HEAD --format='%h %s' 2>/dev/null | while read hash msg; do
+    if ! git log -1 --format='%B' "$hash" | grep -q "^Signed-off-by:"; then
+      echo "  $hash $msg"
+    fi
+  done
+  echo ""
+  echo "Fix: Add sign-off to all commits:"
+  echo "  git rebase origin/main --exec 'git commit --amend --no-edit -s'"
+  echo "  git push --force-with-lease origin \$(git branch --show-current)"
+  exit 1
+fi
+
+echo "[Y] All commits have DCO sign-off"
+```
+
+**DCO Certification**: By signing off, you certify that you wrote the code or otherwise have the right to submit it under the project's license.
+
+**This is BLOCKING** - do not proceed to Step 1 if any commits lack DCO sign-off.
 
 #### Step 1: Check Branch Status and Merge Conflicts
 
@@ -1210,7 +2388,180 @@ Parse PR URL from `gh` output and display to user.
 PR URL: https://github.com/owner/repo/pull/123
 Task: task-094 (Done)
 
-Workflow complete! 🎉
+Next: Monitor for Copilot review comments (see Phase 6.5 for iteration guidance)
+```
+
+---
+
+### Phase 6.5: Copilot Comment Resolution (Post-PR Iteration)
+
+**Report progress**: Print "Phase 6.5: Monitoring for Copilot review comments..."
+
+**IMPORTANT**: This phase is executed AFTER PR creation when GitHub Copilot provides review comments.
+
+#### When to Execute Phase 6.5
+
+Execute this phase when:
+- PR has been created successfully
+- GitHub Copilot has posted review comments on the PR
+- Comments suggest code improvements, security issues, or best practice violations
+
+#### Step 1: Review Copilot Comments
+
+```bash
+# View Copilot comments on the PR
+gh pr view <pr-number> --comments
+
+# Or view in browser
+gh pr view <pr-number> --web
+```
+
+**Evaluation criteria**:
+- Is the suggestion valid and improves code quality?
+- Does it address a real issue (security, performance, maintainability)?
+- Is it aligned with project coding standards?
+
+#### Step 2: Decide on Action
+
+**If ALL Copilot comments are invalid/not applicable**:
+- Add a comment explaining why suggestions are not being applied
+- Proceed to request human review
+- No iteration needed
+
+**If ANY Copilot comments are valid**:
+- Proceed to Step 3 to create iteration branch
+
+#### Step 3: Create Iteration Branch
+
+**RIGOR: PR-003 - Version Iteration Naming**
+
+```bash
+# Determine current iteration version
+CURRENT_BRANCH=$(git branch --show-current)
+
+# Calculate next version
+if [[ "$CURRENT_BRANCH" =~ -v([0-9]+)$ ]]; then
+  # Already an iteration branch (e.g., hostname/task-123/feature-v2)
+  VERSION="${BASH_REMATCH[1]}"
+  NEXT_VERSION=$((VERSION + 1))
+  BASE_BRANCH=$(echo "$CURRENT_BRANCH" | sed 's/-v[0-9]*$//')
+  ITERATION_BRANCH="${BASE_BRANCH}-v${NEXT_VERSION}"
+else
+  # First iteration (e.g., hostname/task-123/feature -> hostname/task-123/feature-v2)
+  ITERATION_BRANCH="${CURRENT_BRANCH}-v2"
+fi
+
+# Create iteration branch
+git checkout -b "$ITERATION_BRANCH"
+echo "Created iteration branch: $ITERATION_BRANCH"
+```
+
+**Branch naming pattern**:
+- Original: `hostname/task-NNN/feature-slug`
+- First iteration: `hostname/task-NNN/feature-slug-v2`
+- Second iteration: `hostname/task-NNN/feature-slug-v3`
+- Nth iteration: `hostname/task-NNN/feature-slug-v{N+1}`
+
+#### Step 4: Apply Fixes
+
+Address each valid Copilot comment:
+
+1. **Make code changes** to resolve the issue
+2. **Add tests** if new logic introduced
+3. **Update documentation** if behavior changed
+4. **Verify locally** with CI pre-flight checks:
+
+```bash
+# Run full validation suite
+uv run ruff format .
+uv run ruff check --fix .
+uv run pytest tests/ -x -q
+
+# Verify no issues
+if [ $? -eq 0 ]; then
+  echo "[Y] Fixes validated locally"
+else
+  echo "[X] Fixes introduced new issues - resolve before pushing"
+fi
+```
+
+#### Step 5: Commit and Push Iteration
+
+```bash
+# Stage all changes
+git add .
+
+# Commit with DCO sign-off
+git commit -s -m "fix: address Copilot feedback from PR #<old-pr-number>
+
+- Fix 1: Description
+- Fix 2: Description
+- Fix 3: Description
+
+Resolves Copilot comments: <comment-links>"
+
+# Push iteration branch
+git push -u origin "$ITERATION_BRANCH"
+```
+
+#### Step 6: Create New PR and Close Old PR
+
+**RIGOR: PR-002 - Copilot Comments Resolution**
+
+```bash
+# Get old PR number
+OLD_PR=$(gh pr view --json number -q '.number' 2>/dev/null)
+
+# Create new PR with iteration branch
+gh pr create \
+  --title "feat: <feature-description> (v2)" \
+  --body "$(cat <<'EOF'
+## Summary
+Supersedes PR #<old-pr-number> with Copilot feedback addressed.
+
+## Changes from Previous PR
+- Addressed Copilot comment: <summary of fix 1>
+- Addressed Copilot comment: <summary of fix 2>
+- Addressed Copilot comment: <summary of fix 3>
+
+## Previous PR
+See #<old-pr-number> for original context and acceptance criteria.
+
+## Test Plan
+- ✅ All tests passing
+- ✅ Copilot suggestions implemented
+- ✅ CI pre-flight checks passed
+
+<Include full test plan from original PR>
+EOF
+)"
+
+# Close old PR with reference to new one
+NEW_PR=$(gh pr view --json number -q '.number' 2>/dev/null)
+gh pr close "$OLD_PR" --comment "Superseded by PR #${NEW_PR} with Copilot feedback addressed"
+
+echo "Old PR #${OLD_PR} closed, new PR #${NEW_PR} created"
+```
+
+#### Step 7: Iterate Until Zero Copilot Comments
+
+**Repeat Phase 6.5 until**:
+- Zero unresolved Copilot comments remain, OR
+- All remaining comments are documented as "will not fix" with rationale
+
+**Maximum iterations**: If exceeding 5 iterations, escalate to human review to discuss whether Copilot suggestions are appropriate.
+
+#### Phase 6.5 Success
+
+```
+✅ Phase 6.5 Complete: Copilot feedback addressed
+
+Iteration: v3
+PR URL: https://github.com/owner/repo/pull/125
+Previous PRs: #123 (v1, closed), #124 (v2, closed)
+Unresolved Copilot comments: 0
+
+Ready for human review!
 ```
 
 ---
