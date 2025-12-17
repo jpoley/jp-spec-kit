@@ -10,6 +10,7 @@ PRD Format: Standard product requirements document with required sections:
 - Functional Requirements
 - Non-Functional Requirements
 - Success Metrics
+- All Needed Context (includes Examples, Gotchas, External Systems)
 
 Example:
     >>> from flowspec_cli.workflow.prd_validator import PRDValidator
