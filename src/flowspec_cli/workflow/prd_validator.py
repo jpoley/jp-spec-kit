@@ -60,6 +60,13 @@ USER_STORY_PATTERN = re.compile(
 # Acceptance criterion pattern: AC# or - [ ]
 AC_PATTERN = re.compile(r"(?:AC\d+:?|[-*]\s*\[[ x]\])\s*.+", re.IGNORECASE)
 
+# Example reference pattern: table row with examples/ path
+# Matches rows like: | Example Name | `examples/path` | Description |
+EXAMPLE_REFERENCE_PATTERN = re.compile(
+    r"^\s*\|\s*[^|]+\s*\|\s*`?examples/[^|`]+`?\s*\|\s*[^|]+\s*\|",
+    re.MULTILINE,
+)
+
 
 @dataclass
 class PRDValidationResult:
@@ -74,6 +81,7 @@ class PRDValidationResult:
         sections_found: List of sections found in the PRD.
         user_story_count: Number of user stories found.
         ac_count: Number of acceptance criteria found.
+        example_count: Number of example references found.
     """
 
     is_valid: bool
@@ -84,6 +92,7 @@ class PRDValidationResult:
     sections_found: list[str] = field(default_factory=list)
     user_story_count: int = 0
     ac_count: int = 0
+    example_count: int = 0
 
     def to_dict(self) -> dict[str, Any]:
         """Convert result to dictionary for serialization."""
@@ -96,6 +105,7 @@ class PRDValidationResult:
             "sections_found": self.sections_found,
             "user_story_count": self.user_story_count,
             "ac_count": self.ac_count,
+            "example_count": self.example_count,
         }
 
 
@@ -137,6 +147,7 @@ class PRDValidator:
         feature_name: str | None = None
         user_story_count: int = 0
         ac_count: int = 0
+        example_count: int = 0
 
         # Check file exists
         if not prd_path.exists():
@@ -198,6 +209,14 @@ class PRDValidator:
                 "Consider adding AC1, AC2, etc."
             )
 
+        # Count example references in All Needed Context section
+        example_count = len(EXAMPLE_REFERENCE_PATTERN.findall(content))
+        if example_count == 0:
+            errors.append(
+                "No example references found in 'All Needed Context' section. "
+                "Expected at least one row with examples/ path in table format."
+            )
+
         # Check for empty sections
         empty_sections = self._find_empty_sections(content, REQUIRED_PRD_SECTIONS)
         for empty_section in empty_sections:
@@ -217,6 +236,7 @@ class PRDValidator:
             sections_found=sections_found,
             user_story_count=user_story_count,
             ac_count=ac_count,
+            example_count=example_count,
         )
 
     def validate_for_feature(

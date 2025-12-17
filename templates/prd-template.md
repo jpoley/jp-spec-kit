@@ -134,8 +134,6 @@ As a {user role}, I want {goal} so that {benefit}.
 - **Specificity**: Clear explanation of which parts of the example apply to this feature
 - **Actionable**: Implementer can extract specific patterns or approaches from the example
 
-**Format**: | Example | Location | Relevance to This Feature |
-
 | Example | Location | Relevance to This Feature |
 |---------|----------|---------------------------|
 | {Example name} | `examples/{path}` | {How this example relates - be specific about which patterns/functions/approaches apply} |
