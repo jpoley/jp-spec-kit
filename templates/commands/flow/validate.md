@@ -241,11 +241,14 @@ else
   # Pattern matches:
   #   - Lines starting with non-whitespace, non-hash chars (direct commands)
   #   - Indented non-comment lines with actual content (strips leading whitespace)
+  # Filters out:
+  #   - Code block markers (``` or ```bash) in case users ignore documentation warnings
   VALIDATION_COMMANDS=$(echo "$FVP_SECTION" | awk '
     BEGIN { in_cmds=0 }
     /^### Commands/ { in_cmds=1; next }
     /^###/ && in_cmds { exit }
     /^## / && in_cmds { exit }
+    /^```/ { next }
     in_cmds && /^[^#[:space:]]/ { print }
     in_cmds && /^[[:space:]]+[^#[:space:]]/ { gsub(/^[[:space:]]+/, ""); if (NF > 0) print }
   ')
@@ -256,7 +259,7 @@ else
 fi
 ```
 
-Store the extracted commands for use in Phase 1.
+Store the extracted commands for immediate execution in Phase 0.5 (Feature Validation Plan execution before Phase 1).
 
 #### Step 4: Display Validation Commands to User
 
@@ -293,6 +296,8 @@ Based on user choice:
 # Allowlist of safe command patterns (customize per project)
 # Patterns are anchored at both start and end for security
 # Note: ( +.*)? requires at least one space before arguments
+# Security assumption: npm run/test assumes package.json scripts are trusted.
+#   The allowlist validates command format but not the script content itself.
 SAFE_PATTERNS=(
   "^pytest( +.*)?$"
   "^ruff( +.*)?$"
@@ -311,6 +316,9 @@ SAFE_PATTERNS=(
 # Note: '$' is intentionally included to block variable expansion. This also
 #       blocks otherwise-safe commands containing literal $ (e.g., grep patterns).
 # Note: '\\\\' becomes '\\' after $'...' shell parsing, then '\' in the regex.
+# Limitation: Backslash blocking prevents legitimate escaped regex in test filters
+#   (e.g., pytest -k "test\d+"). Document test patterns without escapes or use
+#   pytest markers instead of -k filters with regex.
 DANGEROUS_CHARS=$'[;|&$`\\\\(){}<>\t\n]'
 
 # Validate each command against allowlist
@@ -324,9 +332,12 @@ validate_command() {
   fi
 
   # Check for path traversal attempts (e.g., pytest ../../etc/passwd)
-  # Only block /.., ../, or standalone .. (including when space-separated)
-  # to avoid false positives on legitimate patterns like version ranges (1..10)
-  if [[ "$cmd" =~ (^|[[:space:]/])\.\.([[:space:]/]|$) ]]; then
+  # Pattern requires "/" adjacent to ".." to catch actual path traversal:
+  #   - Matches: /../, /.. at end, ../ at start or after space
+  #   - Does NOT match: test..py, 1..10, file...name (consecutive dots without /)
+  # Limitation: Does not catch URL-encoded (%2e%2e) or UTF-8 encoded traversal.
+  #   Such attacks are mitigated by the allowlist and DANGEROUS_CHARS checks.
+  if [[ "$cmd" =~ (^|[[:space:]])\.\./ || "$cmd" =~ /\.\.(\/|[[:space:]]|$) ]]; then
     echo "⚠️ Security: Command contains path traversal (..): $cmd"
     return 1  # Reject commands with path traversal
   fi
@@ -351,6 +362,9 @@ while IFS= read -r cmd; do
       # Execute the validated command via bash so that quoting and arguments
       # are handled correctly. Safety relies on validate_command/DANGEROUS_CHARS
       # rejecting shell metacharacters and unsafe patterns.
+      # Limitation: File paths with spaces may not work correctly (e.g.,
+      #   "pytest tests/my file.py"). Use quoted paths in FVP commands or
+      #   avoid spaces in test file paths.
       bash -c "$cmd"
       exit_code=$?
       if [ "$exit_code" -eq 0 ]; then
@@ -422,7 +436,7 @@ These results will be included in implementation notes during Phase 5.
   Exit Code: 1
   Output: [test output]
 
-  Fix the failing tests and re-run /flow:validate
+  Workflow halted. Fix the failing tests and re-run /flow:validate
   ```
 
 **Phase 0.5 Success**: Print summary:
@@ -940,7 +954,7 @@ Create comprehensive implementation notes based on:
 
 ### What Was Implemented
 Enhanced the /flow:validate command with phased orchestration workflow.
-Implemented 8 distinct phases (Phase 0, 0.5, 1-6) with progress reporting and error handling.
+Implemented 8 distinct phases (Phase 0, 0.5, 1-5, and 6) with progress reporting and error handling.
 
 ### Feature Validation Plan Results
 [Include results from Phase 0.5 if Feature Validation Plan was found and executed]
