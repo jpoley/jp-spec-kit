@@ -108,7 +108,7 @@ If no plan exists, **ASK THE USER** to provide one before creating tasks. Option
 - User runs `/flow:plan` first to create formal plan documentation
 - User provides plan details inline (you add them via `backlog task edit --plan`)
 
-Do not proceed with task creation until a plan is documented.
+Do not proceed with specification creation until a plan is documented.
 
 ### Step 3: Specification Creation
 
