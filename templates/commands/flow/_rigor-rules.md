@@ -552,7 +552,7 @@ fi
 UNPUSHED=$(git log @{u}.. --oneline 2>/dev/null | wc -l || echo 0)
 if [ "$UNPUSHED" -gt 0 ]; then
   echo "[X] FREEZE-002 VIOLATION: $UNPUSHED unpushed commits"
-  echo "Remediation: git push origin "$(git branch --show-current)""
+  echo "Remediation: git push origin \"$(git branch --show-current)\""
 fi
 ```
 
