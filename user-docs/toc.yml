@@ -1,0 +1,181 @@
+# Home page
+- name: Home
+  href: index.md
+
+# Getting started section
+- name: Getting Started
+  items:
+    - name: Installation
+      href: installation.md
+    - name: Quick Start
+      href: quickstart.md
+    - name: Local Development
+      href: local-development.md
+
+# Backlog Management
+- name: Backlog Management
+  items:
+    - name: Quick Start
+      href: guides/backlog-quickstart.md
+    - name: User Guide
+      href: guides/backlog-user-guide.md
+    - name: Backlog Commands
+      href: reference/backlog-commands.md
+    - name: Troubleshooting
+      href: guides/backlog-troubleshooting.md
+    - name: Migration Guide
+      href: guides/backlog-migration.md
+    - name: Flush Backlog
+      href: guides/backlog-flush.md
+
+# Workflow configuration
+- name: Workflow System
+  items:
+    - name: Understanding Workflows
+      items:
+        - name: Workflow Architecture
+          href: guides/workflow-architecture.md
+        - name: Flowspec Workflow Guide
+          href: guides/flowspec-workflow-guide.md
+        - name: Flowspec + Backlog Integration
+          href: guides/flowspec-backlog-workflow.md
+        - name: Workflow State Mapping
+          href: guides/workflow-state-mapping.md
+    - name: Customization
+      items:
+        - name: Workflow Customization Guide
+          href: guides/workflow-customization.md
+        - name: Workflow Troubleshooting
+          href: guides/workflow-troubleshooting.md
+    - name: Examples
+      items:
+        - name: Minimal Workflow
+          href: examples/workflows/minimal-workflow.md
+        - name: Security Audit Workflow
+          href: examples/workflows/security-audit-workflow.md
+        - name: Parallel Workflows
+          href: examples/workflows/parallel-workflows.md
+        - name: Custom Agents Workflow
+          href: examples/workflows/custom-agents-workflow.md
+    - name: Reference
+      items:
+        - name: Workflow Schema
+          href: reference/workflow-schema.md
+        - name: Workflow Schema Validation
+          href: reference/workflow-schema-validation.md
+        - name: Workflow Artifact Flow
+          href: reference/workflow-artifact-flow.md
+        - name: Workflow Step Principles
+          href: reference/workflow-step-principles.md
+
+# Constitution & Templates
+- name: Constitution & Templates
+  items:
+    - name: Constitution Distribution
+      href: guides/constitution-distribution.md
+    - name: Constitution Validation
+      href: guides/constitution-validation.md
+    - name: Constitution Troubleshooting
+      href: guides/constitution-troubleshooting.md
+    - name: Examples
+      items:
+        - name: TypeScript/Next.js
+          href: examples/constitutions/typescript-nextjs.md
+        - name: Python/FastAPI
+          href: examples/constitutions/python-fastapi.md
+        - name: Go API
+          href: examples/constitutions/go-api.md
+        - name: Rust CLI
+          href: examples/constitutions/rust-cli.md
+
+# Hooks System
+- name: Hooks System
+  items:
+    - name: Quick Start
+      href: guides/hooks-quickstart.md
+
+# Security Features
+- name: Security
+  items:
+    - name: Quick Start
+      href: guides/security-quickstart.md
+    - name: Security MCP Guide
+      href: guides/security-mcp-guide.md
+    - name: Security Workflow Integration
+      href: guides/security-workflow-integration.md
+    - name: Security CI/CD Integration
+      href: guides/security-cicd-integration.md
+    - name: Security Personas
+      href: guides/security-personas.md
+    - name: Custom Rules
+      href: guides/security-custom-rules.md
+    - name: DAST Testing
+      href: guides/security-dast.md
+    - name: CodeQL Setup
+      href: guides/codeql-setup.md
+    - name: Reference
+      items:
+        - name: Security Commands
+          href: reference/flowspec-security-commands.md
+        - name: Privacy Policy
+          href: reference/security-privacy-policy.md
+        - name: Threat Model
+          href: reference/security-threat-model.md
+
+# Task Memory
+- name: Task Memory
+  items:
+    - name: Overview
+      href: guides/task-memory-overview.md
+    - name: User Guide
+      href: guides/task-memory-user-guide.md
+
+# Advanced Topics
+- name: Advanced Topics
+  items:
+    - name: Team Mode Workflow
+      href: guides/team-mode-workflow.md
+    - name: VS Code Role Integration
+      href: guides/vscode-role-integration.md
+    - name: CI/CD Role Validation
+      href: guides/ci-cd-role-validation.md
+    - name: Problem Sizing Assessment
+      href: guides/problem-sizing-assessment.md
+    - name: PR Quality Checklist
+      href: guides/pr-quality-checklist.md
+
+# Reference Documentation
+- name: Reference
+  items:
+    - name: Agent Architecture
+      items:
+        - name: Agent Loop Classification
+          href: reference/agent-loop-classification.md
+        - name: Agent Architecture Diagrams
+          href: reference/agent-architecture-diagrams.md
+        - name: Agent MCP Integrations
+          href: reference/agent-mcp-integrations.md
+        - name: Inner Loop
+          href: reference/inner-loop.md
+        - name: Outer Loop
+          href: reference/outer-loop.md
+    - name: Artifact Patterns
+      href: reference/artifact-path-patterns.md
+    - name: MCP Documentation
+      items:
+        - name: MCP Overview
+          href: reference/mcp-1.md
+        - name: MCP Advanced
+          href: reference/mcp-2.md
+
+# Case Studies
+- name: Case Studies
+  items:
+    - name: Overview
+      href: case-studies/README.md
+    - name: Workflow Hook System
+      href: case-studies/01-workflow-hook-system.md
+    - name: Constitution Templates
+      href: case-studies/02-constitution-templates.md
+    - name: Security Scanner
+      href: case-studies/03-security-scanner.md

@@ -1,8 +1,30 @@
 # Global code owner - default reviewer for all PRs
 * @jpoley
 
+# =============================================================================
+# CRITICAL FILES - DELETION REQUIRES EXPLICIT APPROVAL
+# These files are essential for CI/CD pipelines. Deleting them breaks builds.
+# =============================================================================
+
+# DocFX configuration - BREAKING DELETION ON DEC 14, 2025
+# Without these files, documentation deployment fails
+/user-docs/docfx.json @jpoley
+/user-docs/toc.yml @jpoley
+/user-docs/index.md @jpoley
+
+# Workflow files - breaking these breaks CI
+/.github/workflows/docs.yml @jpoley
+/.github/workflows/ci.yml @jpoley
+/.github/workflows/release.yml @jpoley
+
+# =============================================================================
+# Standard ownership rules
+# =============================================================================
+
 # Documentation
 /docs/ @jpoley
+/user-docs/ @jpoley
+/build-docs/ @jpoley
 *.md @jpoley
 README* @jpoley
 

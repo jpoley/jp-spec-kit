@@ -1,0 +1,110 @@
+# Validate critical files exist on every PR and push
+# This is a safety net after the Dec 14, 2025 incident where
+# docs/docfx.json was accidentally deleted, breaking CI for 7+ runs.
+#
+# This check BLOCKS merging if critical files are missing.
+
+name: Critical Files Check
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  check-critical-files:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate critical files exist
+        run: |
+          echo "Checking critical files..."
+          MISSING=0
+
+          # Critical files list - add files here that MUST exist
+          CRITICAL_FILES=(
+            "user-docs/docfx.json"
+            "user-docs/toc.yml"
+            "user-docs/index.md"
+            ".github/workflows/docs.yml"
+            ".github/workflows/ci.yml"
+            ".github/workflows/release.yml"
+            "pyproject.toml"
+            "CLAUDE.md"
+          )
+
+          for file in "${CRITICAL_FILES[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "::error::CRITICAL FILE MISSING: $file"
+              echo "  This file is required for CI/CD to function."
+              echo "  It was likely accidentally deleted."
+              MISSING=$((MISSING + 1))
+            else
+              echo "✓ $file"
+            fi
+          done
+
+          if [ $MISSING -gt 0 ]; then
+            echo ""
+            echo "::error::$MISSING critical file(s) missing!"
+            echo ""
+            echo "╔═══════════════════════════════════════════════════════════════════╗"
+            echo "║  🛑 MERGE BLOCKED - CRITICAL FILES MISSING                        ║"
+            echo "╠═══════════════════════════════════════════════════════════════════╣"
+            echo "║  This PR deletes files that are essential for CI/CD.              ║"
+            echo "║                                                                   ║"
+            echo "║  Fix: Restore the missing files before merging.                   ║"
+            echo "║                                                                   ║"
+            echo "║  History: Dec 14, 2025 - docfx.json deletion broke docs CI        ║"
+            echo "║           for 7+ consecutive runs before discovery.               ║"
+            echo "╚═══════════════════════════════════════════════════════════════════╝"
+            exit 1
+          fi
+
+          echo ""
+          echo "All critical files present ✓"
+
+      - name: Check for critical file deletions in PR
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Checking PR for critical file deletions..."
+
+          # Get list of deleted files in this PR
+          DELETED=$(gh pr diff ${{ github.event.pull_request.number }} --name-only | grep "^D" | sed 's/^D\t//' || true)
+
+          if [ -z "$DELETED" ]; then
+            echo "No files deleted in this PR ✓"
+            exit 0
+          fi
+
+          CRITICAL_FILES=(
+            "user-docs/docfx.json"
+            "user-docs/toc.yml"
+            "user-docs/index.md"
+            ".github/workflows/docs.yml"
+            ".github/workflows/ci.yml"
+            ".github/workflows/release.yml"
+            "pyproject.toml"
+            "CLAUDE.md"
+          )
+
+          BLOCKED=0
+          for file in "${CRITICAL_FILES[@]}"; do
+            if echo "$DELETED" | grep -qx "$file"; then
+              echo "::error::PR attempts to delete critical file: $file"
+              BLOCKED=1
+            fi
+          done
+
+          if [ $BLOCKED -eq 1 ]; then
+            echo ""
+            echo "::error::This PR deletes critical files. Merge blocked."
+            exit 1
+          fi
+
+          echo "No critical files deleted in this PR ✓"

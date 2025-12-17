@@ -13,7 +13,7 @@ def customization_guide_path():
     return (
         Path(__file__).parent.parent
         / "user-docs"
-        / "user-guides"
+        / "guides"
         / "workflow-customization.md"
     )
 
@@ -28,7 +28,7 @@ def guide_content(customization_guide_path):
 
 
 class TestGuideExists:
-    """AC #1: Guide created at user-docs/user-guides/workflow-customization.md"""
+    """AC #1: Guide created at user-docs/guides/workflow-customization.md"""
 
     def test_guide_file_exists(self, customization_guide_path):
         """Verify the guide file exists at the expected location."""
