@@ -84,7 +84,8 @@ Before creating implementation tasks, verify a documented plan exists:
 
 ```bash
 # Check for plan documentation
-if [ ! -f docs/plan/*.md ] && [ -z "$IMPLEMENTATION_PLAN" ]; then
+# Use compgen -G for glob pattern matching ([ -f ] doesn't work with globs)
+if ! compgen -G "docs/plan/*.md" > /dev/null 2>&1 && [ -z "$IMPLEMENTATION_PLAN" ]; then
   echo "⚠️ RIGOR RULE SETUP-001: No documented plan found"
   echo ""
   echo "A clear plan of action is required before task creation."
@@ -275,13 +276,18 @@ Your deliverables should include:
    # Create implementation tasks for each major deliverable
    # Example pattern (adapt to actual feature requirements):
 
-   backlog task create "Implement [Core Feature]" \
-     -d "Core implementation per PRD section 4
+   # Use heredoc for multi-line descriptions (bash-compliant syntax)
+   read -r -d '' CORE_DESC << 'EOF'
+Core implementation per PRD section 4
 
 Agent context:
 - Read: src/module/existing_feature.py for patterns
 - Follow: repository coding standards in memory/code-standards.md
-- Constraints: Must maintain backward compatibility" \
+- Constraints: Must maintain backward compatibility
+EOF
+
+   backlog task create "Implement [Core Feature]" \
+     -d "$CORE_DESC" \
      --ac "API endpoint returns valid response matching schema in tests/fixtures/schema.json" \
      --ac "Input validation rejects malformed requests with 400 status" \
      --ac "Unit test coverage exceeds 80% (measured by pytest-cov)" \
@@ -289,13 +295,17 @@ Agent context:
      -l implement,backend \
      --priority high
 
-   backlog task create "Implement [UI Components]" \
-     -d "Frontend implementation per PRD user stories
+   read -r -d '' UI_DESC << 'EOF'
+Frontend implementation per PRD user stories
 
 Agent context:
 - Read: src/components/ExistingComponent.tsx for component patterns
 - Follow: WCAG 2.1 AA accessibility standards
-- Constraints: Must work on mobile and desktop viewports" \
+- Constraints: Must work on mobile and desktop viewports
+EOF
+
+   backlog task create "Implement [UI Components]" \
+     -d "$UI_DESC" \
      --ac "Component renders without errors in Vitest unit tests" \
      --ac "WCAG 2.1 AA compliance verified by axe-core (zero violations)" \
      --ac "Integration tests pass in Playwright for desktop and mobile viewports" \
