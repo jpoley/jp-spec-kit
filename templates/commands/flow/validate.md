@@ -21,6 +21,8 @@ $ARGUMENTS
 
 {{INCLUDE:.claude/commands/flow/_constitution-check.md}}
 
+{{INCLUDE:.claude/commands/flow/_rigor-rules.md}}
+
 {{INCLUDE:.claude/commands/flow/_workflow-state.md}}
 
 **For /flow:validate**: Required input state is `workflow:In Implementation`. Output state will be `workflow:Validated`.
@@ -681,23 +683,101 @@ This phase creates a well-formatted pull request using the PRGenerator pattern.
 This is a blocking gate. Do NOT proceed to PR creation until ALL checks pass.
 
 ```bash
-# 1. Run lint check - MUST pass with ZERO errors
+# CI Pre-flight Validation (RIGOR: VALID-007)
+echo "Running CI pre-flight validation..."
+echo ""
+
+# 1. Format check - MUST pass with ZERO errors
+echo "1. Format check..."
+uv run ruff format --check .
+FORMAT_STATUS=$?
+if [ $FORMAT_STATUS -ne 0 ]; then
+  echo "[X] Format check failed"
+  echo "Fix: uv run ruff format ."
+else
+  echo "[Y] Format check passed"
+fi
+
+# 2. Lint check - MUST pass with ZERO errors
+echo ""
+echo "2. Lint check..."
 uv run ruff check .
+LINT_STATUS=$?
+if [ $LINT_STATUS -ne 0 ]; then
+  echo "[X] Lint check failed"
+  echo "Fix: uv run ruff check --fix ."
+else
+  echo "[Y] Lint check passed"
+fi
 
-# 2. Run test suite - MUST pass with ZERO failures
+# 3. Test suite - MUST pass with ZERO failures
+echo ""
+echo "3. Test suite..."
 uv run pytest tests/ -x -q
+TEST_STATUS=$?
+if [ $TEST_STATUS -ne 0 ]; then
+  echo "[X] Tests failed"
+  echo "Fix: uv run pytest tests/ -v (see detailed output)"
+else
+  echo "[Y] Tests passed"
+fi
 
-# 3. Check for unused imports/variables
+# 4. Unused imports/variables check
+echo ""
+echo "4. Unused imports/variables..."
 uv run ruff check --select F401,F841 .
+UNUSED_STATUS=$?
+if [ $UNUSED_STATUS -ne 0 ]; then
+  echo "[X] Unused imports/variables detected"
+  echo "Fix: uv run ruff check --select F401,F841 --fix ."
+else
+  echo "[Y] No unused imports/variables"
+fi
+
+# 5. Type check (if mypy configured)
+echo ""
+echo "5. Type check..."
+if [ -f "pyproject.toml" ] && grep -q "mypy" pyproject.toml 2>/dev/null; then
+  uv run mypy src/ 2>/dev/null
+  TYPE_STATUS=$?
+  if [ $TYPE_STATUS -ne 0 ]; then
+    echo "[X] Type check failed"
+    echo "Fix: Review mypy errors and add type hints"
+  else
+    echo "[Y] Type check passed"
+  fi
+else
+  echo "⏭️  Type check skipped (mypy not configured)"
+  TYPE_STATUS=0
+fi
+
+# Evaluate overall status
+echo ""
+if [ $FORMAT_STATUS -ne 0 ] || [ $LINT_STATUS -ne 0 ] || [ $TEST_STATUS -ne 0 ] || [ $UNUSED_STATUS -ne 0 ] || [ $TYPE_STATUS -ne 0 ]; then
+  echo "[X] Pre-PR Gate Failed: CI checks must pass before PR creation"
+  echo ""
+  echo "Failed checks:"
+  [ $FORMAT_STATUS -ne 0 ] && echo "  - Format check"
+  [ $LINT_STATUS -ne 0 ] && echo "  - Lint check"
+  [ $TEST_STATUS -ne 0 ] && echo "  - Test suite"
+  [ $UNUSED_STATUS -ne 0 ] && echo "  - Unused imports/variables"
+  [ $TYPE_STATUS -ne 0 ] && echo "  - Type check"
+  echo ""
+  echo "Fix all issues and re-run /flow:validate"
+  exit 1
+fi
+
+echo "[Y] All CI checks passed"
 ```
 
 **Validation Checklist (ALL REQUIRED)**:
 
+- [ ] `ruff format --check .` passes with zero errors
 - [ ] `ruff check .` passes with zero errors
 - [ ] `pytest tests/ -x -q` passes with zero failures
 - [ ] No unused imports (`ruff check --select F401`)
 - [ ] No unused variables (`ruff check --select F841`)
-- [ ] Code is formatted (`ruff format .`)
+- [ ] Type check passes (if mypy configured)
 
 **If ANY check fails**:
 ```
@@ -709,13 +789,76 @@ Failures:
 Fix all issues and re-run /flow:validate
 ```
 
-**⚠️ DO NOT proceed to Step 1 if ANY validation check fails.**
+**⚠️ DO NOT proceed to Step 0.5 if ANY validation check fails.**
 
 PRs that fail CI:
 - Waste reviewer time
 - Create noise in the repository
 - Demonstrate lack of due diligence
 - Will be closed without review
+
+#### Step 0.5: Rebase Enforcement (RIGOR: VALID-004)
+
+**MANDATORY**: Branch MUST be rebased from main with zero commits behind before PR creation.
+
+```bash
+# Check if branch is behind main
+git fetch origin main 2>/dev/null
+BEHIND=$(git rev-list --count HEAD..origin/main 2>/dev/null || echo "0")
+
+if [ "$BEHIND" -gt 0 ]; then
+  echo "[X] RIGOR VIOLATION (VALID-004): Branch is $BEHIND commits behind main"
+  echo "Fix: git fetch origin main && git rebase origin/main"
+  echo ""
+  echo "After rebasing:"
+  echo "  1. Resolve any conflicts"
+  echo "  2. Run tests: uv run pytest tests/ -x"
+  echo "  3. Push: git push --force-with-lease origin \$(git branch --show-current)"
+  exit 1
+fi
+
+echo "[Y] Branch is up-to-date with main (zero commits behind)"
+```
+
+**This is BLOCKING** - do not proceed to Step 1 if branch is behind main.
+
+#### Step 0.6: DCO Sign-off Verification (RIGOR: PR-001)
+
+**MANDATORY**: All commits MUST have DCO (Developer Certificate of Origin) sign-off.
+
+```bash
+# Check all commits in branch for DCO sign-off
+echo "Checking DCO sign-off for all commits..."
+
+UNSIGNED=$(git log origin/main..HEAD --format='%H %s' 2>/dev/null | while read hash msg; do
+  if ! git log -1 --format='%B' "$hash" | grep -q "^Signed-off-by:"; then
+    echo "$hash"
+  fi
+done)
+
+if [ -n "$UNSIGNED" ]; then
+  UNSIGNED_COUNT=$(echo "$UNSIGNED" | wc -l | tr -d ' ')
+  echo "[X] RIGOR VIOLATION (PR-001): $UNSIGNED_COUNT commits missing DCO sign-off"
+  echo ""
+  echo "Unsigned commits:"
+  git log origin/main..HEAD --format='%h %s' 2>/dev/null | while read hash msg; do
+    if ! git log -1 --format='%B' "$hash" | grep -q "^Signed-off-by:"; then
+      echo "  $hash $msg"
+    fi
+  done
+  echo ""
+  echo "Fix: Add sign-off to all commits:"
+  echo "  git rebase origin/main --exec 'git commit --amend --no-edit -s'"
+  echo "  git push --force-with-lease origin \$(git branch --show-current)"
+  exit 1
+fi
+
+echo "[Y] All commits have DCO sign-off"
+```
+
+**DCO Certification**: By signing off, you certify that you wrote the code or otherwise have the right to submit it under the project's license.
+
+**This is BLOCKING** - do not proceed to Step 1 if any commits lack DCO sign-off.
 
 #### Step 1: Check Branch Status and Merge Conflicts
 
@@ -878,7 +1021,180 @@ Parse PR URL from `gh` output and display to user.
 PR URL: https://github.com/owner/repo/pull/123
 Task: task-094 (Done)
 
-Workflow complete! 🎉
+Next: Monitor for Copilot review comments (see Phase 6.5 for iteration guidance)
+```
+
+---
+
+### Phase 6.5: Copilot Comment Resolution (Post-PR Iteration)
+
+**Report progress**: Print "Phase 6.5: Monitoring for Copilot review comments..."
+
+**IMPORTANT**: This phase is executed AFTER PR creation when GitHub Copilot provides review comments.
+
+#### When to Execute Phase 6.5
+
+Execute this phase when:
+- PR has been created successfully
+- GitHub Copilot has posted review comments on the PR
+- Comments suggest code improvements, security issues, or best practice violations
+
+#### Step 1: Review Copilot Comments
+
+```bash
+# View Copilot comments on the PR
+gh pr view <pr-number> --comments
+
+# Or view in browser
+gh pr view <pr-number> --web
+```
+
+**Evaluation criteria**:
+- Is the suggestion valid and improves code quality?
+- Does it address a real issue (security, performance, maintainability)?
+- Is it aligned with project coding standards?
+
+#### Step 2: Decide on Action
+
+**If ALL Copilot comments are invalid/not applicable**:
+- Add a comment explaining why suggestions are not being applied
+- Proceed to request human review
+- No iteration needed
+
+**If ANY Copilot comments are valid**:
+- Proceed to Step 3 to create iteration branch
+
+#### Step 3: Create Iteration Branch
+
+**RIGOR: PR-003 - Version Iteration Naming**
+
+```bash
+# Determine current iteration version
+CURRENT_BRANCH=$(git branch --show-current)
+
+# Calculate next version
+if [[ "$CURRENT_BRANCH" =~ -v([0-9]+)$ ]]; then
+  # Already an iteration branch (e.g., hostname/task-123/feature-v2)
+  VERSION="${BASH_REMATCH[1]}"
+  NEXT_VERSION=$((VERSION + 1))
+  BASE_BRANCH=$(echo "$CURRENT_BRANCH" | sed 's/-v[0-9]*$//')
+  ITERATION_BRANCH="${BASE_BRANCH}-v${NEXT_VERSION}"
+else
+  # First iteration (e.g., hostname/task-123/feature -> hostname/task-123/feature-v2)
+  ITERATION_BRANCH="${CURRENT_BRANCH}-v2"
+fi
+
+# Create iteration branch
+git checkout -b "$ITERATION_BRANCH"
+echo "Created iteration branch: $ITERATION_BRANCH"
+```
+
+**Branch naming pattern**:
+- Original: `hostname/task-NNN/feature-slug`
+- First iteration: `hostname/task-NNN/feature-slug-v2`
+- Second iteration: `hostname/task-NNN/feature-slug-v3`
+- Nth iteration: `hostname/task-NNN/feature-slug-v{N+1}`
+
+#### Step 4: Apply Fixes
+
+Address each valid Copilot comment:
+
+1. **Make code changes** to resolve the issue
+2. **Add tests** if new logic introduced
+3. **Update documentation** if behavior changed
+4. **Verify locally** with CI pre-flight checks:
+
+```bash
+# Run full validation suite
+uv run ruff format .
+uv run ruff check --fix .
+uv run pytest tests/ -x -q
+
+# Verify no issues
+if [ $? -eq 0 ]; then
+  echo "[Y] Fixes validated locally"
+else
+  echo "[X] Fixes introduced new issues - resolve before pushing"
+fi
+```
+
+#### Step 5: Commit and Push Iteration
+
+```bash
+# Stage all changes
+git add .
+
+# Commit with DCO sign-off
+git commit -s -m "fix: address Copilot feedback from PR #<old-pr-number>
+
+- Fix 1: Description
+- Fix 2: Description
+- Fix 3: Description
+
+Resolves Copilot comments: <comment-links>"
+
+# Push iteration branch
+git push -u origin "$ITERATION_BRANCH"
+```
+
+#### Step 6: Create New PR and Close Old PR
+
+**RIGOR: PR-002 - Copilot Comments Resolution**
+
+```bash
+# Get old PR number
+OLD_PR=$(gh pr view --json number -q '.number' 2>/dev/null)
+
+# Create new PR with iteration branch
+gh pr create \
+  --title "feat: <feature-description> (v2)" \
+  --body "$(cat <<'EOF'
+## Summary
+Supersedes PR #<old-pr-number> with Copilot feedback addressed.
+
+## Changes from Previous PR
+- Addressed Copilot comment: <summary of fix 1>
+- Addressed Copilot comment: <summary of fix 2>
+- Addressed Copilot comment: <summary of fix 3>
+
+## Previous PR
+See #<old-pr-number> for original context and acceptance criteria.
+
+## Test Plan
+- ✅ All tests passing
+- ✅ Copilot suggestions implemented
+- ✅ CI pre-flight checks passed
+
+<Include full test plan from original PR>
+EOF
+)"
+
+# Close old PR with reference to new one
+NEW_PR=$(gh pr view --json number -q '.number' 2>/dev/null)
+gh pr close "$OLD_PR" --comment "Superseded by PR #${NEW_PR} with Copilot feedback addressed"
+
+echo "Old PR #${OLD_PR} closed, new PR #${NEW_PR} created"
+```
+
+#### Step 7: Iterate Until Zero Copilot Comments
+
+**Repeat Phase 6.5 until**:
+- Zero unresolved Copilot comments remain, OR
+- All remaining comments are documented as "will not fix" with rationale
+
+**Maximum iterations**: If exceeding 5 iterations, escalate to human review to discuss whether Copilot suggestions are appropriate.
+
+#### Phase 6.5 Success
+
+```
+✅ Phase 6.5 Complete: Copilot feedback addressed
+
+Iteration: v3
+PR URL: https://github.com/owner/repo/pull/125
+Previous PRs: #123 (v1, closed), #124 (v2, closed)
+Unresolved Copilot comments: 0
+
+Ready for human review!
 ```
 
 ---
