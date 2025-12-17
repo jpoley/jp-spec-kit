@@ -480,9 +480,17 @@ elif [ -f "$PRP_FILE_ALT" ]; then
 
 else
   # Priority 3: PRD files that mention this task
+  # First, search for the numeric task reference pattern (safe - TASK_NUM is digits only)
   PRD_FILE=$(find docs/prd/ -name "*.md" -type f -print0 2>/dev/null \
-    | xargs -0 grep -l -E "task-${TASK_NUM}\b|${TASK_ID}\b" 2>/dev/null \
+    | xargs -0 grep -l -E "task-${TASK_NUM}\b" 2>/dev/null \
     | head -n 1 || true)
+
+  # If not found, search for TASK_ID as a literal string (use -F to avoid injection)
+  if [ -z "$PRD_FILE" ] && [ -n "$TASK_ID" ]; then
+    PRD_FILE=$(find docs/prd/ -name "*.md" -type f -print0 2>/dev/null \
+      | xargs -0 grep -l -F -- "$TASK_ID" 2>/dev/null \
+      | head -n 1 || true)
+  fi
 
   if [ -n "$PRD_FILE" ]; then
     SPEC_FILE="$PRD_FILE"
@@ -574,14 +582,14 @@ else
   #   - Lines starting with non-whitespace, non-hash chars (direct commands)
   #   - Indented non-comment lines with actual content (strips leading whitespace)
   # Filters out:
-  #   - Code block markers via /^```[[:space:]]*$/ which matches standalone fence lines
-  #   - This is defense-in-depth: docs say no code blocks, but we handle them gracefully
+  #   - Code block markers via /^```[[:space:]]*$/ which matches fence lines with optional trailing whitespace
+  #   - Code blocks are supported but not recommended; this logic defensively skips fenced blocks
   VALIDATION_COMMANDS=$(echo "$FVP_SECTION" | awk '
     BEGIN { in_cmds=0; in_code_block=0 }
     /^### Commands/ { in_cmds=1; next }
     /^###/ && in_cmds { exit }
     /^## / && in_cmds { exit }
-    in_cmds && /^```[[:space:]]*$/ { in_code_block = !in_code_block; next }  # Toggle on standalone fence lines only
+    in_cmds && /^```[[:space:]]*$/ { in_code_block = !in_code_block; next }  # Toggle on fence lines (``` with optional trailing whitespace)
     in_cmds && in_code_block { next }  # Skip all lines inside fenced code blocks
     in_cmds && /^[^#[:space:]]/ { print }
     in_cmds && /^[[:space:]]+[^#[:space:]]/ { gsub(/^[[:space:]]+/, ""); if (NF > 0) print }
@@ -638,7 +646,7 @@ SAFE_PATTERNS=(
   "^mypy( .*)?$"
   "^flowspec( .*)?$"
   "^npm test( .*)?$"
-  "^npm run (@[A-Za-z0-9_-]+/)?[A-Za-z_][A-Za-z0-9:._-]*( .*)?$"
+  "^npm run (@[a-z0-9_-]+/)?[A-Za-z_][A-Za-z0-9:._-]*( .*)?$"
   "^cargo test( .*)?$"
   "^go test( .*)?$"
 )
@@ -646,11 +654,12 @@ SAFE_PATTERNS=(
 # Dangerous shell metacharacters that should not appear in commands
 # These could allow command injection even if prefix matches
 # Includes: semicolon, pipe, ampersand, dollar, backtick, backslash,
-#           parentheses, braces, angle brackets, quotes, tab, newline
+#           parentheses, braces, angle brackets, quotes, whitespace controls
 # Note: '$' is intentionally included to block variable expansion. This also
 #       blocks otherwise-safe commands containing literal $ (e.g., grep patterns).
-# Note: In ANSI-C quoting ($'...'), '\\\\' becomes '\\' in the string, which
-#       the regex engine interprets as a single literal '\' character.
+# Note: In ANSI-C quoting ($'...'), '\\\\' represents two backslashes in the
+#       string literal, which the regex engine interprets as a single escaped
+#       backslash matching a literal '\' character.
 # Note: Single and double quotes are blocked to prevent shell interpretation attacks
 #       when commands are executed via bash -c.
 #
@@ -659,8 +668,9 @@ SAFE_PATTERNS=(
 #   - Backslash in test filters (pytest -k "test\d+"): Use pytest markers or
 #     literal character classes like [0-9] instead of \d
 #   - Dollar sign in grep patterns: Run grep manually or use Option 2 (print commands)
+#   - Quoted arguments (pytest -k "name"): Run manually or use Option 2
 #   - Commands with shell features: Use Option 2 to print and run manually
-DANGEROUS_CHARS=$'[;|&$`\\\\(){}\'\"<>\t\n]'
+DANGEROUS_CHARS=$'[;|&$`\\\\(){}\'\"<>\t\n\r\v\f]'
 
 # Validate each command against allowlist
 validate_command() {
@@ -703,10 +713,10 @@ while IFS= read -r cmd; do
       # Execute the validated command via bash -c for proper argument handling.
       # Safety relies on validate_command/DANGEROUS_CHARS blocking injection.
       #
-      # Limitation: File paths with spaces require proper quoting in the FVP.
-      # Write: pytest "tests/my file.py" (quotes in FVP)
-      # Not:   pytest tests/my file.py (unquoted - will fail)
-      # Best practice: Avoid spaces in test file paths entirely.
+      # Limitation: File paths with spaces are not supported because quotes are
+      # rejected by the security validation (DANGEROUS_CHARS). Commands with paths
+      # that contain spaces will fail validation, even if quoted.
+      # Best practice: Avoid spaces in test file paths entirely (e.g., rename files).
       bash -c "$cmd"
       exit_code=$?
       if [ "$exit_code" -eq 0 ]; then
@@ -719,16 +729,16 @@ while IFS= read -r cmd; do
       # Security-first: Unknown commands fail the workflow rather than being silently skipped.
       # This ensures all FVP commands are explicitly validated before execution.
       # To fix: Add the command pattern to SAFE_PATTERNS, or use Option 2 (manual).
-      echo "⚠️ Command not in allowlist, skipping: $cmd"
+      echo "⚠️ Command not in allowlist, rejecting: $cmd"
       echo "   Add to SAFE_PATTERNS if this is a legitimate test command"
       overall_status=1
     fi
   fi
 done <<< "$VALIDATION_COMMANDS"
 
-# Check overall status and halt if any command failed or was skipped
+# Check overall status and halt if any command failed or was rejected
 if [ "$overall_status" -ne 0 ]; then
-  echo "❌ One or more validation commands failed or were skipped. Halting before Phase 1."
+  echo "❌ One or more validation commands failed or were rejected. Halting before Phase 1."
   exit 1
 fi
 ```
@@ -1299,7 +1309,7 @@ Create comprehensive implementation notes based on:
 
 ### What Was Implemented
 Enhanced the /flow:validate command with phased orchestration workflow.
-Implemented 8 distinct phases (Phase 0, 0.5, 1, 2, 3, 4, 5, and 6) with progress reporting and error handling.
+Implemented 8 distinct phases (Phase 0 through Phase 6, including Phase 0.5) with progress reporting and error handling.
 
 ### Feature Validation Plan Results
 [Include results from Phase 0.5 if Feature Validation Plan was found and executed]
