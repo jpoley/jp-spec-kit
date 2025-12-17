@@ -288,7 +288,7 @@ Every task MUST have a documented plan of action before work begins.
 **Validation**:
 ```bash
 # Check if task has an implementation plan
-TASK_ID="${TASK_ID:-$(git branch --show-current 2>/dev/null | grep -oP 'task-\d+' || echo '')}"
+TASK_ID="${TASK_ID:-$(git branch --show-current 2>/dev/null | grep -Eo 'task-[0-9]+' || echo '')}"
 if [ -n "$TASK_ID" ]; then
   backlog task "$TASK_ID" --plain 2>/dev/null | grep -q "Implementation Plan:"
   if [ $? -ne 0 ]; then
@@ -317,7 +317,7 @@ Inter-task dependencies MUST be documented before implementation begins. Tasks c
 ```bash
 # Check for dependency documentation in task
 # Note: Not all tasks have dependencies - this validates documentation exists IF dependencies exist
-TASK_ID="${TASK_ID:-$(git branch --show-current 2>/dev/null | grep -oP 'task-\d+' || echo '')}"
+TASK_ID="${TASK_ID:-$(git branch --show-current 2>/dev/null | grep -Eo 'task-[0-9]+' || echo '')}"
 if [ -n "$TASK_ID" ]; then
   # Check for depends-on labels or dependency notes
   HAS_DEP_LABELS=$(backlog task "$TASK_ID" --plain 2>/dev/null | grep -qE "(depends-on|blocked-by|Dependencies:)" && echo "yes" || echo "no")
@@ -351,7 +351,7 @@ Every task MUST have at least one acceptance criterion that is:
 
 **Validation**:
 ```bash
-TASK_ID="${TASK_ID:-$(git branch --show-current 2>/dev/null | grep -oP 'task-\d+' || echo '')}"
+TASK_ID="${TASK_ID:-$(git branch --show-current 2>/dev/null | grep -Eo 'task-[0-9]+' || echo '')}"
 if [ -n "$TASK_ID" ]; then
   AC_COUNT=$(backlog task "$TASK_ID" --plain 2>/dev/null | grep -cE "^\[[ x]\]" || echo 0)
   if [ "$AC_COUNT" -eq 0 ]; then
@@ -384,7 +384,7 @@ Tasks SHOULD identify opportunities for parallel sub-agent work when applicable.
 **Validation**:
 ```bash
 # Check if task has parallel-work or multi-agent labels
-TASK_ID="${TASK_ID:-$(git branch --show-current 2>/dev/null | grep -oP 'task-\d+' || echo '')}"
+TASK_ID="${TASK_ID:-$(git branch --show-current 2>/dev/null | grep -Eo 'task-[0-9]+' || echo '')}"
 if [ -n "$TASK_ID" ]; then
   HAS_PARALLEL=$(backlog task "$TASK_ID" --plain 2>/dev/null | grep -qE "(parallel-work|frontend|backend)" && echo "yes" || echo "no")
   if [ "$HAS_PARALLEL" = "no" ]; then
@@ -492,7 +492,7 @@ All significant decisions MUST be logged to the JSONL decision log. A "significa
 
 **Validation**:
 ```bash
-TASK_ID=$(git branch --show-current 2>/dev/null | grep -oP 'task-\d+' || echo "")
+TASK_ID=$(git branch --show-current 2>/dev/null | grep -Eo 'task-[0-9]+' || echo "")
 if [ -n "$TASK_ID" ]; then
   DECISION_LOG="memory/decisions/${TASK_ID}.jsonl"
 
@@ -575,7 +575,7 @@ Implementation work MUST be linked to backlog tasks. No "rogue" coding without a
 
 **Validation**:
 ```bash
-TASK_ID=$(git branch --show-current 2>/dev/null | grep -oP 'task-\d+' || echo "")
+TASK_ID=$(git branch --show-current 2>/dev/null | grep -Eo 'task-[0-9]+' || echo "")
 if [ -n "$TASK_ID" ]; then
   backlog task "$TASK_ID" --plain > /dev/null 2>&1
   if [ $? -ne 0 ]; then
@@ -610,7 +610,7 @@ Task memory SHOULD be updated after every major decision or implementation miles
 
 **Validation**:
 ```bash
-TASK_ID=$(git branch --show-current 2>/dev/null | grep -oP 'task-\d+' || echo "")
+TASK_ID=$(git branch --show-current 2>/dev/null | grep -Eo 'task-[0-9]+' || echo "")
 if [ -n "$TASK_ID" ]; then
   MEMORY_FILE="backlog/memory/${TASK_ID}.md"
   if [ -f "$MEMORY_FILE" ]; then
@@ -665,7 +665,7 @@ Agent MUST always know and track what comes next in the workflow. The current wo
 
 **Validation**:
 ```bash
-TASK_ID=$(git branch --show-current 2>/dev/null | grep -oP 'task-\d+' || echo "")
+TASK_ID=$(git branch --show-current 2>/dev/null | grep -Eo 'task-[0-9]+' || echo "")
 if [ -n "$TASK_ID" ]; then
   HAS_WORKFLOW=$(backlog task "$TASK_ID" --plain 2>/dev/null | grep -q "workflow:" && echo "yes" || echo "no")
   if [ "$HAS_WORKFLOW" = "no" ]; then
@@ -709,7 +709,7 @@ Task memory MUST be updated with current state before freezing. This is the prim
 
 **Validation**:
 ```bash
-TASK_ID=$(git branch --show-current 2>/dev/null | grep -oP 'task-\d+' || echo "")
+TASK_ID=$(git branch --show-current 2>/dev/null | grep -Eo 'task-[0-9]+' || echo "")
 if [ -n "$TASK_ID" ]; then
   MEMORY_FILE="backlog/memory/${TASK_ID}.md"
   if [ ! -s "$MEMORY_FILE" ]; then
@@ -841,7 +841,7 @@ All significant decisions MUST be logged in JSONL with task traceability. This i
 
 **Validation**:
 ```bash
-TASK_ID=$(git branch --show-current 2>/dev/null | grep -oP 'task-\d+' || echo "")
+TASK_ID=$(git branch --show-current 2>/dev/null | grep -Eo 'task-[0-9]+' || echo "")
 if [ -n "$TASK_ID" ]; then
   DECISION_LOG="memory/decisions/${TASK_ID}.jsonl"
   if [ ! -f "$DECISION_LOG" ]; then
@@ -996,7 +996,7 @@ All acceptance criteria MUST be marked complete and verified before PR creation.
 
 **Validation**:
 ```bash
-TASK_ID=$(git branch --show-current 2>/dev/null | grep -oP 'task-\d+' || echo "")
+TASK_ID=$(git branch --show-current 2>/dev/null | grep -Eo 'task-[0-9]+' || echo "")
 if [ -n "$TASK_ID" ]; then
   INCOMPLETE=$(backlog task "$TASK_ID" --plain 2>/dev/null | grep -c "^\[ \]" || echo 0)
   if [ "$INCOMPLETE" -gt 0 ]; then
@@ -1029,7 +1029,7 @@ Task status MUST reflect current workflow state. A PR must include task status u
 
 **Validation**:
 ```bash
-TASK_ID=$(git branch --show-current 2>/dev/null | grep -oP 'task-\d+' || echo "")
+TASK_ID=$(git branch --show-current 2>/dev/null | grep -Eo 'task-[0-9]+' || echo "")
 if [ -n "$TASK_ID" ]; then
   STATUS=$(backlog task "$TASK_ID" --plain 2>/dev/null | grep "Status:" | head -1)
   echo "Current task status: $STATUS"
@@ -1209,13 +1209,13 @@ fi
 # Create iteration branch from current
 git checkout -b "$(git branch --show-current)-v2"
 
-# Or calculate next version (portable to bash 3.2+)
+# Or calculate next version (POSIX-compliant)
 CURRENT=$(git branch --show-current)
 # Use sed for portable version extraction (not BASH_REMATCH)
 VERSION=$(printf '%s\n' "$CURRENT" | sed -n 's/.*-v\([0-9][0-9]*\)$/\1/p')
 if [ -n "$VERSION" ]; then
   NEXT=$((VERSION + 1))
-  BASE=$(echo "$CURRENT" | sed 's/-v[0-9][0-9]*$//')
+  BASE=$(printf '%s\n' "$CURRENT" | sed 's/-v[0-9][0-9]*$//')
   git checkout -b "${BASE}-v${NEXT}"
 else
   git checkout -b "${CURRENT}-v2"
