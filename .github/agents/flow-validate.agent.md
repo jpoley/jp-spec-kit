@@ -554,7 +554,7 @@ Extract the commands from the "Commands" subsection.
 > ruff check src/feature/
 > ```
 >
-> **Incorrect format** (commands will be ignored):
+> **Incorrect format** (commands inside code blocks will be filtered out during parsing):
 > ```
 > ### Commands
 > ```bash
@@ -577,11 +577,12 @@ else
   #   - Code block markers via /^```/ which matches ``` and ```bash (prefix match)
   #   - This is defense-in-depth: docs say no code blocks, but we handle them gracefully
   VALIDATION_COMMANDS=$(echo "$FVP_SECTION" | awk '
-    BEGIN { in_cmds=0 }
+    BEGIN { in_cmds=0; in_code_block=0 }
     /^### Commands/ { in_cmds=1; next }
     /^###/ && in_cmds { exit }
     /^## / && in_cmds { exit }
-    /^```/ { next }  # Matches ```, ```bash, ```sh, etc. (prefix match)
+    in_cmds && /^```/ { in_code_block = !in_code_block; next }  # Toggle fenced code block state
+    in_cmds && in_code_block { next }  # Skip all lines inside fenced code blocks
     in_cmds && /^[^#[:space:]]/ { print }
     in_cmds && /^[[:space:]]+[^#[:space:]]/ { gsub(/^[[:space:]]+/, ""); if (NF > 0) print }
   ')
@@ -637,7 +638,7 @@ SAFE_PATTERNS=(
   "^mypy( +.*)?$"
   "^flowspec( +.*)?$"
   "^npm test( +.*)?$"
-  "^npm run [A-Za-z_][A-Za-z0-9:_-]*( +.*)?$"
+  "^npm run [@A-Za-z_][@A-Za-z0-9:._-]*( +.*)?$"
   "^cargo test( +.*)?$"
   "^go test( +.*)?$"
 )
@@ -648,7 +649,7 @@ SAFE_PATTERNS=(
 #           parentheses, braces, angle brackets, tab, newline
 # Note: '$' is intentionally included to block variable expansion. This also
 #       blocks otherwise-safe commands containing literal $ (e.g., grep patterns).
-# Note: '\\\\' becomes '\\' after $'...' shell parsing, then '\' in the regex.
+# Note: '\\\\' in $'...' syntax produces a literal '\' character for the regex pattern.
 #
 # Design trade-off: Security over flexibility. Blocking these characters prevents
 # command injection but also blocks some legitimate use cases. Workarounds:
@@ -674,7 +675,7 @@ validate_command() {
   #   - Does NOT match: test..py, 1..10, file...name (consecutive dots without /)
   # Limitation: Does not catch URL-encoded (%2e%2e) or UTF-8 encoded traversal.
   #   Such attacks are mitigated by the allowlist and DANGEROUS_CHARS checks.
-  if [[ "$cmd" =~ (^|[[:space:]])\.\./ || "$cmd" =~ /\.\.(\/|[[:space:]]|$) ]]; then
+  if [[ "$cmd" =~ (^|[[:space:]])\.\./ || "$cmd" =~ /\.\.(\/|$) ]]; then
     echo "⚠️ Security: Command contains path traversal (..): $cmd"
     return 1  # Reject commands with path traversal
   fi
@@ -1295,7 +1296,7 @@ Create comprehensive implementation notes based on:
 
 ### What Was Implemented
 Enhanced the /flow:validate command with phased orchestration workflow.
-Implemented 8 distinct phases (Phase 0, 0.5, 1-5, and 6) with progress reporting and error handling.
+Implemented 8 distinct phases (Phase 0, 0.5, 1, 2, 3, 4, 5, and 6) with progress reporting and error handling.
 
 ### Feature Validation Plan Results
 [Include results from Phase 0.5 if Feature Validation Plan was found and executed]
