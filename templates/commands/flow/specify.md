@@ -52,6 +52,8 @@ This command creates comprehensive feature specifications using the PM Planner a
 
 {{INCLUDE:.claude/commands/flow/_constitution-check.md}}
 
+{{INCLUDE:.claude/commands/flow/_rigor-rules.md}}
+
 {{INCLUDE:.claude/commands/flow/_workflow-state.md}}
 
 **For /flow:specify**: Required input state is `workflow:Assessed`. Output state will be `workflow:Specified`.
@@ -74,7 +76,39 @@ backlog task list -s "To Do" --plain | grep -i "spec\|design\|prd"
 
 If existing tasks are found, include their IDs and context in the agent prompt below.
 
-### Step 2: Specification Creation
+### Step 2: Task Setup Hygiene - Plan Verification
+
+**RIGOR RULE SETUP-001**: A clear plan of action is required before task creation.
+
+Before creating implementation tasks, verify a documented plan exists:
+
+```bash
+# Check for plan documentation
+if [ ! -f docs/plan/*.md ] && [ -z "$IMPLEMENTATION_PLAN" ]; then
+  echo "⚠️ RIGOR RULE SETUP-001: No documented plan found"
+  echo ""
+  echo "A clear plan of action is required before task creation."
+  echo "Please provide:"
+  echo "  1. Implementation approach"
+  echo "  2. Key milestones"
+  echo "  3. Risk areas"
+  echo ""
+  echo "Options:"
+  echo "  A) Run /flow:plan first to create a plan"
+  echo "  B) Describe the plan now (I'll document it)"
+  echo ""
+  # STOP HERE and ASK USER for plan details before proceeding
+  exit 1
+fi
+```
+
+If no plan exists, **ASK THE USER** to provide one before creating tasks. Options:
+- User runs `/flow:plan` first to create formal plan documentation
+- User provides plan details inline (you document them in the PRD's section 9)
+
+Do not proceed with task creation until a plan is documented.
+
+### Step 3: Specification Creation
 
 Use the Task tool to launch a **general-purpose** agent with the following prompt (includes full Product Requirements Manager context):
 
@@ -200,41 +234,86 @@ Your deliverables should include:
 
 6. **Task Breakdown (Backlog Tasks)**
 
-   **MANDATORY**: Create actual backlog tasks using the CLI, then list task IDs here:
+   **MANDATORY**: Create actual backlog tasks using the CLI, then list task IDs here.
+
+   **RIGOR RULE SETUP-003**: All acceptance criteria MUST be testable.
+
+   Each AC must be:
+   - **Specific** (not vague like "improve performance")
+   - **Measurable** (can verify pass/fail)
+   - **Atomic** (one thing per AC)
+
+   **Examples of BAD ACs** (DO NOT USE):
+   - "Make it faster" (not measurable)
+   - "Improve user experience" (too vague)
+   - "Handle errors better" (not specific)
+
+   **Examples of GOOD ACs**:
+   - "API response time < 200ms for 95th percentile"
+   - "Error messages include error code, description, and suggested fix"
+   - "Unit test coverage > 80% for new code"
+
+   **Before creating each task**, verify ACs are testable by asking: "Can I write an automated test for this?"
+
+   **RIGOR RULE SETUP-002**: Inter-task dependencies MUST be documented.
+
+   Before ordering tasks:
+   1. Identify dependencies (answer "What must be done first?" for each task)
+   2. Document in task metadata using labels or notes
+   3. Verify no circular dependencies
+   4. Order tasks by dependencies (foundation tasks first)
+
+   **RIGOR RULE SETUP-004**: Link tasks to beads and agentic task lists.
+
+   For tasks handed off to agents:
+   1. Link to bead (conversation/context reference) if applicable
+   2. Specify agent assignment via labels (backend, frontend, etc.)
+   3. Include agent context in description (files to read, patterns to follow, constraints)
+   4. For human tasks, use label "human-review"
 
    ```bash
    # Create implementation tasks for each major deliverable
    # Example pattern (adapt to actual feature requirements):
 
    backlog task create "Implement [Core Feature]" \
-     -d "Core implementation per PRD section 4" \
-     --ac "Implement core functionality" \
-     --ac "Add input validation" \
-     --ac "Write unit tests" \
+     -d "Core implementation per PRD section 4
+
+Agent context:
+- Read: src/module/existing_feature.py for patterns
+- Follow: repository coding standards in memory/code-standards.md
+- Constraints: Must maintain backward compatibility" \
+     --ac "API endpoint returns valid response matching schema in tests/fixtures/schema.json" \
+     --ac "Input validation rejects malformed requests with 400 status" \
+     --ac "Unit test coverage exceeds 80% (measured by pytest-cov)" \
      -a @pm-planner \
      -l implement,backend \
      --priority high
 
    backlog task create "Implement [UI Components]" \
-     -d "Frontend implementation per PRD user stories" \
-     --ac "Build UI components" \
-     --ac "Implement accessibility (WCAG 2.1 AA)" \
-     --ac "Add integration tests" \
+     -d "Frontend implementation per PRD user stories
+
+Agent context:
+- Read: src/components/ExistingComponent.tsx for component patterns
+- Follow: WCAG 2.1 AA accessibility standards
+- Constraints: Must work on mobile and desktop viewports" \
+     --ac "Component renders without errors in Vitest unit tests" \
+     --ac "WCAG 2.1 AA compliance verified by axe-core (zero violations)" \
+     --ac "Integration tests pass in Playwright for desktop and mobile viewports" \
      -a @pm-planner \
-     -l implement,frontend \
+     -l implement,frontend,depends-on:task-XXX \
      --priority medium
    ```
 
    **After creating tasks, list them here:**
    - task-XXX: [Core Feature] - Priority: High, Labels: implement,backend
-   - task-YYY: [UI Components] - Priority: Medium, Labels: implement,frontend
+   - task-YYY: [UI Components] - Priority: Medium, Labels: implement,frontend,depends-on:task-XXX
 
    Include for each task:
    - Backlog task ID (from CLI output)
-   - Task dependencies (using --dep flag)
+   - Task dependencies (using --dep flag or depends-on label)
    - Priority ordering (P0=high, P1=medium, P2=low)
    - Estimated complexity as label (size-s, size-m, size-l, size-xl)
-   - Clear acceptance criteria (minimum 2 per task)
+   - Testable acceptance criteria (minimum 2 per task, each answering "can I test this?")
 
 7. **Discovery and Validation Plan**
    - Learning goals and hypotheses
