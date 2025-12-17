@@ -104,7 +104,7 @@ if [ -n "$TASK_ID" ]; then
 fi
 ```
 
-If no plan exists, **ASK THE USER** to provide one before creating tasks. Options:
+If no plan exists, **ASK THE USER** to provide one before proceeding with specification. Options:
 - User runs `/flow:plan` first to create formal plan documentation
 - User provides plan details inline (you add them via `backlog task edit --plan`)
 
