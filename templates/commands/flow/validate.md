@@ -1117,13 +1117,8 @@ Address each valid Copilot comment:
 4. **Verify locally** with CI pre-flight checks:
 
 ```bash
-# Run full validation suite
-uv run ruff format .
-uv run ruff check --fix .
-uv run pytest tests/ -x -q
-
-# Verify no issues
-if [ $? -eq 0 ]; then
+# Run full validation suite (all commands must pass)
+if uv run ruff format . && uv run ruff check --fix . && uv run pytest tests/ -x -q; then
   echo "[Y] Fixes validated locally"
 else
   echo "[X] Fixes introduced new issues - resolve before pushing"
