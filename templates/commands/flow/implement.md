@@ -218,8 +218,16 @@ if ! [[ "$BRANCH" =~ ^[a-z0-9-]+/task-[0-9]+/[a-z0-9-]+$ ]]; then
   echo ""
   echo "Fix: Create a new branch with compliant naming:"
   HOSTNAME=$(hostname -s | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g')
-  TASK_NUM=$(echo "$BRANCH" | grep -oP 'task-\d+' || echo "NNN")
-  echo "  git checkout -b ${HOSTNAME}/${TASK_NUM}/your-feature-slug"
+  # Extract task number if present in current branch, otherwise prompt user
+  TASK_NUM=$(echo "$BRANCH" | grep -oP 'task-\d+' || echo "")
+  if [ -z "$TASK_NUM" ]; then
+    echo "  # First, identify your task ID from the backlog:"
+    echo "  backlog task list --plain"
+    echo "  # Then create branch with that task ID:"
+    echo "  git checkout -b ${HOSTNAME}/task-<ID>/your-feature-slug"
+  else
+    echo "  git checkout -b ${HOSTNAME}/${TASK_NUM}/your-feature-slug"
+  fi
   exit 1
 fi
 
@@ -239,7 +247,8 @@ Implementation work MUST be done in a git worktree with matching task ID.
 ```bash
 # Validate worktree usage (EXEC-001)
 WORKTREE_DIR=$(git rev-parse --show-toplevel 2>/dev/null)
-IS_WORKTREE=$(git worktree list 2>/dev/null | grep -q "$WORKTREE_DIR" && echo "yes" || echo "no")
+# Use exact path matching to avoid substring false positives
+IS_WORKTREE=$(git worktree list 2>/dev/null | awk '{print $1}' | grep -Fxq "$WORKTREE_DIR" && echo "yes" || echo "no")
 
 if [ "$IS_WORKTREE" = "no" ]; then
   echo "[X] RIGOR VIOLATION (EXEC-001): Not in a git worktree"
@@ -1285,12 +1294,17 @@ PRs that fail CI:
 ```bash
 # Check all commits have DCO sign-off (PR-001)
 echo "Checking DCO sign-off..."
-UNSIGNED=$(git log origin/main..HEAD --format='%h %s' 2>/dev/null | while read hash msg; do
-  git log -1 --format='%b' "$hash" | grep -q "Signed-off-by:" || echo "$hash"
-done | wc -l)
+# Use process substitution to avoid subshell variable scope issues
+UNSIGNED_COMMITS=""
+while read -r hash msg; do
+  if ! git log -1 --format='%B' "$hash" 2>/dev/null | grep -q "Signed-off-by:"; then
+    UNSIGNED_COMMITS="$UNSIGNED_COMMITS $hash"
+  fi
+done < <(git log origin/main..HEAD --format='%h %s' 2>/dev/null)
+UNSIGNED_COUNT=$(echo "$UNSIGNED_COMMITS" | wc -w)
 
-if [ "$UNSIGNED" -gt 0 ]; then
-  echo "[X] RIGOR VIOLATION (PR-001): $UNSIGNED commits missing DCO sign-off"
+if [ "$UNSIGNED_COUNT" -gt 0 ]; then
+  echo "[X] RIGOR VIOLATION (PR-001): $UNSIGNED_COUNT commits missing DCO sign-off"
   echo ""
   echo "Fix: Add sign-off to all commits:"
   echo "  git rebase origin/main --exec 'git commit --amend --no-edit -s'"
