@@ -180,7 +180,96 @@ OR (not recommended without user approval):
 - Warns that bypassing quality checks may lead to unclear requirements
 - Logs the bypass decision
 
-**Proceed to Phase 1 ONLY if quality gate passes or user explicitly approves --force bypass.**
+**Proceed to Phase 0.5 ONLY if quality gate passes or user explicitly approves --force bypass.**
+
+### Phase 0.5: Load PRP Context (PRP-First Workflow)
+
+**⚠️ CRITICAL: PRPs (Product Requirements Prompts) provide self-contained context for implementation.**
+
+Before starting implementation, check for a PRP document for the active task:
+
+```bash
+# Extract task ID from arguments or backlog
+TASK_ID="${ARGUMENTS}"
+
+# If no task ID provided, try to find from backlog
+if [ -z "$TASK_ID" ] || ! [[ "$TASK_ID" =~ ^task-[0-9]+ ]]; then
+  echo "⚠️ No task ID provided. Searching for active tasks..."
+  backlog task list -s "In Progress" --plain | head -5
+  echo ""
+  echo "Please specify a task ID to check for PRP:"
+  echo "  /flow:implement task-123"
+  exit 1
+fi
+
+# Check for PRP file
+PRP_PATH="docs/prp/${TASK_ID}.md"
+
+if [ -f "$PRP_PATH" ]; then
+  echo "✅ PRP found: $PRP_PATH"
+  echo "Loading PRP as primary context..."
+else
+  echo "⚠️ No PRP found at: $PRP_PATH"
+fi
+```
+
+**If PRP exists:**
+
+```bash
+# Read the PRP file
+cat "$PRP_PATH"
+
+# Confirm PRP loaded
+echo ""
+echo "✅ PRP loaded successfully"
+echo ""
+echo "The PRP contains:"
+echo "  • Feature summary and acceptance criteria"
+echo "  • Code files to review"
+echo "  • Related documentation"
+echo "  • Examples and known gotchas"
+echo "  • Validation commands"
+echo ""
+echo "Proceeding to implementation with full context..."
+```
+
+**If PRP missing:**
+
+```
+⚠️ No PRP found for task: ${TASK_ID}
+
+A PRP (Product Requirements Prompt) is a self-contained context bundle that includes:
+  • All code files to read
+  • Related documentation and specs
+  • Examples demonstrating patterns
+  • Known gotchas and pitfalls
+  • Validation commands and success criteria
+
+Without a PRP, you may be missing critical context.
+
+Recommendation:
+  1. Generate PRP first: /flow:generate-prp ${TASK_ID}
+  2. Review the generated PRP: docs/prp/${TASK_ID}.md
+  3. Then re-run: /flow:implement ${TASK_ID}
+
+Continue without PRP? [y/N]
+```
+
+**Ask user to confirm if they want to proceed without PRP.** If user says no or doesn't respond, suggest running `/flow:generate-prp` first.
+
+**PRP-First Workflow Benefits**:
+
+| With PRP | Without PRP |
+|----------|-------------|
+| All context gathered upfront | Must discover context during implementation |
+| Known gotchas highlighted | May miss edge cases |
+| Clear validation commands | Unclear how to test |
+| Focused implementation | May read irrelevant files |
+| Faster onboarding for agents | More exploration needed |
+
+**Proceed to Phase 1 ONLY after:**
+- PRP is loaded (if available), OR
+- User explicitly confirms proceeding without PRP
 
 ### Phase 1: Implementation (Parallel Execution)
 
@@ -211,8 +300,9 @@ You are a Senior Frontend Engineer with deep expertise in React, React Native, m
 # TASK: Implement the frontend for: [USER INPUT FEATURE]
 
 Context:
-[Include architecture, PRD, design specs, API contracts]
-[Include backlog task IDs discovered in Step 0]
+[If PRP loaded: The PRP document (docs/prp/${TASK_ID}.md) contains all context needed]
+[Include architecture, PRD, design specs, API contracts from PRP or discovered docs]
+[Include backlog task IDs discovered in Step 1]
 
 ## Backlog Task Management (REQUIRED)
 
@@ -374,8 +464,9 @@ Before completing ANY implementation, you MUST:
 # TASK: Implement the backend for: [USER INPUT FEATURE]
 
 Context:
-[Include architecture, PRD, API specs, data models]
-[Include backlog task IDs discovered in Step 0]
+[If PRP loaded: The PRP document (docs/prp/${TASK_ID}.md) contains all context needed]
+[Include architecture, PRD, API specs, data models from PRP or discovered docs]
+[Include backlog task IDs discovered in Step 1]
 
 ## Backlog Task Management (REQUIRED)
 
@@ -453,8 +544,9 @@ Use the Task tool to launch the **ai-ml-engineer** agent:
 Implement AI/ML components for: [USER INPUT FEATURE]
 
 Context:
-[Include model requirements, data sources, performance targets]
-[Include backlog task IDs discovered in Step 0]
+[If PRP loaded: The PRP document (docs/prp/${TASK_ID}.md) contains all context needed]
+[Include model requirements, data sources, performance targets from PRP or discovered docs]
+[Include backlog task IDs discovered in Step 1]
 
 ## Backlog Task Management (REQUIRED)
 
