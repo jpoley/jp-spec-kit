@@ -71,9 +71,11 @@ AC_PATTERN = re.compile(r"(?:AC\d+:?|[-*]\s*\[[ x]\])\s*.+", re.IGNORECASE)
 #   - | {Example name} | examples/path | Description | (placeholder name)
 #   - | Example | examples/{path} | Description | (placeholder path)
 #   - | Example | examples/path | {Description} | (placeholder description)
-# Uses negative lookahead (?![^|]*\{) to check each column for curly braces
+# Column 1 (Name): negative lookahead (?![^|]*\{) rejects if curly brace present
+# Column 2 (Location): [^|{}]* segments reject curly braces anywhere in the column
+# Column 3 (Description): negative lookahead (?![^|]*\{) rejects if curly brace present
 EXAMPLE_REFERENCE_PATTERN = re.compile(
-    r"^\s*\|(?![^|]*\{)[^|]+\|[^|]*`?examples/[^|`{}]+`?[^|]*\|(?![^|]*\{)[^|]+\|",
+    r"^\s*\|(?![^|]*\{)[^|]+\|[^|{}]*`?examples/[^|`{}]+`?[^|{}]*\|(?![^|]*\{)[^|]+\|",
     re.MULTILINE,
 )
 
