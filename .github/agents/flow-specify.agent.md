@@ -607,6 +607,29 @@ Please ensure the PRD is:
 - Traceable (requirements -> tasks -> tests -> outcomes)
 - Aligned with business objectives
 - Ready for engineering implementation
+- **INCLUDES AT LEAST ONE EXAMPLE REFERENCE** - PRDs without examples are incomplete
+
+## CRITICAL: Example Requirements
+
+**Every PRD MUST include at least one relevant example from the `examples/` directory.**
+
+Before writing the PRD:
+1. Search the `examples/` directory for relevant code samples
+2. Identify which examples demonstrate patterns or approaches applicable to this feature
+3. Include specific example references in the "All Needed Context > Examples" section
+
+**Good example references**:
+- Specify exact files: `examples/mcp/claude_security_agent.py`
+- Explain relevance: "Demonstrates MCP server setup pattern applicable to our API integration"
+- Reference specific patterns: "Shows error handling approach we should adopt"
+
+**Examples help implementers**:
+- Understand existing patterns and conventions
+- See working code they can adapt
+- Maintain consistency across the codebase
+- Avoid reinventing solutions
+
+If no relevant examples exist, note this explicitly and suggest creating one as part of the implementation.
 ```
 
 ### Output
