@@ -2535,10 +2535,40 @@ Address each valid Copilot comment:
 
 ```bash
 # Run full validation suite (all commands must pass)
-if uv run ruff format . && uv run ruff check --fix . && uv run pytest tests/ -x -q; then
+FORMAT_STATUS=0
+LINT_STATUS=0
+TEST_STATUS=0
+
+echo "[ ] Running format check: uv run ruff format ."
+if ! uv run ruff format .; then
+  FORMAT_STATUS=$?
+fi
+
+echo "[ ] Running lint check: uv run ruff check --fix ."
+if ! uv run ruff check --fix .; then
+  LINT_STATUS=$?
+fi
+
+echo "[ ] Running test suite: uv run pytest tests/ -x -q"
+if ! uv run pytest tests/ -x -q; then
+  TEST_STATUS=$?
+fi
+
+if [ "$FORMAT_STATUS" -eq 0 ] && [ "$LINT_STATUS" -eq 0 ] && [ "$TEST_STATUS" -eq 0 ]; then
   echo "[Y] Fixes validated locally"
+  exit 0
 else
   echo "[X] Fixes introduced new issues - resolve before pushing"
+  if [ "$FORMAT_STATUS" -ne 0 ]; then
+    echo "    - Format check failed (uv run ruff format .)"
+  fi
+  if [ "$LINT_STATUS" -ne 0 ]; then
+    echo "    - Lint check failed (uv run ruff check --fix .)"
+  fi
+  if [ "$TEST_STATUS" -ne 0 ]; then
+    echo "    - Tests failed (uv run pytest tests/ -x -q)"
+  fi
+  exit 1
 fi
 ```
 
