@@ -845,7 +845,7 @@ while read -r hash msg; do
   fi
 done < <(git log origin/main..HEAD --format='%h %s' 2>/dev/null)
 
-# Count unsigned commits (wc -w counts words; wc -l on empty string returns 1)
+# Count unsigned commits: use grep -c . because wc -l on an empty string returns 1
 if [ -n "$UNSIGNED_COMMITS" ]; then
   UNSIGNED_COUNT=$(echo -e "$UNSIGNED_COMMITS" | grep -c .)
   echo "[X] RIGOR VIOLATION (PR-001): $UNSIGNED_COUNT commits missing DCO sign-off"
@@ -1082,12 +1082,13 @@ CURRENT_BRANCH=$(git branch --show-current)
 
 # Calculate next version using portable extraction (works in bash 3.2+)
 # Extract version number using sed for better portability
-VERSION=$(echo "$CURRENT_BRANCH" | sed -n 's/.*-v\([0-9]*\)$/\1/p')
+# Use [0-9][0-9]* to require at least one digit (not [0-9]* which matches zero)
+VERSION=$(echo "$CURRENT_BRANCH" | sed -n 's/.*-v\([0-9][0-9]*\)$/\1/p')
 
 if [ -n "$VERSION" ]; then
   # Already an iteration branch (e.g., hostname/task-123/feature-v2)
   NEXT_VERSION=$((VERSION + 1))
-  BASE_BRANCH=$(echo "$CURRENT_BRANCH" | sed 's/-v[0-9]*$//')
+  BASE_BRANCH=$(echo "$CURRENT_BRANCH" | sed 's/-v[0-9][0-9]*$//')
   ITERATION_BRANCH="${BASE_BRANCH}-v${NEXT_VERSION}"
 else
   # First iteration (e.g., hostname/task-123/feature -> hostname/task-123/feature-v2)
