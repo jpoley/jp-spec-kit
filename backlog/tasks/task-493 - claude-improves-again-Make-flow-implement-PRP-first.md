@@ -5,7 +5,7 @@ status: To Do
 assignee:
   - '@muckross'
 created_date: '2025-12-14 03:06'
-updated_date: '2025-12-15 01:50'
+updated_date: '2025-12-17 01:26'
 labels:
   - context-engineering
   - commands
@@ -26,8 +26,8 @@ Source: docs/research/archon-inspired.md Task 6
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 /flow:implement checks for docs/prp/<task-id>.md
-- [ ] #2 If PRP exists, loads it as primary context for the agent
-- [ ] #3 If PRP missing, recommends: Generate PRP via /flow:generate-prp first
-- [ ] #4 Documentation updated to explain PRP-first workflow
+- [x] #1 /flow:implement checks for docs/prp/<task-id>.md
+- [x] #2 If PRP exists, loads it as primary context for the agent
+- [x] #3 If PRP missing, recommends: Generate PRP via /flow:generate-prp first
+- [x] #4 Documentation updated to explain PRP-first workflow
 <!-- AC:END -->
