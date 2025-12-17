@@ -2250,14 +2250,17 @@ echo "[Y] Branch is up-to-date with main (zero commits behind)"
 # Check all commits in branch for DCO sign-off
 echo "Checking DCO sign-off for all commits..."
 
-# Use process substitution to avoid subshell variable scope issues
+# Use a temporary file to avoid subshell variable scope issues and remain compatible with bash 3.2
 UNSIGNED_COMMITS=""
+COMMITS_TMP="$(mktemp 2>/dev/null || echo "/tmp/flow_validate_commits_$$")"
+git log origin/main..HEAD --format='%h %s' 2>/dev/null > "$COMMITS_TMP"
 while read -r hash msg; do
   # Check for Signed-off-by anywhere in commit body (not just at line start)
   if ! git log -1 --format='%B' "$hash" 2>/dev/null | grep -q "Signed-off-by:"; then
     UNSIGNED_COMMITS="${UNSIGNED_COMMITS}${hash} ${msg}\n"
   fi
-done < <(git log origin/main..HEAD --format='%h %s' 2>/dev/null)
+done < "$COMMITS_TMP"
+rm -f "$COMMITS_TMP"
 
 # Count unsigned commits: use grep -c . because echo -e on empty/newline-only strings
 # produces extra lines that wc -l would count incorrectly
