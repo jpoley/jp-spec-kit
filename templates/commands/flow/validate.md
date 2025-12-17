@@ -319,6 +319,12 @@ validate_command() {
     return 1  # Reject commands with potentially dangerous chars
   fi
 
+  # Check for path traversal attempts (e.g., pytest ../../etc/passwd)
+  if [[ "$cmd" =~ \.\. ]]; then
+    echo "⚠️ Security: Command contains path traversal (..): $cmd"
+    return 1  # Reject commands with path traversal
+  fi
+
   # Then check against allowlist patterns
   for pattern in "${SAFE_PATTERNS[@]}"; do
     if [[ "$cmd" =~ $pattern ]]; then
@@ -329,16 +335,17 @@ validate_command() {
 }
 
 # Process commands with validation
-# Use here-string (<<<) instead of pipe to avoid subshell
+# Use here-string (<<<) instead of pipe to avoid subshell variable scope issues.
+# This allows overall_status to be modified inside the loop and checked after.
 overall_status=0
 while IFS= read -r cmd; do
   if [ -n "$cmd" ]; then
     if validate_command "$cmd"; then
       echo "✅ Validated: $cmd"
-      # Execute command safely without using eval
-      # Parse command into array and execute directly
-      IFS=' ' read -r -a cmd_parts <<< "$cmd"
-      "${cmd_parts[@]}"
+      # Execute the validated command via bash so that quoting and arguments
+      # are handled correctly. Safety relies on validate_command/DANGEROUS_CHARS
+      # rejecting shell metacharacters and unsafe patterns.
+      bash -lc "$cmd"
       exit_code=$?
       if [ "$exit_code" -eq 0 ]; then
         echo "✅ Command succeeded: $cmd"
