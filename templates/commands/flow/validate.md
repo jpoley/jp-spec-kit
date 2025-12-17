@@ -806,6 +806,12 @@ PRs that fail CI:
 git fetch origin main 2>/dev/null
 BEHIND=$(git rev-list --count HEAD..origin/main 2>/dev/null || echo "0")
 
+# Validate BEHIND is numeric before comparison
+if ! [[ "$BEHIND" =~ ^[0-9]+$ ]]; then
+  echo "[!] Warning: Could not determine commits behind main (origin/main may not exist)"
+  BEHIND=0
+fi
+
 if [ "$BEHIND" -gt 0 ]; then
   echo "[X] RIGOR VIOLATION (VALID-004): Branch is $BEHIND commits behind main"
   echo "Fix: git fetch origin main && git rebase origin/main"
@@ -830,21 +836,23 @@ echo "[Y] Branch is up-to-date with main (zero commits behind)"
 # Check all commits in branch for DCO sign-off
 echo "Checking DCO sign-off for all commits..."
 
-UNSIGNED=$(git log origin/main..HEAD --format='%H %s' 2>/dev/null | while read hash msg; do
-  if ! git log -1 --format='%B' "$hash" | grep -q "^Signed-off-by:"; then
-    echo "$hash"
+# Use process substitution to avoid subshell variable scope issues
+UNSIGNED_COMMITS=""
+while read -r hash msg; do
+  # Check for Signed-off-by anywhere in commit body (not just at line start)
+  if ! git log -1 --format='%B' "$hash" 2>/dev/null | grep -q "Signed-off-by:"; then
+    UNSIGNED_COMMITS="${UNSIGNED_COMMITS}${hash} ${msg}\n"
   fi
-done)
+done < <(git log origin/main..HEAD --format='%h %s' 2>/dev/null)
 
-if [ -n "$UNSIGNED" ]; then
-  UNSIGNED_COUNT=$(echo "$UNSIGNED" | wc -l | tr -d ' ')
+# Count unsigned commits (wc -w counts words; wc -l on empty string returns 1)
+if [ -n "$UNSIGNED_COMMITS" ]; then
+  UNSIGNED_COUNT=$(echo -e "$UNSIGNED_COMMITS" | grep -c .)
   echo "[X] RIGOR VIOLATION (PR-001): $UNSIGNED_COUNT commits missing DCO sign-off"
   echo ""
   echo "Unsigned commits:"
-  git log origin/main..HEAD --format='%h %s' 2>/dev/null | while read hash msg; do
-    if ! git log -1 --format='%B' "$hash" | grep -q "^Signed-off-by:"; then
-      echo "  $hash $msg"
-    fi
+  echo -e "$UNSIGNED_COMMITS" | while read -r line; do
+    [ -n "$line" ] && echo "  $line"
   done
   echo ""
   echo "Fix: Add sign-off to all commits:"
@@ -1072,10 +1080,12 @@ gh pr view <pr-number> --web
 # Determine current iteration version
 CURRENT_BRANCH=$(git branch --show-current)
 
-# Calculate next version
-if [[ "$CURRENT_BRANCH" =~ -v([0-9]+)$ ]]; then
+# Calculate next version using portable extraction (works in bash 3.2+)
+# Extract version number using sed for better portability
+VERSION=$(echo "$CURRENT_BRANCH" | sed -n 's/.*-v\([0-9]*\)$/\1/p')
+
+if [ -n "$VERSION" ]; then
   # Already an iteration branch (e.g., hostname/task-123/feature-v2)
-  VERSION="${BASH_REMATCH[1]}"
   NEXT_VERSION=$((VERSION + 1))
   BASE_BRANCH=$(echo "$CURRENT_BRANCH" | sed 's/-v[0-9]*$//')
   ITERATION_BRANCH="${BASE_BRANCH}-v${NEXT_VERSION}"
