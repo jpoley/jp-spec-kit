@@ -810,7 +810,7 @@ fi
 UNPUSHED=$(git log @{u}.. --oneline 2>/dev/null | wc -l || echo 0)
 if [ "$UNPUSHED" -gt 0 ]; then
   echo "[X] FREEZE-002 VIOLATION: $UNPUSHED unpushed commits"
-  echo "Remediation: git push origin $(git branch --show-current)"
+  echo "Remediation: git push origin \"\$(git branch --show-current)\""
 fi
 ```
 
@@ -819,7 +819,7 @@ fi
 # Commit and push all changes
 git add .
 git commit -s -m "wip: freeze checkpoint - $(date +%Y-%m-%d)"
-git push origin $(git branch --show-current)
+git push origin "$(git branch --show-current)"
 ```
 
 **Rationale**: Prevents work loss due to hardware failure, machine changes, or accidental deletion.
@@ -1018,7 +1018,7 @@ git rebase origin/main
 git rebase --continue
 
 # Force push (with lease for safety)
-git push --force-with-lease origin $(git branch --show-current)
+git push --force-with-lease origin "$(git branch --show-current)"
 ```
 
 **Rationale**: Prevents integration delays and merge conflicts during PR merge. PRs with conflicts waste reviewer time.
@@ -1174,7 +1174,7 @@ git rebase origin/main --exec "git commit --amend --no-edit -s"
 git commit --amend -s
 
 # Push with force (after rebase)
-git push --force-with-lease origin $(git branch --show-current)
+git push --force-with-lease origin "$(git branch --show-current)"
 ```
 
 **Rationale**: DCO is a legal requirement for open-source contributions, certifying you have the right to submit the code.
@@ -1502,8 +1502,8 @@ Before creating implementation tasks, verify a documented plan exists:
 
 ```bash
 # Check for plan documentation
-# Use compgen -G for glob pattern matching ([ -f ] doesn't work with globs)
-if ! compgen -G "docs/plan/*.md" > /dev/null 2>&1 && [ -z "$IMPLEMENTATION_PLAN" ]; then
+# Use ls with glob (POSIX-compliant alternative to bash-specific compgen -G)
+if ! ls docs/plan/*.md > /dev/null 2>&1 && [ -z "$IMPLEMENTATION_PLAN" ]; then
   echo "⚠️ RIGOR RULE SETUP-001: No documented plan found"
   echo ""
   echo "A clear plan of action is required before task creation."
