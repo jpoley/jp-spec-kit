@@ -247,6 +247,7 @@ Implementation work MUST be done in a git worktree with matching task ID.
 ```bash
 # Validate worktree usage (EXEC-001)
 WORKTREE_DIR=$(git rev-parse --show-toplevel 2>/dev/null)
+BRANCH=$(git branch --show-current 2>/dev/null)
 # Use exact path matching to avoid substring false positives
 IS_WORKTREE=$(git worktree list 2>/dev/null | awk '{print $1}' | grep -Fxq "$WORKTREE_DIR" && echo "yes" || echo "no")
 
@@ -1183,21 +1184,34 @@ fi
 
 # Go projects
 if [ -f "go.mod" ]; then
-  gofmt -l . | grep -q .
-  if [ $? -eq 0 ]; then
+  UNFORMATTED_FILES="$(gofmt -l .)"
+  if [ -n "$UNFORMATTED_FILES" ]; then
     echo "[X] RIGOR VIOLATION (VALID-007): Code not formatted"
+    echo "The following files need formatting:"
+    echo "$UNFORMATTED_FILES"
     echo "Fix: gofmt -w ."
     exit 1
   fi
 fi
 
 # TypeScript projects
-if [ -f "package.json" ] && grep -q "\"format\"" package.json; then
-  npm run format:check
-  if [ $? -ne 0 ]; then
-    echo "[X] RIGOR VIOLATION (VALID-007): Code not formatted"
-    echo "Fix: npm run format"
-    exit 1
+if [ -f "package.json" ]; then
+  if grep -q '"format:check"' package.json; then
+    # Use format:check if available
+    npm run format:check
+    if [ $? -ne 0 ]; then
+      echo "[X] RIGOR VIOLATION (VALID-007): Code not formatted"
+      echo "Fix: npm run format"
+      exit 1
+    fi
+  elif command -v prettier &> /dev/null; then
+    # Fall back to prettier --check if available
+    prettier --check . 2>/dev/null
+    if [ $? -ne 0 ]; then
+      echo "[X] RIGOR VIOLATION (VALID-007): Code not formatted"
+      echo "Fix: prettier --write ."
+      exit 1
+    fi
   fi
 fi
 ```
@@ -1253,9 +1267,10 @@ fi
 # Verify task status is current (VALID-006)
 if [ -n "$TASK_ID" ]; then
   echo "Verifying task status..."
-  STATUS=$(backlog task "$TASK_ID" --plain 2>/dev/null | grep "Status:" | head -1 | awk '{print $2}')
+  # Extract full status (handles multi-word statuses like "In Progress")
+  STATUS=$(backlog task "$TASK_ID" --plain 2>/dev/null | grep "Status:" | head -1 | sed 's/^Status:[[:space:]]*//')
 
-  if [ "$STATUS" != "In" ] && [ "$STATUS" != "Progress" ]; then
+  if [ "$STATUS" != "In Progress" ]; then
     echo "⚠️  WARNING (VALID-006): Task status may be stale: $STATUS"
     echo "Update task status before PR:"
     echo "  backlog task edit ${TASK_ID} -s 'In Progress'"
