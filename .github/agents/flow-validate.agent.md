@@ -454,93 +454,109 @@ This phase locates the task's PRD or PRP file and extracts the Feature Validatio
 
 #### Step 1: Locate PRD or PRP File
 
-Search for PRD/PRP files related to the current task:
+Search for PRD/PRP files related to the current task using this priority order:
 
 ```bash
 # Extract task ID number
 TASK_NUM=$(echo "$TASK_ID" | grep -oE '[0-9]+')
 
-# Search for task-specific PRP file
-PRP_FILE="docs/prp/task-${TASK_NUM}.md"
+# Initialize SPEC_FILE variable
+SPEC_FILE=""
 
-# If PRP doesn't exist, search for PRD files that might reference this task
-if [ ! -f "$PRP_FILE" ]; then
-  # Look for PRD files in docs/prd/ directory
-  find docs/prd/ -name "*.md" -type f 2>/dev/null
+# Priority 1: Task-specific PRP with "task-" prefix
+PRP_FILE_PRIMARY="docs/prp/task-${TASK_NUM}.md"
+
+# Priority 2: Task-specific PRP without prefix
+PRP_FILE_ALT="docs/prp/${TASK_ID}.md"
+
+# Search with priority order
+if [ -f "$PRP_FILE_PRIMARY" ]; then
+  SPEC_FILE="$PRP_FILE_PRIMARY"
+  echo "✅ Found PRP: $SPEC_FILE"
+
+elif [ -f "$PRP_FILE_ALT" ]; then
+  SPEC_FILE="$PRP_FILE_ALT"
+  echo "✅ Found PRP (alternate format): $SPEC_FILE"
+
+else
+  # Priority 3: PRD files that mention this task
+  PRD_FILE=$(find docs/prd/ -name "*.md" -type f -print0 2>/dev/null \
+    | xargs -0 grep -l -E "task-${TASK_NUM}\b|${TASK_ID}\b" 2>/dev/null \
+    | head -n 1 || true)
+
+  if [ -n "$PRD_FILE" ]; then
+    SPEC_FILE="$PRD_FILE"
+    echo "✅ Found PRD referencing task: $SPEC_FILE"
+  else
+    echo "⚠️ No PRP/PRD file found for ${TASK_ID}; skipping Feature Validation Plan extraction."
+  fi
 fi
 ```
 
 **File Search Priority**:
-1. Task-specific PRP: `docs/prp/task-{task-id}.md`
+1. Task-specific PRP: `docs/prp/task-{task-num}.md`
 2. Task-specific PRP (alternate): `docs/prp/{task-id}.md`
 3. PRD files mentioning the task in docs/prd/
 4. No file found (skip this phase gracefully)
 
 #### Step 2: Extract Feature Validation Plan Section
 
-If a PRD/PRP file is found, extract the "Feature Validation Plan" or "Validation Loop" section:
+If a spec file is found (`$SPEC_FILE` is not empty), extract the "Feature Validation Plan" or "VALIDATION LOOP" section:
 
 ```bash
-# Extract the Feature Validation Plan section
-# Look for either "## Feature Validation Plan" (PRD) or "## VALIDATION LOOP" (PRP)
+# Only proceed if we found a spec file
+if [ -n "$SPEC_FILE" ]; then
+  # Extract the Feature Validation Plan section using awk
+  # Uses flag-based approach to avoid including next section header
+  FVP_SECTION=$(awk '
+    /^## (Feature Validation Plan|VALIDATION LOOP)/ { in_section=1; print; next }
+    /^## / && in_section { exit }
+    in_section { print }
+  ' "$SPEC_FILE")
 
-# Use awk or sed to extract the section between the header and the next ## header
-awk '/^## (Feature Validation Plan|VALIDATION LOOP)/,/^## / {
-  if (/^## / && !/^## (Feature Validation Plan|VALIDATION LOOP)/) exit;
-  print
-}' "$PRD_OR_PRP_FILE"
+  if [ -z "$FVP_SECTION" ]; then
+    echo "⚠️ No Feature Validation Plan section found in: $SPEC_FILE"
+  else
+    echo "✅ Found Feature Validation Plan section"
+  fi
+fi
 ```
 
-**Expected Section Structure** (from PRD):
+**Expected Section Structure** (from PRD or PRP):
+
 ```markdown
 ## Feature Validation Plan
 
 ### Commands
-
-```bash
-# Run feature-specific unit tests
 pytest tests/path/to/feature/ -v
-
-# Run linting for affected files
 ruff check src/path/to/feature/
-```
 
 ### Expected Success
-...
+All tests pass, no linting errors
 
 ### Known Failure Modes
-...
-```
-
-**Expected Section Structure** (from PRP):
-```markdown
-## VALIDATION LOOP
-
-### Commands
-
-```bash
-# Run feature-specific tests
-pytest tests/feature/ -v
-```
-
-### Expected Success
-...
+Test may fail if database not initialized
 ```
 
 #### Step 3: Parse Validation Commands
 
-Extract the commands from the "Commands" subsection:
+Extract the commands from the "Commands" subsection. Note: Commands should be listed directly without code block wrappers to avoid parsing ambiguity.
 
 ```bash
-# Extract bash code block from Commands subsection
-# Look for ### Commands followed by ```bash ... ```
+# Extract commands from the Commands subsection
+# Looks for lines after "### Commands" until the next "###" header or section end
+VALIDATION_COMMANDS=$(echo "$FVP_SECTION" | awk '
+  BEGIN { in_cmds=0 }
+  /^### Commands/ { in_cmds=1; next }
+  /^###/ && in_cmds { exit }
+  /^## / && in_cmds { exit }
+  in_cmds && /^[^#[:space:]]/ { print }
+  in_cmds && /^[[:space:]]+[^#]/ { print }
+')
 
-# Use sed/awk to extract commands between ```bash and ```
-awk '/^### Commands/,/^```$/ {
-  if (in_block && /^```$/) exit;
-  if (in_block) print;
-  if (/^```bash/) in_block=1;
-}' "$SECTION_FILE"
+if [ -z "$VALIDATION_COMMANDS" ]; then
+  echo "⚠️ No validation commands found in Feature Validation Plan"
+fi
 ```
 
 Store the extracted commands for use in Phase 1.
@@ -554,21 +570,14 @@ Present the feature-specific validation commands to the user:
 
 Validation Commands:
 --------------------------------------------------------------------------------
-# Run feature-specific unit tests
 pytest tests/flowspec_cli/test_validate_command.py -v
-
-# Run integration tests
 pytest tests/integration/test_validate_workflow.py -v
-
-# Run linting for affected files
 ruff check src/flowspec_cli/commands/validate.py
-
-# Verify command help text
 flowspec validate --help
 --------------------------------------------------------------------------------
 
 Do you want to:
-1. Run these commands automatically
+1. Run these commands automatically (with safety validation)
 2. Print commands for manual execution
 3. Skip and use default test suite
 
@@ -579,8 +588,50 @@ Choice [1/2/3]:
 
 Based on user choice:
 
-**Option 1: Run automatically**
-- Execute each command sequentially
+**Option 1: Run automatically (with safety validation)**
+
+> **Security requirement**: Commands from PRD/PRP markdown files must be validated before execution.
+
+```bash
+# Allowlist of safe command patterns (customize per project)
+SAFE_PATTERNS=(
+  "^pytest "
+  "^ruff "
+  "^mypy "
+  "^flowspec "
+  "^npm test"
+  "^npm run "
+  "^cargo test"
+  "^go test"
+)
+
+# Validate each command against allowlist
+validate_command() {
+  local cmd="$1"
+  for pattern in "${SAFE_PATTERNS[@]}"; do
+    if [[ "$cmd" =~ $pattern ]]; then
+      return 0  # Safe
+    fi
+  done
+  return 1  # Not in allowlist
+}
+
+# Process commands with validation
+echo "$VALIDATION_COMMANDS" | while read -r cmd; do
+  if [ -n "$cmd" ]; then
+    if validate_command "$cmd"; then
+      echo "✅ Validated: $cmd"
+      eval "$cmd"
+    else
+      echo "⚠️ Command not in allowlist, skipping: $cmd"
+      echo "   Add to SAFE_PATTERNS if this is a legitimate test command"
+    fi
+  fi
+done
+```
+
+- Validate commands against allowlist before execution
+- Execute each validated command sequentially
 - Capture output and exit codes
 - Report success/failure for each command
 - Continue to Phase 1 only if all commands pass
@@ -1145,7 +1196,7 @@ Create comprehensive implementation notes based on:
 
 ### What Was Implemented
 Enhanced the /flow:validate command with phased orchestration workflow.
-Implemented 7 distinct phases with progress reporting and error handling.
+Implemented 8 distinct phases (Phase 0, 0.5, 1-6) with progress reporting and error handling.
 
 ### Feature Validation Plan Results
 [Include results from Phase 0.5 if Feature Validation Plan was found and executed]
