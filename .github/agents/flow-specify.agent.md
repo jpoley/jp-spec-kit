@@ -1505,7 +1505,7 @@ Before creating implementation tasks, verify a documented plan exists:
 ```bash
 # Check for plan documentation
 # Use find (handles missing directory gracefully, unlike ls glob)
-if ! find docs/plan -name "*.md" -type f 2>/dev/null | grep -q . && [ -z "$IMPLEMENTATION_PLAN" ]; then
+if ! find docs/plan -name "*.md" -type f 2>/dev/null | grep -q .; then
   echo "⚠️ RIGOR RULE SETUP-001: No documented plan found"
   echo ""
   echo "A clear plan of action is required before task creation."
