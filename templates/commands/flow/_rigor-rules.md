@@ -970,7 +970,8 @@ Iteration branches MUST follow naming pattern: `{original-branch}-v2`, `-v3`, et
 BRANCH=$(git branch --show-current 2>/dev/null)
 if echo "$BRANCH" | grep -Eq '\-v[0-9]+$'; then
   # This is an iteration branch - validate base exists
-  BASE_BRANCH=$(echo "$BRANCH" | sed 's/-v[0-9]*$//')
+  # Use [0-9][0-9]* to require at least one digit for consistency
+  BASE_BRANCH=$(echo "$BRANCH" | sed 's/-v[0-9][0-9]*$//')
   git rev-parse --verify "$BASE_BRANCH" > /dev/null 2>&1
   if [ $? -ne 0 ]; then
     echo "[X] PR-003 VIOLATION: Base branch not found: $BASE_BRANCH"

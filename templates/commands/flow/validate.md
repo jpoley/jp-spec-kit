@@ -845,7 +845,8 @@ while read -r hash msg; do
   fi
 done < <(git log origin/main..HEAD --format='%h %s' 2>/dev/null)
 
-# Count unsigned commits: use grep -c . because wc -l on an empty string returns 1
+# Count unsigned commits: use grep -c . because echo -e on empty/newline-only strings
+# produces extra lines that wc -l would count incorrectly
 if [ -n "$UNSIGNED_COMMITS" ]; then
   UNSIGNED_COUNT=$(echo -e "$UNSIGNED_COMMITS" | grep -c .)
   echo "[X] RIGOR VIOLATION (PR-001): $UNSIGNED_COUNT commits missing DCO sign-off"
