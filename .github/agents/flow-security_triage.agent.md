@@ -1,6 +1,6 @@
 ---
 name: "flow-security_triage"
-description: "flow security_triage workflow command"
+description: "Triage security scan findings using AI-powered analysis with persona-specific output."
 target: "chat"
 tools:
   - "Read"

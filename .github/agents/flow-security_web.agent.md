@@ -1,6 +1,6 @@
 ---
 name: "flow-security_web"
-description: "flow security_web workflow command"
+description: "Test web applications for security vulnerabilities using dynamic analysis with Playwright."
 target: "chat"
 tools:
   - "Read"
