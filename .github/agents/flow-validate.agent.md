@@ -1193,7 +1193,8 @@ Iteration branches MUST follow naming pattern: `{original-branch}-v2`, `-v3`, et
 BRANCH=$(git branch --show-current 2>/dev/null)
 if [[ "$BRANCH" =~ -v[0-9]+$ ]]; then
   # This is an iteration branch - validate base exists
-  BASE_BRANCH=$(echo "$BRANCH" | sed 's/-v[0-9]*$//')
+  # Use [0-9][0-9]* to require at least one digit for consistency
+  BASE_BRANCH=$(echo "$BRANCH" | sed 's/-v[0-9][0-9]*$//')
   git rev-parse --verify "$BASE_BRANCH" > /dev/null 2>&1
   if [ $? -ne 0 ]; then
     echo "[X] PR-003 VIOLATION: Base branch not found: $BASE_BRANCH"
@@ -2258,7 +2259,8 @@ while read -r hash msg; do
   fi
 done < <(git log origin/main..HEAD --format='%h %s' 2>/dev/null)
 
-# Count unsigned commits: use grep -c . because wc -l on an empty string returns 1
+# Count unsigned commits: use grep -c . because echo -e on empty/newline-only strings
+# produces extra lines that wc -l would count incorrectly
 if [ -n "$UNSIGNED_COMMITS" ]; then
   UNSIGNED_COUNT=$(echo -e "$UNSIGNED_COMMITS" | grep -c .)
   echo "[X] RIGOR VIOLATION (PR-001): $UNSIGNED_COUNT commits missing DCO sign-off"
