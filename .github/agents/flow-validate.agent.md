@@ -773,7 +773,7 @@ fi
 UNPUSHED=$(git log @{u}.. --oneline 2>/dev/null | wc -l || echo 0)
 if [ "$UNPUSHED" -gt 0 ]; then
   echo "[X] FREEZE-002 VIOLATION: $UNPUSHED unpushed commits"
-  echo "Remediation: git push origin $(git branch --show-current)"
+  echo "Remediation: git push origin \"$(git branch --show-current)\""
 fi
 ```
 
@@ -1666,14 +1666,14 @@ else
   #   - Lines starting with non-whitespace, non-hash chars (direct commands)
   #   - Indented non-comment lines with actual content (strips leading whitespace)
   # Filters out:
-  #   - Code block markers via /^```[[:space:]]*$/ which matches fence lines (``` followed by zero or more whitespace characters)
+  #   - Code block markers via /^```([[:alnum:]_+-]+)?[[:space:]]*$/ which matches fences with optional language and trailing whitespace
   #   - Code blocks are supported but not recommended; this logic defensively skips fenced blocks
   VALIDATION_COMMANDS=$(echo "$FVP_SECTION" | awk '
     BEGIN { in_cmds=0; in_code_block=0 }
     /^### Commands/ { in_cmds=1; next }
     /^###/ && in_cmds { exit }
     /^## / && in_cmds { exit }
-    in_cmds && /^```[[:space:]]*$/ { in_code_block = !in_code_block; next }  # Toggle on fence lines (``` followed by zero or more whitespace characters)
+    in_cmds && /^```([[:alnum:]_+-]+)?[[:space:]]*$/ { in_code_block = !in_code_block; next }  # Toggle on fence lines (``` with optional language and whitespace)
     in_cmds && in_code_block { next }  # Skip all lines inside fenced code blocks
     in_cmds && /^[^#[:space:]]/ { print }
     in_cmds && /^[[:space:]]+[^#[:space:]]/ { gsub(/^[[:space:]]+/, ""); if (NF > 0) print }
