@@ -38,7 +38,7 @@ import tomllib
 import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Any, Optional, Tuple
 
 import httpx
 import readchar
@@ -1394,6 +1394,153 @@ def version_callback(value: bool) -> None:
     if value:
         show_version_info(detailed=False)
         raise typer.Exit()
+
+
+def detect_repo_characteristics(project_path: Path) -> dict[str, Any]:
+    """Detect repository characteristics (languages, CI/CD, test frameworks).
+
+    This helper function extracts detection logic for testing purposes.
+
+    Args:
+        project_path: Path to the project directory
+
+    Returns:
+        dict with keys:
+            - languages: List[str] of detected languages
+            - cicd: List[str] of detected CI/CD systems
+            - git_repo: bool indicating if it's a git repository
+            - test_frameworks: List[str] of detected test frameworks
+            - package_managers: List[str] of detected package managers
+            - linters: List[str] of detected linters
+    """
+    # Detect languages
+    languages = []
+    package_files = {
+        "Python": ["pyproject.toml", "requirements.txt", "setup.py", "Pipfile"],
+        "JavaScript/TypeScript": ["package.json", "yarn.lock", "pnpm-lock.yaml"],
+        "Go": ["go.mod", "go.sum"],
+        "Rust": ["Cargo.toml", "Cargo.lock"],
+        "Java": ["pom.xml", "build.gradle", "build.gradle.kts"],
+        "Ruby": ["Gemfile", "Gemfile.lock"],
+        "PHP": ["composer.json", "composer.lock"],
+        "C#": ["*.csproj", "*.sln"],  # Use glob patterns for C#
+    }
+
+    for lang, files in package_files.items():
+        if lang == "C#":
+            # Check for any file ending with .csproj or .sln
+            if any(project_path.glob("*.csproj")) or any(project_path.glob("*.sln")):
+                if lang not in languages:
+                    languages.append(lang)
+        else:
+            for file in files:
+                if (project_path / file).exists():
+                    if lang not in languages:
+                        languages.append(lang)
+                    break
+
+    # Detect CI/CD
+    cicd_systems = []
+    cicd_markers = {
+        "GitHub Actions": [".github/workflows"],
+        "GitLab CI": [".gitlab-ci.yml"],
+        "CircleCI": [".circleci/config.yml"],
+        "Travis CI": [".travis.yml"],
+        "Jenkins": ["Jenkinsfile"],
+    }
+
+    for system, markers in cicd_markers.items():
+        for marker in markers:
+            marker_path = project_path / marker
+            if marker_path.exists():
+                if marker_path.is_dir() and any(marker_path.iterdir()):
+                    cicd_systems.append(system)
+                    break
+                elif marker_path.is_file():
+                    cicd_systems.append(system)
+                    break
+
+    # Check if git repo
+    is_git = (project_path / ".git").exists()
+
+    # Detect test frameworks
+    test_frameworks = []
+    if "Python" in languages:
+        if (project_path / "pyproject.toml").exists():
+            # Check for pytest in pyproject.toml
+            test_frameworks.append("pytest")
+
+    if "JavaScript/TypeScript" in languages:
+        package_json_path = project_path / "package.json"
+        if package_json_path.exists():
+            try:
+                import json
+
+                data = json.loads(package_json_path.read_text())
+                dev_deps = data.get("devDependencies", {})
+                if "jest" in dev_deps:
+                    test_frameworks.append("jest")
+                elif "vitest" in dev_deps:
+                    test_frameworks.append("vitest")
+            except Exception:
+                pass
+
+    if "Go" in languages:
+        test_frameworks.append("go test")
+
+    # Detect package managers
+    package_managers = []
+    if (project_path / "pnpm-lock.yaml").exists():
+        package_managers.append("pnpm")
+    elif (project_path / "yarn.lock").exists():
+        package_managers.append("yarn")
+    elif (project_path / "package.json").exists():
+        package_managers.append("npm")
+
+    if (project_path / "pyproject.toml").exists():
+        package_managers.append("uv")
+    elif (project_path / "Pipfile").exists():
+        package_managers.append("pipenv")
+
+    if (project_path / "go.mod").exists():
+        package_managers.append("go modules")
+
+    # Detect linters
+    linters = []
+    if "Python" in languages:
+        pyproject_path = project_path / "pyproject.toml"
+        if pyproject_path.exists() and "ruff" in pyproject_path.read_text():
+            linters.append("ruff")
+
+    if "JavaScript/TypeScript" in languages:
+        package_json_path = project_path / "package.json"
+        if package_json_path.exists():
+            try:
+                import json
+
+                data = json.loads(package_json_path.read_text())
+                dev_deps = data.get("devDependencies", {})
+                if "eslint" in dev_deps:
+                    linters.append("eslint")
+                if "prettier" in dev_deps:
+                    linters.append("prettier")
+            except Exception:
+                pass
+
+    if "Go" in languages:
+        if (project_path / ".golangci.yml").exists() or (
+            project_path / ".golangci.yaml"
+        ).exists():
+            linters.append("golangci-lint")
+
+    return {
+        "languages": languages,
+        "cicd": cicd_systems,
+        "git_repo": is_git,
+        "test_frameworks": test_frameworks,
+        "package_managers": package_managers,
+        "linters": linters,
+    }
 
 
 def write_repo_facts(project_path: Path) -> None:
