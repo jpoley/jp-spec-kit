@@ -797,7 +797,7 @@ bd sync
 **Severity**: ADVISORY
 **Enforcement**: warn
 
-Active work SHOULD be logged daily to `./logs/active-work-<date>.jsonl`. This enables session continuity and work visibility.
+Active work SHOULD be logged daily to `.flowspec/logs/active-work/<date>.jsonl`. This enables session continuity and work visibility.
 
 **Log Format**:
 ```json
@@ -809,7 +809,7 @@ Active work SHOULD be logged daily to `./logs/active-work-<date>.jsonl`. This en
 **Validation**:
 ```bash
 TODAY=$(date +%Y-%m-%d)
-LOG_FILE="./logs/active-work-${TODAY}.jsonl"
+LOG_FILE=".flowspec/logs/active-work/${TODAY}.jsonl"
 
 if [ ! -f "$LOG_FILE" ]; then
   echo "WARNING: EXEC-009: No active work log for today: $LOG_FILE"
@@ -820,14 +820,14 @@ fi
 **Remediation**:
 ```bash
 # Create logs directory if needed
-mkdir -p ./logs
+mkdir -p .flowspec/logs/active-work
 
 # Log work start
 TODAY=$(date +%Y-%m-%d)
-echo '{"timestamp":"'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'","task_id":"task-123","action":"started","description":"Starting implementation"}' >> "./logs/active-work-${TODAY}.jsonl"
+echo '{"timestamp":"'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'","task_id":"task-123","action":"started","description":"Starting implementation"}' >> ".flowspec/logs/active-work/${TODAY}.jsonl"
 
 # Log progress
-echo '{"timestamp":"'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'","task_id":"task-123","action":"progress","description":"Completed step 1","percent_complete":25}' >> "./logs/active-work-${TODAY}.jsonl"
+echo '{"timestamp":"'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'","task_id":"task-123","action":"progress","description":"Completed step 1","percent_complete":25}' >> ".flowspec/logs/active-work/${TODAY}.jsonl"
 ```
 
 **Rationale**: Daily logs provide audit trail, enable handoffs, and help with time tracking and retrospectives.
@@ -838,7 +838,7 @@ echo '{"timestamp":"'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'","task_id":"task-123","ac
 **Severity**: BLOCKING
 **Enforcement**: strict
 
-All significant decisions MUST be logged daily to `./logs/decision-log-<date>.jsonl`. This supplements task-specific decision logs with a daily aggregate view.
+All significant decisions MUST be logged daily to `.flowspec/logs/decisions/<date>.jsonl`. This supplements task-specific decision logs with a daily aggregate view.
 
 **When to log**:
 - Technology or library choices
@@ -855,7 +855,7 @@ All significant decisions MUST be logged daily to `./logs/decision-log-<date>.js
 **Validation**:
 ```bash
 TODAY=$(date +%Y-%m-%d)
-LOG_FILE="./logs/decision-log-${TODAY}.jsonl"
+LOG_FILE=".flowspec/logs/decisions/${TODAY}.jsonl"
 
 if [ ! -f "$LOG_FILE" ]; then
   echo "[X] EXEC-010 VIOLATION: No decision log for today: $LOG_FILE"
@@ -873,16 +873,16 @@ fi
 **Remediation**:
 ```bash
 # Create logs directory if needed
-mkdir -p ./logs
+mkdir -p .flowspec/logs/decisions
 
 # Log a decision
 TODAY=$(date +%Y-%m-%d)
-echo '{"timestamp":"'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'","task_id":"task-123","decision":"Description of decision","rationale":"Why this choice was made","alternatives":["Option A","Option B"],"actor":"@backend-engineer"}' >> "./logs/decision-log-${TODAY}.jsonl"
+echo '{"timestamp":"'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'","task_id":"task-123","decision":"Description of decision","rationale":"Why this choice was made","alternatives":["Option A","Option B"],"actor":"@backend-engineer"}' >> ".flowspec/logs/decisions/${TODAY}.jsonl"
 ```
 
 **Relationship to EXEC-003**:
 - **EXEC-003**: Task-specific decision log in `memory/decisions/task-XXX.jsonl`
-- **EXEC-010**: Daily aggregate decision log in `./logs/decision-log-<date>.jsonl`
+- **EXEC-010**: Daily aggregate decision log in `.flowspec/logs/decisions/<date>.jsonl`
 - Both should be kept in sync for comprehensive audit trail
 
 **Rationale**: Daily decision logs enable quick review of what was decided, cross-task pattern recognition, and onboarding context.

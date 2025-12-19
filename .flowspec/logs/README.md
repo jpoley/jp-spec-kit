@@ -2,9 +2,22 @@
 
 This directory contains daily operational logs for AI-assisted development work.
 
+## Directory Structure
+
+```
+.flowspec/logs/
+├── README.md
+├── decisions/          # Decision logs
+│   └── YYYY-MM-DD.jsonl
+├── events/             # All events (future: central event logging)
+│   └── YYYY-MM-DD.jsonl
+└── active-work/        # Active work tracking
+    └── YYYY-MM-DD.jsonl
+```
+
 ## Log Files
 
-### Active Work Log (`active-work-<date>.jsonl`)
+### Active Work Log (`active-work/<date>.jsonl`)
 
 Tracks AI micro-tasks and active work items for the day.
 
@@ -23,7 +36,7 @@ Tracks AI micro-tasks and active work items for the day.
 - `artifacts`: (optional) Files created/modified
 - `blockers`: (optional) What's blocking progress
 
-### Decision Log (`decision-log-<date>.jsonl`)
+### Decision Log (`decisions/<date>.jsonl`)
 
 Records significant decisions made during development.
 
@@ -52,23 +65,23 @@ Logs are created automatically when following the RIGOR rules (EXEC-009, EXEC-01
 **Manual creation**:
 ```bash
 # Create today's decision log
-echo '{"timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'", "decision": "...", "context": "...", "rationale": "...", "alternatives": [], "impact": "medium", "reversible": true}' >> logs/decision-log-$(date +%Y-%m-%d).jsonl
+echo '{"timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'", "decision": "...", "context": "...", "rationale": "...", "alternatives": [], "impact": "medium", "reversible": true}' >> .flowspec/logs/decisions/$(date +%Y-%m-%d).jsonl
 
 # Create today's active work log
-echo '{"timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'", "task_id": "task-xxx", "action": "started", "description": "..."}' >> logs/active-work-$(date +%Y-%m-%d).jsonl
+echo '{"timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'", "task_id": "task-xxx", "action": "started", "description": "..."}' >> .flowspec/logs/active-work/$(date +%Y-%m-%d).jsonl
 ```
 
 ### Querying Logs
 
 ```bash
 # View today's decisions
-cat logs/decision-log-$(date +%Y-%m-%d).jsonl | jq .
+cat .flowspec/logs/decisions/$(date +%Y-%m-%d).jsonl | jq .
 
 # Find high-impact decisions
-cat logs/decision-log-*.jsonl | jq 'select(.impact == "high" or .impact == "critical")'
+cat .flowspec/logs/decisions/*.jsonl | jq 'select(.impact == "high" or .impact == "critical")'
 
 # List completed work today
-cat logs/active-work-$(date +%Y-%m-%d).jsonl | jq 'select(.action == "completed")'
+cat .flowspec/logs/active-work/$(date +%Y-%m-%d).jsonl | jq 'select(.action == "completed")'
 ```
 
 ## Integration with RIGOR Rules
