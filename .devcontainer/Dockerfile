@@ -13,33 +13,23 @@
 #   Or reference in devcontainer.json: "image": "jpoley/flowspec-agents:latest"
 #
 # Security: This image is built with SBOM and SLSA provenance attestations
-# Pin base image with digest for reproducibility and security scanning
-FROM python:3.13-alpine@sha256:51b5354ed44df6e1a3b3faf6d3a3d40da129621046b6d5a707b7c1f44d258ed6
+# Using Docker Hardened Image (DHI) for 95%+ CVE reduction vs standard images
+# DHI dev images include build tools: gcc, make, libc-dev, libffi-dev,
+# linux-headers, openssl-dev, git, and more (see DHI catalog for full list)
+# Pin with digest for supply chain security and reproducibility
+# See: https://github.com/docker-hardened-images/catalog
+FROM dhi.io/python:3.13-alpine3.22-dev@sha256:9dfbfe297449aa1f23f4ea8dc1872c91ce40c810b851ae075e0a703461426dc1
 
-# Install system dependencies
-# - bash: required for scripts and shell compatibility
-# - git: version control
-# - curl: downloads and health checks
-# - nodejs/npm: for AI CLI tools
-# - build-base: compilation tools for native extensions
-# - linux-headers: kernel headers for some Python packages
-# - libffi-dev: for cffi (used by many Python packages)
-# - openssl-dev: for cryptography packages
-# - zsh: developer-friendly shell
-# - shadow: for usermod/groupmod
-# - sudo: for privilege escalation
-# - jq: for JSON processing in scripts
-# - tar/gzip: for extracting downloads
+# Install additional system dependencies not in DHI or needed explicitly
+# DHI dev image provides: gcc, make, libc-dev, libffi-dev, linux-headers,
+# openssl-dev, git, and other build essentials
+# We add: nodejs/npm for AI CLI tools, shell utilities
 RUN apk add --no-cache \
     bash \
     git \
     curl \
     nodejs \
     npm \
-    build-base \
-    linux-headers \
-    libffi-dev \
-    openssl-dev \
     zsh \
     shadow \
     sudo \
@@ -134,8 +124,9 @@ LABEL org.opencontainers.image.description="Development container with AI coding
 LABEL org.opencontainers.image.source="https://github.com/jpoley/flowspec"
 LABEL org.opencontainers.image.vendor="jpoley"
 LABEL org.opencontainers.image.licenses="MIT"
-LABEL org.opencontainers.image.base.name="python:3.13-alpine"
-LABEL org.opencontainers.image.base.digest="sha256:51b5354ed44df6e1a3b3faf6d3a3d40da129621046b6d5a707b7c1f44d258ed6"
+LABEL org.opencontainers.image.base.name="dhi.io/python:3.13-alpine3.22-dev"
+LABEL org.opencontainers.image.base.digest="sha256:9dfbfe297449aa1f23f4ea8dc1872c91ce40c810b851ae075e0a703461426dc1"
+LABEL org.opencontainers.image.base.vendor="Docker Hardened Images"
 
 # Verify installations and print versions for debugging
 RUN echo "=== Installation Verification ===" \

@@ -103,7 +103,7 @@ The devcontainer automatically forwards these to the container.
 
 ### Python Environment
 
-- **Python 3.13** (Alpine-based image with zero base vulnerabilities)
+- **Python 3.13** ([Docker Hardened Image](https://docs.docker.com/dhi/) - 95%+ CVE reduction)
 - **uv** - Fast Python package manager
 - **ruff** - Linter and formatter
 - **pytest** - Test framework
@@ -349,7 +349,7 @@ jobs:
 ┌─────────────────────────────────────────────────────────────┐
 │                    Devcontainer                              │
 │  ┌─────────────────────────────────────────────────────────┐│
-│  │ Base: python:3.13-alpine (zero base vulnerabilities)    ││
+│  │ Base: DHI python:3.13-alpine (95%+ fewer CVEs)          ││
 │  └─────────────────────────────────────────────────────────┘│
 │                                                              │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
