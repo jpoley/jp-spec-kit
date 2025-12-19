@@ -16,9 +16,9 @@
 # Using Docker Hardened Image (DHI) for 95%+ CVE reduction vs standard images
 # DHI dev images include build tools: gcc, make, libc-dev, libffi-dev,
 # linux-headers, openssl-dev, git, and more (see DHI catalog for full list)
-# Pin with digest for supply chain security and reproducibility
+# DHI provides SLSA Level 3 provenance and signed attestations for supply chain security
 # See: https://github.com/docker-hardened-images/catalog
-FROM dhi.io/python:3.13-alpine3.22-dev@sha256:9dfbfe297449aa1f23f4ea8dc1872c91ce40c810b851ae075e0a703461426dc1
+FROM dhi.io/python:3.13-alpine3.22-dev
 
 # Install additional system dependencies not in DHI or needed explicitly
 # DHI dev image provides: gcc, make, libc-dev, libffi-dev, linux-headers,
@@ -125,7 +125,6 @@ LABEL org.opencontainers.image.source="https://github.com/jpoley/flowspec"
 LABEL org.opencontainers.image.vendor="jpoley"
 LABEL org.opencontainers.image.licenses="MIT"
 LABEL org.opencontainers.image.base.name="dhi.io/python:3.13-alpine3.22-dev"
-LABEL org.opencontainers.image.base.digest="sha256:9dfbfe297449aa1f23f4ea8dc1872c91ce40c810b851ae075e0a703461426dc1"
 LABEL org.opencontainers.image.base.vendor="Docker Hardened Images"
 
 # Verify installations and print versions for debugging
