@@ -127,7 +127,7 @@ class TestUpgradeFlowspecKit:
                         assert "2.0.0" in message
 
     def test_uv_upgrade_fallback_when_version_unchanged(self):
-        """Falls back to git reinstall when uv upgrade returns 0 but version unchanged."""
+        """Upgrades directly via git install (no longer tries uv upgrade first)."""
         with patch("flowspec_cli.__version__", "1.0.0"):
             with patch("flowspec_cli.get_github_latest_release", return_value="2.0.0"):
                 call_count = [0]
@@ -139,46 +139,24 @@ class TestUpgradeFlowspecKit:
                     return result
 
                 with patch("subprocess.run", side_effect=mock_subprocess_run):
-                    # First verify call returns old version, second returns new
-                    version_calls = [0]
-
-                    def mock_get_version():
-                        version_calls[0] += 1
-                        if version_calls[0] == 1:
-                            return "1.0.0"  # First check - same as before
-                        return "2.0.0"  # After git reinstall
-
-                    with patch(
-                        "flowspec_cli._get_installed_jp_spec_kit_version",
-                        side_effect=mock_get_version,
-                    ):
-                        success, message = _upgrade_jp_spec_kit(dry_run=False)
-                        assert success is True
-                        # Should have tried both uv upgrade and git reinstall
-                        assert call_count[0] >= 2
+                    success, message = _upgrade_jp_spec_kit(dry_run=False)
+                    assert success is True
+                    # Should only call git install once (no longer tries uv upgrade)
+                    assert call_count[0] == 1
+                    assert "Upgraded from 1.0.0 to 2.0.0" in message
 
     def test_uv_not_found_fallback(self):
-        """Falls back to reinstall when uv upgrade fails."""
+        """Returns error when uv tool install fails with FileNotFoundError."""
         with patch("flowspec_cli.__version__", "1.0.0"):
             with patch("flowspec_cli.get_github_latest_release", return_value="2.0.0"):
-                # First call (uv tool upgrade) raises FileNotFoundError
-                # Second call (uv tool install) succeeds
+                # uv tool install raises FileNotFoundError
                 def mock_subprocess_run(cmd, **kwargs):
-                    if "upgrade" in cmd:
-                        raise FileNotFoundError()
-                    result = MagicMock()
-                    result.returncode = 0
-                    return result
+                    raise FileNotFoundError()
 
                 with patch("subprocess.run", side_effect=mock_subprocess_run):
-                    with patch(
-                        "flowspec_cli._get_installed_jp_spec_kit_version",
-                        return_value="2.0.0",
-                    ):
-                        success, message = _upgrade_jp_spec_kit(dry_run=False)
-                        assert success is True
-                        # Code returns "Installed version X (was: Y)"
-                        assert "Installed" in message or "Upgraded" in message
+                    success, message = _upgrade_jp_spec_kit(dry_run=False)
+                    assert success is False
+                    assert "uv not found" in message
 
 
 class TestUpgradeBacklogMd:

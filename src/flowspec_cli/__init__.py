@@ -965,6 +965,112 @@ def get_all_component_versions() -> dict:
     }
 
 
+def write_version_tracking_file(
+    project_path: Path,
+    flowspec_version: str | None = None,
+    backlog_version: str | None = None,
+    beads_version: str | None = None,
+    is_upgrade: bool = False,
+) -> None:
+    """Write or update the .flowspec/.version tracking file.
+
+    Args:
+        project_path: Path to the project root
+        flowspec_version: flowspec version to record (uses __version__ if None)
+        backlog_version: backlog-md version to record (auto-detects if None)
+        beads_version: beads version to record (auto-detects if None)
+        is_upgrade: True if this is an upgrade operation (updates upgraded_at timestamp)
+    """
+    flowspec_dir = project_path / ".flowspec"
+    version_file = flowspec_dir / ".version"
+
+    # Get current versions if not provided
+    if flowspec_version is None:
+        flowspec_version = __version__
+    if backlog_version is None:
+        backlog_version = check_backlog_installed_version()
+    if beads_version is None:
+        beads_version = check_beads_installed_version()
+
+    # Load existing data if file exists (use our TOML parser, not YAML)
+    existing_data = {}
+    if version_file.exists():
+        parsed = read_version_tracking_file(project_path)
+        if parsed:
+            existing_data = parsed
+
+    # Build the version data
+    versions = {"flowspec": flowspec_version or "unknown"}
+    if backlog_version:
+        versions["backlog"] = backlog_version
+    if beads_version:
+        versions["beads"] = beads_version
+
+    # Build metadata
+    now = datetime.now().isoformat()
+    metadata = existing_data.get("metadata", {})
+
+    if is_upgrade:
+        # For upgrade, preserve installed_at and update upgraded_at
+        metadata["upgraded_at"] = now
+    else:
+        # For init, always set installed_at (fresh install)
+        metadata["installed_at"] = now
+
+    # Write to file in TOML format
+    flowspec_dir.mkdir(parents=True, exist_ok=True)
+
+    with open(version_file, "w") as f:
+        f.write("[versions]\n")
+        for key, value in versions.items():
+            f.write(f'{key} = "{value}"\n')
+        f.write("\n[metadata]\n")
+        for key, value in metadata.items():
+            f.write(f'{key} = "{value}"\n')
+
+
+def read_version_tracking_file(project_path: Path) -> dict | None:
+    """Read the .flowspec/.version tracking file.
+
+    Args:
+        project_path: Path to the project root
+
+    Returns:
+        Dictionary with versions and metadata, or None if file doesn't exist
+    """
+    version_file = project_path / ".flowspec" / ".version"
+    if not version_file.exists():
+        return None
+
+    try:
+        # Read the TOML-like file manually since we wrote it in a simple format
+        versions = {}
+        metadata = {}
+        current_section = None
+
+        with open(version_file, "r") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                if line == "[versions]":
+                    current_section = "versions"
+                elif line == "[metadata]":
+                    current_section = "metadata"
+                elif "=" in line and current_section:
+                    key, value = line.split("=", 1)
+                    key = key.strip()
+                    value = value.strip().strip('"')
+                    if current_section == "versions":
+                        versions[key] = value
+                    elif current_section == "metadata":
+                        metadata[key] = value
+
+        return {"versions": versions, "metadata": metadata}
+    except Exception:
+        return None
+
+
 def _has_upgrade(versions: dict) -> bool:
     """Check if a component has an available upgrade.
 
@@ -1791,6 +1897,120 @@ def callback(
 def version():
     """Show detailed version information for all components."""
     show_version_info(detailed=True)
+
+
+@app.command(name="repo-version")
+def repo_version():
+    """Show version information for tools installed in the current repository.
+
+    Reads the .flowspec/.version file to show which versions of flowspec,
+    backlog-md, and beads were used to initialize or upgrade this repository.
+
+    This is useful for troubleshooting version mismatches or understanding
+    what tools were used to set up the project.
+    """
+    show_banner()
+
+    # Detect project root
+    project_path = Path.cwd()
+    version_data = read_version_tracking_file(project_path)
+
+    if not version_data:
+        console.print("[yellow]No version tracking file found.[/yellow]")
+        console.print()
+        console.print("This could mean:")
+        console.print("  • This repository was not initialized with flowspec")
+        console.print(
+            "  • The repository was initialized before version tracking was added"
+        )
+        console.print("  • You are not in a flowspec-initialized directory")
+        console.print()
+        console.print(
+            "[cyan]Run 'flowspec upgrade-repo' to update and create version tracking.[/cyan]"
+        )
+        return
+
+    versions = version_data.get("versions", {})
+    metadata = version_data.get("metadata", {})
+
+    # Build version table
+    table = Table(show_header=True, box=None, padding=(0, 2))
+    table.add_column("Component", style="cyan")
+    table.add_column("Version", style="green")
+
+    # Add rows for each component
+    if "flowspec" in versions:
+        table.add_row("flowspec", versions["flowspec"])
+    if "backlog" in versions:
+        table.add_row("backlog-md", versions["backlog"])
+    if "beads" in versions:
+        table.add_row("beads", versions["beads"])
+
+    console.print()
+    console.print(table)
+    console.print()
+
+    # Show metadata if available
+    if metadata:
+        meta_table = Table(show_header=True, box=None, padding=(0, 2))
+        meta_table.add_column("Metadata", style="cyan")
+        meta_table.add_column("Value", style="dim")
+
+        if "installed_at" in metadata:
+            meta_table.add_row("Installed at", metadata["installed_at"])
+        if "upgraded_at" in metadata:
+            meta_table.add_row("Last upgraded", metadata["upgraded_at"])
+        if "last_checked" in metadata:
+            meta_table.add_row("Last checked", metadata["last_checked"])
+
+        console.print(meta_table)
+        console.print()
+
+    # Show comparison with currently installed tools
+    console.print("[cyan]Currently installed tools:[/cyan]")
+    current_table = Table(show_header=True, box=None, padding=(0, 2))
+    current_table.add_column("Component", style="cyan")
+    current_table.add_column("Installed", style="green")
+    current_table.add_column("In Repo", style="dim")
+    current_table.add_column("Status", style="yellow")
+
+    # Check flowspec
+    current_flowspec = __version__
+    repo_flowspec = versions.get("flowspec", "-")
+    if current_flowspec == repo_flowspec:
+        status = "[green]✓ Match[/green]"
+    elif current_flowspec and repo_flowspec != "-":
+        status = "[yellow]⚠ Mismatch[/yellow]"
+    else:
+        status = "[dim]-[/dim]"
+    current_table.add_row("flowspec", current_flowspec, repo_flowspec, status)
+
+    # Check backlog
+    current_backlog = check_backlog_installed_version() or "-"
+    repo_backlog = versions.get("backlog", "-")
+    if current_backlog == repo_backlog:
+        status = "[green]✓ Match[/green]"
+    elif current_backlog != "-" and repo_backlog != "-":
+        status = "[yellow]⚠ Mismatch[/yellow]"
+    else:
+        status = "[dim]-[/dim]"
+    current_table.add_row("backlog-md", current_backlog, repo_backlog, status)
+
+    # Check beads
+    current_beads = check_beads_installed_version() or "-"
+    repo_beads = versions.get("beads", "-")
+    if current_beads == repo_beads:
+        status = "[green]✓ Match[/green]"
+    elif current_beads != "-" and repo_beads != "-":
+        status = "[yellow]⚠ Mismatch[/yellow]"
+    else:
+        status = "[dim]-[/dim]"
+    current_table.add_row("beads", current_beads, repo_beads, status)
+
+    console.print(current_table)
+    console.print()
+
+    console.print("[dim]Use 'flowspec version' to see available updates[/dim]")
 
 
 def run_command(
@@ -3662,6 +3882,10 @@ def init(
     console.print()
     console.print("[green]Generated flowspec_workflow.yml[/green]")
 
+    # Write version tracking file
+    write_version_tracking_file(project_path, is_upgrade=False)
+    console.print("[green]Created version tracking file[/green]")
+
     # Display validation summary
     display_validation_summary(transition_modes)
 
@@ -3954,6 +4178,9 @@ def upgrade_repo(
     console.print("\n[bold green]Upgrade completed successfully![/bold green]")
     console.print(f"[dim]Backup of previous templates: {backup_dir}[/dim]")
 
+    # Update version tracking file
+    write_version_tracking_file(project_path, is_upgrade=True)
+
     # Check and offer to sync backlog-md version
     current_backlog_version = check_backlog_installed_version()
     recommended_version = get_backlog_validated_version()
@@ -4117,23 +4344,8 @@ def _upgrade_jp_spec_kit(
             f"Would install version {install_version} (current: {current_version})",
         )
 
-    # For specific versions, always use direct git install (skip uv upgrade)
-    # For latest, try uv upgrade first
-    if not target_version:
-        try:
-            result = subprocess.run(
-                ["uv", "tool", "upgrade", "flowspec-cli"],
-                capture_output=True,
-                text=True,
-                check=False,
-            )
-            if result.returncode == 0:
-                new_version = _get_installed_jp_spec_kit_version()
-                if new_version and compare_semver(new_version, current_version) > 0:
-                    return True, f"Upgraded from {current_version} to {new_version}"
-        except FileNotFoundError:
-            # uv not found - fall through to git-based installation below
-            pass
+    # Always use git-based installation since flowspec-cli is installed from git, not PyPI
+    # Using 'uv tool upgrade' returns 0 but doesn't actually upgrade git-sourced packages
 
     # Install from git at the specific release tag
     git_url = f"git+https://github.com/{EXTENSION_REPO_OWNER}/{EXTENSION_REPO_NAME}.git"
@@ -4156,7 +4368,7 @@ def _upgrade_jp_spec_kit(
         )
         # After successful install, trust the version we just installed
         # rather than re-detecting which may return stale results due to shell caching
-        return True, f"Installed version {install_version} (was: {current_version})"
+        return True, f"Upgraded from {current_version} to {install_version}"
     except subprocess.CalledProcessError as e:
         return False, f"Install failed: {e.stderr}"
     except FileNotFoundError:
