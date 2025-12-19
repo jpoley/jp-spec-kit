@@ -12,6 +12,12 @@ Tests cover:
 from textwrap import dedent
 
 import pytest
+from flowspec_cli import (
+    check_constitution_tier,
+    count_validation_markers,
+    detect_constitution_tier,
+    extract_validation_sections,
+)
 
 
 class TestConstitutionDetection:
@@ -47,9 +53,9 @@ class TestConstitutionDetection:
         )
         constitution_file.write_text(content)
 
-        # Read and verify
-        text = constitution_file.read_text()
-        assert "TIER: Light" in text
+        # Use helper function to detect tier
+        tier = detect_constitution_tier(constitution_file)
+        assert tier == "Light"
 
     def test_detect_medium_tier(self, tmp_project):
         """Should detect Medium tier from TIER comment."""
@@ -62,8 +68,8 @@ class TestConstitutionDetection:
         )
         constitution_file.write_text(content)
 
-        text = constitution_file.read_text()
-        assert "TIER: Medium" in text
+        tier = detect_constitution_tier(constitution_file)
+        assert tier == "Medium"
 
     def test_detect_heavy_tier(self, tmp_project):
         """Should detect Heavy tier from TIER comment."""
@@ -76,8 +82,8 @@ class TestConstitutionDetection:
         )
         constitution_file.write_text(content)
 
-        text = constitution_file.read_text()
-        assert "TIER: Heavy" in text
+        tier = detect_constitution_tier(constitution_file)
+        assert tier == "Heavy"
 
     def test_default_to_medium_when_no_tier(self, tmp_project):
         """Should default to Medium tier when TIER comment is missing."""
@@ -90,8 +96,8 @@ class TestConstitutionDetection:
         )
         constitution_file.write_text(content)
 
-        text = constitution_file.read_text()
-        assert "TIER:" not in text  # No tier comment
+        tier = detect_constitution_tier(constitution_file)
+        assert tier == "Medium"
 
     def test_count_validation_markers(self, tmp_project):
         """Should count NEEDS_VALIDATION markers correctly."""
@@ -113,8 +119,7 @@ class TestConstitutionDetection:
         )
         constitution_file.write_text(content)
 
-        text = constitution_file.read_text()
-        marker_count = text.count("NEEDS_VALIDATION")
+        marker_count = count_validation_markers(constitution_file)
         assert marker_count == 3
 
     def test_extract_section_names(self, tmp_project):
@@ -132,10 +137,11 @@ class TestConstitutionDetection:
         )
         constitution_file.write_text(content)
 
-        text = constitution_file.read_text()
-        assert "Project name and core identity" in text
-        assert "Technology stack choices" in text
-        assert "Quality standards and test coverage" in text
+        sections = extract_validation_sections(constitution_file)
+        assert len(sections) == 3
+        assert "Project name and core identity" in sections
+        assert "Technology stack choices" in sections
+        assert "Quality standards and test coverage" in sections
 
 
 class TestLightTierEnforcement:
@@ -159,19 +165,19 @@ class TestLightTierEnforcement:
             """
         )
         constitution_file.write_text(content)
-        return project_dir
+        return constitution_file
 
     def test_light_tier_warns_but_proceeds(self, light_constitution):
         """Light tier should warn about unvalidated sections but proceed."""
-        constitution_file = light_constitution / "memory" / "constitution.md"
-        text = constitution_file.read_text()
+        result = check_constitution_tier(light_constitution)
 
-        # Verify Light tier
-        assert "TIER: Light" in text
-
-        # Verify unvalidated sections exist
-        marker_count = text.count("NEEDS_VALIDATION")
-        assert marker_count > 0
+        assert result.tier == "Light"
+        assert result.marker_count == 2
+        assert result.can_proceed is True
+        assert result.requires_confirmation is False
+        assert result.warning is not None
+        assert "Project name" in result.warning
+        assert "Technology stack" in result.warning
 
     def test_light_tier_fully_validated_proceeds(self, tmp_path):
         """Light tier with no unvalidated sections should proceed silently."""
@@ -190,9 +196,12 @@ class TestLightTierEnforcement:
         )
         constitution_file.write_text(content)
 
-        text = constitution_file.read_text()
-        marker_count = text.count("NEEDS_VALIDATION")
-        assert marker_count == 0
+        result = check_constitution_tier(constitution_file)
+
+        assert result.tier == "Light"
+        assert result.marker_count == 0
+        assert result.can_proceed is True
+        assert result.warning is None
 
 
 class TestMediumTierEnforcement:
@@ -216,19 +225,19 @@ class TestMediumTierEnforcement:
             """
         )
         constitution_file.write_text(content)
-        return project_dir
+        return constitution_file
 
     def test_medium_tier_requires_confirmation(self, medium_constitution):
         """Medium tier should ask for confirmation when unvalidated."""
-        constitution_file = medium_constitution / "memory" / "constitution.md"
-        text = constitution_file.read_text()
+        result = check_constitution_tier(medium_constitution)
 
-        # Verify Medium tier
-        assert "TIER: Medium" in text
-
-        # Verify unvalidated sections exist
-        marker_count = text.count("NEEDS_VALIDATION")
-        assert marker_count > 0
+        assert result.tier == "Medium"
+        assert result.marker_count == 2
+        assert result.can_proceed is False
+        assert result.requires_confirmation is True
+        assert result.warning is not None
+        assert "Quality standards" in result.warning
+        assert "Security requirements" in result.warning
 
     def test_medium_tier_fully_validated_proceeds(self, tmp_path):
         """Medium tier with no unvalidated sections should proceed."""
@@ -247,9 +256,13 @@ class TestMediumTierEnforcement:
         )
         constitution_file.write_text(content)
 
-        text = constitution_file.read_text()
-        marker_count = text.count("NEEDS_VALIDATION")
-        assert marker_count == 0
+        result = check_constitution_tier(constitution_file)
+
+        assert result.tier == "Medium"
+        assert result.marker_count == 0
+        assert result.can_proceed is True
+        assert result.requires_confirmation is False
+        assert result.warning is None
 
 
 class TestHeavyTierEnforcement:
@@ -276,19 +289,19 @@ class TestHeavyTierEnforcement:
             """
         )
         constitution_file.write_text(content)
-        return project_dir
+        return constitution_file
 
     def test_heavy_tier_blocks_when_unvalidated(self, heavy_constitution):
         """Heavy tier should block execution when unvalidated."""
-        constitution_file = heavy_constitution / "memory" / "constitution.md"
-        text = constitution_file.read_text()
+        result = check_constitution_tier(heavy_constitution)
 
-        # Verify Heavy tier
-        assert "TIER: Heavy" in text
-
-        # Verify unvalidated sections exist
-        marker_count = text.count("NEEDS_VALIDATION")
-        assert marker_count > 0
+        assert result.tier == "Heavy"
+        assert result.marker_count == 5
+        assert result.can_proceed is False
+        assert result.requires_confirmation is False
+        assert result.blocking_reason is not None
+        assert "Project name and core identity" in result.blocking_reason
+        assert "/spec:constitution" in result.blocking_reason
 
     def test_heavy_tier_fully_validated_proceeds(self, tmp_path):
         """Heavy tier with no unvalidated sections should proceed."""
@@ -307,9 +320,12 @@ class TestHeavyTierEnforcement:
         )
         constitution_file.write_text(content)
 
-        text = constitution_file.read_text()
-        marker_count = text.count("NEEDS_VALIDATION")
-        assert marker_count == 0
+        result = check_constitution_tier(constitution_file)
+
+        assert result.tier == "Heavy"
+        assert result.marker_count == 0
+        assert result.can_proceed is True
+        assert result.blocking_reason is None
 
 
 class TestSkipValidationFlag:
@@ -332,18 +348,17 @@ class TestSkipValidationFlag:
             """
         )
         constitution_file.write_text(content)
-        return project_dir
+        return constitution_file
 
     def test_skip_validation_bypasses_heavy_block(self, heavy_unvalidated_constitution):
         """--skip-validation should bypass Heavy tier block."""
-        constitution_file = (
-            heavy_unvalidated_constitution / "memory" / "constitution.md"
+        result = check_constitution_tier(
+            heavy_unvalidated_constitution, skip_validation=True
         )
-        text = constitution_file.read_text()
 
-        # Verify would normally block
-        assert "TIER: Heavy" in text
-        assert "NEEDS_VALIDATION" in text
+        assert result.can_proceed is True
+        assert result.warning is not None
+        assert "skip" in result.warning.lower()
 
     def test_skip_validation_works_with_all_tiers(self, tmp_path):
         """--skip-validation should work with any tier."""
@@ -363,9 +378,10 @@ class TestSkipValidationFlag:
             )
             constitution_file.write_text(content)
 
-            text = constitution_file.read_text()
-            assert f"TIER: {tier}" in text
-            assert "NEEDS_VALIDATION" in text
+            result = check_constitution_tier(constitution_file, skip_validation=True)
+
+            assert result.can_proceed is True
+            assert result.warning is not None
 
 
 class TestEnforcementMessages:
@@ -389,9 +405,10 @@ class TestEnforcementMessages:
         )
         constitution_file.write_text(content)
 
-        text = constitution_file.read_text()
-        assert "Project name and identity" in text
-        assert "Technology stack" in text
+        result = check_constitution_tier(constitution_file)
+
+        assert "Project name and identity" in result.warning
+        assert "Technology stack" in result.warning
 
     def test_heavy_block_message_includes_resolution_steps(self, tmp_path):
         """Heavy tier block message should include clear resolution steps."""
@@ -410,18 +427,19 @@ class TestEnforcementMessages:
         )
         constitution_file.write_text(content)
 
-        # Verification that constitution exists and has expected content
-        assert constitution_file.exists()
-        text = constitution_file.read_text()
-        assert "TIER: Heavy" in text
-        assert "NEEDS_VALIDATION" in text
+        result = check_constitution_tier(constitution_file)
+
+        assert result.blocking_reason is not None
+        assert "/spec:constitution" in result.blocking_reason
+        assert "flowspec constitution validate" in result.blocking_reason
+        assert "--skip-validation" in result.blocking_reason
 
 
 class TestEdgeCases:
     """Tests for edge cases and error conditions."""
 
     def test_malformed_tier_comment(self, tmp_path):
-        """Should handle malformed TIER comments gracefully."""
+        """Should handle malformed TIER comments gracefully (default to Medium)."""
         project_dir = tmp_path / "test-project"
         memory_dir = project_dir / "memory"
         memory_dir.mkdir(parents=True)
@@ -435,8 +453,8 @@ class TestEdgeCases:
         )
         constitution_file.write_text(content)
 
-        text = constitution_file.read_text()
-        assert "TIER:" in text
+        tier = detect_constitution_tier(constitution_file)
+        assert tier == "Medium"
 
     def test_multiple_tier_comments(self, tmp_path):
         """Should handle multiple TIER comments (use first one)."""
@@ -455,8 +473,8 @@ class TestEdgeCases:
         )
         constitution_file.write_text(content)
 
-        text = constitution_file.read_text()
-        assert text.count("TIER:") == 2  # Both present
+        tier = detect_constitution_tier(constitution_file)
+        assert tier == "Light"
 
     def test_empty_constitution_file(self, tmp_path):
         """Should handle empty constitution file."""
@@ -467,8 +485,11 @@ class TestEdgeCases:
         constitution_file = memory_dir / "constitution.md"
         constitution_file.write_text("")
 
-        text = constitution_file.read_text()
-        assert len(text) == 0
+        tier = detect_constitution_tier(constitution_file)
+        assert tier == "Medium"  # Default
+
+        marker_count = count_validation_markers(constitution_file)
+        assert marker_count == 0
 
     def test_constitution_with_only_tier_no_content(self, tmp_path):
         """Should handle constitution with only TIER comment."""
@@ -480,7 +501,19 @@ class TestEdgeCases:
         content = "<!-- TIER: Medium -->\n"
         constitution_file.write_text(content)
 
-        text = constitution_file.read_text()
-        assert "TIER: Medium" in text
-        marker_count = text.count("NEEDS_VALIDATION")
-        assert marker_count == 0  # Fully validated (no markers)
+        result = check_constitution_tier(constitution_file)
+
+        assert result.tier == "Medium"
+        assert result.marker_count == 0
+        assert result.can_proceed is True
+
+    def test_missing_constitution_returns_warning(self, tmp_path):
+        """Missing constitution should return warning but allow proceed."""
+        nonexistent_file = tmp_path / "nonexistent" / "constitution.md"
+
+        result = check_constitution_tier(nonexistent_file)
+
+        assert result.tier == "Unknown"
+        assert result.can_proceed is True
+        assert result.warning is not None
+        assert "not found" in result.warning.lower()
