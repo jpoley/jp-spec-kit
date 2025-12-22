@@ -5,11 +5,11 @@ status: To Do
 assignee:
   - '@muckross'
 created_date: '2025-12-03 01:58'
-updated_date: '2025-12-04 14:20'
+updated_date: '2025-12-22 21:55'
 labels:
   - security
-  - implement
   - workflow
+  - on-hold
 dependencies: []
 priority: high
 ---
@@ -178,3 +178,9 @@ Sections:
 ### Estimated Effort
 **Total**: 12 hours (1.5 days)
 <!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+**ON HOLD (Dec 2025)**: Security scanning features may move to dedicated security repo.
+<!-- SECTION:NOTES:END -->

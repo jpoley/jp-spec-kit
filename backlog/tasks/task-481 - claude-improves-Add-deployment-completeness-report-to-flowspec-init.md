@@ -1,11 +1,11 @@
 ---
 id: task-481
-title: 'claude-improves: Add deployment completeness report to specify init'
+title: 'claude-improves: Add deployment completeness report to flowspec init'
 status: To Do
 assignee:
   - '@kinsale'
 created_date: '2025-12-12 01:15'
-updated_date: '2025-12-15 01:49'
+updated_date: '2025-12-22 21:54'
 labels:
   - claude-improves
   - cli
@@ -19,13 +19,7 @@ priority: high
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-After running `specify init`, users have no visibility into what was deployed vs what's available.
-
-Init should output a completeness report showing:
-- What was deployed
-- What was skipped (and why)
-- What optional features are available
-- Suggestions for enabling more features
+After flowspec init completes, display a summary showing what was deployed, what was skipped, and what manual steps remain.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria

@@ -5,9 +5,11 @@ status: To Do
 assignee:
   - '@muckross'
 created_date: '2025-12-03 02:26'
-updated_date: '2025-12-04 16:32'
+updated_date: '2025-12-22 21:55'
 labels:
-  - 'workflow:Planned'
+  - security
+  - scanning
+  - on-hold
 dependencies: []
 priority: low
 ---
@@ -399,3 +401,9 @@ Create an optimized Docker image containing Semgrep and flowspec-cli for air-gap
 ### Estimated Effort
 **Total**: 11 hours (1.4 days)
 <!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+**ON HOLD (Dec 2025)**: Security scanning features may move to dedicated security repo.
+<!-- SECTION:NOTES:END -->

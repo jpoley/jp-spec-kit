@@ -5,11 +5,11 @@ status: To Do
 assignee:
   - '@muckross'
 created_date: '2025-12-03 01:58'
-updated_date: '2025-12-04 14:20'
+updated_date: '2025-12-22 21:55'
 labels:
   - security
-  - implement
   - config
+  - on-hold
 dependencies: []
 priority: medium
 ---
@@ -142,3 +142,9 @@ specify security config set scanners.semgrep.enabled=false
 ### Estimated Effort
 **Total**: 10 hours (1.25 days)
 <!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+**ON HOLD (Dec 2025)**: Security scanning features may move to dedicated security repo.
+<!-- SECTION:NOTES:END -->

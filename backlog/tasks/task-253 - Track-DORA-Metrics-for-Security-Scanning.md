@@ -5,9 +5,11 @@ status: To Do
 assignee:
   - '@muckross'
 created_date: '2025-12-03 02:26'
-updated_date: '2025-12-04 16:32'
+updated_date: '2025-12-22 21:55'
 labels:
-  - 'workflow:Planned'
+  - security
+  - scanning
+  - on-hold
 dependencies: []
 priority: medium
 ---
@@ -385,3 +387,9 @@ Implement DORA metrics collection and reporting to ensure security scanning main
 ### Estimated Effort
 **Total**: 14 hours (1.75 days)
 <!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+**ON HOLD (Dec 2025)**: Security scanning features may move to dedicated security repo.
+<!-- SECTION:NOTES:END -->

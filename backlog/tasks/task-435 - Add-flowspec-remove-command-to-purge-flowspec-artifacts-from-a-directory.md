@@ -1,11 +1,11 @@
 ---
 id: task-435
-title: Add specify remove command to purge specify artifacts from a directory
+title: Add flowspec remove command to purge flowspec artifacts from a directory
 status: To Do
 assignee:
   - '@adare'
 created_date: '2025-12-11 01:03'
-updated_date: '2025-12-15 01:49'
+updated_date: '2025-12-22 21:54'
 labels:
   - feature
 dependencies: []
@@ -15,7 +15,7 @@ priority: medium
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Create a `specify remove` command that purges specify artifacts while preserving `.github/workflows/`.
+Implement a flowspec remove command that cleanly removes all flowspec-generated artifacts (.specify/, .claude/commands/, templates, etc.) from a project directory.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria

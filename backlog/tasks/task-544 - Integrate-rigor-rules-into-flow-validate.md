@@ -1,10 +1,10 @@
 ---
 id: task-544
 title: 'Integrate rigor rules into /flow:validate'
-status: To Do
+status: Done
 assignee: []
 created_date: '2025-12-17 16:40'
-updated_date: '2025-12-17 17:07'
+updated_date: '2025-12-22 21:54'
 labels:
   - rigor
   - validate

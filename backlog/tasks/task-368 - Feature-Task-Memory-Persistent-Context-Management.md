@@ -3,9 +3,9 @@ id: task-368
 title: 'Feature: Task Memory - Persistent Context Management'
 status: In Progress
 assignee:
-  - '@muckross'
+  - '@myself'
 created_date: '2025-12-09 15:50'
-updated_date: '2025-12-15 02:17'
+updated_date: '2025-12-22 21:55'
 labels:
   - architecture
   - planning

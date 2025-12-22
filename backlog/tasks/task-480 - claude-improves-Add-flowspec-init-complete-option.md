@@ -1,11 +1,11 @@
 ---
 id: task-480
-title: 'claude-improves: Add specify init --complete option'
-status: To Do
+title: 'claude-improves: Add flowspec init --complete option'
+status: In Progress
 assignee:
-  - '@kinsale'
+  - '@myself'
 created_date: '2025-12-12 01:15'
-updated_date: '2025-12-15 01:49'
+updated_date: '2025-12-22 21:55'
 labels:
   - claude-improves
   - cli
@@ -19,14 +19,7 @@ priority: high
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Current `specify init` deploys ~60% of available features. Need a --complete flag that enables all features:
-- All skills deployed
-- All hooks enabled
-- Full CI/CD template
-- Complete VSCode configuration
-- MCP configuration
-
-This provides a "batteries included" experience for users who want full functionality.
+Add a --complete flag to flowspec init that deploys ALL templates in a single command, rather than requiring multiple init invocations for different components.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria

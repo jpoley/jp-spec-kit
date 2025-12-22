@@ -3,9 +3,9 @@ id: task-279
 title: Update documentation for new architecture
 status: In Progress
 assignee:
-  - '@galway'
+  - '@myself'
 created_date: '2025-12-03 14:01'
-updated_date: '2025-12-16 16:39'
+updated_date: '2025-12-22 21:55'
 labels:
   - bug
   - documentation
