@@ -3030,6 +3030,216 @@ def ensure_executable_scripts(
                 console.print(f"  - {f}")
 
 
+def deploy_skills(
+    project_path: Path, force: bool = False, tracker: StepTracker | None = None
+) -> tuple[int, int]:
+    """Deploy skills from templates/skills/ to .claude/skills/.
+
+    Args:
+        project_path: Path to the project where skills will be deployed
+        force: If True, overwrite existing skills. If False, skip existing skills.
+        tracker: Optional StepTracker for progress reporting
+
+    Returns:
+        Tuple of (deployed_count, skipped_count)
+    """
+    # Templates are in project root: flowspec/templates/skills/
+    # __file__ is at: flowspec/src/flowspec_cli/__init__.py
+    templates_skills_dir = Path(__file__).parent.parent.parent / "templates" / "skills"
+    target_skills_dir = project_path / ".claude" / "skills"
+
+    if not templates_skills_dir.exists():
+        # No skills templates to deploy
+        return (0, 0)
+
+    # Create target directory
+    target_skills_dir.mkdir(parents=True, exist_ok=True)
+
+    deployed = 0
+    skipped = 0
+
+    # Iterate through all subdirectories in templates/skills/
+    for skill_dir in templates_skills_dir.iterdir():
+        # Skip symlinks (like context-extractor)
+        if skill_dir.is_symlink():
+            continue
+
+        # Only process directories
+        if not skill_dir.is_dir():
+            continue
+
+        skill_name = skill_dir.name
+        target_dir = target_skills_dir / skill_name
+
+        # Check if skill already exists
+        if target_dir.exists() and not force:
+            skipped += 1
+            continue
+
+        # Copy the entire skill directory
+        try:
+            if target_dir.exists():
+                # Remove existing directory if force=True
+                shutil.rmtree(target_dir)
+
+            shutil.copytree(skill_dir, target_dir)
+            deployed += 1
+        except Exception as e:
+            # Log error but continue with other skills
+            if tracker:
+                # Note: we don't fail the entire operation for one skill
+                pass
+            else:
+                console.print(
+                    f"[yellow]Warning:[/yellow] Failed to deploy skill '{skill_name}': {e}"
+                )
+
+    return (deployed, skipped)
+
+
+def deploy_cicd_templates(
+    project_path: Path, force: bool = False, tracker: StepTracker | None = None
+) -> int:
+    """Deploy CI/CD workflow templates to .github/workflows/.
+
+    Args:
+        project_path: Path to the project
+        force: If True, overwrite existing workflows
+        tracker: Optional StepTracker for progress reporting
+
+    Returns:
+        Number of workflows deployed
+    """
+    # Templates are in: flowspec/templates/github-actions/
+    templates_dir = Path(__file__).parent.parent.parent / "templates" / "github-actions"
+    target_dir = project_path / ".github" / "workflows"
+
+    if not templates_dir.exists():
+        return 0
+
+    # Create target directory
+    target_dir.mkdir(parents=True, exist_ok=True)
+
+    deployed = 0
+
+    # Deploy all workflow templates
+    for template_file in templates_dir.glob("*.yml"):
+        target_file = target_dir / template_file.name
+
+        # Skip if exists and not force mode
+        if target_file.exists() and not force:
+            continue
+
+        try:
+            shutil.copy2(template_file, target_file)
+            deployed += 1
+        except Exception as e:
+            if not tracker:
+                console.print(
+                    f"[yellow]Warning:[/yellow] Failed to deploy workflow '{template_file.name}': {e}"
+                )
+
+    return deployed
+
+
+def deploy_vscode_extensions(
+    project_path: Path, force: bool = False, tracker: StepTracker | None = None
+) -> bool:
+    """Deploy VSCode extensions.json with recommended extensions.
+
+    Args:
+        project_path: Path to the project
+        force: If True, overwrite existing extensions.json
+        tracker: Optional StepTracker for progress reporting
+
+    Returns:
+        True if deployed, False if skipped
+    """
+    vscode_dir = project_path / ".vscode"
+    extensions_file = vscode_dir / "extensions.json"
+
+    # Skip if exists and not force mode
+    if extensions_file.exists() and not force:
+        return False
+
+    # Create .vscode directory
+    vscode_dir.mkdir(parents=True, exist_ok=True)
+
+    # Complete extensions.json with comprehensive recommendations
+    extensions_config = {
+        "recommendations": [
+            # AI assistants
+            "github.copilot",
+            "github.copilot-chat",
+            # Python
+            "ms-python.python",
+            "ms-python.vscode-pylance",
+            "charliermarsh.ruff",
+            # Testing
+            "ms-vscode.test-adapter-converter",
+            # Git
+            "eamodio.gitlens",
+            # Markdown
+            "yzhang.markdown-all-in-one",
+            "davidanson.vscode-markdownlint",
+            # YAML
+            "redhat.vscode-yaml",
+            # Security
+            "snyk-security.snyk-vulnerability-scanner",
+            # Formatting
+            "esbenp.prettier-vscode",
+            "editorconfig.editorconfig",
+        ]
+    }
+
+    try:
+        import json
+
+        with extensions_file.open("w") as f:
+            json.dump(extensions_config, f, indent=2)
+        return True
+    except Exception as e:
+        if not tracker:
+            console.print(
+                f"[yellow]Warning:[/yellow] Failed to create extensions.json: {e}"
+            )
+        return False
+
+
+def deploy_mcp_config(
+    project_path: Path, force: bool = False, tracker: StepTracker | None = None
+) -> bool:
+    """Deploy MCP configuration file.
+
+    Args:
+        project_path: Path to the project
+        force: If True, overwrite existing .mcp.json
+        tracker: Optional StepTracker for progress reporting
+
+    Returns:
+        True if deployed, False if skipped
+    """
+    # Template is in: flowspec/.mcp.json (at project root)
+    template_file = Path(__file__).parent.parent.parent / ".mcp.json"
+    target_file = project_path / ".mcp.json"
+
+    # Skip if exists and not force mode
+    if target_file.exists() and not force:
+        return False
+
+    if not template_file.exists():
+        # No template available
+        return False
+
+    try:
+        shutil.copy2(template_file, target_file)
+        return True
+    except Exception as e:
+        if not tracker:
+            console.print(f"[yellow]Warning:[/yellow] Failed to deploy .mcp.json: {e}")
+        return False
+
+
 @app.command()
 def init(
     project_name: str = typer.Argument(
@@ -3156,6 +3366,19 @@ def init(
         "--no-hooks",
         help="Initialize with all hooks disabled. Hooks can be enabled later in .flowspec/hooks/hooks.yaml",
     ),
+    skip_skills: bool = typer.Option(
+        False,
+        "--skip-skills",
+        help="Skip deployment of skills to .claude/skills/",
+    ),
+    complete: bool = typer.Option(
+        False,
+        "--complete",
+        help=(
+            "Enable ALL optional features: skills, hooks, CI/CD templates, "
+            "VSCode extensions, MCP config"
+        ),
+    ),
 ):
     """
     Initialize a new Specify project from the latest template.
@@ -3185,9 +3408,17 @@ def init(
         flowspec init my-project --constitution medium  # Specific constitution tier
         flowspec init my-project --ai claude --constitution light  # Startup tier
         flowspec init my-project --ai claude --constitution heavy  # Enterprise tier
+        flowspec init my-project --complete  # Enable ALL features (skills, hooks, CI/CD, VSCode, MCP)
+        flowspec init my-project --ai claude --complete  # Complete mode with Claude
     """
 
     show_banner()
+
+    # Handle --complete flag: enable all optional features
+    if complete:
+        no_git = False  # Force git initialization
+        no_hooks = False  # Force hooks enabled
+        skip_skills = False  # Force skills deployment
 
     if project_name == ".":
         here = True
@@ -3470,6 +3701,7 @@ def init(
             ("extract-extension", "Extract extension (overlay)"),
             ("merge", "Merge templates (extension overrides base)"),
             ("chmod", "Ensure scripts executable"),
+            ("skills", "Deploy skills"),
             ("cleanup", "Cleanup"),
             ("git", "Initialize git repository"),
             ("hooks", "Scaffold hooks"),
@@ -3485,6 +3717,7 @@ def init(
             ("zip-list", "Archive contents"),
             ("extracted-summary", "Extraction summary"),
             ("chmod", "Ensure scripts executable"),
+            ("skills", "Deploy skills"),
             ("cleanup", "Cleanup"),
             ("git", "Initialize git repository"),
             ("hooks", "Scaffold hooks"),
@@ -3540,6 +3773,24 @@ def init(
 
             ensure_executable_scripts(project_path, tracker=tracker)
 
+            # Deploy skills from templates/skills/ to .claude/skills/
+            if not skip_skills:
+                tracker.start("skills")
+                deployed, skipped = deploy_skills(
+                    project_path, force=force, tracker=tracker
+                )
+                if deployed > 0 or skipped > 0:
+                    detail_parts = []
+                    if deployed > 0:
+                        detail_parts.append(f"{deployed} deployed")
+                    if skipped > 0:
+                        detail_parts.append(f"{skipped} skipped")
+                    tracker.complete("skills", ", ".join(detail_parts))
+                else:
+                    tracker.complete("skills", "no skills found")
+            else:
+                tracker.skip("skills", "--skip-skills flag")
+
             if not no_git:
                 tracker.start("git")
                 if is_git_repo(project_path):
@@ -3587,6 +3838,49 @@ def init(
             except Exception as hook_error:
                 # Non-fatal error - continue with project initialization
                 tracker.error("hooks", f"scaffolding failed: {hook_error}")
+
+            # Deploy additional components if --complete mode
+            if complete:
+                # Deploy CI/CD templates
+                tracker.start("cicd")
+                try:
+                    cicd_count = deploy_cicd_templates(
+                        project_path, force=force, tracker=tracker
+                    )
+                    if cicd_count > 0:
+                        tracker.complete(
+                            "cicd", f"{cicd_count} workflow templates deployed"
+                        )
+                    else:
+                        tracker.complete("cicd", "no templates found")
+                except Exception as cicd_error:
+                    tracker.error("cicd", f"deployment failed: {cicd_error}")
+
+                # Deploy VSCode extensions
+                tracker.start("vscode-ext")
+                try:
+                    vscode_deployed = deploy_vscode_extensions(
+                        project_path, force=force, tracker=tracker
+                    )
+                    if vscode_deployed:
+                        tracker.complete("vscode-ext", "extensions.json created")
+                    else:
+                        tracker.skip("vscode-ext", "already exists")
+                except Exception as vscode_error:
+                    tracker.error("vscode-ext", f"deployment failed: {vscode_error}")
+
+                # Deploy MCP config
+                tracker.start("mcp")
+                try:
+                    mcp_deployed = deploy_mcp_config(
+                        project_path, force=force, tracker=tracker
+                    )
+                    if mcp_deployed:
+                        tracker.complete("mcp", ".mcp.json created")
+                    else:
+                        tracker.skip("mcp", "already exists")
+                except Exception as mcp_error:
+                    tracker.error("mcp", f"deployment failed: {mcp_error}")
 
             # Set up constitution template
             tracker.start("constitution")
