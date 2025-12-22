@@ -1,11 +1,11 @@
 ---
 id: task-472
-title: 'claude-improves: Improve template placeholder handling in specify init'
+title: 'claude-improves: Improve template placeholder handling in flowspec init'
 status: To Do
 assignee:
   - '@kinsale'
 created_date: '2025-12-12 01:15'
-updated_date: '2025-12-15 01:49'
+updated_date: '2025-12-22 21:54'
 labels:
   - claude-improves
   - cli
@@ -19,16 +19,7 @@ priority: high
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Constitution and other templates contain unresolved [PLACEHOLDER] markers:
-- [PROJECT_NAME]
-- [LANGUAGES_AND_FRAMEWORKS]
-- [LINTING_TOOLS]
-- [DATE]
-
-These should be either:
-1. Auto-detected from project files
-2. Prompted during init
-3. Clearly marked as TODO for manual completion
+Enhance flowspec init to properly substitute placeholders like [PROJECT_NAME], [TECH_STACK] with detected or user-provided values during template deployment.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria

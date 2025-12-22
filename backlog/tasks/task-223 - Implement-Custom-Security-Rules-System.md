@@ -5,11 +5,11 @@ status: To Do
 assignee:
   - '@muckross'
 created_date: '2025-12-03 02:16'
-updated_date: '2025-12-04 14:21'
+updated_date: '2025-12-22 21:55'
 labels:
   - security
-  - customization
-  - v1.5
+  - rules
+  - on-hold
 dependencies: []
 priority: medium
 ---
@@ -113,3 +113,9 @@ Example rule template provided.
 ### Estimated Effort
 **Total**: 10 hours (1.25 days)
 <!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+**ON HOLD (Dec 2025)**: Security scanning features may move to dedicated security repo.
+<!-- SECTION:NOTES:END -->

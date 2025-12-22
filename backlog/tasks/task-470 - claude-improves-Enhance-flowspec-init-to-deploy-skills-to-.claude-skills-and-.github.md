@@ -1,11 +1,13 @@
 ---
 id: task-470
-title: 'claude-improves: Enhance specify init to deploy skills to .claude/skills/'
-status: To Do
+title: >-
+  claude-improves: Enhance flowspec init to deploy skills to .claude/skills/ and
+  .github/
+status: In Progress
 assignee:
-  - '@kinsale'
+  - '@myself'
 created_date: '2025-12-12 01:15'
-updated_date: '2025-12-15 01:49'
+updated_date: '2025-12-22 21:55'
 labels:
   - claude-improves
   - cli
@@ -19,9 +21,7 @@ priority: high
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Skills exist only in .specify/templates/skills/ as templates but are never deployed to .claude/skills/ where Claude Code can auto-invoke them.
-
-The `specify init` command should copy skills from templates/skills/ to .claude/skills/ so they are immediately available for Claude Code to use.
+Extend flowspec init to copy skill templates from templates/skills/ to the project's .claude/skills/ directory AND deploy GitHub Copilot prompts/skills to .github/ for dual-agent support.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -31,4 +31,7 @@ The `specify init` command should copy skills from templates/skills/ to .claude/
 - [ ] #3 Existing skills in .claude/skills/ are not overwritten without --force flag
 - [ ] #4 Add --skip-skills flag to opt out of skill deployment
 - [ ] #5 Document skill deployment in init output
+
+- [ ] #6 Deploy GitHub Copilot prompts to .github/prompts/ directory
+- [ ] #7 Sync skills between .claude/skills/ and .github/ for dual-agent support
 <!-- AC:END -->

@@ -5,9 +5,11 @@ status: To Do
 assignee:
   - '@muckross'
 created_date: '2025-12-03 02:16'
-updated_date: '2025-12-04 16:32'
+updated_date: '2025-12-22 21:55'
 labels:
-  - 'workflow:Planned'
+  - security
+  - codeql
+  - on-hold
 dependencies: []
 priority: medium
 ---
@@ -398,3 +400,9 @@ CodeQL provides semantic code analysis with dataflow tracking, catching vulnerab
 
 **Note:** Initial 4-6 hours for licensing review is a GO/NO-GO decision point. If licensing is prohibitive, document and stop. Total effort assumes licensing allows implementation.
 <!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+**ON HOLD (Dec 2025)**: Security scanning features may move to dedicated security repo.
+<!-- SECTION:NOTES:END -->

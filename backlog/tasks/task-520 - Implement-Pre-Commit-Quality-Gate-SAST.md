@@ -5,15 +5,11 @@ status: To Do
 assignee:
   - '@chamonix'
 created_date: '2025-12-14 03:35'
-updated_date: '2025-12-15 01:33'
+updated_date: '2025-12-22 21:55'
 labels:
-  - agent-event-system
-  - phase-4
-  - infrastructure
-  - security
-  - devsecops
-  - cicd
   - git-workflow
+  - quality-gate
+  - on-hold
 dependencies:
   - task-517
 priority: high
@@ -33,3 +29,9 @@ Create security scanning gate with bandit and semgrep.
 - [ ] #4 Fail on high/critical findings
 - [ ] #5 SARIF output stored in .flowspec/security/sarif
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+**ON HOLD (Dec 2025)**: Security scanning features may move to dedicated security repo.
+<!-- SECTION:NOTES:END -->

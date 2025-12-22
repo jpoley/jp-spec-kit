@@ -1,11 +1,11 @@
 ---
 id: task-471
-title: 'claude-improves: Add CLAUDE.md scaffolding to specify init'
+title: 'claude-improves: Add CLAUDE.md scaffolding to flowspec init'
 status: To Do
 assignee:
   - '@kinsale'
 created_date: '2025-12-12 01:15'
-updated_date: '2025-12-15 01:49'
+updated_date: '2025-12-22 21:54'
 labels:
   - claude-improves
   - cli
@@ -19,13 +19,7 @@ priority: high
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-No root-level CLAUDE.md is created when running `specify init`. Projects need a CLAUDE.md with project-specific Claude Code instructions.
-
-The init command should scaffold a CLAUDE.md file with:
-- Project overview (detected or prompted)
-- Tech stack (detected from pyproject.toml, package.json, etc.)
-- Development commands
-- Conventions and standards
+Enhance flowspec init to generate a project-specific CLAUDE.md file with essential sections (commands, environment, workflows) pre-populated based on detected tech stack.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
