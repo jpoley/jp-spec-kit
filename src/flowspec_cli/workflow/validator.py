@@ -216,6 +216,8 @@ class WorkflowValidator:
         # Operations
         "SRE",
         "sre-agent",
+        # PR Monitoring
+        "pr-monitor",
     }
 
     # Initial state where all tasks begin
@@ -318,6 +320,9 @@ class WorkflowValidator:
                 continue
             from_state = transition.get("from")
             to_state = transition.get("to")
+            # Skip self-loops (from == to) as they don't prevent forward progress
+            if from_state == to_state:
+                continue
             if from_state in self._graph and to_state in self._states:
                 self._graph[from_state].append(to_state)
 

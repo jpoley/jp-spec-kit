@@ -337,10 +337,12 @@ class TestNoCyclesInPrimaryPath:
             if t.get("via") not in ["rework", "rollback", "manual"]
         ]
 
-        # Build adjacency list
+        # Build adjacency list (excluding self-loops as they don't block forward progress)
         adj: dict[str, list[str]] = defaultdict(list)
         for t in forward_transitions:
-            adj[t["from"]].append(t["to"])
+            # Self-loops (from == to) are allowed as they don't prevent forward progress
+            if t["from"] != t["to"]:
+                adj[t["from"]].append(t["to"])
 
         # Check for cycles using DFS
         def has_cycle(node: str, visited: set[str], rec_stack: set[str]) -> bool:

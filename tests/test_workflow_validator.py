@@ -280,20 +280,21 @@ class TestWorkflowValidatorCycleDetection:
         error_codes = [e.code for e in result.errors]
         assert "CYCLE_DETECTED" in error_codes
 
-    def test_self_loop_detected(self):
-        """Self-loop (A -> A) is detected as cycle."""
+    def test_self_loop_allowed(self):
+        """Self-loop (A -> A) is allowed as it doesn't prevent forward progress."""
         config = {
-            "states": ["To Do", "A"],
+            "states": ["To Do", "A", "Done"],
             "workflows": {},
             "transitions": [
                 {"from": "To Do", "to": "A"},
-                {"from": "A", "to": "A"},  # Self-loop
+                {"from": "A", "to": "A"},  # Self-loop - allowed
+                {"from": "A", "to": "Done"},  # Can still progress forward
             ],
         }
         result = WorkflowValidator(config).validate()
-        assert not result.is_valid
+        # Self-loops don't trigger cycle detection
         error_codes = [e.code for e in result.errors]
-        assert "CYCLE_DETECTED" in error_codes
+        assert "CYCLE_DETECTED" not in error_codes
 
     def test_longer_cycle_detected(self):
         """Longer cycle (A -> B -> C -> D -> A) is detected."""

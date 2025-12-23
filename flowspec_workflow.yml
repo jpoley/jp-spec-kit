@@ -279,6 +279,24 @@ workflows:
     optional: false
     creates_backlog_tasks: true
 
+  submit-n-watch-pr:
+    command: "/flow:submit-n-watch-pr"
+    description: "Submit PR and autonomously monitor CI checks and Copilot reviews until approval-ready"
+    agents:
+      - name: "pr-monitor"
+        identity: "@pr-monitor"
+        description: "Autonomous PR submission and monitoring agent"
+        responsibilities:
+          - "Branch naming validation and auto-fix"
+          - "PR creation and submission"
+          - "CI check monitoring with retry"
+          - "Copilot review feedback processing"
+          - "Iterative fix and resubmit loop"
+          - "Learning capture for future prevention"
+    input_states: ["Validated", "In Implementation"]
+    output_state: "Validated"  # Stays in Validated until merged
+    optional: true
+
 # ==============================================================================
 # STATE TRANSITIONS
 # ==============================================================================
@@ -436,6 +454,31 @@ transitions:
         path: "./deploy/"
     validation: "NONE"
 
+  - name: "submit_pr"
+    from: "Validated"
+    to: "Validated"
+    via: "submit-n-watch-pr"
+    description: "PR submitted and monitored for CI/Copilot feedback"
+    input_artifacts:
+      - type: "qa_report"
+        path: "./docs/qa/{feature}-qa-report.md"
+        required: false
+    output_artifacts:
+      - type: "pr_url"
+        path: "./.github/pr-{feature}.json"
+        required: false
+      - type: "learnings"
+        path: "./memory/learnings/copilot-feedback-*.md"
+        required: false
+    validation: "PULL_REQUEST"
+
+  - name: "submit_pr_from_implementation"
+    from: "In Implementation"
+    to: "Validated"
+    via: "submit-n-watch-pr"
+    description: "PR submitted directly from implementation (skipping formal validate)"
+    validation: "PULL_REQUEST"
+
   # === Terminal Transitions ===
 
   - name: "complete_from_deployed"
@@ -512,6 +555,7 @@ agent_loops:
       - "tech-writer"
       - "release-manager"
       - "sre-agent"
+      - "pr-monitor"
 
 # ==============================================================================
 # METADATA
@@ -519,10 +563,10 @@ agent_loops:
 
 metadata:
   schema_version: "2.0"
-  last_updated: "2025-12-09"
+  last_updated: "2025-12-23"
   state_count: 9
-  workflow_count: 7
-  agent_count: 16
+  workflow_count: 8
+  agent_count: 17
   inner_loop_agent_count: 5
-  outer_loop_agent_count: 11
-  transition_count: 14
+  outer_loop_agent_count: 12
+  transition_count: 16
