@@ -489,6 +489,9 @@ fi
 Branch names MUST follow: `{hostname}/task-{id}/{slug-description}`
 
 ```bash
+# Guard: Only run Phase 1 when creating a new PR
+if [ "$MODE" = "new" ]; then
+
 BRANCH=$(git branch --show-current 2>/dev/null)
 HOSTNAME_SHORT=$(hostname -s | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g')
 
@@ -604,6 +607,8 @@ if [ "$BEHIND" -gt 0 ]; then
 else
   echo "✅ Branch is up-to-date with main"
 fi
+
+fi  # End of MODE="new" guard for Phase 1
 ```
 
 **Phase 1 Complete**:
@@ -624,6 +629,9 @@ fi
 ### Step 2.1: Check for Existing PR
 
 ```bash
+# Guard: Only run Phase 2 when creating a new PR
+if [ "$MODE" = "new" ]; then
+
 # Check if PR already exists for this branch
 EXISTING_PR=$(gh pr view --json number,url,state 2>/dev/null || echo "")
 
@@ -722,6 +730,8 @@ Branch: ${BRANCH}
 Task: ${TASK_ID:-N/A}
 ================================================================================
 "
+
+fi  # End of MODE="new" guard for Phase 2
 ```
 
 ---
@@ -1181,7 +1191,23 @@ fi
 
 ```bash
 MAX_ITERATIONS=5
-ITERATION=${ITERATION:-1}
+
+# Load iteration count from persistent state file
+# This allows the iteration counter to persist across script re-runs
+ITERATION_STATE_FILE=".github/pr-${PR_NUMBER}-iteration.txt"
+
+if [ -f "$ITERATION_STATE_FILE" ]; then
+  ITERATION=$(cat "$ITERATION_STATE_FILE")
+else
+  ITERATION=0
+fi
+
+# Increment for this run
+ITERATION=$((ITERATION + 1))
+
+# Persist updated iteration count
+mkdir -p "$(dirname "$ITERATION_STATE_FILE")"
+echo "$ITERATION" > "$ITERATION_STATE_FILE"
 
 if [ $ITERATION -ge $MAX_ITERATIONS ]; then
   echo ""
