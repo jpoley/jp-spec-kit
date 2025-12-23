@@ -249,7 +249,7 @@ class TestInitCompleteFlag:
     """Tests for the --complete flag in flowspec init."""
 
     def test_complete_flag_enables_all_features(
-        self, mock_github_releases, tmp_path: Path, monkeypatch
+        self, mock_github_releases, tmp_path: Path
     ) -> None:
         """Test that --complete flag enables skills, hooks, CI/CD, VSCode, and MCP."""
         project_dir = tmp_path / "test-project"
