@@ -2635,6 +2635,10 @@ def download_and_extract_two_stage(
     # will remain installed. This is intentional - partial installations are still
     # usable, and rolling back would require complex state tracking.
     for agent in ai_assistants:
+        # Initialize to None for exception handlers (may reference before assignment)
+        base_zip = None
+        ext_zip = None
+
         # Stage 1: Download base spec-kit for this agent
         step_name = f"fetch-base-{agent}" if len(ai_assistants) > 1 else "fetch-base"
         if tracker:

@@ -360,13 +360,10 @@ class TestMultiAgentDownloadAndExtract:
             version=None,
             **kwargs,
         ):
-            # Determine which agent we're processing
-            agent_idx = len(agents_processed) // 2
-            agent = ["claude", "copilot"][agent_idx]
-
+            # Use the ai_assistant parameter directly (passed by download_and_extract_two_stage)
             if "spec-kit" in (repo_name or ""):
                 call_count["base"] += 1
-                base_zip, _ = create_mock_zip(agent)
+                base_zip, _ = create_mock_zip(ai_assistant)
                 metadata = {
                     "release": version or "test",
                     "size": base_zip.stat().st_size,
@@ -374,8 +371,8 @@ class TestMultiAgentDownloadAndExtract:
                 return base_zip, metadata
             else:
                 call_count["ext"] += 1
-                _, ext_zip = create_mock_zip(agent)
-                agents_processed.append(agent)
+                _, ext_zip = create_mock_zip(ai_assistant)
+                agents_processed.append(ai_assistant)
                 metadata = {
                     "release": version or "test",
                     "size": ext_zip.stat().st_size,

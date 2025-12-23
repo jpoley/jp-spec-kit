@@ -473,7 +473,7 @@ for agent in ai_assistants:
 **For nanofuse-gateway specifically**:
 - `/flow` commands now installed ✅
 - Claude Code working ✅
-- Copilot prompts NOT installed ❌ (need to run separate init)
+- Copilot prompts installed ✅
 
 ---
 
