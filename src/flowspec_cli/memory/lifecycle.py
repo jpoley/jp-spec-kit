@@ -265,13 +265,17 @@ class LifecycleManager:
     def _update_claude_md(self, task_id: Optional[str] = None) -> None:
         """Internal method to update CLAUDE.md via ContextInjector.
 
+        Uses token-aware truncation to ensure memory doesn't exceed 2000 tokens.
+
         Args:
             task_id: Task ID to import, or None to clear the import
         """
         try:
             if task_id:
-                self.injector.update_active_task(task_id)
-                logger.info(f"Updated CLAUDE.md with @import for {task_id}")
+                self.injector.update_active_task_with_truncation(task_id)
+                logger.info(
+                    f"Updated CLAUDE.md with @import for {task_id} (token-aware)"
+                )
             else:
                 self.injector.clear_active_task()
                 logger.info("Cleared task memory @import from CLAUDE.md")
@@ -284,8 +288,10 @@ class LifecycleManager:
 
             # Retry the operation
             if task_id:
-                self.injector.update_active_task(task_id)
-                logger.info(f"Updated CLAUDE.md with @import for {task_id}")
+                self.injector.update_active_task_with_truncation(task_id)
+                logger.info(
+                    f"Updated CLAUDE.md with @import for {task_id} (token-aware)"
+                )
             else:
                 self.injector.clear_active_task()
                 logger.info("Cleared task memory @import from CLAUDE.md")

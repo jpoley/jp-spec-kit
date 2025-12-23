@@ -525,3 +525,186 @@ class TestInjectionErrorHandling:
         # Injection doesn't require memory dir to exist
         injector.update_active_task("task-100")
         assert injector.get_active_task_id() == "task-100"
+
+
+# --- Test: Token-Aware Truncation ---
+
+
+class TestTokenAwareTruncation:
+    """Tests for token-aware truncation in memory injection."""
+
+    def test_small_memory_no_truncation(self, injection_project):
+        """Test that small memory files are not truncated."""
+        store = TaskMemoryStore(base_path=injection_project)
+        injector = ContextInjector(base_path=injection_project)
+
+        # Create small memory
+        store.create("task-400", task_title="Small Task")
+        store.append("task-400", "This is a small amount of notes.")
+
+        # Inject with truncation
+        injector.update_active_task_with_truncation("task-400")
+
+        # Verify no truncation occurred (no .truncated file)
+        claude_md = (injection_project / "backlog" / "CLAUDE.md").read_text()
+        assert "@import ../memory/task-400.md" in claude_md
+        assert "truncated" not in claude_md.lower()
+
+    def test_large_memory_gets_truncated(self, injection_project):
+        """Test that large memory files are truncated to token limit."""
+        store = TaskMemoryStore(base_path=injection_project)
+        injector = ContextInjector(base_path=injection_project, max_tokens=100)
+
+        # Create large memory (way over 100 tokens)
+        store.create("task-401", task_title="Large Task")
+        large_notes = "\n".join([f"- Note {i}: " + ("x" * 100) for i in range(50)])
+        store.append("task-401", large_notes)
+
+        # Inject with truncation
+        injector.update_active_task_with_truncation("task-401")
+
+        # Verify truncated file created
+        truncated_path = (
+            injection_project / "backlog" / "memory" / "task-401.truncated.md"
+        )
+        assert truncated_path.exists()
+
+        # Verify CLAUDE.md points to truncated version
+        claude_md = (injection_project / "backlog" / "CLAUDE.md").read_text()
+        assert "@import ../memory/task-401.truncated.md" in claude_md
+
+        # Verify truncated content is smaller
+        original_size = len(store.read("task-401"))
+        truncated_size = len(truncated_path.read_text())
+        assert truncated_size < original_size
+
+        # Verify truncation notice present and content within token limit
+        truncated_content = truncated_path.read_text()
+        assert "Content truncated" in truncated_content
+        assert truncated_size <= 100 * 4
+
+    def test_truncation_preserves_recent_context(self, injection_project):
+        """Test that truncation preserves Context section (most recent)."""
+        store = TaskMemoryStore(base_path=injection_project)
+        injector = ContextInjector(base_path=injection_project, max_tokens=200)
+
+        # Create memory with distinct sections
+        store.create("task-402", task_title="Truncation Test")
+
+        # Add large notes section (oldest content - should be truncated)
+        memory_path = store.get_path("task-402")
+        content = memory_path.read_text()
+
+        # Add sections in order: Context, Key Decisions, Notes
+        context_section = "\n\n## Context\n\nThis is critical recent context that must be preserved.\n"
+        decisions_section = "\n\n## Key Decisions\n\n- Decision 1: Important choice\n- Decision 2: Another choice\n"
+        notes_section = "\n\n## Notes\n\n" + "\n".join(
+            [f"- Old note {i}" for i in range(100)]
+        )
+
+        full_content = content + context_section + decisions_section + notes_section
+        memory_path.write_text(full_content)
+
+        # Inject with truncation
+        injector.update_active_task_with_truncation("task-402")
+
+        # Read truncated version
+        truncated_path = (
+            injection_project / "backlog" / "memory" / "task-402.truncated.md"
+        )
+        truncated = truncated_path.read_text()
+
+        # Verify Context section preserved (most important)
+        assert "## Context" in truncated
+        assert "critical recent context" in truncated
+
+    def test_truncation_token_estimation(self, injection_project):
+        """Test token estimation accuracy."""
+        injector = ContextInjector(base_path=injection_project)
+
+        # Test text of known length
+        test_text = "word " * 1000  # 1000 words, ~1000-1500 tokens typically
+
+        estimated = injector.estimate_tokens(test_text)
+
+        # Should estimate around 1000-1500 tokens (using 4 chars/token)
+        # "word " is 5 chars, so 5000 chars / 4 = 1250 tokens
+        assert estimated == 1250
+
+    def test_truncation_with_nonexistent_task(self, injection_project):
+        """Test truncation when task memory doesn't exist yet."""
+        injector = ContextInjector(base_path=injection_project)
+
+        # Inject task that doesn't exist
+        injector.update_active_task_with_truncation("task-999")
+
+        # Should still add import (file might be created later)
+        claude_md = (injection_project / "backlog" / "CLAUDE.md").read_text()
+        assert "@import ../memory/task-999.md" in claude_md
+
+    def test_multiple_truncations_cleanup(self, injection_project):
+        """Test that truncated files are cleaned up on re-truncation."""
+        store = TaskMemoryStore(base_path=injection_project)
+        injector = ContextInjector(base_path=injection_project, max_tokens=100)
+
+        # Create large memory
+        store.create("task-403", task_title="Cleanup Test")
+        store.append("task-403", "x" * 1000)
+
+        # First truncation
+        injector.update_active_task_with_truncation("task-403")
+        truncated_path = (
+            injection_project / "backlog" / "memory" / "task-403.truncated.md"
+        )
+        assert truncated_path.exists()
+
+        # Modify original
+        store.append("task-403", "y" * 1000)
+
+        # Second truncation (should overwrite)
+        injector.update_active_task_with_truncation("task-403")
+        assert truncated_path.exists()
+
+        # Verify updated content
+        truncated = truncated_path.read_text()
+        # Should have newer content or truncation notice
+        assert len(truncated) > 0
+
+    def test_clear_task_preserves_truncated_file(self, injection_project):
+        """Test that clearing task doesn't remove truncated file (for archive)."""
+        store = TaskMemoryStore(base_path=injection_project)
+        injector = ContextInjector(base_path=injection_project, max_tokens=100)
+
+        # Create and truncate
+        store.create("task-404", task_title="Clear Test")
+        store.append("task-404", "x" * 1000)
+        injector.update_active_task_with_truncation("task-404")
+
+        truncated_path = (
+            injection_project / "backlog" / "memory" / "task-404.truncated.md"
+        )
+        assert truncated_path.exists()
+
+        # Clear active task
+        injector.clear_active_task()
+
+        # Verify @import removed from CLAUDE.md
+        claude_md = (injection_project / "backlog" / "CLAUDE.md").read_text()
+        assert "@import" not in claude_md
+
+        # Verify truncated file still exists (preserved for archival)
+        # Note: Cleanup happens on archive/delete, not on clear
+        assert truncated_path.exists()
+
+    def test_truncation_max_tokens_configurable(self, injection_project):
+        """Test that max_tokens is configurable."""
+        # Create two injectors with different limits
+        injector_small = ContextInjector(base_path=injection_project, max_tokens=50)
+        injector_large = ContextInjector(base_path=injection_project, max_tokens=500)
+
+        assert injector_small.max_tokens == 50
+        assert injector_large.max_tokens == 500
+
+        # Default should be 2000
+        injector_default = ContextInjector(base_path=injection_project)
+        assert injector_default.max_tokens == 2000
