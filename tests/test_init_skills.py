@@ -69,9 +69,15 @@ class TestInitSkillsIntegration:
         )
 
         assert result.exit_code == 0, f"Command failed: {result.output}"
-        assert (
-            "--skip-skills flag" in result.output or "skipped" in result.output.lower()
-        )
+
+        # Verify skills were NOT deployed
+        skills_dir = project_dir / ".claude" / "skills"
+        if skills_dir.exists():
+            # If directory exists, it should be empty or only contain non-skill files
+            skill_dirs = [p for p in skills_dir.iterdir() if p.is_dir()]
+            assert len(skill_dirs) == 0, (
+                f"Skills should not be deployed with --skip-skills, but found: {[d.name for d in skill_dirs]}"
+            )
 
     def test_init_force_overwrites_skills(
         self, mock_github_releases, tmp_path: Path, monkeypatch
@@ -107,7 +113,20 @@ class TestInitSkillsIntegration:
         assert result.exit_code == 0, f"Command failed: {result.output}"
 
         # With --force, skills should be redeployed
-        # (checking for "deployed" in output would validate this)
+        # Verify that the original skill is still there (directory exists)
+        # and that deployment happened (check output or presence of new skills)
+        skills_dir = project_dir / ".claude" / "skills"
+        assert skills_dir.exists(), "Skills directory should still exist after --force"
+
+        # Check that the existing skill directory is still present
+        # (--force should redeploy/overwrite, not delete)
+        existing_skill = skills_dir / "existing-skill"
+        assert existing_skill.exists(), "Existing skill directory should still exist"
+
+        # Verify deployment happened by checking output mentions skills
+        assert (
+            "skill" in result.output.lower() or "deployed" in result.output.lower()
+        ), "Output should mention skills deployment with --force"
 
     def test_init_output_shows_skills_deployment(
         self, mock_github_releases, tmp_path: Path

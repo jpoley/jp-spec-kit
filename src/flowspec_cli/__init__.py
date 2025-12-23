@@ -3087,11 +3087,7 @@ def deploy_skills(
         except Exception as e:
             # Log error but continue with other skills
             error_msg = f"Failed to deploy skill '{skill_name}': {e}"
-            if tracker:
-                # Track error in tracker context
-                console.print(f"[yellow]Warning:[/yellow] {error_msg}")
-            else:
-                console.print(f"[yellow]Warning:[/yellow] {error_msg}")
+            console.print(f"[yellow]Warning:[/yellow] {error_msg}")
 
     return (deployed, skipped)
 
@@ -3196,10 +3192,9 @@ def deploy_vscode_extensions(
             json.dump(extensions_config, f, indent=2)
         return True
     except Exception as e:
-        if not tracker:
-            console.print(
-                f"[yellow]Warning:[/yellow] Failed to create extensions.json: {e}"
-            )
+        console.print(
+            f"[yellow]Warning:[/yellow] Failed to create extensions.json: {e}"
+        )
         return False
 
 
@@ -3232,8 +3227,7 @@ def deploy_mcp_config(
         shutil.copy2(template_file, target_file)
         return True
     except Exception as e:
-        if not tracker:
-            console.print(f"[yellow]Warning:[/yellow] Failed to deploy .mcp.json: {e}")
+        console.print(f"[yellow]Warning:[/yellow] Failed to deploy .mcp.json: {e}")
         return False
 
 
