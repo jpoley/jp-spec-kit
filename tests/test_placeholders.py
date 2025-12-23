@@ -182,9 +182,13 @@ dependencies = ["flask"]
         assert "Go" in result
 
     def test_no_languages_detected(self, tmp_path):
-        """Should return TODO comment when no languages detected."""
+        """Should return empty string when no languages detected.
+
+        Note: Empty string is returned for consistency - TODO marking is handled
+        by replace_placeholders() to ensure uniform placeholder treatment.
+        """
         result = detect_languages_and_frameworks(tmp_path)
-        assert "TODO" in result
+        assert result == ""
 
 
 class TestDetectLintingTools:
@@ -256,9 +260,13 @@ class TestDetectLintingTools:
         assert "golangci-lint" in result
 
     def test_no_tools_detected(self, tmp_path):
-        """Should return TODO comment when no tools detected."""
+        """Should return empty string when no tools detected.
+
+        Note: Empty string is returned for consistency - TODO marking is handled
+        by replace_placeholders() to ensure uniform placeholder treatment.
+        """
         result = detect_linting_tools(tmp_path)
-        assert "TODO" in result
+        assert result == ""
 
 
 class TestDetectProjectMetadata:

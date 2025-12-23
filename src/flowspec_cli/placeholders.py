@@ -5,13 +5,16 @@ placeholders in template files during project initialization.
 """
 
 import json
+import logging
 import re
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+logger = logging.getLogger(__name__)
 
-def detect_project_name(project_path: Path) -> Optional[str]:
+
+def detect_project_name(project_path: Path) -> str:
     """Detect project name from various config files.
 
     Priority order:
@@ -25,7 +28,7 @@ def detect_project_name(project_path: Path) -> Optional[str]:
         project_path: Path to project directory
 
     Returns:
-        Project name or None if not detected
+        Project name (always returns a value, falls back to directory name)
     """
     # Try pyproject.toml
     pyproject_path = project_path / "pyproject.toml"
@@ -38,8 +41,9 @@ def detect_project_name(project_path: Path) -> Optional[str]:
                 data = tomllib.load(f)
                 if "project" in data and "name" in data["project"]:
                     name = data["project"]["name"]
-        except Exception:
-            pass  # Will try regex fallback below
+        except Exception as e:
+            logger.debug("Failed to parse pyproject.toml with tomllib: %s", e)
+            # Will try regex fallback below
 
         # If tomllib didn't find the name, try regex fallback
         if not name:
@@ -59,8 +63,8 @@ def detect_project_name(project_path: Path) -> Optional[str]:
                 data = json.load(f)
                 if "name" in data:
                     return data["name"]
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug("Failed to parse package.json: %s", e)
 
     # Try Cargo.toml
     cargo_path = project_path / "Cargo.toml"
@@ -70,8 +74,8 @@ def detect_project_name(project_path: Path) -> Optional[str]:
             match = re.search(r'^\s*name\s*=\s*"([^"]+)"', content, re.MULTILINE)
             if match:
                 return match.group(1)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug("Failed to parse Cargo.toml: %s", e)
 
     # Try go.mod
     go_mod_path = project_path / "go.mod"
@@ -83,8 +87,8 @@ def detect_project_name(project_path: Path) -> Optional[str]:
                 # Extract just the last part of the module path
                 module_name = match.group(1)
                 return module_name.split("/")[-1]
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug("Failed to parse go.mod: %s", e)
 
     # Fallback to directory name
     return project_path.name
@@ -102,6 +106,8 @@ def detect_languages_and_frameworks(project_path: Path) -> str:
     detected = []
 
     # Python
+    # Note: Version is assumed 3.11+ since flowspec requires it.
+    # Future enhancement: detect actual version from pyproject.toml requires-python.
     if (project_path / "pyproject.toml").exists() or (
         project_path / "requirements.txt"
     ).exists():
@@ -138,7 +144,8 @@ def detect_languages_and_frameworks(project_path: Path) -> str:
                     detected.append("Next.js")
                 if "vue" in deps:
                     detected.append("Vue.js")
-        except Exception:
+        except Exception as e:
+            logger.debug("Failed to parse package.json for frameworks: %s", e)
             detected.append("JavaScript/TypeScript")
 
     # Rust
@@ -149,9 +156,8 @@ def detect_languages_and_frameworks(project_path: Path) -> str:
     if (project_path / "go.mod").exists():
         detected.append("Go")
 
-    return (
-        ", ".join(detected) if detected else "<!-- TODO: Add languages/frameworks -->"
-    )
+    # Return empty string for undetected - let replace_placeholders handle TODO marking
+    return ", ".join(detected) if detected else ""
 
 
 def detect_linting_tools(project_path: Path) -> str:
@@ -165,22 +171,28 @@ def detect_linting_tools(project_path: Path) -> str:
     """
     detected = []
 
+    # Read pyproject.toml once for efficiency
+    pyproject_path = project_path / "pyproject.toml"
+    pyproject_content: str | None = None
+    if pyproject_path.exists():
+        try:
+            pyproject_content = pyproject_path.read_text()
+        except Exception as e:
+            logger.debug("Failed to read pyproject.toml for linting tools: %s", e)
+
     # Python tools
     if (project_path / "ruff.toml").exists():
         detected.append("ruff")
-    elif (project_path / "pyproject.toml").exists():
-        content = (project_path / "pyproject.toml").read_text()
-        if "[tool.ruff]" in content:
-            detected.append("ruff")
+    elif pyproject_content and "[tool.ruff]" in pyproject_content:
+        detected.append("ruff")
 
     if (project_path / ".flake8").exists():
         detected.append("flake8")
 
-    if (project_path / "pyproject.toml").exists():
-        content = (project_path / "pyproject.toml").read_text()
-        if "[tool.black]" in content:
+    if pyproject_content:
+        if "[tool.black]" in pyproject_content:
             detected.append("black")
-        if "[tool.mypy]" in content:
+        if "[tool.mypy]" in pyproject_content:
             detected.append("mypy")
 
     # JavaScript/TypeScript tools
@@ -205,7 +217,8 @@ def detect_linting_tools(project_path: Path) -> str:
     if (project_path / "go.mod").exists():
         detected.extend(["gofmt", "golangci-lint"])
 
-    return ", ".join(detected) if detected else "<!-- TODO: Add linting tools -->"
+    # Return empty string for undetected - let replace_placeholders handle TODO marking
+    return ", ".join(detected) if detected else ""
 
 
 def detect_project_metadata(
@@ -222,12 +235,11 @@ def detect_project_metadata(
     """
     metadata = {}
 
-    # PROJECT_NAME
+    # PROJECT_NAME - detect_project_name always returns a value (falls back to dir name)
     if project_name_override:
         metadata["PROJECT_NAME"] = project_name_override
     else:
-        detected_name = detect_project_name(project_path)
-        metadata["PROJECT_NAME"] = detected_name if detected_name else project_path.name
+        metadata["PROJECT_NAME"] = detect_project_name(project_path)
 
     # LANGUAGES_AND_FRAMEWORKS
     metadata["LANGUAGES_AND_FRAMEWORKS"] = detect_languages_and_frameworks(project_path)
@@ -259,8 +271,8 @@ def replace_placeholders(content: str, metadata: Dict[str, Any]) -> str:
         result = result.replace(placeholder, str(value))
 
     # Mark remaining placeholders with TODO comments
-    # Find all remaining [PLACEHOLDER] patterns
-    remaining_placeholders = re.findall(r"\[([A-Z_0-9]+)\]", result)
+    # Find all remaining [PLACEHOLDER] patterns (deduplicated for efficiency)
+    remaining_placeholders = set(re.findall(r"\[([A-Z_0-9]+)\]", result))
 
     for placeholder in remaining_placeholders:
         # Check if this placeholder is already preceded by a TODO comment

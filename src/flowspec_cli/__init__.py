@@ -3168,10 +3168,10 @@ def init(
         "--no-hooks",
         help="Initialize with all hooks disabled. Hooks can be enabled later in .flowspec/hooks/hooks.yaml",
     ),
-    interactive_placeholders: bool = typer.Option(
+    interactive_placeholders: bool = typer.Option(  # noqa: ARG001 - Reserved for future interactive mode
         False,
         "--interactive",
-        help="Prompt for all placeholder values instead of auto-detecting",
+        help="[Reserved] Prompt for placeholder values (not yet implemented)",
     ),
 ):
     """
