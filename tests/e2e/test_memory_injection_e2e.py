@@ -670,7 +670,7 @@ class TestTokenAwareTruncation:
         # Should have newer content or truncation notice
         assert len(truncated) > 0
 
-    def test_clear_task_removes_truncated_file(self, injection_project):
+    def test_clear_task_preserves_truncated_file(self, injection_project):
         """Test that clearing task doesn't remove truncated file (for archive)."""
         store = TaskMemoryStore(base_path=injection_project)
         injector = ContextInjector(base_path=injection_project, max_tokens=100)
