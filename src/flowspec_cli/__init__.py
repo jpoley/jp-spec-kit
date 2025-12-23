@@ -590,6 +590,54 @@ def has_constitution(path: Path) -> bool:
     return constitution_path.exists()
 
 
+def _detect_tier_from_content(content: str) -> str:
+    """Detect tier from constitution content string.
+
+    Args:
+        content: Constitution file content
+
+    Returns:
+        Tier level: "Light", "Medium", or "Heavy" (defaults to "Medium")
+    """
+    import re
+
+    match = re.search(r"<!-- TIER: (Light|Medium|Heavy) -->", content)
+    return match.group(1) if match else "Medium"
+
+
+def _count_markers_from_content(content: str) -> int:
+    """Count NEEDS_VALIDATION markers in content.
+
+    Uses regex to match actual comment markers, avoiding false positives
+    from the text appearing in documentation or examples.
+
+    Args:
+        content: Constitution file content
+
+    Returns:
+        Number of NEEDS_VALIDATION markers found
+    """
+    import re
+
+    # Match actual HTML comment markers, not plain text
+    return len(re.findall(r"<!-- NEEDS_VALIDATION:", content))
+
+
+def _extract_sections_from_content(content: str) -> list[str]:
+    """Extract section names from NEEDS_VALIDATION markers.
+
+    Args:
+        content: Constitution file content
+
+    Returns:
+        List of section descriptions needing validation
+    """
+    import re
+
+    pattern = r"<!-- NEEDS_VALIDATION: (.+?) -->"
+    return re.findall(pattern, content)
+
+
 def detect_constitution_tier(constitution_path: Path) -> str:
     """Detect the tier from a constitution file.
 
@@ -599,14 +647,11 @@ def detect_constitution_tier(constitution_path: Path) -> str:
     Returns:
         Tier level: "Light", "Medium", or "Heavy" (defaults to "Medium")
     """
-    import re
-
     if not constitution_path.exists():
         return "Medium"
 
     content = constitution_path.read_text()
-    match = re.search(r"<!-- TIER: (Light|Medium|Heavy) -->", content)
-    return match.group(1) if match else "Medium"
+    return _detect_tier_from_content(content)
 
 
 def count_validation_markers(constitution_path: Path) -> int:
@@ -622,7 +667,7 @@ def count_validation_markers(constitution_path: Path) -> int:
         return 0
 
     content = constitution_path.read_text()
-    return content.count("NEEDS_VALIDATION")
+    return _count_markers_from_content(content)
 
 
 def extract_validation_sections(constitution_path: Path) -> list[str]:
@@ -634,14 +679,11 @@ def extract_validation_sections(constitution_path: Path) -> list[str]:
     Returns:
         List of section descriptions needing validation
     """
-    import re
-
     if not constitution_path.exists():
         return []
 
     content = constitution_path.read_text()
-    pattern = r"<!-- NEEDS_VALIDATION: (.+?) -->"
-    return re.findall(pattern, content)
+    return _extract_sections_from_content(content)
 
 
 class ConstitutionEnforcementResult:
@@ -696,9 +738,11 @@ def check_constitution_tier(
             warning="Constitution not found - consider running 'flowspec init --here'",
         )
 
-    tier = detect_constitution_tier(constitution_path)
-    marker_count = count_validation_markers(constitution_path)
-    section_names = extract_validation_sections(constitution_path)
+    # Read file once and extract all data (efficiency fix per Copilot review)
+    content = constitution_path.read_text()
+    tier = _detect_tier_from_content(content)
+    marker_count = _count_markers_from_content(content)
+    section_names = _extract_sections_from_content(content)
 
     # Fully validated - always proceed
     if marker_count == 0:
