@@ -1,11 +1,11 @@
 ---
 id: task-386
 title: Implement CLAUDE.md @import Context Injection
-status: In Progress
+status: Done
 assignee:
   - '@backend-engineer'
 created_date: '2025-12-09 15:57'
-updated_date: '2025-12-22 23:08'
+updated_date: '2025-12-23 18:56'
 labels:
   - backend
   - task-memory
@@ -87,4 +87,14 @@ Note: AC#2 refers to LifecycleManager which doesn't exist yet - integration will
 - session-start.sh - Session initialization hook
 
 AC#2, AC#3, AC#7 complete.
+
+## Implementation Complete (Dec 22)
+
+**Branch**: kinsale/task-377/task-memory-integration
+**Commit**: 8e2f087
+
+### Deliverables
+- LifecycleManager integration verified
+- Manual Claude Code test documented
+- Comprehensive docs/reference/task-memory-injection.md
 <!-- SECTION:NOTES:END -->

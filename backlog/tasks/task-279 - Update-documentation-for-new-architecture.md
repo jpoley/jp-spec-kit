@@ -1,11 +1,11 @@
 ---
 id: task-279
 title: Update documentation for new architecture
-status: In Progress
+status: Done
 assignee:
   - '@myself'
 created_date: '2025-12-03 14:01'
-updated_date: '2025-12-22 22:54'
+updated_date: '2025-12-23 18:56'
 labels:
   - bug
   - documentation
@@ -120,4 +120,8 @@ Next release (when created) will deploy docs successfully to GitHub Pages.
 **Blockers**: None
 
 GitHub Pages environment protection rules already configured for v* tags. Task can be marked Done immediately after visual verification of docs site.
+
+## Closed (Dec 22)
+
+All ACs were already complete. GitHub Pages environment protection rules confirmed configured correctly. Task ready for closure per planning analysis.
 <!-- SECTION:NOTES:END -->

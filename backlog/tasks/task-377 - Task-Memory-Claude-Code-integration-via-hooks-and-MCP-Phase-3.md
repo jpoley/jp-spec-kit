@@ -1,11 +1,11 @@
 ---
 id: task-377
 title: 'Task Memory: Claude Code integration via hooks and MCP (Phase 3)'
-status: In Progress
+status: Done
 assignee:
   - '@backend-engineer'
 created_date: '2025-12-09 15:56'
-updated_date: '2025-12-22 23:07'
+updated_date: '2025-12-23 18:56'
 labels:
   - infrastructure
   - claude-code
@@ -86,4 +86,19 @@ Note: AC#2 (token-aware injection) needs token counting implementation. AC#6 (E2
 - Configurable via ContextInjector(max_tokens=N)
 
 AC#2 and AC#6 complete.
+
+## Implementation Complete (Dec 22)
+
+**Branch**: kinsale/task-377/task-memory-integration
+**Commit**: 8e2f087
+
+### Deliverables
+- Token-aware injection in LifecycleManager
+- Updated session-start.sh hook
+- 8 new E2E tests for truncation
+
+### Token Truncation Details
+- 2000 token limit (~8000 chars)
+- Preserves sections by priority: Header > Context > Decisions > Notes
+- Creates .truncated.md when memory exceeds limit
 <!-- SECTION:NOTES:END -->
