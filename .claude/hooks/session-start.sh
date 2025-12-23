@@ -98,10 +98,11 @@ else
 
     # Inject first active task memory into CLAUDE.md (if any exist)
     # This makes task context available automatically via @import
+    # Uses token-aware truncation (max 2000 tokens)
     if [[ "$task_count" -gt 0 ]]; then
         first_task_id=$(echo "$tasks_output" | head -n1 | grep -oP '^[a-zA-Z0-9_-]+' || echo "")
         if [[ -n "$first_task_id" ]]; then
-            # Use Python to inject task memory via ContextInjector
+            # Use Python to inject task memory via ContextInjector with truncation
             PROJECT_DIR="$PROJECT_DIR" FIRST_TASK_ID="$first_task_id" python3 - <<'EOF' 2>/dev/null || true
 from pathlib import Path
 import sys
@@ -110,12 +111,12 @@ sys.path.insert(0, os.environ.get("PROJECT_DIR", "."))
 try:
     from src.flowspec_cli.memory.injector import ContextInjector
     injector = ContextInjector(Path(os.environ.get("PROJECT_DIR", ".")))
-    injector.update_active_task(os.environ.get("FIRST_TASK_ID", ""))
+    injector.update_active_task_with_truncation(os.environ.get("FIRST_TASK_ID", ""))
 except Exception:
     pass  # Fail silently - don't block session
 EOF
             if [[ $? -eq 0 ]]; then
-                info+=("  ✓ Active task memory injected into CLAUDE.md")
+                info+=("  ✓ Active task memory injected into CLAUDE.md (token-aware)")
             fi
         fi
     fi

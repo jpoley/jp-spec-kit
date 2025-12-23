@@ -1,11 +1,11 @@
 ---
 id: task-480
 title: 'claude-improves: Add flowspec init --complete option'
-status: Done
+status: In Progress
 assignee:
-  - '@backend-engineer'
+  - '@myself'
 created_date: '2025-12-12 01:15'
-updated_date: '2025-12-22 23:20'
+updated_date: '2025-12-22 22:54'
 labels:
   - claude-improves
   - cli
@@ -25,13 +25,13 @@ Add a --complete flag to flowspec init that deploys ALL templates in a single co
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [x] #1 --complete flag enables all optional features
-- [x] #2 Skills deployed to .claude/skills/
-- [x] #3 All hooks enabled in hooks.yaml
-- [x] #4 Full CI/CD template with lint, test, security jobs
-- [x] #5 Complete VSCode settings and extensions
-- [x] #6 MCP configuration created
-- [x] #7 Documentation explains --complete vs default behavior
+- [ ] #1 --complete flag enables all optional features
+- [ ] #2 Skills deployed to .claude/skills/
+- [ ] #3 All hooks enabled in hooks.yaml
+- [ ] #4 Full CI/CD template with lint, test, security jobs
+- [ ] #5 Complete VSCode settings and extensions
+- [ ] #6 MCP configuration created
+- [ ] #7 Documentation explains --complete vs default behavior
 <!-- AC:END -->
 
 ## Implementation Plan
