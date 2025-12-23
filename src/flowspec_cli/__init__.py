@@ -2543,8 +2543,9 @@ def _extract_zip_to_project(
     """Extract ZIP contents to project directory, handling nested structures.
 
     Automatically merges directories recursively when destination exists to avoid
-    FileExistsError with dirs_exist_ok=True (which only allows the dir itself,
-    not existing files within).
+    FileExistsError with shutil.copytree(..., dirs_exist_ok=True), which allows
+    the target directory to exist but will still raise FileExistsError if files
+    in the source already exist at their destination paths.
 
     Args:
         zip_path: Path to the ZIP file to extract
@@ -2569,7 +2570,9 @@ def _extract_zip_to_project(
                 if item.is_dir():
                     if dest_path.exists():
                         # Directory exists - always use recursive merge to avoid FileExistsError
-                        # (dirs_exist_ok=True only allows dir itself, not existing files within)
+                        # (dirs_exist_ok=True allows the destination directory to exist but will
+                        #  still raise FileExistsError if files in the source already exist in
+                        #  the destination)
                         for sub_item in item.rglob("*"):
                             if sub_item.is_file():
                                 rel_path = sub_item.relative_to(item)
@@ -2632,9 +2635,6 @@ def download_and_extract_two_stage(
     # will remain installed. This is intentional - partial installations are still
     # usable, and rolling back would require complex state tracking.
     for agent in ai_assistants:
-        base_zip = None
-        ext_zip = None
-
         # Stage 1: Download base spec-kit for this agent
         step_name = f"fetch-base-{agent}" if len(ai_assistants) > 1 else "fetch-base"
         if tracker:

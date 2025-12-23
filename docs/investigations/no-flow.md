@@ -468,7 +468,7 @@ for agent in ai_assistants:
 |-------|--------|----------|
 | `/flow` commands missing | ✅ RESOLVED | Critical |
 | Single agent installation | ✅ WORKING | N/A |
-| Multiple agent installation | ❌ BROKEN | **CRITICAL** |
+| Multiple agent installation | ✅ FIXED | **CRITICAL** |
 
 **For nanofuse-gateway specifically**:
 - `/flow` commands now installed ✅

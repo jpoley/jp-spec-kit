@@ -302,7 +302,9 @@ class TestMultiAgentDownloadAndExtract:
         zip_path = tmp_path / "spec-kit.zip"
         with zipfile.ZipFile(zip_path, "w") as zf:
             # Nested: spec-kit-v0.0.90/.claude/...
-            zf.writestr("spec-kit-v0.0.90/.claude/commands/spec/specify.md", "# Specify")
+            zf.writestr(
+                "spec-kit-v0.0.90/.claude/commands/spec/specify.md", "# Specify"
+            )
             zf.writestr("spec-kit-v0.0.90/.flowspec/base.yml", "base: true")
 
         # Extract
@@ -314,11 +316,12 @@ class TestMultiAgentDownloadAndExtract:
         assert (project_path / ".claude" / "commands" / "spec" / "specify.md").exists()
         assert (project_path / ".flowspec" / "base.yml").exists()
 
-    def test_multi_agent_installation_creates_all_directories(self, tmp_path, monkeypatch):
+    def test_multi_agent_installation_creates_all_directories(
+        self, tmp_path, monkeypatch
+    ):
         """Test that multi-agent installation creates directories for all agents."""
         import zipfile
         from flowspec_cli import download_and_extract_two_stage
-        from unittest.mock import Mock
 
         # Create mock ZIPs for base and extension (2 agents)
         def create_mock_zip(agent):
@@ -326,13 +329,20 @@ class TestMultiAgentDownloadAndExtract:
             base_zip = tmp_path / f"{agent}_base.zip"
             ext_zip = tmp_path / f"{agent}_ext.zip"
 
-            folder = ".claude/" if agent == "claude" else ".github/"
+            if agent == "claude":
+                folder = ".claude/"
+                subfolder = "commands"
+            else:  # copilot
+                folder = ".github/"
+                subfolder = "prompts"
 
             with zipfile.ZipFile(base_zip, "w") as zf:
-                zf.writestr(f"{folder}commands/spec/specify.md", f"# {agent} Specify")
+                zf.writestr(
+                    f"{folder}{subfolder}/spec/specify.md", f"# {agent} Specify"
+                )
 
             with zipfile.ZipFile(ext_zip, "w") as zf:
-                zf.writestr(f"{folder}commands/flow/assess.md", f"# {agent} Assess")
+                zf.writestr(f"{folder}{subfolder}/flow/assess.md", f"# {agent} Assess")
                 zf.writestr(".flowspec/workflow.yml", f"agent: {agent}")
 
             return base_zip, ext_zip
@@ -341,20 +351,36 @@ class TestMultiAgentDownloadAndExtract:
         call_count = {"base": 0, "ext": 0}
         agents_processed = []
 
-        def mock_download(repo_owner, repo_name, version, **kwargs):
+        def mock_download(
+            ai_assistant,
+            download_dir,
+            *,
+            repo_owner=None,
+            repo_name=None,
+            version=None,
+            **kwargs,
+        ):
             # Determine which agent we're processing
             agent_idx = len(agents_processed) // 2
             agent = ["claude", "copilot"][agent_idx]
 
-            if "spec-kit" in repo_name:
+            if "spec-kit" in (repo_name or ""):
                 call_count["base"] += 1
                 base_zip, _ = create_mock_zip(agent)
-                return base_zip
+                metadata = {
+                    "release": version or "test",
+                    "size": base_zip.stat().st_size,
+                }
+                return base_zip, metadata
             else:
                 call_count["ext"] += 1
                 _, ext_zip = create_mock_zip(agent)
                 agents_processed.append(agent)
-                return ext_zip
+                metadata = {
+                    "release": version or "test",
+                    "size": ext_zip.stat().st_size,
+                }
+                return ext_zip, metadata
 
         monkeypatch.setattr("flowspec_cli.download_template_from_github", mock_download)
 
@@ -365,7 +391,7 @@ class TestMultiAgentDownloadAndExtract:
         download_and_extract_two_stage(
             project_path=project_path,
             ai_assistants=["claude", "copilot"],
-            script_type="bash",
+            script_type="sh",
             verbose=False,
             tracker=None,
         )
@@ -376,14 +402,16 @@ class TestMultiAgentDownloadAndExtract:
 
         # Verify both agent directories exist
         assert (project_path / ".claude" / "commands" / "flow" / "assess.md").exists()
-        assert (project_path / ".github" / "commands" / "flow" / "assess.md").exists()
+        assert (project_path / ".github" / "prompts" / "flow" / "assess.md").exists()
 
         # Verify shared directory merged correctly (last agent wins)
         assert (project_path / ".flowspec" / "workflow.yml").exists()
         content = (project_path / ".flowspec" / "workflow.yml").read_text()
         assert "copilot" in content  # Last agent's version
 
-    def test_multi_agent_installation_handles_failure_gracefully(self, tmp_path, monkeypatch):
+    def test_multi_agent_installation_handles_failure_gracefully(
+        self, tmp_path, monkeypatch
+    ):
         """Test that failure during second agent installation leaves first agent intact."""
         import zipfile
         from flowspec_cli import download_and_extract_two_stage
@@ -401,10 +429,25 @@ class TestMultiAgentDownloadAndExtract:
         # Mock download that succeeds for first agent, fails for second
         call_count = [0]
 
-        def mock_download(repo_owner, repo_name, version, **kwargs):
+        def mock_download(
+            ai_assistant,
+            download_dir,
+            *,
+            repo_owner=None,
+            repo_name=None,
+            version=None,
+            **kwargs,
+        ):
             call_count[0] += 1
             if call_count[0] <= 2:  # First agent (base + ext)
-                return claude_base if "spec-kit" in repo_name else claude_ext
+                zip_path = (
+                    claude_base if "spec-kit" in (repo_name or "") else claude_ext
+                )
+                metadata = {
+                    "release": version or "test",
+                    "size": zip_path.stat().st_size,
+                }
+                return zip_path, metadata
             else:  # Second agent fails
                 raise Exception("Download failed for second agent")
 
@@ -418,7 +461,7 @@ class TestMultiAgentDownloadAndExtract:
             download_and_extract_two_stage(
                 project_path=project_path,
                 ai_assistants=["claude", "copilot"],
-                script_type="bash",
+                script_type="sh",
                 verbose=False,
                 tracker=None,
             )
