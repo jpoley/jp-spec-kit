@@ -34,6 +34,7 @@ import ssl
 import subprocess
 import sys
 import tempfile
+import time
 import tomllib
 import zipfile
 from datetime import datetime, timezone
@@ -2536,6 +2537,52 @@ def _cleanup_legacy_speckit_files(project_path: Path, ai_assistants: list[str]) 
                 item.unlink()
 
 
+def _extract_zip_to_project(
+    zip_path: Path,
+    project_path: Path,
+    is_current_dir: bool,
+    merge_with_existing: bool = False,
+) -> None:
+    """Extract ZIP contents to project directory, handling nested structures.
+
+    Args:
+        zip_path: Path to the ZIP file to extract
+        project_path: Target project directory
+        is_current_dir: Whether extracting to current directory
+        merge_with_existing: If True, recursively merge directories; if False, use dirs_exist_ok
+    """
+    with zipfile.ZipFile(zip_path, "r") as zip_ref:
+        # Always extract to temp dir first to check for nested structure
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            zip_ref.extractall(temp_path)
+            extracted_items = list(temp_path.iterdir())
+
+            # Check if ZIP has nested directory structure
+            if len(extracted_items) == 1 and extracted_items[0].is_dir():
+                source_dir = extracted_items[0]
+            else:
+                source_dir = temp_path
+
+            # Copy from source to project directory
+            for item in source_dir.iterdir():
+                dest_path = project_path / item.name
+                if item.is_dir():
+                    if merge_with_existing and dest_path.exists():
+                        # Recursively merge directories (extension overrides base)
+                        for sub_item in item.rglob("*"):
+                            if sub_item.is_file():
+                                rel_path = sub_item.relative_to(item)
+                                dest_file = dest_path / rel_path
+                                dest_file.parent.mkdir(parents=True, exist_ok=True)
+                                shutil.copy2(sub_item, dest_file)
+                    else:
+                        shutil.copytree(item, dest_path, dirs_exist_ok=True)
+                else:
+                    # File overwrites (extension wins if merge_with_existing)
+                    shutil.copy2(item, dest_path)
+
+
 def download_and_extract_two_stage(
     project_path: Path,
     ai_assistants: str | list[str],
@@ -2572,6 +2619,14 @@ def download_and_extract_two_stage(
         project_path.mkdir(parents=True, exist_ok=True)
 
     # Process each AI assistant: download and extract both base and extension
+    # NOTE: Each agent requires separate base + extension downloads because:
+    # 1. Each agent has different file structures (.claude/, .github/, .gemini/, etc.)
+    # 2. Base spec-kit provides agent-specific formatting (md vs toml vs json)
+    # 3. ZIP files are agent-specific and cannot be shared
+    #
+    # NOTE: If an error occurs during agent N (where N > 1), agents 1 through N-1
+    # will remain installed. This is intentional - partial installations are still
+    # usable, and rolling back would require complex state tracking.
     for agent in ai_assistants:
         base_zip = None
         ext_zip = None
@@ -2655,44 +2710,9 @@ def download_and_extract_two_stage(
             tracker.start(step_name, f"extracting {agent} base")
 
         try:
-            with zipfile.ZipFile(base_zip, "r") as zip_ref:
-                if is_current_dir:
-                    with tempfile.TemporaryDirectory() as temp_dir:
-                        temp_path = Path(temp_dir)
-                        zip_ref.extractall(temp_path)
-
-                        extracted_items = list(temp_path.iterdir())
-                        source_dir = temp_path
-                        if len(extracted_items) == 1 and extracted_items[0].is_dir():
-                            source_dir = extracted_items[0]
-
-                        for item in source_dir.iterdir():
-                            dest_path = project_path / item.name
-                            if item.is_dir():
-                                shutil.copytree(item, dest_path, dirs_exist_ok=True)
-                            else:
-                                shutil.copy2(item, dest_path)
-                else:
-                    # Extract to temp dir first to check for nested structure
-                    with tempfile.TemporaryDirectory() as temp_dir:
-                        temp_path = Path(temp_dir)
-                        zip_ref.extractall(temp_path)
-                        extracted_items = list(temp_path.iterdir())
-
-                        # Check if ZIP has nested directory structure
-                        if len(extracted_items) == 1 and extracted_items[0].is_dir():
-                            source_dir = extracted_items[0]
-                        else:
-                            source_dir = temp_path
-
-                        # Copy from source to project directory
-                        for item in source_dir.iterdir():
-                            dest_path = project_path / item.name
-                            if item.is_dir():
-                                shutil.copytree(item, dest_path, dirs_exist_ok=True)
-                            else:
-                                shutil.copy2(item, dest_path)
-
+            _extract_zip_to_project(
+                base_zip, project_path, is_current_dir, merge_with_existing=False
+            )
             if tracker:
                 tracker.complete(step_name, f"{agent} base extracted")
         except Exception as e:
@@ -2717,64 +2737,9 @@ def download_and_extract_two_stage(
             tracker.start(step_name, f"extracting {agent} extension")
 
         try:
-            with zipfile.ZipFile(ext_zip, "r") as zip_ref:
-                if is_current_dir:
-                    with tempfile.TemporaryDirectory() as temp_dir:
-                        temp_path = Path(temp_dir)
-                        zip_ref.extractall(temp_path)
-
-                        extracted_items = list(temp_path.iterdir())
-                        source_dir = temp_path
-                        if len(extracted_items) == 1 and extracted_items[0].is_dir():
-                            source_dir = extracted_items[0]
-
-                        for item in source_dir.iterdir():
-                            dest_path = project_path / item.name
-                            if item.is_dir():
-                                # Recursively merge directories (extension overrides base)
-                                if dest_path.exists():
-                                    for sub_item in item.rglob("*"):
-                                        if sub_item.is_file():
-                                            rel_path = sub_item.relative_to(item)
-                                            dest_file = dest_path / rel_path
-                                            dest_file.parent.mkdir(
-                                                parents=True, exist_ok=True
-                                            )
-                                            shutil.copy2(sub_item, dest_file)
-                                else:
-                                    shutil.copytree(item, dest_path, dirs_exist_ok=True)
-                            else:
-                                # File overwrites (extension wins)
-                                shutil.copy2(item, dest_path)
-                else:
-                    # Extract to temp, then merge
-                    with tempfile.TemporaryDirectory() as temp_dir:
-                        temp_path = Path(temp_dir)
-                        zip_ref.extractall(temp_path)
-
-                        extracted_items = list(temp_path.iterdir())
-                        source_dir = temp_path
-                        if len(extracted_items) == 1 and extracted_items[0].is_dir():
-                            source_dir = extracted_items[0]
-
-                        for item in source_dir.iterdir():
-                            dest_path = project_path / item.name
-                            if item.is_dir():
-                                if dest_path.exists():
-                                    # Merge directory contents
-                                    for sub_item in item.rglob("*"):
-                                        if sub_item.is_file():
-                                            rel_path = sub_item.relative_to(item)
-                                            dest_file = dest_path / rel_path
-                                            dest_file.parent.mkdir(
-                                                parents=True, exist_ok=True
-                                            )
-                                            shutil.copy2(sub_item, dest_file)
-                                else:
-                                    shutil.copytree(item, dest_path, dirs_exist_ok=True)
-                            else:
-                                shutil.copy2(item, dest_path)
-
+            _extract_zip_to_project(
+                ext_zip, project_path, is_current_dir, merge_with_existing=True
+            )
             if tracker:
                 tracker.complete(step_name, f"{agent} extension extracted")
         except Exception as e:
