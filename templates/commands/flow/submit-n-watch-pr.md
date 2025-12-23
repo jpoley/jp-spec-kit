@@ -722,7 +722,7 @@ if [ "$SHOULD_RESUBMIT" = "true" ]; then
   echo "🔄 Creating new PR with clean history..."
 
   # Determine version number
-  CURRENT_VERSION=$(echo "$BRANCH" | grep -Eo '\-v[0-9]+$' | grep -Eo '[0-9]+' || echo "1")
+  CURRENT_VERSION=$(echo "$BRANCH" | grep -Eo '\-v[0-9]+$' | grep -Eo '[0-9]+' || echo "0")
   NEXT_VERSION=$((CURRENT_VERSION + 1))
 
   # Close current PR
