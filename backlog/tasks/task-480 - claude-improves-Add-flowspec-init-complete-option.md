@@ -3,9 +3,9 @@ id: task-480
 title: 'claude-improves: Add flowspec init --complete option'
 status: Done
 assignee:
-  - '@myself'
+  - '@backend-engineer'
 created_date: '2025-12-12 01:15'
-updated_date: '2025-12-23 18:56'
+updated_date: '2025-12-22 23:20'
 labels:
   - claude-improves
   - cli
@@ -25,13 +25,13 @@ Add a --complete flag to flowspec init that deploys ALL templates in a single co
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 --complete flag enables all optional features
-- [ ] #2 Skills deployed to .claude/skills/
-- [ ] #3 All hooks enabled in hooks.yaml
-- [ ] #4 Full CI/CD template with lint, test, security jobs
-- [ ] #5 Complete VSCode settings and extensions
-- [ ] #6 MCP configuration created
-- [ ] #7 Documentation explains --complete vs default behavior
+- [x] #1 --complete flag enables all optional features
+- [x] #2 Skills deployed to .claude/skills/
+- [x] #3 All hooks enabled in hooks.yaml
+- [x] #4 Full CI/CD template with lint, test, security jobs
+- [x] #5 Complete VSCode settings and extensions
+- [x] #6 MCP configuration created
+- [x] #7 Documentation explains --complete vs default behavior
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -39,18 +39,3 @@ Add a --complete flag to flowspec init that deploys ALL templates in a single co
 <!-- SECTION:PLAN:BEGIN -->
 1. Wait for task-470 ACs #1-5 to complete\n2. Audit templates: CI/CD, VSCode, MCP config\n3. Implement --complete flag aggregation logic\n4. Override opt-out flags when --complete is set\n5. Create full CI/CD template (if missing)\n6. Create complete VSCode settings template\n7. Research and create MCP config template\n8. Write unit tests for --complete mode\n9. Create documentation comparing default vs --complete
 <!-- SECTION:PLAN:END -->
-
-## Implementation Notes
-
-<!-- SECTION:NOTES:BEGIN -->
-## Implementation Complete (Dec 22)
-
-**Branch**: kinsale/task-470/skills-deployment
-**Commit**: f5e38a1
-
-### Deliverables
-- `--complete` flag in flowspec init command
-- `deploy_cicd_templates()`, `deploy_vscode_extensions()`, `deploy_mcp_config()` helpers
-- 9 new tests for complete mode
-- Documentation: docs/guides/flowspec-init-complete-mode.md
-<!-- SECTION:NOTES:END -->

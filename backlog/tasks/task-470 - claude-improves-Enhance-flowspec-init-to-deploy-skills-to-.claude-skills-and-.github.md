@@ -5,9 +5,9 @@ title: >-
   .github/
 status: Done
 assignee:
-  - '@myself'
+  - '@backend-engineer'
 created_date: '2025-12-12 01:15'
-updated_date: '2025-12-23 18:56'
+updated_date: '2025-12-22 23:10'
 labels:
   - claude-improves
   - cli
@@ -27,11 +27,11 @@ Extend flowspec init to copy skill templates from templates/skills/ to the proje
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 specify init copies all skills from templates/skills/ to .claude/skills/
-- [ ] #2 Skills maintain proper SKILL.md directory structure
-- [ ] #3 Existing skills in .claude/skills/ are not overwritten without --force flag
-- [ ] #4 Add --skip-skills flag to opt out of skill deployment
-- [ ] #5 Document skill deployment in init output
+- [x] #1 specify init copies all skills from templates/skills/ to .claude/skills/
+- [x] #2 Skills maintain proper SKILL.md directory structure
+- [x] #3 Existing skills in .claude/skills/ are not overwritten without --force flag
+- [x] #4 Add --skip-skills flag to opt out of skill deployment
+- [x] #5 Document skill deployment in init output
 
 - [ ] #6 Deploy GitHub Copilot prompts to .github/prompts/ directory
 - [ ] #7 Sync skills between .claude/skills/ and .github/ for dual-agent support
@@ -46,17 +46,35 @@ Extend flowspec init to copy skill templates from templates/skills/ to the proje
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-## Implementation Complete (Dec 22)
+IMPLEMENTATION COMPLETE
 
-**Branch**: kinsale/task-470/skills-deployment
-**Commit**: f5e38a1
+Key changes:
+1. Added deploy_skills() helper function in src/flowspec_cli/__init__.py (line 3033)
+   - Copies all skill directories from templates/skills/ to .claude/skills/
+   - Skips symlinks (e.g., context-extractor)
+   - Respects --force flag for overwrites
+   - Returns (deployed_count, skipped_count) tuple
 
-### Deliverables
-- `deploy_skills()` function in src/flowspec_cli/__init__.py
-- `--skip-skills` flag for opt-out
-- 14 new tests in tests/test_init_skills.py
-- Decision log: memory/decisions/task-470.jsonl
+2. Added --skip-skills flag to init command (line 3226)
+   - Allows users to opt out of skill deployment
+   - Default: False (skills are deployed)
 
-### ACs #6-7 Status
-Blocked pending GitHub Copilot prompts research. Created as separate follow-up.
+3. Integrated skills deployment into init workflow (line 3617)
+   - Added 'skills' step to both layered and non-layered tracker lists
+   - Deployed after ensure_executable_scripts, before git init
+   - Shows deployed/skipped counts in tracker output
+
+4. Comprehensive test suite in tests/test_init_skills.py
+   - 14 tests covering all deployment scenarios
+   - Unit tests for deploy_skills() function
+   - Integration tests with flowspec init
+   - All tests passing
+
+5. All code passes ruff linting and formatting checks
+
+Files modified:
+- src/flowspec_cli/__init__.py (deploy_skills function, init integration, --skip-skills flag)
+- tests/test_init_skills.py (new test file)
+
+ACs #6 and #7 (GitHub Copilot prompts) are blocked and skipped as noted in task description.
 <!-- SECTION:NOTES:END -->

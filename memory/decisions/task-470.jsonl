@@ -1,0 +1,24 @@
+{
+  "timestamp": "2025-12-22T23:09:53Z",
+  "task_id": "task-470",
+  "phase": "execution",
+  "decision": "Implemented deploy_skills() helper function",
+  "rationale": "Separated skills deployment logic into a reusable helper function for better testability and maintainability. Function uses same pattern as ensure_executable_scripts() and other helper functions.",
+  "actor": "@backend-engineer"
+}
+{
+  "timestamp": "2025-12-22T23:10:01Z",
+  "task_id": "task-470",
+  "phase": "execution",
+  "decision": "Symlinks skipped during skills deployment",
+  "rationale": "The context-extractor skill is a symlink pointing outside templates/skills/. Copying symlinks would break the deployment and create dangling references. Skipping symlinks ensures clean deployments.",
+  "actor": "@backend-engineer"
+}
+{
+  "timestamp": "2025-12-22T23:10:07Z",
+  "task_id": "task-470",
+  "phase": "execution",
+  "decision": "Skills step added to StepTracker after chmod",
+  "rationale": "Skills deployment happens after ensure_executable_scripts and before git init. This ordering ensures the project structure is fully extracted and scripts are executable before deploying skills, maintaining logical initialization flow.",
+  "actor": "@backend-engineer"
+}
