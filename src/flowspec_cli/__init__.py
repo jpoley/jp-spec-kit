@@ -3068,7 +3068,9 @@ def deploy_skills(
 
     # Iterate through all subdirectories in templates/skills/
     for skill_dir in templates_skills_dir.iterdir():
-        # Skip symlinks (like context-extractor)
+        # Skip symlinked directories to prevent copying external references.
+        # This intentionally excludes symlinks like context-extractor which
+        # point to other locations and shouldn't be deployed as copies.
         if skill_dir.is_symlink():
             continue
 
@@ -3127,6 +3129,10 @@ def deploy_cicd_templates(
 
     # Deploy all workflow templates
     for template_file in templates_dir.glob("*.yml"):
+        # Skip symlinked files to prevent copying external references
+        if template_file.is_symlink():
+            continue
+
         target_file = target_dir / template_file.name
 
         # Skip if exists and not force mode
@@ -3197,7 +3203,8 @@ def deploy_vscode_extensions(
         import json
 
         with extensions_file.open("w") as f:
-            json.dump(extensions_config, f, indent=2)
+            json.dump(extensions_config, f, indent=2, ensure_ascii=False)
+            f.write("\n")  # POSIX compliance: files should end with newline
         return True
     except Exception as e:
         console.print(
