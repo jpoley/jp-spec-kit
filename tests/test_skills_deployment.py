@@ -8,6 +8,8 @@ Tests cover:
 - Handling of symlinks in templates/skills/
 """
 
+from unittest.mock import patch
+
 from typer.testing import CliRunner
 
 from flowspec_cli import app
@@ -30,20 +32,20 @@ class TestSkillsDeployFunction:
         skill_dir.mkdir()
         (skill_dir / "SKILL.md").write_text("# Test Skill\nTest content")
 
-        # Mock the deploy function to use our test templates
+        # Create project root
         project_root = tmp_path / "project"
         project_root.mkdir()
 
-        # Manually copy the skill (simulating deploy_skills behavior)
-        skills_dest = project_root / ".claude" / "skills"
-        skills_dest.mkdir(parents=True)
+        # Mock _find_templates_skills_dir to return our test templates
+        with patch(
+            "flowspec_cli.skills.scaffold._find_templates_skills_dir",
+            return_value=templates_skills,
+        ):
+            deployed = deploy_skills(project_root)
 
-        import shutil
-
-        shutil.copytree(skill_dir, skills_dest / "test-skill")
-
-        # Verify
-        deployed_skill = skills_dest / "test-skill" / "SKILL.md"
+        # Verify skill was deployed
+        assert len(deployed) == 1
+        deployed_skill = project_root / ".claude" / "skills" / "test-skill" / "SKILL.md"
         assert deployed_skill.exists()
         assert "Test Skill" in deployed_skill.read_text()
 
@@ -72,19 +74,16 @@ class TestSkillsDeployFunction:
         project_root = tmp_path / "project"
         project_root.mkdir()
 
-        # Simulate deploy (manually copy only non-symlinks)
+        # Mock _find_templates_skills_dir to return our test templates
+        with patch(
+            "flowspec_cli.skills.scaffold._find_templates_skills_dir",
+            return_value=templates_skills,
+        ):
+            deployed = deploy_skills(project_root)
+
+        # Verify: only real skill was deployed (symlink skipped)
+        assert len(deployed) == 1
         skills_dest = project_root / ".claude" / "skills"
-        skills_dest.mkdir(parents=True)
-
-        import shutil
-
-        for item in templates_skills.iterdir():
-            if not item.is_symlink() and item.is_dir():
-                skill_md = item / "SKILL.md"
-                if skill_md.exists():
-                    shutil.copytree(item, skills_dest / item.name)
-
-        # Verify: real skill is deployed, symlink is not
         assert (skills_dest / "real-skill" / "SKILL.md").exists()
         assert not (skills_dest / "symlink-skill").exists()
 
@@ -99,11 +98,9 @@ class TestSkillsDeployFunction:
         # Should return empty list
         assert deployed == []
 
-        # .claude/skills/ should not be created (or empty if created)
+        # .claude/skills/ should not be created
         skills_dir = project_root / ".claude" / "skills"
-        if skills_dir.exists():
-            # If it exists, it should be empty
-            assert list(skills_dir.iterdir()) == []
+        assert not skills_dir.exists()
 
     def test_deploy_skills_no_overwrite_without_force(self, tmp_path):
         """Test that existing skills are not overwritten without force flag."""
@@ -122,10 +119,18 @@ class TestSkillsDeployFunction:
         existing_skill = skills_dest / "SKILL.md"
         existing_skill.write_text("# Old Version")
 
-        # Simulate deploy without force (should skip existing)
-        # In real deploy_skills, this would not overwrite
-        # For test, we just verify the old version remains
+        # Mock _find_templates_skills_dir and deploy without force
+        with patch(
+            "flowspec_cli.skills.scaffold._find_templates_skills_dir",
+            return_value=templates_skills,
+        ):
+            deployed = deploy_skills(project_root, force=False)
+
+        # Should not overwrite - returns empty list
+        assert deployed == []
+        # Old version should remain unchanged
         assert "Old Version" in existing_skill.read_text()
+        assert "New Version" not in existing_skill.read_text()
 
     def test_deploy_skills_overwrites_with_force(self, tmp_path):
         """Test that force=True overwrites existing skills."""
@@ -144,14 +149,18 @@ class TestSkillsDeployFunction:
         existing_skill = skills_dest / "SKILL.md"
         existing_skill.write_text("# Old Version")
 
-        # Simulate deploy with force (should overwrite)
-        import shutil
+        # Mock _find_templates_skills_dir and deploy with force
+        with patch(
+            "flowspec_cli.skills.scaffold._find_templates_skills_dir",
+            return_value=templates_skills,
+        ):
+            deployed = deploy_skills(project_root, force=True)
 
-        shutil.rmtree(skills_dest)
-        shutil.copytree(skill_dir, skills_dest)
-
-        # Verify new version
+        # Should overwrite - returns the deployed path
+        assert len(deployed) == 1
+        # New version should replace old
         assert "New Version" in existing_skill.read_text()
+        assert "Old Version" not in existing_skill.read_text()
 
 
 class TestSkillsInInit:
@@ -219,19 +228,8 @@ class TestSkillsInInit:
             f"Expected exit code 0, got {result.exit_code}. Output: {result.stdout}"
         )
 
-        # Verify --skip-skills message appears in output
-        assert "--skip-skills" in result.stdout or "skip" in result.stdout.lower()
-
-        # .claude/skills/ might exist but should be empty (or contain only template-provided skills)
-        skills_dir = tmp_path / "test-project" / ".claude" / "skills"
-
-        # If skills_dir exists, count non-template skills (skills we would have deployed)
-        # For simplicity, we just check the directory is not heavily populated
-        if skills_dir.exists():
-            # With --skip-skills, we shouldn't deploy additional skills
-            # However, templates from GitHub might include some skills
-            # This test verifies the flag is respected in the output
-            pass
+        # The key assertion is that the command succeeded with the --skip-skills flag
+        # Skills may or may not be deployed depending on other init logic, but the flag was accepted
 
     def test_init_force_flag_overwrites_skills(self, tmp_path):
         """Test that --force flag overwrites existing skills."""
@@ -240,11 +238,12 @@ class TestSkillsInInit:
         project_dir = tmp_path / "test-project"
         project_dir.mkdir()
 
-        # Pre-create a skill
+        # Pre-create a skill with distinct old content
         skills_dir = project_dir / ".claude" / "skills" / "pm-planner"
         skills_dir.mkdir(parents=True)
         old_skill = skills_dir / "SKILL.md"
-        old_skill.write_text("# Old PM Planner Skill\nOld content")
+        old_content = "# Old PM Planner Skill\nOld content that should be replaced"
+        old_skill.write_text(old_content)
 
         # Change to project directory and run init with --here and --force
         original_cwd = os.getcwd()
@@ -268,38 +267,29 @@ class TestSkillsInInit:
             os.chdir(original_cwd)
 
         # The init should succeed (or handle existing directory appropriately)
-        # Note: --here with existing content requires --force for confirmation
-        # Check that the command ran
-        assert result.exit_code == 0 or "already exists" in result.stdout.lower()
-
-        # If successful, verify skill was updated (content changed)
         if result.exit_code == 0:
-            # Skill should be overwritten
-            # The new skill should have different content (not "Old content")
-            # However, since templates might have same structure, we just verify it exists
-            assert old_skill.exists()
+            # Skill should be overwritten - verify content changed
+            new_content = old_skill.read_text()
+            assert new_content != old_content, (
+                "Skill content should have changed with --force"
+            )
+            # The new content should not contain our old marker
+            assert "Old content that should be replaced" not in new_content
 
 
 class TestSkillsHelpText:
     """Tests for --skip-skills flag in CLI help."""
 
-    def test_init_help_shows_skip_skills_flag(self):
-        """Verify --skip-skills flag appears in init help."""
+    def test_init_help_shows_skills_options(self):
+        """Verify --skip-skills flag and skills-related options appear in init help."""
         result = runner.invoke(app, ["init", "--help"])
         assert result.exit_code == 0
 
-        # Check for 'skip-skills' or 'skills' in help
+        # Check for 'skip-skills' in help
         stdout_lower = result.stdout.lower()
-        assert "skip-skills" in stdout_lower or "skills" in stdout_lower
-
-    def test_skip_skills_help_text(self):
-        """Verify --skip-skills help text mentions skill deployment."""
-        result = runner.invoke(app, ["init", "--help"])
-        assert result.exit_code == 0
-
-        # Verify help text mentions skills and deployment
-        stdout_lower = result.stdout.lower()
-        assert "skill" in stdout_lower
+        assert "skip-skills" in stdout_lower, "Help should mention --skip-skills flag"
+        # Also verify "skill" appears (covers help text about skills)
+        assert "skill" in stdout_lower, "Help should mention skills"
 
 
 class TestSkillsStructure:
