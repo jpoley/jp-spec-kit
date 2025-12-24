@@ -153,9 +153,7 @@ class DecisionLogger:
                         # Handle source field - convert to _source_override
                         if "source" in data:
                             data["_source_override"] = LogSource(data.pop("source"))
-                        # Remove auto-generated fields for reconstruction
-                        data.pop("timestamp", None)
-                        data.pop("entry_id", None)
+                        # Preserve stored timestamp and entry_id so they remain stable
                         decisions.append(Decision(**data))
         except (OSError, json.JSONDecodeError) as e:
             logger.error(f"Failed to read decision log: {e}")
