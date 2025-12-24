@@ -320,9 +320,7 @@ class EventLogger:
                         # Handle source field - convert to _source_override
                         if "source" in data:
                             data["_source_override"] = LogSource(data.pop("source"))
-                        # Remove auto-generated fields for reconstruction
-                        data.pop("timestamp", None)
-                        data.pop("entry_id", None)
+                        # Preserve original timestamp and entry_id from log file
                         events.append(LogEvent(**data))
         except (OSError, json.JSONDecodeError) as e:
             logger.error(f"Failed to read event log: {e}")
