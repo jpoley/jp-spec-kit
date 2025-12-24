@@ -17,6 +17,23 @@ tools:
 
 Submit a PR and autonomously monitor CI checks and Copilot code review feedback. Iteratively fix issues and resubmit until the PR is approval-ready with zero Copilot comments.
 
+## ⛔ CRITICAL: CI FAILURE POLICY
+
+> **MANDATORY REQUIREMENT**: A PR is NEVER complete if ANY CI check fails.
+>
+> - **FAILING CI IS UNACCEPTABLE** - No exceptions
+> - **NEVER claim a PR is "done", "ready", or "complete" while ANY CI check is failing**
+> - **WAIT for ALL CI checks to complete** before reporting status
+> - **Merge conflicts MUST be resolved** - a PR with conflicts is not ready
+> - **Copilot comments are important but SECONDARY to passing CI**
+>
+> **Verification checklist before claiming completion:**
+> 1. ✅ All CI checks show GREEN (SUCCESS)
+> 2. ✅ No merge conflicts
+> 3. ✅ Branch is rebased on latest main
+> 4. ✅ All required status checks passed
+> 5. ⚠️ Copilot comments addressed (important but not blocking)
+
 ## User Input
 
 ```text
@@ -740,6 +757,10 @@ fi  # End of MODE="new" guard for Phase 2
 
 **Report progress**: Print "Phase 3: Monitoring CI checks..."
 
+> **⛔ BLOCKING REQUIREMENT**: Do NOT proceed to subsequent phases until ALL CI checks pass.
+> If ANY check fails, this phase MUST fix the issue or exit with failure status.
+> NEVER skip or bypass CI failures - they are mandatory gates.
+
 ### Step 3.1: Wait for CI Checks
 
 ```bash
@@ -747,7 +768,8 @@ MAX_CI_WAIT=30  # Maximum wait iterations (30 * 30s = 15 minutes)
 CI_POLL_INTERVAL=30  # Seconds between checks
 CI_ITERATION=0
 
-echo "⏳ Waiting for CI checks to complete..."
+echo "⏳ Waiting for ALL CI checks to complete..."
+echo "   ⛔ BLOCKING: Cannot proceed until all checks pass"
 echo "   Poll interval: ${CI_POLL_INTERVAL}s"
 echo "   Max wait: $((MAX_CI_WAIT * CI_POLL_INTERVAL / 60)) minutes"
 echo ""
@@ -1248,20 +1270,72 @@ fi
 
 ## Phase 7: Final Status Report
 
-**Report progress**: Print final status banner:
+> **⛔ VERIFICATION GATE**: Before printing the completion banner, VERIFY:
+> 1. Run `gh pr checks ${PR_NUMBER}` and confirm ALL checks show ✅
+> 2. Run `gh pr view ${PR_NUMBER} --json mergeable` and confirm no conflicts
+> 3. If ANY check is failing or pending, DO NOT print completion banner
+>
+> **NEVER claim completion while CI is failing or pending.**
+
+**Report progress**: Print final status banner (ONLY if all checks pass):
+
+```bash
+# MANDATORY: Final verification before claiming completion
+echo ""
+echo "🔍 Final verification before completion..."
+
+# Check all CI statuses
+FINAL_STATUS=$(gh pr checks "$PR_NUMBER" 2>&1)
+FAILED_CHECKS=$(echo "$FINAL_STATUS" | grep -c "fail" || echo "0")
+PENDING_CHECKS=$(echo "$FINAL_STATUS" | grep -c "pending\|running" || echo "0")
+
+if [ "$FAILED_CHECKS" -gt 0 ]; then
+  echo ""
+  echo "❌ CANNOT CLAIM COMPLETION - CI CHECKS FAILING"
+  echo ""
+  echo "$FINAL_STATUS" | grep "fail"
+  echo ""
+  echo "Fix the failing checks and re-run: /flow:submit-n-watch-pr #${PR_NUMBER}"
+  exit 1
+fi
+
+if [ "$PENDING_CHECKS" -gt 0 ]; then
+  echo ""
+  echo "⏳ CANNOT CLAIM COMPLETION - CI CHECKS STILL RUNNING"
+  echo ""
+  echo "Wait for checks to complete and re-run: /flow:submit-n-watch-pr #${PR_NUMBER}"
+  exit 0
+fi
+
+# Check for merge conflicts
+MERGEABLE=$(gh pr view "$PR_NUMBER" --json mergeable -q '.mergeable' 2>/dev/null)
+if [ "$MERGEABLE" = "CONFLICTING" ]; then
+  echo ""
+  echo "❌ CANNOT CLAIM COMPLETION - MERGE CONFLICTS EXIST"
+  echo ""
+  echo "Resolve conflicts, push, and re-run: /flow:submit-n-watch-pr #${PR_NUMBER}"
+  exit 1
+fi
+
+# All verified - now we can claim completion
+echo "✅ All CI checks verified as passing"
+echo "✅ No merge conflicts"
+echo ""
+```
 
 ```
 ================================================================================
 🎉 /flow:submit-n-watch-pr COMPLETE
 ================================================================================
 
-PR Status:        Ready for human review
+PR Status:        ✅ Ready for human review (ALL CI CHECKS PASSED)
 PR Number:        #${PR_NUMBER}
 PR URL:           ${PR_URL}
 Branch:           ${BRANCH}
 Task:             ${TASK_ID:-N/A}
 
-CI Checks:        ✅ All passed
+CI Checks:        ✅ ALL PASSED (verified)
+Merge Status:     ✅ No conflicts
 Copilot Review:   ✅ All comments resolved
 Iterations:       ${ITERATION}
 
