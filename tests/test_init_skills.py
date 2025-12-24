@@ -123,14 +123,12 @@ class TestInitSkillsIntegration:
         existing_skill = skills_dir / "existing-skill"
         assert existing_skill.exists(), "Existing skill directory should still exist"
 
-        # Verify deployment happened by checking filesystem state
-        # (more robust than checking output text which can change)
-        assert skills_dir.exists(), "Skills directory should exist after deployment"
+        # (skills_dir existence already verified above)
 
-    def test_init_output_shows_skills_deployment(
+    def test_init_creates_skills_directory(
         self, mock_github_releases, tmp_path: Path
     ) -> None:
-        """Test that init output documents skills deployment."""
+        """Test that flowspec init creates .claude/skills/ directory."""
         project_dir = tmp_path / "test-project"
         result = runner.invoke(
             app,
@@ -375,10 +373,10 @@ class TestInitCompleteFlag:
             "Git repo should be initialized (--complete overrides --no-git)"
         )
 
-    def test_complete_flag_output_shows_all_components(
+    def test_complete_flag_creates_all_components(
         self, mock_github_releases, tmp_path: Path
     ) -> None:
-        """Test that --complete mode output mentions all deployed components."""
+        """Test that --complete mode creates all expected components."""
         project_dir = tmp_path / "test-project"
         result = runner.invoke(
             app,

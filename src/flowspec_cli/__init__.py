@@ -3260,11 +3260,14 @@ def deploy_skills(
     Args:
         project_path: Path to the project where skills will be deployed
         force: If True, overwrite existing skills. If False, skip existing skills.
-        tracker: Optional StepTracker for progress reporting
+        tracker: Reserved for future progress reporting (currently unused)
 
     Returns:
         Tuple of (deployed_count, skipped_count)
     """
+    # Note: tracker parameter reserved for future StepTracker integration
+    _ = tracker  # Silence unused parameter warning
+
     # Templates are in project root: flowspec/templates/skills/
     # __file__ is at: flowspec/src/flowspec_cli/__init__.py
     templates_skills_dir = Path(__file__).parent.parent.parent / "templates" / "skills"
@@ -3324,11 +3327,14 @@ def deploy_cicd_templates(
     Args:
         project_path: Path to the project
         force: If True, overwrite existing workflows
-        tracker: Optional StepTracker for progress reporting
+        tracker: Reserved for future progress reporting (currently unused)
 
     Returns:
         Number of workflows deployed
     """
+    # Note: tracker parameter reserved for future StepTracker integration
+    _ = tracker  # Silence unused parameter warning
+
     # Templates are in: flowspec/templates/github-actions/
     templates_dir = Path(__file__).parent.parent.parent / "templates" / "github-actions"
     target_dir = project_path / ".github" / "workflows"
@@ -3371,11 +3377,14 @@ def deploy_vscode_extensions(
     Args:
         project_path: Path to the project
         force: If True, overwrite existing extensions.json
-        tracker: Optional StepTracker for progress reporting
+        tracker: Reserved for future progress reporting (currently unused)
 
     Returns:
         True if deployed, False if skipped
     """
+    # Note: tracker parameter reserved for future StepTracker integration
+    _ = tracker  # Silence unused parameter warning
+
     vscode_dir = project_path / ".vscode"
     extensions_file = vscode_dir / "extensions.json"
 
@@ -3435,11 +3444,13 @@ def deploy_mcp_config(
     Args:
         project_path: Path to the project
         force: If True, overwrite existing .mcp.json
-        tracker: Optional StepTracker for progress reporting
+        tracker: Reserved for future progress reporting (currently unused)
 
     Returns:
         True if deployed, False if skipped
     """
+    # Note: tracker parameter reserved for future StepTracker integration
+    _ = tracker  # Silence unused parameter warning
     # Template is in: flowspec/.mcp.json (at project root)
     template_file = Path(__file__).parent.parent.parent / ".mcp.json"
     target_file = project_path / ".mcp.json"
