@@ -47,20 +47,20 @@ generate_commands() {
     local name description script_command agent_script_command body
     name=$(basename "$template" .md)
     
-    # Normalize line endings
-    file_content=$(tr -d '\r' < "$template")
-    
+    # Read frontmatter (first 50 lines) for metadata extraction to avoid SIGPIPE on large files
+    frontmatter=$(head -50 "$template" | tr -d '\r')
+
     # Extract description and script command from YAML frontmatter
-    description=$(printf '%s\n' "$file_content" | awk '/^description:/ {sub(/^description:[[:space:]]*/, ""); print; exit}')
-    script_command=$(printf '%s\n' "$file_content" | awk -v sv="$script_variant" '/^[[:space:]]*'"$script_variant"':[[:space:]]*/ {sub(/^[[:space:]]*'"$script_variant"':[[:space:]]*/, ""); print; exit}')
-    
+    description=$(printf '%s\n' "$frontmatter" | awk '/^description:/ {sub(/^description:[[:space:]]*/, ""); print; exit}')
+    script_command=$(printf '%s\n' "$frontmatter" | awk -v sv="$script_variant" '/^[[:space:]]*'"$script_variant"':[[:space:]]*/ {sub(/^[[:space:]]*'"$script_variant"':[[:space:]]*/, ""); print; exit}')
+
     if [[ -z $script_command ]]; then
       echo "Warning: no script command found for $script_variant in $template" >&2
       script_command="(Missing script command for $script_variant)"
     fi
-    
+
     # Extract agent_script command from YAML frontmatter if present
-    agent_script_command=$(printf '%s\n' "$file_content" | awk '
+    agent_script_command=$(printf '%s\n' "$frontmatter" | awk '
       /^agent_scripts:$/ { in_agent_scripts=1; next }
       in_agent_scripts && /^[[:space:]]*'"$script_variant"':[[:space:]]*/ {
         sub(/^[[:space:]]*'"$script_variant"':[[:space:]]*/, "")
@@ -69,7 +69,10 @@ generate_commands() {
       }
       in_agent_scripts && /^[a-zA-Z]/ { in_agent_scripts=0 }
     ')
-    
+
+    # Read full file for body processing (normalize line endings)
+    file_content=$(tr -d '\r' < "$template")
+
     # Replace {SCRIPT} placeholder with the script command
     body=$(printf '%s\n' "$file_content" | sed "s|{SCRIPT}|${script_command}|g")
     
@@ -134,12 +137,12 @@ generate_commands() {
         continue
       fi
 
-      # Normalize line endings
-      file_content=$(tr -d '\r' < "$template")
+      # Read frontmatter (first 50 lines) for metadata extraction to avoid SIGPIPE on large files
+      frontmatter=$(head -50 "$template" | tr -d '\r')
 
       # Extract description and script command from YAML frontmatter
-      description=$(printf '%s\n' "$file_content" | awk '/^description:/ {sub(/^description:[[:space:]]*/, ""); print; exit}')
-      script_command=$(printf '%s\n' "$file_content" | awk -v sv="$script_variant" '/^[[:space:]]*'"$script_variant"':[[:space:]]*/ {sub(/^[[:space:]]*'"$script_variant"':[[:space:]]*/, ""); print; exit}')
+      description=$(printf '%s\n' "$frontmatter" | awk '/^description:/ {sub(/^description:[[:space:]]*/, ""); print; exit}')
+      script_command=$(printf '%s\n' "$frontmatter" | awk -v sv="$script_variant" '/^[[:space:]]*'"$script_variant"':[[:space:]]*/ {sub(/^[[:space:]]*'"$script_variant"':[[:space:]]*/, ""); print; exit}')
 
       if [[ -z $script_command ]]; then
         echo "Warning: no script command found for $script_variant in flowspec/$template" >&2
@@ -147,7 +150,7 @@ generate_commands() {
       fi
 
       # Extract agent_script command from YAML frontmatter if present
-      agent_script_command=$(printf '%s\n' "$file_content" | awk '
+      agent_script_command=$(printf '%s\n' "$frontmatter" | awk '
         /^agent_scripts:$/ { in_agent_scripts=1; next }
         in_agent_scripts && /^[[:space:]]*'"$script_variant"':[[:space:]]*/ {
           sub(/^[[:space:]]*'"$script_variant"':[[:space:]]*/, "")
@@ -156,6 +159,9 @@ generate_commands() {
         }
         in_agent_scripts && /^[a-zA-Z]/ { in_agent_scripts=0 }
       ')
+
+      # Read full file for body processing (normalize line endings)
+      file_content=$(tr -d '\r' < "$template")
 
       # Replace {SCRIPT} placeholder with the script command
       body=$(printf '%s\n' "$file_content" | sed "s|{SCRIPT}|${script_command}|g")
@@ -208,11 +214,14 @@ generate_commands() {
         local name description body
         name=$(basename "$template" .md)
 
-        # Normalize line endings
-        file_content=$(tr -d '\r' < "$template")
+        # Read frontmatter (first 50 lines) for metadata extraction to avoid SIGPIPE on large files
+        frontmatter=$(head -50 "$template" | tr -d '\r')
 
         # Extract description from YAML frontmatter
-        description=$(printf '%s\n' "$file_content" | awk '/^description:/ {sub(/^description:[[:space:]]*/, ""); print; exit}')
+        description=$(printf '%s\n' "$frontmatter" | awk '/^description:/ {sub(/^description:[[:space:]]*/, ""); print; exit}')
+
+        # Read full file for body processing (normalize line endings)
+        file_content=$(tr -d '\r' < "$template")
 
         # For utility commands, the body is the file content with substitutions applied
         # Replace {ARGS} placeholder with the arg format
