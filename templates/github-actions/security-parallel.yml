@@ -1,0 +1,262 @@
+# Parallel Security Scanning Workflow
+#
+# This workflow demonstrates parallel security scanning for large monorepos
+# using a matrix strategy to scan different components simultaneously.
+#
+# Quick Start:
+# 1. Copy this file to .github/workflows/security-parallel.yml
+# 2. Update the matrix.component list with your project's components
+# 3. Replace {{PROJECT_NAME}} with your project name
+# 4. Trigger manually via workflow_dispatch
+#
+# Use this workflow for:
+# - Codebases > 500K lines of code
+# - Monorepos with multiple components
+# - Projects requiring faster scan times (3x speedup)
+#
+# Benefits:
+# - Parallel scanning across components
+# - Aggregated results for overall security posture
+# - Component-specific SARIF categories
+# - Detailed per-component metrics
+
+name: Security Scan (Parallel)
+
+on:
+  # Manual trigger only - this workflow is for large monorepos (>500K LOC)
+  # Do NOT add schedule trigger - use security.yml for scheduled scans
+  # to ensure consistent SARIF categories between main and PRs
+  workflow_dispatch:
+    inputs:
+      fail-on:
+        description: 'Severity level to block on'
+        required: false
+        default: ''
+        type: choice
+        options:
+          - ''  # Use config file default
+          - critical
+          - high
+          - medium
+          - low
+
+jobs:
+  # Parallel scanning by component
+  security-scan-matrix:
+    name: Scan ${{ matrix.component }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    permissions:
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        component:
+          # Customize this list for your project structure
+          # Examples:
+          - src/backend       # Backend Python/Node code
+          - src/frontend      # Frontend React/Vue code
+          - tests             # Test suite
+          - scripts           # Automation scripts
+          # Add more components as needed:
+          # - infrastructure    # IaC code
+          # - docs              # Documentation
+          # - api               # API services
+          # - workers           # Background workers
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Cache Semgrep Binary
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/bin/semgrep
+          key: semgrep-${{ runner.os }}-1.50.0
+          restore-keys: |
+            semgrep-${{ runner.os }}-
+
+      - name: Install Flowspec
+        run: |
+          pip install uv
+          # Install flowspec-cli from PyPI
+          uv pip install --system flowspec-cli
+
+      - name: Install Semgrep
+        run: pip install semgrep==1.50.0
+
+      - name: Read Security Config
+        id: config
+        run: |
+          CONFIG_FILE=".github/security-config.yml"
+          if [ -f "$CONFIG_FILE" ]; then
+            echo "Reading security config from $CONFIG_FILE"
+            # Install yq if not available (pinned version for security)
+            if ! command -v yq &> /dev/null; then
+              YQ_VERSION="v4.40.5"
+              ARCH="$(uname -m)"
+              case "$ARCH" in
+                x86_64|amd64)
+                  YQ_BINARY="yq_linux_amd64"
+                  YQ_CHECKSUM="4e9e5f4a574c6d7e04baa28f91e5b985ad7b22d4e4fd89e1f0d1ccb501e8ddf8"
+                  ;;
+                aarch64|arm64)
+                  echo "ARM64 architecture detected but yq checksum is not configured."
+                  echo "Refusing to download and install an unverified yq binary on ARM64."
+                  exit 1
+                  ;;
+                *)
+                  echo "Unsupported architecture for yq: $ARCH"
+                  exit 1
+                  ;;
+              esac
+
+              curl -sL "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/${YQ_BINARY}" -o /tmp/yq
+              echo "${YQ_CHECKSUM}  /tmp/yq" | sha256sum -c - || { echo "Checksum validation failed"; exit 1; }
+              chmod +x /tmp/yq
+              sudo mv /tmp/yq /usr/local/bin/yq
+            fi
+            CONFIG_FAIL_ON=$(yq -r '.security.fail-on // "critical"' "$CONFIG_FILE")
+          else
+            echo "No security config found, using defaults"
+            CONFIG_FAIL_ON="critical"
+          fi
+          echo "config-fail-on=$CONFIG_FAIL_ON" >> $GITHUB_OUTPUT
+
+      - name: Run Security Scan for ${{ matrix.component }}
+        id: scan
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COMPONENT: ${{ matrix.component }}
+          FAIL_ON: ${{ inputs.fail-on || steps.config.outputs.config-fail-on }}
+        run: |
+          # Sanitize component name for file paths (replace / with -)
+          COMPONENT_NAME=$(echo "$COMPONENT" | tr '/' '-')
+
+          # Check if multiple severities were specified (comma-separated)
+          if echo "$FAIL_ON" | grep -q ","; then
+            echo "::warning::Multiple severities specified but only single severity is supported. Using first value."
+            FAIL_SEVERITY=$(echo "$FAIL_ON" | cut -d',' -f1)
+            echo "Using: $FAIL_SEVERITY"
+          else
+            FAIL_SEVERITY="$FAIL_ON"
+          fi
+
+          # Use positional argument for path (not --path flag)
+          flowspec security scan \
+            "$COMPONENT" \
+            --format sarif \
+            --output "security-results-${COMPONENT_NAME}.sarif" \
+            --fail-on "${FAIL_SEVERITY}"
+
+          # Parse results for metrics
+          if [ -f "security-results-${COMPONENT_NAME}.sarif" ]; then
+            TOTAL=$(jq '.runs[0].results | length' "security-results-${COMPONENT_NAME}.sarif" 2>/dev/null || echo "0")
+            CRITICAL=$(jq '[.runs[0].results[] | select(.level == "error" and (.properties.severity | ascii_downcase) == "critical")] | length' "security-results-${COMPONENT_NAME}.sarif" 2>/dev/null || echo "0")
+
+            echo "total=${TOTAL}" >> $GITHUB_OUTPUT
+            echo "critical=${CRITICAL}" >> $GITHUB_OUTPUT
+            echo "component_name=${COMPONENT_NAME}" >> $GITHUB_OUTPUT
+
+            echo "[${COMPONENT}] ${TOTAL} findings (${CRITICAL} critical)"
+          else
+            echo "total=0" >> $GITHUB_OUTPUT
+            echo "critical=0" >> $GITHUB_OUTPUT
+            echo "component_name=${COMPONENT_NAME}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Upload SARIF for ${{ matrix.component }}
+        if: always()
+        continue-on-error: true
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: security-results-${{ steps.scan.outputs.component_name }}.sarif
+          # Use component-specific category for parallel scans
+          # Note: This workflow should only be triggered manually for large repos
+          # Do not use for scheduled scans - use security.yml instead
+          category: {{PROJECT_NAME}}-security-${{ steps.scan.outputs.component_name }}
+
+      - name: Upload Scan Artifacts
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-scan-${{ steps.scan.outputs.component_name }}
+          path: |
+            security-results-${{ steps.scan.outputs.component_name }}.sarif
+          retention-days: 30
+          if-no-files-found: ignore
+
+  # Aggregate results from all components
+  aggregate-results:
+    name: Aggregate Scan Results
+    runs-on: ubuntu-latest
+    needs: security-scan-matrix
+    if: always()
+
+    steps:
+      - name: Download all scan artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: security-scan-*
+          path: scan-results/
+
+      - name: Aggregate SARIF results
+        run: |
+          # Install jq for JSON processing
+          sudo apt-get update && sudo apt-get install -y jq
+
+          # Combine all SARIF files
+          echo "Aggregating scan results..."
+          TOTAL_FINDINGS=0
+          TOTAL_CRITICAL=0
+
+          find scan-results -name "*.sarif" -print0 | while IFS= read -r -d '' sarif; do
+            if [ -f "$sarif" ]; then
+              FINDINGS=$(jq '.runs[0].results | length' "$sarif" 2>/dev/null || echo "0")
+              CRITICAL=$(jq '[.runs[0].results[] | select(.level == "error" and (.properties.severity | ascii_downcase) == "critical")] | length' "$sarif" 2>/dev/null || echo "0")
+
+              TOTAL_FINDINGS=$((TOTAL_FINDINGS + FINDINGS))
+              TOTAL_CRITICAL=$((TOTAL_CRITICAL + CRITICAL))
+
+              echo "  - $(basename $sarif): ${FINDINGS} findings (${CRITICAL} critical)"
+            fi
+          done
+
+          echo ""
+          echo "Total Results:"
+          echo "  - Total Findings: ${TOTAL_FINDINGS}"
+          echo "  - Critical Findings: ${TOTAL_CRITICAL}"
+
+          # Create summary
+          {
+            echo "## Security Scan Results (Parallel)"
+            echo ""
+            echo "**Total Findings:** ${TOTAL_FINDINGS}"
+            echo "**Critical Findings:** ${TOTAL_CRITICAL}"
+            echo ""
+            if [ "$TOTAL_CRITICAL" -gt 0 ]; then
+              echo "**Action Required:** ${TOTAL_CRITICAL} critical vulnerabilities found across components."
+            else
+              echo "No critical vulnerabilities found."
+            fi
+          } >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload aggregated results
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-scan-aggregated
+          path: scan-results/
+          retention-days: 90

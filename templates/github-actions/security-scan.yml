@@ -1,0 +1,303 @@
+# Security Scanning Workflow Template
+#
+# This template provides reusable security scanning for your project.
+# It integrates with flowspec security commands and uploads results to GitHub Security tab.
+#
+# Quick Start:
+# 1. Copy this file to .github/workflows/security-scan.yml
+# 2. Create .github/security-config.yml (see template below)
+# 3. Replace {{PROJECT_NAME}} with your project name
+# 4. Customize scan-path, fail-on severity as needed
+#
+# Features:
+# - SARIF upload to GitHub Security tab
+# - PR comment bot with scan summaries
+# - Semgrep binary caching for speed
+# - Configurable severity thresholds
+# - Incremental scanning support (coming soon)
+
+name: Security Scan (Reusable)
+
+on:
+  workflow_call:
+    inputs:
+      scan-type:
+        description: 'Scan type (currently ignored - for future use)'
+        required: false
+        type: string
+        default: 'full'
+      fail-on:
+        description: 'Severity level to block on: critical, high, medium, or low (single severity only)'
+        required: false
+        type: string
+        default: 'critical'
+      upload-sarif:
+        description: 'Upload SARIF to GitHub Security tab'
+        required: false
+        type: boolean
+        default: true
+      scan-path:
+        description: 'Path to scan (default: entire repo)'
+        required: false
+        type: string
+        default: '.'
+    outputs:
+      findings-count:
+        description: 'Total number of findings'
+        value: ${{ jobs.scan.outputs.findings }}
+      critical-count:
+        description: 'Number of critical findings'
+        value: ${{ jobs.scan.outputs.critical }}
+      high-count:
+        description: 'Number of high severity findings'
+        value: ${{ jobs.scan.outputs.high }}
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    # Security scanning is advisory by default
+    # Remove continue-on-error to make it blocking
+    continue-on-error: true
+
+    # Required permissions for SARIF upload and PR comments
+    permissions:
+      contents: read
+      security-events: write
+      pull-requests: write
+
+    outputs:
+      findings: ${{ steps.scan.outputs.total }}
+      critical: ${{ steps.scan.outputs.critical }}
+      high: ${{ steps.scan.outputs.high }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for incremental scanning
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Cache Semgrep Binary
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/bin/semgrep
+          key: semgrep-${{ runner.os }}-1.50.0
+          restore-keys: |
+            semgrep-${{ runner.os }}-
+
+      - name: Install Flowspec
+        run: |
+          pip install uv
+          # Install flowspec-cli from PyPI
+          uv pip install --system flowspec-cli
+
+      - name: Install Semgrep
+        run: pip install semgrep==1.50.0
+
+      - name: Read Security Config
+        id: config
+        run: |
+          CONFIG_FILE=".github/security-config.yml"
+          if [ -f "$CONFIG_FILE" ]; then
+            echo "Reading security config from $CONFIG_FILE"
+            # Install yq if not available (pinned version for security)
+            if ! command -v yq &> /dev/null; then
+              YQ_VERSION="v4.40.5"
+              ARCH="$(uname -m)"
+              case "$ARCH" in
+                x86_64|amd64)
+                  YQ_BINARY="yq_linux_amd64"
+                  YQ_CHECKSUM="4e9e5f4a574c6d7e04baa28f91e5b985ad7b22d4e4fd89e1f0d1ccb501e8ddf8"
+                  ;;
+                aarch64|arm64)
+                  echo "ARM64 architecture detected but yq checksum is not configured."
+                  echo "Refusing to download and install an unverified yq binary on ARM64."
+                  exit 1
+                  ;;
+                *)
+                  echo "Unsupported architecture for yq: $ARCH"
+                  exit 1
+                  ;;
+              esac
+
+              curl -sL "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/${YQ_BINARY}" -o /tmp/yq
+              echo "${YQ_CHECKSUM}  /tmp/yq" | sha256sum -c - || { echo "Checksum validation failed"; exit 1; }
+              chmod +x /tmp/yq
+              sudo mv /tmp/yq /usr/local/bin/yq
+            fi
+            CONFIG_FAIL_ON=$(yq -r '.security.fail-on // "critical"' "$CONFIG_FILE")
+            CONFIG_UPLOAD_SARIF=$(yq -r '.security.upload-sarif // true' "$CONFIG_FILE")
+            CONFIG_SCAN_PATH=$(yq -r '.security.scan-path // "."' "$CONFIG_FILE")
+          else
+            echo "No security config found, using defaults"
+            CONFIG_FAIL_ON="critical"
+            CONFIG_UPLOAD_SARIF="true"
+            CONFIG_SCAN_PATH="."
+          fi
+          echo "config-fail-on=$CONFIG_FAIL_ON" >> $GITHUB_OUTPUT
+          echo "config-upload-sarif=$CONFIG_UPLOAD_SARIF" >> $GITHUB_OUTPUT
+          echo "config-scan-path=$CONFIG_SCAN_PATH" >> $GITHUB_OUTPUT
+
+      - name: Run Security Scan
+        id: scan
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SCAN_PATH: ${{ inputs.scan-path || steps.config.outputs.config-scan-path }}
+          FAIL_ON: ${{ inputs.fail-on || steps.config.outputs.config-fail-on }}
+        run: |
+          # Run security scan with available flags
+          echo "Running security scan on: $SCAN_PATH"
+
+          # Check if multiple severities were specified (comma-separated)
+          if echo "$FAIL_ON" | grep -q ","; then
+            echo "::warning::Multiple severities specified but only single severity is supported. Using first value."
+            FAIL_SEVERITY=$(echo "$FAIL_ON" | cut -d',' -f1)
+            echo "Using: $FAIL_SEVERITY"
+          else
+            FAIL_SEVERITY="$FAIL_ON"
+          fi
+
+          # Use positional argument for path (not --path flag)
+          flowspec security scan \
+            "$SCAN_PATH" \
+            --format sarif \
+            --output security-results.sarif \
+            --fail-on "${FAIL_SEVERITY}"
+
+          # Parse results for outputs (even if scan failed)
+          if [ -f security-results.sarif ]; then
+            TOTAL=$(jq '.runs[0].results | length' security-results.sarif 2>/dev/null || echo "0")
+            CRITICAL=$(jq '[.runs[0].results[] | select(.level == "error" and (.properties.severity | ascii_downcase) == "critical")] | length' security-results.sarif 2>/dev/null || echo "0")
+            HIGH=$(jq '[.runs[0].results[] | select(.level == "error" and (.properties.severity | ascii_downcase) == "high")] | length' security-results.sarif 2>/dev/null || echo "0")
+
+            echo "total=${TOTAL}" >> $GITHUB_OUTPUT
+            echo "critical=${CRITICAL}" >> $GITHUB_OUTPUT
+            echo "high=${HIGH}" >> $GITHUB_OUTPUT
+
+            echo "Scan Results: ${TOTAL} total findings (${CRITICAL} critical, ${HIGH} high)"
+          else
+            echo "::warning::No SARIF results file generated (scan may have failed)"
+            echo "total=0" >> $GITHUB_OUTPUT
+            echo "critical=0" >> $GITHUB_OUTPUT
+            echo "high=0" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Upload SARIF to GitHub Security
+        if: ${{ (inputs.upload-sarif == true || inputs.upload-sarif == 'true' || steps.config.outputs.config-upload-sarif == 'true') && always() }}
+        continue-on-error: true
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: security-results.sarif
+          category: {{PROJECT_NAME}}-security
+
+      - name: Upload Scan Artifacts
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-scan-results-${{ github.sha }}
+          path: |
+            security-results.sarif
+            docs/security/*.md
+            docs/security/*.json
+          retention-days: 90
+          if-no-files-found: ignore
+
+      - name: Comment PR with Summary
+        if: github.event_name == 'pull_request' && always()
+        continue-on-error: true
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const total = ${{ steps.scan.outputs.total || 0 }};
+            const critical = ${{ steps.scan.outputs.critical || 0 }};
+            const high = ${{ steps.scan.outputs.high || 0 }};
+
+            const severity_icon = critical > 0 ? '🔴' : high > 0 ? '🟡' : '🟢';
+            const action_required = critical > 0 ? '**Action Required**: Fix critical findings before merge.' :
+                                    high > 0 ? '**Recommended**: Fix high severity findings.' :
+                                    'No critical or high severity issues found.';
+
+            const comment = `## ${severity_icon} Security Scan Results
+
+            - **Total Findings**: ${total}
+            - **Critical**: ${critical}
+            - **High**: ${high}
+
+            ${action_required}
+
+            <details>
+            <summary>How to remediate</summary>
+
+            \`\`\`bash
+            # View detailed scan results
+            gh run download ${{ github.run_id }} -n security-scan-results-${{ github.sha }}
+
+            # Triage findings with AI assistance
+            flowspec security triage
+
+            # Generate fix suggestions
+            flowspec security fix
+
+            # Apply fixes and re-scan
+            flowspec security scan
+            \`\`\`
+
+            See the [Security tab](https://github.com/${{ github.repository }}/security/code-scanning) for detailed findings.
+            </details>`;
+
+            // Find existing comment from bot
+            const { data: comments } = await github.rest.issues.listComments({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' && comment.body.includes('Security Scan Results')
+            );
+
+            if (botComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                comment_id: botComment.id,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            }
+
+# =============================================================================
+# Security Configuration Template
+# =============================================================================
+#
+# Create this file at: .github/security-config.yml
+#
+# security:
+#   # Severity level that will cause the scan to fail
+#   # Options: critical, high, medium, low
+#   fail-on: critical
+#
+#   # Whether to upload SARIF results to GitHub Security tab
+#   upload-sarif: true
+#
+#   # Path to scan (relative to repository root)
+#   scan-path: "."
+#
+# =============================================================================
