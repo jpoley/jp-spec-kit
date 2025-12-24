@@ -8,12 +8,23 @@ Tests cover:
 - Handling of symlinks in templates/skills/
 """
 
+import re
 from unittest.mock import patch
 
 from typer.testing import CliRunner
 
 from flowspec_cli import app
 from flowspec_cli.skills import deploy_skills
+
+
+def strip_ansi(text: str) -> str:
+    """Remove ANSI escape codes from text.
+
+    CI output may include color codes that break substring matching.
+    """
+    ansi_escape = re.compile(r"\x1b\[[0-9;]*m")
+    return ansi_escape.sub("", text)
+
 
 runner = CliRunner()
 
@@ -295,7 +306,8 @@ class TestSkillsHelpText:
         assert result.exit_code == 0
 
         # Check for 'skip-skills' in help
-        stdout_lower = result.stdout.lower()
+        # Strip ANSI codes that CI output may include (breaks substring matching)
+        stdout_lower = strip_ansi(result.stdout).lower()
         assert "skip-skills" in stdout_lower, "Help should mention --skip-skills flag"
         # Also verify "skill" appears (covers help text about skills)
         assert "skill" in stdout_lower, "Help should mention skills"
