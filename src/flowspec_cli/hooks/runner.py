@@ -45,6 +45,8 @@ def _get_event_logger():
 
             _event_logger = EventLogger()
         except ImportError:
+            # EventLogger is optional; if it cannot be imported, proceed without
+            # structured event logging and return None to callers.
             pass
     return _event_logger
 
