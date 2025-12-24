@@ -49,7 +49,9 @@ def detect_project_name(project_path: Path) -> str:
         if not name:
             try:
                 content = pyproject_path.read_text()
-                match = re.search(r'^name\s*=\s*["\']([^"\']+)["\']', content, re.MULTILINE)
+                match = re.search(
+                    r'^name\s*=\s*["\']([^"\']+)["\']', content, re.MULTILINE
+                )
                 if match:
                     name = match.group(1)
             except Exception as e:
@@ -142,7 +144,9 @@ def detect_languages_and_frameworks(project_path: Path) -> str:
                     elif "flask" in content.lower():
                         detected.append("Flask")
                 except Exception as e:
-                    logger.debug("Failed to read requirements.txt for frameworks: %s", e)
+                    logger.debug(
+                        "Failed to read requirements.txt for frameworks: %s", e
+                    )
 
     # JavaScript/TypeScript
     package_json = project_path / "package.json"
