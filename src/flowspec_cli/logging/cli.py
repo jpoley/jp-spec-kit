@@ -192,7 +192,12 @@ def main() -> int:
     sp.add_argument("--details", type=json.loads, default=None, help="JSON details")
     sp.add_argument("--task-id", help="Related task ID")
     sp.add_argument("--workflow-phase", help="Workflow phase")
-    sp.add_argument("--success", action="store_true", default=True, help="Success flag")
+    sp.add_argument(
+        "--success",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Success flag",
+    )
     sp.add_argument(
         "--source",
         choices=["agent", "human", "hook", "backlog", "workflow", "system"],
