@@ -490,7 +490,10 @@ def multi_language_project_fixture(tmp_path: Path) -> Path:
     pyproject_content = """[project]
 name = "multi-lang-backend"
 version = "0.1.0"
-dependencies = ["fastapi", "pytest"]
+dependencies = ["fastapi"]
+
+[project.optional-dependencies]
+dev = ["pytest"]
 """
     (project_dir / "pyproject.toml").write_text(pyproject_content)
 
