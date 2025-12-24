@@ -413,9 +413,11 @@ ls ~/prj/ps/nanofuse-gateway/.claude/commands/flow/
 
 ### Supporting Multiple AI Agents
 
-⚠️ **CRITICAL BUG FOUND**: Multiple agent installation is BROKEN
+~~⚠️ **CRITICAL BUG FOUND**: Multi-agent installation is BROKEN~~
 
-**Issue**: When specifying multiple agents with `--ai claude,copilot`, only the FIRST agent's commands are installed.
+✅ **RESOLVED in PR #1018** (merged 2025-12-23)
+
+**Original Issue**: When specifying multiple agents with `--ai claude,copilot`, only the FIRST agent's commands were installed.
 
 **Root Cause** (src/flowspec_cli/__init__.py:2572-2573):
 ```python
@@ -436,25 +438,23 @@ flowspec init --here --ai claude,copilot --force
 - `spec-kit-template-copilot-sh-*.zip` → contains `.github/prompts/`
 - They do NOT contain each other's directories
 
-**Impact**:
-- Users cannot install multiple agents
-- `--ai claude,copilot` syntax silently fails for all agents except the first
-- This affects ALL multi-agent combinations
+**Impact** (historical, now resolved):
+- ~~Users cannot install multiple agents~~
+- ~~`--ai claude,copilot` syntax silently fails for all agents except the first~~
+- ~~This affects ALL multi-agent combinations~~
 
-**Workaround (until fixed)**:
-Run `flowspec init` separately for each agent:
+**Workaround (no longer needed)**:
+~~Run `flowspec init` separately for each agent:~~
 ```bash
-# Install Claude
-flowspec init --here --ai claude --force
-
-# Install Copilot (will merge with existing)
-flowspec init --here --ai copilot --force
+# This workaround is no longer necessary after PR #1018
+# You can now install multiple agents at once:
+flowspec init --here --ai claude,copilot --force
 ```
 
-**Proper Fix Required**:
+**Fix Applied in PR #1018**:
 ```python
 # In download_and_extract_two_stage()
-# Instead of downloading only primary_agent:
+# Now downloads ALL specified agents:
 for agent in ai_assistants:
     # Download each agent's ZIP
     # Extract and merge into project_path
@@ -468,19 +468,19 @@ for agent in ai_assistants:
 |-------|--------|----------|
 | `/flow` commands missing | ✅ RESOLVED | Critical |
 | Single agent installation | ✅ WORKING | N/A |
-| Multiple agent installation | ❌ BROKEN | **CRITICAL** |
+| Multi-agent installation | ✅ RESOLVED | Critical (was) |
 
 **For nanofuse-gateway specifically**:
 - `/flow` commands now installed ✅
 - Claude Code working ✅
-- Copilot prompts NOT installed ❌ (need to run separate init)
+- Copilot prompts working ✅ (fixed in PR #1018)
 
 ---
 
-**Status**: PARTIALLY RESOLVED
-- Single agent install: WORKING
-- Multi-agent install: **BROKEN - REQUIRES CODE FIX**
+**Status**: FULLY RESOLVED
+
+**Resolution**: PR #1018 fixed the multi-agent installation bug. The fix ensures that when multiple agents are specified (e.g., `--ai claude,copilot`), templates for ALL specified agents are downloaded and installed, not just the first one.
 
 **Created**: 2024-12-22
-**Updated**: 2024-12-22 19:25 PST
+**Updated**: 2025-12-23
 **Analyst**: Claude Code
