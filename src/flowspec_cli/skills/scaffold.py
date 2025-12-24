@@ -11,6 +11,49 @@ import shutil
 from pathlib import Path
 
 
+def _find_templates_skills_dir() -> Path | None:
+    """Locate the templates/skills directory.
+
+    Tries multiple locations:
+    1. Package resources (for installed flowspec-cli)
+    2. Source repo structure (for development mode)
+
+    Returns:
+        Path to templates/skills directory, or None if not found.
+    """
+    # Try package resources first (for installed flowspec-cli)
+    # Note: We require Python 3.11+, so importlib.resources.files() is available
+    try:
+        import importlib.resources
+
+        templates_ref = importlib.resources.files("flowspec_cli").joinpath(
+            "templates/skills"
+        )
+        if templates_ref.is_dir():
+            # For standard filesystem-based installations (pip install, editable installs),
+            # the Traversable can be converted directly to a Path.
+            # Note: This won't work for zip-packaged distributions, but flowspec
+            # doesn't support that installation method currently.
+            templates_path = Path(str(templates_ref))
+            if templates_path.exists():
+                return templates_path
+    except (ImportError, AttributeError, TypeError, OSError):
+        # importlib.resources may fail in various edge cases:
+        # - Package not installed or malformed
+        # - Running from unusual environment
+        # - Path conversion failed for non-filesystem resources
+        pass
+
+    # Fallback: look for templates in source repo structure
+    # This handles development mode where templates are at repo root
+    src_dir = Path(__file__).parent.parent.parent.parent  # Go up to repo root
+    potential_templates = src_dir / "templates" / "skills"
+    if potential_templates.exists():
+        return potential_templates
+
+    return None
+
+
 def deploy_skills(
     project_root: Path,
     *,
@@ -30,35 +73,8 @@ def deploy_skills(
     if skip_skills:
         return []
 
-    # Find templates/skills directory
-    # Check if we're in a package installation or source repo
-    templates_skills_dir = None
-
-    # Try package resources first (for installed flowspec-cli)
-    try:
-        import importlib.resources
-
-        # For Python 3.11+, use files() API
-        if hasattr(importlib.resources, "files"):
-            templates_ref = importlib.resources.files("flowspec_cli").joinpath(
-                "templates/skills"
-            )
-            if templates_ref.is_dir():
-                # Convert to Path - we need to copy from this location
-                templates_skills_dir = Path(str(templates_ref))
-    except (ImportError, AttributeError, TypeError):
-        pass
-
-    # Fallback: look for templates in source repo structure
-    if templates_skills_dir is None or not templates_skills_dir.exists():
-        # Assume we're in development mode - find templates relative to this file
-        src_dir = Path(__file__).parent.parent.parent.parent  # Go up to repo root
-        potential_templates = src_dir / "templates" / "skills"
-        if potential_templates.exists():
-            templates_skills_dir = potential_templates
-
-    # If still not found, return empty list
-    if templates_skills_dir is None or not templates_skills_dir.exists():
+    templates_skills_dir = _find_templates_skills_dir()
+    if templates_skills_dir is None:
         return []
 
     # Create .claude/skills directory
@@ -69,14 +85,17 @@ def deploy_skills(
 
     # Copy each skill directory from templates/skills/ to .claude/skills/
     for skill_dir in templates_skills_dir.iterdir():
-        # Skip symlinks (like context-extractor which points back to .claude/skills)
+        # Skip symlinks first - important because symlinks to directories
+        # would pass is_dir() check. Example: context-extractor symlink
+        # points back to .claude/skills, which we don't want to copy.
         if skill_dir.is_symlink():
             continue
 
-        # Only process directories that contain SKILL.md
+        # Only process directories (non-symlinks already filtered above)
         if not skill_dir.is_dir():
             continue
 
+        # Only process directories that contain SKILL.md
         skill_md = skill_dir / "SKILL.md"
         if not skill_md.exists():
             continue
