@@ -117,6 +117,23 @@ generate_commands() {
       local name description script_command agent_script_command body
       name=$(basename "$template" .md)
 
+      # Include files (starting with _) should be copied as-is, not processed as commands
+      # They are referenced by other commands using {{INCLUDE:...}} at runtime
+      if [[ "$name" == _* ]]; then
+        case $ext in
+          md)
+            mkdir -p "$output_dir/flow"
+            cp "$template" "$output_dir/flow/$name.md"
+            echo "  Copied include file: $name.md"
+            ;;
+          *)
+            # Skip include files for non-md formats (toml, prompt.md)
+            # as they embed content directly in the command
+            ;;
+        esac
+        continue
+      fi
+
       # Normalize line endings
       file_content=$(tr -d '\r' < "$template")
 
