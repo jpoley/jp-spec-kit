@@ -29,6 +29,14 @@ sys.path.insert(0, str(project_root / "src"))
 
 from flowspec_cli.memory.lifecycle import LifecycleManager  # noqa: E402
 
+# Try to import event logger for centralized logging
+try:
+    from flowspec_cli.logging import EventLogger  # noqa: E402
+
+    _event_logger = EventLogger()
+except ImportError:
+    _event_logger = None
+
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
@@ -254,6 +262,17 @@ def main() -> None:
         # Trigger lifecycle manager
         manager = LifecycleManager()
         manager.on_state_change(task_id, old_status, new_status, task_title)
+
+        # Log to centralized event log
+        if _event_logger:
+            try:
+                _event_logger.log_task_status_changed(
+                    task_id=task_id,
+                    old_status=old_status,
+                    new_status=new_status,
+                )
+            except Exception as e:
+                logger.debug(f"Failed to log task status change event: {e}")
 
         logger.info(
             f"Task memory lifecycle hook completed for {task_id} ({old_status} → {new_status})"

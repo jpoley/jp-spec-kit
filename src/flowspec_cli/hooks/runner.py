@@ -32,6 +32,26 @@ from .events import Event
 from .schema import HookDefinition
 from .security import SecurityConfig, SecurityValidator
 
+# Lazy import to avoid circular imports
+_event_logger = None
+
+
+def _get_event_logger():
+    """Get the event logger instance (lazy initialization)."""
+    global _event_logger
+    if _event_logger is None:
+        try:
+            from flowspec_cli.logging import EventLogger
+
+            _event_logger = EventLogger()
+        except ImportError:
+            # EventLogger is optional; if it cannot be imported (e.g., in
+            # minimal installations or circular import scenarios), proceed
+            # without structured event logging and return None to callers.
+            pass
+    return _event_logger
+
+
 logger = logging.getLogger(__name__)
 
 # Maximum timeout allowed for hooks (10 minutes)
@@ -485,3 +505,17 @@ class HookRunner:
                 f.write(json.dumps(audit_record) + "\n")
         except OSError as e:
             logger.error(f"Failed to write audit log: {e}")
+
+        # Also log to the centralized event log
+        event_logger = _get_event_logger()
+        if event_logger:
+            try:
+                event_logger.log_hook_executed(
+                    hook_name=hook.name,
+                    event_type=event.event_type,
+                    success=result.success,
+                    duration_ms=result.duration_ms,
+                    error=result.error,
+                )
+            except Exception as e:
+                logger.debug(f"Failed to log hook event: {e}")
