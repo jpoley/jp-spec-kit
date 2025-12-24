@@ -3965,6 +3965,7 @@ def init(
     steps.extend(
         [
             ("constitution", "Set up constitution"),
+            ("repo-facts", "Write repository facts"),
             ("final", "Finalize"),
         ]
     )
