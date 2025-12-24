@@ -287,11 +287,19 @@ class TestSequentialExecution:
         assert findings[0].scanner == "scanner1"
         assert findings[1].scanner == "scanner2"
 
-    def test_sequential_continues_on_error(
-        self, orchestrator, sample_finding, tmp_path
-    ):
+    def test_sequential_continues_on_error(self, orchestrator, tmp_path):
         """Test that sequential execution continues when one scanner fails."""
         # Arrange
+        # Create a finding with scanner name matching adapter2
+        scanner2_finding = Finding(
+            id="SCANNER2-001",
+            scanner="scanner2",
+            severity=Severity.HIGH,
+            title="Scanner 2 Finding",
+            description="Test finding from scanner2",
+            location=Location(file=Path("test.py"), line_start=10, line_end=12),
+        )
+
         adapter1 = Mock(spec=ScannerAdapter)
         adapter1.name = "scanner1"
         adapter1.is_available.return_value = True
@@ -300,7 +308,7 @@ class TestSequentialExecution:
         adapter2 = Mock(spec=ScannerAdapter)
         adapter2.name = "scanner2"
         adapter2.is_available.return_value = True
-        adapter2.scan.return_value = [sample_finding]
+        adapter2.scan.return_value = [scanner2_finding]
 
         orchestrator.register(adapter1)
         orchestrator.register(adapter2)
@@ -313,7 +321,7 @@ class TestSequentialExecution:
 
         # Assert - scanner2 results still returned
         assert len(findings) == 1
-        assert findings[0].scanner == "test-scanner"
+        assert findings[0].scanner == "scanner2"
 
 
 class TestParallelExecution:
@@ -364,9 +372,19 @@ class TestParallelExecution:
         scanner_names = {f.scanner for f in findings}
         assert scanner_names == {"scanner1", "scanner2"}
 
-    def test_parallel_continues_on_error(self, orchestrator, sample_finding, tmp_path):
+    def test_parallel_continues_on_error(self, orchestrator, tmp_path):
         """Test that parallel execution continues when one scanner fails."""
         # Arrange
+        # Create a finding with scanner name matching adapter2
+        scanner2_finding = Finding(
+            id="SCANNER2-001",
+            scanner="scanner2",
+            severity=Severity.HIGH,
+            title="Scanner 2 Finding",
+            description="Test finding from scanner2",
+            location=Location(file=Path("test.py"), line_start=10, line_end=12),
+        )
+
         adapter1 = Mock(spec=ScannerAdapter)
         adapter1.name = "scanner1"
         adapter1.is_available.return_value = True
@@ -375,7 +393,7 @@ class TestParallelExecution:
         adapter2 = Mock(spec=ScannerAdapter)
         adapter2.name = "scanner2"
         adapter2.is_available.return_value = True
-        adapter2.scan.return_value = [sample_finding]
+        adapter2.scan.return_value = [scanner2_finding]
 
         orchestrator.register(adapter1)
         orchestrator.register(adapter2)
@@ -388,7 +406,7 @@ class TestParallelExecution:
 
         # Assert - scanner2 results still returned
         assert len(findings) == 1
-        assert findings[0].scanner == "test-scanner"
+        assert findings[0].scanner == "scanner2"
 
     def test_single_scanner_uses_sequential(self, orchestrator, mock_adapter, tmp_path):
         """Test that single scanner doesn't use parallel execution."""

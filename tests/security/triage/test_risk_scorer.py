@@ -5,7 +5,6 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from unittest.mock import Mock, patch
 
-
 from flowspec_cli.security.models import Finding, Location, Severity
 from flowspec_cli.security.triage.risk_scorer import (
     RiskScorer,

@@ -519,7 +519,7 @@ class TestToolDiscovery:
         cache_dir = tmp_path / "cache"
         assert not cache_dir.exists()
 
-        discovery = ToolDiscovery(cache_dir=cache_dir)
+        ToolDiscovery(cache_dir=cache_dir)
 
         assert cache_dir.exists()
         assert cache_dir.is_dir()

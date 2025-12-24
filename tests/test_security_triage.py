@@ -192,10 +192,10 @@ class TestClassification:
 
     def test_classify_with_llm(self, mock_llm, sql_injection_finding):
         """Test classification with LLM assistance."""
-        # Mock LLM response
+        # Mock LLM response - use enum value "TP" not "TRUE_POSITIVE"
         mock_llm.complete.return_value = json.dumps(
             {
-                "classification": "TRUE_POSITIVE",
+                "classification": "TP",
                 "confidence": 0.95,
                 "reasoning": "Direct SQL concatenation detected",
             }
@@ -206,6 +206,10 @@ class TestClassification:
 
         # Verify LLM was called
         assert mock_llm.complete.called
+
+        # Verify classification matches mocked LLM response
+        assert result.classification == Classification.TRUE_POSITIVE
+        assert result.confidence == pytest.approx(0.95)
 
 
 class TestTriageSingle:

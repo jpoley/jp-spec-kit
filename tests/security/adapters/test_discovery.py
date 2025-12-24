@@ -167,17 +167,33 @@ class TestToolDiscoveryFindInVenv:
 
         assert found_path is None
 
-    def test_find_in_venv_current_python_env(self):
-        """Test finding tool in current Python environment."""
+    def test_find_in_venv_current_python_env(self, tmp_path):
+        """Test finding tool in current Python environment via sys.prefix."""
         discovery = ToolDiscovery()
 
-        # Current Python should be found in sys.prefix
-        with patch("shutil.which", return_value=None):
+        # Create a fake current Python environment under tmp_path and point sys.prefix to it
+        fake_prefix = tmp_path / "fake_prefix"
+        bin_dir = fake_prefix / "bin"
+        bin_dir.mkdir(parents=True)
+        python_executable = bin_dir / "python3"
+        python_executable.touch()
+
+        # Patch both Path.cwd and sys.prefix so the function only checks our fake prefix
+        fake_cwd = tmp_path / "fake_cwd"
+        fake_cwd.mkdir()
+
+        with (
+            patch("pathlib.Path.cwd", return_value=fake_cwd),
+            patch(
+                "flowspec_cli.security.adapters.discovery.sys.prefix",
+                str(fake_prefix),
+            ),
+            patch("shutil.which", return_value=None),
+        ):
             # This test verifies that sys.prefix is checked
-            assert (
-                discovery._find_in_venv("python3") is not None
-                or discovery._find_in_venv("python") is not None
-            )
+            found = discovery._find_in_venv("python3")
+
+        assert found == python_executable
 
 
 class TestToolDiscoveryEnsureAvailable:
@@ -332,15 +348,30 @@ class TestToolDiscoveryEdgeCases:
         assert nested_cache.exists()
 
     def test_find_tool_with_empty_string(self, tmp_path):
-        """Test finding tool with empty string name."""
+        """Test finding tool with empty string name.
+
+        Note: Empty string can match directories (e.g., venv/bin/ + "" = venv/bin).
+        This test verifies the function doesn't crash and returns a safe result.
+        """
         discovery = ToolDiscovery(cache_dir=tmp_path)
 
-        with patch("shutil.which", return_value=None):
-            with patch("pathlib.Path.cwd", return_value=tmp_path):
-                tool_path = discovery.find_tool("")
+        # Create isolated environment with no venv directories
+        isolated_cwd = tmp_path / "isolated"
+        isolated_cwd.mkdir()
 
-        # Empty string may match a directory in venv, so just verify it doesn't crash
-        assert tool_path is None or tool_path.exists()
+        # Patch all paths that _find_in_venv checks
+        with (
+            patch("shutil.which", return_value=None),
+            patch("pathlib.Path.cwd", return_value=isolated_cwd),
+            patch(
+                "flowspec_cli.security.adapters.discovery.sys.prefix",
+                str(isolated_cwd),
+            ),
+        ):
+            tool_path = discovery.find_tool("")
+
+        # In isolated environment with no venv, empty string should return None
+        assert tool_path is None
 
     def test_find_tool_cache_is_directory_not_file(self, tmp_path):
         """Test when cache entry is a directory, not a file."""
