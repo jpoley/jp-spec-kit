@@ -155,6 +155,18 @@ if [[ ${#context_lines[@]} -gt 0 ]]; then
     done
 fi
 
+# Log session start event (fail silently if logging module not available)
+python3 -c "
+import sys
+sys.path.insert(0, '$PROJECT_DIR/src')
+try:
+    from flowspec_cli.logging import EventLogger
+    logger = EventLogger()
+    logger.log_session_start(details={'project_dir': '$PROJECT_DIR'})
+except Exception:
+    pass  # Fail silently - don't block session start
+" 2>/dev/null || true
+
 # Output JSON decision
 python3 <<EOF
 import json

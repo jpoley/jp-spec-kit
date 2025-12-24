@@ -145,6 +145,38 @@ def check_git_clean() -> bool:
     return True
 
 
+def cleanup_internal_dev_logs(dry_run: bool = False) -> list[Path]:
+    """Remove internal development logs before release.
+
+    Internal dev logs are stored in .flowspec/logs/ and should not be
+    included in releases as they contain developer-specific information.
+
+    Returns:
+        List of deleted files.
+    """
+    internal_logs_dir = Path(".flowspec/logs")
+    deleted_files: list[Path] = []
+
+    if not internal_logs_dir.exists():
+        print("  No internal logs directory found")
+        return deleted_files
+
+    # Find all log files (but preserve .gitkeep files)
+    for log_file in internal_logs_dir.rglob("*"):
+        if log_file.is_file() and log_file.name != ".gitkeep":
+            if dry_run:
+                print(f"  Would delete: {log_file}")
+            else:
+                log_file.unlink()
+                print(f"  Deleted: {log_file}")
+            deleted_files.append(log_file)
+
+    if not deleted_files:
+        print("  No internal logs to clean up")
+
+    return deleted_files
+
+
 def get_current_branch() -> str:
     """Get current git branch name."""
     result = run(["git", "branch", "--show-current"], capture=True)
@@ -302,9 +334,11 @@ Workflow:
         print(f"  1. Create branch: {release_branch}")
         print(f'  2. Update pyproject.toml: version = "{new_version}"')
         print(f'  3. Update __init__.py: __version__ = "{new_version}"')
-        print(f'  4. Commit: "chore: release v{new_version}"')
-        print(f"  5. Push branch: {release_branch}")
-        print(f'  6. Create PR: "Release v{new_version}" to main')
+        print("  4. Clean up internal development logs (.flowspec/logs/)")
+        cleanup_internal_dev_logs(dry_run=True)
+        print(f'  5. Commit: "chore: release v{new_version}"')
+        print(f"  6. Push branch: {release_branch}")
+        print(f'  7. Create PR: "Release v{new_version}" to main')
         print("\nNo changes made.")
         sys.exit(0)
 
@@ -327,16 +361,22 @@ Workflow:
     print("\n Updating version files:")
     update_version_files(new_version)
 
+    # Clean up internal development logs
+    print("\n Cleaning up internal development logs:")
+    deleted_logs = cleanup_internal_dev_logs()
+
     # Git operations
     print("\n Creating commit:")
-    run(
-        [
-            "git",
-            "add",
-            "pyproject.toml",
-            "src/flowspec_cli/__init__.py",
-        ]
-    )
+    files_to_stage = [
+        "pyproject.toml",
+        "src/flowspec_cli/__init__.py",
+    ]
+
+    # Stage deleted log files if any were removed
+    if deleted_logs:
+        files_to_stage.extend(str(f) for f in deleted_logs)
+
+    run(["git", "add"] + files_to_stage)
     run(["git", "commit", "-m", f"chore: release v{new_version}"])
 
     # Push branch
