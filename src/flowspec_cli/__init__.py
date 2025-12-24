@@ -1481,7 +1481,19 @@ def detect_repo_characteristics(project_path: Path) -> dict[str, Any]:
                     .get("optional-dependencies", {})
                     .get("dev", [])
                 )
-                all_deps = deps + dev_deps
+                # Also consider uv-specific dev dependencies: [tool.uv].dev-dependencies
+                tool_data = data.get("tool", {})
+                uv_dev_raw = tool_data.get("uv", {}).get("dev-dependencies", [])
+                if isinstance(uv_dev_raw, dict):
+                    uv_dev_deps = [
+                        dep for deps_list in uv_dev_raw.values() for dep in deps_list
+                    ]
+                elif isinstance(uv_dev_raw, list):
+                    uv_dev_deps = uv_dev_raw
+                else:
+                    uv_dev_deps = []
+
+                all_deps = deps + dev_deps + uv_dev_deps
                 has_pytest_dep = any("pytest" in dep for dep in all_deps)
                 if has_pytest_config or has_pytest_dep:
                     test_frameworks.append("pytest")
@@ -1527,8 +1539,8 @@ def detect_repo_characteristics(project_path: Path) -> dict[str, Any]:
             data = tomllib.loads((project_path / "pyproject.toml").read_text())
             if "tool" in data and "uv" in data["tool"]:
                 package_managers.append("uv")
-        except (tomllib.TOMLDecodeError, OSError):
-            pass
+        except (tomllib.TOMLDecodeError, OSError) as e:
+            logger.debug("Failed to parse pyproject.toml for uv detection: %s", e)
     if (project_path / "Pipfile").exists():
         package_managers.append("pipenv")
 
