@@ -1,6 +1,6 @@
-"""Tests for LLM customization accuracy (task-293).
+"""Tests for repository characteristics detection and repo-facts generation (task-293).
 
-Verifies that customize_for_project() and related functions correctly detect:
+Verifies that detect_repo_characteristics() and write_repo_facts() correctly detect:
 - Languages (Python, TypeScript, Go, multi-language)
 - Test frameworks (pytest, jest, go test)
 - Linters (ruff, eslint, golangci-lint)
@@ -39,6 +39,9 @@ class TestLLMCustomizationAccuracy:
 
         # Assert - Linters
         assert "ruff" in result["linters"], "Failed to detect ruff linter"
+
+        # Assert - CI/CD systems
+        assert "GitHub Actions" in result["cicd"], "Failed to detect GitHub Actions"
 
         # Verify repo-facts generation
         write_repo_facts(python_project_fixture)
@@ -212,11 +215,13 @@ class TestLLMCustomizationAccuracy:
                     passed_checks += 1
 
             elif name == "go":
-                # 3 checks: language, test framework, linter
-                total_checks += 3
+                # 4 checks: language, test framework, package manager, linter
+                total_checks += 4
                 if "Go" in result["languages"]:
                     passed_checks += 1
                 if "go test" in result["test_frameworks"]:
+                    passed_checks += 1
+                if "go modules" in result["package_managers"]:
                     passed_checks += 1
                 if "golangci-lint" in result["linters"]:
                     passed_checks += 1
@@ -297,21 +302,25 @@ class TestLLMCustomizationAccuracy:
 
 @pytest.fixture
 def python_project_fixture(tmp_path: Path) -> Path:
-    """Create Python project fixture with pytest, ruff, GitHub Actions.
+    """Create Python project fixture with pytest, ruff, uv, GitHub Actions.
 
     Structure:
-    - pyproject.toml (with pytest, ruff)
+    - pyproject.toml (with pytest, ruff in dev-dependencies, [tool.uv] section)
+    - uv.lock
     - .github/workflows/ci.yml
     - src/main.py
     """
     project_dir = tmp_path / "python_project"
     project_dir.mkdir()
 
-    # Create pyproject.toml with pytest and ruff
+    # Create pyproject.toml with pytest and ruff (in dev dependencies)
     toml_content = """[project]
 name = "test-project"
 version = "0.1.0"
-dependencies = ["pytest", "ruff"]
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest", "ruff"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -319,8 +328,14 @@ testpaths = ["tests"]
 [tool.ruff]
 line-length = 88
 select = ["E", "F", "I"]
+
+[tool.uv]
+dev-dependencies = ["pytest", "ruff"]
 """
     (project_dir / "pyproject.toml").write_text(toml_content)
+
+    # Create uv.lock to indicate uv package manager
+    (project_dir / "uv.lock").write_text("version = 1\n")
 
     # Create GitHub Actions workflow
     github_dir = project_dir / ".github" / "workflows"

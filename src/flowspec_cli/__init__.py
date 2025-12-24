@@ -26,6 +26,7 @@ Or install globally:
 
 # Note: importlib.resources requires Python 3.9+, we require Python 3.11+
 import importlib.resources  # nosemgrep: python.lang.compatibility.python37.python37-compatibility-importlib2
+import json
 import logging
 import os
 import shlex
@@ -1428,10 +1429,12 @@ def detect_repo_characteristics(project_path: Path) -> dict[str, Any]:
 
     for lang, files in package_files.items():
         if lang == "C#":
-            # Check for any file ending with .csproj or .sln
-            if any(project_path.glob("*.csproj")) or any(project_path.glob("*.sln")):
-                if lang not in languages:
-                    languages.append(lang)
+            # Check for any .csproj or .sln files using a single combined traversal
+            csharp_files = list(project_path.glob("*.csproj")) + list(
+                project_path.glob("*.sln")
+            )
+            if csharp_files and lang not in languages:
+                languages.append(lang)
         else:
             for file in files:
                 if (project_path / file).exists():
@@ -1466,40 +1469,67 @@ def detect_repo_characteristics(project_path: Path) -> dict[str, Any]:
     # Detect test frameworks
     test_frameworks = []
     if "Python" in languages:
-        if (project_path / "pyproject.toml").exists():
-            # Check for pytest in pyproject.toml
-            test_frameworks.append("pytest")
+        pyproject_path = project_path / "pyproject.toml"
+        if pyproject_path.exists():
+            try:
+                data = tomllib.loads(pyproject_path.read_text())
+                # Check for pytest config section or pytest in dependencies
+                has_pytest_config = "tool" in data and "pytest" in data["tool"]
+                deps = data.get("project", {}).get("dependencies", [])
+                dev_deps = (
+                    data.get("project", {})
+                    .get("optional-dependencies", {})
+                    .get("dev", [])
+                )
+                all_deps = deps + dev_deps
+                has_pytest_dep = any("pytest" in dep for dep in all_deps)
+                if has_pytest_config or has_pytest_dep:
+                    test_frameworks.append("pytest")
+            except (tomllib.TOMLDecodeError, OSError) as e:
+                logger.debug("Failed to parse pyproject.toml for test frameworks: %s", e)
 
     if "JavaScript/TypeScript" in languages:
         package_json_path = project_path / "package.json"
         if package_json_path.exists():
             try:
-                import json
-
                 data = json.loads(package_json_path.read_text())
                 dev_deps = data.get("devDependencies", {})
                 if "jest" in dev_deps:
                     test_frameworks.append("jest")
                 elif "vitest" in dev_deps:
                     test_frameworks.append("vitest")
-            except Exception:
-                pass
+            except (json.JSONDecodeError, OSError) as e:
+                logger.debug("Failed to parse package.json for test frameworks: %s", e)
 
     if "Go" in languages:
         test_frameworks.append("go test")
 
-    # Detect package managers
+    # Detect package managers (allow multiple in polyglot/migration scenarios)
     package_managers = []
+    # JavaScript/TypeScript package managers
     if (project_path / "pnpm-lock.yaml").exists():
         package_managers.append("pnpm")
-    elif (project_path / "yarn.lock").exists():
+    if (project_path / "yarn.lock").exists():
         package_managers.append("yarn")
-    elif (project_path / "package.json").exists():
+    # Only detect npm if no other JS package manager found (npm is default)
+    if (
+        (project_path / "package.json").exists()
+        and "pnpm" not in package_managers
+        and "yarn" not in package_managers
+    ):
         package_managers.append("npm")
 
-    if (project_path / "pyproject.toml").exists():
+    # Python package managers - check for uv.lock or [tool.uv] section
+    if (project_path / "uv.lock").exists():
         package_managers.append("uv")
-    elif (project_path / "Pipfile").exists():
+    elif (project_path / "pyproject.toml").exists():
+        try:
+            data = tomllib.loads((project_path / "pyproject.toml").read_text())
+            if "tool" in data and "uv" in data["tool"]:
+                package_managers.append("uv")
+        except (tomllib.TOMLDecodeError, OSError):
+            pass
+    if (project_path / "Pipfile").exists():
         package_managers.append("pipenv")
 
     if (project_path / "go.mod").exists():
@@ -1509,23 +1539,27 @@ def detect_repo_characteristics(project_path: Path) -> dict[str, Any]:
     linters = []
     if "Python" in languages:
         pyproject_path = project_path / "pyproject.toml"
-        if pyproject_path.exists() and "ruff" in pyproject_path.read_text():
-            linters.append("ruff")
+        if pyproject_path.exists():
+            try:
+                data = tomllib.loads(pyproject_path.read_text())
+                # Check for [tool.ruff] section
+                if "tool" in data and "ruff" in data["tool"]:
+                    linters.append("ruff")
+            except (tomllib.TOMLDecodeError, OSError) as e:
+                logger.debug("Failed to parse pyproject.toml for linters: %s", e)
 
     if "JavaScript/TypeScript" in languages:
         package_json_path = project_path / "package.json"
         if package_json_path.exists():
             try:
-                import json
-
                 data = json.loads(package_json_path.read_text())
                 dev_deps = data.get("devDependencies", {})
                 if "eslint" in dev_deps:
                     linters.append("eslint")
                 if "prettier" in dev_deps:
                     linters.append("prettier")
-            except Exception:
-                pass
+            except (json.JSONDecodeError, OSError) as e:
+                logger.debug("Failed to parse package.json for linters: %s", e)
 
     if "Go" in languages:
         if (project_path / ".golangci.yml").exists() or (
@@ -1571,10 +1605,12 @@ def write_repo_facts(project_path: Path) -> None:
 
     for lang, files in package_files.items():
         if lang == "C#":
-            # Check for any file ending with .csproj or .sln
-            if any(project_path.glob("*.csproj")) or any(project_path.glob("*.sln")):
-                if lang not in languages:
-                    languages.append(lang)
+            # Check for any .csproj or .sln files using a single combined traversal
+            csharp_files = list(project_path.glob("*.csproj")) + list(
+                project_path.glob("*.sln")
+            )
+            if csharp_files and lang not in languages:
+                languages.append(lang)
         else:
             for file in files:
                 if (project_path / file).exists():
