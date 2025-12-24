@@ -1524,6 +1524,479 @@ def write_repo_facts(project_path: Path) -> None:
     repo_facts_path.write_text("\n".join(content_lines))
 
 
+def detect_tech_stack(project_path: Path) -> dict:
+    """Detect project tech stack from package manager files.
+
+    Returns:
+        dict with keys:
+            - languages: List of detected languages
+            - frameworks: List of detected frameworks
+            - test_framework: Detected test framework
+            - package_manager: Detected package manager
+    """
+    tech_stack = {
+        "languages": [],
+        "frameworks": [],
+        "test_framework": None,
+        "package_manager": None,
+    }
+
+    # Python detection
+    pyproject_toml = project_path / "pyproject.toml"
+    requirements_txt = project_path / "requirements.txt"
+    setup_py = project_path / "setup.py"
+    pipfile = project_path / "Pipfile"
+
+    if (
+        pyproject_toml.exists()
+        or requirements_txt.exists()
+        or setup_py.exists()
+        or pipfile.exists()
+    ):
+        tech_stack["languages"].append("Python")
+        tech_stack["test_framework"] = "pytest"
+
+        # Check for frameworks in pyproject.toml
+        if pyproject_toml.exists():
+            try:
+                with open(pyproject_toml, "rb") as f:
+                    data = tomllib.load(f)
+                    deps = []
+                    if "project" in data and "dependencies" in data["project"]:
+                        deps.extend(data["project"]["dependencies"])
+                    if (
+                        "tool" in data
+                        and "poetry" in data["tool"]
+                        and "dependencies" in data["tool"]["poetry"]
+                    ):
+                        deps.extend(data["tool"]["poetry"]["dependencies"].keys())
+
+                    deps_str = " ".join(str(d).lower() for d in deps)
+                    # Use `if` not `elif` to detect multiple frameworks
+                    if "fastapi" in deps_str:
+                        tech_stack["frameworks"].append("FastAPI")
+                    if "flask" in deps_str:
+                        tech_stack["frameworks"].append("Flask")
+                    if "django" in deps_str:
+                        tech_stack["frameworks"].append("Django")
+            except Exception:
+                pass  # Skip if toml parsing fails
+
+        # Set Python package manager
+        if pipfile.exists():
+            tech_stack["package_manager"] = "pipenv"
+        elif pyproject_toml.exists():
+            tech_stack["package_manager"] = "uv"
+        else:
+            # Default to pip when Python is detected but no specific package manager
+            tech_stack["package_manager"] = "pip"
+
+    # JavaScript/TypeScript detection
+    package_json = project_path / "package.json"
+    if package_json.exists():
+        tech_stack["languages"].append("JavaScript/TypeScript")
+
+        try:
+            import json
+
+            with open(package_json) as f:
+                data = json.load(f)
+                deps = {
+                    **data.get("dependencies", {}),
+                    **data.get("devDependencies", {}),
+                }
+
+                if "react" in deps:
+                    tech_stack["frameworks"].append("React")
+                if "next" in deps:
+                    tech_stack["frameworks"].append("Next.js")
+                if "vue" in deps:
+                    tech_stack["frameworks"].append("Vue")
+                if "express" in deps:
+                    tech_stack["frameworks"].append("Express")
+
+                # Only set test framework if not already set (polyglot support)
+                if tech_stack["test_framework"] is None:
+                    if "vitest" in deps:
+                        tech_stack["test_framework"] = "vitest"
+                    elif "jest" in deps:
+                        tech_stack["test_framework"] = "jest"
+                    elif "mocha" in deps:
+                        tech_stack["test_framework"] = "mocha"
+        except Exception:
+            pass  # Skip if JSON parsing fails
+
+        # Only set package manager if not already set (polyglot support)
+        if tech_stack["package_manager"] is None:
+            if (project_path / "pnpm-lock.yaml").exists():
+                tech_stack["package_manager"] = "pnpm"
+            elif (project_path / "yarn.lock").exists():
+                tech_stack["package_manager"] = "yarn"
+            else:
+                tech_stack["package_manager"] = "npm"
+
+    # Go detection
+    if (project_path / "go.mod").exists():
+        tech_stack["languages"].append("Go")
+        if tech_stack["test_framework"] is None:
+            tech_stack["test_framework"] = "go test"
+
+    # Rust detection
+    cargo_toml = project_path / "Cargo.toml"
+    if cargo_toml.exists():
+        tech_stack["languages"].append("Rust")
+        if tech_stack["test_framework"] is None:
+            tech_stack["test_framework"] = "cargo test"
+
+    # Java detection
+    if (project_path / "pom.xml").exists():
+        tech_stack["languages"].append("Java")
+        if tech_stack["package_manager"] is None:
+            tech_stack["package_manager"] = "maven"
+        if tech_stack["test_framework"] is None:
+            tech_stack["test_framework"] = "junit"
+    elif (project_path / "build.gradle").exists() or (
+        project_path / "build.gradle.kts"
+    ).exists():
+        tech_stack["languages"].append("Java")
+        if tech_stack["package_manager"] is None:
+            tech_stack["package_manager"] = "gradle"
+        if tech_stack["test_framework"] is None:
+            tech_stack["test_framework"] = "junit"
+
+    return tech_stack
+
+
+def generate_claude_md(project_path: Path, project_name: str) -> None:
+    """Generate root CLAUDE.md file with project-specific configuration.
+
+    Args:
+        project_path: Path to the project directory
+        project_name: Name of the project
+    """
+    claude_md_path = project_path / "CLAUDE.md"
+
+    # Skip if CLAUDE.md already exists
+    if claude_md_path.exists():
+        return
+
+    # Detect tech stack
+    tech_stack = detect_tech_stack(project_path)
+
+    # Build tech stack section
+    tech_lines = []
+    if tech_stack["languages"]:
+        tech_lines.append("## Tech Stack")
+        tech_lines.append("")
+        tech_lines.append("**Languages**:")
+        for lang in tech_stack["languages"]:
+            tech_lines.append(f"- {lang}")
+        tech_lines.append("")
+
+    if tech_stack["frameworks"]:
+        tech_lines.append("**Frameworks**:")
+        for framework in tech_stack["frameworks"]:
+            tech_lines.append(f"- {framework}")
+        tech_lines.append("")
+
+    tech_stack_section = "\n".join(tech_lines) if tech_lines else ""
+
+    # Build commands section based on detected tooling
+    commands = []
+    has_development_header = False
+
+    # Python commands
+    if "Python" in tech_stack["languages"]:
+        # Use language-specific header in polyglot projects
+        header = "# Python" if len(tech_stack["languages"]) > 1 else "# Development"
+        has_development_header = True
+        commands.extend(
+            [
+                header,
+                "pytest tests/                    # Run tests",
+                "ruff check . --fix               # Lint and auto-fix",
+                "ruff format .                    # Format code",
+            ]
+        )
+        if tech_stack["package_manager"] == "uv":
+            commands.append("uv sync                          # Install dependencies")
+        elif tech_stack["package_manager"] == "pipenv":
+            commands.append("pipenv install                   # Install dependencies")
+        else:
+            commands.append("pip install -r requirements.txt  # Install dependencies")
+        commands.append("")
+
+    # JavaScript/TypeScript commands
+    if "JavaScript/TypeScript" in tech_stack["languages"]:
+        # Determine JS package manager locally (don't use global which may be Python's)
+        if (project_path / "pnpm-lock.yaml").exists():
+            js_pm = "pnpm"
+        elif (project_path / "yarn.lock").exists():
+            js_pm = "yarn"
+        else:
+            js_pm = "npm"
+        test_cmd = tech_stack["test_framework"] or "test"
+        header = (
+            "# JavaScript/TypeScript"
+            if len(tech_stack["languages"]) > 1
+            else "# Development"
+        )
+        has_development_header = True
+        commands.extend(
+            [
+                header,
+                f"{js_pm} install                       # Install dependencies",
+                f"{js_pm} run {test_cmd}                # Run tests",
+                f"{js_pm} run build                     # Build project",
+                f"{js_pm} run dev                       # Start dev server",
+                "",
+            ]
+        )
+
+    # Go commands
+    if "Go" in tech_stack["languages"]:
+        header = "# Go" if len(tech_stack["languages"]) > 1 else "# Development"
+        has_development_header = True
+        commands.extend(
+            [
+                header,
+                "go mod download                  # Download dependencies",
+                "go test ./...                    # Run tests",
+                "go build                         # Build project",
+                "",
+            ]
+        )
+
+    # Rust commands
+    if "Rust" in tech_stack["languages"]:
+        header = "# Rust" if len(tech_stack["languages"]) > 1 else "# Development"
+        has_development_header = True
+        commands.extend(
+            [
+                header,
+                "cargo build                      # Build project",
+                "cargo test                       # Run tests",
+                "cargo clippy                     # Lint code",
+                "cargo fmt                        # Format code",
+                "",
+            ]
+        )
+
+    # Java commands
+    if "Java" in tech_stack["languages"]:
+        header = "# Java" if len(tech_stack["languages"]) > 1 else "# Development"
+        has_development_header = True
+        if tech_stack["package_manager"] == "maven":
+            commands.extend(
+                [
+                    header,
+                    "mvn clean install                # Build and install",
+                    "mvn test                         # Run tests",
+                    "",
+                ]
+            )
+        elif tech_stack["package_manager"] == "gradle":
+            commands.extend(
+                [
+                    header,
+                    "./gradlew build                  # Build project",
+                    "./gradlew test                   # Run tests",
+                    "",
+                ]
+            )
+
+    # Add generic development section if no language-specific commands were added
+    if not has_development_header:
+        commands.extend(
+            [
+                "# Development",
+                "# Add your project-specific commands here",
+                "",
+            ]
+        )
+
+    # Always add backlog commands
+    commands.extend(
+        [
+            "# Backlog (NEVER edit task files directly!)",
+            "backlog task list --plain        # List tasks (AI-friendly output)",
+            "backlog task 42 --plain          # View task details",
+            'backlog task edit 42 -s "In Progress" -a @myself  # Start work',
+            "backlog task edit 42 --check-ac 1  # Mark acceptance criterion done",
+            "backlog task edit 42 -s Done     # Complete task",
+        ]
+    )
+
+    commands_section = "\n".join(commands)
+
+    # Build workflow section
+    workflow_section = """## Workflow Commands
+
+```bash
+# Workflow Commands (stateful, sequential stages)
+/flow:assess    # Evaluate SDD workflow suitability
+/flow:specify   # Create/update feature specs
+/flow:research  # Research and validation
+/flow:plan      # Execute planning workflow
+/flow:implement # Implementation with code review
+/flow:validate  # QA, security, docs validation
+/flow:operate   # SRE operations (CI/CD, K8s)
+
+# Setup & Configuration Commands
+/flow:init      # Initialize constitution (greenfield/brownfield)
+/flow:reset     # Re-run workflow configuration prompts
+/flow:intake    # Process INITIAL docs to create backlog tasks with context
+```"""
+
+    # Build memory imports section
+    memory_imports = """## Memory Imports
+
+This project uses flowspec's memory system for structured context. The following files provide context to Claude Code:
+
+```
+@import memory/constitution.md
+@import memory/code-standards.md
+@import memory/test-quality-standards.md
+```
+
+See the `memory/` directory for all available context files."""
+
+    # Build troubleshooting section
+    troubleshooting = []
+    if "Python" in tech_stack["languages"]:
+        if tech_stack["package_manager"] == "uv":
+            troubleshooting.append("# Dependencies issues\nuv sync --force")
+        else:
+            troubleshooting.append(
+                "# Dependencies issues\npip install -r requirements.txt --force-reinstall"
+            )
+        troubleshooting.append("\n# Check Python version\npython --version")
+
+    if "JavaScript/TypeScript" in tech_stack["languages"]:
+        # Determine JS package manager locally (don't use global which may be Python's)
+        if (project_path / "pnpm-lock.yaml").exists():
+            js_pm = "pnpm"
+        elif (project_path / "yarn.lock").exists():
+            js_pm = "yarn"
+        else:
+            js_pm = "npm"
+        troubleshooting.append(
+            f"# Dependencies issues\nrm -rf node_modules\n{js_pm} install"
+        )
+
+    if not troubleshooting:
+        troubleshooting.append("# Add project-specific troubleshooting commands here")
+
+    troubleshooting_section = "\n\n".join(troubleshooting)
+
+    # Build project structure
+    project_structure = [
+        "├── docs/                   # Documentation",
+        "├── memory/                 # Claude Code context files",
+        "├── backlog/                # Task management",
+        "├── .claude/                # Claude Code configuration",
+    ]
+
+    # Add common source and test directories once if any supported language is present
+    has_code_dirs = any(
+        lang in tech_stack["languages"]
+        for lang in ("Python", "JavaScript/TypeScript", "Go", "Rust", "Java")
+    )
+    if has_code_dirs:
+        project_structure.extend(
+            [
+                "├── src/                    # Source code",
+                "├── tests/                  # Test suite",
+            ]
+        )
+
+    # Add language-specific config files
+    if "Python" in tech_stack["languages"]:
+        project_structure.append("├── pyproject.toml          # Python project config")
+
+    if "JavaScript/TypeScript" in tech_stack["languages"]:
+        project_structure.append("├── package.json            # Node.js project config")
+
+    if "Go" in tech_stack["languages"]:
+        project_structure.append("├── go.mod                  # Go module config")
+
+    if "Rust" in tech_stack["languages"]:
+        project_structure.append("├── Cargo.toml              # Rust project config")
+
+    if "Java" in tech_stack["languages"]:
+        if tech_stack["package_manager"] == "maven":
+            project_structure.append(
+                "├── pom.xml                 # Maven project config"
+            )
+        elif tech_stack["package_manager"] == "gradle":
+            project_structure.append(
+                "├── build.gradle            # Gradle project config"
+            )
+
+    project_structure_section = "\n".join(project_structure)
+
+    # Read template and substitute placeholders
+    # Go up 3 levels: __init__.py -> flowspec_cli -> src -> flowspec (project root)
+    template_path = (
+        Path(__file__).parent.parent.parent / "templates" / "claude-md-template.md"
+    )
+
+    if template_path.exists():
+        template_content = template_path.read_text()
+    else:
+        # Fallback template if file doesn't exist
+        template_content = """# {PROJECT_NAME} - Claude Code Configuration
+
+## Project Overview
+
+**{PROJECT_NAME}** is a project initialized with flowspec.
+
+{TECH_STACK_SECTION}
+
+## Essential Commands
+
+```bash
+{COMMANDS_SECTION}
+```
+
+## Project Structure
+
+```
+{PROJECT_NAME}/
+{PROJECT_STRUCTURE}
+```
+
+{WORKFLOW_SECTION}
+
+{MEMORY_IMPORTS}
+
+## Quick Troubleshooting
+
+```bash
+{TROUBLESHOOTING_SECTION}
+```
+
+---
+
+*Generated by flowspec init. Customize this file for your project's specific needs.*
+"""
+
+    # Substitute placeholders
+    content = template_content.replace("{PROJECT_NAME}", project_name)
+    content = content.replace(
+        "{PROJECT_DESCRIPTION}", "a project initialized with flowspec"
+    )
+    content = content.replace("{TECH_STACK_SECTION}", tech_stack_section)
+    content = content.replace("{COMMANDS_SECTION}", commands_section)
+    content = content.replace("{PROJECT_STRUCTURE}", project_structure_section)
+    content = content.replace("{WORKFLOW_SECTION}", workflow_section)
+    content = content.replace("{MEMORY_IMPORTS}", memory_imports)
+    content = content.replace("{TROUBLESHOOTING_SECTION}", troubleshooting_section)
+
+    # Write CLAUDE.md
+    claude_md_path.write_text(content)
+
+
 class StepTracker:
     """Track and render hierarchical steps without emojis, similar to Claude Code tree output.
     Supports live auto-refresh via an attached refresh callback.
@@ -3382,6 +3855,11 @@ def init(
         "--no-hooks",
         help="Initialize with all hooks disabled. Hooks can be enabled later in .flowspec/hooks/hooks.yaml",
     ),
+    skip_claude_md: bool = typer.Option(
+        False,
+        "--skip-claude-md",
+        help="Skip CLAUDE.md file generation",
+    ),
     skip_skills: bool = typer.Option(
         False,
         "--skip-skills",
@@ -3881,6 +4359,19 @@ def init(
                 tracker.complete("repo-facts", "memory/repo-facts.md created")
             except Exception as facts_error:
                 tracker.error("repo-facts", f"generation failed: {facts_error}")
+
+            # Generate CLAUDE.md file
+            if not skip_claude_md:
+                tracker.start("claude-md")
+                try:
+                    # Use project_path.name to get just the directory name
+                    generate_claude_md(project_path, project_path.name)
+                    tracker.complete("claude-md", "CLAUDE.md created")
+                except Exception as claude_error:
+                    tracker.error("claude-md", f"generation failed: {claude_error}")
+            else:
+                tracker.add("claude-md", "Generate CLAUDE.md")
+                tracker.skip("claude-md", "--skip-claude-md flag")
 
             tracker.complete("final", "project ready")
         except Exception as e:

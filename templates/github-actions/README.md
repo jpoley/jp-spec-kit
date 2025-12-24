@@ -15,12 +15,36 @@ When users run `/flow:operate` with the SRE agent, these templates are used to g
 
 ## Available Templates
 
+### CI/CD Pipeline Templates
+
 | Stack | Template File | Description | Build Tool |
 |-------|--------------|-------------|------------|
 | **Node.js/TypeScript** | `nodejs-ci-cd.yml` | npm/yarn/pnpm, TypeScript, React/Next.js, etc. | npm/yarn/pnpm |
 | **Python** | `python-ci-cd.yml` | pip/poetry/uv, Django/Flask/FastAPI, etc. | pip/poetry/uv |
 | **.NET** | `dotnet-ci-cd.yml` | C#, ASP.NET Core, Blazor, etc. | dotnet CLI |
 | **Go** | `go-ci-cd.yml` | Go applications and services | **Mage** |
+
+### Security Scanning Templates
+
+| Template | Description | Use Case |
+|----------|-------------|----------|
+| `security-scan.yml` | Reusable security scanning workflow | Standard scanning for most projects |
+| `security.yml` | Entry point for security scans | Triggers scans on PRs and schedule |
+| `security-parallel.yml` | Parallel component scanning | Large codebases (>500K LOC) for 3x speedup |
+| `security-config.yml` | Security configuration file | Configure scan behavior, severity thresholds |
+
+**Quick Start (Security):**
+```bash
+# Copy templates to your project
+cp templates/github-actions/security-scan.yml .github/workflows/
+cp templates/github-actions/security.yml .github/workflows/
+cp templates/github-actions/security-config.yml .github/
+
+# Replace {{PROJECT_NAME}} with your project name
+sed -i 's/{{PROJECT_NAME}}/my-project/g' .github/workflows/security-scan.yml
+```
+
+**See:** [Security CI/CD Setup Guide](../../docs/guides/security-cicd-setup.md) for complete documentation.
 
 ### Go Template (Uses Mage)
 
