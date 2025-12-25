@@ -57,3 +57,11 @@ task-*-worktree
 
 # Backup files from specify
 .flowspec/backups/
+
+# Go build artifacts (flowspec-netlog)
+utils/flowspec-netlog/flowspec-netlog
+utils/flowspec-netlog/dist/
+*.exe
+*.test
+*.out
+go.sum
