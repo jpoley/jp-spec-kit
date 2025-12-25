@@ -105,7 +105,14 @@ def deploy_skills(
                     "Please check file permissions and whether any files are in use."
                 ) from exc
 
-        shutil.copytree(skill_dir, dest_skill_dir)
+        try:
+            shutil.copytree(skill_dir, dest_skill_dir)
+        except OSError as exc:
+            raise RuntimeError(
+                f"Failed to copy skill directory '{skill_dir}' to '{dest_skill_dir}'. "
+                "Please check file permissions, available disk space, and whether any "
+                "files are in use."
+            ) from exc
         deployed.append(dest_skill_dir)
 
     return deployed
