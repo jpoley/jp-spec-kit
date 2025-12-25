@@ -69,7 +69,10 @@
     "PYTHONUNBUFFERED": "1",
     "UV_SYSTEM_PYTHON": "1",
     "VIRTUAL_ENV": "/workspaces/flowspec/.venv",
-    "PATH": "/workspaces/flowspec/.venv/bin:/home/vscode/.local/share/pnpm:/home/vscode/.local/bin:${containerEnv:PATH}"
+    "PATH": "/workspaces/flowspec/.venv/bin:/home/vscode/.local/share/pnpm:/home/vscode/.local/bin:${containerEnv:PATH}",
+    "FLOWSPEC_CAPTURE_TTY": "true",
+    "FLOWSPEC_CAPTURE_HOOKS": "true",
+    "LOG_DIR": ".logs"
   },
 
   "postCreateCommand": "bash .devcontainer/post-create.sh",

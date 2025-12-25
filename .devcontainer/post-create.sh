@@ -99,6 +99,40 @@ pnpm install -g @google/gemini-cli || echo "   Warning: gemini-cli install faile
 echo "   Done."
 
 # -----------------------------------------------------------------------------
+# 2.5. Claude Logging Wrapper Setup
+# -----------------------------------------------------------------------------
+echo ""
+echo "2.5. Setting up Claude logging wrapper..."
+
+# Install node-pty for wrap.mjs
+echo "   Installing node-pty dependency..."
+cd /workspaces/flowspec && pnpm install node-pty || echo "   Warning: node-pty install failed"
+
+# Create claude wrapper script
+echo "   Creating claude wrapper..."
+cat > /usr/local/bin/claude-wrapped << 'EOF'
+#!/bin/bash
+if [ "$FLOWSPEC_CAPTURE_TTY" = "true" ]; then
+  exec node /workspaces/flowspec/wrap.mjs claude-code "$@"
+else
+  exec claude-code "$@"
+fi
+EOF
+chmod +x /usr/local/bin/claude-wrapped
+
+# Add alias to shell configs
+echo "   Adding claude alias to shell configs..."
+if ! grep -q "alias claude=" /home/vscode/.zshrc 2>/dev/null; then
+  echo 'alias claude="claude-wrapped"' >> /home/vscode/.zshrc
+fi
+
+if ! grep -q "alias claude=" /home/vscode/.bashrc 2>/dev/null; then
+  echo 'alias claude="claude-wrapped"' >> /home/vscode/.bashrc
+fi
+
+echo "   Done."
+
+# -----------------------------------------------------------------------------
 # 3. Task Management
 # -----------------------------------------------------------------------------
 echo ""

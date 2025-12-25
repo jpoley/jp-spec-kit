@@ -36,10 +36,15 @@ env/
 
 # Project specific
 *.log
+.logs/
 .env
 .env.local
 *.lock
 .test-projects/
+
+# Node modules for logging wrapper
+node_modules/
+pnpm-lock.yaml
 # Spec Kit-specific files
 .genreleases/
 *.zip

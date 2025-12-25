@@ -22,6 +22,8 @@ import json
 import re
 import sys
 
+from logging_helper import setup_hook_logging
+
 # Directories where Read is always safe
 SAFE_READ_DIRECTORIES = [
     "docs/",
@@ -110,6 +112,8 @@ def is_safe_bash_command(command: str) -> bool:
 
 def main():
     """Main entry point for the hook."""
+    logger = setup_hook_logging("permission-auto-approve")
+
     # Read JSON input from stdin
     try:
         input_data = json.load(sys.stdin)
@@ -121,10 +125,15 @@ def main():
     tool_name = input_data.get("tool_name", "")
     tool_input = input_data.get("tool_input", {})
 
+    if logger:
+        logger.info(f"Evaluating permission for {tool_name}")
+
     # Handle Read tool
     if tool_name == "Read":
         file_path = tool_input.get("file_path", "")
         if is_safe_read_path(file_path):
+            if logger:
+                logger.info(f"Auto-approved Read: {file_path}")
             allow(f"Auto-approved Read in safe directory: {file_path}")
             return
 

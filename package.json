@@ -1,0 +1,10 @@
+{
+  "name": "flowspec-logging",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Node.js dependencies for flowspec logging wrapper",
+  "type": "module",
+  "dependencies": {
+    "node-pty": "^1.1.0"
+  }
+}
