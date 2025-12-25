@@ -68,7 +68,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .claude/hooks/session-start.sh",
+            "command": "bash .claude/hooks/run-hook.sh .claude/hooks/session-start.sh",
             "timeout": 60
           }
         ]
@@ -80,7 +80,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 .claude/hooks/permission-auto-approve.py",
+            "command": "bash .claude/hooks/run-hook.sh python3 .claude/hooks/permission-auto-approve.py",
             "timeout": 3
           }
         ]
@@ -90,7 +90,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 .claude/hooks/pre-tool-use-sensitive-files.py",
+            "command": "bash .claude/hooks/run-hook.sh python3 .claude/hooks/pre-tool-use-sensitive-files.py",
             "timeout": 5
           }
         ]
@@ -100,7 +100,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 .claude/hooks/pre-tool-use-git-safety.py",
+            "command": "bash .claude/hooks/run-hook.sh python3 .claude/hooks/pre-tool-use-git-safety.py",
             "timeout": 5
           }
         ]
@@ -112,12 +112,12 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .claude/hooks/post-tool-use-format-python.sh",
+            "command": "bash .claude/hooks/run-hook.sh .claude/hooks/post-tool-use-format-python.sh",
             "timeout": 10
           },
           {
             "type": "command",
-            "command": "bash .claude/hooks/post-tool-use-lint-python.sh",
+            "command": "bash .claude/hooks/run-hook.sh .claude/hooks/post-tool-use-lint-python.sh",
             "timeout": 10
           }
         ]
@@ -127,7 +127,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 .claude/hooks/post-slash-command-emit.py",
+            "command": "bash .claude/hooks/run-hook.sh python3 .claude/hooks/post-slash-command-emit.py",
             "timeout": 35
           }
         ]
@@ -137,7 +137,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 .claude/hooks/post-tool-use-task-memory-lifecycle.py",
+            "command": "bash .claude/hooks/run-hook.sh python3 .claude/hooks/post-tool-use-task-memory-lifecycle.py",
             "timeout": 10
           }
         ]
@@ -149,7 +149,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 .claude/hooks/stop-quality-gate.py",
+            "command": "bash .claude/hooks/run-hook.sh python3 .claude/hooks/stop-quality-gate.py",
             "timeout": 5
           }
         ]

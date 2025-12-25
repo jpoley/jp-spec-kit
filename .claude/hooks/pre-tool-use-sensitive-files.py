@@ -17,6 +17,8 @@ import json
 import sys
 from pathlib import Path
 
+# Add hooks directory to Python path (reserved for future logging_helper usage)
+sys.path.insert(0, str(Path(__file__).parent))
 
 SENSITIVE_PATTERNS = [
     ".env",

@@ -15,6 +15,12 @@ Returns JSON decision: allow or ask for confirmation
 import json
 import re
 import sys
+from pathlib import Path
+
+# Add hooks directory to Python path for logging_helper import
+sys.path.insert(0, str(Path(__file__).parent))
+
+from logging_helper import setup_hook_logging
 
 
 DANGEROUS_GIT_PATTERNS = [
@@ -75,9 +81,16 @@ def check_git_safety(command: str) -> tuple[bool, str, str]:
 
 
 def main():
+    logger = setup_hook_logging("pre-tool-use-git-safety")
+
     try:
         # Read JSON input from stdin
         input_data = json.load(sys.stdin)
+
+        if logger:
+            logger.info(
+                f"Checking git safety for tool: {input_data.get('tool_name', 'unknown')}"
+            )
 
         tool_name = input_data.get("tool_name", "")
         tool_input = input_data.get("tool_input", {})
@@ -103,6 +116,9 @@ def main():
 
         # Check if command is dangerous
         is_dangerous, reason, additional_context = check_git_safety(command)
+
+        if logger and is_dangerous:
+            logger.warning(f"Dangerous git command detected: {command[:100]}")
 
         if is_dangerous:
             # For interactive rebase, deny instead of ask

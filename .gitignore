@@ -36,10 +36,15 @@ env/
 
 # Project specific
 *.log
+.logs/
 .env
 .env.local
 *.lock
 .test-projects/
+
+# Node modules for logging wrapper
+node_modules/
+pnpm-lock.yaml
 # Spec Kit-specific files
 .genreleases/
 *.zip
@@ -52,3 +57,11 @@ task-*-worktree
 
 # Backup files from specify
 .flowspec/backups/
+
+# Go build artifacts (flowspec-netlog)
+utils/flowspec-netlog/flowspec-netlog
+utils/flowspec-netlog/dist/
+*.exe
+*.test
+*.out
+go.sum

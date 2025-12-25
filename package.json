@@ -1,0 +1,13 @@
+{
+  "name": "flowspec-logging",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Node.js dependencies for flowspec logging wrapper",
+  "type": "module",
+  "dependencies": {
+    "node-pty": "1.1.0"
+  },
+  "//": "SECURITY: node-pty version is pinned to prevent supply chain attacks.",
+  "//2": "To update: 1) Check npm.im/node-pty for latest, 2) Review changelog,",
+  "//3": "3) Test thoroughly, 4) Update version here, 5) Run pnpm install --frozen-lockfile"
+}
