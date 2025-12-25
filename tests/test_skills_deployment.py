@@ -350,6 +350,6 @@ class TestSkillsStructure:
                     # Verify SKILL.md has frontmatter with name and description
                     content = skill_md.read_text()
                     assert "---" in content, "SKILL.md should have YAML frontmatter"
-                    assert "name:" in content or "description:" in content, (
-                        "SKILL.md should have metadata"
+                    assert "name:" in content and "description:" in content, (
+                        "SKILL.md should have name and description metadata"
                     )

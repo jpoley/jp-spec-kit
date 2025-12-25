@@ -7,8 +7,11 @@ when users run `flowspec init`.
 
 from __future__ import annotations
 
+import logging
 import shutil
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 
 def _find_templates_skills_dir() -> Path | None:
@@ -54,6 +57,10 @@ def deploy_skills(
 
     templates_skills_dir = _find_templates_skills_dir()
     if templates_skills_dir is None:
+        logger.warning(
+            "Skills templates directory not found. "
+            "This may indicate an installation issue if running from a package."
+        )
         return []
 
     # Create .claude/skills directory
@@ -90,9 +97,22 @@ def deploy_skills(
         # Copy skill directory
         if dest_skill_dir.exists():
             # Remove existing if force=True
-            shutil.rmtree(dest_skill_dir)
+            try:
+                shutil.rmtree(dest_skill_dir)
+            except OSError as exc:
+                raise RuntimeError(
+                    f"Failed to remove existing skill directory '{dest_skill_dir}'. "
+                    "Please check file permissions and whether any files are in use."
+                ) from exc
 
-        shutil.copytree(skill_dir, dest_skill_dir)
+        try:
+            shutil.copytree(skill_dir, dest_skill_dir)
+        except OSError as exc:
+            raise RuntimeError(
+                f"Failed to copy skill directory '{skill_dir}' to '{dest_skill_dir}'. "
+                "Please check file permissions, available disk space, and whether any "
+                "files are in use."
+            ) from exc
         deployed.append(dest_skill_dir)
 
     return deployed

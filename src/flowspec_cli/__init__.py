@@ -4315,10 +4315,25 @@ def init(
                         f"deployed {len(deployed_skills)} skills to .claude/skills/",
                     )
                 else:
-                    tracker.complete("skills", "skills already deployed")
+                    tracker.complete("skills", "no new skills deployed")
+            except PermissionError as skills_error:
+                # Non-fatal error - continue with project initialization
+                tracker.error(
+                    "skills",
+                    f"deployment failed due to permission error: {skills_error}",
+                )
+            except OSError as skills_error:
+                # Non-fatal error - continue with project initialization
+                tracker.error(
+                    "skills",
+                    f"deployment failed due to OS error: {skills_error}",
+                )
             except Exception as skills_error:
                 # Non-fatal error - continue with project initialization
-                tracker.error("skills", f"deployment failed: {skills_error}")
+                tracker.error(
+                    "skills",
+                    f"deployment failed ({type(skills_error).__name__}): {skills_error}",
+                )
 
             # Set up constitution template
             tracker.start("constitution")
