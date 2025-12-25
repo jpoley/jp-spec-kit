@@ -1,0 +1,9 @@
+# Local development artifacts - should not be committed
+.claude/
+backlog/
+.logs/
+node_modules/
+
+# Build artifacts
+flowspec-netlog
+*.exe
