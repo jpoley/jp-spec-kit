@@ -7,8 +7,11 @@ when users run `flowspec init`.
 
 from __future__ import annotations
 
+import logging
 import shutil
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 
 def _find_templates_skills_dir() -> Path | None:
@@ -34,8 +37,16 @@ def _find_templates_skills_dir() -> Path | None:
         if templates_ref.is_dir():
             # For standard filesystem-based installations (pip install, editable installs),
             # the Traversable can be converted directly to a Path.
-            # Note: This won't work for zip-packaged distributions, but flowspec
-            # doesn't support that installation method currently.
+            #
+            # Note on alternative approaches:
+            # - importlib.resources.as_file() provides a context manager for safer access
+            #   across package formats, but requires managing the context lifecycle.
+            # - Path(str()) works for filesystem-based packages but not for zip archives.
+            #
+            # Flowspec currently only supports standard pip/editable installs (not
+            # zipimport), so Path conversion is sufficient. If zip package support is
+            # needed in the future, consider using as_file() with appropriate context
+            # management.
             templates_path = Path(str(templates_ref))
             if templates_path.exists():
                 return templates_path
@@ -77,6 +88,10 @@ def deploy_skills(
 
     templates_skills_dir = _find_templates_skills_dir()
     if templates_skills_dir is None:
+        logger.warning(
+            "Skills templates directory not found. This may indicate a missing or "
+            "corrupted flowspec installation. Skills deployment skipped."
+        )
         return []
 
     # Create .claude/skills directory
@@ -113,7 +128,13 @@ def deploy_skills(
         # Copy skill directory
         if dest_skill_dir.exists():
             # Remove existing if force=True
-            shutil.rmtree(dest_skill_dir)
+            try:
+                shutil.rmtree(dest_skill_dir)
+            except OSError as exc:
+                raise RuntimeError(
+                    f"Failed to remove existing skill directory '{dest_skill_dir}'. "
+                    "Please check file permissions and whether any files are in use."
+                ) from exc
 
         shutil.copytree(skill_dir, dest_skill_dir)
         deployed.append(dest_skill_dir)
