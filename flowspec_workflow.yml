@@ -298,6 +298,107 @@ workflows:
     optional: true
 
 # ==============================================================================
+# META-WORKFLOWS
+# ==============================================================================
+# Meta-workflows consolidate multiple sub-workflows into single high-level commands.
+# These provide a simplified interface for common development paths while preserving
+# the ability to use granular workflows for advanced scenarios.
+#
+# Each meta-workflow:
+#   - Executes sub-workflows in sequence
+#   - Supports conditional logic (e.g., skip optional steps)
+#   - Validates quality gates before transitions
+#   - Emits consolidated events
+#
+# Users can invoke meta-workflows OR granular workflows based on their needs:
+#   - Meta-workflows: Recommended for most users (3 commands: research, build, run)
+#   - Granular workflows: Available for power users (8 commands: assess, specify, etc.)
+
+meta_workflows:
+  research:
+    command: "/flow:research"
+    description: "Upfront planning and design (assess + specify + research + plan)"
+    summary: "Plan It - All analysis and design before implementation"
+    sub_workflows:
+      - workflow: "assess"
+        required: true
+        description: "Evaluate SDD workflow suitability"
+      - workflow: "specify"
+        required: true
+        description: "Create PRD and implementation tasks"
+      - workflow: "research"
+        required: false
+        condition: "complexity_score >= 7 OR light_mode == false"
+        description: "Optional deep research for complex features"
+      - workflow: "plan"
+        required: true
+        description: "Create ADRs and technical design"
+    input_state: "To Do"
+    output_state: "Planned"
+    primary_artifacts:
+      - "./docs/assess/{feature}-assessment.md"
+      - "./docs/prd/{feature}.md"
+      - "./docs/research/{feature}-research.md"  # Optional
+      - "./docs/adr/ADR-*.md"
+      - "./backlog/tasks/*.md"
+    orchestration:
+      mode: "sequential"
+      stop_on_error: true
+      emit_events: true
+
+  build:
+    command: "/flow:build"
+    description: "Implementation and validation (implement + validate)"
+    summary: "Create It - Code, tests, and quality gates"
+    sub_workflows:
+      - workflow: "implement"
+        required: true
+        description: "Write code and tests"
+      - workflow: "validate"
+        required: true
+        description: "QA, security, and documentation checks"
+    input_state: "Planned"
+    output_state: "Validated"
+    primary_artifacts:
+      - "./src/"
+      - "./tests/"
+      - "./docs/qa/{feature}-qa-report.md"
+      - "./docs/security/{feature}-security.md"
+    quality_gates:
+      - type: "test_coverage"
+        threshold: 80
+        required: true
+      - type: "security_scan"
+        severity: "HIGH"
+        required: true
+      - type: "acceptance_criteria"
+        coverage: 100
+        required: true
+    orchestration:
+      mode: "sequential"
+      stop_on_error: true
+      emit_events: true
+      atomic: true  # Implementation + validation must complete together
+
+  run:
+    command: "/flow:run"
+    description: "Deployment and operations (operate)"
+    summary: "Deploy It - Production deployment and operational readiness"
+    sub_workflows:
+      - workflow: "operate"
+        required: true
+        description: "Deploy to production and create runbooks"
+    input_state: "Validated"
+    output_state: "Deployed"
+    primary_artifacts:
+      - "./docs/runbooks/{feature}-runbook.md"
+      - "./deploy/"
+    orchestration:
+      mode: "sequential"
+      stop_on_error: true
+      emit_events: true
+
+# ==============================================================================
 # STATE TRANSITIONS
 # ==============================================================================
 # Transitions define the state machine edges with artifact validation gates.
@@ -562,10 +663,11 @@ agent_loops:
 # ==============================================================================
 
 metadata:
-  schema_version: "2.0"
-  last_updated: "2025-12-23"
+  schema_version: "2.1"
+  last_updated: "2025-12-26"
   state_count: 9
   workflow_count: 8
+  meta_workflow_count: 3
   agent_count: 17
   inner_loop_agent_count: 5
   outer_loop_agent_count: 12
