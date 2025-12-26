@@ -1,41 +1,57 @@
 # Next Steps: Flowspec Flexible Orchestration
 
-## Critical Self-Assessment of Previous Failure
+> **Note:** Lessons learned from previous failures are documented in [FAILURE-LEARNINGS.md](./FAILURE-LEARNINGS.md)
 
-**What I got completely wrong:**
+## KEY REALIZATION
 
-1. ❌ **Misunderstood the objective** - Created hardcoded "Research/Build/Run" meta-workflows instead of USER-CUSTOMIZABLE orchestration
-2. ❌ **Followed flawed analysis** - analysis-flowspec.md suggests consolidation, but that defeats the purpose (same as spec-kit)
-3. ❌ **Removed functionality** - Didn't include /flow:submit-n-review-pr which is CRITICAL
-4. ❌ **Ignored rigor rules** - No logging, ADRs, or constitution enforcement
-5. ❌ **Wrong integration** - Used bash scripts instead of MCP
-6. ❌ **Security vulnerabilities** - bash eval(), curl pipes
-7. ❌ **Skipped validation** - Didn't run CI/CD checks before PR
+**From flowspec-loop.md (THE CRITICAL DOCUMENT):**
 
-**The fundamental mistake:** I tried to REPLACE the 8 commands with 3 hardcoded ones. That's the OPPOSITE of what "flexible orchestration" means.
+The document header states: **"Inner Loop <-THIS IS FLOWSPEC"** and **"Default Flowspec. THIS IS OUR MISSION!"**
+
+This means:
+1. **Flowspec = Inner Loop (and ONLY inner loop)**
+2. **The 4 core commands define the mission**: specify → plan → implement → validate
+3. **Outer loop is NOT flowspec** - Promote/Observe/Operate/Feedback belong to falcondev
+4. **Everything else** (assess, research, ad hoc commands) **supports the core 4**
+
+**What "glue that loosely binds" means:**
+- NOT hardcoded workflows combining steps
+- NOT removing/replacing the core commands
+- YES orchestration layer that lets users combine steps in custom sequences
+- YES flexible, user-editable workflow definitions
 
 ## What the Requirements Actually Say
 
 ### Core Mission (from flowspec-loop.md)
 
+**"Default Flowspec. THIS IS OUR MISSION!"**
+
+Flowspec IS the inner loop - using specs & artifacts to build quality. The core mission is:
+
+**The 4 Core Inner Loop Commands:**
+1. `/flow:specify` → To Do → Spec (PM Planner)
+2. `/flow:plan` → Spec → Arch Docs (Architect, Platform Eng)
+3. `/flow:implement` → Spec & Arch → Working solution (Frontend/Backend Engineers)
+4. `/flow:validate` → PR → Merged (QA, Security Engineers)
+
 **Vibe OR Spec mode - MUST always:**
 - Log key events, decisions, actions
 - Make spec + workflow system flexible (user changes it)
-- This is for Inner Loop but be aware of Inner & Outer Loop
+- These 4 commands are THE inner loop
 
-### Inner Loop vs Outer Loop
+### Inner Loop vs Outer Loop Distinction (CRITICAL)
 
-**Inner Loop (THIS IS FLOWSPEC):**
+**Inner Loop = FLOWSPEC (and ONLY flowspec):**
 - `/flow:specify` → Spec (PM Planner)
 - `/flow:plan` → Arch Docs (Architect, Platform Eng)
 - `/flow:implement` → Working solution (Frontend/Backend Engineers)
 - `/flow:validate` → Merged (QA, Security Engineers)
 
-**Outer Loop (NOT flowspec - falcondev handles):**
-- Promote → deployed
-- Observe → Running
-- Operate → Running
-- Feedback → into inner loop
+**Outer Loop = NOT FLOWSPEC (falcondev and other tools):**
+- **Promote** → artifacts → deployed (NOT /flow:operate)
+- **Observe** → telemetry → Running (NOT flowspec)
+- **Operate** → config → Running (NOT flowspec)
+- **Feedback** → new Requirements → into inner loop (NOT flowspec)
 
 ### REQUIRED (Always Present - Never Optional)
 
@@ -70,11 +86,28 @@ Must be easy to customize, can't over-scrutinize at CI/CD time:
 
 ### From objective.md
 
+**Core Philosophy:**
+- **"simply be the glue that loosely binds the steps"** - Orchestration layer, NOT hardcoded workflows
 - **"let users completely customize their flow steps"** - Users define sequences
 - **"with the workflow editor in falcondev"** - Must be editable via UI/YAML
-- **"simply be the glue that loosely binds the steps"** - Orchestration layer
+
+**What Flowspec Orchestrates (for each step):**
+- **Inputs**: objective/goal/feature
+- **Outputs**: artifacts (ARD, Spec, Code, Commit)
+- **Who**: which agent or squad of agents
+- **Rules**: constitution, log jsonl, stay in branch, stay on task
+- **Autonomy**: complete through task completion (timed) OR til step is done
+
+**Execution Modes:**
 - **"vibing"** - Autonomous execution with full logging, no interaction
 - **"spec-ing"** - Stop for guidance at configurable checkpoints
+
+**Multi-Tool Requirement:**
+Must work across 4 tools (in priority order):
+1. Claude Code
+2. GitHub Copilot (all variants)
+3. Cursor
+4. Gemini
 
 ### From feedback.md
 
@@ -86,25 +119,38 @@ Must be easy to customize, can't over-scrutinize at CI/CD time:
 ### Core Principle
 **Keep ALL existing workflows working independently. Add flexible orchestration layer on TOP.**
 
-### Inner Loop Workflows (Core Flowspec)
+### Flowspec Command Architecture
 
-**Primary workflows (always available):**
-1. `/flow:specify` - Requirements specification → Spec (PM Planner)
-2. `/flow:plan` - Technical design → Arch Docs (Architect, Platform Eng)
-3. `/flow:implement` - Code generation → Working solution (Frontend/Backend Engineers)
-4. `/flow:validate` - QA/security checks → Merged (QA, Security Engineers)
+**CORE INNER LOOP (The Mission - Non-Negotiable):**
 
-**Supporting workflows:**
-5. `/flow:assess` - Complexity scoring (optional, informational)
-6. `/flow:research` - Deep research (optional, for complex features)
-7. `/flow:operate` - Deployment and operational readiness
+These 4 commands ARE flowspec. Everything else supports or extends them.
 
-**Critical ad hoc commands (disconnected but essential):**
-8. `/flow:submit-n-watch-pr` - PR submission, monitor CI/CD, iterate with agent feedback til good
-9. `/flow:timed-task` - Given rules, time, branch → produce outcome
-10. `/flow:refactor` - Full complete refactor loop
+1. `/flow:specify` - To Do → Spec (PM Planner)
+2. `/flow:plan` - Spec → Arch Docs (Architect, Platform Eng)
+3. `/flow:implement` - Spec & Arch → Working solution (Frontend/Backend Engineers)
+4. `/flow:validate` - PR → Merged (QA, Security Engineers)
 
-**ALL of these must:**
+**SUPPORTING WORKFLOWS (Pre-Spec Helpers):**
+
+Optional workflows that help prepare for the core loop:
+- `/flow:assess` - Complexity scoring (helps decide full SDD vs spec-light)
+- `/flow:research` - Deep research (for complex features needing market/tech analysis)
+
+**AD HOC UTILITY COMMANDS (Standalone Tools):**
+
+Disconnected utilities for specific use cases:
+- `/flow:submit-n-watch-pr` - PR submission, monitor CI/CD, iterate with agent feedback til good
+- `/flow:timed-task` - Given rules, time, branch → produce outcome
+- `/flow:refactor` - Full complete refactor loop
+
+**EXPLICITLY OUT OF SCOPE (Outer Loop):**
+
+These are NOT flowspec - they belong to falcondev and other tools:
+- ❌ `/flow:operate` - This is OUTER LOOP (Promote/Observe/Operate/Feedback)
+- ❌ Deployment and operational readiness - NOT inner loop
+- ❌ Production monitoring and incident response - NOT inner loop
+
+**Requirements for ALL Commands:**
 - Continue working independently
 - Be usable in custom workflow sequences
 - Integrate with backlog.md/beads
@@ -168,11 +214,12 @@ custom_workflows:
 ### Key Capabilities
 
 **User Control:**
-- Define any sequence of the 8 workflows
+- Define any sequence of workflows (core + supporting)
 - Name their custom workflows
 - Set conditions for skipping steps (based on complexity, context, etc.)
 - Choose vibing (autonomous) or spec-ing (approval checkpoints)
 - Edit via YAML or falcondev workflow editor UI
+- Combine core, supporting, and ad hoc commands as needed
 
 **Rigor Enforcement (NO EXCEPTIONS):**
 Every workflow (existing and custom) MUST:
@@ -233,7 +280,7 @@ backlog task "$TASK_ID" --plain
 
 **Step 3: MCP migration**
 - Replace ALL bash backlog calls with MCP tools
-- In ALL 8 existing workflows
+- In ALL existing workflows (4 core + 2 supporting + 3 ad hoc)
 - In orchestrator
 - Add proper error handling
 
@@ -260,13 +307,17 @@ backlog task "$TASK_ID" --plain
 ✅ Logging system intact - decisions/events to `.logs/`
 ✅ Backlog system intact - backlog.md/beads up to date
 ✅ Memory system intact - task memory across sessions
-✅ Critical ad hoc commands intact - submit-n-watch-pr, timed-task, refactor
+✅ Ad hoc utility commands intact - submit-n-watch-pr, timed-task, refactor
 
-**Inner Loop Workflows:**
-✅ All 10 workflows work independently (unchanged)
-✅ Primary: specify, plan, implement, validate
-✅ Supporting: assess, research, operate
-✅ Critical ad hoc: submit-n-watch-pr, timed-task, refactor
+**Flowspec Command Architecture:**
+✅ 4 Core workflows work independently (THE MISSION):
+  - specify, plan, implement, validate
+✅ 2 Supporting workflows work independently (PRE-SPEC HELPERS):
+  - assess, research
+✅ 3 Ad hoc utilities work independently (STANDALONE TOOLS):
+  - submit-n-watch-pr, timed-task, refactor
+✅ Outer loop commands REMOVED from flowspec:
+  - /flow:operate deleted (it's outer loop, not flowspec)
 
 **Flexible Orchestration:**
 ✅ Users can define custom sequences in YAML
@@ -296,30 +347,56 @@ backlog task "$TASK_ID" --plain
 - **spec-kit**: Single tool
 - **flowspec**: Works across multiple AI tools
 
-## What NOT to Do (Lessons Learned)
+## Critical Constraints
 
-❌ **DON'T** replace workflows with hardcoded sequences
-❌ **DON'T** remove any existing workflows (especially critical ad hoc ones)
-❌ **DON'T** skip rigor enforcement (logging, ADRs, constitution)
-❌ **DON'T** use bash for backlog integration (use MCP)
-❌ **DON'T** introduce security vulnerabilities (eval, curl pipes)
-❌ **DON'T** skip CI/CD validation before PR
-❌ **DON'T** assume workflows are flexible if they're hardcoded
-❌ **DON'T** forget memory system, backlog system, or logging system
-❌ **DON'T** over-scrutinize user-editable prompts/agents/skills at CI/CD time
+> Detailed failure learnings in [FAILURE-LEARNINGS.md](./FAILURE-LEARNINGS.md)
+
+**Architecture:**
+- ❌ DON'T replace workflows - add orchestration ON TOP
+- ❌ DON'T remove existing commands (especially ad hoc utilities)
+- ❌ DON'T hardcode sequences - let users customize
+
+**Integration & Security:**
+- ❌ DON'T use bash for backlog (use MCP)
+- ❌ DON'T introduce security vulnerabilities (eval, curl pipes)
+- ❌ DON'T over-scrutinize user-editable content at CI/CD time
+
+**Process:**
+- ❌ DON'T skip rigor enforcement (logging, ADRs, constitution)
+- ❌ DON'T skip CI/CD validation before PR
+- ❌ DON'T forget required systems (memory, backlog, logging)
 
 ## Ready to Execute
 
-This approach covers:
-- ✅ Core mission (flexible workflows + always log in vibe/spec modes)
-- ✅ Inner vs Outer Loop distinction
-- ✅ REQUIRED systems (logging, backlog, memory, critical commands)
-- ✅ FLEXIBLE components (agents, prompts, workflows, constitution, skills)
-- ✅ All 10 workflows intact
-- ✅ User-customizable orchestration
-- ✅ Vibing and spec-ing modes
-- ✅ MCP integration
-- ✅ Security fixes
+This approach covers all requirements:
+
+**Core Mission Alignment:**
+- ✅ 4 core commands ARE flowspec (specify → plan → implement → validate)
+- ✅ "Glue that loosely binds steps" = orchestration layer on TOP
+- ✅ Inner loop ONLY (outer loop is falcondev/other tools)
+- ✅ Always log in vibe/spec modes
+
+**Command Architecture:**
+- ✅ 4 core workflows (THE MISSION)
+- ✅ 2 supporting workflows (PRE-SPEC HELPERS)
+- ✅ 3 ad hoc utilities (STANDALONE TOOLS)
+- ✅ Outer loop commands OUT OF SCOPE (/flow:operate removed)
+
+**Required Systems:**
+- ✅ Logging system (decisions, events, ADRs)
+- ✅ Backlog system (backlog.md/beads integration)
+- ✅ Memory system (cross-session task state)
+
+**Flexible Orchestration:**
+- ✅ User-customizable workflow sequences in YAML
+- ✅ Vibing (autonomous) and spec-ing (checkpoints) modes
+- ✅ Editable via falcondev workflow editor
+- ✅ Agents, prompts, workflows, constitution, skills all customizable
+
+**Technical Requirements:**
+- ✅ MCP integration (no bash)
+- ✅ Security fixes (no eval, no curl pipes)
 - ✅ CI/CD compliance
+- ✅ Multi-tool support (Claude Code, Copilot, Cursor, Gemini)
 
 Awaiting your approval to proceed with implementation.
