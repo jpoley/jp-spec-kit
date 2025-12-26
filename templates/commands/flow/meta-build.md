@@ -1,252 +1,213 @@
-# /flow:meta-build - Build Meta-Workflow
+---
+description: Create It - Implementation and validation (implement + validate)
+mode: agent
+loop: inner
+---
 
-**Version**: 1.0.0
-**Command**: `/flow:meta-build`
-**Summary**: Create It - Implementation and validation (implement + validate)
+## User Input
 
-## Purpose
+```text
+$ARGUMENTS
+```
 
-The **Build** meta-workflow consolidates implementation and validation into a single atomic command. It ensures that code and quality checks always go together, preventing incomplete features from progressing.
+You **MUST** consider the user input before proceeding (if not empty).
 
-This meta-workflow treats implementation and validation as **inseparable** - you cannot have one without the other.
+{{INCLUDE:.claude/commands/flow/_constitution-check.md}}
 
-## What It Does
+{{INCLUDE:.claude/commands/flow/_rigor-rules.md}}
 
-Executes in sequence:
-1. **Implement** (`/flow:implement`) - Write code, tests, and documentation
-2. **Validate** (`/flow:validate`) - Run QA checks, security scans, and documentation review
+{{INCLUDE:.claude/commands/flow/_workflow-state.md}}
 
-## Input/Output
+## Meta-Workflow: Build (Create It)
 
-**Input State**: `Planned`
-**Output State**: `Validated`
+This meta-workflow executes the complete build phase with **atomic** semantics - both implementation and validation must succeed together:
 
-**Artifacts Created**:
-- `src/` - Source code
-- `tests/` - Test suite
-- `tests/ac-coverage.json` - Acceptance criteria coverage report
-- `docs/qa/{feature}-qa-report.md` - QA validation report
-- `docs/security/{feature}-security.md` - Security scan report
+1. **Implement** - Write code, tests, and documentation
+2. **Validate** - QA checks, security scans, documentation review
 
-## Usage
+**Required input state**: `Planned`
+**Output state**: `Validated`
+**Orchestration**: Atomic (both must succeed or neither completes)
 
-### Basic Usage
+## Step 1: Verify Task State
 
 ```bash
-/flow:meta-build
+# Get current task from branch or arguments
+TASK_ID="${TASK_ID:-$(git branch --show-current 2>/dev/null | grep -Eo 'task-[0-9]+' || echo '')}"
+
+if [ -z "$TASK_ID" ]; then
+  echo "❌ No task ID found. Run from a feature branch or specify task ID."
+  echo "Usage: /flow:meta-build [task-id]"
+  exit 1
+fi
+
+# Check task state using backlog.md
+CURRENT_STATE=$(backlog task "$TASK_ID" --plain 2>/dev/null | grep "^Status:" | awk '{print $2}')
+
+if [ "$CURRENT_STATE" != "Planned" ]; then
+  echo "❌ Task $TASK_ID is in state '$CURRENT_STATE' but requires 'Planned'"
+  echo "This meta-workflow can only run from 'Planned' state."
+  echo ""
+  echo "Did you run /flow:meta-research first?"
+  exit 1
+fi
+
+echo "✓ Task $TASK_ID verified in 'Planned' state"
+echo "✓ Starting meta-workflow: build (Create It)"
+echo "✓ Atomic mode: Implementation and validation will execute together"
+echo ""
 ```
 
-This will:
-- Auto-detect current feature from branch name
-- Execute all backlog tasks for the feature
-- Run implementation agents (frontend/backend/AI-ML)
-- Run validation agents (QA/security/docs/release)
-- Validate quality gates before completion
-- Update task state to "Validated"
+## Step 2: Execute Sub-Workflows (Atomic)
 
-### With Options
+Execute implementation and validation sub-workflows atomically. If either fails, both fail.
+
+### 2.1 Run /flow:implement
+
+Execute implementation with frontend/backend engineers and code reviewers:
+
+**Execute**: `/flow:implement`
+
+Wait for implement to complete. This will:
+- Execute backlog tasks for this feature
+- Write source code in `src/`
+- Create tests in `tests/`
+- Generate AC coverage report
+- Run code review agents
+- Transition task to `In Implementation` state
+
+### 2.2 Run /flow:validate
+
+Execute validation with QA, security, and documentation checks:
+
+**Execute**: `/flow:validate`
+
+Wait for validate to complete. This will:
+- Run QA validation and test execution
+- Execute security scans (bandit, semgrep, etc.)
+- Review documentation completeness
+- Run release manager checks
+- Create validation report in `docs/qa/`
+- Create security report in `docs/security/`
+
+## Step 3: Quality Gate Enforcement
+
+After validation completes, enforce quality gates before transitioning to `Validated`:
 
 ```bash
-/flow:meta-build --task-id task-123
-/flow:meta-build --skip-tests
-/flow:meta-build --skip-security
-/flow:meta-build --coverage-threshold 90
+echo ""
+echo "Enforcing quality gates..."
+echo ""
+
+# Quality Gate 1: Test Coverage ≥ 80%
+COVERAGE=$(pytest --cov=src --cov-report=term-missing 2>/dev/null | grep "^TOTAL" | awk '{print $NF}' | tr -d '%')
+COVERAGE=${COVERAGE:-0}
+
+if [ "$COVERAGE" -lt 80 ]; then
+  echo "❌ Quality Gate FAILED: Test Coverage"
+  echo "   Required: ≥80%"
+  echo "   Actual: ${COVERAGE}%"
+  echo "   Fix: Add more tests to increase coverage"
+  exit 1
+fi
+echo "✅ Quality Gate PASSED: Test Coverage (${COVERAGE}% ≥ 80%)"
+
+# Quality Gate 2: Security Scan - 0 HIGH+ findings
+HIGH_FINDINGS=$(grep -c "Severity: HIGH\|Severity: CRITICAL" docs/security/*-security.md 2>/dev/null || echo "0")
+
+if [ "$HIGH_FINDINGS" -gt 0 ]; then
+  echo "❌ Quality Gate FAILED: Security Scan"
+  echo "   Required: 0 HIGH+ findings"
+  echo "   Actual: ${HIGH_FINDINGS} HIGH+ findings"
+  echo "   Fix: Address security findings in docs/security/"
+  exit 1
+fi
+echo "✅ Quality Gate PASSED: Security Scan (0 HIGH+ findings)"
+
+# Quality Gate 3: Acceptance Criteria 100% coverage
+AC_TOTAL=$(grep -c "^\- \[ \]\|^\- \[x\]" backlog/tasks/*${TASK_ID}*.md 2>/dev/null || echo "1")
+AC_DONE=$(grep -c "^\- \[x\]" backlog/tasks/*${TASK_ID}*.md 2>/dev/null || echo "0")
+AC_PERCENT=$((AC_DONE * 100 / AC_TOTAL))
+
+if [ "$AC_PERCENT" -lt 100 ]; then
+  echo "❌ Quality Gate FAILED: Acceptance Criteria"
+  echo "   Required: 100% coverage"
+  echo "   Actual: ${AC_PERCENT}% (${AC_DONE}/${AC_TOTAL} criteria met)"
+  echo "   Fix: Complete all acceptance criteria in backlog task"
+  exit 1
+fi
+echo "✅ Quality Gate PASSED: Acceptance Criteria (${AC_PERCENT}% = ${AC_DONE}/${AC_TOTAL})"
+
+echo ""
+echo "All quality gates passed! Transitioning to Validated state..."
 ```
 
-**Options**:
-- `--task-id <ID>`: Specify task ID (default: auto-detect from branch)
-- `--skip-tests`: Skip test execution (not recommended)
-- `--skip-security`: Skip security scans (not recommended)
-- `--coverage-threshold <N>`: Override test coverage threshold (default: 80%)
+## Step 4: Atomic Transition
 
-## Sub-Workflow Execution
+Update task state to `Validated` only if both sub-workflows and all quality gates succeeded:
 
-### 1. Implement (Required)
-- **Command**: `/flow:implement`
-- **Agents**:
-  - @frontend-engineer
-  - @backend-engineer
-  - @ai-ml-engineer
-  - @frontend-code-reviewer
-  - @backend-code-reviewer
-- **Output**: Code + tests + AC coverage
-- **Skippable**: No
-
-### 2. Validate (Required)
-- **Command**: `/flow:validate`
-- **Agents**:
-  - @quality-guardian
-  - @secure-by-design-engineer
-  - @tech-writer
-  - @release-manager
-- **Output**: QA report + security report
-- **Skippable**: No
-
-## Quality Gates
-
-The Build meta-workflow enforces these quality gates **before** transitioning to Validated state:
-
-### 1. Test Coverage Gate
-- **Type**: `test_coverage`
-- **Threshold**: 80% (configurable)
-- **Required**: Yes
-- **Failure**: Blocks state transition
-
-### 2. Security Scan Gate
-- **Type**: `security_scan`
-- **Severity**: HIGH+
-- **Required**: Yes
-- **Failure**: Blocks state transition if HIGH or CRITICAL findings exist
-
-### 3. Acceptance Criteria Gate
-- **Type**: `acceptance_criteria`
-- **Coverage**: 100%
-- **Required**: Yes
-- **Failure**: Blocks state transition
-
-**Gate Validation Example**:
-```
-✓ Test Coverage: 85% (threshold: 80%)
-✗ Security Scan: 2 HIGH findings (threshold: 0 HIGH+)
-✓ Acceptance Criteria: 100% (12/12 criteria met)
-
-❌ Build failed: Security gate not met
-```
-
-## Atomic Execution
-
-The Build meta-workflow is **atomic** - both implement and validate must complete successfully:
-
-```yaml
-orchestration:
-  atomic: true  # Implementation + validation together or neither
-```
-
-**Why Atomic?**
-- Prevents "half-done" features
-- Ensures quality is always checked
-- Enforces "definition of done"
-- Reduces technical debt
-
-**Implications**:
-- If validation fails, state remains "Planned" (not "In Implementation")
-- Must fix issues and re-run entire build
-- Cannot skip validation phase
-
-## Execution Flow
-
-```mermaid
-graph TD
-    A[Start: Planned] --> B[Implement]
-    B --> C[Validate]
-    C --> D{Quality Gates?}
-    D -->|Pass| E[End: Validated]
-    D -->|Fail| F[Rollback to Planned]
-```
-
-## Error Handling
-
-### Implementation Failure
-If implementation fails (e.g., code review fails, tests don't pass):
-- State remains "Planned"
-- Fix issues and re-run `/flow:meta-build`
-- Previous attempt's artifacts are preserved for debugging
-
-### Validation Failure
-If validation fails (e.g., security issues found):
-- State rolls back to "Planned" (atomic guarantee)
-- Fix security issues
-- Re-run `/flow:meta-build` (will re-implement + re-validate)
-
-### Quality Gate Failure
-If quality gates fail:
-- State remains "Planned"
-- Review gate failure details
-- Improve tests/security/AC coverage
-- Re-run `/flow:meta-build`
-
-## When to Use This vs. Granular Commands
-
-**Use Meta-Workflow (`/flow:meta-build`) when**:
-- ✅ Starting implementation of a planned feature
-- ✅ You want atomic implementation + validation
-- ✅ You want automatic quality gate enforcement
-- ✅ You prefer simplicity
-
-**Use Granular Commands when**:
-- 🔧 Re-running only implementation after code changes
-- 🔧 Re-running only validation after fixing issues
-- 🔧 Debugging specific validation failures
-- 🔧 You need to pause between implementation and validation
-
-## Cross-Tool Compatibility
-
-### Claude Code
 ```bash
-/flow:meta-build
+# Update task state using backlog.md
+backlog task edit "$TASK_ID" -s "Validated" 2>/dev/null
+
+# Verify final state
+FINAL_STATE=$(backlog task "$TASK_ID" --plain 2>/dev/null | grep "^Status:" | awk '{print $2}')
+
+if [ "$FINAL_STATE" = "Validated" ]; then
+  echo ""
+  echo "✅ Meta-workflow 'build' completed successfully!"
+  echo "   Task $TASK_ID transitioned: Planned → Validated"
+  echo ""
+  echo "Artifacts created:"
+  echo "  - src/ (source code)"
+  echo "  - tests/ (test suite)"
+  echo "  - tests/ac-coverage.json (AC coverage report)"
+  echo "  - docs/qa/$TASK_ID-qa-report.md"
+  echo "  - docs/security/$TASK_ID-security.md"
+  echo ""
+  echo "Quality gates enforced:"
+  echo "  ✅ Test coverage: ${COVERAGE}% (≥80%)"
+  echo "  ✅ Security scan: 0 HIGH+ findings"
+  echo "  ✅ Acceptance criteria: ${AC_PERCENT}% (100% required)"
+  echo ""
+  echo "Next step: Run /flow:meta-run to deploy the feature"
+else
+  echo "⚠️ Warning: Expected state 'Validated' but task is in '$FINAL_STATE'"
+  echo "Atomic operation failed - implementation and validation did not complete together."
+  exit 1
+fi
 ```
 
-### GitHub Copilot
-```
-@flowspec /flow:meta-build
+## Atomic Execution Guarantee
+
+This meta-workflow enforces **atomic semantics**:
+
+- If implementation succeeds but validation fails → Task remains in `Planned` state
+- If validation succeeds but quality gates fail → Task remains in `Planned` state
+- Only if all succeed → Task transitions to `Validated`
+
+This prevents "half-done" features and ensures quality is always enforced.
+
+## Execution Summary
+
+This meta-workflow consolidates 2 workflow commands into 1 with atomic guarantees:
+
+**Instead of running separately:**
+```bash
+/flow:implement
+/flow:validate  # Hope nothing breaks!
 ```
 
-### Cursor
-```
-@flowspec /flow:meta-build
-```
-
-### Gemini Code
-```
-flowspec meta-build
+**You run once:**
+```bash
+/flow:meta-build  # Atomic: both succeed or both fail
 ```
 
-## Configuration
-
-Meta-workflow behavior is controlled by `flowspec_workflow.yml`:
-
-```yaml
-meta_workflows:
-  build:
-    command: "/flow:meta-build"
-    sub_workflows:
-      - workflow: "implement"
-        required: true
-      - workflow: "validate"
-        required: true
-    input_state: "Planned"
-    output_state: "Validated"
-    quality_gates:
-      - type: "test_coverage"
-        threshold: 80
-        required: true
-      - type: "security_scan"
-        severity: "HIGH"
-        required: true
-      - type: "acceptance_criteria"
-        coverage: 100
-        required: true
-    orchestration:
-      atomic: true
-```
-
-## Events Emitted
-
-```jsonl
-{"event": "meta_workflow.started", "meta_workflow": "build", "timestamp": "..."}
-{"event": "sub_workflow.started", "workflow": "implement", "timestamp": "..."}
-{"event": "sub_workflow.completed", "workflow": "implement", "success": true, "timestamp": "..."}
-{"event": "sub_workflow.started", "workflow": "validate", "timestamp": "..."}
-{"event": "sub_workflow.completed", "workflow": "validate", "success": true, "timestamp": "..."}
-{"event": "quality_gate.validated", "gate": "test_coverage", "result": "pass", "actual": 85, "threshold": 80, "timestamp": "..."}
-{"event": "quality_gate.validated", "gate": "security_scan", "result": "pass", "findings": 0, "timestamp": "..."}
-{"event": "quality_gate.validated", "gate": "acceptance_criteria", "result": "pass", "coverage": 100, "timestamp": "..."}
-{"event": "meta_workflow.completed", "meta_workflow": "build", "success": true, "final_state": "Validated", "timestamp": "..."}
-```
+All sub-workflows integrate with backlog.md for state management and task tracking.
 
 ## See Also
 
-- `/flow:meta-research` - Planning and design meta-workflow
-- `/flow:meta-run` - Deployment and operations meta-workflow
-- `docs/adr/003-meta-workflow-simplification.md` - Design rationale
+- `/flow:meta-research` - Plan It (assess + specify + research + plan)
+- `/flow:meta-run` - Deploy It (operate)
 - `flowspec_workflow.yml` - Configuration reference
+- `docs/adr/003-meta-workflow-simplification.md` - Design rationale

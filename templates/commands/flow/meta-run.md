@@ -1,233 +1,126 @@
-# /flow:meta-run - Run Meta-Workflow
+---
+description: Deploy It - Production deployment and operational readiness
+mode: agent
+loop: outer
+---
 
-**Version**: 1.0.0
-**Command**: `/flow:meta-run`
-**Summary**: Deploy It - Production deployment and operational readiness
+## User Input
 
-## Purpose
+```text
+$ARGUMENTS
+```
 
-The **Run** meta-workflow handles deployment and operational readiness of validated features. It ensures features are not just built and tested, but also deployed and maintainable in production environments.
+You **MUST** consider the user input before proceeding (if not empty).
 
-Currently maps 1:1 to the `operate` workflow, but provides a foundation for future enhancements like auto-deployment and monitoring setup.
+{{INCLUDE:.claude/commands/flow/_constitution-check.md}}
 
-## What It Does
+{{INCLUDE:.claude/commands/flow/_rigor-rules.md}}
 
-Executes in sequence:
-1. **Operate** (`/flow:operate`) - Deploy to production and create operational artifacts
+{{INCLUDE:.claude/commands/flow/_workflow-state.md}}
 
-## Input/Output
+## Meta-Workflow: Run (Deploy It)
 
-**Input State**: `Validated`
-**Output State**: `Deployed`
+This meta-workflow executes the deployment phase:
 
-**Artifacts Created**:
-- `docs/runbooks/{feature}-runbook.md` - Operational runbook
-- `deploy/` - Deployment manifests (Kubernetes YAML, Terraform, etc.)
-- `.logs/deployment/{feature}-deploy.log` - Deployment execution log
+1. **Operate** - Deploy to production and create operational artifacts
 
-## Usage
+**Required input state**: `Validated`
+**Output state**: `Deployed`
 
-### Basic Usage
+## Step 1: Verify Task State
 
 ```bash
-/flow:meta-run
+# Get current task from branch or arguments
+TASK_ID="${TASK_ID:-$(git branch --show-current 2>/dev/null | grep -Eo 'task-[0-9]+' || echo '')}"
+
+if [ -z "$TASK_ID" ]; then
+  echo "❌ No task ID found. Run from a feature branch or specify task ID."
+  echo "Usage: /flow:meta-run [task-id]"
+  exit 1
+fi
+
+# Check task state using backlog.md
+CURRENT_STATE=$(backlog task "$TASK_ID" --plain 2>/dev/null | grep "^Status:" | awk '{print $2}')
+
+if [ "$CURRENT_STATE" != "Validated" ]; then
+  echo "❌ Task $TASK_ID is in state '$CURRENT_STATE' but requires 'Validated'"
+  echo "This meta-workflow can only run from 'Validated' state."
+  echo ""
+  echo "Did you run /flow:meta-build first?"
+  exit 1
+fi
+
+echo "✓ Task $TASK_ID verified in 'Validated' state"
+echo "✓ Starting meta-workflow: run (Deploy It)"
+echo ""
 ```
 
-This will:
-- Auto-detect current feature from branch name
-- Generate deployment configurations
-- Create operational runbooks
-- (Future) Trigger CI/CD pipeline
-- (Future) Set up monitoring/alerts
-- Update task state to "Deployed"
+## Step 2: Execute Sub-Workflow
 
-### With Options
+### 2.1 Run /flow:operate
+
+Execute deployment and create operational artifacts:
+
+**Execute**: `/flow:operate`
+
+Wait for operate to complete. This will:
+- Generate deployment configurations (Kubernetes, Docker, Terraform, etc.)
+- Create operational runbooks in `docs/runbooks/`
+- Set up monitoring and alerting (optional)
+- Execute CI/CD pipeline (if configured)
+- Create deployment logs in `.logs/deployment/`
+- Transition task to `Deployed` state
+
+## Step 3: Verify Deployment
+
+After operate completes, verify the task reached the deployed state:
 
 ```bash
-/flow:meta-run --task-id task-123
-/flow:meta-run --environment production
-/flow:meta-run --dry-run
-/flow:meta-run --auto-deploy
+# Check final task state
+FINAL_STATE=$(backlog task "$TASK_ID" --plain 2>/dev/null | grep "^Status:" | awk '{print $2}')
+
+if [ "$FINAL_STATE" = "Deployed" ]; then
+  echo ""
+  echo "✅ Meta-workflow 'run' completed successfully!"
+  echo "   Task $TASK_ID transitioned: Validated → Deployed"
+  echo ""
+  echo "Artifacts created:"
+  echo "  - docs/runbooks/$TASK_ID-runbook.md"
+  echo "  - deploy/ (deployment manifests)"
+  echo "  - .logs/deployment/$TASK_ID-deploy.log"
+  echo ""
+  echo "Deployment complete! Feature is now in production."
+  echo ""
+  echo "Next steps:"
+  echo "  - Monitor application metrics and logs"
+  echo "  - Review runbook for operational procedures"
+  echo "  - Set up alerts and dashboards as needed"
+else
+  echo "⚠️ Warning: Expected state 'Deployed' but task is in '$FINAL_STATE'"
+  echo "Deployment may have failed. Review errors above."
+  exit 1
+fi
 ```
 
-**Options**:
-- `--task-id <ID>`: Specify task ID (default: auto-detect from branch)
-- `--environment <ENV>`: Target environment (default: production)
-- `--dry-run`: Generate artifacts without deploying
-- `--auto-deploy`: Automatically trigger deployment (future)
+## Execution Summary
 
-## Sub-Workflow Execution
+This meta-workflow consolidates deployment operations:
 
-### 1. Operate (Required)
-- **Command**: `/flow:operate`
-- **Agent**: @sre-agent
-- **Output**: Runbooks + deployment configs
-- **Skippable**: No
-
-## Execution Flow
-
-```mermaid
-graph TD
-    A[Start: Validated] --> B[Operate]
-    B --> C[Generate Runbooks]
-    C --> D[Create Deployment Configs]
-    D --> E{Auto-deploy?}
-    E -->|Yes| F[Trigger CI/CD]
-    E -->|No| G[Manual Deploy]
-    F --> H[End: Deployed]
-    G --> H
-```
-
-## Operational Artifacts
-
-### Runbook Template
-The runbook includes:
-- **Service Overview**: What the feature does
-- **Architecture**: Components and dependencies
-- **Deployment Steps**: How to deploy manually
-- **Rollback Procedure**: How to revert if needed
-- **Monitoring**: What to monitor and alert on
-- **Troubleshooting**: Common issues and resolutions
-- **On-call Procedures**: Who to contact and when
-
-### Deployment Manifests
-Generated based on project type:
-- **Kubernetes**: `deploy/k8s/{feature}-deployment.yaml`
-- **Docker Compose**: `deploy/docker-compose.{feature}.yml`
-- **Terraform**: `deploy/terraform/{feature}.tf`
-- **AWS CDK**: `deploy/cdk/{feature}-stack.ts`
-
-## Future Enhancements
-
-The Run meta-workflow is designed for future expansion:
-
-### Planned Features
-1. **Auto-Deployment**
-   - Trigger CI/CD pipeline automatically
-   - Monitor deployment progress
-   - Auto-rollback on failure
-
-2. **Monitoring Setup**
-   - Create Prometheus alerts
-   - Set up Grafana dashboards
-   - Configure PagerDuty/Opsgenie
-
-3. **Canary Deployments**
-   - Progressive rollout
-   - Traffic splitting
-   - Health check monitoring
-
-4. **Infrastructure Provisioning**
-   - Auto-create cloud resources
-   - Set up databases, queues, etc.
-   - Configure networking/security groups
-
-## Error Handling
-
-### Deployment Failure
-If deployment fails:
-- State remains "Validated"
-- Review deployment logs
-- Fix issues (config errors, resource limits, etc.)
-- Re-run `/flow:meta-run`
-
-### Rollback
-If deployed feature has issues:
-- Use `--rollback` flag to revert
-- State transitions: Deployed → Validated
-- Previous version is restored
-- Incident postmortem triggered
-
-## When to Use This vs. Granular Commands
-
-**Use Meta-Workflow (`/flow:meta-run`) when**:
-- ✅ Deploying a validated feature to production
-- ✅ You want operational artifacts generated automatically
-- ✅ You prefer streamlined deployment process
-- ✅ You're following the full SDD workflow
-
-**Use Granular Command (`/flow:operate`) when**:
-- 🔧 Re-generating runbooks after updates
-- 🔧 Updating deployment configs only
-- 🔧 You have custom deployment orchestration
-- 🔧 You need fine-grained control
-
-## Cross-Tool Compatibility
-
-### Claude Code
+**Instead of:**
 ```bash
-/flow:meta-run
+/flow:operate  # Manual deployment steps
 ```
 
-### GitHub Copilot
-```
-@flowspec /flow:meta-run --environment production
-```
-
-### Cursor
-```
-@flowspec /flow:meta-run
+**You run:**
+```bash
+/flow:meta-run  # Automated deployment with runbooks
 ```
 
-### Gemini Code
-```
-flowspec meta-run --dry-run
-```
-
-## Configuration
-
-Meta-workflow behavior is controlled by `flowspec_workflow.yml`:
-
-```yaml
-meta_workflows:
-  run:
-    command: "/flow:meta-run"
-    sub_workflows:
-      - workflow: "operate"
-        required: true
-    input_state: "Validated"
-    output_state: "Deployed"
-    orchestration:
-      mode: "sequential"
-      stop_on_error: true
-```
-
-## Events Emitted
-
-```jsonl
-{"event": "meta_workflow.started", "meta_workflow": "run", "timestamp": "..."}
-{"event": "sub_workflow.started", "workflow": "operate", "timestamp": "..."}
-{"event": "deployment.started", "environment": "production", "timestamp": "..."}
-{"event": "deployment.completed", "success": true, "timestamp": "..."}
-{"event": "sub_workflow.completed", "workflow": "operate", "success": true, "timestamp": "..."}
-{"event": "meta_workflow.completed", "meta_workflow": "run", "success": true, "final_state": "Deployed", "timestamp": "..."}
-```
-
-## Best Practices
-
-1. **Always validate before deploying**
-   - Never skip the Build meta-workflow
-   - Ensure quality gates pass
-
-2. **Use dry-run first**
-   - Review generated configs before actual deployment
-   - Catch configuration errors early
-
-3. **Monitor deployments**
-   - Watch logs and metrics during deployment
-   - Have rollback plan ready
-
-4. **Document operational procedures**
-   - Keep runbooks up to date
-   - Include troubleshooting guides
-
-5. **Automate where possible**
-   - Use CI/CD for deployments
-   - Set up automated monitoring
+All operations integrate with backlog.md for state management and deployment tracking.
 
 ## See Also
 
-- `/flow:meta-research` - Planning and design meta-workflow
-- `/flow:meta-build` - Implementation and validation meta-workflow
-- `docs/adr/003-meta-workflow-simplification.md` - Design rationale
+- `/flow:meta-research` - Plan It (assess + specify + research + plan)
+- `/flow:meta-build` - Create It (implement + validate)
 - `flowspec_workflow.yml` - Configuration reference
+- `docs/adr/003-meta-workflow-simplification.md` - Design rationale

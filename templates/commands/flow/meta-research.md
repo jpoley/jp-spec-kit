@@ -1,203 +1,180 @@
-# /flow:meta-research - Research Meta-Workflow
+---
+description: Plan It - Complete upfront analysis and design (assess + specify + research + plan)
+mode: agent
+loop: outer
+---
 
-**Version**: 1.0.0
-**Command**: `/flow:meta-research`
-**Summary**: Plan It - Complete upfront analysis and design (assess + specify + research + plan)
+## User Input
 
-## Purpose
+```text
+$ARGUMENTS
+```
 
-The **Research** meta-workflow consolidates all upfront planning and design activities into a single command. It executes the full sequence from initial assessment through technical planning, producing a comprehensive set of design artifacts ready for implementation.
+You **MUST** consider the user input before proceeding (if not empty).
 
-This meta-workflow is **recommended for most users** as it simplifies the planning phase from 4 separate commands into 1.
+{{INCLUDE:.claude/commands/flow/_constitution-check.md}}
 
-## What It Does
+{{INCLUDE:.claude/commands/flow/_rigor-rules.md}}
 
-Executes in sequence:
-1. **Assess** (`/flow:assess`) - Evaluate SDD workflow suitability and complexity
-2. **Specify** (`/flow:specify`) - Create PRD and implementation tasks
-3. **Research** (`/flow:research`) - Optional deep research (if complexity ≥ 7 or requested)
-4. **Plan** (`/flow:plan`) - Create ADRs and technical design
+{{INCLUDE:.claude/commands/flow/_workflow-state.md}}
 
-## Input/Output
+## Meta-Workflow: Research (Plan It)
 
-**Input State**: `To Do`
-**Output State**: `Planned`
+This meta-workflow executes the complete planning phase by running these sub-workflows in sequence:
 
-**Artifacts Created**:
-- `docs/assess/{feature}-assessment.md` - Complexity and risk assessment
-- `docs/prd/{feature}.md` - Product Requirements Document
-- `docs/research/{feature}-research.md` - Research report (optional)
-- `docs/adr/ADR-*.md` - Architecture Decision Records
-- `backlog/tasks/*.md` - Implementation tasks
+1. **Assess** - Evaluate SDD workflow suitability
+2. **Specify** - Create PRD and implementation tasks
+3. **Research** - Deep research (conditional: if complexity ≥ 7)
+4. **Plan** - Create ADRs and technical design
 
-## Usage
+**Required input state**: `To Do`
+**Output state**: `Planned`
 
-### Basic Usage
+## Step 1: Verify Task State
 
 ```bash
-/flow:meta-research
+# Get current task from branch or arguments
+TASK_ID="${TASK_ID:-$(git branch --show-current 2>/dev/null | grep -Eo 'task-[0-9]+' || echo '')}"
+
+if [ -z "$TASK_ID" ]; then
+  echo "❌ No task ID found. Run from a feature branch or specify task ID."
+  echo "Usage: /flow:meta-research [task-id]"
+  exit 1
+fi
+
+# Check task state using backlog.md
+CURRENT_STATE=$(backlog task "$TASK_ID" --plain 2>/dev/null | grep "^Status:" | awk '{print $2" "$3}')
+
+if [ "$CURRENT_STATE" != "To Do" ]; then
+  echo "❌ Task $TASK_ID is in state '$CURRENT_STATE' but requires 'To Do'"
+  echo "This meta-workflow can only run from 'To Do' state."
+  exit 1
+fi
+
+echo "✓ Task $TASK_ID verified in 'To Do' state"
+echo "✓ Starting meta-workflow: research (Plan It)"
+echo ""
 ```
+
+## Step 2: Execute Sub-Workflows
+
+Execute each sub-workflow in sequence. The orchestrator ensures proper state transitions and backlog integration.
+
+### 2.1 Run /flow:assess
+
+Evaluate SDD workflow suitability and determine complexity:
+
+**Execute**: `/flow:assess`
+
+Wait for assess to complete before proceeding. This will:
+- Analyze feature complexity
+- Determine if research phase is needed
+- Transition task to `Assessed` state
+- Create assessment report in `docs/assess/`
+
+### 2.2 Run /flow:specify
+
+Create comprehensive product requirements document:
+
+**Execute**: `/flow:specify`
+
+Wait for specify to complete. This will:
+- Create PRD in `docs/prd/`
+- Generate backlog tasks in `backlog/tasks/`
+- Define acceptance criteria
+- Transition task to `Specified` state
+
+### 2.3 Run /flow:research (Conditional)
+
+**Condition**: Execute only if complexity ≥ 7 OR explicitly requested
+
+```bash
+# Check complexity score from assessment
+COMPLEXITY=$(grep -oP 'complexity_score:\s*\K\d+' "docs/assess/$TASK_ID-assessment.md" 2>/dev/null || echo "0")
+
+if [ "$COMPLEXITY" -ge 7 ]; then
+  echo "✓ Complexity score: $COMPLEXITY (≥7) - Running research phase"
+  # Execute /flow:research below
+elif echo "$ARGUMENTS" | grep -q "force-research\|--research"; then
+  echo "✓ Research explicitly requested via arguments"
+  # Execute /flow:research below
+else
+  echo "⊘ Skipping research (complexity: $COMPLEXITY < 7, not forced)"
+  # Skip to plan
+  exit 0
+fi
+```
+
+If condition is met, **Execute**: `/flow:research`
 
 This will:
-- Auto-detect current feature from branch name
-- Run all sub-workflows (skipping research if complexity < 7)
-- Create all design artifacts
-- Update task state to "Planned"
+- Conduct market/technical research
+- Validate business assumptions
+- Create research report in `docs/research/`
+- Transition task to `Researched` state
 
-### With Options
+### 2.4 Run /flow:plan
+
+Create architecture decision records and technical design:
+
+**Execute**: `/flow:plan`
+
+Wait for plan to complete. This will:
+- Create ADRs in `docs/adr/`
+- Design system architecture
+- Create platform/infrastructure specs
+- Transition task to `Planned` state
+
+## Step 3: Verify Completion
+
+After all sub-workflows complete, verify the task reached the final state:
 
 ```bash
-/flow:meta-research --task-id task-123
-/flow:meta-research --force-research
-/flow:meta-research --light-mode
-/flow:meta-research --skip-research
+# Check final task state
+FINAL_STATE=$(backlog task "$TASK_ID" --plain 2>/dev/null | grep "^Status:" | awk '{print $2}')
+
+if [ "$FINAL_STATE" = "Planned" ]; then
+  echo ""
+  echo "✅ Meta-workflow 'research' completed successfully!"
+  echo "   Task $TASK_ID transitioned: To Do → Planned"
+  echo ""
+  echo "Artifacts created:"
+  echo "  - docs/assess/$TASK_ID-assessment.md"
+  echo "  - docs/prd/$TASK_ID.md"
+  echo "  - docs/research/$TASK_ID-research.md (if complexity ≥ 7)"
+  echo "  - docs/adr/ADR-*.md"
+  echo "  - backlog/tasks/*.md"
+  echo ""
+  echo "Next step: Run /flow:meta-build to implement the feature"
+else
+  echo "⚠️ Warning: Expected state 'Planned' but task is in '$FINAL_STATE'"
+  echo "One or more sub-workflows may have failed. Review errors above."
+  exit 1
+fi
 ```
 
-**Options**:
-- `--task-id <ID>`: Specify task ID (default: auto-detect from branch)
-- `--force-research`: Force research phase even if complexity < 7
-- `--skip-research`: Skip research phase even if complexity ≥ 7
-- `--light-mode`: Use lightweight templates (spec-light, plan-light)
+## Execution Summary
 
-## Sub-Workflow Execution
+This meta-workflow consolidates 4 workflow commands into 1:
 
-The meta-workflow executes sub-workflows in this order:
-
-### 1. Assess (Required)
-- **Command**: `/flow:assess`
-- **Agent**: @workflow-assessor
-- **Output**: Assessment report with complexity score
-- **Skippable**: No
-
-### 2. Specify (Required)
-- **Command**: `/flow:specify`
-- **Agent**: @pm-planner
-- **Output**: PRD + backlog tasks
-- **Skippable**: No
-
-### 3. Research (Conditional)
-- **Command**: `/flow:research`
-- **Agents**: @researcher, @business-validator
-- **Output**: Research report + business validation
-- **Skippable**: Yes (if complexity < 7 and not forced)
-- **Condition**: `complexity_score >= 7 OR light_mode == false`
-
-### 4. Plan (Required)
-- **Command**: `/flow:plan`
-- **Agents**: @software-architect, @platform-engineer
-- **Output**: ADRs + technical spec
-- **Skippable**: No
-
-## Execution Flow
-
-```mermaid
-graph TD
-    A[Start: To Do] --> B[Assess]
-    B --> C[Specify]
-    C --> D{Complexity ≥ 7?}
-    D -->|Yes| E[Research]
-    D -->|No| F[Plan]
-    E --> F
-    F --> G[End: Planned]
+**Instead of running separately:**
+```bash
+/flow:assess
+/flow:specify
+/flow:research  # if complexity ≥ 7
+/flow:plan
 ```
 
-## Error Handling
-
-The meta-workflow uses **stop-on-error** mode:
-- If any required sub-workflow fails, execution stops immediately
-- Partial progress is preserved (artifacts created before failure remain)
-- You can resume by fixing the issue and re-running the meta-workflow
-- Optional workflows (research) failing will log a warning but continue
-
-## When to Use This vs. Granular Commands
-
-**Use Meta-Workflow (`/flow:meta-research`) when**:
-- ✅ Starting a new feature from scratch
-- ✅ You want the full planning sequence
-- ✅ You prefer simplicity over fine-grained control
-- ✅ You're new to flowspec
-
-**Use Granular Commands (`/flow:assess`, `/flow:specify`, etc.) when**:
-- 🔧 Re-running a single phase after updates
-- 🔧 You want to review artifacts between phases
-- 🔧 You're debugging or iterating on specific parts
-- 🔧 You need custom orchestration logic
-
-## Cross-Tool Compatibility
-
-This meta-workflow is designed to work across all supported AI tools:
-
-### Claude Code
+**You run once:**
 ```bash
 /flow:meta-research
 ```
 
-### GitHub Copilot
-```
-@flowspec /flow:meta-research for feature X
-```
-
-### Cursor
-```
-@flowspec /flow:meta-research
-```
-
-### Gemini Code
-```
-flowspec meta-research
-```
-
-## Implementation
-
-The meta-workflow is executed by the `MetaWorkflowOrchestrator` class in `src/flowspec_cli/workflow/meta_orchestrator.py`. It reads the configuration from `flowspec_workflow.yml` and orchestrates sub-workflows accordingly.
-
-## Configuration
-
-Meta-workflow behavior is controlled by `flowspec_workflow.yml`:
-
-```yaml
-meta_workflows:
-  research:
-    command: "/flow:meta-research"
-    sub_workflows:
-      - workflow: "assess"
-        required: true
-      - workflow: "specify"
-        required: true
-      - workflow: "research"
-        required: false
-        condition: "complexity_score >= 7 OR light_mode == false"
-      - workflow: "plan"
-        required: true
-    input_state: "To Do"
-    output_state: "Planned"
-```
-
-You can customize this configuration to:
-- Change the research condition
-- Add/remove sub-workflows
-- Modify orchestration mode
-- Adjust artifacts
-
-## Events Emitted
-
-The meta-workflow emits these events to `.logs/events/`:
-
-```jsonl
-{"event": "meta_workflow.started", "meta_workflow": "research", "timestamp": "..."}
-{"event": "sub_workflow.started", "workflow": "assess", "timestamp": "..."}
-{"event": "sub_workflow.completed", "workflow": "assess", "success": true, "timestamp": "..."}
-{"event": "sub_workflow.started", "workflow": "specify", "timestamp": "..."}
-{"event": "sub_workflow.completed", "workflow": "specify", "success": true, "timestamp": "..."}
-{"event": "sub_workflow.skipped", "workflow": "research", "reason": "complexity < 7", "timestamp": "..."}
-{"event": "sub_workflow.started", "workflow": "plan", "timestamp": "..."}
-{"event": "sub_workflow.completed", "workflow": "plan", "success": true, "timestamp": "..."}
-{"event": "meta_workflow.completed", "meta_workflow": "research", "success": true, "final_state": "Planned", "timestamp": "..."}
-```
+All sub-workflows integrate with backlog.md for state management, task tracking, and artifact linking.
 
 ## See Also
 
-- `/flow:meta-build` - Implementation and validation meta-workflow
-- `/flow:meta-run` - Deployment and operations meta-workflow
-- `docs/adr/003-meta-workflow-simplification.md` - Design rationale
+- `/flow:meta-build` - Create It (implement + validate)
+- `/flow:meta-run` - Deploy It (operate)
 - `flowspec_workflow.yml` - Configuration reference
+- `docs/adr/003-meta-workflow-simplification.md` - Design rationale
