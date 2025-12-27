@@ -102,17 +102,39 @@ else:
         # For example, if assess was run, load complexity score
         context = {}
 
-        # Execute workflow
+        # Execute workflow (get execution plan)
         result = orchestrator.execute_custom_workflow(workflow_name, context)
 
         if result.success:
-            print(f"✓ Custom workflow '{workflow_name}' completed successfully")
-            print(f"  Steps executed: {result.steps_executed}")
+            print(f"\n✓ Custom workflow '{workflow_name}' execution plan prepared")
+            print(f"  Steps to execute: {result.steps_executed}")
             print(f"  Steps skipped: {result.steps_skipped}")
+            
+            # Execute each workflow step command
+            print(f"\nExecuting {result.steps_executed} workflow steps...")
+            
+            for i, step_result in enumerate(result.step_results, 1):
+                if step_result.skipped:
+                    print(f"  [{i}] SKIPPED: {step_result.workflow_name} - {step_result.skip_reason}")
+                    continue
+                
+                if step_result.command:
+                    print(f"  [{i}] Invoking {step_result.command}...")
+                    # AGENT EXECUTION POINT: This is where Claude Code invokes the workflow
+                    # When running as an agent, replace this print with actual Skill invocation:
+                    # await skill_tool.invoke(step_result.command)
+                    print(f"      → Command: {step_result.command}")
+                    print(f"      → Status: Ready for execution")
+                else:
+                    print(f"  [{i}] ERROR: No command for {step_result.workflow_name}")
+            
+            print(f"\n✓ Workflow execution plan complete")
             print(f"\nDecision log: .logs/decisions/session-{session_id}.jsonl")
             print(f"Event log: .logs/events/session-{session_id}.jsonl")
+            print(f"\nNOTE: When running as an agent (Claude Code), the workflow commands")
+            print(f"      above should be automatically invoked using the Skill tool.")
         else:
-            print(f"✗ Custom workflow '{workflow_name}' failed")
+            print(f"\n✗ Custom workflow '{workflow_name}' failed")
             print(f"  Error: {result.error}")
             print(f"  Steps completed before failure: {result.steps_executed}")
 

@@ -7284,11 +7284,25 @@ def flow_custom(
         result = orchestrator.execute_custom_workflow(workflow_name, context)
 
         if result.success:
-            console.print(f"\n[green]✓ Custom workflow '{workflow_name}' completed[/green]")
-            console.print(f"  Steps executed: {result.steps_executed}")
+            console.print(f"\n[green]✓ Custom workflow '{workflow_name}' execution plan prepared[/green]")
+            console.print(f"  Steps to execute: {result.steps_executed}")
             console.print(f"  Steps skipped: {result.steps_skipped}")
-            console.print(f"\nDecision log: .logs/decisions/session-{session_id}.jsonl")
-            console.print(f"Event log: .logs/events/session-{session_id}.jsonl")
+
+            # Display commands to execute
+            console.print(f"\n[bold]Workflow execution steps:[/bold]")
+            for i, step_result in enumerate(result.step_results, 1):
+                if step_result.skipped:
+                    console.print(f"  [{i}] [yellow]SKIPPED[/yellow]: {step_result.workflow_name}")
+                    console.print(f"      Reason: {step_result.skip_reason}")
+                elif step_result.command:
+                    console.print(f"  [{i}] [cyan]{step_result.command}[/cyan]")
+                    console.print(f"      Workflow: {step_result.workflow_name}")
+                else:
+                    console.print(f"  [{i}] [red]ERROR[/red]: No command for {step_result.workflow_name}")
+
+            console.print(f"\n[dim]Decision log: .logs/decisions/session-{session_id}.jsonl[/dim]")
+            console.print(f"[dim]Event log: .logs/events/session-{session_id}.jsonl[/dim]")
+            console.print(f"\n[yellow]NOTE:[/yellow] In Claude Code, use the Skill tool to execute each command above.")
         else:
             console.print(f"\n[red]✗ Custom workflow '{workflow_name}' failed[/red]")
             console.print(f"  Error: {result.error}")

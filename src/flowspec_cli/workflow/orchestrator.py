@@ -29,6 +29,7 @@ class WorkflowStepResult:
     workflow_name: str
     success: bool
     skipped: bool
+    command: Optional[str] = None  # The command to execute (e.g., "/flow:specify")
     skip_reason: Optional[str] = None
     error: Optional[str] = None
 
@@ -261,7 +262,7 @@ class WorkflowOrchestrator:
         # Execute the actual workflow
         # CRITICAL: This is where we ACTUALLY invoke the workflow, not just log it
         try:
-            self._invoke_workflow(workflow_name)
+            command = self._invoke_workflow(workflow_name)
 
             self.rigor.log_event(
                 event_type="WORKFLOW_STEP_COMPLETE",
@@ -270,7 +271,10 @@ class WorkflowOrchestrator:
             )
 
             return WorkflowStepResult(
-                workflow_name=workflow_name, success=True, skipped=False
+                workflow_name=workflow_name,
+                success=True,
+                skipped=False,
+                command=command,
             )
 
         except Exception as e:
@@ -363,14 +367,18 @@ class WorkflowOrchestrator:
         )
         return True
 
-    def _invoke_workflow(self, workflow_name: str) -> None:
+    def _invoke_workflow(self, workflow_name: str) -> str:
         """
-        Invoke the actual workflow execution.
+        Prepare workflow execution command.
 
-        This is where we ACTUALLY execute the workflow, not just log it.
+        This prepares the workflow for execution and returns the command to execute.
+        The actual execution is performed by the caller (agent or CLI).
 
         Args:
             workflow_name: Name of the workflow to invoke
+
+        Returns:
+            Command string to execute (e.g., "/flow:specify")
 
         Raises:
             ValueError: If workflow not found
@@ -379,7 +387,7 @@ class WorkflowOrchestrator:
         # Get workflow definition from config
         if self.workflow_config is None:
             logger.warning(f"No workflow config available")
-            return
+            raise RuntimeError("No workflow configuration available")
 
         workflows = self.workflow_config._data.get("workflows", {})
 
@@ -389,7 +397,7 @@ class WorkflowOrchestrator:
         workflow_def = workflows[workflow_name]
         command = workflow_def["command"]
 
-        logger.info(f"Invoking workflow '{workflow_name}' via command '{command}'")
+        logger.info(f"Preparing workflow '{workflow_name}' via command '{command}'")
 
         # Dispatch workflow execution
         try:
@@ -415,10 +423,8 @@ class WorkflowOrchestrator:
                 },
             )
 
-            # For agent-based workflows, the actual execution happens via Claude Code
-            # The dispatcher has prepared the execution metadata
-            # In a Claude Code context, this would trigger a Skill invocation
-            logger.info(f"Next action: {result['next_action']}")
+            # Return the command for the agent/caller to execute
+            return result["command"]
 
         except ValueError as e:
             logger.error(f"Dispatch failed: {e}")
