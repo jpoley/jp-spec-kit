@@ -59,7 +59,8 @@
   },
 
   "mounts": [
-    "source=${localWorkspaceFolder}/backlog,target=/workspaces/flowspec/backlog,type=bind,consistency=cached"
+    "source=${localWorkspaceFolder}/backlog,target=/workspaces/flowspec/backlog,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.config/gh,target=/home/vscode/.config/gh,type=bind,readonly"
   ],
 
   "remoteEnv": {
