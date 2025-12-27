@@ -105,8 +105,7 @@ states:
   - "Planned"         # Architecture and infrastructure planned via /flow:plan
   - "In Implementation"  # Code actively being written via /flow:implement
   - "Validated"       # QA, security, and documentation validated via /flow:validate
-  - "Deployed"        # Released to production via /flow:operate
-  - "Done"            # Work complete - ready for archive
+  - "Done"            # Work complete - ready for archive (deployment is outer loop)
 
 # ==============================================================================
 # WORKFLOW DEFINITIONS
@@ -262,22 +261,10 @@ workflows:
     optional: false
     requires_human_approval: true
 
-  operate:
-    command: "/flow:operate"
-    description: "Execute operations workflow using SRE agent"
-    agents:
-      - name: "sre-agent"
-        identity: "@sre-agent"
-        description: "Principal Site Reliability Engineer"
-        responsibilities:
-          - "CI/CD pipeline implementation"
-          - "Kubernetes deployment"
-          - "Observability setup"
-          - "Incident management"
-    input_states: ["Validated"]
-    output_state: "Deployed"
-    optional: false
-    creates_backlog_tasks: true
+  # NOTE: /flow:operate REMOVED - it's outer loop (Promote/Observe/Operate/Feedback)
+  # Outer loop belongs to falcondev and other tools, NOT flowspec
+  # Flowspec = Inner Loop ONLY (specify → plan → implement → validate)
+  # See: build-docs/simplify/flowspec-loop.md
 
   submit-n-watch-pr:
     command: "/flow:submit-n-watch-pr"
@@ -556,6 +543,65 @@ agent_loops:
       - "release-manager"
       - "sre-agent"
       - "pr-monitor"
+
+# ==============================================================================
+# CUSTOM WORKFLOWS (User-Customizable Orchestration)
+# ==============================================================================
+# Users can define custom workflow sequences for flexible orchestration.
+# Each custom workflow orchestrates the core/supporting workflows in a custom sequence.
+
+custom_workflows:
+  quick_build:
+    name: "Quick Build"
+    description: "Lightweight workflow for simple features - specify → implement → validate"
+    mode: "vibing"  # Autonomous execution, no checkpoints
+    steps:
+      - workflow: "specify"
+      - workflow: "implement"
+      - workflow: "validate"
+    rigor:
+      log_decisions: true
+      log_events: true
+      backlog_integration: true
+      memory_tracking: true
+      follow_constitution: true
+      create_adrs: true
+
+  full_design:
+    name: "Full Design Workflow"
+    description: "Complete design workflow with conditional research"
+    mode: "spec-ing"  # Stop for approvals at checkpoints
+    steps:
+      - workflow: "assess"
+      - workflow: "specify"
+        checkpoint: "Review PRD before continuing?"
+      - workflow: "research"
+        condition: "complexity >= 7"  # Only research if complex
+      - workflow: "plan"
+        checkpoint: "Review architecture before implementing?"
+    rigor:
+      log_decisions: true
+      log_events: true
+      backlog_integration: true
+      memory_tracking: true
+      follow_constitution: true
+      create_adrs: true
+
+  ship_it:
+    name: "Build and Ship"
+    description: "Implementation to validation with PR submission"
+    mode: "vibing"
+    steps:
+      - workflow: "implement"
+      - workflow: "validate"
+      - workflow: "submit-n-watch-pr"
+    rigor:
+      log_decisions: true
+      log_events: true
+      backlog_integration: true
+      memory_tracking: true
+      follow_constitution: true
+      create_adrs: true
 
 # ==============================================================================
 # METADATA

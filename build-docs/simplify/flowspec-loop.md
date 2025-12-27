@@ -4,6 +4,8 @@
 Default Flowspec.  THIS IS OUR MISSION!
 (the development look) - using specs & artifacts to build quality.  flowspec and falcondev are our inner loop
 
+![flowspec inner loop](./inner-loop.png)
+
 ```
 ┌──────────────────────────────────────────────────────────────────────────────────┐
 │                           FLOWSPEC INNER LOOP COMMAND REFERENCE                  │
@@ -21,7 +23,12 @@ Default Flowspec.  THIS IS OUR MISSION!
 -----
 
 # Outer Loop
-not  spec driven commands. (but part of entire software lifecycle) not part of flowspec at all, falcondev (and other tools will be our outer loop)
+
+not  spec driven commands. (or part of flowspec)
+(but part of entire software lifecycle) not part of flowspec at all, falcondev (and other tools will be our outer loop)
+
+
+![flowspec inner loop](./inner-outer-loop.png)
 
 ```
 ┌────────────────────────────────────────────────────────────────────────────────────┐

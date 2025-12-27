@@ -7,6 +7,17 @@
   "required": ["version", "states", "workflows", "transitions"],
   "additionalProperties": false,
   "properties": {
+    "custom_workflows": {
+      "type": "object",
+      "description": "User-customizable workflow sequences for flexible orchestration",
+      "additionalProperties": {
+        "$ref": "#/$defs/custom_workflow"
+      },
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9_-]*$",
+        "description": "Custom workflow names must be lowercase alphanumeric with underscores or hyphens"
+      }
+    },
     "version": {
       "type": "string",
       "pattern": "^\\d+\\.\\d+$",
@@ -464,6 +475,95 @@
             }
           ],
           "description": "Validation mode: NONE (automatic), KEYWORD (user types keyword), KEYWORD[...] (custom keyword), PULL_REQUEST (blocked until PR merged)"
+        }
+      }
+    },
+    "custom_workflow": {
+      "type": "object",
+      "description": "User-defined workflow sequence for orchestration",
+      "required": ["name", "mode", "steps", "rigor"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-readable name for this custom workflow"
+        },
+        "description": {
+          "type": "string",
+          "description": "Optional description of what this workflow does"
+        },
+        "mode": {
+          "type": "string",
+          "enum": ["vibing", "spec-ing"],
+          "description": "Execution mode: 'vibing' (autonomous, no stops) or 'spec-ing' (checkpoint approvals)"
+        },
+        "steps": {
+          "type": "array",
+          "description": "Sequence of workflow steps to execute",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/custom_workflow_step"
+          }
+        },
+        "rigor": {
+          "type": "object",
+          "description": "Rigor enforcement rules (ALWAYS REQUIRED, NO EXCEPTIONS)",
+          "required": ["log_decisions", "log_events", "backlog_integration", "memory_tracking", "follow_constitution"],
+          "additionalProperties": false,
+          "properties": {
+            "log_decisions": {
+              "type": "boolean",
+              "const": true,
+              "description": "REQUIRED: Must log decisions to .logs/decisions/*.jsonl"
+            },
+            "log_events": {
+              "type": "boolean",
+              "const": true,
+              "description": "REQUIRED: Must log events to .logs/events/*.jsonl"
+            },
+            "backlog_integration": {
+              "type": "boolean",
+              "const": true,
+              "description": "REQUIRED: Must integrate with backlog.md via MCP"
+            },
+            "memory_tracking": {
+              "type": "boolean",
+              "const": true,
+              "description": "REQUIRED: Must track task state across sessions"
+            },
+            "follow_constitution": {
+              "type": "boolean",
+              "const": true,
+              "description": "REQUIRED: Must follow .specify/memory/constitution.md"
+            },
+            "create_adrs": {
+              "type": "boolean",
+              "default": true,
+              "description": "Create ADRs for architectural decisions"
+            }
+          }
+        }
+      }
+    },
+    "custom_workflow_step": {
+      "type": "object",
+      "description": "A single step in a custom workflow sequence",
+      "required": ["workflow"],
+      "additionalProperties": false,
+      "properties": {
+        "workflow": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Name of the workflow to execute (must match a workflow in the 'workflows' section)"
+        },
+        "condition": {
+          "type": "string",
+          "description": "Optional condition expression for conditional execution (e.g., 'complexity >= 5')"
+        },
+        "checkpoint": {
+          "type": "string",
+          "description": "Optional checkpoint question for spec-ing mode (e.g., 'Review PRD before continuing?')"
         }
       }
     }
