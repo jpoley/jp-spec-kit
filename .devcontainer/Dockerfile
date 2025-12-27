@@ -93,6 +93,9 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 # Install oh-my-posh (prompt theme engine)
 RUN curl -s https://ohmyposh.dev/install.sh | bash -s -- -d /home/vscode/.local/bin
 
+# Copy custom oh-my-posh theme
+COPY --chown=vscode:vscode flowspec.omp.json /home/vscode/.config/flowspec.omp.json
+
 # Configure pnpm global bin directory
 RUN mkdir -p "$PNPM_HOME" && pnpm config set global-bin-dir "$PNPM_HOME"
 
@@ -129,8 +132,8 @@ RUN mkdir -p /home/vscode/.config/claude \
 # Create .zshrc with oh-my-posh and aliases
 RUN touch /home/vscode/.zshrc \
     && echo '' >> /home/vscode/.zshrc \
-    && echo '# Oh My Posh prompt initialization' >> /home/vscode/.zshrc \
-    && echo 'eval "$(oh-my-posh init zsh --config ~/.cache/oh-my-posh/themes/agnoster.omp.json 2>/dev/null || echo "")"' >> /home/vscode/.zshrc \
+    && echo '# Oh My Posh prompt initialization (flowspec theme)' >> /home/vscode/.zshrc \
+    && echo 'eval "$(oh-my-posh init zsh --config ~/.config/flowspec.omp.json 2>/dev/null || echo "")"' >> /home/vscode/.zshrc \
     && echo '' >> /home/vscode/.zshrc \
     && echo '# AI coding agent YOLO aliases (uncomment at your own risk)' >> /home/vscode/.zshrc \
     && echo '# alias claude-yolo="claude --dangerously-skip-permissions"' >> /home/vscode/.zshrc \
