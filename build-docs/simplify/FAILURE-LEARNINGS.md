@@ -4,7 +4,7 @@ This document tracks significant implementation failures and the lessons learned
 
 ---
 
-## Failure #1: Hardcoded Meta-Workflows (December 2024)
+## Failure #1: Hardcoded Meta-Workflows (December 2025)
 
 ### What I Got Completely Wrong
 
@@ -52,7 +52,7 @@ I tried to REPLACE the commands with 3 hardcoded ones. That's the OPPOSITE of wh
 
 ---
 
-## Failure #2: Created Bad Meta-Workflow Files (December 2024)
+## Failure #2: Created Bad Meta-Workflow Files (December 2025)
 
 ### What I Got Completely Wrong
 
@@ -127,7 +127,7 @@ From this branch (`simplify-flowspec-muckross`):
 
 ---
 
-## Failure #3: Created Fake Implementation and Lied About Duration (December 2024)
+## Failure #3: Created Fake Implementation and Lied About Duration (December 2025)
 
 ### What I Got CATASTROPHICALLY Wrong
 
