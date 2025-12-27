@@ -7218,6 +7218,96 @@ workflow_app = typer.Typer(
 )
 app.add_typer(workflow_app, name="workflow")
 
+# Flow subcommand group for workflow orchestration commands
+flow_app = typer.Typer(
+    name="flow",
+    help="Custom workflow orchestration commands",
+    add_completion=False,
+)
+app.add_typer(flow_app, name="flow")
+
+
+@flow_app.command("custom")
+def flow_custom(
+    workflow_name: str = typer.Argument(None, help="Name of custom workflow to execute"),
+    list_workflows: bool = typer.Option(
+        False,
+        "--list",
+        "-l",
+        help="List available custom workflows",
+    ),
+) -> None:
+    """Execute a custom workflow sequence from flowspec_workflow.yml.
+
+    Examples:
+        flowspec flow custom quick_build
+        flowspec flow custom --list
+    """
+    from datetime import datetime
+    from flowspec_cli.workflow.orchestrator import WorkflowOrchestrator
+
+    workspace_root = Path.cwd()
+    session_id = datetime.now().strftime("%Y%m%d-%H%M%S")
+
+    try:
+        orchestrator = WorkflowOrchestrator(workspace_root, session_id)
+    except Exception as e:
+        console.print(f"[red]✗ Error initializing orchestrator: {e}[/red]")
+        raise typer.Exit(1)
+
+    # List workflows if requested or no workflow specified
+    if list_workflows or not workflow_name:
+        workflows = orchestrator.list_custom_workflows()
+        if not workflows:
+            console.print("[yellow]No custom workflows defined in flowspec_workflow.yml[/yellow]")
+            console.print("\nSee: docs/guides/custom-workflows.md")
+            raise typer.Exit(0)
+
+        console.print(f"[bold]Available custom workflows ({len(workflows)}):[/bold]\n")
+        for wf_name in workflows:
+            wf_def = orchestrator.custom_workflows[wf_name]
+            console.print(f"  [cyan]{wf_name}[/cyan]")
+            console.print(f"    Name: {wf_def.get('name', 'N/A')}")
+            console.print(f"    Mode: {wf_def.get('mode', 'N/A')}")
+            console.print(f"    Steps: {len(wf_def.get('steps', []))}")
+            if 'description' in wf_def:
+                console.print(f"    Description: {wf_def['description']}")
+            console.print()
+        raise typer.Exit(0)
+
+    # Execute the custom workflow
+    try:
+        # TODO: Load context (e.g., complexity from assess)
+        context = {}
+
+        console.print(f"[bold]Executing custom workflow: {workflow_name}[/bold]")
+        result = orchestrator.execute_custom_workflow(workflow_name, context)
+
+        if result.success:
+            console.print(f"\n[green]✓ Custom workflow '{workflow_name}' completed[/green]")
+            console.print(f"  Steps executed: {result.steps_executed}")
+            console.print(f"  Steps skipped: {result.steps_skipped}")
+            console.print(f"\nDecision log: .logs/decisions/session-{session_id}.jsonl")
+            console.print(f"Event log: .logs/events/session-{session_id}.jsonl")
+        else:
+            console.print(f"\n[red]✗ Custom workflow '{workflow_name}' failed[/red]")
+            console.print(f"  Error: {result.error}")
+            console.print(f"  Steps completed: {result.steps_executed}")
+            raise typer.Exit(1)
+
+    except ValueError as e:
+        console.print(f"[red]✗ Error: {e}[/red]")
+        console.print(f"\n[bold]Available workflows:[/bold]")
+        for wf_name in orchestrator.list_custom_workflows():
+            console.print(f"  - {wf_name}")
+        raise typer.Exit(1)
+    except Exception as e:
+        console.print(f"[red]✗ Unexpected error: {e}[/red]")
+        import traceback
+        console.print(f"[dim]{traceback.format_exc()}[/dim]")
+        raise typer.Exit(1)
+
+
 # Config subcommand group for managing configuration
 config_app = typer.Typer(
     name="config",
