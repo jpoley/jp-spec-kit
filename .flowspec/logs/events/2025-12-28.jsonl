@@ -1,0 +1,1 @@
+{"timestamp": "2025-12-28T16:04:48.730745Z", "entry_id": "log_edb7d4c7077a", "source": "hook", "category": "session.start", "message": "Claude Code session started", "details": {"project_dir": null}, "task_id": null, "workflow_phase": null, "duration_ms": null, "success": true}
