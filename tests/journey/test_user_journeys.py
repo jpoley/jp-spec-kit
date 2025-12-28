@@ -223,10 +223,15 @@ class TestCustomerJourney:
         assert "task_id" in sig2.parameters, "agent_executor missing task_id parameter"
 
         # Verify demo task-578 exists showing MCP integration
+        # Task may be in active or archive folder
         task_file = Path(
             "backlog/tasks/task-578 - TEST-Workflow-execution-MCP-integration-test.md"
         )
-        assert task_file.exists(), "Demo task-578 not found"
+        archive_file = Path(
+            "backlog/archive/tasks/task-578 - TEST-Workflow-execution-MCP-integration-test.md"
+        )
+        assert task_file.exists() or archive_file.exists(), "Demo task-578 not found"
+        task_file = task_file if task_file.exists() else archive_file
 
         # Verify task-578 has execution trace
         with open(task_file) as f:

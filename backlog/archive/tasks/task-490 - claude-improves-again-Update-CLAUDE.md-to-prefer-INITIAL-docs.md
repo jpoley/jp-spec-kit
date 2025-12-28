@@ -1,11 +1,11 @@
 ---
 id: task-490
 title: 'claude-improves-again: Update CLAUDE.md to prefer INITIAL docs'
-status: To Do
+status: Done
 assignee:
   - '@muckross'
 created_date: '2025-12-14 03:06'
-updated_date: '2025-12-17 01:25'
+updated_date: '2025-12-28 20:27'
 labels:
   - context-engineering
   - documentation

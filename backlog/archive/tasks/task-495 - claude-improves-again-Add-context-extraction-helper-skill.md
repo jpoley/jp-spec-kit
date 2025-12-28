@@ -1,11 +1,11 @@
 ---
 id: task-495
 title: 'claude-improves-again: Add context extraction helper skill'
-status: To Do
+status: Done
 assignee:
   - '@muckross'
 created_date: '2025-12-14 03:06'
-updated_date: '2025-12-17 01:26'
+updated_date: '2025-12-28 20:27'
 labels:
   - context-engineering
   - skills

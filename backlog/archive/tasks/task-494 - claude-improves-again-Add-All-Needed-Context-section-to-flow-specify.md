@@ -1,11 +1,11 @@
 ---
 id: task-494
 title: 'claude-improves-again: Add All Needed Context section to /flow:specify'
-status: To Do
+status: Done
 assignee:
   - '@muckross'
 created_date: '2025-12-14 03:06'
-updated_date: '2025-12-15 01:50'
+updated_date: '2025-12-28 20:27'
 labels:
   - context-engineering
   - commands

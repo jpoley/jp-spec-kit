@@ -1,11 +1,11 @@
 ---
 id: task-184
 title: Add permissions.deny Security Rules to settings.json
-status: To Do
+status: Done
 assignee:
   - '@kinsale'
 created_date: '2025-12-01 05:04'
-updated_date: '2025-12-04 17:07'
+updated_date: '2025-12-28 20:18'
 labels:
   - claude-code
   - security

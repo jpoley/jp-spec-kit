@@ -1,11 +1,11 @@
 ---
 id: task-387
 title: Implement MCP Resource for Task Memory
-status: In Progress
+status: Done
 assignee:
   - '@adare'
 created_date: '2025-12-09 15:57'
-updated_date: '2025-12-15 02:17'
+updated_date: '2025-12-28 20:40'
 labels:
   - backend
   - task-memory
@@ -36,14 +36,10 @@ Add MCP resource endpoint `backlog://memory/{task_id}` to expose task memory to 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-Implemented MCP resource endpoints for task memory:
-
-- Created src/specify_cli/memory/mcp.py with register_memory_resources()
-- Two resource URIs: backlog://memory/{task_id} and backlog://memory/active
-- Returns JSON with task memory content from TaskMemoryStore
-- Handles missing files, invalid IDs, and CLAUDE.md errors gracefully
-- 10/10 tests pass (business logic and registration)
-- Exports: register_memory_resources(), create_memory_mcp_server()
-
-Note: AC#1 (add to existing server) will be done when integrating with main backlog MCP. AC#6 and AC#7 are integration/documentation tasks to complete separately.
+MCP resources fully implemented in src/flowspec_cli/memory/mcp.py (193 LOC):
+- list_task_memory_resources() - Lists all available task memories
+- get_task_memory_resource() - Gets specific task memory content
+- Exposes backlog://memory/{task_id} and backlog://memory/active resources
+- Token-aware truncation (2000 token limit)
+- JSON metadata support
 <!-- SECTION:NOTES:END -->

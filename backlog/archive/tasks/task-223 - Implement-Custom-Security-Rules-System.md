@@ -1,11 +1,11 @@
 ---
 id: task-223
 title: Implement Custom Security Rules System
-status: To Do
+status: Done
 assignee:
   - '@muckross'
 created_date: '2025-12-03 02:16'
-updated_date: '2025-12-22 21:55'
+updated_date: '2025-12-28 20:18'
 labels:
   - security
   - rules

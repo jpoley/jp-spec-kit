@@ -1,11 +1,11 @@
 ---
 id: task-219
 title: Build Security Commands Test Suite
-status: To Do
+status: Done
 assignee:
   - '@muckross'
 created_date: '2025-12-03 01:58'
-updated_date: '2025-12-22 21:55'
+updated_date: '2025-12-28 20:18'
 labels:
   - security
   - testing
