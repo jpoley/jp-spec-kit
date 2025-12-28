@@ -92,8 +92,24 @@ Tasks with labels `design`, `research`, `spike`, `architecture`:
 - MUST create implementation tasks before marking Done
 - Include "Follow-up Tasks:" section in implementation notes
 
+## Two-Tier Task Management
+
+For **complex, multi-session agent work**, consider using Beads alongside Backlog:
+
+- **Backlog.md**: All human-facing tasks (required)
+- **Beads**: Detailed agent work tracking (optional, for complex tasks)
+
+When a backlog task moves to "In Progress" and involves complex implementation:
+1. Create beads issues for detailed agent subtasks
+2. Track dependencies and blockers in beads
+3. Roll up completed beads work to backlog notes
+4. Update acceptance criteria as beads work completes
+
+See [Two-Tier Task Management Guide](../docs/guides/task-management-tiers.md) for complete details.
+
 ## Full Documentation
 
+- Two-Tier Management: `docs/guides/task-management-tiers.md`
 - Quick Start: `docs/guides/backlog-quickstart.md`
 - User Guide: `docs/guides/backlog-user-guide.md`
 - Commands: `docs/reference/backlog-commands.md`
