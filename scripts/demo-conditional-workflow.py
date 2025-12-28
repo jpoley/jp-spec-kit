@@ -24,7 +24,7 @@ def demo_conditional_workflow(complexity: int = 5):
     workspace_root = Path.cwd()
     session_id = datetime.now().strftime("%Y%m%d-%H%M%S")
 
-    print(f"🚀 Workflow: full_design")
+    print("🚀 Workflow: full_design")
     print(f"   Context: complexity={complexity}")
     print()
 
@@ -34,7 +34,7 @@ def demo_conditional_workflow(complexity: int = 5):
     context = {"complexity": complexity}
     result = orchestrator.execute_custom_workflow("full_design", context)
 
-    print(f"📋 Execution Plan:")
+    print("📋 Execution Plan:")
     print(f"   Total steps in workflow: {len(result.step_results)}")
     print(f"   Steps to execute: {result.steps_executed}")
     print(f"   Steps to skip: {result.steps_skipped}")
@@ -59,7 +59,7 @@ def demo_conditional_workflow(complexity: int = 5):
 
     # Show conditional logic explanation
     print("📊 Conditional Logic:")
-    print(f"   Complexity threshold: >= 7")
+    print("   Complexity threshold: >= 7")
     print(f"   Current complexity: {complexity}")
     print()
 

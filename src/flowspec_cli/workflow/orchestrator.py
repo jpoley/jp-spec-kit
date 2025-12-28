@@ -386,7 +386,7 @@ class WorkflowOrchestrator:
         """
         # Get workflow definition from config
         if self.workflow_config is None:
-            logger.warning(f"No workflow config available")
+            logger.warning("No workflow config available")
             raise RuntimeError("No workflow configuration available")
 
         workflows = self.workflow_config._data.get("workflows", {})

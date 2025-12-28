@@ -39,11 +39,11 @@ def simulate_workflow_step(step_command: str, task_id: str) -> bool:
 
     # In real agent context, this would invoke the skill
     # For demo, we just log it
-    skill_name = step_command.lstrip('/')
+    skill_name = step_command.lstrip("/")
     print(f"    → [SIMULATED] Skill(skill='{skill_name}')")
 
     # Simulate success
-    print(f"    ✓ Step completed")
+    print("    ✓ Step completed")
     return True
 
 
@@ -61,42 +61,42 @@ def main():
     task_id = "task-572"  # Created earlier
     workflow_name = "quick_build"
 
-    print(f"📋 Configuration:")
+    print("📋 Configuration:")
     print(f"   Task ID: {task_id}")
     print(f"   Workflow: {workflow_name}")
     print(f"   Session: {session_id}")
     print()
 
     # Step 2: Initialize orchestrator
-    print(f"🔧 Initializing orchestrator...")
+    print("🔧 Initializing orchestrator...")
     orchestrator = WorkflowOrchestrator(workspace_root, session_id)
-    print(f"   ✓ Orchestrator ready")
+    print("   ✓ Orchestrator ready")
     print()
 
     # Step 3: Get execution plan
-    print(f"📊 Preparing execution plan...")
+    print("📊 Preparing execution plan...")
     result = orchestrator.execute_custom_workflow(workflow_name, context={})
 
     if not result.success:
         print(f"   ✗ Planning failed: {result.error}")
         return False
 
-    print(f"   ✓ Plan prepared")
+    print("   ✓ Plan prepared")
     print(f"   Steps to execute: {result.steps_executed}")
     print(f"   Steps to skip: {result.steps_skipped}")
     print()
 
     # Step 4: Update task - Starting execution
-    print(f"📝 Updating task via MCP: Starting execution...")
-    print(f"   [AGENT CONTEXT WOULD CALL]:")
-    print(f"   mcp__backlog__task_edit(")
+    print("📝 Updating task via MCP: Starting execution...")
+    print("   [AGENT CONTEXT WOULD CALL]:")
+    print("   mcp__backlog__task_edit(")
     print(f"       id='{task_id}',")
     print(f"       notesAppend=['Executing workflow: {workflow_name}']")
-    print(f"   )")
+    print("   )")
     print()
 
     # Step 5: Execute each step
-    print(f"▶️  Executing workflow steps...")
+    print("▶️  Executing workflow steps...")
     print("-" * 70)
 
     executed_count = 0
@@ -120,13 +120,13 @@ def main():
             executed_count += 1
 
             # Update task after each step
-            print(f"    📝 [AGENT WOULD UPDATE TASK]:")
-            print(f"       mcp__backlog__task_edit(")
+            print("    📝 [AGENT WOULD UPDATE TASK]:")
+            print("       mcp__backlog__task_edit(")
             print(f"           id='{task_id}',")
             print(f"           notesAppend=['Completed: {step_result.workflow_name}']")
-            print(f"       )")
+            print("       )")
         else:
-            print(f"    ✗ Step failed")
+            print("    ✗ Step failed")
             break
 
     print()
@@ -135,21 +135,21 @@ def main():
 
     # Step 6: Update task - Completion
     if executed_count == result.steps_executed:
-        print(f"✅ Workflow execution complete!")
+        print("✅ Workflow execution complete!")
         print(f"   Executed: {executed_count}/{result.steps_executed} steps")
         print()
 
-        print(f"📝 Updating task via MCP: Marking complete...")
-        print(f"   [AGENT CONTEXT WOULD CALL]:")
-        print(f"   mcp__backlog__task_edit(")
+        print("📝 Updating task via MCP: Marking complete...")
+        print("   [AGENT CONTEXT WOULD CALL]:")
+        print("   mcp__backlog__task_edit(")
         print(f"       id='{task_id}',")
-        print(f"       status='Done',")
-        print(f"       acceptanceCriteriaCheck=[1, 2, 3],")
+        print("       status='Done',")
+        print("       acceptanceCriteriaCheck=[1, 2, 3],")
         print(f"       notesAppend=['Workflow {workflow_name} completed successfully']")
-        print(f"   )")
+        print("   )")
         print()
     else:
-        print(f"⚠️  Workflow partially completed:")
+        print("⚠️  Workflow partially completed:")
         print(f"   Executed: {executed_count}/{result.steps_executed} steps")
         print()
 
@@ -159,23 +159,23 @@ def main():
     print("=" * 70)
     print()
     print("What happened:")
-    print(f"  1. ✓ Orchestrator prepared execution plan")
+    print("  1. ✓ Orchestrator prepared execution plan")
     print(f"  2. ✓ Workflow steps identified: {result.steps_executed}")
     print(f"  3. ✓ Steps executed (simulated): {executed_count}")
-    print(f"  4. ✓ Task updates logged (would be real in agent context)")
+    print("  4. ✓ Task updates logged (would be real in agent context)")
     print()
     print("What's SIMULATED vs REAL:")
-    print(f"  • REAL: Orchestrator execution plan")
-    print(f"  • REAL: Rigor logging to .logs/")
-    print(f"  • SIMULATED: Skill tool invocations (agent-only)")
-    print(f"  • SIMULATED: MCP task updates (agent-only)")
+    print("  • REAL: Orchestrator execution plan")
+    print("  • REAL: Rigor logging to .logs/")
+    print("  • SIMULATED: Skill tool invocations (agent-only)")
+    print("  • SIMULATED: MCP task updates (agent-only)")
     print()
     print("In agent context (Claude Code), this would:")
-    print(f"  1. Actually invoke Skill tool for each command")
-    print(f"  2. Actually update task via mcp__backlog__task_edit()")
-    print(f"  3. Actually mark task complete when done")
+    print("  1. Actually invoke Skill tool for each command")
+    print("  2. Actually update task via mcp__backlog__task_edit()")
+    print("  3. Actually mark task complete when done")
     print()
-    print(f"📁 Logs created:")
+    print("📁 Logs created:")
     print(f"   Decision log: .logs/decisions/session-{session_id}.jsonl")
     print(f"   Event log: .logs/events/session-{session_id}.jsonl")
     print()
@@ -204,5 +204,6 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n✗ ERROR: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)

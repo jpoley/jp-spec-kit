@@ -1,7 +1,5 @@
 """Tests for workflow orchestrator."""
 
-import pytest
-from pathlib import Path
 from flowspec_cli.workflow.orchestrator import WorkflowOrchestrator
 
 
@@ -115,8 +113,8 @@ custom_workflows: {}
     orchestrator = WorkflowOrchestrator(tmp_path, "test-003")
 
     # Test various conditions
-    assert orchestrator._evaluate_condition("complexity >= 5", {"complexity": 7}) == True
-    assert orchestrator._evaluate_condition("complexity >= 5", {"complexity": 3}) == False
-    assert orchestrator._evaluate_condition("complexity <= 5", {"complexity": 3}) == True
-    assert orchestrator._evaluate_condition("complexity == 5", {"complexity": 5}) == True
-    assert orchestrator._evaluate_condition("complexity != 5", {"complexity": 3}) == True
+    assert orchestrator._evaluate_condition("complexity >= 5", {"complexity": 7})
+    assert not orchestrator._evaluate_condition("complexity >= 5", {"complexity": 3})
+    assert orchestrator._evaluate_condition("complexity <= 5", {"complexity": 3})
+    assert orchestrator._evaluate_condition("complexity == 5", {"complexity": 5})
+    assert orchestrator._evaluate_condition("complexity != 5", {"complexity": 3})

@@ -1,6 +1,5 @@
 """Tests for MCP backlog client."""
 
-import pytest
 from pathlib import Path
 
 from flowspec_cli.backlog.mcp_client import MCPBacklogClient
@@ -75,7 +74,7 @@ def test_task_create(tmp_path):
         title="New Task",
         description="Test task",
         labels=["backend"],
-        acceptance_criteria=["AC1", "AC2"]
+        acceptance_criteria=["AC1", "AC2"],
     )
 
     assert task_id is not None

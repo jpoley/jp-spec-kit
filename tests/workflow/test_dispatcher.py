@@ -1,7 +1,6 @@
 """Tests for workflow dispatcher."""
 
 import pytest
-from pathlib import Path
 
 from flowspec_cli.workflow.dispatcher import WorkflowDispatcher
 

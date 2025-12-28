@@ -168,7 +168,9 @@ class MCPBacklogClient:
             >>> tasks = client.task_list(status="In Progress")
         """
         try:
-            logger.info(f"MCP: task_list(status={status}, assignee={assignee}, limit={limit})")
+            logger.info(
+                f"MCP: task_list(status={status}, assignee={assignee}, limit={limit})"
+            )
 
             # TODO: When running in Claude Code, actually call MCP tool:
             # from claude_mcp import backlog

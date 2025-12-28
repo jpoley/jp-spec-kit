@@ -7229,12 +7229,26 @@ app.add_typer(flow_app, name="flow")
 
 @flow_app.command("custom")
 def flow_custom(
-    workflow_name: str = typer.Argument(None, help="Name of custom workflow to execute"),
+    workflow_name: str = typer.Argument(
+        None, help="Name of custom workflow to execute"
+    ),
     list_workflows: bool = typer.Option(
         False,
         "--list",
         "-l",
         help="List available custom workflows",
+    ),
+    execute: bool = typer.Option(
+        False,
+        "--execute",
+        "-e",
+        help="Actually execute the workflow (requires agent context or manual command execution)",
+    ),
+    task_id: str = typer.Option(
+        None,
+        "--task",
+        "-t",
+        help="Backlog task ID to update during execution",
     ),
 ) -> None:
     """Execute a custom workflow sequence from flowspec_workflow.yml.
@@ -7242,6 +7256,8 @@ def flow_custom(
     Examples:
         flowspec flow custom quick_build
         flowspec flow custom --list
+        flowspec flow custom quick_build --execute
+        flowspec flow custom quick_build --execute --task task-123
     """
     from datetime import datetime
     from flowspec_cli.workflow.orchestrator import WorkflowOrchestrator
@@ -7259,7 +7275,9 @@ def flow_custom(
     if list_workflows or not workflow_name:
         workflows = orchestrator.list_custom_workflows()
         if not workflows:
-            console.print("[yellow]No custom workflows defined in flowspec_workflow.yml[/yellow]")
+            console.print(
+                "[yellow]No custom workflows defined in flowspec_workflow.yml[/yellow]"
+            )
             console.print("\nSee: docs/guides/custom-workflows.md")
             raise typer.Exit(0)
 
@@ -7270,7 +7288,7 @@ def flow_custom(
             console.print(f"    Name: {wf_def.get('name', 'N/A')}")
             console.print(f"    Mode: {wf_def.get('mode', 'N/A')}")
             console.print(f"    Steps: {len(wf_def.get('steps', []))}")
-            if 'description' in wf_def:
+            if "description" in wf_def:
                 console.print(f"    Description: {wf_def['description']}")
             console.print()
         raise typer.Exit(0)
@@ -7284,25 +7302,168 @@ def flow_custom(
         result = orchestrator.execute_custom_workflow(workflow_name, context)
 
         if result.success:
-            console.print(f"\n[green]✓ Custom workflow '{workflow_name}' execution plan prepared[/green]")
+            console.print(
+                f"\n[green]✓ Custom workflow '{workflow_name}' execution plan prepared[/green]"
+            )
             console.print(f"  Steps to execute: {result.steps_executed}")
             console.print(f"  Steps skipped: {result.steps_skipped}")
 
-            # Display commands to execute
-            console.print(f"\n[bold]Workflow execution steps:[/bold]")
-            for i, step_result in enumerate(result.step_results, 1):
-                if step_result.skipped:
-                    console.print(f"  [{i}] [yellow]SKIPPED[/yellow]: {step_result.workflow_name}")
-                    console.print(f"      Reason: {step_result.skip_reason}")
-                elif step_result.command:
-                    console.print(f"  [{i}] [cyan]{step_result.command}[/cyan]")
-                    console.print(f"      Workflow: {step_result.workflow_name}")
-                else:
-                    console.print(f"  [{i}] [red]ERROR[/red]: No command for {step_result.workflow_name}")
+            # Update task: Starting
+            if task_id:
+                import subprocess
 
-            console.print(f"\n[dim]Decision log: .logs/decisions/session-{session_id}.jsonl[/dim]")
-            console.print(f"[dim]Event log: .logs/events/session-{session_id}.jsonl[/dim]")
-            console.print(f"\n[yellow]NOTE:[/yellow] In Claude Code, use the Skill tool to execute each command above.")
+                try:
+                    subprocess.run(
+                        [
+                            "backlog",
+                            "task",
+                            "edit",
+                            task_id,
+                            "--notes-append",
+                            f"Starting workflow: {workflow_name} (session: {session_id})",
+                        ],
+                        check=True,
+                        capture_output=True,
+                    )
+                    console.print(
+                        f"\n[dim]Updated task {task_id}: Starting execution[/dim]"
+                    )
+                except subprocess.CalledProcessError as e:
+                    console.print(
+                        f"\n[yellow]Warning: Could not update task {task_id}: {e}[/yellow]"
+                    )
+
+            if execute:
+                # Execute workflows
+                console.print("\n[bold]Executing workflow steps:[/bold]")
+
+                executed_count = 0
+                failed_count = 0
+
+                for i, step_result in enumerate(result.step_results, 1):
+                    if step_result.skipped:
+                        console.print(
+                            f"  [{i}] [yellow]SKIPPED[/yellow]: {step_result.workflow_name}"
+                        )
+                        console.print(f"      Reason: {step_result.skip_reason}")
+                        continue
+
+                    if not step_result.command:
+                        console.print(
+                            f"  [{i}] [red]ERROR[/red]: No command for {step_result.workflow_name}"
+                        )
+                        failed_count += 1
+                        continue
+
+                    console.print(f"\n  [{i}] [cyan]{step_result.command}[/cyan]")
+                    console.print(f"      Workflow: {step_result.workflow_name}")
+
+                    # NOTE: /flow commands are agent commands (Skill tool invocations)
+                    # They cannot be executed from CLI subprocess
+                    # For actual execution, user must run in Claude Code agent context
+                    console.print(
+                        "      [yellow]⚠ Agent command - cannot execute from CLI subprocess[/yellow]"
+                    )
+                    console.print(
+                        "      [dim]To execute: Ask Claude Code to run this workflow[/dim]"
+                    )
+                    console.print(
+                        f"      [dim]Claude Code command: execute workflow '{workflow_name}'[/dim]"
+                    )
+
+                    # Update task for this step
+                    if task_id:
+                        try:
+                            subprocess.run(
+                                [
+                                    "backlog",
+                                    "task",
+                                    "edit",
+                                    task_id,
+                                    "--notes-append",
+                                    f"Prepared: {step_result.workflow_name} ({step_result.command})",
+                                ],
+                                check=True,
+                                capture_output=True,
+                            )
+                        except subprocess.CalledProcessError:
+                            pass  # Silently continue if task update fails
+
+                    executed_count += 1
+
+                console.print("\n[bold]Execution Summary:[/bold]")
+                console.print(f"  Prepared for execution: {executed_count}")
+                console.print(f"  Failed: {failed_count}")
+
+                # Update task: Complete preparation
+                if task_id:
+                    try:
+                        subprocess.run(
+                            [
+                                "backlog",
+                                "task",
+                                "edit",
+                                task_id,
+                                "--notes-append",
+                                f"Workflow {workflow_name} execution plan prepared. Run in agent context to execute.",
+                            ],
+                            check=True,
+                            capture_output=True,
+                        )
+                        console.print(
+                            f"\n[dim]Updated task {task_id}: Execution plan complete[/dim]"
+                        )
+                    except subprocess.CalledProcessError:
+                        pass
+
+                console.print(
+                    "\n[yellow]NOTE:[/yellow] Workflow commands prepared but not executed from CLI."
+                )
+                console.print(
+                    "[yellow]Reason:[/yellow] CLI runs in subprocess without access to Claude Code Skill tool."
+                )
+                console.print("\n[bold]To actually execute this workflow:[/bold]")
+                console.print(
+                    "  1. Open Claude Code (claude.ai/code or VS Code with Claude)"
+                )
+                console.print(f"  2. Say: \"execute workflow '{workflow_name}'\"")
+                console.print(
+                    "  3. Claude Code will use agent_executor module to run each step"
+                )
+                console.print(
+                    "\n[dim]OR manually invoke each Skill command shown above in Claude Code[/dim]"
+                )
+
+            else:
+                # Display commands only (no execution)
+                console.print("\n[bold]Workflow execution steps:[/bold]")
+                for i, step_result in enumerate(result.step_results, 1):
+                    if step_result.skipped:
+                        console.print(
+                            f"  [{i}] [yellow]SKIPPED[/yellow]: {step_result.workflow_name}"
+                        )
+                        console.print(f"      Reason: {step_result.skip_reason}")
+                    elif step_result.command:
+                        console.print(f"  [{i}] [cyan]{step_result.command}[/cyan]")
+                        console.print(f"      Workflow: {step_result.workflow_name}")
+                    else:
+                        console.print(
+                            f"  [{i}] [red]ERROR[/red]: No command for {step_result.workflow_name}"
+                        )
+
+                console.print(
+                    "\n[yellow]NOTE:[/yellow] Add --execute flag to run workflow preparation"
+                )
+                console.print(
+                    "[yellow]NOTE:[/yellow] In Claude Code, use the Skill tool to execute each command above."
+                )
+
+            console.print(
+                f"\n[dim]Decision log: .logs/decisions/session-{session_id}.jsonl[/dim]"
+            )
+            console.print(
+                f"[dim]Event log: .logs/events/session-{session_id}.jsonl[/dim]"
+            )
         else:
             console.print(f"\n[red]✗ Custom workflow '{workflow_name}' failed[/red]")
             console.print(f"  Error: {result.error}")
@@ -7311,13 +7472,14 @@ def flow_custom(
 
     except ValueError as e:
         console.print(f"[red]✗ Error: {e}[/red]")
-        console.print(f"\n[bold]Available workflows:[/bold]")
+        console.print("\n[bold]Available workflows:[/bold]")
         for wf_name in orchestrator.list_custom_workflows():
             console.print(f"  - {wf_name}")
         raise typer.Exit(1)
     except Exception as e:
         console.print(f"[red]✗ Unexpected error: {e}[/red]")
         import traceback
+
         console.print(f"[dim]{traceback.format_exc()}[/dim]")
         raise typer.Exit(1)
 

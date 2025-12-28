@@ -53,7 +53,7 @@ def demo_workflow_execution(workflow_name: str = "quick_build"):
         print(f"❌ Workflow planning failed: {result.error}")
         return False
 
-    print(f"✓ Plan prepared")
+    print("✓ Plan prepared")
     print(f"  Steps to execute: {result.steps_executed}")
     print(f"  Steps to skip: {result.steps_skipped}")
     print()
@@ -84,7 +84,7 @@ def demo_workflow_execution(workflow_name: str = "quick_build"):
 
         # In agent context, this would invoke:
         # result = await Skill(skill=command.lstrip("/"))
-        print(f"    ✓ Ready for execution")
+        print("    ✓ Ready for execution")
         print(f"    [Agent would invoke: Skill(skill='{command.lstrip('/')}')]")
 
         executed_count += 1
@@ -94,7 +94,7 @@ def demo_workflow_execution(workflow_name: str = "quick_build"):
     print(f"\n✅ Workflow execution complete: {workflow_name}")
     print(f"   ✓ Executed: {executed_count}")
     print(f"   ⏭  Skipped: {skipped_count}")
-    print(f"\n📁 Logs:")
+    print("\n📁 Logs:")
     print(f"   Decision log: .logs/decisions/session-{session_id}.jsonl")
     print(f"   Event log: .logs/events/session-{session_id}.jsonl")
     print()
