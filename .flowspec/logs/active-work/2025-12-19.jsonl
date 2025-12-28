@@ -1,2 +1,0 @@
-{"timestamp": "2025-12-19T14:08:21Z", "task_id": "PR-978", "action": "progress", "description": "Added EXEC-007 through EXEC-010 rigor rules for tracking requirements", "artifacts": ["templates/commands/flow/_rigor-rules.md"]}
-{"timestamp": "2025-12-19T14:08:21Z", "task_id": "PR-978", "action": "progress", "description": "Created logs/ directory infrastructure for project and deployment templates", "artifacts": ["logs/README.md", "templates/logs/README.md"]}
