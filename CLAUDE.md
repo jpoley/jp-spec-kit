@@ -335,10 +335,33 @@ See `memory/README.md` for details on all modular components in the memory direc
 
 @import memory/test-quality-standards.md
 
+## Task Management: Two-Tier Approach
+
+Flowspec uses a hierarchical task management system:
+
+| Layer | Tool | Purpose | Audience |
+|-------|------|---------|----------|
+| **Feature/Task** | Backlog.md | High-level work items, acceptance criteria, status | Humans, planning |
+| **Agent Work** | Beads | Detailed implementation steps, dependencies, blockers | Agents, execution |
+
+**Quick Decision**:
+- **Simple tasks** (single-session, no dependencies): Track entirely in Backlog.md
+- **Complex tasks** (multi-session, agent coordination): Use Backlog.md + Beads
+
+**Workflow Summary**:
+1. All work starts in **Backlog.md** (human-visible tasks)
+2. Move task to "In Progress" when starting work
+3. For complex implementations, create **Beads** issues for detailed agent tracking
+4. Beads work rolls up to the parent backlog task on completion
+5. Update backlog with notes and check acceptance criteria as work completes
+
+See [Two-Tier Task Management Guide](docs/guides/task-management-tiers.md) for complete details.
+
 ## Documentation References
 
 | Topic | Location |
 |-------|----------|
+| Two-Tier Task Management | `docs/guides/task-management-tiers.md` |
 | Backlog Quick Start | `docs/guides/backlog-quickstart.md` |
 | Backlog User Guide | `docs/guides/backlog-user-guide.md` |
 | Backlog Commands | `docs/reference/backlog-commands.md` |
