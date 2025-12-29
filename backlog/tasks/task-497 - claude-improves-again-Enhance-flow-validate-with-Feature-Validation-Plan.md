@@ -1,11 +1,11 @@
 ---
 id: task-497
 title: 'claude-improves-again: Enhance /flow:validate with Feature Validation Plan'
-status: To Do
+status: Done
 assignee:
   - '@muckross'
 created_date: '2025-12-14 03:06'
-updated_date: '2025-12-17 01:28'
+updated_date: '2025-12-28 22:15'
 labels:
   - context-engineering
   - commands

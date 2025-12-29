@@ -1,11 +1,11 @@
 ---
 id: task-502
 title: 'claude-improves-again: Add Loop Classification section to PRD/PRP templates'
-status: To Do
+status: Done
 assignee:
   - '@muckross'
 created_date: '2025-12-14 03:07'
-updated_date: '2025-12-15 01:50'
+updated_date: '2025-12-28 22:15'
 labels:
   - context-engineering
   - templates
