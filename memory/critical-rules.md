@@ -209,10 +209,10 @@ Configure in `.flowspec/rigor-config.yml` or accept defaults (all BLOCKING rules
 
 | Rule | Phase | Requirement |
 |------|-------|-------------|
-| SETUP-001 | Specify | Task must have implementation plan |
-| SETUP-002 | Specify | Dependencies must be mapped |
-| EXEC-001 | Implement | Git worktree required |
-| EXEC-003 | Implement | Decision logging required |
+| SETUP-001 | Specify | Clear Plan Required |
+| SETUP-002 | Specify | Dependencies Mapped |
+| EXEC-001 | Implement | Git Worktree Required |
+| EXEC-003 | Implement | Decision Logging Required |
 | VALID-005 | Validate | Acceptance Criteria Met |
 | PR-001 | PR | DCO Sign-off Required |
 
