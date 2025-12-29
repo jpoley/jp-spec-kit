@@ -163,7 +163,7 @@ Is it a simple, single-session task?
 Reference the parent backlog task in beads issue titles or descriptions:
 
 ```bash
-bd create --title="[task-42] Implement JWT token service" --type=task
+bd create "[task-42] Implement JWT token service"
 ```
 
 ### Keeping Backlog Updated
