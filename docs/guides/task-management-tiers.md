@@ -222,7 +222,7 @@ Validation can check:
 | Create work | `backlog task create "..."` | `bd create --title="..."` |
 | Start work | `backlog task edit ID -s "In Progress"` | `bd update ID --status=in_progress` |
 | Add notes | `backlog task edit ID --notes-append "..."` | (in issue description) |
-| Check progress | `backlog task ID --plain` | `bd show ID` |
+| Check progress | `backlog task view ID --plain` | `bd show ID` |
 | See available | `backlog task list -s "To Do"` | `bd ready` |
 | Complete | `backlog task edit ID -s Done` | `bd close ID` |
 | Sync | (auto via MCP) | `bd sync` |

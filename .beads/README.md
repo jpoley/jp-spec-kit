@@ -22,12 +22,39 @@ bd list
 # View issue details
 bd show <issue-id>
 
+# Find ready work (no blockers)
+bd ready
+
 # Update issue status
 bd update <issue-id> --status in_progress
 bd update <issue-id> --status done
 
+# Close issues
+bd close <issue-id>
+
 # Sync with git remote
 bd sync
+```
+
+### Dependencies
+
+Beads supports first-class dependency tracking:
+
+```bash
+# Add a dependency (issue-B depends on issue-A)
+bd dep add <issue-B> <issue-A>
+
+# Remove a dependency
+bd dep remove <issue-B> <issue-A>
+
+# View dependency tree
+bd dep tree <issue-id>
+
+# Find blocked issues
+bd blocked
+
+# Find ready work (unblocked)
+bd ready
 ```
 
 ### Working with Issues
