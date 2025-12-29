@@ -1,10 +1,10 @@
 ---
 id: task-551
 title: Update critical-rules.md with rigor rules reference
-status: To Do
+status: Done
 assignee: []
 created_date: '2025-12-17 16:42'
-updated_date: '2025-12-17 17:07'
+updated_date: '2025-12-29 12:17'
 labels:
   - rigor
   - documentation
@@ -22,10 +22,10 @@ Add reference to the new rigor rules system in the critical rules documentation.
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Add section in critical-rules.md linking to _rigor-rules.md
-- [ ] #2 Document enforcement modes (strict by default, warn, off)
-- [ ] #3 Add examples of common violations and fix commands
-- [ ] #4 Emphasize these rules apply to ALL Flowspec users, not just this project
+- [x] #1 Add section in critical-rules.md linking to _rigor-rules.md
+- [x] #2 Document enforcement modes (strict by default, warn, off)
+- [x] #3 Add examples of common violations and fix commands
+- [x] #4 Emphasize these rules apply to ALL Flowspec users, not just this project
 <!-- AC:END -->
 
 ## Implementation Plan

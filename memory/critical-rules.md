@@ -136,7 +136,7 @@ When a PR completes a backlog task, update the task **before or with** PR creati
 
 ```bash
 # Mark ACs complete and set status with PR reference
-backlog task edit <id> --check-ac 1 --check-ac 2 -s Done \
+backlog task edit <task-id> --check-ac 1 --check-ac 2 -s Done \
   --notes $'Completed via PR #<number>\n\nStatus: Pending CI verification'
 ```
 
@@ -186,3 +186,67 @@ For file-system operations:
 3. Use paths relative to git root for git commands
 
 See: `memory/learnings/` for detailed examples from each PR.
+
+## Rigor Rules (MANDATORY FOR ALL USERS)
+
+**Rigor rules apply to ALL Flowspec users, not just this project.** They enforce workflow quality gates that prevent common failures.
+
+### Reference
+
+Full rules: `.claude/partials/flow/_rigor-rules.md`
+
+### Enforcement Modes
+
+| Mode | Behavior | Use Case |
+|------|----------|----------|
+| **strict** | Block workflow if violated | Default for BLOCKING rules |
+| **warn** | Warn but allow continuation | Advisory rules |
+| **off** | Disable rule | Emergency use only |
+
+Configure in `.flowspec/rigor-config.yml` or accept defaults (all BLOCKING rules = strict).
+
+### Key Blocking Rules
+
+| Rule | Phase | Requirement |
+|------|-------|-------------|
+| SETUP-001 | Specify | Clear Plan Required |
+| SETUP-002 | Specify | Dependencies Mapped |
+| EXEC-001 | Implement | Git Worktree Required |
+| EXEC-003 | Implement | Decision Logging Required |
+| VALID-005 | Validate | Acceptance Criteria Met |
+| PR-001 | PR | DCO Sign-off Required |
+
+### Common Violations and Fixes
+
+```bash
+# SETUP-001: Missing implementation plan
+backlog task edit <task-id> --plan $'1. Research\n2. Implement\n3. Test'
+
+# EXEC-001: Git worktree required
+BRANCH="$(hostname -s | tr '[:upper:]' '[:lower:]')/task-<task-id>/feature-slug"
+git worktree add "../$(basename $BRANCH)" "$BRANCH"
+cd "../$(basename $BRANCH)"
+
+# EXEC-003: Decision logging required
+./scripts/bash/rigor-decision-log.sh \
+  --task task-<task-id> \
+  --phase execution \
+  --decision "Description of decision" \
+  --rationale "Why this choice" \
+  --actor "@developer"
+
+# VALID-005: Unchecked acceptance criteria
+backlog task edit <task-id> --check-ac 1 --check-ac 2
+```
+
+### Override (Emergency Only)
+
+```bash
+# Set specific rule to warn mode
+# In .flowspec/rigor-config.yml:
+enforcement:
+  rules:
+    EXEC-005: warn
+```
+
+**Never disable BLOCKING rules without team approval.**
