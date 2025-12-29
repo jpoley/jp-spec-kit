@@ -186,3 +186,60 @@ For file-system operations:
 3. Use paths relative to git root for git commands
 
 See: `memory/learnings/` for detailed examples from each PR.
+
+## Rigor Rules (MANDATORY FOR ALL USERS)
+
+**Rigor rules apply to ALL Flowspec users, not just this project.** They enforce workflow quality gates that prevent common failures.
+
+### Reference
+
+Full rules: `.claude/partials/flow/_rigor-rules.md`
+
+### Enforcement Modes
+
+| Mode | Behavior | Use Case |
+|------|----------|----------|
+| **strict** | Block workflow if violated | Default for BLOCKING rules |
+| **warn** | Warn but allow continuation | Advisory rules |
+| **off** | Disable rule | Emergency use only |
+
+Configure in `.flowspec/rigor-config.yml` or accept defaults (all BLOCKING rules = strict).
+
+### Key Blocking Rules
+
+| Rule | Phase | Requirement |
+|------|-------|-------------|
+| SETUP-001 | Specify | Task must have implementation plan |
+| SETUP-002 | Specify | Dependencies must be mapped |
+| EXEC-001 | Implement | Branch must match task ID |
+| EXEC-003 | Implement | Tests must pass before PR |
+| VAL-001 | Validate | All acceptance criteria checked |
+| PR-001 | PR | All rules pass before merge |
+
+### Common Violations and Fixes
+
+```bash
+# SETUP-001: Missing implementation plan
+backlog task edit <id> --plan $'1. Research\n2. Implement\n3. Test'
+
+# EXEC-001: Branch name mismatch
+git checkout -b task-<id>-description
+
+# EXEC-003: Tests failing
+uv run pytest tests/ -x && uv run ruff check .
+
+# VAL-001: Unchecked acceptance criteria
+backlog task edit <id> --check-ac 1 --check-ac 2
+```
+
+### Override (Emergency Only)
+
+```bash
+# Set specific rule to warn mode
+# In .flowspec/rigor-config.yml:
+enforcement:
+  rules:
+    EXEC-005: warn
+```
+
+**Never disable BLOCKING rules without team approval.**
