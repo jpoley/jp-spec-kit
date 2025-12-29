@@ -211,7 +211,7 @@ Configure in `.flowspec/rigor-config.yml` or accept defaults (all BLOCKING rules
 |------|-------|-------------|
 | SETUP-001 | Specify | Task must have implementation plan |
 | SETUP-002 | Specify | Dependencies must be mapped |
-| EXEC-001 | Implement | Git worktree with branch naming convention |
+| EXEC-001 | Implement | Git worktree required |
 | EXEC-003 | Implement | Decision logging required |
 | VALID-005 | Validate | All acceptance criteria checked |
 | PR-001 | PR | DCO sign-off required on all commits |
@@ -226,6 +226,7 @@ backlog task edit <id> --plan $'1. Research\n2. Implement\n3. Test'
 HOSTNAME=$(hostname -s | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g')
 BRANCH="${HOSTNAME}/task-<id>/feature-slug"
 git worktree add "../$(basename $BRANCH)" "$BRANCH"
+cd "../$(basename $BRANCH)"
 
 # EXEC-003: Decision logging required
 ./scripts/bash/rigor-decision-log.sh \
