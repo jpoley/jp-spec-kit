@@ -20,7 +20,7 @@ def backlog_instructions_path():
     return (
         Path(__file__).parent.parent
         / ".claude"
-        / "commands"
+        / "partials"
         / "flow"
         / "_backlog-instructions.md"
     )
@@ -40,7 +40,7 @@ class TestPlanCommandStructure:
         has_old_pattern = "Step 0: Backlog Task Discovery" in content
         has_new_pattern = "Step 0: Workflow State Validation" in content
         has_include_pattern = (
-            "{{INCLUDE:.claude/commands/flow/_workflow-state.md}}" in content
+            "{{INCLUDE:.claude/partials/flow/_workflow-state.md}}" in content
         )
         assert has_old_pattern or has_new_pattern or has_include_pattern, (
             "plan.md must have task discovery/validation section"
@@ -54,7 +54,7 @@ class TestPlanCommandStructure:
 
         # Should have two includes (one for each agent)
         includes = content.count(
-            "{{INCLUDE:.claude/commands/flow/_backlog-instructions.md}}"
+            "{{INCLUDE:.claude/partials/flow/_backlog-instructions.md}}"
         )
         assert includes == 2, (
             f"Expected 2 backlog instruction includes, found {includes}"
@@ -311,7 +311,7 @@ class TestIntegrationScenarios:
         has_task_section = (
             "Step 0: Backlog Task Discovery" in content
             or "Step 0: Workflow State Validation" in content
-            or "{{INCLUDE:.claude/commands/flow/_workflow-state.md}}" in content
+            or "{{INCLUDE:.claude/partials/flow/_workflow-state.md}}" in content
         )
         assert has_task_section, "plan.md must have task discovery/validation section"
 
@@ -336,7 +336,7 @@ class TestIntegrationScenarios:
         has_task_section = (
             "Step 0: Backlog Task Discovery" in content
             or "Step 0: Workflow State Validation" in content
-            or "{{INCLUDE:.claude/commands/flow/_workflow-state.md}}" in content
+            or "{{INCLUDE:.claude/partials/flow/_workflow-state.md}}" in content
         )
         assert has_task_section, "plan.md must have task discovery/validation section"
 
@@ -361,7 +361,7 @@ class TestIntegrationScenarios:
         # Count INCLUDE directives
         includes = []
         for line in content.split("\n"):
-            if "{{INCLUDE:.claude/commands/flow/_backlog-instructions.md}}" in line:
+            if "{{INCLUDE:.claude/partials/flow/_backlog-instructions.md}}" in line:
                 includes.append(line)
 
         # Should have exactly 2 includes (one per agent)

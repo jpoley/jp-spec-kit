@@ -63,7 +63,7 @@ Transform flowspec from hardcoded workflows into a flexible orchestration system
 - `.claude/commands/flow/custom.md` (NEW, 203 lines)
 - `docs/guides/custom-workflows.md` (NEW)
 - `templates/commands/flow/custom.md` (NEW)
-- `templates/commands/flow/_DEPRECATED_operate.md` (moved)
+- `templates/partials/flow/_DEPRECATED_operate.md` (moved)
 - `tests/test_flowspec_operate_backlog.py.disabled` (disabled)
 - `.flowspec/logs/events/` (NEW directory for rigor logging)
 
@@ -180,7 +180,7 @@ git add -u
 git add .claude/commands/flow/custom.md
 git add docs/guides/custom-workflows.md
 git add templates/commands/flow/custom.md
-git add templates/commands/flow/_DEPRECATED_operate.md
+git add templates/partials/flow/_DEPRECATED_operate.md
 
 # Review what will be committed
 git status

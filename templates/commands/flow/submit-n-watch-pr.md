@@ -31,9 +31,9 @@ $ARGUMENTS
 
 **Apply maximum reasoning depth throughout this workflow.**
 
-{{INCLUDE:.claude/commands/flow/_constitution-check.md}}
+{{INCLUDE:.claude/partials/flow/_constitution-check.md}}
 
-{{INCLUDE:.claude/commands/flow/_workflow-state.md}}
+{{INCLUDE:.claude/partials/flow/_workflow-state.md}}
 
 **For /flow:submit-n-watch-pr**: Recommended input state is `workflow:Validated`. Can also run from `workflow:In Implementation` if skipping formal validation.
 

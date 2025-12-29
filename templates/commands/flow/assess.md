@@ -18,9 +18,9 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 This command is the **mandatory entry point** to the flowspec workflow. It evaluates whether a feature requires the full Spec-Driven Development (SDD) workflow, a lighter specification approach, or can skip SDD entirely.
 
-{{INCLUDE:.claude/commands/flow/_constitution-check.md}}
+{{INCLUDE:.claude/partials/flow/_constitution-check.md}}
 
-{{INCLUDE:.claude/commands/flow/_workflow-state.md}}
+{{INCLUDE:.claude/partials/flow/_workflow-state.md}}
 
 **For /flow:assess**: This is the workflow entry point. Required input state is `workflow:To Do` or no workflow label. Output state will be `workflow:Assessed`.
 

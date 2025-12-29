@@ -155,7 +155,7 @@ Acceptance Criteria:
 
 #### 4.1.1 Shared Rigor Rules Include File
 
-Create `.claude/commands/flow/_rigor-rules.md` containing all mandatory rules organized by phase:
+Create `.claude/partials/flow/_rigor-rules.md` containing all mandatory rules organized by phase:
 
 **Setup Phase Rules (Pre-work)**:
 - Must have clear, documented plan of action
@@ -232,7 +232,7 @@ No external API changes. Internal changes only.
 
 **New files**:
 - `memory/decisions/*.jsonl` - Decision logs per task
-- `.claude/commands/flow/_rigor-rules.md` - Shared rules include
+- `.claude/partials/flow/_rigor-rules.md` - Shared rules include
 
 **Modified files**:
 - All `/flow:*` command templates

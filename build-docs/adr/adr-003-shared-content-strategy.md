@@ -8,7 +8,7 @@
 
 **Context and Problem Statement**:
 
-The `_backlog-instructions.md` file contains 6KB of common task management instructions that are relevant to multiple flowspec commands (implement, research, validate, plan, specify, operate). Currently, this content exists only in `.claude/commands/flow/_backlog-instructions.md` and is NOT in templates.
+The `_backlog-instructions.md` file contains 6KB of common task management instructions that are relevant to multiple flowspec commands (implement, research, validate, plan, specify, operate). Currently, this content exists only in `.claude/partials/flow/_backlog-instructions.md` and is NOT in templates.
 
 **The Duplication Problem**:
 
@@ -155,7 +155,7 @@ NEVER edit task files directly...
 **Implementation**:
 
 ```markdown
-<!-- templates/commands/flowspec/_backlog-instructions.md -->
+<!-- templates/partials/flowspec/_backlog-instructions.md -->
 # Backlog.md Task Management Instructions
 (full 6KB of content)
 
@@ -178,7 +178,7 @@ See `_backlog-instructions.md` for complete workflow, examples, and best practic
 - Clear semantic: "This is included/referenced elsewhere"
 
 **Distribution**:
-- dev-setup: Creates symlink `.claude/commands/flow/_backlog-instructions.md → templates/commands/flowspec/_backlog-instructions.md`
+- dev-setup: Creates symlink `.claude/partials/flow/_backlog-instructions.md → templates/partials/flowspec/_backlog-instructions.md`
 - Init: Copies `_backlog-instructions.md` to user project
 
 **Pros**:
@@ -254,8 +254,8 @@ Quick commands:
 **dev-setup Behavior**:
 ```python
 # Create symlink for partial
-symlink_path = ".claude/commands/flow/_backlog-instructions.md"
-target = "templates/commands/flowspec/_backlog-instructions.md"
+symlink_path = ".claude/partials/flow/_backlog-instructions.md"
+target = "templates/partials/flowspec/_backlog-instructions.md"
 symlink_path.symlink_to(relative_path_to(target))
 ```
 
@@ -263,8 +263,8 @@ symlink_path.symlink_to(relative_path_to(target))
 ```python
 # Copy partial along with commands
 shutil.copy2(
-    "templates/commands/flowspec/_backlog-instructions.md",
-    ".claude/commands/flow/_backlog-instructions.md"
+    "templates/partials/flowspec/_backlog-instructions.md",
+    ".claude/partials/flow/_backlog-instructions.md"
 )
 ```
 
@@ -368,7 +368,7 @@ The decision will be validated by:
 - Main Architecture: `docs/architecture/dev-setup-single-source-of-truth.md`
 - ADR-001: Single Source of Truth for Commands
 - ADR-002: Directory Structure Convention
-- Shared Content: `templates/commands/flowspec/_backlog-instructions.md`
+- Shared Content: `templates/partials/flowspec/_backlog-instructions.md`
 
 ---
 

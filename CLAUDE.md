@@ -291,7 +291,7 @@ See [Flowspec + Backlog.md Integration Guide](docs/guides/flowspec-backlog-workf
 
 @import memory/critical-rules.md
 
-@import .claude/commands/flow/_rigor-rules.md
+@import .claude/partials/flow/_rigor-rules.md
 
 ## Project Structure
 

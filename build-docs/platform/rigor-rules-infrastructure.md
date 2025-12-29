@@ -155,7 +155,7 @@ templates/commands/flow/
 └── validate.md
 
 .claude/commands/flow/
-├── _rigor-rules.md -> ../../../templates/commands/flow/_rigor-rules.md
+├── _rigor-rules.md -> ../../../templates/partials/flow/_rigor-rules.md
 ├── freeze.md -> ../../../templates/commands/flow/freeze.md
 └── (symlinks to all other flow commands)
 ```
@@ -969,7 +969,7 @@ repos:
 # Rigor Rules Infrastructure - Require review for changes
 /scripts/bash/rigor-*.sh                   @platform-engineer
 /memory/decisions/                         @platform-engineer
-/templates/commands/flow/_rigor-rules.md   @software-architect @platform-engineer
+/templates/partials/flow/_rigor-rules.md   @software-architect @platform-engineer
 /.github/workflows/rigor-rules-check.yml   @platform-engineer
 ```
 
@@ -1132,11 +1132,11 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
-{{INCLUDE:.claude/commands/flow/_constitution-check.md}}
+{{INCLUDE:.claude/partials/flow/_constitution-check.md}}
 
-{{INCLUDE:.claude/commands/flow/_workflow-state.md}}
+{{INCLUDE:.claude/partials/flow/_workflow-state.md}}
 
-{{INCLUDE:.claude/commands/flow/_backlog-instructions.md}}
+{{INCLUDE:.claude/partials/flow/_backlog-instructions.md}}
 
 ## Execution Instructions
 

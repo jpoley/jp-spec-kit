@@ -139,19 +139,19 @@ Stateless commands that can run anytime, outside of workflow context.
 All `_DEPRECATED_*.md` files in `templates/commands/flowspec/`:
 
 ```
-templates/commands/flowspec/_DEPRECATED_assess.md
-templates/commands/flowspec/_DEPRECATED_implement.md
-templates/commands/flowspec/_DEPRECATED_operate.md
-templates/commands/flowspec/_DEPRECATED_plan.md
-templates/commands/flowspec/_DEPRECATED_prune-branch.md
-templates/commands/flowspec/_DEPRECATED_research.md
-templates/commands/flowspec/_DEPRECATED_security_fix.md
-templates/commands/flowspec/_DEPRECATED_security_report.md
-templates/commands/flowspec/_DEPRECATED_security_triage.md
-templates/commands/flowspec/_DEPRECATED_security_web.md
-templates/commands/flowspec/_DEPRECATED_security_workflow.md
-templates/commands/flowspec/_DEPRECATED_specify.md
-templates/commands/flowspec/_DEPRECATED_validate.md
+templates/partials/flowspec/_DEPRECATED_assess.md
+templates/partials/flowspec/_DEPRECATED_implement.md
+templates/partials/flowspec/_DEPRECATED_operate.md
+templates/partials/flowspec/_DEPRECATED_plan.md
+templates/partials/flowspec/_DEPRECATED_prune-branch.md
+templates/partials/flowspec/_DEPRECATED_research.md
+templates/partials/flowspec/_DEPRECATED_security_fix.md
+templates/partials/flowspec/_DEPRECATED_security_report.md
+templates/partials/flowspec/_DEPRECATED_security_triage.md
+templates/partials/flowspec/_DEPRECATED_security_web.md
+templates/partials/flowspec/_DEPRECATED_security_workflow.md
+templates/partials/flowspec/_DEPRECATED_specify.md
+templates/partials/flowspec/_DEPRECATED_validate.md
 ```
 
 **Total: 13 files**
@@ -186,7 +186,7 @@ After deleting files, update `.claude/commands/`:
 
 ```bash
 # Remove broken symlinks in flowspec/
-rm .claude/commands/flow/_DEPRECATED_*.md
+rm .claude/partials/flow/_DEPRECATED_*.md
 
 # Remove pm namespace entirely
 rm .claude/commands/pm

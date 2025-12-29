@@ -18,9 +18,9 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 This command establishes comprehensive operational infrastructure using SRE best practices, focusing on reliability, automation, and observability. **All operational work is tracked as backlog tasks.**
 
-{{INCLUDE:.claude/commands/flow/_constitution-check.md}}
+{{INCLUDE:.claude/partials/flow/_constitution-check.md}}
 
-{{INCLUDE:.claude/commands/flow/_workflow-state.md}}
+{{INCLUDE:.claude/partials/flow/_workflow-state.md}}
 
 **For /flow:operate**: Required input state is `workflow:Validated`. Output state will be `workflow:Deployed`.
 

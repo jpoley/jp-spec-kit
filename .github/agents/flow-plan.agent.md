@@ -230,9 +230,9 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
-{{INCLUDE:.claude/commands/flow/_constitution-check.md}}
+{{INCLUDE:.claude/partials/flow/_constitution-check.md}}
 
-{{INCLUDE:.claude/commands/flow/_workflow-state.md}}
+{{INCLUDE:.claude/partials/flow/_workflow-state.md}}
 
 ## Execution Instructions
 
@@ -433,7 +433,7 @@ Use the Task tool to launch a **general-purpose** agent with the following promp
 
 ```
 <!--BACKLOG-INSTRUCTIONS-START-->
-{{INCLUDE:.claude/commands/flow/_backlog-instructions.md}}
+{{INCLUDE:.claude/partials/flow/_backlog-instructions.md}}
 <!--BACKLOG-INSTRUCTIONS-END-->
 
 # AGENT CONTEXT: Enterprise Software Architect - Hohpe's Principles Expert
@@ -560,7 +560,7 @@ Use the Task tool to launch a **general-purpose** agent with the following promp
 
 ```
 <!--BACKLOG-INSTRUCTIONS-START-->
-{{INCLUDE:.claude/commands/flow/_backlog-instructions.md}}
+{{INCLUDE:.claude/partials/flow/_backlog-instructions.md}}
 <!--BACKLOG-INSTRUCTIONS-END-->
 
 # AGENT CONTEXT: Platform Engineer - DevSecOps and CI/CD Excellence

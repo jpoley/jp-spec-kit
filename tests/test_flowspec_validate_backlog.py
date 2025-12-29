@@ -30,7 +30,7 @@ def backlog_instructions_path():
     return (
         Path(__file__).parent.parent
         / ".claude"
-        / "commands"
+        / "partials"
         / "flow"
         / "_backlog-instructions.md"
     )

@@ -27,7 +27,7 @@ These tasks have existing implementations in the codebase:
 | **task-499** | claude-improves-again: Add /flow:map-codebase command | `.claude/commands/flow/map-codebase.md` exists |
 | **task-500** | claude-improves-again: Add Known Gotchas/Prior Failures section | Present in `templates/prd-template.md` |
 | **task-501** | claude-improves-again: Add gather-learnings helper skill | `.claude/skills/gather-learnings/` exists |
-| **task-541** | Create _rigor-rules.md shared include file | `.claude/commands/flow/_rigor-rules.md` exists |
+| **task-541** | Create _rigor-rules.md shared include file | `.claude/partials/flow/_rigor-rules.md` exists |
 | **task-542** | Add JSONL decision logging infrastructure | `.flowspec/logs/events/` directory exists with JSONL files |
 | **task-496** | claude-improves-again: Add Feature Validation Plan section | Present in `templates/prd-template.md` |
 | **task-488** | claude-improves-again: Add INITIAL feature intake template | `templates/docs/initial/initial-feature-template.md` exists |

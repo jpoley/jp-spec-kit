@@ -762,7 +762,7 @@ jobs:
    cp .claude/commands/flow/operate.md templates/commands/flowspec/
    cp .claude/commands/flow/assess.md templates/commands/flowspec/
    cp .claude/commands/flow/prune-branch.md templates/commands/flowspec/
-   cp .claude/commands/flow/_backlog-instructions.md templates/commands/flowspec/
+   cp .claude/partials/flow/_backlog-instructions.md templates/commands/flowspec/
 
    # Verify content
    wc -c templates/commands/flowspec/*.md

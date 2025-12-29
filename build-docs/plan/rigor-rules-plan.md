@@ -109,7 +109,7 @@ Storage Layer (memory/decisions/, backlog/memory/)
 
 | File | Purpose |
 |------|---------|
-| `templates/commands/flow/_rigor-rules.md` | Main rigor rules include |
+| `templates/partials/flow/_rigor-rules.md` | Main rigor rules include |
 | `templates/commands/flow/freeze.md` | /flow:freeze command |
 
 ### Scripts
@@ -132,7 +132,7 @@ Storage Layer (memory/decisions/, backlog/memory/)
 
 | Symlink | Target |
 |---------|--------|
-| `.claude/commands/flow/_rigor-rules.md` | `../../../templates/commands/flow/_rigor-rules.md` |
+| `.claude/partials/flow/_rigor-rules.md` | `../../../templates/partials/flow/_rigor-rules.md` |
 | `.claude/commands/flow/freeze.md` | `../../../templates/commands/flow/freeze.md` |
 
 ---

@@ -75,11 +75,11 @@ class ExecWorktreeRule(RigorRule):
 ---
 
 #### Option 3: Shared Include File (_rigor-rules.md)
-**Implementation**: Create `templates/commands/flow/_rigor-rules.md` with all rules in Markdown. Commands include it via `{{INCLUDE:path/to/_rigor-rules.md}}`.
+**Implementation**: Create `templates/partials/flow/_rigor-rules.md` with all rules in Markdown. Commands include it via `{{INCLUDE:path/to/_rigor-rules.md}}`.
 
 ```markdown
 <!-- In /flow:implement.md -->
-{{INCLUDE:.claude/commands/flow/_rigor-rules.md}}
+{{INCLUDE:.claude/partials/flow/_rigor-rules.md}}
 
 <!-- Results in rules being injected into command -->
 ```
@@ -197,13 +197,13 @@ rules:
 
 ### File Location
 ```
-templates/commands/flow/_rigor-rules.md
+templates/partials/flow/_rigor-rules.md
 ```
 
 ### Include Syntax
 Commands include rules using:
 ```markdown
-{{INCLUDE:.claude/commands/flow/_rigor-rules.md}}
+{{INCLUDE:.claude/partials/flow/_rigor-rules.md}}
 ```
 
 ### Phase Detection
@@ -250,9 +250,9 @@ description: Command description
 ## User Input
 $ARGUMENTS
 
-{{INCLUDE:.claude/commands/flow/_constitution-check.md}}
-{{INCLUDE:.claude/commands/flow/_workflow-state.md}}
-{{INCLUDE:.claude/commands/flow/_rigor-rules.md}}  # <-- Inject rules here
+{{INCLUDE:.claude/partials/flow/_constitution-check.md}}
+{{INCLUDE:.claude/partials/flow/_workflow-state.md}}
+{{INCLUDE:.claude/partials/flow/_rigor-rules.md}}  # <-- Inject rules here
 
 ## Execution Instructions
 [Command-specific logic]
@@ -304,7 +304,7 @@ $ARGUMENTS
 
 ## References
 
-- Existing shared includes pattern: `templates/commands/flow/_backlog-instructions.md`
+- Existing shared includes pattern: `templates/partials/flow/_backlog-instructions.md`
 - Include processor implementation: `flowspec_cli/template_processor.py`
 - Command template structure: `templates/commands/flow/*.md`
 

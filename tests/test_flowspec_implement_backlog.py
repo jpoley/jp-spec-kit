@@ -39,7 +39,7 @@ class TestImplementCommandStructure:
             "Step 0: Workflow State Validation" in implement_command_content
         )
         has_include_pattern = (
-            "{{INCLUDE:.claude/commands/flow/_workflow-state.md}}"
+            "{{INCLUDE:.claude/partials/flow/_workflow-state.md}}"
             in implement_command_content
         )
         assert has_old_pattern or has_new_pattern or has_include_pattern, (

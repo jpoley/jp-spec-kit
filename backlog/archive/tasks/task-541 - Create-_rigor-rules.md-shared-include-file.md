@@ -23,10 +23,10 @@ Create the shared include file containing all task rigor rules organized by work
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [x] #1 Create templates/commands/flow/_rigor-rules.md with all rules from task-rigor.md
+- [x] #1 Create templates/partials/flow/_rigor-rules.md with all rules from task-rigor.md
 - [x] #2 Organize rules by phase: Setup, Execution, Freeze, Validation, PR
 - [x] #3 Include enforcement mode configuration (strict/warn/off)
-- [x] #4 Add symlink in .claude/commands/flow/_rigor-rules.md
+- [x] #4 Add symlink in .claude/partials/flow/_rigor-rules.md
 <!-- AC:END -->
 
 ## Implementation Plan

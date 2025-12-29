@@ -19,11 +19,11 @@ $ARGUMENTS
 
 **Expected Input**: Optional task ID (e.g., `task-094`). If not provided, command discovers the current in-progress task automatically.
 
-{{INCLUDE:.claude/commands/flow/_constitution-check.md}}
+{{INCLUDE:.claude/partials/flow/_constitution-check.md}}
 
-{{INCLUDE:.claude/commands/flow/_rigor-rules.md}}
+{{INCLUDE:.claude/partials/flow/_rigor-rules.md}}
 
-{{INCLUDE:.claude/commands/flow/_workflow-state.md}}
+{{INCLUDE:.claude/partials/flow/_workflow-state.md}}
 
 **For /flow:validate**: Required input state is `workflow:In Implementation`. Output state will be `workflow:Validated`.
 
@@ -582,7 +582,7 @@ Store this information for Phase 6 PR generation.
 
 #### Backlog Instructions Template
 
-Each validator agent context below includes `{{BACKLOG_INSTRUCTIONS}}` which must be replaced with the content from `.claude/commands/flow/_backlog-instructions.md`. This ensures all agents have consistent backlog task management instructions.
+Each validator agent context below includes `{{BACKLOG_INSTRUCTIONS}}` which must be replaced with the content from `.claude/partials/flow/_backlog-instructions.md`. This ensures all agents have consistent backlog task management instructions.
 
 **When executing this command, include the full content of `_backlog-instructions.md` in place of each `{{BACKLOG_INSTRUCTIONS}}` marker.**
 

@@ -24,7 +24,7 @@ def backlog_instructions_file():
     instructions_path = (
         Path(__file__).parent.parent
         / ".claude"
-        / "commands"
+        / "partials"
         / "flow"
         / "_backlog-instructions.md"
     )
@@ -87,7 +87,7 @@ class TestSharedBacklogInstructions:
 
         # Should include the shared backlog instructions
         assert (
-            "{{INCLUDE:.claude/commands/flow/_backlog-instructions.md}}"
+            "{{INCLUDE:.claude/partials/flow/_backlog-instructions.md}}"
             in phase1_section
         )
         assert "<!--BACKLOG-INSTRUCTIONS-START-->" in phase1_section
@@ -105,7 +105,7 @@ class TestSharedBacklogInstructions:
 
         # Should include the shared backlog instructions
         assert (
-            "{{INCLUDE:.claude/commands/flow/_backlog-instructions.md}}"
+            "{{INCLUDE:.claude/partials/flow/_backlog-instructions.md}}"
             in phase2_section
         )
         assert "<!--BACKLOG-INSTRUCTIONS-START-->" in phase2_section
@@ -117,7 +117,7 @@ class TestSharedBacklogInstructions:
 
         # Phase 1: Include should come before agent context
         phase1_include = content.find(
-            "{{INCLUDE:.claude/commands/flow/_backlog-instructions.md}}"
+            "{{INCLUDE:.claude/partials/flow/_backlog-instructions.md}}"
         )
         researcher_context = content.find("# AGENT CONTEXT: Senior Research Analyst")
         assert phase1_include < researcher_context, (
@@ -127,7 +127,7 @@ class TestSharedBacklogInstructions:
         # Phase 2: Include should come before agent context
         phase2_start = content.find("### Phase 2: Business Validation")
         phase2_include = content.find(
-            "{{INCLUDE:.claude/commands/flow/_backlog-instructions.md}}",
+            "{{INCLUDE:.claude/partials/flow/_backlog-instructions.md}}",
             phase2_start,
         )
         validator_context = content.find(
@@ -142,7 +142,7 @@ class TestSharedBacklogInstructions:
         content = research_command_file.read_text()
 
         include_count = content.count(
-            "{{INCLUDE:.claude/commands/flow/_backlog-instructions.md}}"
+            "{{INCLUDE:.claude/partials/flow/_backlog-instructions.md}}"
         )
         assert include_count == 2, (
             f"Expected 2 INCLUDE directives, found {include_count}"

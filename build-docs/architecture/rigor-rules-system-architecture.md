@@ -1025,7 +1025,7 @@ Some projects may require different enforcement levels:
 Each /flow:* command includes the rigor rules via:
 
 ```markdown
-{{INCLUDE:templates/commands/flow/_rigor-rules.md}}
+{{INCLUDE:templates/partials/flow/_rigor-rules.md}}
 ```
 
 This injects the appropriate phase rules based on the command being executed:
@@ -1086,9 +1086,9 @@ loop: inner|outer
 $ARGUMENTS
 ```
 
-{{INCLUDE:.claude/commands/flow/_constitution-check.md}}
-{{INCLUDE:.claude/commands/flow/_workflow-state.md}}
-{{INCLUDE:.claude/commands/flow/_rigor-rules.md}}
+{{INCLUDE:.claude/partials/flow/_constitution-check.md}}
+{{INCLUDE:.claude/partials/flow/_workflow-state.md}}
+{{INCLUDE:.claude/partials/flow/_rigor-rules.md}}
 
 ## Execution Instructions
 [Command-specific logic]

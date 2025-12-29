@@ -70,9 +70,9 @@ Storage Layer (backlog/decisions/, backlog/memory/)
 
 All /flow:* commands include rigor rules via:
 ```markdown
-{{INCLUDE:.claude/commands/flow/_constitution-check.md}}
-{{INCLUDE:.claude/commands/flow/_workflow-state.md}}
-{{INCLUDE:.claude/commands/flow/_rigor-rules.md}}
+{{INCLUDE:.claude/partials/flow/_constitution-check.md}}
+{{INCLUDE:.claude/partials/flow/_workflow-state.md}}
+{{INCLUDE:.claude/partials/flow/_rigor-rules.md}}
 ```
 
 **Phase Detection**: Automatic mapping from command to phase (e.g., /flow:implement → EXECUTION)

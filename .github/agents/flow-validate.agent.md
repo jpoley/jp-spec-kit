@@ -202,9 +202,9 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
-{{INCLUDE:.claude/commands/flow/_constitution-check.md}}
+{{INCLUDE:.claude/partials/flow/_constitution-check.md}}
 
-{{INCLUDE:.claude/commands/flow/_workflow-state.md}}
+{{INCLUDE:.claude/partials/flow/_workflow-state.md}}
 
 ## Execution Instructions
 
@@ -232,7 +232,7 @@ Last Updated: 2025-12-17
 
 This file is the single source of truth for all rigor rules.
 Include it in /flow:* commands via:
-  \{\{INCLUDE:.claude/commands/flow/_rigor-rules.md\}\}
+  \{\{INCLUDE:.claude/partials/flow/_rigor-rules.md\}\}
 
 See ADR-001 for design rationale.
 -->
@@ -1470,7 +1470,7 @@ After each workflow command completes, output status in this format:
 This file is included in /flow:* commands via:
 
 ```markdown
-\{\{INCLUDE:.claude/commands/flow/_rigor-rules.md\}\}
+\{\{INCLUDE:.claude/partials/flow/_rigor-rules.md\}\}
 ```
 
 **Command Phase Mapping**:
@@ -2192,7 +2192,7 @@ Store this information for Phase 6 PR generation.
 
 #### Backlog Instructions Template
 
-Each validator agent context below includes `{{BACKLOG_INSTRUCTIONS}}` which must be replaced with the content from `.claude/commands/flow/_backlog-instructions.md`. This ensures all agents have consistent backlog task management instructions.
+Each validator agent context below includes `{{BACKLOG_INSTRUCTIONS}}` which must be replaced with the content from `.claude/partials/flow/_backlog-instructions.md`. This ensures all agents have consistent backlog task management instructions.
 
 **When executing this command, include the full content of `_backlog-instructions.md` in place of each `{{BACKLOG_INSTRUCTIONS}}` marker.**
 

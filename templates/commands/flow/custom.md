@@ -17,7 +17,7 @@ You **MUST** parse the workflow name from the arguments. If no workflow name pro
 
 This command executes user-customizable workflow sequences defined in `flowspec_workflow.yml`.
 
-{{INCLUDE:.claude/commands/flow/_constitution-check.md}}
+{{INCLUDE:.claude/partials/flow/_constitution-check.md}}
 
 ### Overview
 

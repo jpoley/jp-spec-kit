@@ -149,11 +149,11 @@ jq '.' memory/decisions/task-542.jsonl
 
 ### 7. Rigor Rules Include File
 
-**File:** `templates/commands/flow/_rigor-rules.md`
+**File:** `templates/partials/flow/_rigor-rules.md`
 
 **Integrated into all workflow commands:**
 ```markdown
-{{INCLUDE:.claude/commands/flow/_rigor-rules.md}}
+{{INCLUDE:.claude/partials/flow/_rigor-rules.md}}
 ```
 
 **Content:**
@@ -342,7 +342,7 @@ jq 'select(.decision | contains("timeout"))' memory/decisions/task-*.jsonl
 | `scripts/bash/rigor-branch-validation.sh` | Branch naming validator |
 | `scripts/bash/rigor-rebase-check.sh` | Rebase status checker |
 | `scripts/bash/rigor-pre-pr-validation.sh` | Pre-PR validation gate |
-| `templates/commands/flow/_rigor-rules.md` | Rigor rules include |
+| `templates/partials/flow/_rigor-rules.md` | Rigor rules include |
 | `templates/commands/flow/freeze.md` | Freeze command template |
 | `.github/workflows/rigor-rules-check.yml` | CI validation workflow |
 | `tests/test_rigor_scripts.sh` | Script integration tests |

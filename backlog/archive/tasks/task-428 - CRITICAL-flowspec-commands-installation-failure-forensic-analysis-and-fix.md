@@ -163,7 +163,7 @@ $ unzip -l spec-kit-template-claude-sh-v0.2.344.zip | grep commands
 **Problem solved:** Failure #4 - DEPRECATED stubs confusing users
 
 **Files to delete:**
-- All `templates/commands/flowspec/_DEPRECATED_*.md` files
+- All `templates/partials/flowspec/_DEPRECATED_*.md` files
 - Archive or remove `templates/commands/flowspec/` directory
 
 **Files to modify:**

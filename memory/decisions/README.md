@@ -136,4 +136,4 @@ Decision logging is enforced by rigor rule **EXEC-003**:
 
 > All significant decisions must be logged with task traceability in JSONL format.
 
-See `templates/commands/flow/_rigor-rules.md` for full rule details.
+See `templates/partials/flow/_rigor-rules.md` for full rule details.

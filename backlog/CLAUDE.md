@@ -117,4 +117,4 @@ See [Two-Tier Task Management Guide](../docs/guides/task-management-tiers.md) fo
 
 ## Active Task Context
 
-@import ../memory/task-368.md
+@import ../memory/task-42.md

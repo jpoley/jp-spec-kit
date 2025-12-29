@@ -171,7 +171,7 @@ Acceptance Criteria:
 - **Validation**: Check VS Code Copilot docs for reserved command names
 
 **Edge Case 2: Frontmatter Include Directives**
-- **Scenario**: Commands use `{{INCLUDE:.claude/commands/flow/_backlog-instructions.md}}`
+- **Scenario**: Commands use `{{INCLUDE:.claude/partials/flow/_backlog-instructions.md}}`
 - **Handling**: Sync script must resolve includes and embed content in .github/agents/ files
 - **Validation**: Test that included content appears in Copilot command execution
 
@@ -345,9 +345,9 @@ mode: flowspec.specify
 
 Many flowspec commands include shared prompt fragments:
 ```markdown
-{{INCLUDE:.claude/commands/flow/_constitution-check.md}}
-{{INCLUDE:.claude/commands/flow/_workflow-state.md}}
-{{INCLUDE:.claude/commands/flow/_backlog-instructions.md}}
+{{INCLUDE:.claude/partials/flow/_constitution-check.md}}
+{{INCLUDE:.claude/partials/flow/_workflow-state.md}}
+{{INCLUDE:.claude/partials/flow/_backlog-instructions.md}}
 ```
 
 **Sync script must**:
@@ -362,7 +362,7 @@ Many flowspec commands include shared prompt fragments:
 ```markdown
 ## Execution Instructions
 
-{{INCLUDE:.claude/commands/flow/_constitution-check.md}}
+{{INCLUDE:.claude/partials/flow/_constitution-check.md}}
 
 Your task is...
 ```
@@ -1161,12 +1161,12 @@ mode: flowspec.specify
 
 **Simple Include**:
 ```markdown
-{{INCLUDE:.claude/commands/flow/_constitution-check.md}}
+{{INCLUDE:.claude/partials/flow/_constitution-check.md}}
 ```
 
 **Nested Include** (_constitution-check.md contains another include):
 ```markdown
-{{INCLUDE:.claude/commands/flow/_workflow-base.md}}
+{{INCLUDE:.claude/partials/flow/_workflow-base.md}}
 ```
 
 **Relative Path Resolution**:

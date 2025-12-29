@@ -9,7 +9,7 @@ Last Updated: 2025-12-17
 
 This file is the single source of truth for all rigor rules.
 Include it in /flow:* commands via:
-  \{\{INCLUDE:.claude/commands/flow/_rigor-rules.md\}\}
+  \{\{INCLUDE:.claude/partials/flow/_rigor-rules.md\}\}
 
 See ADR-001 for design rationale.
 -->
@@ -1247,7 +1247,7 @@ After each workflow command completes, output status in this format:
 This file is included in /flow:* commands via:
 
 ```markdown
-\{\{INCLUDE:.claude/commands/flow/_rigor-rules.md\}\}
+\{\{INCLUDE:.claude/partials/flow/_rigor-rules.md\}\}
 ```
 
 **Command Phase Mapping**:
