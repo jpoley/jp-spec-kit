@@ -17,6 +17,27 @@ tools:
 
 Submit a PR and autonomously monitor CI checks and Copilot code review feedback. Iteratively fix issues and resubmit until the PR is approval-ready with zero Copilot comments.
 
+## 🚨 CRITICAL SUCCESS CRITERIA 🚨
+
+**Your PR is ONLY ready for merge when you see BOTH:**
+
+1. **All CI checks pass** - No failures, no pending checks
+2. **Copilot reports "reviewed N files and generated no comments"** - Where N matches your changed files count
+
+**Example of successful Copilot review:**
+```
+Copilot reviewed 5 files in this pull request and generated no comments.
+```
+
+**If you do NOT see this message OR any CI check fails:**
+- ❌ **DO NOT merge the PR**
+- ❌ **DO NOT request human review**
+- ✅ **Close the PR**
+- ✅ **Rework the branch** (fix issues, rebase if needed)
+- ✅ **Create a NEW PR** with clean history
+
+**There are NO exceptions to this rule.** A PR with Copilot comments or CI failures is NOT ready.
+
 ## User Input
 
 ```text
