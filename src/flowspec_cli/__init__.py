@@ -1997,6 +1997,149 @@ See the `memory/` directory for all available context files."""
     claude_md_path.write_text(content)
 
 
+def generate_mcp_json(project_path: Path) -> None:
+    """Generate .mcp.json file with common MCP server configurations.
+
+    Args:
+        project_path: Path to the project directory
+    """
+    mcp_json_path = project_path / ".mcp.json"
+
+    # Skip if .mcp.json already exists
+    if mcp_json_path.exists():
+        return
+
+    # Detect tech stack to customize MCP servers
+    tech_stack = detect_tech_stack(project_path)
+
+    # Build MCP servers configuration
+    mcp_servers = {
+        "backlog": {
+            "command": "backlog",
+            "args": ["mcp"],
+        }
+    }
+
+    # Add Python-specific servers
+    if "Python" in tech_stack["languages"]:
+        # Add flowspec security server for Python projects
+        mcp_servers["flowspec-security"] = {
+            "command": "uv",
+            "args": [
+                "--directory",
+                ".",
+                "run",
+                "python",
+                "-m",
+                "flowspec_cli.security.mcp_server",
+            ],
+        }
+
+    # Build the complete config
+    mcp_config = {"mcpServers": mcp_servers}
+
+    # Write .mcp.json
+    import json
+
+    with open(mcp_json_path, "w", encoding="utf-8") as f:
+        json.dump(mcp_config, f, indent=2, ensure_ascii=False)
+        f.write("\n")
+
+
+def generate_vscode_extensions(project_path: Path) -> None:
+    """Generate .vscode/extensions.json with tech-stack specific recommendations.
+
+    Args:
+        project_path: Path to the project directory
+    """
+    vscode_dir = project_path / ".vscode"
+    extensions_path = vscode_dir / "extensions.json"
+
+    # Create .vscode directory if it doesn't exist
+    vscode_dir.mkdir(parents=True, exist_ok=True)
+
+    # Load existing extensions.json if it exists
+    existing_recommendations = []
+    if extensions_path.exists():
+        try:
+            import json
+
+            with open(extensions_path, encoding="utf-8") as f:
+                existing_config = json.load(f)
+                existing_recommendations = existing_config.get("recommendations", [])
+        except (json.JSONDecodeError, OSError):
+            pass
+
+    # Detect tech stack
+    tech_stack = detect_tech_stack(project_path)
+
+    # Build recommendations list
+    recommendations = set(existing_recommendations)
+
+    # Base extensions for all projects
+    base_extensions = [
+        "github.copilot",
+        "github.copilot-chat",
+        "editorconfig.editorconfig",
+    ]
+    recommendations.update(base_extensions)
+
+    # Python-specific extensions
+    if "Python" in tech_stack["languages"]:
+        python_extensions = [
+            "ms-python.python",
+            "ms-python.vscode-pylance",
+            "charliermarsh.ruff",
+        ]
+        recommendations.update(python_extensions)
+
+    # JavaScript/TypeScript-specific extensions
+    if "JavaScript/TypeScript" in tech_stack["languages"]:
+        js_extensions = [
+            "dbaeumer.vscode-eslint",
+            "esbenp.prettier-vscode",
+        ]
+        recommendations.update(js_extensions)
+
+    # Go-specific extensions
+    if "Go" in tech_stack["languages"]:
+        go_extensions = [
+            "golang.go",
+        ]
+        recommendations.update(go_extensions)
+
+    # Rust-specific extensions
+    if "Rust" in tech_stack["languages"]:
+        rust_extensions = [
+            "rust-lang.rust-analyzer",
+        ]
+        recommendations.update(rust_extensions)
+
+    # Java-specific extensions
+    if "Java" in tech_stack["languages"]:
+        java_extensions = [
+            "redhat.java",
+            "vscjava.vscode-java-pack",
+        ]
+        recommendations.update(java_extensions)
+
+    # Docker extension if Dockerfile exists
+    if (project_path / "Dockerfile").exists() or (
+        project_path / "docker-compose.yml"
+    ).exists():
+        recommendations.add("ms-azuretools.vscode-docker")
+
+    # Build config
+    extensions_config = {"recommendations": sorted(recommendations)}
+
+    # Write extensions.json
+    import json
+
+    with open(extensions_path, "w", encoding="utf-8") as f:
+        json.dump(extensions_config, f, indent=2, ensure_ascii=False)
+        f.write("\n")
+
+
 class StepTracker:
     """Track and render hierarchical steps without emojis, similar to Claude Code tree output.
     Supports live auto-refresh via an attached refresh callback.
@@ -4387,6 +4530,24 @@ def init(
             else:
                 tracker.add("claude-md", "Generate CLAUDE.md")
                 tracker.skip("claude-md", "--skip-claude-md flag")
+
+            # Generate .mcp.json file
+            tracker.add("mcp-json", "Generate .mcp.json")
+            tracker.start("mcp-json")
+            try:
+                generate_mcp_json(project_path)
+                tracker.complete("mcp-json", ".mcp.json created")
+            except Exception as mcp_error:
+                tracker.error("mcp-json", f"generation failed: {mcp_error}")
+
+            # Generate .vscode/extensions.json
+            tracker.add("vscode-ext", "Generate VSCode extensions")
+            tracker.start("vscode-ext")
+            try:
+                generate_vscode_extensions(project_path)
+                tracker.complete("vscode-ext", ".vscode/extensions.json created")
+            except Exception as ext_error:
+                tracker.error("vscode-ext", f"generation failed: {ext_error}")
 
             tracker.complete("final", "project ready")
         except Exception as e:
