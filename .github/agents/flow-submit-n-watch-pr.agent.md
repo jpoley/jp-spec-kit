@@ -38,6 +38,23 @@ Copilot reviewed 5 files in this pull request and generated no comments.
 
 **There are NO exceptions to this rule.** A PR with Copilot comments or CI failures is NOT ready.
 
+## ⚠️ "Outdated" Comments = Wrong Approach ⚠️
+
+**If you see "Outdated" labels on Copilot review comments, you are doing it wrong.**
+
+This happens when you push fixes to an existing PR instead of creating a new one. The problem:
+- Copilot marks old comments as "Outdated" but **does NOT re-run its review**
+- You won't get fresh feedback on your fixes
+- The PR will never reach the "reviewed N files and generated no comments" state
+
+**Correct approach when you need to fix issues:**
+1. ❌ **DO NOT** push more commits to the existing PR
+2. ✅ **Close the current PR** (`gh pr close #123`)
+3. ✅ **Create a NEW PR** with your fixes
+4. ✅ Copilot will run a fresh review on the new PR
+
+This is why the workflow creates new PRs rather than iterating on existing ones.
+
 ## User Input
 
 ```text
