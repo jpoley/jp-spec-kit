@@ -26,6 +26,7 @@ Or install globally:
 
 # Note: importlib.resources requires Python 3.9+, we require Python 3.11+
 import importlib.resources  # nosemgrep: python.lang.compatibility.python37.python37-compatibility-importlib2
+import json
 import logging
 import os
 import shlex
@@ -2042,7 +2043,6 @@ def generate_mcp_json(project_path: Path) -> bool:
     mcp_config = {"mcpServers": mcp_servers}
 
     # Write .mcp.json
-    import json
 
     with open(mcp_json_path, "w", encoding="utf-8") as f:
         json.dump(mcp_config, f, indent=2, ensure_ascii=False)
@@ -2051,24 +2051,28 @@ def generate_mcp_json(project_path: Path) -> bool:
     return True
 
 
-def generate_vscode_extensions(project_path: Path) -> None:
+def generate_vscode_extensions(project_path: Path) -> bool:
     """Generate .vscode/extensions.json with tech-stack specific recommendations.
 
     Args:
         project_path: Path to the project directory
+
+    Returns:
+        True if file was created, False if it was updated (already existed).
     """
     vscode_dir = project_path / ".vscode"
     extensions_path = vscode_dir / "extensions.json"
+
+    # Track if file existed before for return value
+    file_existed = extensions_path.exists()
 
     # Create .vscode directory if it doesn't exist
     vscode_dir.mkdir(parents=True, exist_ok=True)
 
     # Load existing extensions.json if it exists
     existing_recommendations = []
-    if extensions_path.exists():
+    if file_existed:
         try:
-            import json
-
             with open(extensions_path, encoding="utf-8") as f:
                 existing_config = json.load(f)
                 existing_recommendations = existing_config.get("recommendations", [])
@@ -2142,11 +2146,11 @@ def generate_vscode_extensions(project_path: Path) -> None:
     extensions_config = {"recommendations": sorted(recommendations)}
 
     # Write extensions.json
-    import json
-
     with open(extensions_path, "w", encoding="utf-8") as f:
         json.dump(extensions_config, f, indent=2, ensure_ascii=False)
         f.write("\n")
+
+    return not file_existed
 
 
 class StepTracker:
@@ -4554,15 +4558,13 @@ def init(
 
             # Generate .vscode/extensions.json
             tracker.add("vscode-ext", "Generate VSCode extensions")
-            vscode_ext_path = project_path / ".vscode" / "extensions.json"
-            vscode_ext_existed = vscode_ext_path.exists()
             tracker.start("vscode-ext")
             try:
-                generate_vscode_extensions(project_path)
-                if vscode_ext_existed:
-                    tracker.complete("vscode-ext", ".vscode/extensions.json updated")
-                else:
+                # generate_vscode_extensions returns True if created, False if updated
+                if generate_vscode_extensions(project_path):
                     tracker.complete("vscode-ext", ".vscode/extensions.json created")
+                else:
+                    tracker.complete("vscode-ext", ".vscode/extensions.json updated")
             except Exception as ext_error:
                 tracker.error("vscode-ext", f"generation failed: {ext_error}")
 
@@ -8006,7 +8008,6 @@ def security_scan(
         flowspec security scan --fail-on critical        # Fail only on critical
         flowspec security scan --format json -o out.json # JSON output to file
     """
-    import json
 
     from flowspec_cli.security.adapters.semgrep import SemgrepAdapter
     from flowspec_cli.security.exporters.json import JSONExporter
@@ -8774,7 +8775,6 @@ def workflow_validate(
         flowspec workflow validate --verbose          # Show detailed output
         flowspec workflow validate --json             # JSON output for CI
     """
-    import json
     from pathlib import Path
 
     from flowspec_cli.workflow.config import WorkflowConfig

@@ -72,7 +72,10 @@ class TestVSCodeExtensionsGeneration:
         from flowspec_cli import generate_vscode_extensions
 
         monkeypatch.chdir(tmp_path)
-        generate_vscode_extensions(tmp_path)
+        result = generate_vscode_extensions(tmp_path)
+
+        # Should return True when file is created
+        assert result is True
 
         extensions_json = tmp_path / ".vscode" / "extensions.json"
         assert extensions_json.exists()
@@ -141,7 +144,10 @@ class TestVSCodeExtensionsGeneration:
         (vscode_dir / "extensions.json").write_text(json.dumps(existing_config))
 
         monkeypatch.chdir(tmp_path)
-        generate_vscode_extensions(tmp_path)
+        result = generate_vscode_extensions(tmp_path)
+
+        # Should return False when file already exists (was updated, not created)
+        assert result is False
 
         extensions_json = tmp_path / ".vscode" / "extensions.json"
         config = json.loads(extensions_json.read_text())
