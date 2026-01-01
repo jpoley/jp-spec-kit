@@ -11,7 +11,10 @@ class TestMCPJsonGeneration:
         from flowspec_cli import generate_mcp_json
 
         monkeypatch.chdir(tmp_path)
-        generate_mcp_json(tmp_path)
+        result = generate_mcp_json(tmp_path)
+
+        # Should return True when file is created
+        assert result is True
 
         mcp_json = tmp_path / ".mcp.json"
         assert mcp_json.exists()
@@ -29,7 +32,10 @@ class TestMCPJsonGeneration:
         (tmp_path / "pyproject.toml").write_text("[project]\nname = 'test'\n")
 
         monkeypatch.chdir(tmp_path)
-        generate_mcp_json(tmp_path)
+        result = generate_mcp_json(tmp_path)
+
+        # Should return True when file is created
+        assert result is True
 
         mcp_json = tmp_path / ".mcp.json"
         config = json.loads(mcp_json.read_text())
@@ -47,7 +53,10 @@ class TestMCPJsonGeneration:
         mcp_json.write_text(json.dumps(existing_config))
 
         monkeypatch.chdir(tmp_path)
-        generate_mcp_json(tmp_path)
+        result = generate_mcp_json(tmp_path)
+
+        # Should return False when file already exists
+        assert result is False
 
         # Should not be modified
         config = json.loads(mcp_json.read_text())
@@ -197,6 +206,21 @@ class TestVSCodeExtensionsGeneration:
 
         # Create a docker-compose.yaml file (not .yml)
         (tmp_path / "docker-compose.yaml").write_text("version: '3'\n")
+
+        monkeypatch.chdir(tmp_path)
+        generate_vscode_extensions(tmp_path)
+
+        extensions_json = tmp_path / ".vscode" / "extensions.json"
+        config = json.loads(extensions_json.read_text())
+
+        assert "ms-azuretools.vscode-docker" in config["recommendations"]
+
+    def test_generate_vscode_extensions_docker_compose_yml(self, tmp_path, monkeypatch):
+        """Generate extensions.json with Docker extension when docker-compose.yml exists."""
+        from flowspec_cli import generate_vscode_extensions
+
+        # Create a docker-compose.yml file (the common .yml variant)
+        (tmp_path / "docker-compose.yml").write_text("version: '3'\n")
 
         monkeypatch.chdir(tmp_path)
         generate_vscode_extensions(tmp_path)
