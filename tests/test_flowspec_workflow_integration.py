@@ -68,7 +68,7 @@ def default_workflow_config():
             "Planned",
             "In Implementation",
             "Validated",
-            "Deployed",
+            # NOTE: Deployed state removed - deployment is outer loop
             "Done",
         ],
         "workflows": {
@@ -102,11 +102,7 @@ def default_workflow_config():
                 "input_states": ["In Implementation"],
                 "output_state": "Validated",
             },
-            "operate": {
-                "command": "/flow:operate",
-                "input_states": ["Validated"],
-                "output_state": "Deployed",
-            },
+            # NOTE: operate workflow removed - deployment is outer loop
         },
     }
 
@@ -435,12 +431,8 @@ class TestValidateTransition:
         assert response.result == StateCheckResult.BLOCKED
         assert "In Implementation" in response.required_states
 
-    def test_validate_blocked_from_deployed(self, workflow_config_file):
-        """Validate command blocked when task is already deployed."""
-        guard = WorkflowStateGuard(workflow_config_file)
-        response = guard.check_state("validate", "Deployed")
-
-        assert response.result == StateCheckResult.BLOCKED
+    # NOTE: test_validate_blocked_from_deployed removed - "Deployed" state no longer exists
+    # /flow:operate was removed - deployment is outer loop (use /ops:* commands)
 
     def test_validate_updates_task_state(self, workflow_config_file):
         """Validate command updates task state to Validated."""
@@ -461,66 +453,23 @@ class TestValidateTransition:
 
 
 # =============================================================================
-# AC #7: /flow:operate State Transition (Validated → Deployed)
+# NOTE: AC #7 TestOperateTransition class removed
+# /flow:operate was removed - deployment is outer loop (use /ops:* commands)
 # =============================================================================
 
 
-class TestOperateTransition:
-    """AC #7: Tests for /flow:operate state transition (Validated → Deployed)."""
-
-    def test_operate_allowed_from_validated(self, workflow_config_file):
-        """Operate command allowed when task is Validated."""
-        guard = WorkflowStateGuard(workflow_config_file)
-        response = guard.check_state("operate", "Validated")
-
-        assert response.result == StateCheckResult.ALLOWED
-        assert response.next_state == "Deployed"
-
-    def test_operate_blocked_from_implementation(self, workflow_config_file):
-        """Operate command blocked when task is still in implementation."""
-        guard = WorkflowStateGuard(workflow_config_file)
-        response = guard.check_state("operate", "In Implementation")
-
-        assert response.result == StateCheckResult.BLOCKED
-        assert "Validated" in response.required_states
-
-    def test_operate_blocked_from_todo(self, workflow_config_file):
-        """Operate command blocked when task hasn't been validated."""
-        guard = WorkflowStateGuard(workflow_config_file)
-        response = guard.check_state("operate", "To Do")
-
-        assert response.result == StateCheckResult.BLOCKED
-
-    def test_operate_updates_task_state(self, workflow_config_file):
-        """Operate command updates task state to Deployed."""
-        mock_system = MockTaskSystem("Validated")
-        guard = WorkflowStateGuard(workflow_config_file, task_system=mock_system)
-
-        success, msg = guard.update_task_state("task-101", "operate")
-        assert success
-        assert mock_system.get_task_state("task-101") == "Deployed"
-
-    def test_operate_suggests_validate_workflow(self, workflow_config_file):
-        """Operate command suggests /flow:validate when task is In Implementation."""
-        guard = WorkflowStateGuard(workflow_config_file)
-        response = guard.check_state("operate", "In Implementation")
-
-        assert response.suggested_workflows is not None
-        assert "/flow:validate" in response.suggested_workflows
-
-
 # =============================================================================
-# AC #8: Invalid State Transitions (Error Handling)
+# AC #7: Invalid State Transitions (Error Handling)
 # =============================================================================
 
 
 class TestInvalidTransitions:
-    """AC #8: Tests for invalid state transitions with helpful error messages."""
+    """AC #7: Tests for invalid state transitions with helpful error messages."""
 
     def test_blocked_transition_includes_current_state(self, workflow_config_file):
         """Blocked transition error includes current state."""
         guard = WorkflowStateGuard(workflow_config_file)
-        response = guard.check_state("operate", "To Do")
+        response = guard.check_state("implement", "To Do")
 
         assert response.result == StateCheckResult.BLOCKED
         assert response.current_state == "To Do"
@@ -529,15 +478,15 @@ class TestInvalidTransitions:
     def test_blocked_transition_includes_required_states(self, workflow_config_file):
         """Blocked transition error includes required states."""
         guard = WorkflowStateGuard(workflow_config_file)
-        response = guard.check_state("operate", "To Do")
+        response = guard.check_state("implement", "To Do")
 
-        assert "Validated" in response.required_states
+        assert "Planned" in response.required_states
         assert "Required states:" in response.message
 
     def test_blocked_transition_suggests_valid_workflows(self, workflow_config_file):
         """Blocked transition error suggests valid workflows for current state."""
         guard = WorkflowStateGuard(workflow_config_file)
-        response = guard.check_state("operate", "To Do")
+        response = guard.check_state("implement", "To Do")
 
         # For "To Do" state, only /flow:assess is valid
         assert response.suggested_workflows is not None
@@ -546,14 +495,14 @@ class TestInvalidTransitions:
     def test_blocked_transition_suggests_bypass_option(self, workflow_config_file):
         """Blocked transition error mentions bypass option."""
         guard = WorkflowStateGuard(workflow_config_file)
-        response = guard.check_state("operate", "To Do")
+        response = guard.check_state("implement", "To Do")
 
         assert "--skip-state-check" in response.message
 
     def test_skip_state_check_bypasses_validation(self, workflow_config_file):
         """Skip state check flag bypasses all validation."""
         guard = WorkflowStateGuard(workflow_config_file)
-        response = guard.check_state("operate", "Wrong State", skip_check=True)
+        response = guard.check_state("implement", "Wrong State", skip_check=True)
 
         assert response.result == StateCheckResult.SKIPPED
         assert "skipped" in response.message.lower()
@@ -713,7 +662,11 @@ class TestCompleteWorkflowScenarios:
     """Integration tests for complete workflow scenarios."""
 
     def test_happy_path_full_workflow(self, workflow_config_file):
-        """Test complete workflow progression from To Do to Deployed."""
+        """Test complete workflow progression from To Do to Validated.
+
+        NOTE: /flow:operate was removed - deployment is outer loop (use /ops:* commands)
+        Workflow now ends at Validated state.
+        """
         mock_system = MockTaskSystem("To Do")
         guard = WorkflowStateGuard(workflow_config_file, task_system=mock_system)
 
@@ -759,16 +712,10 @@ class TestCompleteWorkflowScenarios:
         guard.update_task_state("task-101", "validate")
         assert mock_system.get_task_state("task-101") == "Validated"
 
-        # Step 6: Operate (Validated → Deployed)
-        assert (
-            guard.check_state("operate", mock_system.get_task_state("task-101")).result
-            == StateCheckResult.ALLOWED
-        )
-        guard.update_task_state("task-101", "operate")
-        assert mock_system.get_task_state("task-101") == "Deployed"
+        # NOTE: Step 6 (Operate) removed - deployment is outer loop (use /ops:* commands)
 
-        # Verify state history
-        assert len(mock_system.state_history) == 6
+        # Verify state history (5 transitions, not 6)
+        assert len(mock_system.state_history) == 5
 
     def test_workflow_with_research_phase(self, workflow_config_file):
         """Test workflow including optional research phase."""
@@ -822,13 +769,12 @@ class TestCompleteWorkflowScenarios:
         mock_system = MockTaskSystem("Planned")
         guard = WorkflowStateGuard(workflow_config_file, task_system=mock_system)
 
-        # Execute multiple transitions
+        # Execute multiple transitions (operate removed - workflow ends at validate)
         guard.update_task_state("task-101", "implement")
         guard.update_task_state("task-101", "validate")
-        guard.update_task_state("task-101", "operate")
 
         # Verify history contains all transitions
-        assert len(mock_system.state_history) == 3
+        assert len(mock_system.state_history) == 2
         assert mock_system.state_history[0] == (
             "task-101",
             "Planned",
@@ -839,7 +785,7 @@ class TestCompleteWorkflowScenarios:
             "In Implementation",
             "Validated",
         )
-        assert mock_system.state_history[2] == ("task-101", "Validated", "Deployed")
+        # NOTE: operate transition removed - deployment is outer loop
 
 
 # =============================================================================
@@ -912,11 +858,11 @@ class TestEdgeCases:
         """Multiple concurrent state checks don't interfere."""
         guard = WorkflowStateGuard(workflow_config_file)
 
-        # Simulate concurrent checks
+        # Simulate concurrent checks (operate removed - workflow ends at validate)
         responses = [
             guard.check_state("implement", "Planned"),
             guard.check_state("validate", "In Implementation"),
-            guard.check_state("operate", "Validated"),
+            guard.check_state("plan", "Specified"),  # Another valid transition
         ]
 
         # All should succeed independently

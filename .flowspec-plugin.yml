@@ -33,9 +33,9 @@ provides:
     - path: templates/commands/flowspec/validate.md
       name: flow:validate
       description: QA, Security, Release Validation
-    - path: templates/commands/flowspec/operate.md
-      name: flow:operate
-      description: SRE Operations
+    - path: templates/commands/flowspec/submit-n-watch-pr.md
+      name: flow:submit-n-watch-pr
+      description: Submit PR and watch CI/reviews
 
   # Language-specific expertise
   languages:

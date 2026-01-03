@@ -44,8 +44,8 @@ class TestBatchValidationModeFlag:
         workflow_file = project_dir / "flowspec_workflow.yml"
         assert workflow_file.exists()
         content = workflow_file.read_text()
-        # All transitions should be NONE
-        assert content.count("validation: NONE") >= 7
+        # All transitions should be NONE - 6 transitions (operate removed)
+        assert content.count("validation: NONE") >= 6
 
     def test_batch_keyword_sets_all_keyword(
         self, mock_github_releases, tmp_path: Path
@@ -73,8 +73,8 @@ class TestBatchValidationModeFlag:
         workflow_file = project_dir / "flowspec_workflow.yml"
         assert workflow_file.exists()
         content = workflow_file.read_text()
-        # All transitions should use KEYWORD with default "APPROVED"
-        assert content.count('KEYWORD["APPROVED"]') >= 7
+        # All transitions should use KEYWORD with default "APPROVED" - 6 transitions (operate removed)
+        assert content.count('KEYWORD["APPROVED"]') >= 6
 
     def test_batch_pull_request_sets_all_pull_request(
         self, mock_github_releases, tmp_path: Path
@@ -102,8 +102,8 @@ class TestBatchValidationModeFlag:
         workflow_file = project_dir / "flowspec_workflow.yml"
         assert workflow_file.exists()
         content = workflow_file.read_text()
-        # All transitions should be PULL_REQUEST
-        assert content.count("validation: PULL_REQUEST") >= 7
+        # All transitions should be PULL_REQUEST - 6 transitions (operate removed)
+        assert content.count("validation: PULL_REQUEST") >= 6
 
     def test_invalid_batch_mode_fails(
         self, mock_github_releases, tmp_path: Path
@@ -188,8 +188,8 @@ class TestBatchValidationModeFlag:
         workflow_file = project_dir / "flowspec_workflow.yml"
         assert workflow_file.exists()
         content = workflow_file.read_text()
-        # Should be all NONE due to --no-validation-prompts precedence
-        assert content.count("validation: NONE") >= 7
+        # Should be all NONE due to --no-validation-prompts precedence - 6 transitions (operate removed)
+        assert content.count("validation: NONE") >= 6
 
 
 class TestValidationModeInWorkflowFile:
@@ -272,6 +272,7 @@ class TestValidationModeInWorkflowFile:
         workflow_file = project_dir / "flowspec_workflow.yml"
         content = workflow_file.read_text()
 
+        # NOTE: operate removed - deployment is outer loop (use /ops:* commands)
         expected_transitions = [
             "assess",
             "specify",
@@ -279,7 +280,6 @@ class TestValidationModeInWorkflowFile:
             "plan",
             "implement",
             "validate",
-            "operate",
         ]
         for t in expected_transitions:
             assert f"name: {t}" in content, f"Missing transition {t}"

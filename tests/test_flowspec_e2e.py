@@ -2,13 +2,15 @@
 
 This test module verifies the complete feature lifecycle through all flowspec
 workflow phases, ensuring backlog.md integration works correctly from
-specification through deployment.
+specification through validation.
 
 Test Scenarios:
-- Full workflow lifecycle (assess → specify → plan → implement → validate → operate)
+- Full workflow lifecycle (assess → specify → plan → implement → validate)
 - Task creation and tracking through phases
 - State transitions and validation
 - AC verification and completion tracking
+
+NOTE: /flow:operate was removed - deployment is outer loop (use /ops:* commands)
 
 AC Coverage:
 - AC #1: Full feature lifecycle test
@@ -71,7 +73,7 @@ def e2e_temp_backlog(tmp_path: Path) -> Path:
             "In Progress",
             "In Implementation",
             "Validated",
-            "Deployed",
+            # NOTE: "Deployed" status removed - /flow:operate is outer loop
             "Done",
         ],
         "priorities": ["Low", "Medium", "High"],
@@ -101,7 +103,7 @@ def e2e_workflow_config() -> dict:
             "Planned",
             "In Implementation",
             "Validated",
-            "Deployed",
+            # NOTE: "Deployed" state removed - /flow:operate is outer loop
             "Done",
         ],
         "workflows": {
@@ -135,11 +137,7 @@ def e2e_workflow_config() -> dict:
                 "input_states": ["In Implementation"],
                 "output_state": "Validated",
             },
-            "operate": {
-                "command": "/flow:operate",
-                "input_states": ["Validated"],
-                "output_state": "Deployed",
-            },
+            # NOTE: operate workflow removed - deployment is outer loop (use /ops:* commands)
         },
     }
 
@@ -400,7 +398,8 @@ class E2ETaskSystem:
 class TestFullWorkflowLifecycle:
     """Test complete feature lifecycle through all phases.
 
-    AC #1: Full feature lifecycle (assess → specify → plan → implement → validate → operate)
+    AC #1: Full feature lifecycle (assess → specify → plan → implement → validate)
+    NOTE: /flow:operate removed - deployment is outer loop (use /ops:* commands)
     """
 
     def test_full_lifecycle_state_transitions(
@@ -479,16 +478,11 @@ class TestFullWorkflowLifecycle:
         )
         task_system.set_task_state(feature_task, "Validated")
 
-        # Phase 6: Operate
-        current_state = task_system.get_task_state(feature_task)
-        result = guard.check_state("operate", current_state)
-        assert result.result == StateCheckResult.ALLOWED, (
-            f"Operate should be allowed from Validated: {result.message}"
-        )
-        task_system.set_task_state(feature_task, "Deployed")
+        # NOTE: Phase 6 (Operate) removed - deployment is outer loop (use /ops:* commands)
+        # Workflow ends at Validated state
 
         # Verify final state
-        assert task_system.get_task_state(feature_task) == "Deployed"
+        assert task_system.get_task_state(feature_task) == "Validated"
 
     def test_workflow_with_research_phase(
         self, e2e_temp_backlog: Path, e2e_workflow_config: dict, tmp_path: Path

@@ -8,7 +8,7 @@ Tests cover all 8 acceptance criteria for task-096:
 - AC #5: Workflow suggestions for current state
 - AC #6: Support for multiple task systems
 - AC #7: No breaking changes (backward compatibility)
-- AC #8: All 7 commands implement checks
+- AC #8: All 6 commands implement checks
 """
 
 from pathlib import Path
@@ -45,7 +45,7 @@ def sample_config():
             "Planned",
             "In Implementation",
             "Validated",
-            "Deployed",
+            # NOTE: "Deployed" state removed - /flow:operate is outer loop
             "Done",
         ],
         "workflows": {
@@ -79,11 +79,7 @@ def sample_config():
                 "output_state": "Validated",
                 "command": "/flow:validate",
             },
-            "operate": {
-                "input_states": ["Validated"],
-                "output_state": "Deployed",
-                "command": "/flow:operate",
-            },
+            # NOTE: operate workflow removed - deployment is outer loop (use /ops:* commands)
         },
     }
 
@@ -470,8 +466,9 @@ class TestBackwardCompatibility:
 
 
 class TestAllCommandsCovered:
-    """Tests for AC #8: All 7 commands implement checks."""
+    """Tests for AC #8: All 6 commands implement checks."""
 
+    # NOTE: operate removed - deployment is outer loop (use /ops:* commands)
     FLOWSPEC_COMMANDS = [
         "assess",
         "specify",
@@ -479,7 +476,6 @@ class TestAllCommandsCovered:
         "plan",
         "implement",
         "validate",
-        "operate",
     ]
 
     def test_all_commands_defined_in_config(self, sample_config):
