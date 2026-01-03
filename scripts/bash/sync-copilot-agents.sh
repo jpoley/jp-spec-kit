@@ -24,7 +24,8 @@ set -euo pipefail
 
 # Script configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+# Use PROJECT_ROOT env var if set (for flowspec init), otherwise calculate from script location
+PROJECT_ROOT="${PROJECT_ROOT:-$(cd "$SCRIPT_DIR/../.." && pwd)}"
 COMMANDS_DIR="$PROJECT_ROOT/.claude/commands"
 TEMPLATES_COMMANDS_DIR="$PROJECT_ROOT/templates/commands"
 AGENTS_DIR="$PROJECT_ROOT/.github/agents"

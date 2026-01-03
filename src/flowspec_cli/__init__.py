@@ -4808,6 +4808,65 @@ def init(
                     f"deployment failed ({type(skills_error).__name__}): {skills_error}",
                 )
 
+            # Generate VS Code Copilot agents from .claude/commands/
+            tracker.add("copilot-agents", "Generate VS Code Copilot agents")
+            tracker.start("copilot-agents")
+            try:
+                claude_commands_dir = project_path / ".claude" / "commands"
+                sync_script = (
+                    project_path
+                    / ".flowspec"
+                    / "scripts"
+                    / "bash"
+                    / "sync-copilot-agents.sh"
+                )
+
+                if not claude_commands_dir.exists():
+                    tracker.skip("copilot-agents", "no .claude/commands/ directory")
+                elif not sync_script.exists():
+                    tracker.skip("copilot-agents", "sync script not found")
+                elif shutil.which("bash") is None:
+                    tracker.skip("copilot-agents", "bash not available")
+                else:
+                    # Run the sync script to generate .github/agents/
+                    # Set PROJECT_ROOT explicitly since script is in .flowspec/scripts/bash/
+                    env = os.environ.copy()
+                    env["PROJECT_ROOT"] = str(project_path)
+                    result = subprocess.run(
+                        ["bash", str(sync_script), "--force"],
+                        cwd=str(project_path),
+                        capture_output=True,
+                        text=True,
+                        timeout=60,
+                        env=env,
+                    )
+                    if result.returncode == 0:
+                        # Count generated agents
+                        agents_dir = project_path / ".github" / "agents"
+                        if agents_dir.exists():
+                            agent_count = len(list(agents_dir.glob("*.agent.md")))
+                            tracker.complete(
+                                "copilot-agents",
+                                f"generated {agent_count} agents in .github/agents/",
+                            )
+                        else:
+                            tracker.complete("copilot-agents", "sync completed")
+                    else:
+                        # Non-fatal - continue with init
+                        error_msg = (
+                            result.stderr.strip()[:100]
+                            if result.stderr
+                            else "unknown error"
+                        )
+                        tracker.error("copilot-agents", f"sync failed: {error_msg}")
+            except subprocess.TimeoutExpired:
+                tracker.error("copilot-agents", "sync timed out after 60s")
+            except Exception as agents_error:
+                tracker.error(
+                    "copilot-agents",
+                    f"generation failed ({type(agents_error).__name__}): {agents_error}",
+                )
+
             # Set up constitution template
             tracker.start("constitution")
             try:
