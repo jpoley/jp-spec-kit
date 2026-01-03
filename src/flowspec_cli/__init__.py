@@ -3398,6 +3398,211 @@ def download_template_from_github(
     return zip_path, metadata
 
 
+def download_and_build_from_branch(
+    branch: str,
+    ai_assistant: str,
+    script_type: str = "sh",
+    download_dir: Path = None,
+    *,
+    verbose: bool = True,
+    client: httpx.Client = None,
+    debug: bool = False,
+    github_token: str = None,
+    repo_owner: str = None,
+    repo_name: str = None,
+) -> Tuple[Path, dict]:
+    """Download repo from a branch and build template ZIP locally.
+
+    This is used for testing branches before release. It:
+    1. Downloads the repo zipball from the branch
+    2. Extracts to a temp directory
+    3. Runs create-release-packages.sh to build agent-specific ZIPs
+    4. Returns path to the built ZIP
+
+    Args:
+        branch: Git branch name to download from
+        ai_assistant: AI assistant type (claude, copilot, etc.)
+        script_type: Script type (sh or ps)
+        download_dir: Directory for downloads (uses temp if None)
+        verbose: Show progress messages
+        client: HTTP client to use
+        debug: Show debug output
+        github_token: GitHub token for API requests
+        repo_owner: Repository owner
+        repo_name: Repository name
+
+    Returns:
+        Tuple of (zip_path, metadata_dict)
+
+    Raises:
+        typer.Exit: On download or build errors
+    """
+    import subprocess
+
+    if repo_owner is None:
+        repo_owner = EXTENSION_REPO_OWNER
+    if repo_name is None:
+        repo_name = EXTENSION_REPO_NAME
+    if download_dir is None:
+        download_dir = Path(tempfile.mkdtemp())
+    if client is None:
+        client = httpx.Client(verify=ssl_context)
+
+    effective_token = _github_token(github_token)
+
+    if verbose:
+        console.print(
+            f"[cyan]Downloading {repo_owner}/{repo_name} branch '{branch}'...[/cyan]"
+        )
+
+    # Download zipball from branch
+    zipball_url = (
+        f"https://api.github.com/repos/{repo_owner}/{repo_name}/zipball/{branch}"
+    )
+
+    try:
+        response = client.get(
+            zipball_url,
+            timeout=120,
+            follow_redirects=True,
+            headers=_github_headers(effective_token),
+        )
+
+        if response.status_code == 404:
+            console.print(
+                f"[red]Branch '{branch}' not found in {repo_owner}/{repo_name}[/red]"
+            )
+            raise typer.Exit(1)
+
+        if response.status_code != 200:
+            console.print(
+                f"[red]Failed to download branch: HTTP {response.status_code}[/red]"
+            )
+            if debug:
+                console.print(f"Response: {response.text[:500]}")
+            raise typer.Exit(1)
+
+        # Save zipball
+        branch_zip = download_dir / f"{repo_name}-{branch}.zip"
+        with open(branch_zip, "wb") as f:
+            f.write(response.content)
+
+        if verbose:
+            console.print(f"[cyan]Downloaded:[/cyan] {len(response.content):,} bytes")
+
+    except httpx.RequestError as e:
+        console.print(f"[red]Network error downloading branch:[/red] {e}")
+        raise typer.Exit(1)
+
+    # Extract zipball
+    extract_dir = download_dir / "extracted"
+    extract_dir.mkdir(exist_ok=True)
+
+    try:
+        with zipfile.ZipFile(branch_zip, "r") as zf:
+            zf.extractall(extract_dir)
+    except zipfile.BadZipFile:
+        console.print("[red]Downloaded file is not a valid ZIP[/red]")
+        raise typer.Exit(1)
+
+    # Find the extracted directory (GitHub adds a prefix like 'jpoley-flowspec-abc123/')
+    extracted_items = list(extract_dir.iterdir())
+    if len(extracted_items) != 1 or not extracted_items[0].is_dir():
+        console.print("[red]Unexpected ZIP structure[/red]")
+        raise typer.Exit(1)
+
+    source_dir = extracted_items[0]
+
+    if verbose:
+        console.print(f"[cyan]Extracted to:[/cyan] {source_dir.name}")
+
+    # Run create-release-packages.sh to build the template
+    build_script = (
+        source_dir / ".github" / "workflows" / "scripts" / "create-release-packages.sh"
+    )
+
+    if not build_script.exists():
+        console.print(
+            "[red]Build script not found in branch[/red]\n"
+            f"Expected: {build_script.relative_to(source_dir)}"
+        )
+        raise typer.Exit(1)
+
+    if verbose:
+        console.print(
+            f"[cyan]Building templates for {ai_assistant} ({script_type})...[/cyan]"
+        )
+
+    try:
+        # Run the build script with limited agent/script to speed up
+        env = os.environ.copy()
+        env["AGENTS"] = ai_assistant
+        env["SCRIPTS"] = script_type
+
+        result = subprocess.run(
+            ["bash", str(build_script), f"v{branch}"],
+            cwd=str(source_dir),
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
+
+        if result.returncode != 0:
+            console.print("[red]Template build failed[/red]")
+            if result.stderr:
+                console.print(
+                    Panel(result.stderr[:1000], title="Build Error", border_style="red")
+                )
+            raise typer.Exit(1)
+
+        if verbose and debug:
+            console.print(f"[dim]{result.stdout}[/dim]")
+
+    except subprocess.TimeoutExpired:
+        console.print("[red]Template build timed out[/red]")
+        raise typer.Exit(1)
+    except FileNotFoundError:
+        console.print(
+            "[red]bash not found - required for building templates from branch[/red]"
+        )
+        raise typer.Exit(1)
+
+    # Find the built ZIP
+    genreleases_dir = source_dir / ".genreleases"
+    expected_zip = f"spec-kit-template-{ai_assistant}-{script_type}-v{branch}.zip"
+    built_zip = genreleases_dir / expected_zip
+
+    if not built_zip.exists():
+        # Try finding any matching ZIP (version might differ)
+        pattern = f"spec-kit-template-{ai_assistant}-{script_type}-*.zip"
+        matches = list(genreleases_dir.glob(pattern))
+        if matches:
+            built_zip = matches[0]
+        else:
+            console.print(f"[red]Built template not found:[/red] {expected_zip}")
+            if genreleases_dir.exists():
+                console.print(f"Available: {list(genreleases_dir.glob('*.zip'))}")
+            raise typer.Exit(1)
+
+    # Copy to download_dir for consistent handling
+    final_zip = download_dir / built_zip.name
+    shutil.copy2(built_zip, final_zip)
+
+    if verbose:
+        console.print(f"[green]✓[/green] Built template: {final_zip.name}")
+
+    metadata = {
+        "filename": final_zip.name,
+        "size": final_zip.stat().st_size,
+        "release": f"branch:{branch}",
+        "branch": branch,
+        "source_dir": str(source_dir),
+    }
+
+    return final_zip, metadata
+
+
 def _cleanup_legacy_speckit_files(project_path: Path, ai_assistants: list[str]) -> None:
     """Remove legacy speckit.* files from base spec-kit after flowspec overlay.
 
@@ -3514,11 +3719,16 @@ def download_and_extract_two_stage(
     github_token: str = None,
     base_version: str = None,
     extension_version: str = None,
+    branch: str = None,
 ) -> Path:
     """Two-stage download: base spec-kit + flowspec extension overlay.
 
     Supports single or multiple AI assistants. When multiple assistants are specified,
     their respective agent directories are all extracted to the project.
+
+    When `branch` is specified, the flowspec extension is downloaded and built from
+    that git branch instead of from releases. This is useful for testing branches
+    before release. The base spec-kit still comes from releases.
 
     Returns project_path. Uses tracker if provided.
     """
@@ -3587,42 +3797,75 @@ def download_and_extract_two_stage(
             raise
 
         # Stage 2: Download flowspec extension for this agent
+        # When branch is specified, download and build from branch instead of release
         step_name = (
             f"fetch-extension-{agent}" if len(ai_assistants) > 1 else "fetch-extension"
         )
-        if tracker:
-            tracker.start(
-                step_name,
-                f"downloading {agent} extension from {EXTENSION_REPO_OWNER}/{EXTENSION_REPO_NAME}",
-            )
-
-        try:
-            ext_zip, ext_meta = download_template_from_github(
-                agent,
-                current_dir,
-                script_type=script_type,
-                verbose=verbose and tracker is None,
-                show_progress=(tracker is None),
-                client=client,
-                debug=debug,
-                github_token=github_token,
-                repo_owner=EXTENSION_REPO_OWNER,
-                repo_name=EXTENSION_REPO_NAME,
-                version=extension_version or EXTENSION_REPO_DEFAULT_VERSION,
-            )
+        if branch:
             if tracker:
-                tracker.complete(
+                tracker.start(
                     step_name,
-                    f"{agent} extension {ext_meta['release']} ({ext_meta['size']:,} bytes)",
+                    f"building {agent} extension from branch '{branch}'",
                 )
-        except Exception as e:
+            try:
+                ext_zip, ext_meta = download_and_build_from_branch(
+                    branch=branch,
+                    ai_assistant=agent,
+                    script_type=script_type,
+                    download_dir=current_dir,
+                    verbose=verbose and tracker is None,
+                    client=client,
+                    debug=debug,
+                    github_token=github_token,
+                    repo_owner=EXTENSION_REPO_OWNER,
+                    repo_name=EXTENSION_REPO_NAME,
+                )
+                if tracker:
+                    tracker.complete(
+                        step_name,
+                        f"{agent} extension from branch:{branch} ({ext_meta['size']:,} bytes)",
+                    )
+            except Exception as e:
+                if tracker:
+                    tracker.error(step_name, str(e))
+                # Clean up base_zip since we won't reach extraction
+                if base_zip and base_zip.exists():
+                    base_zip.unlink()
+                raise
+        else:
             if tracker:
-                tracker.error(step_name, str(e))
-            # download_template_from_github already cleans up its zip on error
-            # But we need to clean up the base_zip since we won't reach extraction
-            if base_zip and base_zip.exists():
-                base_zip.unlink()
-            raise
+                tracker.start(
+                    step_name,
+                    f"downloading {agent} extension from {EXTENSION_REPO_OWNER}/{EXTENSION_REPO_NAME}",
+                )
+
+            try:
+                ext_zip, ext_meta = download_template_from_github(
+                    agent,
+                    current_dir,
+                    script_type=script_type,
+                    verbose=verbose and tracker is None,
+                    show_progress=(tracker is None),
+                    client=client,
+                    debug=debug,
+                    github_token=github_token,
+                    repo_owner=EXTENSION_REPO_OWNER,
+                    repo_name=EXTENSION_REPO_NAME,
+                    version=extension_version or EXTENSION_REPO_DEFAULT_VERSION,
+                )
+                if tracker:
+                    tracker.complete(
+                        step_name,
+                        f"{agent} extension {ext_meta['release']} ({ext_meta['size']:,} bytes)",
+                    )
+            except Exception as e:
+                if tracker:
+                    tracker.error(step_name, str(e))
+                # download_template_from_github already cleans up its zip on error
+                # But we need to clean up the base_zip since we won't reach extraction
+                if base_zip and base_zip.exists():
+                    base_zip.unlink()
+                raise
 
         # Extract base for this agent
         step_name = (
@@ -3999,6 +4242,12 @@ def init(
         "--extension-version",
         help="Specific version of flowspec extension to use (default: latest)",
     ),
+    branch: str = typer.Option(
+        None,
+        "--branch",
+        "-b",
+        help="Install flowspec templates from a git branch (for testing). Builds templates locally.",
+    ),
     layered: bool = typer.Option(
         True,
         "--layered/--no-layered",
@@ -4126,6 +4375,14 @@ def init(
     if not here and not project_name:
         console.print(
             "[red]Error:[/red] Must specify either a project name, use '.' for current directory, or use --here flag"
+        )
+        raise typer.Exit(1)
+
+    # Branch mode requires layered download (two-stage: base + extension from branch)
+    if branch and not layered:
+        console.print(
+            "[red]Error:[/red] --branch requires --layered mode (the default). "
+            "Branch mode builds the extension from a git branch."
         )
         raise typer.Exit(1)
 
@@ -4446,6 +4703,7 @@ def init(
                     github_token=github_token,
                     base_version=base_version,
                     extension_version=extension_version,
+                    branch=branch,
                 )
             else:
                 # Single-stage download (legacy mode or base-only, supports multiple agents)
@@ -4999,6 +5257,12 @@ def upgrade_repo(
         "--github-token",
         help="GitHub token to use for API requests (or set GITHUB_FLOWSPEC environment variable)",
     ),
+    branch: str = typer.Option(
+        None,
+        "--branch",
+        "-b",
+        help="Upgrade templates from a git branch (for testing). Builds templates locally.",
+    ),
 ):
     """
     Upgrade repository templates to latest spec-kit and flowspec versions.
@@ -5009,7 +5273,7 @@ def upgrade_repo(
     This command will:
     1. Detect the AI assistant type from the project
     2. Download latest base spec-kit templates
-    3. Download latest flowspec extension
+    3. Download latest flowspec extension (or from branch if --branch specified)
     4. Merge with precedence (extension overrides base)
     5. Apply updates to current project
 
@@ -5019,9 +5283,7 @@ def upgrade_repo(
         flowspec upgrade-repo --base-version 0.0.20         # Pin base to specific version
         flowspec upgrade-repo --extension-version 0.0.21    # Pin extension to specific version
         flowspec upgrade-repo --templates-only              # Only update template files
-
-    Note: To test CLI changes from a branch, use 'flowspec upgrade-tools --branch <name>'.
-    Template branch support is planned for a future release.
+        flowspec upgrade-repo --branch fix3                 # Upgrade from git branch
 
     See also:
         flowspec upgrade-tools    # Upgrade globally installed CLI tools
@@ -5199,6 +5461,7 @@ def upgrade_repo(
                 github_token=github_token,
                 base_version=base_version,
                 extension_version=extension_version,
+                branch=branch,
             )
 
             tracker.complete("apply", "templates updated")
