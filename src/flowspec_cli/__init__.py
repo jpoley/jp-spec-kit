@@ -5656,6 +5656,91 @@ def _get_installed_jp_spec_kit_version() -> Optional[str]:
     return None
 
 
+def _detect_duplicate_flowspec_installations() -> list[tuple[str, str]]:
+    """Detect multiple flowspec installations that could cause version conflicts.
+
+    Checks for flowspec in:
+    - uv tools (~/.local/bin/flowspec)
+    - pip/pyenv installations
+    - Other common locations
+
+    Returns:
+        List of (path, source) tuples for each installation found.
+        Example: [("/Users/x/.local/bin/flowspec", "uv"), ("/Users/x/.pyenv/.../flowspec", "pip")]
+    """
+    installations: list[tuple[str, str]] = []
+
+    # Check uv tools location
+    uv_path = Path.home() / ".local" / "bin" / "flowspec"
+    if uv_path.exists():
+        installations.append((str(uv_path), "uv"))
+
+    # Check if pyenv has flowspec
+    try:
+        result = subprocess.run(
+            ["pyenv", "which", "flowspec"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            pyenv_path = result.stdout.strip()
+            # Don't count if it's the same as uv path
+            if pyenv_path != str(uv_path):
+                installations.append((pyenv_path, "pip/pyenv"))
+    except FileNotFoundError:
+        pass  # pyenv not installed
+
+    # Check which flowspec is in PATH (could be different from above)
+    try:
+        result = subprocess.run(
+            ["which", "flowspec"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            which_path = result.stdout.strip()
+            # Check if this is a new path we haven't seen
+            known_paths = {p for p, _ in installations}
+            # Resolve pyenv shims to actual path
+            if ".pyenv/shims" not in which_path and which_path not in known_paths:
+                installations.append((which_path, "PATH"))
+    except FileNotFoundError:
+        pass
+
+    return installations
+
+
+def _warn_duplicate_installations() -> bool:
+    """Check for and warn about duplicate flowspec installations.
+
+    Returns:
+        True if duplicates were found and warning was shown.
+    """
+    installations = _detect_duplicate_flowspec_installations()
+
+    if len(installations) <= 1:
+        return False
+
+    console.print(
+        "[yellow]⚠ Warning: Multiple flowspec installations detected![/yellow]\n"
+    )
+
+    for path, source in installations:
+        console.print(f"  • {path} [dim]({source})[/dim]")
+
+    console.print()
+    console.print(
+        "[dim]This can cause version conflicts. The first one in PATH takes precedence.[/dim]"
+    )
+    console.print(
+        "[dim]To fix: uninstall the pip version with 'pip uninstall flowspec-cli'[/dim]\n"
+    )
+
+    return True
+
+
 def _upgrade_jp_spec_kit(
     dry_run: bool = False,
     target_version: str | None = None,
@@ -6079,6 +6164,10 @@ def _run_upgrade_tools(
 
     if branch:
         console.print(f"[cyan]Installing from branch: {branch}[/cyan]\n")
+
+    # Check for duplicate installations that could cause version conflicts
+    if not component or component == "flowspec":
+        _warn_duplicate_installations()
 
     # Validate component if specified
     if component and component not in UPGRADE_TOOLS_COMPONENTS:
