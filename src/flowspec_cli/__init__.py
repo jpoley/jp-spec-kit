@@ -5020,6 +5020,9 @@ def upgrade_repo(
         flowspec upgrade-repo --extension-version 0.0.21    # Pin extension to specific version
         flowspec upgrade-repo --templates-only              # Only update template files
 
+    Note: To test CLI changes from a branch, use 'flowspec upgrade-tools --branch <name>'.
+    Template branch support is planned for a future release.
+
     See also:
         flowspec upgrade-tools    # Upgrade globally installed CLI tools
     """
@@ -5331,20 +5334,70 @@ def _get_installed_jp_spec_kit_version() -> Optional[str]:
 
 
 def _upgrade_jp_spec_kit(
-    dry_run: bool = False, target_version: str | None = None
+    dry_run: bool = False,
+    target_version: str | None = None,
+    branch: str | None = None,
 ) -> tuple[bool, str]:
     """Upgrade flowspec (flowspec-cli) via uv tool.
 
     Args:
         dry_run: If True, only show what would be done
         target_version: Specific version to install (e.g., "0.2.325"). If None, uses latest.
+        branch: Git branch to install from (for testing). Mutually exclusive with target_version.
 
     Returns:
         Tuple of (success, message)
     """
     current_version = __version__
 
-    # Determine target version
+    if not current_version:
+        return False, "flowspec not installed via uv tool"
+
+    # Branch install mode - install from git branch
+    if branch:
+        # Check if there's a newer release available - user might want to upgrade
+        latest_release = get_github_latest_release(
+            EXTENSION_REPO_OWNER, EXTENSION_REPO_NAME
+        )
+        if latest_release and compare_semver(current_version, latest_release) < 0:
+            console.print(
+                f"[yellow]Note:[/yellow] Release v{latest_release} available "
+                f"(current: {current_version})"
+            )
+            console.print(
+                "[dim]Run 'flowspec upgrade-tools' without --branch to upgrade to release[/dim]\n"
+            )
+
+        if dry_run:
+            return True, f"Would install from branch '{branch}'"
+
+        git_url = (
+            f"git+https://github.com/{EXTENSION_REPO_OWNER}/{EXTENSION_REPO_NAME}.git"
+        )
+        git_url = f"{git_url}@{branch}"
+
+        try:
+            subprocess.run(
+                [
+                    "uv",
+                    "tool",
+                    "install",
+                    "--force",
+                    "flowspec-cli",
+                    "--from",
+                    git_url,
+                ],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            return True, f"Installed from branch '{branch}'"
+        except subprocess.CalledProcessError as e:
+            return False, f"Install failed: {e.stderr}"
+        except FileNotFoundError:
+            return False, "uv not found - install uv first"
+
+    # Normal version-based upgrade
     if target_version:
         # Validate that the requested version exists
         target_version = target_version.lstrip("v")
@@ -5359,9 +5412,6 @@ def _upgrade_jp_spec_kit(
         )
         if not install_version:
             return False, "Could not determine latest version"
-
-    if not current_version:
-        return False, "flowspec not installed via uv tool"
 
     # Check if already at target version
     if current_version == install_version:
@@ -5626,6 +5676,12 @@ def upgrade_tools(
         "-l",
         help="List available flowspec versions and exit.",
     ),
+    branch: str = typer.Option(
+        None,
+        "--branch",
+        "-b",
+        help="Install flowspec from a git branch (for testing). Upgrades to releases when available.",
+    ),
 ):
     """
     Install or upgrade CLI tools (flowspec, backlog-md, beads).
@@ -5645,6 +5701,7 @@ def upgrade_tools(
         flowspec upgrade-tools --dry-run          # Preview what would happen
         flowspec upgrade-tools --version 0.2.325  # Install specific flowspec version
         flowspec upgrade-tools --list-versions    # Show available versions
+        flowspec upgrade-tools --branch fix-bug   # Install from a git branch (testing)
 
     See also:
         flowspec upgrade-repo    # Upgrade repository templates
@@ -5656,22 +5713,32 @@ def upgrade_tools(
         _list_jp_spec_kit_versions()
         return
 
-    # Version flag only applies to flowspec
-    if version and component and component != "flowspec":
-        console.print("[red]Error:[/red] --version only applies to flowspec component")
+    # Version and branch are mutually exclusive
+    if version and branch:
+        console.print("[red]Error:[/red] --version and --branch are mutually exclusive")
         raise typer.Exit(1)
 
-    # If version specified without component, assume flowspec only
-    if version and not component:
+    # Version/branch flags only apply to flowspec
+    if (version or branch) and component and component != "flowspec":
+        console.print(
+            "[red]Error:[/red] --version and --branch only apply to flowspec component"
+        )
+        raise typer.Exit(1)
+
+    # If version or branch specified without component, assume flowspec only
+    if (version or branch) and not component:
         component = "flowspec"
 
-    _run_upgrade_tools(dry_run=dry_run, component=component, target_version=version)
+    _run_upgrade_tools(
+        dry_run=dry_run, component=component, target_version=version, branch=branch
+    )
 
 
 def _run_upgrade_tools(
     dry_run: bool = False,
     component: str | None = None,
     target_version: str | None = None,
+    branch: str | None = None,
 ) -> None:
     """Internal helper to run upgrade-tools logic.
 
@@ -5679,12 +5746,16 @@ def _run_upgrade_tools(
         dry_run: If True, only show what would be done
         component: Optional specific component to upgrade
         target_version: Optional specific version for flowspec
+        branch: Optional git branch to install from (for testing)
     """
     if dry_run:
         console.print("[yellow]DRY RUN MODE - No changes will be made[/yellow]\n")
 
     if target_version:
         console.print(f"[cyan]Target version: {target_version}[/cyan]\n")
+
+    if branch:
+        console.print(f"[cyan]Installing from branch: {branch}[/cyan]\n")
 
     # Validate component if specified
     if component and component not in UPGRADE_TOOLS_COMPONENTS:
@@ -5709,10 +5780,12 @@ def _run_upgrade_tools(
     # flowspec
     if not component or component == "flowspec":
         jp_current = versions["jp_spec_kit"].get("installed", "-")
-        jp_available = target_version or versions["jp_spec_kit"].get("available", "-")
+        jp_available = (
+            branch or target_version or versions["jp_spec_kit"].get("available", "-")
+        )
 
         success, message = _upgrade_jp_spec_kit(
-            dry_run=dry_run, target_version=target_version
+            dry_run=dry_run, target_version=target_version, branch=branch
         )
         status = "[green]✓[/green]" if success else "[red]✗[/red]"
         results.append(("flowspec", success, message))
