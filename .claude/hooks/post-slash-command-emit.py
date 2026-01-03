@@ -11,9 +11,9 @@ Event Mapping:
     /flow:plan      → plan.created
     /flow:implement → implement.completed
     /flow:validate  → validate.completed
-    /flow:operate   → deploy.completed
-
 The hook operates in a fail-open mode - errors are logged but don't block workflow.
+
+NOTE: /flow:operate was removed - deployment is outer loop (use /ops:* commands).
 """
 
 import json
@@ -29,7 +29,7 @@ COMMAND_EVENT_MAP = {
     "/flow:plan": "plan.created",
     "/flow:implement": "implement.completed",
     "/flow:validate": "validate.completed",
-    "/flow:operate": "deploy.completed",
+    # NOTE: /flow:operate removed - deployment is outer loop (use /ops:* commands)
 }
 
 

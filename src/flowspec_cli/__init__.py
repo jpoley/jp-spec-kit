@@ -1899,7 +1899,7 @@ def generate_claude_md(project_path: Path, project_name: str) -> None:
 /flow:plan      # Execute planning workflow
 /flow:implement # Implementation with code review
 /flow:validate  # QA, security, docs validation
-/flow:operate   # SRE operations (CI/CD, K8s)
+/flow:submit-n-watch-pr  # Submit PR and watch CI/reviews
 
 # Setup & Configuration Commands
 /flow:init      # Initialize constitution (greenfield/brownfield)
@@ -2599,6 +2599,7 @@ app = typer.Typer(
 
 # Workflow transitions with their default validation modes
 # Each transition can have a different validation mode
+# NOTE: operate removed - deployment is outer loop (use /ops:* commands)
 WORKFLOW_TRANSITIONS = [
     {"name": "assess", "from": "To Do", "to": "Assessed", "default": "NONE"},
     {"name": "research", "from": "Assessed", "to": "Researched", "default": "NONE"},
@@ -2606,7 +2607,6 @@ WORKFLOW_TRANSITIONS = [
     {"name": "plan", "from": "Specified", "to": "Planned", "default": "NONE"},
     {"name": "implement", "from": "Planned", "to": "Implemented", "default": "NONE"},
     {"name": "validate", "from": "Implemented", "to": "Validated", "default": "NONE"},
-    {"name": "operate", "from": "Validated", "to": "Operated", "default": "NONE"},
 ]
 
 
@@ -2628,7 +2628,7 @@ def prompt_validation_modes() -> dict[str, str]:
         ("plan", "Researched → Planned", "after /flow:plan, produces ADRs"),
         ("implement", "Planned → In Implementation", "after /flow:implement"),
         ("validate", "In Implementation → Validated", "after /flow:validate"),
-        ("operate", "Validated → Deployed", "after /flow:operate"),
+        # NOTE: operate removed - deployment is outer loop
     ]
 
     modes: dict[str, str] = {}
@@ -4960,7 +4960,7 @@ def init(
         "",
         "○ [cyan]/flow:assess[/] - Evaluate complexity and recommend workflow mode",
         "○ [cyan]/flow:research[/] - Research and business validation (after specify)",
-        "○ [cyan]/flow:operate[/] - Deploy and create runbooks (after validate)",
+        "○ [cyan]/flow:submit-n-watch-pr[/] - Submit PR and watch CI/reviews",
     ]
     enhancements_panel = Panel(
         "\n".join(enhancement_lines),

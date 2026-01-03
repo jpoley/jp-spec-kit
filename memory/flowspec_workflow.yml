@@ -35,8 +35,8 @@ states:
   - "Planned"         # Architecture and infrastructure planned via /flow:plan
   - "In Implementation"  # Code actively being written via /flow:implement
   - "Validated"       # QA, security, and documentation validated via /flow:validate
-  - "Deployed"        # Released to production via /flow:operate
   - "Done"            # Work complete - ready for archive
+  # NOTE: "Deployed" state removed - /flow:operate is outer loop (use /ops:* commands)
 
 # ==============================================================================
 # WORKFLOW DEFINITIONS
@@ -192,22 +192,8 @@ workflows:
     optional: false
     requires_human_approval: true
 
-  operate:
-    command: "/flow:operate"
-    description: "Execute operations workflow using SRE agent"
-    agents:
-      - name: "sre-agent"
-        identity: "@sre-agent"
-        description: "Principal Site Reliability Engineer"
-        responsibilities:
-          - "CI/CD pipeline implementation"
-          - "Kubernetes deployment"
-          - "Observability setup"
-          - "Incident management"
-    input_states: ["Validated"]
-    output_state: "Deployed"
-    optional: false
-    creates_backlog_tasks: true
+  # NOTE: /flow:operate REMOVED - it's outer loop (use /ops:monitor, /ops:respond, /ops:scale)
+  # Deployment and operations are handled by CI/CD pipelines, not flowspec
 
 # ==============================================================================
 # STATE TRANSITIONS
@@ -349,31 +335,9 @@ transitions:
         path: "./docs/security/{feature}-security.md"
     validation: "NONE"
 
-  - name: "operate"
-    from: "Validated"
-    to: "Deployed"
-    via: "operate"
-    description: "Deployed to production"
-    input_artifacts:
-      - type: "qa_report"
-        path: "./docs/qa/{feature}-qa-report.md"
-        required: true
-      - type: "security_report"
-        path: "./docs/security/{feature}-security.md"
-        required: true
-    output_artifacts:
-      - type: "deployment_manifest"
-        path: "./deploy/"
-    validation: "NONE"
+  # NOTE: operate transition REMOVED - deployment is outer loop
 
   # === Terminal Transitions ===
-
-  - name: "complete_from_deployed"
-    from: "Deployed"
-    to: "Done"
-    via: "manual"
-    description: "Production deployment confirmed successful"
-    validation: "NONE"
 
   - name: "complete_from_validated"
     from: "Validated"
@@ -405,12 +369,7 @@ transitions:
     description: "Rework needed based on validation findings"
     validation: "NONE"
 
-  - name: "rollback"
-    from: "Deployed"
-    to: "Validated"
-    via: "rollback"
-    description: "Rollback from production due to issues"
-    validation: "NONE"
+  # NOTE: rollback transition REMOVED - deployment is outer loop
 
 # ==============================================================================
 # AGENT LOOP CLASSIFICATION
@@ -439,18 +398,19 @@ agent_loops:
     - "secure-by-design-engineer"
     - "tech-writer"
     - "release-manager"
-    - "sre-agent"
+    # NOTE: sre-agent removed - use /ops:* commands for SRE operations
 
 # ==============================================================================
 # METADATA
 # ==============================================================================
 
 metadata:
-  schema_version: "1.1"
-  last_updated: "2025-12-01"
-  state_count: 9
-  workflow_count: 7
-  agent_count: 16
+  schema_version: "1.2"
+  last_updated: "2026-01-03"
+  state_count: 8
+  workflow_count: 6
+  agent_count: 15
   inner_loop_agent_count: 5
-  outer_loop_agent_count: 11
-  transition_count: 14
+  outer_loop_agent_count: 10
+  transition_count: 11
+  notes: "/flow:operate removed - deployment is outer loop (use /ops:* commands)"

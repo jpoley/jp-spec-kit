@@ -62,7 +62,7 @@ def full_config():
             {"name": "Planned", "description": "Technical plan created"},
             {"name": "In Implementation", "description": "Feature being implemented"},
             {"name": "Validated", "description": "Feature validated"},
-            {"name": "Deployed", "description": "Feature deployed"},
+            # NOTE: Deployed state removed - deployment is outer loop
         ],
         "workflows": {
             "specify": {
@@ -110,14 +110,7 @@ def full_config():
                 "description": "Validate implementation",
                 "optional": False,
             },
-            "operate": {
-                "command": "/flow:operate",
-                "agents": ["sre-agent"],
-                "input_states": ["Validated"],
-                "output_state": "Deployed",
-                "description": "Deploy to production",
-                "optional": True,
-            },
+            # NOTE: operate workflow removed - deployment is outer loop
         },
         "transitions": [
             {"from": "To Do", "to": "Specified", "via": "specify"},
@@ -125,8 +118,8 @@ def full_config():
             {"from": "Researched", "to": "Planned", "via": "plan"},
             {"from": "Planned", "to": "In Implementation", "via": "implement"},
             {"from": "In Implementation", "to": "Validated", "via": "validate"},
-            {"from": "Validated", "to": "Deployed", "via": "operate"},
-            {"from": "Deployed", "to": "Done", "via": "completion"},
+            {"from": "Validated", "to": "Done", "via": "completion"},
+            # NOTE: operate transition removed - deployment is outer loop
         ],
         "agent_loops": {
             "inner_loop": [
