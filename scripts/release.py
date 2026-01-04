@@ -45,6 +45,50 @@ def run(
     )
 
 
+def safe_rollback(release_branch: str, original_branch: str) -> None:
+    """Safely rollback release changes, handling potential failures gracefully.
+
+    This function attempts to:
+    1. Restore version files to their original state
+    2. Switch back to the original branch
+    3. Delete the release branch
+
+    Each step is wrapped in error handling to ensure the script doesn't crash
+    during error recovery, and provides informative messages about failures.
+    """
+    print("  Rolling back...")
+
+    # Step 1: Restore version files
+    try:
+        result = run(
+            ["git", "checkout", "--", "pyproject.toml", "src/flowspec_cli/__init__.py"],
+            check=False,
+            capture=True,
+        )
+        if result.returncode != 0:
+            print("  Warning: Failed to restore version files with 'git checkout --'.")
+    except Exception as e:
+        print(f"  Warning: Error while restoring version files: {e}")
+
+    # Step 2: Switch back to original branch
+    try:
+        result = run(["git", "checkout", original_branch], check=False, capture=True)
+        if result.returncode != 0:
+            print(f"  Warning: Failed to switch back to '{original_branch}' branch.")
+    except Exception as e:
+        print(
+            f"  Warning: Error while switching back to '{original_branch}' branch: {e}"
+        )
+
+    # Step 3: Delete release branch
+    try:
+        result = run(["git", "branch", "-D", release_branch], check=False, capture=True)
+        if result.returncode != 0:
+            print(f"  Warning: Failed to delete release branch {release_branch}.")
+    except Exception as e:
+        print(f"  Warning: Error while deleting release branch {release_branch}: {e}")
+
+
 def get_current_version() -> str:
     """Read current version from pyproject.toml."""
     pyproject = Path("pyproject.toml")
@@ -102,10 +146,7 @@ def get_latest_tag() -> str | None:
 
 def validate_version_format(version: str) -> bool:
     """Validate version is MAJOR.MINOR.PATCH format (3 integers)."""
-    version = version.lstrip("v")
-    if not re.match(r"^\d+\.\d+\.\d+$", version):
-        return False
-    return True
+    return bool(re.match(r"^\d+\.\d+\.\d+$", version.lstrip("v")))
 
 
 def parse_version(version: str) -> tuple[int, int, int]:
@@ -429,18 +470,13 @@ Workflow:
         print("  ❌ Version mismatch after update!")
         print(f"     pyproject.toml: {pyproject_ver}")
         print(f"     __init__.py: {init_ver}")
-        print("  Rolling back...")
-        run(["git", "checkout", "--", "pyproject.toml", "src/flowspec_cli/__init__.py"])
-        run(["git", "checkout", "main"])
-        run(["git", "branch", "-D", release_branch])
+        safe_rollback(release_branch, current_branch)
         sys.exit(1)
     if pyproject_ver != new_version:
         print("  ❌ Version not updated correctly!")
         print(f"     Expected: {new_version}")
         print(f"     Got: {pyproject_ver}")
-        run(["git", "checkout", "--", "pyproject.toml", "src/flowspec_cli/__init__.py"])
-        run(["git", "checkout", "main"])
-        run(["git", "branch", "-D", release_branch])
+        safe_rollback(release_branch, current_branch)
         sys.exit(1)
     print(f"  ✓ Both files updated to {new_version}")
 
