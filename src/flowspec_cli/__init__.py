@@ -5656,6 +5656,103 @@ def _get_installed_jp_spec_kit_version() -> Optional[str]:
     return None
 
 
+def _detect_duplicate_flowspec_installations() -> list[tuple[str, str]]:
+    """Detect multiple flowspec installations that could cause version conflicts.
+
+    Checks for flowspec in:
+    - uv tools (respects UV_TOOL_BIN_DIR, defaults to ~/.local/bin)
+    - pip/pyenv installations (resolves shims to actual paths)
+    - Other PATH locations
+
+    Returns:
+        List of (path, source) tuples for each installation found.
+        Example: [("/Users/x/.local/bin/flowspec", "uv"), ("/Users/x/.pyenv/.../flowspec", "pip")]
+    """
+    installations: list[tuple[str, str]] = []
+    seen_paths: set[str] = set()
+
+    # Check uv tools locations - respect UV_TOOL_BIN_DIR if set
+    uv_tool_bin_dir = os.environ.get("UV_TOOL_BIN_DIR")
+    uv_candidates: list[Path] = []
+
+    if uv_tool_bin_dir:
+        uv_candidates.append(Path(uv_tool_bin_dir) / "flowspec")
+
+    # Also check the default uv tools location
+    uv_candidates.append(Path.home() / ".local" / "bin" / "flowspec")
+
+    for candidate in uv_candidates:
+        candidate_str = str(candidate)
+        if candidate.exists() and candidate_str not in seen_paths:
+            seen_paths.add(candidate_str)
+            installations.append((candidate_str, "uv"))
+
+    # Check if pyenv has flowspec - resolve shim to actual path
+    try:
+        result = subprocess.run(
+            ["pyenv", "which", "flowspec"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            pyenv_path = result.stdout.strip()
+            if pyenv_path not in seen_paths:
+                seen_paths.add(pyenv_path)
+                installations.append((pyenv_path, "pip/pyenv"))
+    except FileNotFoundError:
+        # pyenv not installed - this is normal on many systems
+        pass
+
+    # Check PATH using cross-platform shutil.which()
+    which_path = shutil.which("flowspec")
+    if which_path:
+        # Resolve symlinks and normalize path
+        try:
+            resolved_path = str(Path(which_path).resolve())
+        except OSError:
+            resolved_path = which_path
+
+        # If this is a pyenv shim, try to resolve to actual path
+        if ".pyenv/shims" in which_path or ".pyenv\\shims" in which_path:
+            # Already handled by pyenv which above, skip to avoid duplicates
+            pass
+        elif resolved_path not in seen_paths:
+            seen_paths.add(resolved_path)
+            installations.append((resolved_path, "PATH"))
+
+    return installations
+
+
+def _warn_duplicate_installations() -> bool:
+    """Check for and warn about duplicate flowspec installations.
+
+    Returns:
+        True if duplicates were found and warning was shown.
+    """
+    installations = _detect_duplicate_flowspec_installations()
+
+    if len(installations) <= 1:
+        return False
+
+    console.print(
+        "[yellow]⚠ Warning: Multiple flowspec installations detected![/yellow]\n"
+    )
+
+    for path, source in installations:
+        console.print(f"  • {path} [dim]({source})[/dim]")
+
+    console.print()
+    console.print(
+        "[dim]This can cause version conflicts. The first one in PATH takes precedence.[/dim]"
+    )
+    console.print(
+        "[dim]To fix: remove the unwanted installation based on the paths above.[/dim]\n"
+    )
+
+    return True
+
+
 def _upgrade_jp_spec_kit(
     dry_run: bool = False,
     target_version: str | None = None,
@@ -6079,6 +6176,10 @@ def _run_upgrade_tools(
 
     if branch:
         console.print(f"[cyan]Installing from branch: {branch}[/cyan]\n")
+
+    # Check for duplicate installations that could cause version conflicts
+    if not component or component == "flowspec":
+        _warn_duplicate_installations()
 
     # Validate component if specified
     if component and component not in UPGRADE_TOOLS_COMPONENTS:
