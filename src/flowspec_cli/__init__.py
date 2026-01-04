@@ -822,7 +822,7 @@ BANNER = """
 
 # Version - keep in sync with pyproject.toml
 
-__version__ = "0.3.018"
+__version__ = "0.3.019"
 
 
 # Constitution template version
