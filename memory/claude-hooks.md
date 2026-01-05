@@ -42,7 +42,39 @@ Asks for confirmation before modifying sensitive files:
 
 **Behavior**: Returns `"decision": "ask"` for sensitive files, prompting Claude to get user confirmation.
 
-### 3. Git Command Safety Validator (PreToolUse)
+### 3. GitHub PR Safety Guard (PreToolUse)
+
+**Hook**: `.claude/hooks/pre-tool-use-github-pr-safety.py`
+
+Prevents Claude from performing potentially destructive GitHub PR operations:
+
+**Blocked Operations (by default):**
+- `mcp__github__merge_pull_request` - Merging PRs
+- `mcp__github__update_pull_request_branch` - Updating PR branches
+- `mcp__github__create_pull_request_review` - Creating PR reviews (can approve/request changes)
+- `mcp__github__update_issue` - Updating issues/PRs
+
+**Configuration**: `.flowspec/github-pr-safety.json`
+```json
+{
+  "block_pr_merge": true,
+  "block_pr_merge_to_main": true,
+  "block_pr_updates": true
+}
+```
+
+**Environment Variables** (override config file):
+- `FLOWSPEC_BLOCK_PR_MERGE=true|false` - Block all PR merges
+- `FLOWSPEC_BLOCK_PR_MERGE_TO_MAIN=true|false` - Block merges to main/master only
+- `FLOWSPEC_BLOCK_PR_UPDATES=true|false` - Block PR update operations
+
+**Behavior**: Returns `"decision": "deny"` for blocked operations. Unlike other hooks, this hook defaults to DENY on errors (fail-closed) for safety.
+
+**GitHub Copilot Equivalent**: GitHub Copilot uses repository branch protection rules via Settings > Rules > Rulesets to control merge permissions. Copilot Automatic Code Review can be configured to block merges, though it operates at the repository level rather than the client level.
+
+**Testing**: Run `python .claude/hooks/test-github-pr-safety.py` (12 tests).
+
+### 4. Git Command Safety Validator (PreToolUse)
 
 **Hook**: `.claude/hooks/pre-tool-use-git-safety.py`
 
@@ -170,6 +202,9 @@ echo '{"tool_name": "Write", "tool_input": {"file_path": ".env"}}' | \
 
 # Test Stop quality gate hook
 python .claude/hooks/test-stop-quality-gate.py
+
+# Test GitHub PR safety hook
+python .claude/hooks/test-github-pr-safety.py
 ```
 
 ## Customizing Hook Behavior

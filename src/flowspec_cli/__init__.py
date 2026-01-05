@@ -4330,6 +4330,21 @@ def init(
         "--skip-skills",
         help="Skip deployment of skills from templates/skills/ to .claude/skills/",
     ),
+    block_pr_merge: bool = typer.Option(
+        None,
+        "--block-pr-merge/--allow-pr-merge",
+        help="Block Claude from merging PRs (default: block). Omit to be prompted.",
+    ),
+    block_pr_updates: bool = typer.Option(
+        None,
+        "--block-pr-updates/--allow-pr-updates",
+        help="Block Claude from updating PRs (default: block). Omit to be prompted.",
+    ),
+    no_pr_safety_prompts: bool = typer.Option(
+        False,
+        "--no-pr-safety-prompts",
+        help="Skip PR safety prompts and use defaults (block all)",
+    ),
 ):
     """
     Initialize a new Specify project from the latest template.
@@ -4655,6 +4670,7 @@ def init(
             ("cleanup", "Cleanup"),
             ("git", "Initialize git repository"),
             ("hooks", "Scaffold hooks"),
+            ("pr-safety", "Configure PR safety"),
             ("skills", "Deploy skills"),
             ("constitution", "Set up constitution"),
             ("final", "Finalize"),
@@ -4671,6 +4687,7 @@ def init(
             ("cleanup", "Cleanup"),
             ("git", "Initialize git repository"),
             ("hooks", "Scaffold hooks"),
+            ("pr-safety", "Configure PR safety"),
             ("skills", "Deploy skills"),
             ("constitution", "Set up constitution"),
             ("final", "Finalize"),
@@ -4772,6 +4789,60 @@ def init(
             except Exception as hook_error:
                 # Non-fatal error - continue with project initialization
                 tracker.error("hooks", f"scaffolding failed: {hook_error}")
+
+            # Configure GitHub PR safety
+            tracker.start("pr-safety")
+            try:
+                from .safety import (
+                    configure_github_pr_safety,
+                    has_github_pr_safety_config,
+                    resolve_pr_safety_settings,
+                )
+
+                # Determine PR safety settings
+                if has_github_pr_safety_config(project_path):
+                    tracker.complete("pr-safety", "already configured")
+                else:
+                    # Temporarily exit Live context for prompts if needed
+                    needs_prompts = (
+                        (block_pr_merge is None or block_pr_updates is None)
+                        and not no_pr_safety_prompts
+                        and sys.stdin.isatty()
+                    )
+                    if needs_prompts:
+                        live.stop()
+
+                    pr_merge_setting, pr_updates_setting = resolve_pr_safety_settings(
+                        block_pr_merge=block_pr_merge,
+                        block_pr_updates=block_pr_updates,
+                        no_prompts=no_pr_safety_prompts,
+                        console=console,
+                    )
+
+                    if needs_prompts:
+                        console.print()
+                        live.start()
+
+                    configure_github_pr_safety(
+                        project_path,
+                        block_pr_merge=pr_merge_setting,
+                        block_pr_merge_to_main=pr_merge_setting,  # Same as block_pr_merge
+                        block_pr_updates=pr_updates_setting,
+                    )
+
+                    status_parts = []
+                    if pr_merge_setting:
+                        status_parts.append("merge blocked")
+                    else:
+                        status_parts.append("merge allowed")
+                    if pr_updates_setting:
+                        status_parts.append("updates blocked")
+                    else:
+                        status_parts.append("updates allowed")
+                    tracker.complete("pr-safety", ", ".join(status_parts))
+            except Exception as pr_safety_error:
+                # Non-fatal error - continue with project initialization
+                tracker.error("pr-safety", f"configuration failed: {pr_safety_error}")
 
             # Deploy skills from templates/skills/ to .claude/skills/
             tracker.start("skills")
@@ -5323,6 +5394,21 @@ def upgrade_repo(
         "-b",
         help="Upgrade templates from a git branch (for testing). Builds templates locally.",
     ),
+    block_pr_merge: bool = typer.Option(
+        None,
+        "--block-pr-merge/--allow-pr-merge",
+        help="Block Claude from merging PRs. Omit to be prompted if not already configured.",
+    ),
+    block_pr_updates: bool = typer.Option(
+        None,
+        "--block-pr-updates/--allow-pr-updates",
+        help="Block Claude from updating PRs. Omit to be prompted if not already configured.",
+    ),
+    no_pr_safety_prompts: bool = typer.Option(
+        False,
+        "--no-pr-safety-prompts",
+        help="Skip PR safety prompts and use defaults (block all) if not configured",
+    ),
 ):
     """
     Upgrade repository templates to latest spec-kit and flowspec versions.
@@ -5460,6 +5546,61 @@ def upgrade_repo(
         else:
             console.print(
                 "[yellow]Run 'flowspec init --here' in interactive mode to add a constitution[/yellow]"
+            )
+        console.print()
+
+    # Check for missing PR safety configuration
+    from .safety import (
+        configure_github_pr_safety,
+        has_github_pr_safety_config,
+        resolve_pr_safety_settings,
+    )
+
+    if not has_github_pr_safety_config(project_path):
+        console.print()
+        console.print("[yellow]GitHub PR Safety not configured[/yellow]")
+
+        # Resolve settings from CLI flags or prompts using the helper function
+        pr_merge_setting, pr_updates_setting = resolve_pr_safety_settings(
+            block_pr_merge=block_pr_merge,
+            block_pr_updates=block_pr_updates,
+            no_prompts=no_pr_safety_prompts,
+            console=console,
+        )
+
+        if not dry_run:
+            configure_github_pr_safety(
+                project_path,
+                block_pr_merge=pr_merge_setting,
+                block_pr_merge_to_main=pr_merge_setting,
+                block_pr_updates=pr_updates_setting,
+            )
+
+            status_parts = []
+            if pr_merge_setting:
+                status_parts.append("merge blocked")
+            else:
+                status_parts.append("merge allowed")
+            if pr_updates_setting:
+                status_parts.append("updates blocked")
+            else:
+                status_parts.append("updates allowed")
+
+            console.print()
+            pr_safety_panel = Panel(
+                f"PR safety configured: {', '.join(status_parts)}\n\n"
+                "Configuration saved to [cyan].flowspec/github-pr-safety.json[/cyan]\n\n"
+                "Claude will now be blocked from these operations unless you change the configuration.",
+                title="[green]PR Safety Configured[/green]",
+                border_style="green",
+                padding=(1, 2),
+            )
+            console.print(pr_safety_panel)
+        else:
+            console.print(
+                f"[dim](dry run) Would configure PR safety: "
+                f"merge={'blocked' if pr_merge_setting else 'allowed'}, "
+                f"updates={'blocked' if pr_updates_setting else 'allowed'}[/dim]"
             )
         console.print()
 

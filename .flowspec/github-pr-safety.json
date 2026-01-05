@@ -1,0 +1,8 @@
+{
+  "_comment": "GitHub PR Safety Configuration for Claude Code hooks",
+  "_docs": "See .claude/hooks/pre-tool-use-github-pr-safety.py for details",
+
+  "block_pr_merge": true,
+  "block_pr_merge_to_main": true,
+  "block_pr_updates": true
+}
