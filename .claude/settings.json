@@ -104,6 +104,16 @@
             "timeout": 5
           }
         ]
+      },
+      {
+        "matcher": "mcp__github__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/run-hook.sh python3 .claude/hooks/pre-tool-use-github-pr-safety.py",
+            "timeout": 5
+          }
+        ]
       }
     ],
     "PostToolUse": [

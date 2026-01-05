@@ -210,7 +210,39 @@ run_test \
     "allow" \
     "Should allow non-git commands"
 
-# Test 17: Pre-implementation quality gates
+# Test 17: GitHub PR Safety - merge blocked
+run_test \
+    "GitHub PR - merge blocked" \
+    "pre-tool-use-github-pr-safety.py" \
+    '{"session_id": "test", "hook_event_name": "PreToolUse", "tool_name": "mcp__github__merge_pull_request", "tool_input": {"owner": "test", "repo": "test", "pull_number": 1}}' \
+    "deny" \
+    "Should deny PR merge by default"
+
+# Test 18: GitHub PR Safety - update blocked
+run_test \
+    "GitHub PR - update blocked" \
+    "pre-tool-use-github-pr-safety.py" \
+    '{"session_id": "test", "hook_event_name": "PreToolUse", "tool_name": "mcp__github__update_pull_request_branch", "tool_input": {"owner": "test", "repo": "test", "pull_number": 1}}' \
+    "deny" \
+    "Should deny PR update by default"
+
+# Test 19: GitHub PR Safety - read operations allowed
+run_test \
+    "GitHub PR - read allowed" \
+    "pre-tool-use-github-pr-safety.py" \
+    '{"session_id": "test", "hook_event_name": "PreToolUse", "tool_name": "mcp__github__get_pull_request", "tool_input": {"owner": "test", "repo": "test", "pull_number": 1}}' \
+    "allow" \
+    "Should allow reading PR details"
+
+# Test 20: GitHub PR Safety - create PR allowed
+run_test \
+    "GitHub PR - create allowed" \
+    "pre-tool-use-github-pr-safety.py" \
+    '{"session_id": "test", "hook_event_name": "PreToolUse", "tool_name": "mcp__github__create_pull_request", "tool_input": {"owner": "test", "repo": "test", "title": "Test", "head": "feature", "base": "main"}}' \
+    "allow" \
+    "Should allow creating new PRs"
+
+# Test 21: Pre-implementation quality gates
 echo ""
 echo "========================================"
 echo "Running Pre-Implementation Quality Gates Test Suite"
