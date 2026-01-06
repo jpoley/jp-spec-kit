@@ -31,21 +31,27 @@ class TestImplementCommandStructure:
 
     def test_has_required_task_discovery_section(self, implement_command_content):
         """AC #1: Command REQUIRES task validation before execution."""
-        # Accept either old pattern, new workflow state validation, or include directive
-        has_old_pattern = (
+        # Accept various patterns for task discovery section
+        has_step0_pattern = (
             "### Step 0: REQUIRED - Discover Backlog Tasks" in implement_command_content
         )
-        has_new_pattern = (
+        has_step1_pattern = (
+            "### Step 1: Discover Backlog Tasks" in implement_command_content
+        )
+        has_workflow_validation = (
             "Step 0: Workflow State Validation" in implement_command_content
         )
         has_include_pattern = (
             "{{INCLUDE:.claude/partials/flow/_workflow-state.md}}"
             in implement_command_content
         )
-        assert has_old_pattern or has_new_pattern or has_include_pattern, (
-            "implement.md must have task discovery/validation section"
-        )
-        # Accept either old or new critical message or include that provides it
+        assert (
+            has_step0_pattern
+            or has_step1_pattern
+            or has_workflow_validation
+            or has_include_pattern
+        ), "implement.md must have task discovery/validation section"
+        # Accept various critical message patterns
         has_old_critical = (
             "CRITICAL: This command REQUIRES existing backlog tasks"
             in implement_command_content

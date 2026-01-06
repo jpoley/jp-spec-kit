@@ -4,7 +4,7 @@ title: Create rigor rules troubleshooting guide
 status: To Do
 assignee: []
 created_date: '2025-12-17 16:42'
-updated_date: '2025-12-17 17:07'
+updated_date: '2026-01-06 18:52'
 labels:
   - rigor
   - documentation
@@ -13,6 +13,7 @@ dependencies:
   - task-541
   - task-551
 priority: low
+ordinal: 79000
 ---
 
 ## Description

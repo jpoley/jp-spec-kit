@@ -169,9 +169,8 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
-{{INCLUDE:.claude/partials/flow/_constitution-check.md}}
-
-{{INCLUDE:.claude/partials/flow/_workflow-state.md}}
+<!-- NOTE: INCLUDE directives do not work in Claude command files -->
+<!-- Constitution check and workflow state validation are loaded via @import in CLAUDE.md -->
 
 ## Execution Instructions
 

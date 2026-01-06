@@ -46,10 +46,6 @@ Continue with the workflow below, but:
 
 This command creates comprehensive architectural and platform planning using two specialized agents working in parallel, producing ADRs and platform design documents.
 
-{{INCLUDE:.claude/partials/flow/_constitution-check.md}}
-
-{{INCLUDE:.claude/partials/flow/_workflow-state.md}}
-
 **For /flow:plan**: Required input states are `workflow:Specified` OR `workflow:Researched`. Output state will be `workflow:Planned`.
 
 If the task doesn't have the required workflow state, inform the user:

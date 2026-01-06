@@ -14,8 +14,6 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 This command creates Architecture Decision Records (ADRs) to document significant architectural and technical decisions, their context, and their consequences.
 
-{{INCLUDE:.claude/partials/flow/_constitution-check.md}}
-
 ### Overview
 
 The decide command helps you:

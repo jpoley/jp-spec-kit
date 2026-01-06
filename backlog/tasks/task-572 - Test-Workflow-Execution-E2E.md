@@ -1,16 +1,17 @@
 ---
 id: task-572
 title: Test Workflow Execution E2E
-status: In Progress
+status: To Do
 assignee: []
 created_date: '2025-12-27 21:54'
-updated_date: '2025-12-27 21:55'
+updated_date: '2026-01-06 18:52'
 labels:
   - test
   - workflow
   - e2e
 dependencies: []
 priority: high
+ordinal: 92000
 ---
 
 ## Description

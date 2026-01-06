@@ -19,11 +19,13 @@ You are an expert in Spec-Driven Development (SDD), a methodology for AI-assiste
 ## SDD Workflow Overview
 
 ```
-┌─────────┐   ┌─────────┐   ┌──────────┐   ┌────────┐   ┌───────────┐   ┌──────────┐   ┌─────────┐
-│  Assess │ → │ Specify │ → │ Research │ → │  Plan  │ → │ Implement │ → │ Validate │ → │ Operate │
-└─────────┘   └─────────┘   └──────────┘   └────────┘   └───────────┘   └──────────┘   └─────────┘
-     ↓             ↓              ↓            ↓              ↓              ↓             ↓
-  Assessed     Specified     Researched    Planned    In Implementation  Validated     Deployed
+┌─────────┐   ┌─────────┐   ┌──────────┐   ┌────────┐   ┌───────────┐   ┌──────────┐
+│  Assess │ → │ Specify │ → │ Research │ → │  Plan  │ → │ Implement │ → │ Validate │
+└─────────┘   └─────────┘   └──────────┘   └────────┘   └───────────┘   └──────────┘
+     ↓             ↓              ↓            ↓              ↓              ↓
+  Assessed     Specified     Researched    Planned    In Implementation  Validated
+
+Note: Deployment/operations is "outer loop" - handled by external CI/CD pipelines, not SDD workflow.
 ```
 
 ## Workflow Phases
@@ -117,21 +119,10 @@ You are an expert in Spec-Driven Development (SDD), a methodology for AI-assiste
 - [ ] Performance benchmarks passed
 - [ ] Documentation complete
 
-### 7. Operate (`/flow:operate`)
-**Purpose**: Deploy and maintain in production.
-
-**Outputs**:
-- Deployment runbook
-- Monitoring dashboards
-- Alert configurations
-
-**Activities**:
-- Blue/green deployment
-- Smoke testing
-- Performance monitoring
-- Incident response
-
 ## Workflow State Transitions
+
+> **Note**: Deployment and operations are "outer loop" concerns handled by external CI/CD pipelines.
+> Use `/ops:*` commands (`/ops:monitor`, `/ops:respond`, `/ops:scale`) for operational tasks.
 
 | Current State | Valid Commands | Next State |
 |---------------|----------------|------------|
@@ -141,7 +132,7 @@ You are an expert in Spec-Driven Development (SDD), a methodology for AI-assiste
 | Researched | `/flow:plan` | Planned |
 | Planned | `/flow:implement` | In Implementation |
 | In Implementation | `/flow:validate` | Validated |
-| Validated | `/flow:operate` | Deployed |
+| Validated | (external CI/CD) | Deployed |
 
 ## SDD Principles
 

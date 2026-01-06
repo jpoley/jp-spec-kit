@@ -5,7 +5,7 @@ status: To Do
 assignee:
   - '@kinsale'
 created_date: '2025-12-01 05:05'
-updated_date: '2025-12-04 17:07'
+updated_date: '2026-01-06 18:52'
 labels:
   - claude-code
   - statusline
@@ -13,6 +13,7 @@ labels:
   - 'workflow:Specified'
 dependencies: []
 priority: low
+ordinal: 7000
 ---
 
 ## Description

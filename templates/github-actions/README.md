@@ -4,7 +4,7 @@ This directory contains GitHub Actions workflow templates for different tech sta
 
 ## Purpose
 
-When users run `/flow:operate` with the SRE agent, these templates are used to generate CI/CD pipelines specific to their tech stack. Each template follows the outer-loop principles:
+These templates can be used to generate CI/CD pipelines specific to the project's tech stack. Each template follows the outer-loop principles:
 
 - **Build once** in dev/CI, promote everywhere else
 - **SBOM generation** for supply chain security
@@ -101,7 +101,7 @@ Each template follows this structure:
 
 ## Usage by SRE Agent
 
-The `sre-agent` (invoked via `/flow:operate`) uses these templates to:
+The SRE engineer uses these templates to:
 
 1. Detect the project's tech stack
 2. Select the appropriate template

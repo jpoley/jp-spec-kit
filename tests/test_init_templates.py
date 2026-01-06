@@ -64,6 +64,144 @@ class TestMCPJsonGeneration:
         assert "backlog" not in config["mcpServers"]
 
 
+class TestUpdateMCPJson:
+    """Test the update_mcp_json functionality for upgrade-repo."""
+
+    def test_update_mcp_json_creates_new_file(self, tmp_path, monkeypatch):
+        """Create .mcp.json with required servers when file doesn't exist."""
+        from flowspec_cli import update_mcp_json
+
+        monkeypatch.chdir(tmp_path)
+        modified, changes = update_mcp_json(tmp_path)
+
+        # Should return True when file is created
+        assert modified is True
+
+        # Check that required servers were added
+        assert "backlog" in changes["added"]
+        assert "github" in changes["added"]
+        assert "serena" in changes["added"]
+
+        # Verify file content
+        mcp_json = tmp_path / ".mcp.json"
+        assert mcp_json.exists()
+        config = json.loads(mcp_json.read_text())
+        assert "backlog" in config["mcpServers"]
+        assert "github" in config["mcpServers"]
+        assert "serena" in config["mcpServers"]
+
+    def test_update_mcp_json_merges_with_existing(self, tmp_path, monkeypatch):
+        """Merge required servers with existing .mcp.json, preserving custom config."""
+        from flowspec_cli import update_mcp_json
+
+        # Create existing .mcp.json with custom server
+        existing_config = {
+            "mcpServers": {
+                "custom-server": {"command": "my-custom-command", "args": ["--flag"]},
+                "backlog": {"command": "old-backlog", "args": []},  # Existing backlog
+            }
+        }
+        mcp_json = tmp_path / ".mcp.json"
+        mcp_json.write_text(json.dumps(existing_config))
+
+        monkeypatch.chdir(tmp_path)
+        modified, changes = update_mcp_json(tmp_path)
+
+        # Should return True when new servers are added
+        assert modified is True
+
+        # Only github and serena should be added (backlog already exists)
+        assert "github" in changes["added"]
+        assert "serena" in changes["added"]
+        assert "backlog" in changes["unchanged"]
+
+        # Verify custom server is preserved
+        config = json.loads(mcp_json.read_text())
+        assert "custom-server" in config["mcpServers"]
+        assert config["mcpServers"]["custom-server"]["command"] == "my-custom-command"
+
+        # Existing backlog config should NOT be overwritten
+        assert config["mcpServers"]["backlog"]["command"] == "old-backlog"
+
+    def test_update_mcp_json_no_changes_when_complete(self, tmp_path, monkeypatch):
+        """Return False when all required servers already exist."""
+        from flowspec_cli import update_mcp_json, REQUIRED_MCP_SERVERS
+
+        # Create .mcp.json with all required servers
+        existing_config = {"mcpServers": dict(REQUIRED_MCP_SERVERS)}
+        mcp_json = tmp_path / ".mcp.json"
+        mcp_json.write_text(json.dumps(existing_config))
+
+        monkeypatch.chdir(tmp_path)
+        modified, changes = update_mcp_json(tmp_path)
+
+        # Should return False when no changes needed
+        assert modified is False
+        assert len(changes["added"]) == 0
+        assert "backlog" in changes["unchanged"]
+        assert "github" in changes["unchanged"]
+        assert "serena" in changes["unchanged"]
+
+    def test_update_mcp_json_includes_recommended_servers(self, tmp_path, monkeypatch):
+        """Include recommended servers when flag is set."""
+        from flowspec_cli import update_mcp_json
+
+        monkeypatch.chdir(tmp_path)
+        modified, changes = update_mcp_json(tmp_path, include_recommended=True)
+
+        assert modified is True
+
+        # Check recommended servers were added
+        assert "playwright-test" in changes["added"]
+        assert "trivy" in changes["added"]
+        assert "semgrep" in changes["added"]
+
+        # Verify file content
+        mcp_json = tmp_path / ".mcp.json"
+        config = json.loads(mcp_json.read_text())
+        assert "playwright-test" in config["mcpServers"]
+        assert "trivy" in config["mcpServers"]
+        assert "semgrep" in config["mcpServers"]
+
+    def test_update_mcp_json_adds_python_server(self, tmp_path, monkeypatch):
+        """Add flowspec-security server for Python projects."""
+        from flowspec_cli import update_mcp_json
+
+        # Create a Python project marker
+        (tmp_path / "pyproject.toml").write_text("[project]\nname = 'test'\n")
+
+        monkeypatch.chdir(tmp_path)
+        modified, changes = update_mcp_json(tmp_path)
+
+        assert modified is True
+        assert "flowspec-security" in changes["added"]
+
+        # Verify file content
+        mcp_json = tmp_path / ".mcp.json"
+        config = json.loads(mcp_json.read_text())
+        assert "flowspec-security" in config["mcpServers"]
+        assert config["mcpServers"]["flowspec-security"]["command"] == "uv"
+
+    def test_update_mcp_json_handles_corrupted_file(self, tmp_path, monkeypatch):
+        """Handle corrupted .mcp.json gracefully by starting fresh."""
+        from flowspec_cli import update_mcp_json
+
+        # Create corrupted .mcp.json
+        mcp_json = tmp_path / ".mcp.json"
+        mcp_json.write_text("{ invalid json }")
+
+        monkeypatch.chdir(tmp_path)
+        modified, changes = update_mcp_json(tmp_path)
+
+        # Should create valid config despite corrupted input
+        assert modified is True
+        assert "backlog" in changes["added"]
+
+        # Verify valid JSON was written
+        config = json.loads(mcp_json.read_text())
+        assert "mcpServers" in config
+
+
 class TestVSCodeExtensionsGeneration:
     """Test the VSCode extensions.json generation functionality."""
 

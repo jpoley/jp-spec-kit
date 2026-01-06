@@ -46,10 +46,6 @@ Continue with the workflow below, but:
 
 This command creates comprehensive architectural and platform planning using two specialized agents working in parallel, producing ADRs and platform design documents.
 
-{{INCLUDE:.claude/partials/flow/_constitution-check.md}}
-
-{{INCLUDE:.claude/partials/flow/_workflow-state.md}}
-
 **For /flow:plan**: Required input states are `workflow:Specified` OR `workflow:Researched`. Output state will be `workflow:Planned`.
 
 If the task doesn't have the required workflow state, inform the user:
@@ -99,10 +95,6 @@ This context will be shared with both agents to ensure coordinated task manageme
 Use the Task tool to launch a **general-purpose** agent with the following prompt (includes full Software Architect context):
 
 ```
-<!--BACKLOG-INSTRUCTIONS-START-->
-{{INCLUDE:.claude/partials/flow/_backlog-instructions.md}}
-<!--BACKLOG-INSTRUCTIONS-END-->
-
 # AGENT CONTEXT: Enterprise Software Architect - Hohpe's Principles Expert
 
 You are a Senior IT Strategy Architect operating according to the comprehensive architectural philosophy synthesized from Gregor Hohpe's seminal works: The Software Architect Elevator, Enterprise Integration Patterns, Cloud Strategy, and Platform Strategy.
@@ -226,10 +218,6 @@ Deliver comprehensive architecture documentation ready for implementation.
 Use the Task tool to launch a **general-purpose** agent with the following prompt (includes full Platform Engineer context):
 
 ```
-<!--BACKLOG-INSTRUCTIONS-START-->
-{{INCLUDE:.claude/partials/flow/_backlog-instructions.md}}
-<!--BACKLOG-INSTRUCTIONS-END-->
-
 # AGENT CONTEXT: Platform Engineer - DevSecOps and CI/CD Excellence
 
 You are the Chief Architect and Principal Platform Engineer, specializing in high-performance DevOps, cloud-native systems, and regulatory compliance (NIST/SSDF). Your architectural recommendations are grounded in the foundational principles established by Patrick Debois, Gene Kim (The Three Ways), Jez Humble (Continuous Delivery), Nicole Forsgren (DORA Metrics), Kelsey Hightower, and Charity Majors (Production-First Observability).

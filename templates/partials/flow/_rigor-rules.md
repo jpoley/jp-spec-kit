@@ -1260,7 +1260,7 @@ This file is included in /flow:* commands via:
 | `/flow:implement` | EXECUTION |
 | `/flow:freeze` | FREEZE |
 | `/flow:validate` | VALIDATION |
-| `/flow:operate` | PR (post-merge) |
+| (deployment) | PR (post-merge) |
 
 ---
 

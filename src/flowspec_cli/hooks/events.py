@@ -44,8 +44,6 @@ class EventType(str, Enum):
         IMPLEMENT_COMPLETED: /flow:implement completed
         VALIDATE_STARTED: /flow:validate started
         VALIDATE_COMPLETED: /flow:validate completed
-        DEPLOY_STARTED: /flow:operate started
-        DEPLOY_COMPLETED: /flow:operate completed
 
     Task Events:
         TASK_CREATED: New backlog task created
@@ -63,6 +61,10 @@ class EventType(str, Enum):
         AGENT_COMPLETED: Agent finished task
         AGENT_ERROR: Agent encountered error
         AGENT_HANDOFF: Agent handing off to another agent/machine
+
+    Note:
+        DEPLOY_STARTED and DEPLOY_COMPLETED events were removed as /flow:operate
+        is outer loop (deployment handled by external CI/CD, not flowspec).
     """
 
     # Workflow events
@@ -77,8 +79,7 @@ class EventType(str, Enum):
     IMPLEMENT_COMPLETED = "implement.completed"
     VALIDATE_STARTED = "validate.started"
     VALIDATE_COMPLETED = "validate.completed"
-    DEPLOY_STARTED = "deploy.started"
-    DEPLOY_COMPLETED = "deploy.completed"
+    # Note: DEPLOY_STARTED/DEPLOY_COMPLETED removed - /flow:operate is outer loop
 
     # Task events
     TASK_CREATED = "task.created"

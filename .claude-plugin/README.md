@@ -4,14 +4,15 @@ A comprehensive Spec-Driven Development (SDD) toolkit designed specifically for 
 
 ## 🎯 What This Plugin Provides
 
-### Workflow Commands (6)
+### Workflow Commands (5)
 Execute complete development workflows with a single command:
 - `/flow:specify` - Create comprehensive feature specifications
 - `/flow:plan` - Architectural planning and design
 - `/flow:research` - Research and business validation
 - `/flow:implement` - Frontend + backend implementation with code review
 - `/flow:validate` - QA, security, documentation, and release validation
-- `/flow:operate` - SRE operations, CI/CD, Kubernetes, and observability
+
+Note: Deployment and operations are handled externally via CI/CD pipelines (outer loop).
 
 ### Specialized Agents (15)
 Purpose-built agents for every stage of development:
@@ -106,12 +107,6 @@ Run comprehensive validation:
 /flow:validate Check authentication implementation for security and quality
 ```
 
-### 7. Operate
-Set up operations and monitoring:
-```bash
-/flow:operate Set up CI/CD pipeline and monitoring for auth service
-```
-
 ## 📖 Command Details
 
 ### /flow:specify
@@ -185,21 +180,6 @@ Set up operations and monitoring:
 **Example**:
 ```bash
 /flow:validate Check chat feature for security vulnerabilities and test coverage
-```
-
-### /flow:operate
-**Purpose**: Operations, CI/CD, and production readiness
-**Agent**: sre-agent
-**Outputs**:
-- GitHub Actions workflows
-- Kubernetes manifests
-- Monitoring and alerting setup
-- Runbooks and operational docs
-- Security scanning configuration
-
-**Example**:
-```bash
-/flow:operate Set up CI/CD pipeline with security scanning for chat service
 ```
 
 ## 🔧 Configuration
@@ -298,7 +278,7 @@ Agents are launched via the Task tool. Ensure:
 ### 1. Follow the Workflow Order
 For best results, follow the workflow sequence:
 ```
-specify → plan → research → implement → validate → operate
+specify → plan → research → implement → validate
 ```
 
 ### 2. Provide Context

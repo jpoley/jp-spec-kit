@@ -4,7 +4,7 @@ title: 'Integrate rigor rules into /flow:plan'
 status: To Do
 assignee: []
 created_date: '2025-12-17 16:41'
-updated_date: '2025-12-17 17:07'
+updated_date: '2026-01-06 18:52'
 labels:
   - rigor
   - plan
@@ -14,6 +14,7 @@ dependencies:
   - task-541
   - task-542
 priority: medium
+ordinal: 75000
 ---
 
 ## Description

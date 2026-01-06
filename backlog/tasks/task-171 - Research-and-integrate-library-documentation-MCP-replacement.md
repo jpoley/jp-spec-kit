@@ -5,7 +5,7 @@ status: To Do
 assignee:
   - '@kinsale'
 created_date: '2025-11-30 19:40'
-updated_date: '2025-12-04 17:07'
+updated_date: '2026-01-06 18:52'
 labels:
   - research
   - mcp
@@ -13,6 +13,7 @@ labels:
   - 'workflow:Specified'
 dependencies: []
 priority: medium
+ordinal: 5000
 ---
 
 ## Description

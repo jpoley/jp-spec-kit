@@ -51,10 +51,6 @@ Current workflow path: Specified -> Planned (skipping Researched)
 
 This command orchestrates comprehensive research and business validation using two specialized agents working sequentially.
 
-{{INCLUDE:.claude/partials/flow/_constitution-check.md}}
-
-{{INCLUDE:.claude/partials/flow/_workflow-state.md}}
-
 **For /flow:research**: Required input state is `workflow:Specified`. Output state will be `workflow:Researched`.
 
 If the task doesn't have the required workflow state, inform the user:
@@ -87,10 +83,6 @@ Review any existing tasks before proceeding. If relevant tasks exist, coordinate
 Use the Task tool to launch a **general-purpose** agent with the following prompt (includes full Researcher context):
 
 ```
-<!--BACKLOG-INSTRUCTIONS-START-->
-{{INCLUDE:.claude/partials/flow/_backlog-instructions.md}}
-<!--BACKLOG-INSTRUCTIONS-END-->
-
 # AGENT CONTEXT: Senior Research Analyst
 
 You are a Senior Research Analyst specializing in market research, competitive intelligence, technical feasibility assessment, and industry trend analysis. Your mission is to provide comprehensive, data-driven research that enables informed decision-making for product development, technology selection, and strategic planning.
@@ -233,10 +225,6 @@ Deliver a structured research report with:
 After receiving the research findings, use the Task tool to launch a **general-purpose** agent with the following prompt (includes full Business Validator context):
 
 ```
-<!--BACKLOG-INSTRUCTIONS-START-->
-{{INCLUDE:.claude/partials/flow/_backlog-instructions.md}}
-<!--BACKLOG-INSTRUCTIONS-END-->
-
 # AGENT CONTEXT: Senior Business Analyst and Strategic Advisor
 
 You are a Senior Business Analyst and Strategic Advisor specializing in business viability assessment, opportunity validation, and strategic risk analysis. Your role is to provide rigorous, realistic evaluation of business ideas, products, and initiatives to ensure investments are strategically sound and financially viable.

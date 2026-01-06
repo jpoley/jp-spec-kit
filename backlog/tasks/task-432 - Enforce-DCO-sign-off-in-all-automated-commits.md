@@ -5,13 +5,14 @@ status: To Do
 assignee:
   - '@adare'
 created_date: '2025-12-10 22:17'
-updated_date: '2025-12-15 01:49'
+updated_date: '2026-01-06 18:52'
 labels:
   - compliance
   - ci-cd
   - process
 dependencies: []
 priority: high
+ordinal: 22000
 ---
 
 ## Description

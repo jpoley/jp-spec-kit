@@ -5,13 +5,14 @@ status: To Do
 assignee:
   - '@chamonix'
 created_date: '2025-12-14 03:35'
-updated_date: '2025-12-15 01:33'
+updated_date: '2026-01-06 18:52'
 labels:
   - agent-event-system
   - phase-8
   - documentation
 dependencies: []
 priority: high
+ordinal: 70000
 ---
 
 ## Description

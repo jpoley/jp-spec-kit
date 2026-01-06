@@ -5,7 +5,7 @@ status: To Do
 assignee:
   - '@adare'
 created_date: '2025-12-04 03:32'
-updated_date: '2025-12-15 02:17'
+updated_date: '2026-01-06 18:52'
 labels:
   - infrastructure
   - ci-cd
@@ -13,6 +13,7 @@ labels:
 dependencies:
   - task-281
 priority: low
+ordinal: 10000
 ---
 
 ## Description

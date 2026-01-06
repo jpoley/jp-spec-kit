@@ -36,15 +36,19 @@ class TestPlanCommandStructure:
     def test_plan_command_has_task_discovery_section(self, plan_command_path):
         """Verify plan.md includes task discovery/validation section."""
         content = plan_command_path.read_text()
-        # Accept either old pattern, new workflow state validation, or include directive
-        has_old_pattern = "Step 0: Backlog Task Discovery" in content
-        has_new_pattern = "Step 0: Workflow State Validation" in content
+        # Accept various patterns for task discovery section
+        has_step0_pattern = "Step 0: Backlog Task Discovery" in content
+        has_step1_pattern = "Step 1: Backlog Task Discovery" in content
+        has_workflow_validation = "Step 0: Workflow State Validation" in content
         has_include_pattern = (
             "{{INCLUDE:.claude/partials/flow/_workflow-state.md}}" in content
         )
-        assert has_old_pattern or has_new_pattern or has_include_pattern, (
-            "plan.md must have task discovery/validation section"
-        )
+        assert (
+            has_step0_pattern
+            or has_step1_pattern
+            or has_workflow_validation
+            or has_include_pattern
+        ), "plan.md must have task discovery/validation section"
         # Task list command should be present in either format
         assert "backlog task list" in content
 
@@ -306,9 +310,10 @@ class TestIntegrationScenarios:
         """Verify plan command supports complete architecture workflow."""
         content = plan_command_path.read_text()
 
-        # Check for task discovery/validation (accept old, new, or include pattern)
+        # Check for task discovery/validation (accept various patterns)
         has_task_section = (
             "Step 0: Backlog Task Discovery" in content
+            or "Step 1: Backlog Task Discovery" in content
             or "Step 0: Workflow State Validation" in content
             or "{{INCLUDE:.claude/partials/flow/_workflow-state.md}}" in content
         )
@@ -331,9 +336,10 @@ class TestIntegrationScenarios:
         """Verify plan command supports complete platform workflow."""
         content = plan_command_path.read_text()
 
-        # Check for task discovery/validation (accept old, new, or include pattern)
+        # Check for task discovery/validation (accept various patterns)
         has_task_section = (
             "Step 0: Backlog Task Discovery" in content
+            or "Step 1: Backlog Task Discovery" in content
             or "Step 0: Workflow State Validation" in content
             or "{{INCLUDE:.claude/partials/flow/_workflow-state.md}}" in content
         )

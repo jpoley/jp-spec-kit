@@ -5,7 +5,7 @@ status: To Do
 assignee:
   - '@chamonix'
 created_date: '2025-12-14 03:35'
-updated_date: '2025-12-22 21:55'
+updated_date: '2026-01-06 18:52'
 labels:
   - git-workflow
   - quality-gate
@@ -13,6 +13,7 @@ labels:
 dependencies:
   - task-517
 priority: high
+ordinal: 54000
 ---
 
 ## Description

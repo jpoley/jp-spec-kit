@@ -5,13 +5,14 @@ status: To Do
 assignee:
   - '@adare'
 created_date: '2025-12-11 04:17'
-updated_date: '2025-12-15 01:49'
+updated_date: '2026-01-06 18:52'
 labels:
   - cicd
   - infrastructure
   - docker
 dependencies: []
 priority: medium
+ordinal: 25000
 ---
 
 ## Description

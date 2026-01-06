@@ -5,7 +5,7 @@ status: To Do
 assignee:
   - '@kinsale'
 created_date: '2025-12-12 01:15'
-updated_date: '2025-12-22 21:54'
+updated_date: '2026-01-06 18:52'
 labels:
   - claude-improves
   - cli
@@ -14,6 +14,7 @@ labels:
   - phase-2
 dependencies: []
 priority: high
+ordinal: 33000
 ---
 
 ## Description

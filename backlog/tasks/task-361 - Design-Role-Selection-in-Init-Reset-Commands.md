@@ -5,13 +5,14 @@ status: To Do
 assignee:
   - '@adare'
 created_date: '2025-12-09 15:13'
-updated_date: '2025-12-15 01:49'
+updated_date: '2026-01-06 18:52'
 labels:
   - infrastructure
   - commands
   - phase-1
 dependencies: []
 priority: high
+ordinal: 13000
 ---
 
 ## Description

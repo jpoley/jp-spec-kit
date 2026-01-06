@@ -5,13 +5,14 @@ status: To Do
 assignee:
   - '@adare'
 created_date: '2025-12-10 20:51'
-updated_date: '2025-12-15 01:49'
+updated_date: '2026-01-06 18:52'
 labels:
   - cli
   - branding
   - flowspec
 dependencies: []
 priority: medium
+ordinal: 20000
 ---
 
 ## Description

@@ -2501,6 +2501,128 @@ def generate_mcp_json(project_path: Path) -> bool:
     return True
 
 
+# Required MCP servers that must be present for flowspec workflows to function
+REQUIRED_MCP_SERVERS = {
+    "backlog": {
+        "command": "backlog",
+        "args": ["mcp"],
+    },
+    "github": {
+        "command": "npx",
+        "args": ["-y", "@anthropic/claude-mcp-server-github"],
+    },
+    "serena": {
+        "command": "uvx",
+        "args": [
+            "--from",
+            "git+https://github.com/oraios/serena",
+            "serena-mcp-server",
+            "--project",
+            "${PWD}",
+        ],
+    },
+}
+
+# Recommended MCP servers that enhance agent capabilities
+RECOMMENDED_MCP_SERVERS = {
+    "playwright-test": {
+        "command": "npx",
+        "args": ["-y", "@anthropic/claude-mcp-server-playwright"],
+    },
+    "trivy": {
+        "command": "npx",
+        "args": ["-y", "@anthropic/claude-mcp-server-trivy"],
+    },
+    "semgrep": {
+        "command": "npx",
+        "args": ["-y", "@anthropic/claude-mcp-server-semgrep"],
+    },
+}
+
+
+def update_mcp_json(
+    project_path: Path,
+    include_recommended: bool = False,
+) -> tuple[bool, dict[str, list[str]]]:
+    """Update .mcp.json with required MCP servers, preserving existing configuration.
+
+    This function is designed for upgrades. Unlike generate_mcp_json() which skips
+    existing files, this function merges new servers into existing configuration
+    while preserving user customizations.
+
+    Args:
+        project_path: Path to the project directory
+        include_recommended: If True, also add recommended servers (playwright, trivy, semgrep)
+
+    Returns:
+        Tuple of:
+        - bool: True if file was modified, False if no changes needed
+        - dict: Summary of changes {"added": [...], "unchanged": [...]}
+    """
+    mcp_json_path = project_path / ".mcp.json"
+
+    # Load existing configuration if present
+    existing_config: dict = {}
+    if mcp_json_path.exists():
+        try:
+            with open(mcp_json_path, encoding="utf-8") as f:
+                existing_config = json.load(f)
+        except (json.JSONDecodeError, OSError):
+            # If file is corrupted, start fresh but log warning
+            pass
+
+    # Get existing servers or initialize empty dict
+    existing_servers = existing_config.get("mcpServers", {})
+
+    # Detect tech stack for conditional servers
+    tech_stack = detect_tech_stack(project_path)
+
+    # Build the set of servers to add
+    servers_to_add = dict(REQUIRED_MCP_SERVERS)
+
+    # Add tech-stack-specific required servers
+    if "Python" in tech_stack["languages"]:
+        servers_to_add["flowspec-security"] = {
+            "command": "uv",
+            "args": [
+                "--directory",
+                ".",
+                "run",
+                "python",
+                "-m",
+                "flowspec_cli.security.mcp_server",
+            ],
+        }
+
+    # Add recommended servers if requested
+    if include_recommended:
+        servers_to_add.update(RECOMMENDED_MCP_SERVERS)
+
+    # Track changes
+    added: list[str] = []
+    unchanged: list[str] = []
+
+    # Merge: add new servers, preserve existing
+    for server_name, server_config in servers_to_add.items():
+        if server_name not in existing_servers:
+            existing_servers[server_name] = server_config
+            added.append(server_name)
+        else:
+            unchanged.append(server_name)
+
+    # Build final config
+    final_config = {"mcpServers": existing_servers}
+
+    # Only write if there were changes
+    if added:
+        with open(mcp_json_path, "w", encoding="utf-8") as f:
+            json.dump(final_config, f, indent=2, ensure_ascii=False)
+            f.write("\n")
+        return True, {"added": added, "unchanged": unchanged}
+
+    return False, {"added": [], "unchanged": list(existing_servers.keys())}
+
+
 def generate_vscode_extensions(project_path: Path) -> bool:
     """Generate .vscode/extensions.json with tech-stack specific recommendations.
 
@@ -5683,6 +5805,11 @@ def upgrade_repo(
         "-b",
         help="Upgrade templates from a git branch (for testing). Builds templates locally.",
     ),
+    recommended_servers: bool = typer.Option(
+        False,
+        "--recommended-servers",
+        help="Include recommended MCP servers (playwright-test, trivy, semgrep) in .mcp.json",
+    ),
 ):
     """
     Upgrade repository templates to latest spec-kit and flowspec versions.
@@ -5696,6 +5823,7 @@ def upgrade_repo(
     3. Download latest flowspec extension (or from branch if --branch specified)
     4. Merge with precedence (extension overrides base)
     5. Apply updates to current project
+    6. Update .mcp.json with required MCP servers
 
     Examples:
         flowspec upgrade-repo                               # Upgrade repo to latest templates
@@ -5704,6 +5832,7 @@ def upgrade_repo(
         flowspec upgrade-repo --extension-version 0.0.21    # Pin extension to specific version
         flowspec upgrade-repo --templates-only              # Only update template files
         flowspec upgrade-repo --branch fix3                 # Upgrade from git branch
+        flowspec upgrade-repo --recommended-servers         # Include additional MCP servers
 
     See also:
         flowspec upgrade-tools    # Upgrade globally installed CLI tools
@@ -5834,6 +5963,8 @@ def upgrade_repo(
     tracker.add("fetch-extension", "Fetch flowspec extension")
     tracker.add("backup", "Backup current templates")
     tracker.add("apply", "Apply updates")
+    tracker.add("skills", "Sync skills")
+    tracker.add("mcp", "Update MCP configuration")
     tracker.add("final", "Finalize")
 
     if dry_run:
@@ -5885,6 +6016,29 @@ def upgrade_repo(
             )
 
             tracker.complete("apply", "templates updated")
+
+            # Sync skills and report changes
+            tracker.start("skills")
+            from .skills import compare_skills_after_extraction
+
+            skills_result = compare_skills_after_extraction(project_path, backup_dir)
+            if skills_result.has_changes:
+                skills_summary = skills_result.summary()
+                tracker.complete("skills", skills_summary)
+            else:
+                tracker.complete("skills", "no changes")
+
+            # Update MCP configuration with required servers
+            tracker.start("mcp")
+            mcp_modified, mcp_changes = update_mcp_json(
+                project_path, include_recommended=recommended_servers
+            )
+            if mcp_modified:
+                added_servers = ", ".join(mcp_changes["added"])
+                tracker.complete("mcp", f"added: {added_servers}")
+            else:
+                tracker.complete("mcp", "already up to date")
+
             tracker.complete("final", "upgrade complete")
 
         except Exception as e:

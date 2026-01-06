@@ -300,6 +300,25 @@ build_variant() {
         cp -r templates/partials/* "$base_dir/.claude/partials/"
         echo "Copied partials to .claude/partials/"
       fi
+      # Copy skills for upgrade-repo syncing
+      # Skills are in .claude/skills/ (real directories, not symlinks)
+      if [[ -d .claude/skills ]]; then
+        mkdir -p "$base_dir/.claude/skills"
+        # Copy only real directories (skip symlinks which point back to source)
+        for skill_dir in .claude/skills/*/; do
+          skill_name=$(basename "$skill_dir")
+          # Skip if it's a symlink
+          if [[ -L "${skill_dir%/}" ]]; then
+            continue
+          fi
+          # Copy skill directory if it contains SKILL.md
+          if [[ -f "${skill_dir}SKILL.md" ]]; then
+            cp -r "$skill_dir" "$base_dir/.claude/skills/"
+            echo "  Copied skill: $skill_name"
+          fi
+        done
+        echo "Copied skills to .claude/skills/"
+      fi
       ;;
     gemini)
       mkdir -p "$base_dir/.gemini/commands"

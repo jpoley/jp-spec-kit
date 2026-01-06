@@ -1,10 +1,10 @@
 ---
 id: task-548
 title: 'Integrate rigor rules into /flow:operate'
-status: To Do
+status: Done
 assignee: []
 created_date: '2025-12-17 16:41'
-updated_date: '2025-12-17 17:07'
+updated_date: '2026-01-06 18:57'
 labels:
   - rigor
   - operate
@@ -13,6 +13,7 @@ labels:
 dependencies:
   - task-541
 priority: medium
+ordinal: 76000
 ---
 
 ## Description
@@ -38,3 +39,9 @@ Add rigor rules include to the operate command for deployment hygiene. Final wor
 4. Add bead cleanup step
 5. Test operate workflow
 <!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+**Closed as OBSOLETE**: /flow:operate has been removed from flowspec. Deployment and operations are outer loop responsibilities handled externally by CI/CD pipelines (see flowspec_workflow.yml). This task is no longer applicable.
+<!-- SECTION:NOTES:END -->

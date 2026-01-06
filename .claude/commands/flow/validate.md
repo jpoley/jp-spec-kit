@@ -19,12 +19,6 @@ $ARGUMENTS
 
 **Expected Input**: Optional task ID (e.g., `task-094`). If not provided, command discovers the current in-progress task automatically.
 
-{{INCLUDE:.claude/partials/flow/_constitution-check.md}}
-
-{{INCLUDE:.claude/partials/flow/_rigor-rules.md}}
-
-{{INCLUDE:.claude/partials/flow/_workflow-state.md}}
-
 **For /flow:validate**: Required input state is `workflow:In Implementation`. Output state will be `workflow:Validated`.
 
 If the task doesn't have the required workflow state, inform the user:

@@ -51,10 +51,6 @@ Current workflow path: Specified -> Planned (skipping Researched)
 
 This command orchestrates comprehensive research and business validation using two specialized agents working sequentially.
 
-{{INCLUDE:.claude/partials/flow/_constitution-check.md}}
-
-{{INCLUDE:.claude/partials/flow/_workflow-state.md}}
-
 **For /flow:research**: Required input state is `workflow:Specified`. Output state will be `workflow:Researched`.
 
 If the task doesn't have the required workflow state, inform the user:

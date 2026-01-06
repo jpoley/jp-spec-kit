@@ -37,7 +37,9 @@
       "Bash(rm -rf ~/*)",
       "Bash(chmod:777:*)",
       "Bash(curl:*)",
-      "Bash(wget:*)"
+      "Bash(wget:*)",
+      "Bash(gh pr merge*)",
+      "Bash(rm -rf *)"
     ]
   },
   "allowedTools": [

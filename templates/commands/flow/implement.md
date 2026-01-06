@@ -18,12 +18,6 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 This command implements features using specialized engineering agents with integrated code review. **Engineers work exclusively from backlog tasks.**
 
-{{INCLUDE:.claude/partials/flow/_constitution-check.md}}
-
-{{INCLUDE:.claude/partials/flow/_rigor-rules.md}}
-
-{{INCLUDE:.claude/partials/flow/_workflow-state.md}}
-
 **For /flow:implement**: Required input state is `workflow:Planned`. Output state will be `workflow:In Implementation`.
 
 If the task doesn't have the required workflow state, inform the user:

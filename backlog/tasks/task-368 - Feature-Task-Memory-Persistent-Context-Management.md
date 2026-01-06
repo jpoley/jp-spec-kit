@@ -1,18 +1,18 @@
 ---
 id: task-368
 title: 'Feature: Task Memory - Persistent Context Management'
-status: In Progress
+status: To Do
 assignee:
   - '@myself'
 created_date: '2025-12-09 15:50'
-updated_date: '2025-12-28 20:41'
+updated_date: '2026-01-06 18:52'
 labels:
   - architecture
   - planning
   - 'workflow:Planned'
   - feature
 dependencies: []
-priority: high
+ordinal: 18000
 ---
 
 ## Description

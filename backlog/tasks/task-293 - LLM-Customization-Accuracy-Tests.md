@@ -5,12 +5,13 @@ status: To Do
 assignee:
   - '@adare'
 created_date: '2025-12-04 16:20'
-updated_date: '2025-12-15 01:48'
+updated_date: '2026-01-06 18:52'
 labels:
   - constitution-cleanup
 dependencies:
   - task-244
 priority: high
+ordinal: 11000
 ---
 
 ## Description
