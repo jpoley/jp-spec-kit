@@ -49,7 +49,7 @@ This command creates technical architecture and platform design following Gregor
 4. Update backlog with planning tasks
 
 **Key Principles:**
-- Architecture as selling options (defer decisions until maximum information)
+- Architecture as keeping options open (defer decisions until maximum information)
 - Enterprise Integration Patterns for service communication
 - Platform Quality Framework (7 C's)
 - DORA Elite Performance targets
