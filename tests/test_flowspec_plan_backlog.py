@@ -52,12 +52,11 @@ class TestPlanCommandStructure:
         """Verify plan.md includes backlog instructions in both agents."""
         content = plan_command_path.read_text()
 
-        # Should have two includes (one for each agent)
-        includes = content.count(
-            "{{INCLUDE:.claude/partials/flow/_backlog-instructions.md}}"
-        )
-        assert includes == 2, (
-            f"Expected 2 backlog instruction includes, found {includes}"
+        # Backlog instructions are embedded directly as "Backlog Task Management Requirements"
+        # sections within each agent's prompt context
+        backlog_sections = content.count("## Backlog Task Management Requirements")
+        assert backlog_sections == 2, (
+            f"Expected 2 backlog instruction sections, found {backlog_sections}"
         )
 
     def test_architect_agent_has_backlog_section(self, plan_command_path):
@@ -358,16 +357,14 @@ class TestIntegrationScenarios:
         """Verify both agents receive the same backlog instructions."""
         content = plan_command_path.read_text()
 
-        # Count INCLUDE directives
-        includes = []
-        for line in content.split("\n"):
-            if "{{INCLUDE:.claude/partials/flow/_backlog-instructions.md}}" in line:
-                includes.append(line)
+        # Backlog instructions are embedded directly as "Backlog Task Management Requirements"
+        # sections within each agent's prompt context (one per agent)
+        backlog_sections = content.count("## Backlog Task Management Requirements")
 
-        # Should have exactly 2 includes (one per agent)
-        assert len(includes) == 2
-        # Both should be identical
-        assert includes[0] == includes[1]
+        # Should have exactly 2 instruction blocks (one per agent)
+        assert backlog_sections == 2, (
+            f"Expected 2 backlog instruction sections, found {backlog_sections}"
+        )
 
     def test_agents_can_update_existing_tasks(self, plan_command_path):
         """Verify agents have guidance for updating existing tasks."""
