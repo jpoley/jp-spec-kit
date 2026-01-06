@@ -247,11 +247,11 @@ This command creates feature specifications following SVPG product management pr
 backlog search "$ARGUMENTS" --plain
 
 # Create implementation tasks
-backlog task create "Implement [Feature]" \\
-  -d "Description" \\
-  --ac "Acceptance criterion 1" \\
-  --ac "Acceptance criterion 2" \\
-  -l implement,backend \\
+backlog task create "Implement [Feature]" \
+  -d "Description" \
+  --ac "Acceptance criterion 1" \
+  --ac "Acceptance criterion 2" \
+  -l implement,backend \
   --priority high
 ```
 
