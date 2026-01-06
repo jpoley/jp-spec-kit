@@ -77,7 +77,7 @@ class TestSharedBacklogInstructions:
     def test_researcher_includes_shared_backlog_instructions(
         self, research_command_file
     ):
-        """Verify Researcher agent prompt includes shared backlog instructions via INCLUDE."""
+        """Verify Researcher agent prompt includes shared backlog instructions."""
         content = research_command_file.read_text()
 
         # Find Phase 1 section
@@ -85,67 +85,63 @@ class TestSharedBacklogInstructions:
         phase2_start = content.find("### Phase 2: Business Validation")
         phase1_section = content[phase1_start:phase2_start]
 
-        # Should include the shared backlog instructions
-        assert (
-            "{{INCLUDE:.claude/partials/flow/_backlog-instructions.md}}"
-            in phase1_section
+        # Backlog instructions are embedded directly as "## Backlog.md Task Management"
+        # section within the agent's prompt context
+        assert "## Backlog.md Task Management" in phase1_section, (
+            "Phase 1 must include embedded backlog instructions"
         )
-        assert "<!--BACKLOG-INSTRUCTIONS-START-->" in phase1_section
-        assert "<!--BACKLOG-INSTRUCTIONS-END-->" in phase1_section
 
     def test_business_validator_includes_shared_backlog_instructions(
         self, research_command_file
     ):
-        """Verify Business Validator agent prompt includes shared backlog instructions via INCLUDE."""
+        """Verify Business Validator agent prompt includes shared backlog instructions."""
         content = research_command_file.read_text()
 
         # Find Phase 2 section
         phase2_start = content.find("### Phase 2: Business Validation")
         phase2_section = content[phase2_start:]
 
-        # Should include the shared backlog instructions
-        assert (
-            "{{INCLUDE:.claude/partials/flow/_backlog-instructions.md}}"
-            in phase2_section
+        # Backlog instructions are embedded directly as "## Backlog.md Task Management"
+        # section within the agent's prompt context
+        assert "## Backlog.md Task Management" in phase2_section, (
+            "Phase 2 must include embedded backlog instructions"
         )
-        assert "<!--BACKLOG-INSTRUCTIONS-START-->" in phase2_section
-        assert "<!--BACKLOG-INSTRUCTIONS-END-->" in phase2_section
 
-    def test_both_agents_have_include_before_context(self, research_command_file):
-        """Verify INCLUDE directive appears BEFORE agent context in both phases."""
+    def test_both_agents_have_backlog_instructions_in_context(
+        self, research_command_file
+    ):
+        """Verify backlog instructions are embedded within agent context in both phases."""
         content = research_command_file.read_text()
 
-        # Phase 1: Include should come before agent context
-        phase1_include = content.find(
-            "{{INCLUDE:.claude/partials/flow/_backlog-instructions.md}}"
-        )
+        # Phase 1: Find agent section and verify it has backlog instructions
         researcher_context = content.find("# AGENT CONTEXT: Senior Research Analyst")
-        assert phase1_include < researcher_context, (
-            "INCLUDE should appear before Researcher context"
+        phase2_start = content.find("### Phase 2: Business Validation")
+        researcher_section = content[researcher_context:phase2_start]
+
+        assert "## Backlog.md Task Management" in researcher_section, (
+            "Researcher agent must have embedded backlog instructions"
         )
 
-        # Phase 2: Include should come before agent context
-        phase2_start = content.find("### Phase 2: Business Validation")
-        phase2_include = content.find(
-            "{{INCLUDE:.claude/partials/flow/_backlog-instructions.md}}",
-            phase2_start,
-        )
+        # Phase 2: Find agent section and verify it has backlog instructions
         validator_context = content.find(
             "# AGENT CONTEXT: Senior Business Analyst", phase2_start
         )
-        assert phase2_include < validator_context, (
-            "INCLUDE should appear before Validator context"
+        validator_section = content[validator_context:]
+
+        assert "## Backlog.md Task Management" in validator_section, (
+            "Business Validator agent must have embedded backlog instructions"
         )
 
-    def test_shared_instructions_include_count(self, research_command_file):
-        """Verify INCLUDE directive appears exactly twice (once per agent)."""
+    def test_shared_instructions_count(self, research_command_file):
+        """Verify backlog instructions appear exactly twice (once per agent)."""
         content = research_command_file.read_text()
 
-        include_count = content.count(
-            "{{INCLUDE:.claude/partials/flow/_backlog-instructions.md}}"
-        )
-        assert include_count == 2, (
-            f"Expected 2 INCLUDE directives, found {include_count}"
+        # Backlog instructions are embedded directly as "## Backlog.md Task Management"
+        # sections within each agent's prompt context
+        backlog_sections = content.count("## Backlog.md Task Management")
+
+        assert backlog_sections == 2, (
+            f"Expected 2 backlog instruction sections, found {backlog_sections}"
         )
 
 
