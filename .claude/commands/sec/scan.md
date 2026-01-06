@@ -1,12 +1,4 @@
----
-description: Test web applications for security vulnerabilities using dynamic analysis with Playwright.
-loop: both
-# Loop Classification: BOTH LOOPS
-# Web security testing runs in both loops: locally (inner loop) during feature development,
-# and in CI/CD (outer loop) as part of the validation pipeline.
----
-
-# /flow:security_web
+# /sec:scan
 
 Test web applications for security vulnerabilities using dynamic analysis with Playwright.
 

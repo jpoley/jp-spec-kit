@@ -1,12 +1,4 @@
----
-description: Triage security scan findings using AI-powered analysis with persona-specific output.
-loop: both
-# Loop Classification: BOTH LOOPS
-# Triage happens in both loops: during development (inner loop) to prioritize fixes,
-# and in CI/CD (outer loop) for compliance tracking and reporting.
----
-
-# /flow:security_triage
+# /sec:triage
 
 Triage security scan findings using AI-powered analysis with persona-specific output.
 

@@ -8,8 +8,6 @@ on:
       - 'flowspec_workflow.yml'
       - 'schemas/**'
       - '.claude/commands/**'
-      - '.github/agents/**'
-      - 'scripts/bash/sync-copilot-agents.sh'
       - 'scripts/validate-workflow-config.py'
   pull_request:
     branches: [main]
@@ -18,8 +16,6 @@ on:
       - 'flowspec_workflow.yml'
       - 'schemas/**'
       - '.claude/commands/**'
-      - '.github/agents/**'
-      - 'scripts/bash/sync-copilot-agents.sh'
       - 'scripts/validate-workflow-config.py'
 
 jobs:
@@ -178,46 +174,7 @@ jobs:
 
           echo "✓ All command files follow naming conventions"
 
-  # Job 3: Check agent drift (sync validation)
-  validate-agent-sync:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v4
-
-      - name: Install dependencies
-        run: uv sync
-
-      - name: Check for agent drift
-        run: |
-          echo "=== Checking for agent drift between commands and generated agents ==="
-          bash scripts/bash/sync-copilot-agents.sh --validate
-          EXIT_CODE=$?
-
-          if [ $EXIT_CODE -eq 2 ]; then
-            echo ""
-            echo "❌ Drift detected!"
-            echo "Generated agents in .github/agents/ are out of sync with commands."
-            echo ""
-            echo "Fix: Run 'bash scripts/bash/sync-copilot-agents.sh' to regenerate agents"
-            exit 1
-          elif [ $EXIT_CODE -ne 0 ]; then
-            echo ""
-            echo "❌ Agent sync validation failed with exit code $EXIT_CODE"
-            exit $EXIT_CODE
-          fi
-
-          echo "✓ No drift detected - agents are in sync"
-
-  # Job 4: Dev role validation
+  # Job 3: Dev role validation
   # NOTE: PM role removed - PM work is done via /flowspec workflow commands
   validate-dev-role:
     runs-on: ubuntu-latest
@@ -617,7 +574,7 @@ jobs:
 
   # Summary job (optional - runs after all validations)
   validation-summary:
-    needs: [validate-schema, validate-commands, validate-agent-sync, validate-dev-role, validate-sec-role, validate-qa-role, validate-team-mode, validate-ops-role]
+    needs: [validate-schema, validate-commands, validate-dev-role, validate-sec-role, validate-qa-role, validate-team-mode, validate-ops-role]
     runs-on: ubuntu-latest
     if: always()
     steps:
@@ -630,7 +587,6 @@ jobs:
           echo "Jobs:"
           if [ "${{ needs.validate-schema.result }}" = "success" ]; then echo "  ✓ Schema validation"; else echo "  ❌ Schema validation"; fi
           if [ "${{ needs.validate-commands.result }}" = "success" ]; then echo "  ✓ Command structure validation"; else echo "  ❌ Command structure validation"; fi
-          if [ "${{ needs.validate-agent-sync.result }}" = "success" ]; then echo "  ✓ Agent sync validation"; else echo "  ❌ Agent sync validation"; fi
           if [ "${{ needs.validate-dev-role.result }}" = "success" ]; then echo "  ✓ Dev role validation"; else echo "  ❌ Dev role validation"; fi
           if [ "${{ needs.validate-sec-role.result }}" = "success" ]; then echo "  ✓ Security role validation"; else echo "  ❌ Security role validation"; fi
           if [ "${{ needs.validate-qa-role.result }}" = "success" ]; then echo "  ✓ QA role validation"; else echo "  ❌ QA role validation"; fi

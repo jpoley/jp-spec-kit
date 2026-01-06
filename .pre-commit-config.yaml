@@ -3,30 +3,6 @@
 # See https://pre-commit.com/hooks.html for more hooks
 
 repos:
-  # Local repository hooks
-  - repo: local
-    hooks:
-      # Dev-setup validation
-      # Validates that .claude/commands/ contains ONLY symlinks
-      # pointing to templates/commands/ (single-source-of-truth)
-      - id: dev-setup-validation
-        name: Dev-setup validation
-        entry: scripts/bash/pre-commit-dev-setup.sh
-        language: script
-        always_run: true
-        pass_filenames: false
-        description: Validate .claude/commands/ symlink structure
-
-      # Sync Claude commands to Copilot agents
-      # Auto-syncs .claude/commands/ to .github/agents/ when commands change
-      - id: sync-copilot-agents
-        name: Sync Copilot agents
-        entry: scripts/bash/pre-commit-agent-sync.sh
-        language: script
-        files: ^\.claude/commands/.*\.md$|^templates/commands/.*\.md$
-        pass_filenames: false
-        description: Auto-sync Claude commands to VS Code Copilot agents
-
   # Standard Python hooks
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.8.2

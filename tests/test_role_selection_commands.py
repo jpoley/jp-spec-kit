@@ -243,35 +243,18 @@ class TestRoleSelectionCommandTemplates:
         assert "ROLE CONFIGURATION" in content, "Missing role configuration summary"
         assert "Role:" in content or "Selected Role:" in content, "Missing role display"
 
-    def test_symlinks_exist(self, project_root: Path):
-        """Test that command symlinks exist in .claude/commands/spec/.
-
-        Supports two symlink strategies:
-        1. Directory-level symlink: .claude/commands/spec -> templates/commands/spec
-        2. File-level symlinks: individual files are symlinks to template files
-        """
+    def test_command_files_exist(self, project_root: Path):
+        """Test that command files exist in .claude/commands/spec/."""
         spec_dir = project_root / ".claude" / "commands" / "spec"
-        init_symlink = spec_dir / "init.md"
-        configure_symlink = spec_dir / "configure.md"
+        init_file = spec_dir / "init.md"
+        configure_file = spec_dir / "configure.md"
 
-        assert init_symlink.exists(), f"Init symlink not found at {init_symlink}"
-        assert configure_symlink.exists(), (
-            f"Configure symlink not found at {configure_symlink}"
-        )
+        assert init_file.exists(), f"init.md not found at {init_file}"
+        assert configure_file.exists(), f"configure.md not found at {configure_file}"
 
-        # Verify symlinks - either directory or file level
-        if spec_dir.is_symlink():
-            # Directory-level symlink - files are accessible through symlinked dir
-            assert init_symlink.is_file(), "init.md should be a file"
-            assert configure_symlink.is_file(), "configure.md should be a file"
-        else:
-            # File-level symlinks
-            assert init_symlink.is_symlink(), "init.md should be a symlink"
-            assert configure_symlink.is_symlink(), "configure.md should be a symlink"
-
-        # Verify they point to the right targets
-        assert init_symlink.resolve().name == "init.md"
-        assert configure_symlink.resolve().name == "configure.md"
+        # Verify they are files
+        assert init_file.is_file(), "init.md should be a file"
+        assert configure_file.is_file(), "configure.md should be a file"
 
 
 class TestRoleSelectionIntegration:

@@ -1,12 +1,8 @@
 ---
 description: Generate and apply security patches for vulnerability findings from triage results.
-loop: inner
-# Loop Classification: INNER LOOP
-# This command generates and applies security patches during development, part of the
-# inner loop's fast iteration cycle for fixing vulnerabilities before commit.
 ---
 
-# /flow:security fix - Automated Security Fix Generation
+# /sec:fix - Automated Security Fix Generation
 
 Generate secure code patches for vulnerability findings, validate syntax, and optionally apply patches.
 
