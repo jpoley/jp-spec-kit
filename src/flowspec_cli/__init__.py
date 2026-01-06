@@ -10,7 +10,7 @@
 # ]
 # ///
 """
-Specify CLI - Setup tool for Specify projects
+Flowspec CLI - Setup tool for Flowspec spec-driven development projects
 
 Usage:
     uvx flowspec-cli.py init <project-name>
@@ -2984,7 +2984,7 @@ class BannerGroup(TyperGroup):
 
 app = typer.Typer(
     name="specify",
-    help="Setup tool for Specify spec-driven development projects",
+    help="Setup tool for Flowspec spec-driven development projects",
     add_completion=False,
     invoke_without_command=True,
     cls=BannerGroup,
@@ -3425,7 +3425,7 @@ def init_git_repo(
         subprocess.run(["git", "init"], check=True, capture_output=True, text=True)
         subprocess.run(["git", "add", "."], check=True, capture_output=True, text=True)
         subprocess.run(
-            ["git", "commit", "-m", "Initial commit from Specify template"],
+            ["git", "commit", "-m", "Initial commit from Flowspec template"],
             check=True,
             capture_output=True,
             text=True,
@@ -4726,7 +4726,7 @@ def init(
     ),
 ):
     """
-    Initialize a new Specify project from the latest template.
+    Initialize a new Flowspec project from the latest template.
 
     This command will:
     1. Check that required tools are installed (git is optional)
@@ -4879,7 +4879,7 @@ def init(
     current_dir = Path.cwd()
 
     setup_lines = [
-        "[cyan]Specify Project Setup[/cyan]",
+        "[cyan]Flowspec Project Setup[/cyan]",
         "",
         f"{'Project':<15} [green]{project_path.name}[/green]",
         f"{'Working Path':<15} [dim]{current_dir}[/dim]",
@@ -5024,7 +5024,7 @@ def init(
     console.print(f"[cyan]Selected script type:[/cyan] {selected_script}")
     console.print(f"[cyan]Selected constitution tier:[/cyan] {selected_constitution}")
 
-    tracker = StepTracker("Initialize Specify Project")
+    tracker = StepTracker("Initialize Flowspec Project")
 
     sys._specify_tracker_active = True
 
@@ -5747,7 +5747,7 @@ def upgrade_repo(
             "[red]Error:[/red] Could not detect AI assistant type in current directory"
         )
         console.print(
-            "[yellow]Tip:[/yellow] Make sure you're in a Specify project directory"
+            "[yellow]Tip:[/yellow] Make sure you're in a Flowspec project directory"
         )
         raise typer.Exit(1)
 
@@ -5829,7 +5829,7 @@ def upgrade_repo(
     if dry_run:
         console.print("[yellow]DRY RUN MODE - No changes will be made[/yellow]\n")
 
-    tracker = StepTracker("Upgrade Specify Project")
+    tracker = StepTracker("Upgrade Flowspec Project")
 
     tracker.add("detect", "Detect project configuration")
     tracker.complete("detect", f"{ai_assistant}, {script_type}")
@@ -6817,7 +6817,7 @@ def check():
                     "[dim]Run 'flowspec backlog upgrade' to sync to recommended version[/dim]"
                 )
 
-    console.print("\n[bold green]Specify CLI is ready to use![/bold green]")
+    console.print("\n[bold green]Flowspec CLI is ready to use![/bold green]")
 
     if not git_ok:
         console.print("[dim]Tip: Install git for repository management[/dim]")

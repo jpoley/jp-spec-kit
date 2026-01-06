@@ -51,9 +51,7 @@ Current workflow path: Specified -> Planned (skipping Researched)
 
 This command orchestrates comprehensive research and business validation using two specialized agents working sequentially.
 
-{{INCLUDE:.claude/partials/flow/_constitution-check.md}}
 
-{{INCLUDE:.claude/partials/flow/_workflow-state.md}}
 
 **For /flow:research**: Required input state is `workflow:Specified`. Output state will be `workflow:Researched`.
 
@@ -88,7 +86,6 @@ Use the Task tool to launch a **general-purpose** agent with the following promp
 
 ```
 <!--BACKLOG-INSTRUCTIONS-START-->
-{{INCLUDE:.claude/partials/flow/_backlog-instructions.md}}
 <!--BACKLOG-INSTRUCTIONS-END-->
 
 # AGENT CONTEXT: Senior Research Analyst
@@ -234,7 +231,6 @@ After receiving the research findings, use the Task tool to launch a **general-p
 
 ```
 <!--BACKLOG-INSTRUCTIONS-START-->
-{{INCLUDE:.claude/partials/flow/_backlog-instructions.md}}
 <!--BACKLOG-INSTRUCTIONS-END-->
 
 # AGENT CONTEXT: Senior Business Analyst and Strategic Advisor

@@ -14,7 +14,6 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 This command helps create visual and textual models for system design including data models, API contracts, sequence diagrams, and architecture diagrams.
 
-{{INCLUDE:.claude/partials/flow/_constitution-check.md}}
 
 ### Overview
 

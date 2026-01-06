@@ -46,9 +46,7 @@ Continue with the workflow below, but:
 
 This command creates comprehensive architectural and platform planning using two specialized agents working in parallel, producing ADRs and platform design documents.
 
-{{INCLUDE:.claude/partials/flow/_constitution-check.md}}
 
-{{INCLUDE:.claude/partials/flow/_workflow-state.md}}
 
 **For /flow:plan**: Required input states are `workflow:Specified` OR `workflow:Researched`. Output state will be `workflow:Planned`.
 
@@ -100,7 +98,6 @@ Use the Task tool to launch a **general-purpose** agent with the following promp
 
 ```
 <!--BACKLOG-INSTRUCTIONS-START-->
-{{INCLUDE:.claude/partials/flow/_backlog-instructions.md}}
 <!--BACKLOG-INSTRUCTIONS-END-->
 
 # AGENT CONTEXT: Enterprise Software Architect - Hohpe's Principles Expert
@@ -227,7 +224,6 @@ Use the Task tool to launch a **general-purpose** agent with the following promp
 
 ```
 <!--BACKLOG-INSTRUCTIONS-START-->
-{{INCLUDE:.claude/partials/flow/_backlog-instructions.md}}
 <!--BACKLOG-INSTRUCTIONS-END-->
 
 # AGENT CONTEXT: Platform Engineer - DevSecOps and CI/CD Excellence
