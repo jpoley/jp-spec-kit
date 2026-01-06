@@ -5211,15 +5211,21 @@ def init(
                 agents_dest_dir = project_path / ".github" / "agents"
                 agents_dest_dir.mkdir(parents=True, exist_ok=True)
 
+                # Remove old speckit.* agents (deprecated naming)
+                removed_count = 0
+                for old_agent in agents_dest_dir.glob("speckit.*.agent.md"):
+                    old_agent.unlink()
+                    removed_count += 1
+
                 # Write agent files from embedded templates
                 for filename, content in COPILOT_AGENT_TEMPLATES.items():
                     dest_file = agents_dest_dir / filename
                     dest_file.write_text(content)
 
-                tracker.complete(
-                    "copilot-agents",
-                    f"installed {len(COPILOT_AGENT_TEMPLATES)} agents in .github/agents/",
-                )
+                status_msg = f"installed {len(COPILOT_AGENT_TEMPLATES)} agents"
+                if removed_count > 0:
+                    status_msg += f", removed {removed_count} deprecated"
+                tracker.complete("copilot-agents", status_msg)
             except PermissionError as agents_error:
                 tracker.error(
                     "copilot-agents",
@@ -5837,6 +5843,7 @@ def upgrade_repo(
     tracker.add("fetch-extension", "Fetch flowspec extension")
     tracker.add("backup", "Backup current templates")
     tracker.add("apply", "Apply updates")
+    tracker.add("copilot-agents", "Install VS Code Copilot agents")
     tracker.add("final", "Finalize")
 
     if dry_run:
@@ -5888,6 +5895,34 @@ def upgrade_repo(
             )
 
             tracker.complete("apply", "templates updated")
+
+            # Install VS Code Copilot agents from embedded templates
+            tracker.start("copilot-agents")
+            try:
+                agents_dest_dir = project_path / ".github" / "agents"
+                agents_dest_dir.mkdir(parents=True, exist_ok=True)
+
+                # Remove old speckit.* agents (deprecated naming)
+                removed_count = 0
+                for old_agent in agents_dest_dir.glob("speckit.*.agent.md"):
+                    old_agent.unlink()
+                    removed_count += 1
+
+                # Write agent files from embedded templates
+                for filename, content in COPILOT_AGENT_TEMPLATES.items():
+                    dest_file = agents_dest_dir / filename
+                    dest_file.write_text(content)
+
+                status_msg = f"installed {len(COPILOT_AGENT_TEMPLATES)} agents"
+                if removed_count > 0:
+                    status_msg += f", removed {removed_count} deprecated"
+                tracker.complete("copilot-agents", status_msg)
+            except Exception as agents_error:
+                tracker.error(
+                    "copilot-agents",
+                    f"installation failed: {agents_error}",
+                )
+
             tracker.complete("final", "upgrade complete")
 
         except Exception as e:
