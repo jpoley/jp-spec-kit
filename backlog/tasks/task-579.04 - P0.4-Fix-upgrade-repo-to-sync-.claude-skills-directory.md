@@ -1,10 +1,10 @@
 ---
 id: task-579.04
 title: 'P0.4: Fix upgrade-repo to sync .claude/skills/ directory'
-status: Done
+status: In Progress
 assignee: []
 created_date: '2026-01-06 17:19'
-updated_date: '2026-01-06 21:39'
+updated_date: '2026-01-06 18:49'
 labels:
   - phase-0
   - upgrade-repo
@@ -38,9 +38,9 @@ Changes needed:
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [x] #1 upgrade_repo syncs .claude/skills/ directory
-- [x] #2 New skills copied from templates/skills/
-- [x] #3 Existing skills updated (with backup of custom modifications)
-- [x] #4 Sync report shows which skills were added/updated/unchanged
-- [x] #5 Test: running upgrade-repo on project with missing skills adds them
+- [ ] #1 upgrade_repo syncs .claude/skills/ directory
+- [ ] #2 New skills copied from templates/skills/
+- [ ] #3 Existing skills updated (with backup of custom modifications)
+- [ ] #4 Sync report shows which skills were added/updated/unchanged
+- [ ] #5 Test: running upgrade-repo on project with missing skills adds them
 <!-- AC:END -->
