@@ -537,12 +537,9 @@ uv run pytest tests/ -x -q
 git push origin $(git branch --show-current)
 
 # Create PR with proper description
-gh pr create \\
-  --title "feat(scope): description" \\
-  --body "## Summary\\n- Change 1\\n- Change 2\\n\\n## Test Plan\\n- [ ] Test 1\\n- [ ] Test 2"
-```
-
-### Step 3: Monitor and Iterate
+gh pr create \
+  --title "feat(scope): description" \
+  --body "## Summary
 1. Wait for CI checks to complete
 2. Check for Copilot review comments: `gh pr view --comments`
 3. If issues found:
