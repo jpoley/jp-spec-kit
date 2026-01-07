@@ -509,9 +509,9 @@ The deprecated file and directory cleanup implementation demonstrates excellent 
 
 ## References
 
-- **Implementation**: `/Users/jasonpoley/prj/jp/flowspec/src/flowspec_cli/deprecated.py`
-- **Tests**: `/Users/jasonpoley/prj/jp/flowspec/tests/test_deprecated_cleanup.py`
-- **Integration**: `/Users/jasonpoley/prj/jp/flowspec/src/flowspec_cli/__init__.py` (lines 6070-6083)
+- **Implementation**: `src/flowspec_cli/deprecated.py`
+- **Tests**: `tests/test_deprecated_cleanup.py`
+- **Integration**: `src/flowspec_cli/__init__.py` (lines 6070-6083)
 - **Python Security**: [shutil documentation](https://docs.python.org/3/library/shutil.html)
 - **OWASP**: [OWASP Top 10 2021](https://owasp.org/Top10/)
 - **CWE**: [Common Weakness Enumeration](https://cwe.mitre.org/)
