@@ -1300,7 +1300,7 @@ BANNER = """
 
 # Version - keep in sync with pyproject.toml
 
-__version__ = "0.4.00"
+__version__ = "0.4.1"
 
 
 # Constitution template version
@@ -3916,18 +3916,28 @@ def download_template_from_github(
         raise typer.Exit(1)
 
     assets = release_data.get("assets", [])
-    pattern = f"spec-kit-template-{ai_assistant}-{script_type}"
-    matching_assets = [
+    # Support both new (flowspec-template-*) and legacy (spec-kit-template-*) naming
+    new_pattern = f"flowspec-template-{ai_assistant}-{script_type}"
+    legacy_pattern = f"spec-kit-template-{ai_assistant}-{script_type}"
+
+    # Prefer new naming pattern over legacy
+    new_assets = [
         asset
         for asset in assets
-        if pattern in asset["name"] and asset["name"].endswith(".zip")
+        if new_pattern in asset["name"] and asset["name"].endswith(".zip")
+    ]
+    legacy_assets = [
+        asset
+        for asset in assets
+        if legacy_pattern in asset["name"] and asset["name"].endswith(".zip")
     ]
 
-    asset = matching_assets[0] if matching_assets else None
+    # Use new pattern if available, otherwise fall back to legacy
+    asset = new_assets[0] if new_assets else legacy_assets[0] if legacy_assets else None
 
     if asset is None:
         console.print(
-            f"[red]No matching release asset found[/red] for [bold]{ai_assistant}[/bold] (expected pattern: [bold]{pattern}[/bold])"
+            f"[red]No matching release asset found[/red] for [bold]{ai_assistant}[/bold] (expected pattern: [bold]{new_pattern}[/bold])"
         )
         asset_names = [a.get("name", "?") for a in assets]
         console.print(
@@ -4217,13 +4227,16 @@ def download_and_build_from_branch(
 
     # Find the built ZIP
     genreleases_dir = source_dir / ".genreleases"
-    expected_zip = f"spec-kit-template-{ai_assistant}-{script_type}-v{branch}.zip"
+    expected_zip = f"flowspec-template-{ai_assistant}-{script_type}-v{branch}.zip"
     built_zip = genreleases_dir / expected_zip
 
     if not built_zip.exists():
-        # Try finding any matching ZIP (version might differ)
-        pattern = f"spec-kit-template-{ai_assistant}-{script_type}-*.zip"
-        matches = list(genreleases_dir.glob(pattern))
+        # Try finding any matching ZIP (version might differ, or legacy naming)
+        new_pattern = f"flowspec-template-{ai_assistant}-{script_type}-*.zip"
+        legacy_pattern = f"spec-kit-template-{ai_assistant}-{script_type}-*.zip"
+        matches = list(genreleases_dir.glob(new_pattern)) or list(
+            genreleases_dir.glob(legacy_pattern)
+        )
         if matches:
             built_zip = matches[0]
         else:
@@ -4365,19 +4378,36 @@ def download_and_extract_two_stage(
     debug: bool = False,
     github_token: str = None,
     base_version: str = None,
-    extension_version: str = None,
+    extension_version: str = None,  # Deprecated: kept for API compatibility, ignored
     branch: str = None,
 ) -> Path:
-    """Two-stage download: base spec-kit + flowspec extension overlay.
+    """Download and extract flowspec templates.
+
+    Flowspec is now standalone (no separate base/extension). This function downloads
+    templates from a single source and extracts them to the project.
 
     Supports single or multiple AI assistants. When multiple assistants are specified,
     their respective agent directories are all extracted to the project.
 
-    When `branch` is specified, the flowspec extension is downloaded and built from
-    that git branch instead of from releases. This is useful for testing branches
-    before release. The base spec-kit still comes from releases.
+    When `branch` is specified, templates are downloaded and built from that git branch
+    instead of from releases. This is useful for testing branches before release.
 
-    Returns project_path. Uses tracker if provided.
+    Args:
+        project_path: Target directory for extraction.
+        ai_assistants: AI assistant type(s) to download templates for.
+        script_type: Script type ("sh" or "ps").
+        is_current_dir: If True, project_path already exists.
+        verbose: Show verbose output.
+        tracker: Optional StepTracker for progress reporting.
+        client: Optional httpx client.
+        debug: Show debug output.
+        github_token: GitHub token for API requests.
+        base_version: Version to download (or "latest").
+        extension_version: Deprecated, ignored. Kept for API compatibility.
+        branch: Build from git branch instead of release.
+
+    Returns:
+        project_path after extraction.
     """
     # Normalize to list for consistent handling
     if isinstance(ai_assistants, str):
@@ -4387,16 +4417,19 @@ def download_and_extract_two_stage(
     if not ai_assistants:
         raise ValueError("At least one AI assistant must be specified")
 
+    # Use base_version as the single version parameter (extension_version is ignored)
+    version = base_version or REPO_DEFAULT_VERSION
+
     current_dir = Path.cwd()
 
     # Create project directory if needed (do this once, not per-agent)
     if not is_current_dir:
         project_path.mkdir(parents=True, exist_ok=True)
 
-    # Process each AI assistant: download and extract both base and extension
-    # NOTE: Each agent requires separate base + extension downloads because:
+    # Process each AI assistant: download and extract templates
+    # NOTE: Each agent requires separate downloads because:
     # 1. Each agent has different file structures (.claude/, .github/, .gemini/, etc.)
-    # 2. Base spec-kit provides agent-specific formatting (md vs toml vs json)
+    # 2. Templates provide agent-specific formatting and structure for each agent
     # 3. The ZIPs are built per agent (they include agent-specific directories) and
     #    therefore cannot be blindly re-used between agents, even though they may
     #    also contain shared directories (e.g., .flowspec/) whose contents are meant
@@ -4406,56 +4439,18 @@ def download_and_extract_two_stage(
     # will remain installed. This is intentional - partial installations are still
     # usable, and rolling back would require complex state tracking.
     for agent in ai_assistants:
-        # Initialize to None for exception handlers (may reference before assignment)
-        base_zip = None
-        ext_zip = None
+        template_zip = None
 
-        # Stage 1: Download base templates (flowspec is standalone, no separate base repo)
-        step_name = f"fetch-base-{agent}" if len(ai_assistants) > 1 else "fetch-base"
-        if tracker:
-            tracker.start(
-                step_name,
-                f"downloading {agent} templates from {REPO_OWNER}/{REPO_NAME}",
-            )
-
-        try:
-            base_zip, base_meta = download_template_from_github(
-                agent,
-                current_dir,
-                script_type=script_type,
-                verbose=verbose and tracker is None,
-                show_progress=(tracker is None),
-                client=client,
-                debug=debug,
-                github_token=github_token,
-                repo_owner=REPO_OWNER,
-                repo_name=REPO_NAME,
-                version=base_version or REPO_DEFAULT_VERSION,
-            )
-            if tracker:
-                tracker.complete(
-                    step_name,
-                    f"{agent} templates {base_meta['release']} ({base_meta['size']:,} bytes)",
-                )
-        except Exception as e:
-            if tracker:
-                tracker.error(step_name, str(e))
-            # download_template_from_github already cleans up its zip on error
-            raise
-
-        # Stage 2: Download flowspec extension for this agent
-        # When branch is specified, download and build from branch instead of release
-        step_name = (
-            f"fetch-extension-{agent}" if len(ai_assistants) > 1 else "fetch-extension"
-        )
+        # Download templates (from branch or release)
         if branch:
+            step_name = f"fetch-{agent}" if len(ai_assistants) > 1 else "fetch"
             if tracker:
                 tracker.start(
                     step_name,
-                    f"building {agent} extension from branch '{branch}'",
+                    f"building {agent} templates from branch '{branch}'",
                 )
             try:
-                ext_zip, ext_meta = download_and_build_from_branch(
+                template_zip, meta = download_and_build_from_branch(
                     branch=branch,
                     ai_assistant=agent,
                     script_type=script_type,
@@ -4470,24 +4465,22 @@ def download_and_extract_two_stage(
                 if tracker:
                     tracker.complete(
                         step_name,
-                        f"{agent} extension from branch:{branch} ({ext_meta['size']:,} bytes)",
+                        f"{agent} from branch:{branch} ({meta['size']:,} bytes)",
                     )
             except Exception as e:
                 if tracker:
                     tracker.error(step_name, str(e))
-                # Clean up base_zip since we won't reach extraction
-                if base_zip and base_zip.exists():
-                    base_zip.unlink()
                 raise
         else:
+            step_name = f"fetch-{agent}" if len(ai_assistants) > 1 else "fetch"
             if tracker:
                 tracker.start(
                     step_name,
-                    f"downloading {agent} extension from {REPO_OWNER}/{REPO_NAME}",
+                    f"downloading {agent} templates from {REPO_OWNER}/{REPO_NAME}",
                 )
 
             try:
-                ext_zip, ext_meta = download_template_from_github(
+                template_zip, meta = download_template_from_github(
                     agent,
                     current_dir,
                     script_type=script_type,
@@ -4498,48 +4491,37 @@ def download_and_extract_two_stage(
                     github_token=github_token,
                     repo_owner=REPO_OWNER,
                     repo_name=REPO_NAME,
-                    version=extension_version or REPO_DEFAULT_VERSION,
+                    version=version,
                 )
                 if tracker:
                     tracker.complete(
                         step_name,
-                        f"{agent} extension {ext_meta['release']} ({ext_meta['size']:,} bytes)",
+                        f"{agent} {meta['release']} ({meta['size']:,} bytes)",
                     )
             except Exception as e:
                 if tracker:
                     tracker.error(step_name, str(e))
-                # download_template_from_github already cleans up its zip on error
-                # But we need to clean up the base_zip since we won't reach extraction
-                if base_zip and base_zip.exists():
-                    base_zip.unlink()
                 raise
 
-        # Extract base for this agent
-        step_name = (
-            f"extract-base-{agent}" if len(ai_assistants) > 1 else "extract-base"
-        )
+        # Extract templates for this agent
+        step_name = f"extract-{agent}" if len(ai_assistants) > 1 else "extract"
         if tracker:
-            tracker.start(step_name, f"extracting {agent} base")
+            tracker.start(step_name, f"extracting {agent} templates")
 
         try:
-            _extract_zip_to_project(base_zip, project_path)
+            _extract_zip_to_project(template_zip, project_path)
             if tracker:
-                tracker.complete(step_name, f"{agent} base extracted")
+                tracker.complete(step_name, f"{agent} templates extracted")
         except Exception as e:
             if tracker:
                 tracker.error(step_name, str(e))
-            # Clean up extension zip on base extraction failure (base_zip cleaned in finally)
-            if ext_zip and ext_zip.exists():
-                ext_zip.unlink()
             raise
         finally:
-            # Always clean up base zip after extraction attempt
-            if base_zip and base_zip.exists():
-                base_zip.unlink()
+            # Always clean up zip after extraction attempt
+            if template_zip and template_zip.exists():
+                template_zip.unlink()
 
-        # Remove only speckit-prefixed agent files, preserve user's custom agents
-        # Legacy spec-kit had spec.*.agent.md files - we remove those
-        # but keep any custom agents the user may have created
+        # Remove legacy speckit-prefixed agent files, preserve user's custom agents
         github_agents_dir = project_path / ".github" / "agents"
         if github_agents_dir.exists():
             for agent_file in github_agents_dir.iterdir():
@@ -4549,40 +4531,7 @@ def download_and_extract_two_stage(
                 ):
                     agent_file.unlink()
 
-        # Extract extension for this agent (overlay on top of base)
-        step_name = (
-            f"extract-extension-{agent}"
-            if len(ai_assistants) > 1
-            else "extract-extension"
-        )
-        if tracker:
-            tracker.start(step_name, f"extracting {agent} extension")
-
-        try:
-            _extract_zip_to_project(ext_zip, project_path)
-            if tracker:
-                tracker.complete(step_name, f"{agent} extension extracted")
-        except Exception as e:
-            if tracker:
-                tracker.error(step_name, str(e))
-            # ext_zip cleanup happens in finally block
-            raise
-        finally:
-            # Always clean up extension zip after extraction attempt
-            if ext_zip and ext_zip.exists():
-                ext_zip.unlink()
-
-    # Add merge completion message (only once at the end, not per-agent)
-    if tracker:
-        if len(ai_assistants) > 1:
-            tracker.add("merge", f"Merge templates for {len(ai_assistants)} agents")
-        else:
-            tracker.add("merge", "Merge templates (extension overrides base)")
-        tracker.complete("merge", "precedence rules applied")
-
-    # Clean up legacy speckit.* files from base spec-kit that are now in spec/ directory
-    # The flowspec extension uses spec/ subdirectory (e.g., .claude/commands/spec/specify.md)
-    # but the base spec-kit may have flat speckit.* files (e.g., .claude/commands/speckit.specify.md)
+    # Clean up legacy speckit.* files that are now in flow/ directory
     _cleanup_legacy_speckit_files(project_path, ai_assistants)
 
     return project_path
@@ -6179,12 +6128,10 @@ def upgrade_repo(
     if dry_run:
         console.print("[yellow]DRY RUN MODE - No changes will be made[/yellow]\n")
 
-    tracker = StepTracker("Upgrade Specify Project")
+    tracker = StepTracker("Upgrade Flowspec Project")
 
     tracker.add("detect", "Detect project configuration")
     tracker.complete("detect", f"{ai_assistant}, {script_type}")
-    tracker.add("fetch-base", "Fetch base spec-kit")
-    tracker.add("fetch-extension", "Fetch flowspec extension")
     tracker.add("backup", "Backup current templates")
     tracker.add("apply", "Apply updates")
     tracker.add("skills", "Sync skills")
