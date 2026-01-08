@@ -124,8 +124,8 @@ Modify `.github/workflows/scripts/create-github-release.sh` to include the new a
 ```bash
 gh release create "$VERSION" \
   # ... existing packages ...
-  .genreleases/spec-kit-template-windsurf-sh-"$VERSION".zip \
-  .genreleases/spec-kit-template-windsurf-ps-"$VERSION".zip \
+  .genreleases/flowspec-template-windsurf-sh-"$VERSION".zip \
+  .genreleases/flowspec-template-windsurf-ps-"$VERSION".zip \
   # Add new agent packages here
 ```
 
