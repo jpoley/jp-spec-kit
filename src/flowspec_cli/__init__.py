@@ -24,8 +24,6 @@ Or install globally:
     flowspec init --here
 """
 
-# Note: importlib.resources requires Python 3.9+, we require Python 3.11+
-import importlib.resources  # nosemgrep: python.lang.compatibility.python37.python37-compatibility-importlib2
 import json
 import logging
 import os
@@ -1310,14 +1308,10 @@ CONSTITUTION_VERSION = "1.0.0"
 
 TAGLINE = f"(flowspec v{__version__}) with backlog.md & beads - Spec-Driven Development"
 
-# Repository configuration for two-stage download
-BASE_REPO_OWNER = "github"
-BASE_REPO_NAME = "spec-kit"
-BASE_REPO_DEFAULT_VERSION = "latest"  # or specific version like "0.0.20"
-
-EXTENSION_REPO_OWNER = "jpoley"
-EXTENSION_REPO_NAME = "flowspec"
-EXTENSION_REPO_DEFAULT_VERSION = "latest"
+# Repository configuration (standalone - no external dependencies)
+REPO_OWNER = "jpoley"
+REPO_NAME = "flowspec"
+REPO_DEFAULT_VERSION = "latest"
 
 BEADS_REPO_OWNER = "jpoley"
 BEADS_REPO_NAME = "beads"
@@ -1326,52 +1320,17 @@ BEADS_REPO_NAME = "beads"
 # When present, flowspec init/upgrade will skip to avoid clobbering source files
 SOURCE_REPO_MARKER = ".flowspec-source"
 
-# Compatibility matrix filename (bundled with package)
-COMPATIBILITY_MATRIX_FILENAME = ".spec-kit-compatibility.yml"
-
-
-def load_compatibility_matrix() -> dict:
-    """Load and parse the compatibility matrix YAML file.
-
-    Uses importlib.resources to load from the installed package,
-    ensuring the file is found regardless of installation method.
-
-    Returns:
-        Parsed YAML as a dict, or empty dict if file not found/invalid
-    """
-    try:
-        # Python 3.11+ approach using importlib.resources
-        files = importlib.resources.files("flowspec_cli")
-        matrix_file = files.joinpath(COMPATIBILITY_MATRIX_FILENAME)
-        if matrix_file.is_file():
-            content = matrix_file.read_text(encoding="utf-8")
-            return yaml.safe_load(content) or {}
-    except Exception as e:
-        logger.debug(f"Error loading bundled compatibility matrix: {e}")
-
-    # Fallback: try loading from source repo root (for development)
-    try:
-        repo_root = Path(__file__).parent.parent.parent
-        source_path = repo_root / COMPATIBILITY_MATRIX_FILENAME
-        if source_path.exists():
-            with open(source_path, "r") as f:
-                return yaml.safe_load(f) or {}
-    except Exception as e:
-        logger.debug(f"Error loading source compatibility matrix: {e}")
-
-    return {}
+# Compatibility configuration (embedded in code, no external file needed)
 
 
 def get_backlog_validated_version() -> Optional[str]:
-    """Get the recommended backlog-md version from compatibility matrix.
+    """Get the recommended backlog-md version.
 
     Returns:
-        Recommended version string (e.g., "1.21.0") or None if not found
+        Recommended version string (e.g., "1.21.0")
     """
-    matrix = load_compatibility_matrix()
-    backlog_config = matrix.get("backlog-md", {})
-    compat = backlog_config.get("compatible_with", {})
-    return compat.get("recommended")
+    # Hardcoded recommended version - update as needed
+    return "1.21.0"
 
 
 def check_backlog_installed_version() -> Optional[str]:
@@ -1647,70 +1606,21 @@ def get_npm_latest_version(package: str) -> Optional[str]:
     return None
 
 
-def get_spec_kit_installed_version() -> str:
-    """Get the installed spec-kit version from the compatibility matrix.
-
-    Checks multiple sources in priority order:
-    1. Current working directory's .spec-kit-compatibility.yml
-    2. Package's bundled compatibility matrix (via importlib.resources)
-    3. Falls back to default known version "0.0.90"
-
-    Note:
-        This function reads from the file system and package resources.
-
-    Returns:
-        Version string (e.g., "0.0.90"), guaranteed to return a value
-    """
-    # Try current directory first (user's project)
-    cwd_matrix = Path.cwd() / ".spec-kit-compatibility.yml"
-    if cwd_matrix.exists():
-        try:
-            with open(cwd_matrix, "r") as f:
-                matrix = yaml.safe_load(f) or {}
-                jp_config = matrix.get("flowspec", {})
-                compat = jp_config.get("compatible_with", {})
-                spec_kit = compat.get("spec-kit", {})
-                if spec_kit.get("tested"):
-                    return spec_kit.get("tested")
-        except Exception as e:
-            logger.debug(f"Error reading CWD compatibility matrix: {e}")
-
-    # Try package's compatibility matrix (bundled with the installed package)
-    matrix = load_compatibility_matrix()
-    if matrix:
-        jp_config = matrix.get("flowspec", {})
-        compat = jp_config.get("compatible_with", {})
-        spec_kit = compat.get("spec-kit", {})
-        if spec_kit.get("tested"):
-            return spec_kit.get("tested")
-
-    # Default fallback - should match latest bundled version
-    # This is a safety net if both file sources fail
-    return "0.0.90"
-
-
 def get_all_component_versions() -> dict:
     """Get installed and available versions for all components.
 
     Returns:
         Dictionary with the following structure:
         {
-            "jp_spec_kit": {"installed": str, "available": str | None},
-            "spec_kit": {"installed": str, "available": str | None},
+            "flowspec": {"installed": str, "available": str | None},
             "backlog_md": {"installed": str | None, "available": str | None},
             "beads": {"installed": str | None, "available": str | None}
         }
     """
     return {
-        "jp_spec_kit": {
+        "flowspec": {
             "installed": __version__,
-            "available": get_github_latest_release(
-                EXTENSION_REPO_OWNER, EXTENSION_REPO_NAME
-            ),
-        },
-        "spec_kit": {
-            "installed": get_spec_kit_installed_version(),
-            "available": get_github_latest_release(BASE_REPO_OWNER, BASE_REPO_NAME),
+            "available": get_github_latest_release(REPO_OWNER, REPO_NAME),
         },
         "backlog_md": {
             "installed": check_backlog_installed_version(),
@@ -1903,7 +1813,7 @@ def show_version_info(detailed: bool = False, centered: bool = False) -> None:
 
         # Add all component rows
         upgrades_available.append(
-            _add_version_row(table, "flowspec", versions["jp_spec_kit"])
+            _add_version_row(table, "flowspec", versions["flowspec"])
         )
         upgrades_available.append(
             _add_version_row(
@@ -1929,7 +1839,7 @@ def show_version_info(detailed: bool = False, centered: bool = False) -> None:
             else:
                 console.print(hint)
     else:
-        console.print(f"flowspec {versions['jp_spec_kit']['installed']}")
+        console.print(f"flowspec {versions['flowspec']['installed']}")
 
 
 def version_callback(value: bool) -> None:
@@ -3804,13 +3714,13 @@ def download_template_from_github(
     repo_name: str = None,
     version: str = None,
 ) -> Tuple[Path, dict]:
-    # Use provided repo or default to base spec-kit
+    # Use provided repo or default to flowspec
     if repo_owner is None:
-        repo_owner = BASE_REPO_OWNER
+        repo_owner = REPO_OWNER
     if repo_name is None:
-        repo_name = BASE_REPO_NAME
+        repo_name = REPO_NAME
     if version is None:
-        version = BASE_REPO_DEFAULT_VERSION
+        version = REPO_DEFAULT_VERSION
 
     if client is None:
         client = httpx.Client(verify=ssl_context)
@@ -4176,9 +4086,9 @@ def download_and_build_from_branch(
     import subprocess
 
     if repo_owner is None:
-        repo_owner = EXTENSION_REPO_OWNER
+        repo_owner = REPO_OWNER
     if repo_name is None:
-        repo_name = EXTENSION_REPO_NAME
+        repo_name = REPO_NAME
     if download_dir is None:
         download_dir = Path(tempfile.mkdtemp())
     if client is None:
@@ -4500,12 +4410,12 @@ def download_and_extract_two_stage(
         base_zip = None
         ext_zip = None
 
-        # Stage 1: Download base spec-kit for this agent
+        # Stage 1: Download base templates (flowspec is standalone, no separate base repo)
         step_name = f"fetch-base-{agent}" if len(ai_assistants) > 1 else "fetch-base"
         if tracker:
             tracker.start(
                 step_name,
-                f"downloading {agent} base from {BASE_REPO_OWNER}/{BASE_REPO_NAME}",
+                f"downloading {agent} templates from {REPO_OWNER}/{REPO_NAME}",
             )
 
         try:
@@ -4518,14 +4428,14 @@ def download_and_extract_two_stage(
                 client=client,
                 debug=debug,
                 github_token=github_token,
-                repo_owner=BASE_REPO_OWNER,
-                repo_name=BASE_REPO_NAME,
-                version=base_version or BASE_REPO_DEFAULT_VERSION,
+                repo_owner=REPO_OWNER,
+                repo_name=REPO_NAME,
+                version=base_version or REPO_DEFAULT_VERSION,
             )
             if tracker:
                 tracker.complete(
                     step_name,
-                    f"{agent} base {base_meta['release']} ({base_meta['size']:,} bytes)",
+                    f"{agent} templates {base_meta['release']} ({base_meta['size']:,} bytes)",
                 )
         except Exception as e:
             if tracker:
@@ -4554,8 +4464,8 @@ def download_and_extract_two_stage(
                     client=client,
                     debug=debug,
                     github_token=github_token,
-                    repo_owner=EXTENSION_REPO_OWNER,
-                    repo_name=EXTENSION_REPO_NAME,
+                    repo_owner=REPO_OWNER,
+                    repo_name=REPO_NAME,
                 )
                 if tracker:
                     tracker.complete(
@@ -4573,7 +4483,7 @@ def download_and_extract_two_stage(
             if tracker:
                 tracker.start(
                     step_name,
-                    f"downloading {agent} extension from {EXTENSION_REPO_OWNER}/{EXTENSION_REPO_NAME}",
+                    f"downloading {agent} extension from {REPO_OWNER}/{REPO_NAME}",
                 )
 
             try:
@@ -4586,9 +4496,9 @@ def download_and_extract_two_stage(
                     client=client,
                     debug=debug,
                     github_token=github_token,
-                    repo_owner=EXTENSION_REPO_OWNER,
-                    repo_name=EXTENSION_REPO_NAME,
-                    version=extension_version or EXTENSION_REPO_DEFAULT_VERSION,
+                    repo_owner=REPO_OWNER,
+                    repo_name=REPO_NAME,
+                    version=extension_version or REPO_DEFAULT_VERSION,
                 )
                 if tracker:
                     tracker.complete(
@@ -4626,6 +4536,13 @@ def download_and_extract_two_stage(
             # Always clean up base zip after extraction attempt
             if base_zip and base_zip.exists():
                 base_zip.unlink()
+
+        # CRITICAL: Wipe .github/agents/ COMPLETELY after base extraction
+        # Base spec-kit has spec.*.agent.md files - we want NONE of them
+        # Flowspec extension will write fresh flow.*.agent.md files
+        github_agents_dir = project_path / ".github" / "agents"
+        if github_agents_dir.exists():
+            shutil.rmtree(github_agents_dir)
 
         # Extract extension for this agent (overlay on top of base)
         step_name = (
@@ -5469,8 +5386,8 @@ def init(
                     client=local_client,
                     debug=debug,
                     github_token=github_token,
-                    repo_owner=EXTENSION_REPO_OWNER,
-                    repo_name=EXTENSION_REPO_NAME,
+                    repo_owner=REPO_OWNER,
+                    repo_name=REPO_NAME,
                     version=extension_version,
                 )
 
@@ -6458,7 +6375,7 @@ def upgrade_repo(
 UPGRADE_TOOLS_COMPONENTS = ["flowspec", "backlog", "beads"]
 
 
-def _get_installed_jp_spec_kit_version() -> Optional[str]:
+def _get_installed_flowspec_version() -> Optional[str]:
     """Get the actual installed flowspec version by running the binary.
 
     This queries the installed binary rather than using the in-memory __version__,
@@ -6616,7 +6533,7 @@ def _warn_duplicate_installations() -> bool:
     return True
 
 
-def _upgrade_jp_spec_kit(
+def _upgrade_flowspec(
     dry_run: bool = False,
     target_version: str | None = None,
     branch: str | None = None,
@@ -6639,9 +6556,7 @@ def _upgrade_jp_spec_kit(
     # Branch install mode - install from git branch
     if branch:
         # Check if there's a newer release available - user might want to upgrade
-        latest_release = get_github_latest_release(
-            EXTENSION_REPO_OWNER, EXTENSION_REPO_NAME
-        )
+        latest_release = get_github_latest_release(REPO_OWNER, REPO_NAME)
         if latest_release and compare_semver(current_version, latest_release) < 0:
             console.print(
                 f"[yellow]Note:[/yellow] Release v{latest_release} available "
@@ -6654,9 +6569,7 @@ def _upgrade_jp_spec_kit(
         if dry_run:
             return True, f"Would install from branch '{branch}'"
 
-        git_url = (
-            f"git+https://github.com/{EXTENSION_REPO_OWNER}/{EXTENSION_REPO_NAME}.git"
-        )
+        git_url = f"git+https://github.com/{REPO_OWNER}/{REPO_NAME}.git"
         git_url = f"{git_url}@{branch}"
 
         try:
@@ -6684,15 +6597,11 @@ def _upgrade_jp_spec_kit(
     if target_version:
         # Validate that the requested version exists
         target_version = target_version.lstrip("v")
-        if not version_exists_in_releases(
-            EXTENSION_REPO_OWNER, EXTENSION_REPO_NAME, target_version
-        ):
+        if not version_exists_in_releases(REPO_OWNER, REPO_NAME, target_version):
             return False, f"Version {target_version} not found in releases"
         install_version = target_version
     else:
-        install_version = get_github_latest_release(
-            EXTENSION_REPO_OWNER, EXTENSION_REPO_NAME
-        )
+        install_version = get_github_latest_release(REPO_OWNER, REPO_NAME)
         if not install_version:
             return False, "Could not determine latest version"
 
@@ -6714,7 +6623,7 @@ def _upgrade_jp_spec_kit(
     # Using 'uv tool upgrade' returns 0 but doesn't actually upgrade git-sourced packages
 
     # Install from git at the specific release tag
-    git_url = f"git+https://github.com/{EXTENSION_REPO_OWNER}/{EXTENSION_REPO_NAME}.git"
+    git_url = f"git+https://github.com/{REPO_OWNER}/{REPO_NAME}.git"
     git_url = f"{git_url}@v{install_version}"
 
     try:
@@ -6837,72 +6746,11 @@ def _upgrade_beads(dry_run: bool = False) -> tuple[bool, str]:
     return True, f"Upgrade completed (version: {new_version or 'unknown'})"
 
 
-def _upgrade_spec_kit(dry_run: bool = False) -> tuple[bool, str]:
-    """Upgrade spec-kit templates (bundled with flowspec).
-
-    spec-kit is the upstream base template repository (github/spec-kit).
-    Templates are bundled with flowspec. Upgrading reinstalls flowspec
-    from git to get the latest bundled templates.
-
-    Args:
-        dry_run: If True, only show what would be done
-
-    Returns:
-        Tuple of (success, message)
-    """
-    current_version = get_spec_kit_installed_version()
-    available_version = get_github_latest_release(BASE_REPO_OWNER, BASE_REPO_NAME)
-
-    if not available_version:
-        return False, "Could not determine latest spec-kit version"
-
-    if compare_semver(current_version, available_version) >= 0:
-        return True, f"Already at latest version ({current_version})"
-
-    if dry_run:
-        return True, f"Would upgrade from {current_version} to {available_version}"
-
-    # spec-kit templates are bundled in flowspec
-    # Reinstall flowspec from git to get latest bundled spec-kit
-    try:
-        subprocess.run(
-            [
-                "uv",
-                "tool",
-                "install",
-                "--force",
-                "flowspec-cli",
-                "--from",
-                "git+https://github.com/jpoley/flowspec.git",
-            ],
-            capture_output=True,
-            text=True,
-            check=True,
-        )
-
-        # Clear importlib caches to pick up new package resources
-        importlib.invalidate_caches()
-
-        # Re-read the version from the freshly installed package
-        new_version = get_spec_kit_installed_version()
-
-        if new_version and compare_semver(new_version, current_version) > 0:
-            return True, f"Upgraded from {current_version} to {new_version}"
-        elif new_version == current_version:
-            # Version didn't change - bundled version is same as before
-            return True, f"Reinstalled (already at bundled version {new_version})"
-        return True, f"Reinstalled (spec-kit version: {new_version or current_version})"
-    except subprocess.CalledProcessError as e:
-        return False, f"Upgrade failed: {e.stderr}"
-    except FileNotFoundError:
-        return False, "uv not found - install uv first"
-
-
-def _list_jp_spec_kit_versions() -> None:
+def _list_flowspec_versions() -> None:
     """List available flowspec versions from GitHub releases."""
     console.print("[cyan]Fetching available flowspec versions...[/cyan]\n")
 
-    releases = get_github_releases(EXTENSION_REPO_OWNER, EXTENSION_REPO_NAME, limit=20)
+    releases = get_github_releases(REPO_OWNER, REPO_NAME, limit=20)
 
     if not releases:
         console.print("[red]Could not fetch releases from GitHub[/red]")
@@ -6993,7 +6841,7 @@ def upgrade_tools(
 
     # Handle --list-versions
     if list_versions:
-        _list_jp_spec_kit_versions()
+        _list_flowspec_versions()
         return
 
     # Version and branch are mutually exclusive
@@ -7067,13 +6915,13 @@ def _run_upgrade_tools(
 
     # flowspec
     if not component or component == "flowspec":
-        jp_current = versions["jp_spec_kit"].get("installed", "-")
+        jp_current = versions["flowspec"].get("installed", "-")
         jp_available = (
-            branch or target_version or versions["jp_spec_kit"].get("available", "-")
+            branch or target_version or versions["flowspec"].get("available", "-")
         )
 
         with console.status("[cyan]Upgrading flowspec...[/cyan]"):
-            success, message = _upgrade_jp_spec_kit(
+            success, message = _upgrade_flowspec(
                 dry_run=dry_run, target_version=target_version, branch=branch
             )
         status = "[green]✓[/green]" if success else "[red]✗[/red]"
@@ -9102,7 +8950,6 @@ def config_validation(
         flowspec config validation -t plan -m pull-request
         flowspec config validation -t specify -m keyword -k PRD_APPROVED
     """
-    import yaml
 
     workflow_path = Path.cwd() / "flowspec_workflow.yml"
 
