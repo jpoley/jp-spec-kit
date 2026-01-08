@@ -16,31 +16,31 @@ VERSION="$1"
 VERSION_NO_V=${VERSION#v}
 
 gh release create "$VERSION" \
-  .genreleases/spec-kit-template-copilot-sh-"$VERSION".zip \
-  .genreleases/spec-kit-template-copilot-ps-"$VERSION".zip \
-  .genreleases/spec-kit-template-claude-sh-"$VERSION".zip \
-  .genreleases/spec-kit-template-claude-ps-"$VERSION".zip \
-  .genreleases/spec-kit-template-gemini-sh-"$VERSION".zip \
-  .genreleases/spec-kit-template-gemini-ps-"$VERSION".zip \
-  .genreleases/spec-kit-template-cursor-agent-sh-"$VERSION".zip \
-  .genreleases/spec-kit-template-cursor-agent-ps-"$VERSION".zip \
-  .genreleases/spec-kit-template-opencode-sh-"$VERSION".zip \
-  .genreleases/spec-kit-template-opencode-ps-"$VERSION".zip \
-  .genreleases/spec-kit-template-qwen-sh-"$VERSION".zip \
-  .genreleases/spec-kit-template-qwen-ps-"$VERSION".zip \
-  .genreleases/spec-kit-template-windsurf-sh-"$VERSION".zip \
-  .genreleases/spec-kit-template-windsurf-ps-"$VERSION".zip \
-  .genreleases/spec-kit-template-codex-sh-"$VERSION".zip \
-  .genreleases/spec-kit-template-codex-ps-"$VERSION".zip \
-  .genreleases/spec-kit-template-kilocode-sh-"$VERSION".zip \
-  .genreleases/spec-kit-template-kilocode-ps-"$VERSION".zip \
-  .genreleases/spec-kit-template-auggie-sh-"$VERSION".zip \
-  .genreleases/spec-kit-template-auggie-ps-"$VERSION".zip \
-  .genreleases/spec-kit-template-roo-sh-"$VERSION".zip \
-  .genreleases/spec-kit-template-roo-ps-"$VERSION".zip \
-  .genreleases/spec-kit-template-codebuddy-sh-"$VERSION".zip \
-  .genreleases/spec-kit-template-codebuddy-ps-"$VERSION".zip \
-  .genreleases/spec-kit-template-q-sh-"$VERSION".zip \
-  .genreleases/spec-kit-template-q-ps-"$VERSION".zip \
+  .genreleases/flowspec-template-copilot-sh-"$VERSION".zip \
+  .genreleases/flowspec-template-copilot-ps-"$VERSION".zip \
+  .genreleases/flowspec-template-claude-sh-"$VERSION".zip \
+  .genreleases/flowspec-template-claude-ps-"$VERSION".zip \
+  .genreleases/flowspec-template-gemini-sh-"$VERSION".zip \
+  .genreleases/flowspec-template-gemini-ps-"$VERSION".zip \
+  .genreleases/flowspec-template-cursor-agent-sh-"$VERSION".zip \
+  .genreleases/flowspec-template-cursor-agent-ps-"$VERSION".zip \
+  .genreleases/flowspec-template-opencode-sh-"$VERSION".zip \
+  .genreleases/flowspec-template-opencode-ps-"$VERSION".zip \
+  .genreleases/flowspec-template-qwen-sh-"$VERSION".zip \
+  .genreleases/flowspec-template-qwen-ps-"$VERSION".zip \
+  .genreleases/flowspec-template-windsurf-sh-"$VERSION".zip \
+  .genreleases/flowspec-template-windsurf-ps-"$VERSION".zip \
+  .genreleases/flowspec-template-codex-sh-"$VERSION".zip \
+  .genreleases/flowspec-template-codex-ps-"$VERSION".zip \
+  .genreleases/flowspec-template-kilocode-sh-"$VERSION".zip \
+  .genreleases/flowspec-template-kilocode-ps-"$VERSION".zip \
+  .genreleases/flowspec-template-auggie-sh-"$VERSION".zip \
+  .genreleases/flowspec-template-auggie-ps-"$VERSION".zip \
+  .genreleases/flowspec-template-roo-sh-"$VERSION".zip \
+  .genreleases/flowspec-template-roo-ps-"$VERSION".zip \
+  .genreleases/flowspec-template-codebuddy-sh-"$VERSION".zip \
+  .genreleases/flowspec-template-codebuddy-ps-"$VERSION".zip \
+  .genreleases/flowspec-template-q-sh-"$VERSION".zip \
+  .genreleases/flowspec-template-q-ps-"$VERSION".zip \
   --title "flowspec - $VERSION_NO_V" \
   --notes-file release_notes.md

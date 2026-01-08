@@ -323,11 +323,10 @@ class TestMultiAgentDownloadAndExtract:
         import zipfile
         from flowspec_cli import download_and_extract_two_stage
 
-        # Create mock ZIPs for base and extension (2 agents)
+        # Create mock ZIP for each agent (single zip per agent in standalone mode)
         def create_mock_zip(agent):
-            """Helper to create mock ZIPs."""
-            base_zip = tmp_path / f"{agent}_base.zip"
-            ext_zip = tmp_path / f"{agent}_ext.zip"
+            """Helper to create mock ZIP with all content."""
+            zip_path = tmp_path / f"{agent}.zip"
 
             if agent == "claude":
                 folder = ".claude/"
@@ -336,23 +335,19 @@ class TestMultiAgentDownloadAndExtract:
                 folder = ".github/"
                 subfolder = "prompts"
 
-            with zipfile.ZipFile(base_zip, "w") as zf:
+            with zipfile.ZipFile(zip_path, "w") as zf:
                 zf.writestr(
                     f"{folder}{subfolder}/spec/specify.md", f"# {agent} Specify"
                 )
-
-            with zipfile.ZipFile(ext_zip, "w") as zf:
                 zf.writestr(f"{folder}{subfolder}/flow/assess.md", f"# {agent} Assess")
                 zf.writestr(".flowspec/workflow.yml", f"agent: {agent}")
 
-            return base_zip, ext_zip
+            return zip_path
 
         # Mock download_template_from_github to return our mock ZIPs
-        # In standalone mode, both base and extension use the same repo,
-        # so we track calls by order (base first, then extension for each agent)
-        call_count = {"base": 0, "ext": 0}
+        # In standalone mode, each agent gets ONE download call
+        call_count = {"total": 0}
         agents_processed = []
-        agent_call_tracker = {}  # Track calls per agent
 
         def mock_download(
             ai_assistant,
@@ -363,31 +358,14 @@ class TestMultiAgentDownloadAndExtract:
             version=None,
             **kwargs,
         ):
-            # Track which call this is for this agent (first=base, second=ext)
-            if ai_assistant not in agent_call_tracker:
-                agent_call_tracker[ai_assistant] = 0
-            agent_call_tracker[ai_assistant] += 1
-            call_num = agent_call_tracker[ai_assistant]
-
-            if call_num == 1:
-                # First call for this agent = base download
-                call_count["base"] += 1
-                base_zip, _ = create_mock_zip(ai_assistant)
-                metadata = {
-                    "release": version or "test",
-                    "size": base_zip.stat().st_size,
-                }
-                return base_zip, metadata
-            else:
-                # Second call for this agent = extension download
-                call_count["ext"] += 1
-                _, ext_zip = create_mock_zip(ai_assistant)
-                agents_processed.append(ai_assistant)
-                metadata = {
-                    "release": version or "test",
-                    "size": ext_zip.stat().st_size,
-                }
-                return ext_zip, metadata
+            call_count["total"] += 1
+            agents_processed.append(ai_assistant)
+            zip_path = create_mock_zip(ai_assistant)
+            metadata = {
+                "release": version or "test",
+                "size": zip_path.stat().st_size,
+            }
+            return zip_path, metadata
 
         monkeypatch.setattr("flowspec_cli.download_template_from_github", mock_download)
 
@@ -403,9 +381,8 @@ class TestMultiAgentDownloadAndExtract:
             tracker=None,
         )
 
-        # Verify both agents called download twice (base + extension)
-        assert call_count["base"] == 2  # Once per agent
-        assert call_count["ext"] == 2  # Once per agent
+        # Verify each agent called download once (single-stage)
+        assert call_count["total"] == 2  # Once per agent
 
         # Verify both agent directories exist
         assert (project_path / ".claude" / "commands" / "flow" / "assess.md").exists()
@@ -423,20 +400,16 @@ class TestMultiAgentDownloadAndExtract:
         import zipfile
         from flowspec_cli import download_and_extract_two_stage
 
-        # Create mock ZIP for first agent
-        claude_base = tmp_path / "claude_base.zip"
-        claude_ext = tmp_path / "claude_ext.zip"
+        # Create mock ZIP for first agent (single zip in standalone mode)
+        claude_zip = tmp_path / "claude.zip"
 
-        with zipfile.ZipFile(claude_base, "w") as zf:
+        with zipfile.ZipFile(claude_zip, "w") as zf:
             zf.writestr(".claude/commands/spec/specify.md", "# Claude Specify")
-
-        with zipfile.ZipFile(claude_ext, "w") as zf:
             zf.writestr(".claude/commands/flow/assess.md", "# Claude Assess")
 
         # Mock download that succeeds for first agent, fails for second
-        # In standalone mode, each agent gets 2 calls (base + ext)
+        # In standalone mode, each agent gets 1 call
         call_count = [0]
-        agent_call_tracker = {}
 
         def mock_download(
             ai_assistant,
@@ -448,20 +421,13 @@ class TestMultiAgentDownloadAndExtract:
             **kwargs,
         ):
             call_count[0] += 1
-            # Track which call this is for this agent (first=base, second=ext)
-            if ai_assistant not in agent_call_tracker:
-                agent_call_tracker[ai_assistant] = 0
-            agent_call_tracker[ai_assistant] += 1
-            call_num = agent_call_tracker[ai_assistant]
 
-            if call_count[0] <= 2:  # First agent (base + ext)
-                # First call = base, second call = ext
-                zip_path = claude_base if call_num == 1 else claude_ext
+            if ai_assistant == "claude":
                 metadata = {
                     "release": version or "test",
-                    "size": zip_path.stat().st_size,
+                    "size": claude_zip.stat().st_size,
                 }
-                return zip_path, metadata
+                return claude_zip, metadata
             else:  # Second agent fails
                 raise Exception("Download failed for second agent")
 
