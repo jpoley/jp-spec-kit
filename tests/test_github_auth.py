@@ -163,7 +163,7 @@ class TestGitHubAuthRetry:
             "tag_name": "v1.0.0",
             "assets": [
                 {
-                    "name": "spec-kit-template-claude-sh.zip",
+                    "name": "flowspec-template-claude-sh-v1.0.0.zip",
                     "browser_download_url": "https://example.com/t.zip",
                 }
             ],
@@ -204,7 +204,7 @@ class TestGitHubAuthRetry:
             "tag_name": "v1.0.0",
             "assets": [
                 {
-                    "name": "spec-kit-template-claude-sh.zip",
+                    "name": "flowspec-template-claude-sh-v1.0.0.zip",
                     "browser_download_url": "https://example.com/t.zip",
                 }
             ],
@@ -349,7 +349,7 @@ class TestGitHubAuthRetry:
             "tag_name": "v1.0.0",
             "assets": [
                 {
-                    "name": "spec-kit-template-claude-sh.zip",
+                    "name": "flowspec-template-claude-sh-v1.0.0.zip",
                     "browser_download_url": "https://example.com/t.zip",
                 }
             ],
