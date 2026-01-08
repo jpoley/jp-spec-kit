@@ -1,0 +1,82 @@
+name: Feature Request
+description: Suggest a new feature or enhancement for {{PROJECT_NAME}}
+title: "[Feature]: "
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Before Submitting
+
+        > **Note**: "Nice to have" is not a strong use case. Please explain the specific problem this feature would solve.
+
+        - [ ] I have searched existing issues and discussions for similar feature requests
+        - [ ] I have checked the roadmap for planned features
+        - [ ] This feature aligns with {{PROJECT_NAME}}'s goals
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: What problem does this feature solve? What pain point does it address?
+      placeholder: |
+        I'm always frustrated when...
+        Currently there's no way to...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe the solution you'd like to see
+      placeholder: |
+        I would like {{PROJECT_NAME}} to...
+        This could work by...
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-cases
+    attributes:
+      label: Use Cases
+      description: Describe specific scenarios where this feature would be valuable
+      placeholder: |
+        1. When working on...
+        2. During the... workflow
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: What alternatives have you considered? Are there workarounds you're using?
+      placeholder: |
+        I've tried...
+        The current workaround is...
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How critical is this feature for your workflow?
+      options:
+        - Low - Nice to have
+        - Medium - Would improve my workflow
+        - High - Significantly impacts my productivity
+        - Critical - Blocking my work
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      options:
+        - label: I am willing to contribute this feature myself
+          required: false
+        - label: I can help test this feature when implemented
+          required: false
+        - label: I can help write documentation for this feature
+          required: false

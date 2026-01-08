@@ -348,8 +348,11 @@ class TestMultiAgentDownloadAndExtract:
             return base_zip, ext_zip
 
         # Mock download_template_from_github to return our mock ZIPs
+        # In standalone mode, both base and extension use the same repo,
+        # so we track calls by order (base first, then extension for each agent)
         call_count = {"base": 0, "ext": 0}
         agents_processed = []
+        agent_call_tracker = {}  # Track calls per agent
 
         def mock_download(
             ai_assistant,
@@ -360,8 +363,14 @@ class TestMultiAgentDownloadAndExtract:
             version=None,
             **kwargs,
         ):
-            # Use the ai_assistant parameter directly (passed by download_and_extract_two_stage)
-            if "spec-kit" in (repo_name or ""):
+            # Track which call this is for this agent (first=base, second=ext)
+            if ai_assistant not in agent_call_tracker:
+                agent_call_tracker[ai_assistant] = 0
+            agent_call_tracker[ai_assistant] += 1
+            call_num = agent_call_tracker[ai_assistant]
+
+            if call_num == 1:
+                # First call for this agent = base download
                 call_count["base"] += 1
                 base_zip, _ = create_mock_zip(ai_assistant)
                 metadata = {
@@ -370,6 +379,7 @@ class TestMultiAgentDownloadAndExtract:
                 }
                 return base_zip, metadata
             else:
+                # Second call for this agent = extension download
                 call_count["ext"] += 1
                 _, ext_zip = create_mock_zip(ai_assistant)
                 agents_processed.append(ai_assistant)
@@ -424,7 +434,9 @@ class TestMultiAgentDownloadAndExtract:
             zf.writestr(".claude/commands/flow/assess.md", "# Claude Assess")
 
         # Mock download that succeeds for first agent, fails for second
+        # In standalone mode, each agent gets 2 calls (base + ext)
         call_count = [0]
+        agent_call_tracker = {}
 
         def mock_download(
             ai_assistant,
@@ -436,10 +448,15 @@ class TestMultiAgentDownloadAndExtract:
             **kwargs,
         ):
             call_count[0] += 1
+            # Track which call this is for this agent (first=base, second=ext)
+            if ai_assistant not in agent_call_tracker:
+                agent_call_tracker[ai_assistant] = 0
+            agent_call_tracker[ai_assistant] += 1
+            call_num = agent_call_tracker[ai_assistant]
+
             if call_count[0] <= 2:  # First agent (base + ext)
-                zip_path = (
-                    claude_base if "spec-kit" in (repo_name or "") else claude_ext
-                )
+                # First call = base, second call = ext
+                zip_path = claude_base if call_num == 1 else claude_ext
                 metadata = {
                     "release": version or "test",
                     "size": zip_path.stat().st_size,

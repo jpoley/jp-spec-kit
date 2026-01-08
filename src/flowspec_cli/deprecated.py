@@ -24,9 +24,13 @@ DEPRECATED_FILE_PATTERNS = [
 ]
 
 # Deprecated file patterns specifically for .github/agents/
-# Hyphenated agent files replaced by dot-notation (ADR-001)
+# These patterns identify files that should be REMOVED during upgrade:
+# 1. Hyphenated agent files (old naming convention before ADR-001)
+# 2. Legacy spec.* patterns from older versions
 DEPRECATED_GITHUB_AGENT_PATTERNS = [
     "flow-*.agent.md",  # Old: flow-specify.agent.md -> flow.specify.agent.md
+    "spec.*.agent.md",  # Legacy spec agent files
+    "spec-*.agent.md",  # Legacy hyphenated spec agent files
 ]
 
 

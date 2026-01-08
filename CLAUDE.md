@@ -2,8 +2,8 @@
 
 ## Project Overview
 
-**Flowspec** is a toolkit for Spec-Driven Development (SDD):
-- **Specify CLI**: Command-line tool to bootstrap projects (`flowspec-cli` package)
+**Flowspec** is a standalone toolkit for Spec-Driven Development (SDD):
+- **Flowspec CLI**: Command-line tool to bootstrap projects (`flowspec-cli` package)
 - **Templates**: SDD templates for multiple AI agents
 - **Documentation**: Comprehensive guides in `docs/`
 
@@ -31,11 +31,10 @@ backlog task edit 42 -s Done     # Complete task
 # Workflow Commands (stateful, sequential stages)
 /flow:assess    # Evaluate SDD workflow suitability
 /flow:specify   # Create/update feature specs
-/flow:research  # Research and validation
+/flow:research  # Research and validation (optional)
 /flow:plan      # Execute planning workflow
 /flow:implement # Implementation with code review
 /flow:validate  # QA, security, docs validation
-# NOTE: /flow:operate removed - deployment is outer loop (see flowspec_workflow.yml)
 
 # Setup & Configuration Commands
 /flow:init      # Initialize constitution (greenfield/brownfield)
@@ -44,28 +43,8 @@ backlog task edit 42 -s Done     # Complete task
 /flow:generate-prp  # Generate PRP context bundle from task artifacts
 /flow:map-codebase  # Generate bounded directory tree listings for codebase areas
 
-# Utility Commands (stateless, run anytime)
-/dev:debug          # Debugging assistance
-/dev:refactor       # Refactoring guidance
-/dev:cleanup        # Prune merged branches
-
-/sec:scan           # Security scanning
-/sec:triage         # Triage findings
-/sec:fix            # Apply security patches
-/sec:report         # Generate security report
-
-/arch:decide        # Create ADRs
-/arch:model         # Create data models, API contracts
-
-/ops:monitor        # Setup monitoring
-/ops:respond        # Incident response
-/ops:scale          # Scaling guidance
-
-/qa:test            # Execute tests
-/qa:review          # Generate checklist
-
 # Casual Development
-/vibe               # Casual mode - just logs and light docs (see Default Development Mode)
+/vibe           # Casual mode - just logs and light docs (see Default Development Mode)
 ```
 
 ## Default Development Mode
@@ -215,13 +194,13 @@ Flowspec uses a configurable workflow system defined in `flowspec_workflow.yml` 
 
 The workflow configuration defines:
 - **States**: Task progression stages (e.g., Specified, Planned, Validated)
-- **Workflows**: `/flowspec` commands with agent assignments
+- **Workflows**: `/flow:*` commands with agent assignments
 - **Transitions**: Valid state changes between states
 - **Agent Loops**: Inner/outer loop classification
 
-### How /flowspec Commands Use Workflow Config
+### How /flow:* Commands Use Workflow Config
 
-Each `/flowspec` command:
+Each `/flow:*` command:
 1. Checks current task state from backlog.md
 2. Validates state is a valid input for the command (from `flowspec_workflow.yml`)
 3. Executes agents assigned to the workflow
@@ -276,7 +255,7 @@ flowspec workflow validate --json
 | `/flow:implement` | Planned | In Implementation | frontend/backend engineers, reviewers |
 | `/flow:validate` | In Implementation | Validated | quality-guardian, secure-by-design-engineer |
 
-*Note: `/flow:research` is optional. `/flow:operate` has been removed - deployment is outer loop.*
+*Note: `/flow:research` is optional.*
 
 ### Customizing Your Workflow
 
@@ -288,9 +267,9 @@ You can customize the workflow by editing `flowspec_workflow.yml`:
 
 See [Workflow Customization Guide](docs/guides/workflow-customization.md) for details.
 
-### /flowspec + Backlog.md Integration
+### /flow:* + Backlog.md Integration
 
-Every `/flowspec` command integrates with backlog.md:
+Every `/flow:*` command integrates with backlog.md:
 
 **Design commands create tasks**:
 ```bash
@@ -339,15 +318,15 @@ flowspec/
 │   │   └── security/       # Security reports (/flow:validate)
 │   ├── skills/             # Skill templates (copied to .claude/skills/)
 │   ├── *-template.md       # Artifact templates
-│   └── commands/           # Slash command templates
+│   └── commands/           # Slash command templates (flow/, vibe/)
 ├── docs/                   # Documentation
 │   ├── guides/             # User guides
 │   └── reference/          # Reference docs
 ├── memory/                 # Constitution & specs
 ├── scripts/bash/           # Automation scripts
 ├── backlog/                # Task management
-├── .claude/commands/       # Slash command implementations
-└── .claude/skills/         # Model-invoked skills (17 skills: 5 core workflow + 12 security)
+├── .claude/commands/       # Slash command implementations (flow/, vibe/)
+└── .claude/skills/         # Model-invoked skills
 ```
 
 ### Template Files in memory/

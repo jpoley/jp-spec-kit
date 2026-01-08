@@ -35,7 +35,9 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/flowspec_cli"]
 
-# Include data files in the package
+# Include templates directory in the package
+[tool.hatch.build.targets.wheel.force-include]
+"src/flowspec_cli/templates" = "flowspec_cli/templates"
 
 [project.optional-dependencies]
 dast = [

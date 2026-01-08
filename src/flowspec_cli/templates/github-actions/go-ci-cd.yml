@@ -1,0 +1,536 @@
+# Go Backend CI/CD Template
+#
+# This template provides a complete CI/CD pipeline for Go backend services,
+# APIs, and CLI tools following outer-loop principles.
+#
+# ============================================================================
+# CUSTOMIZATION REQUIRED:
+# Replace the following template variables before use:
+# - {{GO_VERSION}}     - Go version (e.g., "1.21", "1.22")
+# - {{PROJECT_NAME}}   - Project name for artifacts (e.g., "my-api")
+# - {{MODULE_PATH}}    - Go module path (e.g., "github.com/user/project")
+# ============================================================================
+#
+# Outer Loop Principles Implemented:
+# ✓ Build once, promote everywhere (single binary for all environments)
+# ✓ Immutable artifacts (SHA256 digest, content-addressable storage)
+# ✓ Comprehensive security scanning (SAST, SCA)
+# ✓ SBOM generation (CycloneDX format)
+# ✓ Version embedding (git describe)
+# ✓ CD promotion workflow with testing and approvals
+#
+# Build System:
+# This template uses Mage (https://magefile.org/) for all build operations.
+# Mage provides:
+# - Cross-platform build automation (Windows, macOS, Linux)
+# - Type-safe build definitions in Go
+# - Dependency management between build targets
+# - Better IDE support than Make
+#
+# Security: Follows GitHub Actions security best practices
+# - All dynamic values use environment variables
+# - No direct injection of untrusted input into commands
+# - See: https://github.blog/security/vulnerability-research/how-to-catch-github-actions-workflow-injections-before-attackers-do/
+
+name: Go Backend CI/CD
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# Environment variables - customize for your project
+env:
+  GO_VERSION: '{{GO_VERSION}}'          # e.g., "1.21"
+  PROJECT_NAME: '{{PROJECT_NAME}}'      # e.g., "my-api"
+  MODULE_PATH: '{{MODULE_PATH}}'        # e.g., "github.com/user/project"
+  REGISTRY: ghcr.io
+
+jobs:
+  #============================================================================
+  # BUILD AND TEST - Inner Loop Checks (Lint, Format, Type, Test, Build)
+  #============================================================================
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      artifact-digest: ${{ steps.digest.outputs.value }}
+      version: ${{ steps.version.outputs.value }}
+
+    # Optional: If your project needs PostgreSQL, Redis, etc. for tests
+    # services:
+    #   postgres:
+    #     image: postgres:15-alpine
+    #     env:
+    #       POSTGRES_USER: test
+    #       POSTGRES_PASSWORD: test
+    #       POSTGRES_DB: test
+    #     options: >-
+    #       --health-cmd pg_isready
+    #       --health-interval 10s
+    #       --health-timeout 5s
+    #       --health-retries 5
+    #     ports:
+    #       - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for git describe
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+          cache-dependency-path: go.sum
+
+      - name: Install Mage
+        run: go install github.com/magefile/mage@latest
+
+      - name: Download dependencies
+        run: mage installdeps
+
+      - name: Verify go.mod and go.sum
+        run: mage verify
+
+      - name: Format check
+        run: mage format
+
+      - name: Lint with golangci-lint
+        run: mage lint
+
+      - name: Run tests with coverage
+        run: mage test
+        # If you need environment variables for tests:
+        # env:
+        #   DATABASE_URL: postgres://test:test@localhost:5432/test?sslmode=disable
+        #   REDIS_URL: redis://localhost:6379
+
+      - name: Upload coverage to Codecov (optional)
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage.out
+          flags: backend
+          fail_ci_if_error: false
+        # Optional: Add CODECOV_TOKEN secret if needed
+        # env:
+        #   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Calculate version
+        id: version
+        run: |
+          VERSION=$(git describe --tags --always --dirty || echo "dev")
+          echo "value=${VERSION}" >> $GITHUB_OUTPUT
+          echo "Version: ${VERSION}"
+
+      - name: Build production binary with Mage
+        run: mage buildrelease
+        env:
+          VERSION: ${{ steps.version.outputs.value }}
+
+      - name: Calculate binary digest
+        id: digest
+        run: |
+          if [ -f "bin/${{ env.PROJECT_NAME }}" ]; then
+            DIGEST=$(sha256sum "bin/${{ env.PROJECT_NAME }}" | awk '{print $1}')
+          elif [ -f "bin/${{ env.PROJECT_NAME }}.exe" ]; then
+            DIGEST=$(sha256sum "bin/${{ env.PROJECT_NAME }}.exe" | awk '{print $1}')
+          else
+            echo "Error: Binary not found"
+            exit 1
+          fi
+          echo "value=${DIGEST}" >> $GITHUB_OUTPUT
+          echo "Binary digest: ${DIGEST}"
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.PROJECT_NAME }}-${{ steps.version.outputs.value }}
+          path: |
+            bin/${{ env.PROJECT_NAME }}
+            bin/${{ env.PROJECT_NAME }}.exe
+          if-no-files-found: error
+          retention-days: 90
+
+  #============================================================================
+  # SECURITY SCANNING - Outer Loop Security Scans (SAST + SCA)
+  #============================================================================
+  security-scan:
+    name: Security Scanning
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+          cache-dependency-path: go.sum
+
+      - name: Install Mage
+        run: go install github.com/magefile/mage@latest
+
+      - name: Download dependencies
+        run: mage installdeps
+
+      - name: Run SAST scan (gosec)
+        run: mage securitysast
+
+      - name: Run SCA scan (govulncheck)
+        run: mage securitysca
+
+      - name: Upload gosec report
+        uses: actions/upload-artifact@v4
+        with:
+          name: gosec-report
+          path: gosec-report.json
+          retention-days: 30
+        if: always()
+
+      - name: Upload govulncheck report
+        uses: actions/upload-artifact@v4
+        with:
+          name: govulncheck-report
+          path: govulncheck-report.json
+          retention-days: 30
+        if: always()
+
+      # Optional: Run additional security scans
+      # - name: Run Semgrep SAST
+      #   uses: returntocorp/semgrep-action@v1
+      #   with:
+      #     config: auto
+      #     generateSarif: true
+      #
+      # - name: Upload Semgrep results to GitHub Security
+      #   uses: github/codeql-action/upload-sarif@v3
+      #   if: always()
+      #   with:
+      #     sarif_file: semgrep.sarif
+
+  #============================================================================
+  # SBOM GENERATION - Software Bill of Materials
+  #============================================================================
+  sbom:
+    name: Generate SBOM
+    needs: [build-and-test]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+          cache-dependency-path: go.sum
+
+      - name: Install Mage
+        run: go install github.com/magefile/mage@latest
+
+      - name: Download dependencies
+        run: mage installdeps
+
+      - name: Generate CycloneDX SBOM
+        run: mage sbom
+
+      - name: Upload SBOM artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-cyclonedx
+          path: |
+            sbom.json
+            sbom.xml
+          retention-days: 90
+
+  #============================================================================
+  # CONTAINER BUILD (Optional - only if Dockerfile exists)
+  #============================================================================
+  container:
+    name: Build Container
+    needs: [build-and-test, security-scan]
+    # Only run if Dockerfile exists
+    if: hashFiles('Dockerfile') != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    outputs:
+      image-digest: ${{ steps.build.outputs.digest }}
+      image-tag: ${{ steps.meta.outputs.tags }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.PROJECT_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,format=long
+
+      - name: Build and push image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          sbom: true
+          provenance: mode=max
+
+      - name: Scan image with Trivy
+        if: github.event_name != 'pull_request'
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.PROJECT_NAME }}@${{ steps.build.outputs.digest }}
+          format: 'sarif'
+          output: 'trivy-image.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload image scan results
+        if: github.event_name != 'pull_request'
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-image.sarif'
+
+      - name: Generate container SBOM
+        if: github.event_name != 'pull_request'
+        uses: anchore/sbom-action@v0
+        with:
+          image: ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.PROJECT_NAME }}@${{ steps.build.outputs.digest }}
+          artifact-name: container-sbom.spdx.json
+          output-file: container-sbom.spdx.json
+
+      - name: Upload container SBOM
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: container-sbom
+          path: container-sbom.spdx.json
+          retention-days: 90
+
+      - name: Install Cosign
+        if: github.event_name != 'pull_request'
+        uses: sigstore/cosign-installer@v3
+
+      - name: Sign container image
+        if: github.event_name != 'pull_request'
+        env:
+          COSIGN_EXPERIMENTAL: "true"
+          IMAGE_DIGEST: ${{ steps.build.outputs.digest }}
+          IMAGE_REPO: ${{ github.repository }}/${{ env.PROJECT_NAME }}
+        run: |
+          cosign sign --yes "${REGISTRY}/${IMAGE_REPO}@${IMAGE_DIGEST}"
+
+  #============================================================================
+  # ATTESTATION (Optional - main branch only, requires OIDC)
+  #============================================================================
+  attest:
+    name: Attest Build Provenance
+    needs: [build-and-test, sbom]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+
+    steps:
+      - name: Download binary artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.PROJECT_NAME }}-${{ needs.build-and-test.outputs.version }}
+          path: ./artifacts
+
+      - name: Download SBOM
+        uses: actions/download-artifact@v4
+        with:
+          name: sbom-cyclonedx
+          path: ./sbom
+
+      - name: Attest binary provenance
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-path: |
+            artifacts/${{ env.PROJECT_NAME }}
+            artifacts/${{ env.PROJECT_NAME }}.exe
+
+      - name: Attest SBOM
+        uses: actions/attest-sbom@v1
+        with:
+          subject-path: |
+            artifacts/${{ env.PROJECT_NAME }}
+            artifacts/${{ env.PROJECT_NAME }}.exe
+          sbom-path: sbom/sbom.json
+
+  #============================================================================
+  # DEPLOY TO STAGING (Automatic on main branch)
+  #============================================================================
+  deploy-staging:
+    name: Deploy to Staging
+    needs: [build-and-test, security-scan, sbom]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: https://staging-{{PROJECT_NAME}}.example.com
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download binary artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.PROJECT_NAME }}-${{ needs.build-and-test.outputs.version }}
+          path: ./artifacts
+
+      - name: Verify artifact digest
+        env:
+          EXPECTED_DIGEST: ${{ needs.build-and-test.outputs.artifact-digest }}
+        run: |
+          if [ -f "artifacts/${{ env.PROJECT_NAME }}" ]; then
+            ACTUAL_DIGEST=$(sha256sum "artifacts/${{ env.PROJECT_NAME }}" | awk '{print $1}')
+          elif [ -f "artifacts/${{ env.PROJECT_NAME }}.exe" ]; then
+            ACTUAL_DIGEST=$(sha256sum "artifacts/${{ env.PROJECT_NAME }}.exe" | awk '{print $1}')
+          else
+            echo "Error: Binary not found"
+            exit 1
+          fi
+
+          if [ "${ACTUAL_DIGEST}" != "${EXPECTED_DIGEST}" ]; then
+            echo "Digest mismatch!"
+            echo "Expected: ${EXPECTED_DIGEST}"
+            echo "Actual:   ${ACTUAL_DIGEST}"
+            exit 1
+          fi
+
+          echo "Digest verified: ${ACTUAL_DIGEST}"
+
+      # TODO: Customize deployment for your infrastructure
+      # Examples:
+      # - Kubernetes: kubectl set image deployment/app app=image@digest
+      # - Cloud Run: gcloud run deploy app --image=image@digest
+      # - EC2: scp binary to server and restart service
+      # - Lambda: aws lambda update-function-code --function-name app --zip-file binary
+
+      - name: Deploy to staging (customize this)
+        run: |
+          echo "TODO: Add your staging deployment steps here"
+          echo "Binary path: artifacts/${{ env.PROJECT_NAME }}"
+          echo "Version: ${{ needs.build-and-test.outputs.version }}"
+          echo "Digest: ${{ needs.build-and-test.outputs.artifact-digest }}"
+
+      - name: Run smoke tests
+        run: |
+          echo "TODO: Add smoke tests for staging environment"
+          # Example:
+          # curl -f https://staging-api.example.com/health || exit 1
+
+  #============================================================================
+  # DEPLOY TO PRODUCTION (Requires manual approval)
+  #============================================================================
+  deploy-production:
+    name: Deploy to Production
+    needs: [deploy-staging]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://{{PROJECT_NAME}}.example.com
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download binary artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.PROJECT_NAME }}-${{ needs.build-and-test.outputs.version }}
+          path: ./artifacts
+
+      - name: Verify artifact digest
+        env:
+          EXPECTED_DIGEST: ${{ needs.build-and-test.outputs.artifact-digest }}
+        run: |
+          if [ -f "artifacts/${{ env.PROJECT_NAME }}" ]; then
+            ACTUAL_DIGEST=$(sha256sum "artifacts/${{ env.PROJECT_NAME }}" | awk '{print $1}')
+          elif [ -f "artifacts/${{ env.PROJECT_NAME }}.exe" ]; then
+            ACTUAL_DIGEST=$(sha256sum "artifacts/${{ env.PROJECT_NAME }}.exe" | awk '{print $1}')
+          else
+            echo "Error: Binary not found"
+            exit 1
+          fi
+
+          if [ "${ACTUAL_DIGEST}" != "${EXPECTED_DIGEST}" ]; then
+            echo "Digest mismatch!"
+            echo "Expected: ${EXPECTED_DIGEST}"
+            echo "Actual:   ${ACTUAL_DIGEST}"
+            exit 1
+          fi
+
+          echo "Digest verified: ${ACTUAL_DIGEST}"
+
+      # TODO: Customize deployment for your infrastructure
+      - name: Deploy to production (customize this)
+        run: |
+          echo "TODO: Add your production deployment steps here"
+          echo "Binary path: artifacts/${{ env.PROJECT_NAME }}"
+          echo "Version: ${{ needs.build-and-test.outputs.version }}"
+          echo "Digest: ${{ needs.build-and-test.outputs.artifact-digest }}"
+
+      - name: Run production smoke tests
+        run: |
+          echo "TODO: Add smoke tests for production environment"
+          # Example:
+          # curl -f https://api.example.com/health || exit 1
+
+      - name: Verify deployment
+        run: |
+          echo "TODO: Add deployment verification steps"
+          # Examples:
+          # - Check service health
+          # - Verify metrics
+          # - Check error rates

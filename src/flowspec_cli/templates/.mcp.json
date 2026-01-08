@@ -1,0 +1,89 @@
+{
+  "mcpServers": {
+    "_comment_required": "=== REQUIRED SERVERS (Core Functionality) ===",
+
+    "backlog": {
+      "command": "backlog",
+      "args": ["mcp", "start"],
+      "env": {},
+      "description": "Task management: create, update, search tasks with kanban board integration. Required for all /flow:* workflows."
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {},
+      "description": "GitHub API: repos, issues, PRs, code search, workflows. Required for /flow:submit-n-watch-pr."
+    },
+    "serena": {
+      "command": "uvx",
+      "args": ["--from", "git+https://github.com/oraios/serena", "serena-mcp-server", "--project", "${PWD}"],
+      "env": {},
+      "description": "LSP-grade code understanding & safe semantic edits. Required for /flow:implement, /flow:validate."
+    },
+
+    "_comment_recommended": "=== RECOMMENDED SERVERS (Enhanced Features) ===",
+
+    "playwright-test": {
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp"],
+      "env": {},
+      "description": "Browser automation for E2E testing. Recommended for /flow:validate, /qa:test."
+    },
+    "trivy": {
+      "command": "npx",
+      "args": ["-y", "@aquasecurity/trivy-mcp"],
+      "env": {},
+      "description": "Container/IaC security scans and SBOM generation. Recommended for /sec:* commands."
+    },
+    "semgrep": {
+      "command": "npx",
+      "args": ["-y", "@returntocorp/semgrep-mcp"],
+      "env": {},
+      "description": "SAST code scanning for security vulnerabilities. Recommended for /sec:* commands."
+    },
+
+    "_comment_optional": "=== OPTIONAL SERVERS (UI Development) ===",
+
+    "shadcn-ui": {
+      "command": "npx",
+      "args": ["-y", "@heilgar/shadcn-ui-mcp-server"],
+      "env": {},
+      "description": "shadcn/ui component library access and installation. Optional for React/Next.js projects."
+    },
+    "chrome-devtools": {
+      "command": "npx",
+      "args": ["-y", "chrome-devtools-mcp@latest"],
+      "env": {},
+      "description": "Chrome DevTools Protocol for browser inspection, performance analysis. Optional for frontend development."
+    },
+
+    "_comment_python": "=== PYTHON PROJECT SERVERS (Add if Python detected) ===",
+
+    "flowspec-security": {
+      "command": "uv",
+      "args": ["--directory", ".", "run", "python", "-m", "flowspec_cli.security.mcp_server"],
+      "env": {},
+      "description": "Flowspec Security Scanner: scan, triage, and fix security findings. Add for Python projects."
+    }
+  },
+  "_configuration": {
+    "categories": {
+      "required": ["backlog", "github", "serena"],
+      "recommended": ["playwright-test", "trivy", "semgrep"],
+      "optional": ["shadcn-ui", "chrome-devtools"],
+      "python_only": ["flowspec-security"]
+    },
+    "notes": [
+      "REQUIRED servers are needed for core flowspec functionality",
+      "RECOMMENDED servers enhance agent capabilities but are not required",
+      "OPTIONAL servers are useful for specific use cases (UI development)",
+      "flowspec-security is only needed for Python projects",
+      "MCP servers are installed automatically on first use via npx/uvx"
+    ],
+    "missing_mcps": [
+      "DAST (Dynamic Application Security Testing): Use OWASP ZAP directly",
+      "Binary Signing: Use cosign/sigstore CLI tools directly",
+      "IAST (Interactive Application Security Testing): No MCP server available"
+    ]
+  }
+}

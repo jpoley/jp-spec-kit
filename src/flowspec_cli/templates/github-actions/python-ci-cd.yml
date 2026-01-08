@@ -1,0 +1,349 @@
+# Python CI/CD Pipeline
+# This template implements outer-loop principles:
+# - Build once in CI, promote everywhere
+# - SBOM generation and attestation
+# - Security scanning (SAST, SCA)
+# - Immutable artifacts with content-addressable IDs
+# - Environment-agnostic builds
+
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+# OIDC permissions for attestation and deployment
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+  packages: write
+  pull-requests: write
+  security-events: write
+
+env:
+  PYTHON_VERSION: '{{PYTHON_VERSION}}'  # e.g., "3.11"
+  PACKAGE_MANAGER: '{{PACKAGE_MANAGER}}'  # pip, poetry, or uv
+
+jobs:
+  # ==========================================================================
+  # BUILD: Build once, never rebuild
+  # ==========================================================================
+  build:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    outputs:
+      artifact-digest: ${{ steps.build.outputs.digest }}
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install uv (if using uv)
+        if: env.PACKAGE_MANAGER == 'uv'
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+
+      - name: Install dependencies
+        run: |
+          if [ "${{ env.PACKAGE_MANAGER }}" = "pip" ]; then
+            python -m pip install --upgrade pip
+            pip install -r requirements.txt
+            if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
+          elif [ "${{ env.PACKAGE_MANAGER }}" = "poetry" ]; then
+            pip install poetry
+            poetry install --no-root
+          elif [ "${{ env.PACKAGE_MANAGER }}" = "uv" ]; then
+            uv sync
+          fi
+
+      - name: Run linter
+        run: {{LINT_COMMAND}}  # e.g., ruff check .
+
+      - name: Run formatter check
+        run: {{FORMAT_CHECK_COMMAND}}  # e.g., ruff format --check .
+
+      - name: Run type checker
+        run: {{TYPECHECK_COMMAND}}  # e.g., mypy src/
+
+      - name: Run tests with coverage
+        run: {{TEST_COMMAND}}  # e.g., pytest tests/ --cov
+
+      - name: Calculate version
+        id: version
+        run: |
+          VERSION=$(git describe --tags --always --dirty)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Build package
+        id: build
+        run: |
+          if [ "${{ env.PACKAGE_MANAGER }}" = "poetry" ]; then
+            poetry build
+          elif [ "${{ env.PACKAGE_MANAGER }}" = "uv" ]; then
+            uv build
+          else
+            python -m build
+          fi
+          # Calculate digest
+          DIGEST=$(find dist -type f -exec sha256sum {} \; | sort | sha256sum | cut -d' ' -f1)
+          echo "digest=sha256:$DIGEST" >> $GITHUB_OUTPUT
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-${{ github.sha }}
+          path: dist/
+          retention-days: 30
+
+  # ==========================================================================
+  # SECURITY: SAST, SCA, Dependency Scanning
+  # ==========================================================================
+  security-scan:
+    name: Security Scanning
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install bandit pip-audit safety
+
+      - name: Run Bandit (SAST)
+        run: |
+          bandit -r src/ -f json -o bandit-report.json || true
+
+      - name: Run pip-audit (SCA)
+        run: |
+          pip-audit --format json --output pip-audit-report.json || true
+
+      - name: Run Safety check
+        run: |
+          safety check --json > safety-report.json || true
+
+      - name: Upload security reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-reports-${{ github.sha }}
+          path: |
+            bandit-report.json
+            pip-audit-report.json
+            safety-report.json
+
+  # ==========================================================================
+  # SBOM: Software Bill of Materials
+  # ==========================================================================
+  sbom:
+    name: Generate SBOM
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install CycloneDX
+        run: pip install cyclonedx-bom
+
+      - name: Generate SBOM from requirements
+        run: |
+          if [ -f "requirements.txt" ]; then
+            cyclonedx-py requirements requirements.txt -o sbom.json --format json
+            cyclonedx-py requirements requirements.txt -o sbom.xml --format xml
+          elif [ -f "pyproject.toml" ]; then
+            cyclonedx-py requirements pyproject.toml -o sbom.json --format json
+            cyclonedx-py requirements pyproject.toml -o sbom.xml --format xml
+          fi
+
+      - name: Upload SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-${{ github.sha }}
+          path: |
+            sbom.json
+            sbom.xml
+
+  # ==========================================================================
+  # CONTAINER: Build container image (if applicable)
+  # ==========================================================================
+  container:
+    name: Build Container Image
+    runs-on: ubuntu-latest
+    needs: [build, security-scan, sbom]
+    if: hashFiles('Dockerfile') != ''
+    outputs:
+      image-digest: ${{ steps.build-image.outputs.digest }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-${{ github.sha }}
+          path: dist/
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=sha,prefix={{branch}}-
+
+      - name: Build and push image
+        id: build-image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          provenance: true
+          sbom: true
+
+      - name: Download SBOM
+        uses: actions/download-artifact@v4
+        with:
+          name: sbom-${{ github.sha }}
+
+      - name: Attest image SBOM
+        if: github.event_name != 'pull_request'
+        uses: actions/attest-sbom@v1
+        with:
+          subject-name: ghcr.io/${{ github.repository }}
+          subject-digest: ${{ steps.build-image.outputs.digest }}
+          sbom-path: sbom.json
+
+  # ==========================================================================
+  # ATTESTATION: Sign build artifacts (SLSA provenance)
+  # ==========================================================================
+  attest:
+    name: Attest Build Provenance
+    runs-on: ubuntu-latest
+    needs: [build, sbom]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-${{ github.sha }}
+          path: dist/
+
+      - name: Download SBOM
+        uses: actions/download-artifact@v4
+        with:
+          name: sbom-${{ github.sha }}
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-path: 'dist/**/*'
+
+      - name: Attest SBOM
+        uses: actions/attest-sbom@v1
+        with:
+          subject-path: 'dist/**/*'
+          sbom-path: sbom.json
+
+  # ==========================================================================
+  # DEPLOY: Promote (don't rebuild) to environments
+  # ==========================================================================
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [build, security-scan, sbom, attest]
+    if: github.ref == 'refs/heads/develop' || github.event_name == 'workflow_dispatch'
+    environment:
+      name: staging
+      url: https://staging.{{PROJECT_NAME}}.com
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-${{ github.sha }}
+          path: dist/
+
+      - name: Verify artifact digest
+        run: |
+          DIGEST=$(find dist -type f -exec sha256sum {} \; | sort | sha256sum | cut -d' ' -f1)
+          if [ "sha256:$DIGEST" != "${{ needs.build.outputs.artifact-digest }}" ]; then
+            echo "ERROR: Artifact digest mismatch!"
+            exit 1
+          fi
+
+      - name: Deploy to staging
+        run: |
+          # Deploy the EXACT SAME artifact built in CI
+          echo "Deploying to staging..."
+          # {{DEPLOY_COMMAND}}
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [build, security-scan, sbom, attest, deploy-staging]
+    if: github.ref == 'refs/heads/main'
+    environment:
+      name: production
+      url: https://{{PROJECT_NAME}}.com
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-${{ github.sha }}
+          path: dist/
+
+      - name: Verify artifact digest
+        run: |
+          DIGEST=$(find dist -type f -exec sha256sum {} \; | sort | sha256sum | cut -d' ' -f1)
+          if [ "sha256:$DIGEST" != "${{ needs.build.outputs.artifact-digest }}" ]; then
+            echo "ERROR: Artifact digest mismatch!"
+            exit 1
+          fi
+
+      - name: Deploy to production
+        run: |
+          # Deploy the EXACT SAME artifact
+          echo "Deploying to production..."
+          # {{DEPLOY_COMMAND}}
+
+      - name: Post-deployment verification
+        run: |
+          echo "Deployment verified"
+          # curl -f https://{{PROJECT_NAME}}.com/health || exit 1

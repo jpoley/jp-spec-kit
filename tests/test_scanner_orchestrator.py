@@ -107,7 +107,7 @@ class TestToolDiscovery:
                 result = discovery.find_tool("semgrep")
                 assert result == semgrep_path
 
-    def test_find_tool_in_cache(self, temp_cache_dir):
+    def test_find_tool_in_cache(self, temp_cache_dir, tmp_path):
         """Test finding tool in specify cache."""
         # Create fake cached tool
         cached_tool = temp_cache_dir / "semgrep"
@@ -115,9 +115,17 @@ class TestToolDiscovery:
 
         discovery = ToolDiscovery(cache_dir=temp_cache_dir)
 
-        with patch("shutil.which", return_value=None):
-            result = discovery.find_tool("semgrep")
-            assert result == cached_tool
+        # Must patch both shutil.which AND sys.prefix to prevent finding the tool
+        # in the system PATH or the current venv (sys.prefix check in _find_in_venv)
+        with patch(
+            "flowspec_cli.security.adapters.discovery.shutil.which", return_value=None
+        ):
+            with patch(
+                "flowspec_cli.security.adapters.discovery.sys.prefix",
+                str(tmp_path / "fake_venv"),
+            ):
+                result = discovery.find_tool("semgrep")
+                assert result == cached_tool
 
     def test_find_tool_not_found(self, temp_cache_dir):
         """Test tool not found in any location."""
@@ -147,13 +155,21 @@ class TestToolDiscovery:
             result = discovery.ensure_available("semgrep", auto_install=False)
             assert result == Path("/usr/bin/semgrep")
 
-    def test_ensure_available_not_found_no_install(self, temp_cache_dir):
+    def test_ensure_available_not_found_no_install(self, temp_cache_dir, tmp_path):
         """Test ensure_available when tool not found and auto_install=False."""
         discovery = ToolDiscovery(cache_dir=temp_cache_dir)
 
-        with patch("shutil.which", return_value=None):
-            result = discovery.ensure_available("semgrep", auto_install=False)
-            assert result is None
+        # Must patch both shutil.which AND sys.prefix to prevent finding the tool
+        # in the system PATH or the current venv (sys.prefix check in _find_in_venv)
+        with patch(
+            "flowspec_cli.security.adapters.discovery.shutil.which", return_value=None
+        ):
+            with patch(
+                "flowspec_cli.security.adapters.discovery.sys.prefix",
+                str(tmp_path / "fake_venv"),
+            ):
+                result = discovery.ensure_available("semgrep", auto_install=False)
+                assert result is None
 
 
 # --- Test SemgrepAdapter ---

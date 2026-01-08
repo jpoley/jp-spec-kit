@@ -1,0 +1,47 @@
+# Security Scanning Configuration
+#
+# This file configures security scanning behavior for your repository.
+# Place this file at: .github/security-config.yml
+#
+# Used by: .github/workflows/security-scan.yml
+
+security:
+  # Severity level that will cause the scan to fail
+  # Options: critical, high, medium, low
+  # Default: critical (recommended - only critical vulnerabilities trigger failure)
+  #
+  # Note: Only single severity is currently supported.
+  # Multi-severity (e.g., "critical,high") is planned for future release.
+  fail-on: critical
+
+  # Whether to upload SARIF results to GitHub Security tab
+  # This enables viewing findings in the repository's Security > Code scanning alerts
+  upload-sarif: true
+
+  # Path to scan (relative to repository root)
+  # Use "." for entire repository or specify a subdirectory
+  # Examples:
+  #   scan-path: "."           # Scan entire repository
+  #   scan-path: "src/"        # Scan only src directory
+  #   scan-path: "backend/"    # Scan only backend directory
+  scan-path: "."
+
+# =============================================================================
+# Advanced Configuration (Optional)
+# =============================================================================
+#
+# For larger repositories, consider using the parallel scanning workflow
+# instead of the standard security-scan.yml workflow.
+#
+# See: templates/github-actions/security-parallel.yml
+#
+# Parallel scanning is recommended for:
+# - Codebases > 500K lines of code
+# - Monorepos with multiple components
+# - Projects requiring faster scan times
+#
+# Benefits:
+# - 3x faster scanning via matrix strategy
+# - Component-specific SARIF categories
+# - Aggregated results across all components
+# =============================================================================

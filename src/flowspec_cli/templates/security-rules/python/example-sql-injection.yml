@@ -1,0 +1,154 @@
+# Example Custom Security Rule: SQL Injection Detection
+#
+# This is an example Semgrep rule that detects SQL injection vulnerabilities
+# in Python code. Use this as a template for creating your own custom rules.
+#
+# To use this rule:
+# 1. Copy to your project's .flowspec/security/rules/ directory
+# 2. Customize the patterns for your specific needs
+# 3. Test with: semgrep --config .flowspec/security/rules/ src/
+# 4. Add to .flowspec/security.yml config
+
+rules:
+  - id: python-sql-injection-string-concat
+    patterns:
+      # Match database execute calls
+      - pattern-either:
+          - pattern: $CURSOR.execute($QUERY)
+          - pattern: $DB.execute($QUERY)
+          - pattern: $CONN.execute($QUERY)
+
+      # Ensure query is built with string operations (dangerous)
+      - metavariable-pattern:
+          metavariable: $QUERY
+          pattern-either:
+            - pattern: $X + $Y
+            - pattern: f"..."
+            - pattern: "...".format(...)
+            - pattern: "..." % (...)
+
+      # Exclude safe parameterized queries
+      - pattern-not: $CURSOR.execute("...", $PARAMS)
+      - pattern-not: $CURSOR.execute($CONST_QUERY, $PARAMS)
+
+    message: |
+      SQL query constructed with string concatenation or formatting.
+      This can lead to SQL injection if user input is included.
+      Use parameterized queries instead.
+
+    severity: ERROR
+
+    languages:
+      - python
+
+    metadata:
+      cwe: "CWE-89"
+      owasp: "A03:2021"
+      category: security
+      confidence: HIGH
+
+      remediation: |
+        Use parameterized queries to safely handle user input:
+
+        # Bad - vulnerable to SQL injection
+        cursor.execute(f"SELECT * FROM users WHERE id = {user_id}")
+
+        # Good - parameterized query
+        cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))
+
+        # For SQLAlchemy
+        from sqlalchemy import text
+        session.execute(text("SELECT * FROM users WHERE id = :id"), {"id": user_id})
+
+      references:
+        - https://owasp.org/Top10/A03_2021-Injection/
+        - https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html
+        - https://docs.python.org/3/library/sqlite3.html#how-to-use-placeholders-to-bind-values-in-sql-queries
+
+  - id: python-sql-injection-format-method
+    patterns:
+      - pattern-either:
+          - pattern: $CURSOR.execute($QUERY.format(...))
+          - pattern: $DB.execute($QUERY.format(...))
+
+      - pattern-not-inside: |
+          $CONST = "..."
+          ...
+          $CURSOR.execute($CONST.format(...))
+
+    message: |
+      SQL query using .format() method. This can lead to SQL injection
+      if any arguments come from user input. Use parameterized queries.
+
+    severity: ERROR
+
+    languages:
+      - python
+
+    metadata:
+      cwe: "CWE-89"
+      owasp: "A03:2021"
+      category: security
+      confidence: HIGH
+
+  - id: python-sql-injection-percent-formatting
+    patterns:
+      - pattern-either:
+          - pattern: $CURSOR.execute($QUERY % ...)
+          - pattern: $DB.execute($QUERY % ...)
+
+      - pattern-not: $CURSOR.execute($CONST_QUERY % $CONST_PARAMS)
+
+    message: |
+      SQL query using % string formatting. This can lead to SQL injection.
+      Use parameterized queries with placeholders instead.
+
+    severity: ERROR
+
+    languages:
+      - python
+
+    metadata:
+      cwe: "CWE-89"
+      owasp: "A03:2021"
+      category: security
+      confidence: HIGH
+
+# Test cases - Semgrep will auto-detect these when running --test
+---
+# Test: String concatenation (should match)
+# ruleid: python-sql-injection-string-concat
+def vulnerable_query_1(user_id):
+    cursor.execute("SELECT * FROM users WHERE id = " + user_id)
+
+# Test: f-string (should match)
+# ruleid: python-sql-injection-string-concat
+def vulnerable_query_2(username):
+    query = f"SELECT * FROM users WHERE username = '{username}'"
+    cursor.execute(query)
+
+# Test: .format() method (should match)
+# ruleid: python-sql-injection-format-method
+def vulnerable_query_3(email):
+    cursor.execute("SELECT * FROM users WHERE email = '{}'".format(email))
+
+# Test: % formatting (should match)
+# ruleid: python-sql-injection-percent-formatting
+def vulnerable_query_4(role):
+    cursor.execute("SELECT * FROM users WHERE role = '%s'" % role)
+
+# Test: Parameterized query (should NOT match - safe)
+# ok: python-sql-injection-string-concat
+def safe_query_1(user_id):
+    cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))
+
+# Test: Parameterized query with named params (should NOT match - safe)
+# ok: python-sql-injection-string-concat
+def safe_query_2(user_id):
+    cursor.execute("SELECT * FROM users WHERE id = :id", {"id": user_id})
+
+# Test: Constant query with params (should NOT match - safe)
+# ok: python-sql-injection-string-concat
+def safe_query_3():
+    QUERY = "SELECT * FROM users WHERE active = ?"
+    cursor.execute(QUERY, (True,))

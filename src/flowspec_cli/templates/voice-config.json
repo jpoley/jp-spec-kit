@@ -1,0 +1,61 @@
+{
+  "_comment": "Flowspec Voice Assistant Configuration Template",
+  "_comment_usage": "Copy this file and customize for your voice assistant setup",
+  "_comment_api_keys": "API keys are loaded from environment variables - see below",
+
+  "assistant": {
+    "_comment": "Assistant behavior and personality configuration",
+    "name": "Flowspec Voice Assistant",
+    "system_prompt": "You are a helpful assistant for Flowspec, helping developers with Spec-Driven Development. You can generate feature specifications, create technical implementation plans, manage backlog tasks, and answer questions about project status. Keep responses concise for voice - avoid long lists or technical jargon.",
+    "first_message": "Hello! I'm your Flowspec assistant. How can I help you today?",
+    "last_message": "Goodbye! Let me know if you need anything else.",
+    "voice_settings": {
+      "_comment": "Voice synthesis parameters",
+      "speed": 1.0,
+      "stability": 0.75
+    }
+  },
+
+  "pipeline": {
+    "_comment": "Voice pipeline service configuration",
+
+    "stt": {
+      "_comment": "Speech-to-Text configuration. Providers: deepgram, openai, gladia",
+      "provider": "deepgram",
+      "model": "nova-3",
+      "language": "en"
+    },
+
+    "llm": {
+      "_comment": "Language Model configuration. Providers: openai, anthropic",
+      "provider": "openai",
+      "model": "gpt-4o",
+      "temperature": 0.7,
+      "max_tokens": 1000
+    },
+
+    "tts": {
+      "_comment": "Text-to-Speech configuration. Providers: cartesia, elevenlabs, openai",
+      "provider": "cartesia",
+      "voice_id": "default",
+      "output_format": "pcm_16000"
+    }
+  },
+
+  "transport": {
+    "_comment": "Transport layer configuration. Type: daily (WebRTC), websocket, local",
+    "type": "daily",
+    "room_url": null,
+    "token": null
+  },
+
+  "_comment_env_vars": "Required environment variables (set these before running):",
+  "_env_vars": {
+    "DEEPGRAM_API_KEY": "Required for Deepgram STT provider",
+    "OPENAI_API_KEY": "Required for OpenAI LLM/STT/TTS providers",
+    "CARTESIA_API_KEY": "Required for Cartesia TTS provider",
+    "DAILY_API_KEY": "Required for Daily WebRTC transport",
+    "ANTHROPIC_API_KEY": "Optional - for Anthropic Claude LLM",
+    "ELEVENLABS_API_KEY": "Optional - for ElevenLabs TTS"
+  }
+}

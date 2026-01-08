@@ -1,0 +1,263 @@
+# Example Custom Security Rule: XSS (Cross-Site Scripting) Detection
+#
+# This is an example Semgrep rule that detects XSS vulnerabilities
+# in JavaScript/TypeScript code. Use this as a template for creating
+# your own custom rules.
+#
+# To use this rule:
+# 1. Copy to your project's .flowspec/security/rules/ directory
+# 2. Customize the patterns for your specific framework
+# 3. Test with: semgrep --config .flowspec/security/rules/ src/
+# 4. Add to .flowspec/security.yml config
+
+rules:
+  - id: javascript-dom-xss-innerhtml
+    patterns:
+      # Match innerHTML assignments
+      - pattern-either:
+          - pattern: $EL.innerHTML = $DATA
+          - pattern: $EL.outerHTML = $DATA
+
+      # Ensure data is not a constant
+      - metavariable-pattern:
+          metavariable: $DATA
+          pattern-not: "..."
+
+      # Exclude cases where data is explicitly sanitized
+      - pattern-not: $EL.innerHTML = $SANITIZER.sanitize($DATA)
+      - pattern-not: $EL.innerHTML = DOMPurify.sanitize($DATA)
+
+    message: |
+      Potential XSS vulnerability: setting innerHTML with dynamic data.
+      If the data contains user input, it can execute malicious scripts.
+      Use textContent for plain text or sanitize HTML with DOMPurify.
+
+    severity: HIGH
+
+    languages:
+      - javascript
+      - typescript
+
+    metadata:
+      cwe: "CWE-79"
+      owasp: "A03:2021"
+      category: security
+      confidence: HIGH
+
+      remediation: |
+        Use safe alternatives to prevent XSS:
+
+        // Bad - vulnerable to XSS
+        element.innerHTML = userInput;
+
+        // Good - for plain text
+        element.textContent = userInput;
+
+        // Good - for HTML (sanitize first)
+        import DOMPurify from 'dompurify';
+        element.innerHTML = DOMPurify.sanitize(userInput);
+
+        // Good - use framework escaping (React)
+        return <div>{userInput}</div>;
+
+      references:
+        - https://owasp.org/Top10/A03_2021-Injection/
+        - https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html
+        - https://github.com/cure53/DOMPurify
+
+  - id: javascript-dom-xss-insertadjacenthtml
+    patterns:
+      - pattern: $EL.insertAdjacentHTML($POSITION, $HTML)
+
+      # Ensure HTML is not a constant
+      - metavariable-pattern:
+          metavariable: $HTML
+          pattern-not: "..."
+
+      # Exclude sanitized data
+      - pattern-not: $EL.insertAdjacentHTML($POSITION, DOMPurify.sanitize($HTML))
+
+    message: |
+      Potential XSS: insertAdjacentHTML with dynamic content.
+      Sanitize HTML with DOMPurify or use textContent for plain text.
+
+    severity: HIGH
+
+    languages:
+      - javascript
+      - typescript
+
+    metadata:
+      cwe: "CWE-79"
+      owasp: "A03:2021"
+      category: security
+
+  - id: javascript-dom-xss-document-write
+    pattern-either:
+      - pattern: document.write($DATA)
+      - pattern: document.writeln($DATA)
+
+    message: |
+      document.write() can introduce XSS vulnerabilities and is deprecated.
+      Use modern DOM methods like createElement() and appendChild() instead.
+
+    severity: WARNING
+
+    languages:
+      - javascript
+      - typescript
+
+    metadata:
+      cwe: "CWE-79"
+      owasp: "A03:2021"
+      category: security
+
+  - id: javascript-react-dangerouslysetinnerhtml
+    patterns:
+      - pattern: |
+          <$EL dangerouslySetInnerHTML={{__html: $HTML}} ... />
+
+      # Allow if explicitly sanitized
+      - pattern-not: |
+          <$EL dangerouslySetInnerHTML={{__html: DOMPurify.sanitize($HTML)}} ... />
+
+    message: |
+      React dangerouslySetInnerHTML can introduce XSS if HTML contains user input.
+      Sanitize with DOMPurify or use React's automatic escaping instead.
+
+    severity: WARNING
+
+    languages:
+      - javascript
+      - typescript
+
+    metadata:
+      cwe: "CWE-79"
+      owasp: "A03:2021"
+      category: security
+      framework: react
+
+      remediation: |
+        Avoid dangerouslySetInnerHTML when possible:
+
+        // Bad - vulnerable to XSS
+        <div dangerouslySetInnerHTML={{__html: userContent}} />
+
+        // Good - React escapes automatically
+        <div>{userContent}</div>
+
+        // Good - if HTML is required, sanitize first
+        import DOMPurify from 'dompurify';
+        const sanitized = DOMPurify.sanitize(userContent);
+        <div dangerouslySetInnerHTML={{__html: sanitized}} />
+
+  - id: javascript-eval-injection
+    patterns:
+      # Match eval() calls
+      - pattern-either:
+          - pattern: eval($CODE)
+          - pattern: new Function($CODE)
+          - pattern: setTimeout($CODE, ...)
+          - pattern: setInterval($CODE, ...)
+
+      # Exclude if code is a constant string
+      - metavariable-pattern:
+          metavariable: $CODE
+          pattern-not: "..."
+
+    message: |
+      eval() or Function() constructor with dynamic code can execute
+      arbitrary JavaScript. Avoid eval() or ensure input is not user-controlled.
+
+    severity: ERROR
+
+    languages:
+      - javascript
+      - typescript
+
+    metadata:
+      cwe: "CWE-95"
+      owasp: "A03:2021"
+      category: security
+      confidence: HIGH
+
+      remediation: |
+        Avoid eval() entirely:
+
+        // Bad - code injection risk
+        eval(userInput);
+
+        // Bad - same issue with Function constructor
+        new Function(userInput)();
+
+        // Good - use JSON.parse for data
+        const data = JSON.parse(jsonString);
+
+        // Good - use safer alternatives for dynamic behavior
+        const actions = {
+          'add': () => x + y,
+          'subtract': () => x - y
+        };
+        actions[userChoice]();
+
+# Test cases - Semgrep will auto-detect these when running --test
+---
+# Test: innerHTML with variable (should match)
+# ruleid: javascript-dom-xss-innerhtml
+function vulnerable_xss_1(userInput) {
+  document.getElementById('output').innerHTML = userInput;
+}
+
+# Test: outerHTML with variable (should match)
+# ruleid: javascript-dom-xss-innerhtml
+function vulnerable_xss_2(content) {
+  element.outerHTML = content;
+}
+
+# Test: insertAdjacentHTML (should match)
+# ruleid: javascript-dom-xss-insertadjacenthtml
+function vulnerable_xss_3(html) {
+  div.insertAdjacentHTML('beforeend', html);
+}
+
+# Test: document.write (should match)
+# ruleid: javascript-dom-xss-document-write
+function vulnerable_xss_4(data) {
+  document.write(data);
+}
+
+# Test: React dangerouslySetInnerHTML (should match)
+# ruleid: javascript-react-dangerouslysetinnerhtml
+function VulnerableComponent({ userContent }) {
+  return <div dangerouslySetInnerHTML={{__html: userContent}} />;
+}
+
+# Test: eval with variable (should match)
+# ruleid: javascript-eval-injection
+function vulnerable_eval_1(userCode) {
+  eval(userCode);
+}
+
+# Test: textContent (should NOT match - safe)
+# ok: javascript-dom-xss-innerhtml
+function safe_xss_1(userInput) {
+  element.textContent = userInput;
+}
+
+# Test: sanitized innerHTML (should NOT match - safe)
+# ok: javascript-dom-xss-innerhtml
+function safe_xss_2(userInput) {
+  element.innerHTML = DOMPurify.sanitize(userInput);
+}
+
+# Test: React automatic escaping (should NOT match - safe)
+# ok: javascript-react-dangerouslysetinnerhtml
+function SafeComponent({ userContent }) {
+  return <div>{userContent}</div>;
+}
+
+# Test: constant eval (should NOT match - acceptable)
+# ok: javascript-eval-injection
+function safe_eval_1() {
+  eval("console.log('constant string')");
+}

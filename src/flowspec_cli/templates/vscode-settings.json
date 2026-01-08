@@ -1,0 +1,15 @@
+{
+    "chat.promptFiles": true,
+    "chat.promptFilesRecommendations": {
+        "speckit.constitution": true,
+        "speckit.flowspec": true,
+        "speckit.plan": true,
+        "speckit.tasks": true,
+        "speckit.implement": true
+    },
+    "chat.tools.terminal.autoApprove": {
+        ".flowspec/scripts/bash/": true,
+        ".flowspec/scripts/powershell/": true
+    }
+}
+

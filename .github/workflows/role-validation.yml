@@ -193,9 +193,9 @@ jobs:
       - name: Install dependencies
         run: uv sync
 
-      - name: Validate Dev commands (cleanup, debug, refactor)
+      - name: Validate Dev role agents
         run: |
-          echo "=== Validating Dev role commands ==="
+          echo "=== Validating Dev role agents ==="
           uv run python << 'PYTHON'
           import yaml
 
@@ -203,15 +203,9 @@ jobs:
               config = yaml.safe_load(f)
 
           dev_role = config['roles']['definitions']['dev']
-          required_commands = {'cleanup', 'debug', 'refactor'}
-          actual_commands = set(dev_role['commands'])
 
-          missing = required_commands - actual_commands
-          if missing:
-              print(f"❌ Dev role missing commands: {missing}")
-              exit(1)
-
-          print(f"✓ Dev role has required commands: {actual_commands}")
+          # NOTE: Role-based commands removed in standalone consolidation
+          # Only verify agents are configured correctly
 
           # Verify Dev agents include engineers
           agents = set(dev_role['agents'])
@@ -272,9 +266,9 @@ jobs:
       - name: Install dependencies
         run: uv sync
 
-      - name: Validate Security commands (fix, report, scan, triage)
+      - name: Validate Security role agents
         run: |
-          echo "=== Validating Security role commands ==="
+          echo "=== Validating Security role agents ==="
           uv run python << 'PYTHON'
           import yaml
 
@@ -282,15 +276,9 @@ jobs:
               config = yaml.safe_load(f)
 
           sec_role = config['roles']['definitions']['sec']
-          required_commands = {'fix', 'report', 'scan', 'triage'}
-          actual_commands = set(sec_role['commands'])
 
-          missing = required_commands - actual_commands
-          if missing:
-              print(f"❌ Security role missing commands: {missing}")
-              exit(1)
-
-          print(f"✓ Security role has required commands: {actual_commands}")
+          # NOTE: Role-based commands removed in standalone consolidation
+          # Only verify agents are configured correctly
 
           # Verify security agent
           agents = set(sec_role['agents'])
@@ -367,9 +355,9 @@ jobs:
       - name: Install dependencies
         run: uv sync
 
-      - name: Validate QA commands (review, test)
+      - name: Validate QA role agents
         run: |
-          echo "=== Validating QA role commands ==="
+          echo "=== Validating QA role agents ==="
           uv run python << 'PYTHON'
           import yaml
 
@@ -377,15 +365,9 @@ jobs:
               config = yaml.safe_load(f)
 
           qa_role = config['roles']['definitions']['qa']
-          required_commands = {'review', 'test'}
-          actual_commands = set(qa_role['commands'])
 
-          missing = required_commands - actual_commands
-          if missing:
-              print(f"❌ QA role missing commands: {missing}")
-              exit(1)
-
-          print(f"✓ QA role has required commands: {actual_commands}")
+          # NOTE: Role-based commands removed in standalone consolidation
+          # Only verify agents are configured correctly
 
           # Verify QA agents
           agents = set(qa_role['agents'])
@@ -527,9 +509,9 @@ jobs:
       - name: Install dependencies
         run: uv sync
 
-      - name: Validate Ops commands (monitor, respond, scale)
+      - name: Validate Ops role agents
         run: |
-          echo "=== Validating Ops role commands ==="
+          echo "=== Validating Ops role agents ==="
           uv run python << 'PYTHON'
           import yaml
 
@@ -537,15 +519,9 @@ jobs:
               config = yaml.safe_load(f)
 
           ops_role = config['roles']['definitions']['ops']
-          required_commands = {'monitor', 'respond', 'scale'}
-          actual_commands = set(ops_role['commands'])
 
-          missing = required_commands - actual_commands
-          if missing:
-              print(f"❌ Ops role missing commands: {missing}")
-              exit(1)
-
-          print(f"✓ Ops role has required commands: {actual_commands}")
+          # NOTE: Role-based commands removed in standalone consolidation
+          # Only verify agents are configured correctly
 
           # Verify SRE agent
           agents = set(ops_role['agents'])

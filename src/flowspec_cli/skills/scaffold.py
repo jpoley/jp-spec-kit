@@ -63,17 +63,21 @@ class SkillSyncResult:
 def _find_templates_skills_dir() -> Path | None:
     """Locate the templates/skills directory.
 
-    Currently, templates are expected to live in the source repository
-    at the top-level templates/skills/ path (for development mode and
-    local usage).
+    Templates are bundled with the flowspec_cli package at
+    flowspec_cli/templates/skills/. Falls back to source repo
+    structure for development mode.
 
     Returns:
         Path to templates/skills directory, or None if not found.
     """
-    # Look for templates in source repo structure
+    # First, check for bundled templates in the package
+    # This is the primary location for standalone flowspec
+    package_templates = Path(__file__).parent.parent / "templates" / "skills"
+    if package_templates.exists():
+        return package_templates
+
+    # Fallback: Look for templates in source repo structure
     # This handles development mode where templates are at repo root.
-    # Note: templates/ is not packaged with flowspec_cli, so we do not
-    # use importlib.resources here.
     src_dir = Path(__file__).parent.parent.parent.parent  # Go up to repo root
     potential_templates = src_dir / "templates" / "skills"
     if potential_templates.exists():
