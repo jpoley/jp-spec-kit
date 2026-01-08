@@ -27,7 +27,11 @@ version: "2.0"
 # ROLE-BASED COMMAND NAMESPACES
 # ==============================================================================
 # Role configuration for VS Code Copilot agent handoffs and command visibility.
-# Each role defines a persona with associated commands and agents.
+# Each role defines a persona with associated agents.
+#
+# NOTE: Role-based slash commands (/arch:*, /dev:*, /sec:*, /qa:*, /ops:*)
+# have been removed. Use /flow:* commands for workflow operations.
+# Agent handoffs still use role definitions for @mentions.
 
 roles:
   # Primary role selection (what role the user identifies with)
@@ -37,19 +41,13 @@ roles:
   show_all_commands: false
 
   # Role definitions
-  # NOTE: Role commands map to templates/commands/{role}/{command}.md files
-  # PM commands removed - PM work is done via /flowspec workflow commands
-  #
-  # Migration mapping for removed PM commands:
-  #   /pm:assess   → /flowspec assess
-  #   /pm:define   → /flowspec define
-  #   /pm:discover → /flowspec discover
-  # Please use the corresponding /flowspec commands in place of the old /pm commands.
+  # NOTE: Commands removed - use /flow:* workflow commands instead
+  # Agent associations retained for @mention handoffs
   definitions:
     arch:
       display_name: "Architect"
       icon: "🏗️"
-      commands: ["decide", "model"]
+      commands: []
       agents:
         - "@software-architect"
         - "@platform-engineer"
@@ -57,7 +55,7 @@ roles:
     dev:
       display_name: "Developer"
       icon: "💻"
-      commands: ["cleanup", "debug", "refactor"]
+      commands: []
       agents:
         - "@frontend-engineer"
         - "@backend-engineer"
@@ -66,14 +64,14 @@ roles:
     sec:
       display_name: "Security Engineer"
       icon: "🔒"
-      commands: ["fix", "report", "scan", "triage"]
+      commands: []
       agents:
         - "@secure-by-design-engineer"
 
     qa:
       display_name: "QA Engineer"
       icon: "✅"
-      commands: ["review", "test"]
+      commands: []
       agents:
         - "@quality-guardian"
         - "@release-manager"
@@ -81,7 +79,7 @@ roles:
     ops:
       display_name: "SRE/DevOps"
       icon: "🚀"
-      commands: ["monitor", "respond", "scale"]
+      commands: []
       agents:
         - "@sre-agent"
 

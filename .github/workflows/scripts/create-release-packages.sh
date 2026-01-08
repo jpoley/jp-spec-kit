@@ -327,6 +327,13 @@ build_variant() {
     copilot)
       mkdir -p "$base_dir/.github/prompts"
       generate_commands copilot prompt.md "\$ARGUMENTS" "$base_dir/.github/prompts" "$script"
+      # Copy VS Code Copilot agents (.github/agents/) to overlay base spec-kit
+      # These are the flow.*.agent.md files that replace spec.*.agent.md from base
+      if [[ -d templates/.github/agents ]]; then
+        mkdir -p "$base_dir/.github/agents"
+        cp -r templates/.github/agents/* "$base_dir/.github/agents/"
+        echo "Copied .github/agents/ directory for VS Code Copilot"
+      fi
       # Create VS Code workspace settings
       mkdir -p "$base_dir/.vscode"
       [[ -f templates/vscode-settings.json ]] && cp templates/vscode-settings.json "$base_dir/.vscode/settings.json"
