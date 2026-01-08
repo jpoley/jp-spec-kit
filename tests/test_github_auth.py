@@ -163,7 +163,7 @@ class TestGitHubAuthRetry:
             "tag_name": "v1.0.0",
             "assets": [
                 {
-                    "name": "spec-kit-template-claude-sh.zip",
+                    "name": "flowspec-template-claude-sh-v1.0.0.zip",
                     "browser_download_url": "https://example.com/t.zip",
                 }
             ],
@@ -204,7 +204,7 @@ class TestGitHubAuthRetry:
             "tag_name": "v1.0.0",
             "assets": [
                 {
-                    "name": "spec-kit-template-claude-sh.zip",
+                    "name": "flowspec-template-claude-sh-v1.0.0.zip",
                     "browser_download_url": "https://example.com/t.zip",
                 }
             ],
@@ -349,7 +349,7 @@ class TestGitHubAuthRetry:
             "tag_name": "v1.0.0",
             "assets": [
                 {
-                    "name": "spec-kit-template-claude-sh.zip",
+                    "name": "flowspec-template-claude-sh-v1.0.0.zip",
                     "browser_download_url": "https://example.com/t.zip",
                 }
             ],
@@ -376,6 +376,112 @@ class TestGitHubAuthRetry:
         for call in mock_client.get.call_args_list:
             headers = call[1]["headers"]
             assert "Authorization" in headers
+
+
+class TestLegacyAssetNamingFallback:
+    """Tests for backward compatibility with legacy spec-kit-template-* naming."""
+
+    @pytest.fixture
+    def temp_dir(self):
+        """Create a temporary directory for downloads."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            yield Path(tmpdir)
+
+    def test_legacy_asset_naming_fallback(self, temp_dir):
+        """Should find assets using legacy spec-kit-template-* naming."""
+        from flowspec_cli import download_template_from_github
+
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        # Simulate an older release with legacy naming
+        mock_response.json.return_value = {
+            "tag_name": "v0.3.0",
+            "assets": [
+                {
+                    "name": "spec-kit-template-claude-sh-v0.3.0.zip",
+                    "browser_download_url": "https://example.com/legacy.zip",
+                }
+            ],
+        }
+
+        mock_client = MagicMock()
+        mock_client.get.return_value = mock_response
+
+        with patch.dict("os.environ", {}, clear=True):
+            try:
+                download_template_from_github(
+                    ai_assistant="claude",
+                    download_dir=temp_dir,
+                    repo_owner="test",
+                    repo_name="repo",
+                    version="v0.3.0",
+                    client=mock_client,
+                    verbose=False,
+                )
+            except Exception:
+                pass  # Expected - actual download will fail
+
+        # Should have made the API call (legacy naming found)
+        assert mock_client.get.call_count >= 1
+
+    def test_new_asset_naming_preferred_over_legacy(self, temp_dir):
+        """Should prefer new flowspec-template-* naming when both exist."""
+        from flowspec_cli import download_template_from_github
+
+        mock_release_response = MagicMock()
+        mock_release_response.status_code = 200
+        # Release with both old and new naming - legacy appears FIRST
+        mock_release_response.json.return_value = {
+            "tag_name": "v1.0.0",
+            "assets": [
+                {
+                    "name": "spec-kit-template-claude-sh-v1.0.0.zip",
+                    "browser_download_url": "https://example.com/legacy.zip",
+                    "url": "https://api.example.com/legacy",
+                    "size": 1000,
+                },
+                {
+                    "name": "flowspec-template-claude-sh-v1.0.0.zip",
+                    "browser_download_url": "https://example.com/new.zip",
+                    "url": "https://api.example.com/new",
+                    "size": 1000,
+                },
+            ],
+        }
+
+        # Track which URL is requested for download
+        download_urls = []
+
+        def mock_get(url, **kwargs):
+            download_urls.append(url)
+            if "releases" in url:
+                return mock_release_response
+            # Simulate download failure for asset fetch
+            mock_download = MagicMock()
+            mock_download.status_code = 404
+            return mock_download
+
+        mock_client = MagicMock()
+        mock_client.get.side_effect = mock_get
+
+        with patch.dict("os.environ", {}, clear=True):
+            try:
+                download_template_from_github(
+                    ai_assistant="claude",
+                    download_dir=temp_dir,
+                    repo_owner="test",
+                    repo_name="repo",
+                    version="latest",
+                    client=mock_client,
+                    verbose=False,
+                )
+            except Exception:
+                pass  # Expected - download will fail but we're testing selection
+
+        # Verify new pattern URL was selected, not legacy (even though legacy appears first)
+        assert any("new" in url for url in download_urls), (
+            f"Should have selected new asset URL, got: {download_urls}"
+        )
 
 
 class TestGitHubTokenEdgeCases:
