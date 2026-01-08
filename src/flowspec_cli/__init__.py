@@ -6125,8 +6125,6 @@ def upgrade_repo(
 
     tracker.add("detect", "Detect project configuration")
     tracker.complete("detect", f"{ai_assistant}, {script_type}")
-    tracker.add("fetch", "Fetch flowspec templates")
-    tracker.add("extract", "Extract templates")
     tracker.add("backup", "Backup current templates")
     tracker.add("apply", "Apply updates")
     tracker.add("skills", "Sync skills")
