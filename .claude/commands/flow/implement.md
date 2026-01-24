@@ -28,7 +28,7 @@ TASK_ID=${TASK_ID:-$(git branch --show-current 2>/dev/null | grep -Eo 'task-[0-9
 FEATURE_ID=${FEATURE_ID:-$(git branch --show-current 2>/dev/null | grep -Eo '(feature|feat)-[0-9]+' || echo "")}
 ```
 
-Check for PRP context bundle (`docs/prp/{feature}-prp.md`) and load if present.
+Check for PRP context bundle (`docs/prp/<task-id>.md`) and load if present.
 
 ### Phase 1: Discover Tasks and Context
 
