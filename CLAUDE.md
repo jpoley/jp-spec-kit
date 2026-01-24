@@ -149,7 +149,7 @@ Test hooks: `.claude/hooks/test-hooks.sh`
 
 ## Claude Code Skills
 
-17 skills auto-invoked by context. Key skills:
+Specialized skills auto-invoked by context. Key skills:
 - `pm-planner`: Task creation and breakdown
 - `architect`: Architecture decisions and ADRs
 - `qa-validator`: Test plans and quality gates
