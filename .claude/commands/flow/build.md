@@ -96,6 +96,16 @@ For ML components, launch AI/ML engineer agent:
 
 **Agent Identity**: @ai-ml-engineer
 
+**Before coding**:
+1. Pick a task: `backlog task <task-id> --plain`
+2. Assign yourself: `backlog task edit <task-id> -s "In Progress" -a @ai-ml-engineer`
+3. Add implementation plan: `backlog task edit <task-id> --plan $'1. Step 1\n2. Step 2'`
+
+**During implementation**:
+- Check ACs as completed: `backlog task edit <task-id> --check-ac 1`
+- Link experiment tracking runs in task notes
+- Document model choices and alternatives considered
+
 **Requirements**:
 1. Training pipeline implementation
 2. MLOps infrastructure (experiment tracking)

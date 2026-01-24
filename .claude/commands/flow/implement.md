@@ -17,6 +17,19 @@ This command orchestrates the implementation workflow by invoking composable sub
 
 **For /flow:implement**: Required input state is `workflow:Planned`. Output state will be `workflow:In Implementation`.
 
+### Phase 0: Extract Context Variables
+
+Derive task and feature IDs from current branch:
+```bash
+# Derive TASK_ID from current branch (e.g., "task-1234")
+TASK_ID=${TASK_ID:-$(git branch --show-current 2>/dev/null | grep -Eo 'task-[0-9]+' || echo "")}
+
+# Derive FEATURE_ID from current branch (e.g., "feature-1234" or "feat-1234")
+FEATURE_ID=${FEATURE_ID:-$(git branch --show-current 2>/dev/null | grep -Eo '(feature|feat)-[0-9]+' || echo "")}
+```
+
+Check for PRP context bundle (`docs/prp/{feature}-prp.md`) and load if present.
+
 ### Phase 1: Discover Tasks and Context
 
 Search for implementation tasks:
@@ -83,7 +96,7 @@ Implementation is **code + documents + tests**:
 
 ### Post-Completion
 
-Emit workflow event:
+Emit workflow event (using variables from Phase 0):
 ```bash
 flowspec hooks emit implement.completed --spec-id "$FEATURE_ID" --task-id "$TASK_ID"
 ```

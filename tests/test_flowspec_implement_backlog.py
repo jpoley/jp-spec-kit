@@ -122,6 +122,7 @@ class TestEngineerAgentBacklogIntegration:
         """AC #4: Engineers assign themselves and set status to In Progress."""
         assert '-s "In Progress" -a @frontend-engineer' in build_command_content
         assert '-s "In Progress" -a @backend-engineer' in build_command_content
+        assert '-s "In Progress" -a @ai-ml-engineer' in build_command_content
 
     def test_agents_check_acs_during_implementation(self, build_command_content):
         """AC #5: Engineers check ACs as each criterion is implemented."""
