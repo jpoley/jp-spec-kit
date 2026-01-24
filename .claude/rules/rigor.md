@@ -10,7 +10,7 @@ Quality gates that enforce workflow discipline. These apply to ALL Flowspec user
 | **warn** | Warn but allow continuation | Advisory rules |
 | **off** | Disable rule | Emergency use only |
 
-Configure in `.flowspec/rigor-config.yml` or accept defaults.
+Configure in `.flowspec/rigor-config.yml` (optional, created per-project) or accept defaults.
 
 ## Key Blocking Rules
 
