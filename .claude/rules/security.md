@@ -26,7 +26,7 @@ class UserCreate(BaseModel):
     email: EmailStr  # Robust validation, not regex
     name: str = Field(..., min_length=1, max_length=100)
 
-# Bad: Weak regex patterns
+# Bad: Weak regex patterns (e.g., allows 'user@domain..com' and accepts invalid/overly short TLDs)
 email: str = Field(..., pattern=r"^[\w\.-]+@[\w\.-]+\.\w+$")
 ```
 

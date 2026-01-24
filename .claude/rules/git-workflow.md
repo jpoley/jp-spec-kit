@@ -23,6 +23,7 @@ Pattern: `{hostname}/task-{id}/{slug-description}`
 Examples:
 - `macbook-pro/task-541/rigor-rules-include`
 - `desktop-alice/task-123/user-authentication`
+- If your raw hostname is `Alice-MBP 01`, it will be sanitized to `alice-mbp-01`, so the branch would be `alice-mbp-01/task-123/add-feature`.
 
 ```bash
 HOSTNAME=$(hostname -s | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g')
