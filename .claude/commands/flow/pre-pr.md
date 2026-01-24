@@ -86,7 +86,12 @@ if [ -z "$TASK_ID" ]; then
   echo "[X] VALID-005: Incomplete ACs (no task ID found on branch name)"
   exit 1
 fi
-if ! backlog task "$TASK_ID" --plain | grep -c "^\[ \]" | grep -q "^0$"; then
+backlog_output=$(backlog task "$TASK_ID" --plain)
+if [ $? -ne 0 ]; then
+  echo "[X] VALID-005: Failed to fetch task $TASK_ID from backlog"
+  exit 1
+fi
+if ! printf '%s\n' "$backlog_output" | grep -c "^\[ \]" | grep -q "^0$"; then
   echo "[X] VALID-005: Incomplete ACs"
   exit 1
 fi
