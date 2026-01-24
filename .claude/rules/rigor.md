@@ -1,6 +1,6 @@
 # Rigor Rules
 
-Rigor rules apply to ALL Flowspec users, enforcing workflow quality gates.
+Quality gates that enforce workflow discipline. These apply to ALL Flowspec users.
 
 ## Enforcement Modes
 
@@ -10,40 +10,42 @@ Rigor rules apply to ALL Flowspec users, enforcing workflow quality gates.
 | **warn** | Warn but allow continuation | Advisory rules |
 | **off** | Disable rule | Emergency use only |
 
-Configure in `.flowspec/rigor-config.yml` or accept defaults (all BLOCKING rules = strict).
+Configure in `.flowspec/rigor-config.yml` or accept defaults.
 
 ## Key Blocking Rules
 
-| Rule | Phase | Requirement |
-|------|-------|-------------|
-| SETUP-001 | Specify | Clear Plan Required |
-| SETUP-002 | Specify | Dependencies Mapped |
-| SETUP-003 | Specify | Testable Acceptance Criteria |
-| EXEC-001 | Implement | Git Worktree Required |
-| EXEC-002 | Implement | Branch Naming Convention |
-| EXEC-003 | Implement | Decision Logging Required |
-| EXEC-004 | Implement | Backlog Task Linkage |
-| VALID-005 | Validate | Acceptance Criteria Met |
-| PR-001 | PR | DCO Sign-off Required |
+### Setup Phase (assess, specify)
 
-## Branch Naming Convention
+| Rule | Requirement |
+|------|-------------|
+| SETUP-001 | Clear implementation plan required |
+| SETUP-002 | Dependencies must be documented |
+| SETUP-003 | Testable acceptance criteria required |
 
-Pattern: `{hostname}/task-{id}/{slug-description}`
+### Execution Phase (implement)
 
-Example: `macbook-pro/task-541/rigor-rules-include`
+| Rule | Requirement |
+|------|-------------|
+| EXEC-001 | Git worktree required |
+| EXEC-002 | Branch naming convention |
+| EXEC-003 | Decision logging required |
+| EXEC-004 | Backlog task linkage |
+| EXEC-006 | Workflow state tracking |
 
-## Decision Logging
+### Validation Phase (validate)
 
-All significant decisions MUST be logged:
+| Rule | Requirement |
+|------|-------------|
+| VALID-002 | Lint and SAST must pass |
+| VALID-004 | Zero merge conflicts |
+| VALID-005 | All acceptance criteria met |
+| VALID-007 | CI checks pass locally |
 
-```bash
-./scripts/bash/rigor-decision-log.sh \
-  --task task-123 \
-  --phase execution \
-  --decision "Description" \
-  --rationale "Why" \
-  --actor "@backend-engineer"
-```
+### PR Phase
+
+| Rule | Requirement |
+|------|-------------|
+| PR-001 | DCO sign-off required |
 
 ## Common Violations and Fixes
 
@@ -52,24 +54,33 @@ All significant decisions MUST be logged:
 backlog task edit <task-id> --plan $'1. Research\n2. Implement\n3. Test'
 
 # EXEC-001: Git worktree required
-BRANCH="$(hostname -s | tr '[:upper:]' '[:lower:]')/task-<task-id>/feature-slug"
+BRANCH="$(hostname -s | tr '[:upper:]' '[:lower:]')/task-<id>/slug"
 git worktree add "../$(basename $BRANCH)" "$BRANCH"
+
+# EXEC-003: Decision logging required
+./scripts/bash/rigor-decision-log.sh \
+  --task task-<id> \
+  --phase execution \
+  --decision "Description" \
+  --rationale "Why this choice" \
+  --actor "@developer"
 
 # VALID-005: Unchecked acceptance criteria
 backlog task edit <task-id> --check-ac 1 --check-ac 2
 ```
 
-## Workflow State Tracking
+## Override (Emergency Only)
 
-Tasks MUST have both `workflow:Current` and `workflow-next:Next` labels.
+In `.flowspec/rigor-config.yml`:
 
-**Workflow States**: Assessed -> Specified -> Planned -> In Implementation -> Validated -> Deployed
+```yaml
+enforcement:
+  rules:
+    EXEC-005: warn  # Set specific rule to warn mode
+```
+
+**Never disable BLOCKING rules without team approval.**
 
 ## Full Reference
 
-See `.claude/partials/flow/_rigor-rules.md` for complete rule documentation including:
-- All validation scripts
-- FREEZE phase rules
-- VALIDATION phase rules
-- PR phase rules
-- Utility scripts
+See `.claude/partials/flow/_rigor-rules.md` for complete rule definitions, validation scripts, and remediation steps.
