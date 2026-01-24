@@ -65,6 +65,8 @@ def safe_read_file(file_path: Path) -> Optional[str]:
     try:
         if file_path.exists() and file_path.is_file():
             return file_path.read_text(encoding="utf-8")
+        else:
+            logger.debug(f"File does not exist or is not a regular file: {file_path}")
     except (OSError, IOError, PermissionError) as e:
         logger.debug(f"Failed to read {file_path}: {e}")
     return None
