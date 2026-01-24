@@ -61,9 +61,9 @@ When writing heuristic classifiers or security scanners:
 ```python
 # Good: Log all exceptions with context
 except httpx.TimeoutException:
-    logger.debug(f"Timeout fetching {url}")
+    logger.warning(f"Timeout fetching {url}")
 except Exception as e:
-    logger.debug(f"Unexpected error: {e}")
+    logger.exception(f"Unexpected error fetching {url}: {e}")
 return None
 
 # Bad: Silent swallowing

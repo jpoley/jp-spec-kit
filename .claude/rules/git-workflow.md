@@ -32,14 +32,16 @@ git checkout -b "${HOSTNAME}/task-123/add-feature"
 
 ## Git Worktrees
 
-Work in worktrees with matching branch names:
+Work in worktrees with directory names derived from the branch slug:
 
 ```bash
-# Correct
-git worktree add ../feature-auth feature-auth
+# Correct: Use basename of branch for worktree directory
+BRANCH="${HOSTNAME}/task-123/feature-auth"
+git worktree add "../$(basename "$BRANCH")" "$BRANCH"
+# Creates worktree at ../feature-auth
 
-# Wrong
-git worktree add ../work1 feature-auth
+# Wrong: Arbitrary directory name
+git worktree add ../work1 "$BRANCH"
 ```
 
 ## DCO Sign-off (Required)
