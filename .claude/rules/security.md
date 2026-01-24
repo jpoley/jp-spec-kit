@@ -60,15 +60,23 @@ When writing heuristic classifiers or security scanners:
 
 ```python
 # Good: Log all exceptions with context
-except httpx.TimeoutException:
-    logger.warning(f"Timeout fetching {url}")
-except Exception as e:
-    logger.exception(f"Unexpected error fetching {url}: {e}")
-return None
+def fetch_url(url: str):
+    try:
+        response = httpx.get(url, timeout=5.0)
+        return response
+    except httpx.TimeoutException:
+        logger.warning(f"Timeout fetching {url}")
+    except Exception as e:
+        logger.exception(f"Unexpected error fetching {url}: {e}")
+        return None
 
 # Bad: Silent swallowing
-except Exception:
-    pass
+def fetch_url_silently(url: str):
+    try:
+        response = httpx.get(url, timeout=5.0)
+        return response
+    except Exception:
+        pass
 ```
 
 ## File Path Operations
