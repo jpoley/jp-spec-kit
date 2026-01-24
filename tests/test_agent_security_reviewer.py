@@ -517,8 +517,13 @@ class TestSecurityReviewerContent:
         Args:
             agent_content: Full content of the agent file
         """
+        # Check for CWE mention or skill reference in the skills list
+        # Use regex to match "- security-reviewer" in the skills YAML list,
+        # avoiding false positive from "name: security-reviewer" in frontmatter
         has_cwe_or_skill_ref = (
-            "CWE" in agent_content or "security-reviewer" in agent_content.lower()
+            "CWE" in agent_content
+            or re.search(r"^\s*-\s*security-reviewer\s*$", agent_content, re.MULTILINE)
+            is not None
         )
         assert has_cwe_or_skill_ref, (
             "Agent should mention CWE (Common Weakness Enumeration) "
