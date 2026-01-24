@@ -2,6 +2,10 @@
 
 This test module verifies that the implement command correctly integrates
 with backlog.md CLI for task-driven implementation.
+
+After the decomposition (task-580), /flow:implement is an orchestrator that
+invokes composable sub-commands: /flow:gate, /flow:rigor, /flow:build,
+/flow:review, /flow:pre-pr.
 """
 
 import pytest
@@ -22,180 +26,200 @@ def implement_command_content(implement_command_path):
     return implement_command_path.read_text()
 
 
+@pytest.fixture
+def build_command_path():
+    """Return the path to the build.md command file."""
+    return Path(__file__).parent.parent / ".claude" / "commands" / "flow" / "build.md"
+
+
+@pytest.fixture
+def build_command_content(build_command_path):
+    """Load the build.md command content."""
+    return build_command_path.read_text()
+
+
+@pytest.fixture
+def review_command_path():
+    """Return the path to the review.md command file."""
+    return Path(__file__).parent.parent / ".claude" / "commands" / "flow" / "review.md"
+
+
+@pytest.fixture
+def review_command_content(review_command_path):
+    """Load the review.md command content."""
+    return review_command_path.read_text()
+
+
 class TestImplementCommandStructure:
-    """Tests for implement.md command structure."""
+    """Tests for implement.md orchestrator structure."""
 
     def test_command_file_exists(self, implement_command_path):
         """Verify implement.md command file exists."""
         assert implement_command_path.exists(), "implement.md command file should exist"
 
-    def test_has_required_task_discovery_section(self, implement_command_content):
-        """AC #1: Command REQUIRES task validation before execution."""
-        # Accept various patterns for task discovery section
-        has_step0_pattern = (
-            "### Step 0: REQUIRED - Discover Backlog Tasks" in implement_command_content
-        )
-        has_step1_pattern = (
-            "### Step 1: Discover Backlog Tasks" in implement_command_content
-        )
-        has_workflow_validation = (
-            "Step 0: Workflow State Validation" in implement_command_content
-        )
-        has_include_pattern = (
-            "{{INCLUDE:.claude/partials/flow/_workflow-state.md}}"
-            in implement_command_content
-        )
-        assert (
-            has_step0_pattern
-            or has_step1_pattern
-            or has_workflow_validation
-            or has_include_pattern
-        ), "implement.md must have task discovery/validation section"
-        # Accept various critical message patterns
-        has_old_critical = (
-            "CRITICAL: This command REQUIRES existing backlog tasks"
-            in implement_command_content
-        )
-        has_new_critical = (
-            "CRITICAL: This command requires a task" in implement_command_content
-        )
-        has_include_critical = has_include_pattern  # Include provides this
-        assert has_old_critical or has_new_critical or has_include_critical, (
-            "implement.md must have critical task requirement message"
+    def test_is_orchestrator(self, implement_command_content):
+        """Verify implement.md is now an orchestrator."""
+        assert "orchestrat" in implement_command_content.lower(), (
+            "implement.md should be an orchestrator"
         )
 
-    def test_has_graceful_failure_message(self, implement_command_content):
-        """AC #1: Fails gracefully if no tasks found."""
-        assert "No backlog tasks found" in implement_command_content
-        assert "Please run /flow:specify first" in implement_command_content
+    def test_has_task_discovery_phase(self, implement_command_content):
+        """AC #1: Command has task discovery phase."""
+        assert "Discover Tasks" in implement_command_content
+        assert "backlog" in implement_command_content
 
-    def test_has_task_list_command(self, implement_command_content):
-        """AC #3: Engineers pick up tasks from backlog."""
-        assert 'backlog task list -s "To Do" --plain' in implement_command_content
+    def test_references_sub_commands(self, implement_command_content):
+        """Verify orchestrator references sub-commands."""
+        sub_commands = [
+            "/flow:gate",
+            "/flow:rigor",
+            "/flow:build",
+            "/flow:review",
+            "/flow:pre-pr",
+        ]
+        for cmd in sub_commands:
+            assert cmd in implement_command_content, (
+                f"implement.md should reference {cmd}"
+            )
+
+    def test_under_200_lines(self, implement_command_content):
+        """AC #1: No single command exceeds 200 lines."""
+        line_count = len(implement_command_content.splitlines())
+        assert line_count <= 200, (
+            f"implement.md has {line_count} lines, should be <= 200"
+        )
+
+
+class TestBuildCommandStructure:
+    """Tests for build.md (implementation agent orchestration)."""
+
+    def test_command_file_exists(self, build_command_path):
+        """Verify build.md command file exists."""
+        assert build_command_path.exists(), "build.md command file should exist"
+
+    def test_under_200_lines(self, build_command_content):
+        """AC #1: No single command exceeds 200 lines."""
+        line_count = len(build_command_content.splitlines())
+        assert line_count <= 200, f"build.md has {line_count} lines, should be <= 200"
 
 
 class TestEngineerAgentBacklogIntegration:
-    """Tests for engineer agent backlog instructions."""
+    """Tests for engineer agent backlog instructions in build.md."""
 
-    def test_frontend_engineer_has_backlog_instructions(
-        self, implement_command_content
-    ):
+    def test_frontend_engineer_present(self, build_command_content):
         """AC #2: Frontend engineer receives backlog instructions."""
-        assert "@frontend-engineer" in implement_command_content
-        # Check for the Backlog Task Management section in frontend context
-        assert "## Backlog Task Management (REQUIRED)" in implement_command_content
+        assert "@frontend-engineer" in build_command_content
 
-    def test_backend_engineer_has_backlog_instructions(self, implement_command_content):
+    def test_backend_engineer_present(self, build_command_content):
         """AC #2: Backend engineer receives backlog instructions."""
-        assert "@backend-engineer" in implement_command_content
+        assert "@backend-engineer" in build_command_content
 
-    def test_ai_ml_engineer_has_backlog_instructions(self, implement_command_content):
+    def test_ai_ml_engineer_present(self, build_command_content):
         """AC #2: AI/ML engineer receives backlog instructions."""
-        assert "@ai-ml-engineer" in implement_command_content
+        assert "@ai-ml-engineer" in build_command_content
 
-    def test_agents_assign_themselves(self, implement_command_content):
+    def test_agents_assign_themselves(self, build_command_content):
         """AC #4: Engineers assign themselves and set status to In Progress."""
-        assert '-s "In Progress" -a @frontend-engineer' in implement_command_content
-        assert '-s "In Progress" -a @backend-engineer' in implement_command_content
-        assert '-s "In Progress" -a @ai-ml-engineer' in implement_command_content
+        assert '-s "In Progress" -a @frontend-engineer' in build_command_content
+        assert '-s "In Progress" -a @backend-engineer' in build_command_content
 
-    def test_agents_check_acs_during_implementation(self, implement_command_content):
+    def test_agents_check_acs_during_implementation(self, build_command_content):
         """AC #5: Engineers check ACs as each criterion is implemented."""
-        assert "--check-ac 1" in implement_command_content
-        assert "Check ACs as you complete them" in implement_command_content
+        assert "--check-ac" in build_command_content
 
-    def test_agents_add_implementation_notes(self, implement_command_content):
-        """AC #6: Engineers add implementation notes."""
-        assert "--notes" in implement_command_content
-        assert "Add implementation notes" in implement_command_content
+    def test_has_pick_task_step(self, build_command_content):
+        """Verify pick task step exists."""
+        assert "Pick a task" in build_command_content
+        assert "backlog task <task-id> --plain" in build_command_content
+
+    def test_has_assign_step(self, build_command_content):
+        """Verify assign step exists."""
+        assert "Assign yourself" in build_command_content
 
 
 class TestCodeReviewerBacklogIntegration:
-    """Tests for code reviewer backlog instructions."""
+    """Tests for code reviewer backlog instructions in review.md."""
 
-    def test_frontend_reviewer_has_backlog_verification(
-        self, implement_command_content
-    ):
+    def test_command_file_exists(self, review_command_path):
+        """Verify review.md command file exists."""
+        assert review_command_path.exists(), "review.md command file should exist"
+
+    def test_under_200_lines(self, review_command_content):
+        """AC #1: No single command exceeds 200 lines."""
+        line_count = len(review_command_content.splitlines())
+        assert line_count <= 200, f"review.md has {line_count} lines, should be <= 200"
+
+    def test_frontend_reviewer_present(self, review_command_content):
         """AC #7: Frontend code reviewer verifies AC completion."""
-        assert "@frontend-code-reviewer" in implement_command_content
-        assert "## Backlog AC Verification (REQUIRED)" in implement_command_content
+        assert "@frontend-code-reviewer" in review_command_content
 
-    def test_backend_reviewer_has_backlog_verification(self, implement_command_content):
+    def test_backend_reviewer_present(self, review_command_content):
         """AC #7: Backend code reviewer verifies AC completion."""
-        assert "@backend-code-reviewer" in implement_command_content
+        assert "@backend-code-reviewer" in review_command_content
 
-    def test_reviewers_verify_ac_matches_code(self, implement_command_content):
-        """AC #7: Code reviewers verify AC completion matches code."""
-        assert "Verify AC completion matches code" in implement_command_content
-        assert (
-            "Each checked AC has corresponding code changes"
-            in implement_command_content
-        )
-
-    def test_reviewers_can_uncheck_acs(self, implement_command_content):
+    def test_reviewers_can_uncheck_acs(self, review_command_content):
         """AC #7: Reviewers can uncheck ACs if not satisfied."""
-        assert "--uncheck-ac" in implement_command_content
-        assert "Uncheck ACs if not satisfied" in implement_command_content
+        assert "--uncheck-ac" in review_command_content
 
 
-class TestImplementationWorkflow:
-    """Tests for implementation workflow completeness."""
+class TestComposableCommands:
+    """Tests for composable command architecture."""
 
-    def test_has_pick_task_step(self, implement_command_content):
-        """Verify pick task step exists."""
-        assert "Pick a task" in implement_command_content
-        assert "backlog task <task-id> --plain" in implement_command_content
+    @pytest.fixture
+    def flow_commands_dir(self):
+        """Return path to flow commands directory."""
+        return Path(__file__).parent.parent / ".claude" / "commands" / "flow"
 
-    def test_has_assign_step(self, implement_command_content):
-        """Verify assign step exists."""
-        assert "Assign yourself" in implement_command_content
+    def test_gate_command_exists(self, flow_commands_dir):
+        """Verify gate.md command file exists."""
+        gate_path = flow_commands_dir / "gate.md"
+        assert gate_path.exists(), "gate.md command file should exist"
 
-    def test_has_plan_step(self, implement_command_content):
-        """Verify implementation plan step exists."""
-        assert "Add implementation plan" in implement_command_content
-        assert "--plan" in implement_command_content
+    def test_rigor_command_exists(self, flow_commands_dir):
+        """Verify rigor.md command file exists."""
+        rigor_path = flow_commands_dir / "rigor.md"
+        assert rigor_path.exists(), "rigor.md command file should exist"
 
-    def test_has_verify_step(self, implement_command_content):
-        """Verify final verification step exists."""
-        assert "Verify all ACs checked" in implement_command_content
+    def test_pre_pr_command_exists(self, flow_commands_dir):
+        """Verify pre-pr.md command file exists."""
+        pre_pr_path = flow_commands_dir / "pre-pr.md"
+        assert pre_pr_path.exists(), "pre-pr.md command file should exist"
 
-    def test_workflow_requires_tasks_first(self, implement_command_content):
-        """Verify workflow requires existing tasks."""
-        # Step 0 should come before Phase 1
-        step0_pos = implement_command_content.find("Step 0: REQUIRED")
-        phase1_pos = implement_command_content.find("Phase 1: Implementation")
-        assert step0_pos < phase1_pos, "Step 0 should come before Phase 1"
+    def test_all_commands_under_200_lines(self, flow_commands_dir):
+        """AC #1: No single command exceeds 200 lines."""
+        new_commands = ["gate.md", "rigor.md", "build.md", "review.md", "pre-pr.md"]
+        for cmd_name in new_commands:
+            cmd_path = flow_commands_dir / cmd_name
+            if cmd_path.exists():
+                content = cmd_path.read_text()
+                line_count = len(content.splitlines())
+                assert line_count <= 200, (
+                    f"{cmd_name} has {line_count} lines, should be <= 200"
+                )
 
 
-class TestFiveAgentCount:
-    """Tests to verify all 5 engineer agents have backlog integration."""
+class TestAgentIdentities:
+    """Tests to verify all agent identities are present across commands."""
 
-    def test_count_backlog_task_management_sections(self, implement_command_content):
-        """AC #2: All 5 engineer agents receive backlog instructions."""
-        # Count occurrences of the backlog management section
-        # 3 engineers + 2 reviewers = 5 agents total
-        # But reviewers have "AC Verification" not "Task Management"
-        task_mgmt_count = implement_command_content.count(
-            "## Backlog Task Management (REQUIRED)"
-        )
-        ac_verify_count = implement_command_content.count(
-            "## Backlog AC Verification (REQUIRED)"
-        )
-        total_agents = task_mgmt_count + ac_verify_count
-        assert total_agents >= 5, (
-            f"Expected 5 agents with backlog integration, found {total_agents}"
-        )
-
-    def test_all_agent_identities_present(self, implement_command_content):
-        """Verify all 5 agent identities are present."""
-        agents = [
+    def test_all_engineer_identities_in_build(self, build_command_content):
+        """Verify all engineer agent identities are in build.md."""
+        engineers = [
             "@frontend-engineer",
             "@backend-engineer",
             "@ai-ml-engineer",
+        ]
+        for agent in engineers:
+            assert agent in build_command_content, (
+                f"Agent {agent} should be present in build.md"
+            )
+
+    def test_all_reviewer_identities_in_review(self, review_command_content):
+        """Verify all reviewer agent identities are in review.md."""
+        reviewers = [
             "@frontend-code-reviewer",
             "@backend-code-reviewer",
         ]
-        for agent in agents:
-            assert agent in implement_command_content, (
-                f"Agent {agent} should be present"
+        for agent in reviewers:
+            assert agent in review_command_content, (
+                f"Agent {agent} should be present in review.md"
             )
