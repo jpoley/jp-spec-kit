@@ -64,6 +64,8 @@ trivy image myapp:latest
 
 ## Pre-Completion Checklist
 
+<!-- Note: Unlike implementation-focused agents, security-reviewer does not import pre-completion-checklist.md. This agent is read-only and uses a specialized security checklist below instead of the general implementation checklist. -->
+
 ### Security Review Checklist
 
 - [ ] All OWASP Top 10 categories checked
