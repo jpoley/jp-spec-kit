@@ -15,7 +15,7 @@ $ARGUMENTS
 
 This command orchestrates the implementation workflow by invoking composable sub-commands in sequence. Each phase can also be run independently.
 
-**For /flow:implement**: Required input state is `workflow:Planned`. Output state will be `workflow:In Implementation`.
+**For /flow:implement**: Output state will be `workflow:In Implementation`.
 
 ### Phase 0: Extract Context Variables
 
@@ -32,10 +32,14 @@ Check for PRP context bundle (`docs/prp/<task-id>.md`) and load if present.
 
 ### Phase 1: Discover Tasks and Context
 
-Search for implementation tasks:
+Search for implementation tasks. Use TASK_ID from branch if available, otherwise fall back to user arguments:
 ```bash
-backlog search "$ARGUMENTS" --plain
-backlog task list -s "To Do" --plain
+if [ -n "$TASK_ID" ]; then
+  backlog task "$TASK_ID" --plain
+else
+  backlog search "$ARGUMENTS" --plain
+  backlog task list -s "To Do" --plain
+fi
 ```
 
 If no tasks found, suggest running `/flow:specify` first.
@@ -50,6 +54,8 @@ Run quality gate validation:
 ```
 
 Validates spec quality meets threshold (default 70/100). Proceed only if gate passes.
+
+**Note**: Each sub-command (`/flow:gate`, `/flow:rigor`, etc.) exits on failure. If a phase fails, the orchestration stops and the error is reported.
 
 ### Phase 3: Rigor Rules
 

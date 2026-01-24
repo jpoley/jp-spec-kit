@@ -91,8 +91,14 @@ if [ $? -ne 0 ]; then
   echo "[X] VALID-005: Failed to fetch task $TASK_ID from backlog"
   exit 1
 fi
-if ! printf '%s\n' "$backlog_output" | grep -c "^\[ \]" | grep -q "^0$"; then
-  echo "[X] VALID-005: Incomplete ACs"
+total_acs=$(printf '%s\n' "$backlog_output" | grep -c "^\[[ xX]\]")
+if [ "$total_acs" -eq 0 ]; then
+  echo "[X] VALID-005: No acceptance criteria found for task $TASK_ID"
+  exit 1
+fi
+unchecked_acs=$(printf '%s\n' "$backlog_output" | grep -c "^\[ \]")
+if [ "$unchecked_acs" -ne 0 ]; then
+  echo "[X] VALID-005: Incomplete ACs ($unchecked_acs of $total_acs unchecked)"
   exit 1
 fi
 ```
@@ -115,16 +121,20 @@ fi
 
 ### Validation Summary
 
-```
-Pre-PR Validation
-=================
-[ ] VALID-001: Decision log exists
-[ ] VALID-002: Lint and SAST pass
-[ ] VALID-003: No unused imports/variables
-[ ] VALID-007: Tests pass, code formatted
-[ ] VALID-004: Branch rebased from main
-[ ] VALID-005: All ACs complete
-[ ] PR-001: All commits DCO signed
+After all validations pass, display a summary:
+
+```bash
+echo "Pre-PR Validation"
+echo "================="
+echo "[OK] VALID-001: Decision log exists"
+echo "[OK] VALID-002: Lint and SAST pass"
+echo "[OK] VALID-003: No unused imports/variables"
+echo "[OK] VALID-007: Tests pass, code formatted"
+echo "[OK] VALID-004: Branch rebased from main"
+echo "[OK] VALID-005: All ACs complete ($total_acs/$total_acs)"
+echo "[OK] PR-001: All commits DCO signed"
+echo ""
+echo "All pre-PR validations passed. Ready to create PR."
 ```
 
 ### If All Checks Pass

@@ -60,7 +60,11 @@ Implementation work MUST be done in a git worktree with matching task ID.
 ```bash
 WORKTREE_DIR=$(git rev-parse --show-toplevel 2>/dev/null)
 BRANCH=$(git branch --show-current 2>/dev/null)
-IS_WORKTREE=$(git worktree list 2>/dev/null | awk '{print $1}' | grep -Fxq "$WORKTREE_DIR" && echo "yes" || echo "no")
+GIT_DIR=$(git rev-parse --git-dir 2>/dev/null || echo "")
+case "$GIT_DIR" in
+  */.git/worktrees/*) IS_WORKTREE="yes" ;;
+  *) IS_WORKTREE="no" ;;
+esac
 
 if [ "$IS_WORKTREE" = "no" ]; then
   echo "[X] RIGOR VIOLATION (EXEC-001): Not in a git worktree"
@@ -124,16 +128,18 @@ echo "[OK] Backlog task validation passed: $TASK_ID"
 
 ### Output Summary
 
-Report validation results:
+Report validation results using the derived variables:
 
-```
-Rigor Rules Validation
-======================
-[OK] Branch naming (EXEC-002): chamonix/task-580/decompose-implement
-[OK] Git worktree (EXEC-001): flowspec-task-580
-[OK] Backlog linkage (EXEC-004): task-580
+```bash
+WORKTREE_NAME=$(basename "$WORKTREE_DIR")
 
-All rigor validations passed. Ready to proceed.
+echo "Rigor Rules Validation"
+echo "======================"
+echo "[OK] Branch naming (EXEC-002): $BRANCH"
+echo "[OK] Git worktree (EXEC-001): $WORKTREE_NAME"
+echo "[OK] Backlog linkage (EXEC-004): $TASK_ID"
+echo ""
+echo "All rigor validations passed. Ready to proceed."
 ```
 
 ### Composability

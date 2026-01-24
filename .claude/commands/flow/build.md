@@ -15,6 +15,13 @@ $ARGUMENTS
 
 This command launches implementation agents in parallel for maximum efficiency. Engineers work exclusively from backlog tasks with defined acceptance criteria.
 
+### Extract Task Context
+
+```bash
+# Derive TASK_ID from current branch (e.g., "task-1234")
+TASK_ID=${TASK_ID:-$(git branch --show-current 2>/dev/null | grep -Eo 'task-[0-9]+' || echo "")}
+```
+
 ### Prerequisites
 
 Before running this command:
