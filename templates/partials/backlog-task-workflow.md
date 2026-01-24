@@ -1,8 +1,6 @@
-# Backlog Task Management
-
 **CRITICAL**: Never edit task files directly. All operations MUST use the backlog CLI.
 
-## Essential Commands
+### Essential Commands
 
 ```bash
 # Discover tasks
@@ -24,7 +22,7 @@ backlog task edit <id> --notes $'Description of what was implemented'
 backlog task edit <id> -s Done
 ```
 
-## Definition of Done
+### Definition of Done
 
 Before marking a task Done:
 - [ ] All acceptance criteria checked
