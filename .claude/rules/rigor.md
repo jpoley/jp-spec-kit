@@ -55,7 +55,7 @@ backlog task edit <task-id> --plan $'1. Research\n2. Implement\n3. Test'
 
 # EXEC-001: Git worktree required
 BRANCH="$(hostname -s | tr '[:upper:]' '[:lower:]')/task-<id>/slug"
-git worktree add "../$(basename $BRANCH)" "$BRANCH"
+git worktree add "../$(basename "$BRANCH")" "$BRANCH"
 
 # EXEC-003: Decision logging required
 ./scripts/bash/rigor-decision-log.sh \
