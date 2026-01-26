@@ -182,4 +182,4 @@ python --version             # Check Python 3.11+
 
 ---
 
-*See `.claude/rules/` for critical rules, coding standards, and rigor enforcement.*
+*Rules in `.claude/rules/` are automatically loaded by Claude Code. See that directory for critical rules, coding standards, security, testing, and rigor enforcement.*

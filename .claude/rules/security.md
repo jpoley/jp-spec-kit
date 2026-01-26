@@ -1,0 +1,96 @@
+# Security Rules
+
+Rules for secure coding practices. These apply to all code in the project.
+
+## No Hardcoded Secrets
+
+Never commit:
+- API keys, tokens, passwords
+- Database connection strings with credentials
+- Private keys or certificates
+- Environment-specific secrets
+
+Use environment variables or secret managers instead.
+
+## Input Validation
+
+- Validate all external inputs at boundaries
+- Use typed validators (Pydantic, dataclasses, or similar)
+- Never trust user input
+
+```python
+# Good: Use typed validators (Pydantic example)
+from pydantic import BaseModel, EmailStr, Field
+
+class UserCreate(BaseModel):
+    email: EmailStr  # Robust validation, not regex
+    name: str = Field(..., min_length=1, max_length=100)
+
+# Bad: Weak regex patterns (e.g., allows 'user@domain..com' and accepts invalid/overly short TLDs)
+email: str = Field(..., pattern=r"^[\w\.-]+@[\w\.-]+\.\w+$")
+```
+
+## Injection Prevention
+
+- Use parameterized queries for databases
+- Never string-interpolate SQL, shell commands, or templates
+- Escape output appropriately for context (HTML, JSON, shell)
+
+```python
+# Good: Parameterized query (requires: from sqlalchemy import select)
+await db.scalar(select(User).where(User.email == email))
+
+# Bad: String interpolation
+await db.execute(f"SELECT * FROM users WHERE email = '{email}'")
+```
+
+## Pattern Matching in Security Code
+
+When writing heuristic classifiers or security scanners:
+1. Consider adversarial examples - what else could match?
+2. Add context requirements (same line, surrounding patterns)
+3. Use negative patterns to exclude known false matches
+4. Never return early on a single pattern
+
+## Exception Handling
+
+- Log exceptions with context using `logger.warning()` or `logger.error()`
+- Include relevant data (truncated to reasonable size)
+- Avoid silent swallowing (exception: documented helpers like `safe_read_file`)
+
+```python
+# Good: Log exceptions (requires: import httpx, logging; logger = logging.getLogger(__name__))
+def fetch_url(url: str):
+    try:
+        response = httpx.get(url, timeout=5.0)
+        return response
+    except httpx.TimeoutException:
+        logger.warning(f"Timeout fetching {url}")
+        return None
+    except Exception as e:
+        logger.exception(f"Unexpected error fetching {url}: {e}")
+        return None
+
+# Bad: Silent swallowing
+def fetch_url_silently(url: str):
+    try:
+        response = httpx.get(url, timeout=5.0)
+        return response
+    except Exception:
+        pass
+```
+
+## File Path Operations
+
+- Use absolute paths resolved from a known root
+- Find the actual git root, don't assume paths
+- Validate paths before operations
+
+## Sensitive Data Logging
+
+Never log:
+- Passwords or tokens
+- Personally identifiable information (PII)
+- Full request/response bodies with sensitive fields
+
+Truncate or redact sensitive fields before logging.
