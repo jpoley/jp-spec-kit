@@ -37,6 +37,9 @@ env/
 # Project specific
 *.log
 .logs/
+.flowspec/logs/events/*.jsonl
+.flowspec/logs/decisions/*.md
+.flowspec/logs/active-work/*.md
 .env
 .env.local
 *.lock

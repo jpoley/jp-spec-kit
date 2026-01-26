@@ -73,11 +73,18 @@ def parse_frontmatter(content: str) -> Dict[str, str]:
 AGENT_NAME = "frontend-engineer"
 EXPECTED_COLOR = "cyan"
 EXPECTED_TOOLS = ["Read", "Write", "Edit", "Glob", "Grep", "Bash"]
-REQUIRED_FRONTMATTER_FIELDS = ["name", "description", "tools", "color"]
+REQUIRED_FRONTMATTER_FIELDS = [
+    "name",
+    "description",
+    "tools",
+    "color",
+    "model",
+    "skills",
+]
 REQUIRED_CONTENT_SECTIONS = [
     "## Core Technologies",
     "## Implementation Standards",
-    "## Testing Approach",
+    # Testing is now in the qa-validator skill, referenced via frontmatter skills field
 ]
 
 
