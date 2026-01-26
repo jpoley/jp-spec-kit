@@ -78,11 +78,18 @@ def parse_frontmatter(content: str) -> dict[str, str]:
 AGENT_NAME = "backend-engineer"
 EXPECTED_COLOR = "green"
 EXPECTED_TOOLS = ["Read", "Write", "Edit", "Glob", "Grep", "Bash"]
-REQUIRED_FRONTMATTER_FIELDS = ["name", "description", "tools", "color"]
+REQUIRED_FRONTMATTER_FIELDS = [
+    "name",
+    "description",
+    "tools",
+    "color",
+    "model",
+    "skills",
+]
 REQUIRED_CONTENT_SECTIONS = [
     "## Core Technologies",
     "## Implementation Standards",
-    "## Testing Approach",
+    # Testing is now in the qa-validator skill, referenced via frontmatter skills field
 ]
 
 
@@ -374,11 +381,13 @@ class TestBackendEngineerContent:
         )
 
     def test_has_code_quality_section(self, agent_content: str) -> None:
-        """Agent should have a code quality section."""
+        """Agent should have a code quality or pre-completion section."""
         assert (
             "## Code Quality Checklist" in agent_content
             or "Code Quality" in agent_content
-        ), "Agent should have a 'Code Quality Checklist' section"
+            or "## Pre-Completion Checklist" in agent_content
+            or "Checklist" in agent_content
+        ), "Agent should have a checklist section for quality verification"
 
     def test_has_checkbox_items(self, agent_content: str) -> None:
         """Agent should have checkbox items for verification."""

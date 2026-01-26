@@ -483,17 +483,20 @@ class TestSecurityReviewerContent:
         )
 
     def test_has_vulnerability_report_format(self, agent_content: str) -> None:
-        """Agent should have vulnerability report format.
+        """Agent should reference or document vulnerability findings.
 
         Args:
             agent_content: Full content of the agent file
         """
         has_report_format = (
-            "Vulnerability Report" in agent_content or "Finding:" in agent_content
+            "Vulnerability Report" in agent_content
+            or "Finding:" in agent_content
+            or "Findings documented" in agent_content
+            or "security-reporter" in agent_content.lower()
         )
         assert has_report_format, (
             "Agent should have vulnerability report format template "
-            "for consistent reporting"
+            "or reference reporting skills"
         )
 
     def test_mentions_severity(self, agent_content: str) -> None:
@@ -508,15 +511,23 @@ class TestSecurityReviewerContent:
             "(Critical, High, Medium, Low)"
         )
 
-    def test_mentions_cwe(self, agent_content: str) -> None:
-        """Agent should mention CWE (Common Weakness Enumeration).
+    def test_mentions_cwe_or_references_skill(self, agent_content: str) -> None:
+        """Agent should mention CWE or reference security skills.
 
         Args:
             agent_content: Full content of the agent file
         """
-        assert "CWE" in agent_content, (
+        # Check for CWE mention or skill reference in the skills list
+        # Use regex to match "- security-reviewer" in the skills YAML list,
+        # avoiding false positive from "name: security-reviewer" in frontmatter
+        has_cwe_or_skill_ref = (
+            "CWE" in agent_content
+            or re.search(r"^\s*-\s*security-reviewer\s*$", agent_content, re.MULTILINE)
+            is not None
+        )
+        assert has_cwe_or_skill_ref, (
             "Agent should mention CWE (Common Weakness Enumeration) "
-            "for vulnerability classification"
+            "or reference security skills containing CWE details"
         )
 
     def test_mentions_slsa(self, agent_content: str) -> None:
@@ -568,9 +579,11 @@ class TestSecurityReviewerContent:
             "Agent should have checkbox items (- [ ]) for tracking "
             "security review progress"
         )
-        assert checkbox_count >= 10, (
-            f"Agent should have at least 10 checkbox items, found {checkbox_count}. "
-            "More checkboxes ensure comprehensive security coverage."
+        # Slimmed agents reference skills for detailed checklists
+        # Basic agent should have at least 5 checkbox items
+        assert checkbox_count >= 5, (
+            f"Agent should have at least 5 checkbox items, found {checkbox_count}. "
+            "Detailed checklists are in referenced skills."
         )
 
     def test_mentions_read_only_access(self, agent_content: str) -> None:
