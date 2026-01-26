@@ -48,7 +48,11 @@ from pathlib import Path
 
 def get_project_root() -> Path:
     """Get the project root directory reliably."""
-    return Path(__file__).resolve().parent.parent
+    current = Path(__file__).resolve()
+    for parent in (current, *current.parents):
+        if (parent / "pyproject.toml").exists():
+            return parent
+    return current.parent.parent  # Fallback
 ```
 
 Never use relative paths like `Path(".claude/agents/...")`.
@@ -56,19 +60,12 @@ Never use relative paths like `Path(".claude/agents/...")`.
 ## Safe File Reading
 
 ```python
-import logging
-from pathlib import Path
-from typing import Optional
-
-logger = logging.getLogger(__name__)
-
 def safe_read_file(file_path: Path) -> Optional[str]:
     """Safely read a file, returning None if it doesn't exist."""
     try:
         if file_path.exists() and file_path.is_file():
             return file_path.read_text(encoding="utf-8")
-        else:
-            logger.debug(f"File does not exist or is not a regular file: {file_path}")
+        logger.debug(f"File does not exist: {file_path}")
     except (OSError, IOError, PermissionError) as e:
         logger.debug(f"Failed to read {file_path}: {e}")
     return None

@@ -66,6 +66,7 @@ def fetch_url(url: str):
         return response
     except httpx.TimeoutException:
         logger.warning(f"Timeout fetching {url}")
+        return None
     except Exception as e:
         logger.exception(f"Unexpected error fetching {url}: {e}")
         return None
@@ -89,7 +90,7 @@ def fetch_url_silently(url: str):
 
 Never log:
 - Passwords or tokens
-- Personal identifiable information (PII)
+- Personally identifiable information (PII)
 - Full request/response bodies with sensitive fields
 
 Truncate or redact sensitive fields before logging.

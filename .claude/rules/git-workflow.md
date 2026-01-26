@@ -36,6 +36,7 @@ Work in worktrees with directory names derived from the branch slug:
 
 ```bash
 # Correct: Use basename of branch for worktree directory
+HOSTNAME=$(hostname -s | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g')
 BRANCH="${HOSTNAME}/task-123/feature-auth"
 git worktree add "../$(basename "$BRANCH")" "$BRANCH"
 # Creates worktree at ../feature-auth

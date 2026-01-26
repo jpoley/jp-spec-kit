@@ -59,7 +59,7 @@ from pathlib import Path
 with tempfile.NamedTemporaryFile(delete=False) as f:
     temp_path = f.name
 try:
-    # use temp file
+    Path(temp_path).write_text("data", encoding="utf-8")
 finally:
     Path(temp_path).unlink(missing_ok=True)
 ```
