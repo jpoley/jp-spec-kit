@@ -35,7 +35,10 @@ if [ -f "pyproject.toml" ]; then
     exit 1
   fi
   if command -v bandit >/dev/null; then
-    uv run bandit -r src/ -ll
+    if ! uv run bandit -r src/ -ll; then
+      echo "[X] VALID-002: SAST (bandit) failed"
+      exit 1
+    fi
   fi
 fi
 ```
