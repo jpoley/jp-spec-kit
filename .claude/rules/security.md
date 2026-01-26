@@ -15,11 +15,11 @@ Use environment variables or secret managers instead.
 ## Input Validation
 
 - Validate all external inputs at boundaries
-- Use Pydantic models for request validation
+- Use typed validators (Pydantic, dataclasses, or similar)
 - Never trust user input
 
 ```python
-# Good: Use typed validators
+# Good: Use typed validators (Pydantic example)
 from pydantic import BaseModel, EmailStr, Field
 
 class UserCreate(BaseModel):
@@ -56,7 +56,7 @@ When writing heuristic classifiers or security scanners:
 
 - Log exceptions with context using `logger.warning()` or `logger.error()`
 - Include relevant data (truncated to reasonable size)
-- Never silently swallow exceptions
+- Avoid silent swallowing (exception: documented helpers like `safe_read_file`)
 
 ```python
 # Good: Log exceptions (requires: import httpx, logging; logger = logging.getLogger(__name__))

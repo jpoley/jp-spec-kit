@@ -54,7 +54,7 @@ Configure in `.flowspec/rigor-config.yml` (optional, created per-project) or acc
 backlog task edit <task-id> --plan $'1. Research\n2. Implement\n3. Test'
 
 # EXEC-001: Git worktree required
-BRANCH="$(hostname -s | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g')/task-<task-id>/slug"
+BRANCH="$(hostname -s | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g')/<task-id>/slug"
 git worktree add "../$(basename "$BRANCH")" "$BRANCH"
 
 # EXEC-003: Decision logging required
