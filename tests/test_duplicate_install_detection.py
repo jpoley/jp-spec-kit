@@ -28,9 +28,9 @@ class TestDuplicateInstallationDetection:
 
         monkeypatch.setattr("pathlib.Path.home", lambda: tmp_path)
         monkeypatch.setenv("UV_TOOL_BIN_DIR", "")
-        monkeypatch.setattr("shutil.which", lambda x: None)
+        monkeypatch.setattr("flowspec_cli.shutil.which", lambda x: None)
         monkeypatch.setattr(
-            "subprocess.run",
+            "flowspec_cli.subprocess.run",
             lambda *args, **kwargs: MagicMock(returncode=1, stdout=""),
         )
 
@@ -43,9 +43,9 @@ class TestDuplicateInstallationDetection:
         # Use empty tmp_path as home - no flowspec binary exists
         monkeypatch.setattr("pathlib.Path.home", lambda: tmp_path)
         monkeypatch.setenv("UV_TOOL_BIN_DIR", "")
-        monkeypatch.setattr("shutil.which", lambda x: None)
+        monkeypatch.setattr("flowspec_cli.shutil.which", lambda x: None)
         monkeypatch.setattr(
-            "subprocess.run",
+            "flowspec_cli.subprocess.run",
             lambda *args, **kwargs: MagicMock(returncode=1, stdout=""),
         )
 
@@ -61,9 +61,9 @@ class TestDuplicateInstallationDetection:
 
         monkeypatch.setenv("UV_TOOL_BIN_DIR", str(custom_bin))
         monkeypatch.setattr("pathlib.Path.home", lambda: tmp_path / "empty")
-        monkeypatch.setattr("shutil.which", lambda x: None)
+        monkeypatch.setattr("flowspec_cli.shutil.which", lambda x: None)
         monkeypatch.setattr(
-            "subprocess.run",
+            "flowspec_cli.subprocess.run",
             lambda *args, **kwargs: MagicMock(returncode=1, stdout=""),
         )
 
@@ -76,14 +76,14 @@ class TestDuplicateInstallationDetection:
         """Handles pyenv not being installed gracefully."""
         monkeypatch.setattr("pathlib.Path.home", lambda: tmp_path)
         monkeypatch.setenv("UV_TOOL_BIN_DIR", "")
-        monkeypatch.setattr("shutil.which", lambda x: None)
+        monkeypatch.setattr("flowspec_cli.shutil.which", lambda x: None)
 
         def mock_run(*args, **kwargs):
             if args[0] == ["pyenv", "which", "flowspec"]:
                 raise FileNotFoundError("pyenv not found")
             return MagicMock(returncode=1, stdout="")
 
-        monkeypatch.setattr("subprocess.run", mock_run)
+        monkeypatch.setattr("flowspec_cli.subprocess.run", mock_run)
 
         # Should not raise
         installations = _detect_duplicate_flowspec_installations()
@@ -100,14 +100,14 @@ class TestDuplicateInstallationDetection:
 
         monkeypatch.setattr("pathlib.Path.home", lambda: tmp_path)
         monkeypatch.setenv("UV_TOOL_BIN_DIR", "")
-        monkeypatch.setattr("shutil.which", lambda x: None)
+        monkeypatch.setattr("flowspec_cli.shutil.which", lambda x: None)
 
         def mock_run(*args, **kwargs):
             if args[0] == ["pyenv", "which", "flowspec"]:
                 return MagicMock(returncode=0, stdout=pyenv_path)
             return MagicMock(returncode=1, stdout="")
 
-        monkeypatch.setattr("subprocess.run", mock_run)
+        monkeypatch.setattr("flowspec_cli.subprocess.run", mock_run)
 
         installations = _detect_duplicate_flowspec_installations()
         assert len(installations) == 2
@@ -147,9 +147,9 @@ class TestDuplicateInstallationDetection:
             which_called.append(name)
             return "/usr/local/bin/flowspec"
 
-        monkeypatch.setattr("shutil.which", mock_which)
+        monkeypatch.setattr("flowspec_cli.shutil.which", mock_which)
         monkeypatch.setattr(
-            "subprocess.run",
+            "flowspec_cli.subprocess.run",
             lambda *args, **kwargs: MagicMock(returncode=1, stdout=""),
         )
 
@@ -163,7 +163,7 @@ class TestDuplicateInstallationDetection:
 
         # shutil.which returns a pyenv shim path
         monkeypatch.setattr(
-            "shutil.which", lambda x: "/Users/test/.pyenv/shims/flowspec"
+            "flowspec_cli.shutil.which", lambda x: "/Users/test/.pyenv/shims/flowspec"
         )
 
         def mock_run(*args, **kwargs):
@@ -175,7 +175,7 @@ class TestDuplicateInstallationDetection:
                 )
             return MagicMock(returncode=1, stdout="")
 
-        monkeypatch.setattr("subprocess.run", mock_run)
+        monkeypatch.setattr("flowspec_cli.subprocess.run", mock_run)
 
         installations = _detect_duplicate_flowspec_installations()
         # Should only have the resolved pyenv path, not the shim
